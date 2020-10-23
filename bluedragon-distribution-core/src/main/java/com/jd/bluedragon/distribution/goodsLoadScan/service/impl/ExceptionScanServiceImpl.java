@@ -68,12 +68,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 res.setLoadAmount(loadScanRes.getLoadAmount());
                 res.setUnloadAmount(loadScanRes.getUnloadAmount());
                 res.setForceStatus(goodsRecord.get(0).getForceStatus());
-            }else {
-                log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹扫描明细表失败，包裹号【"+ record.getPackageCode() + "】");
             }
-        }else  {
-            log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹记录表失败，包裹号【"+ record.getPackageCode() +"】");
-
         }
 
         return res;
@@ -109,67 +104,19 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         return res;
     }
 
-//    @Override
-//    public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
-//        /**
-//         * 遍历list1运单数据,根据运单号任务号查运单表 ，返回单个运单信息waybill
-//         * 存在：  根据运单号查询包裹表返回lsit2包裹，
-//         * 遍历list2 根据包裹id更改包裹表
-//         * 根据waybill id改运单表
-//         */
-//        Long taskNo = req.getTaskId();
-//        for(int i=0; i<req.getWaybillCode().size(); i++) {
-//            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发查询运单信息--begin--任务号【"+ taskNo + "】，运单号【" + req.getWaybillCode().get(i) + "】");
-//            GoodsLoadScan gls = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, req.getWaybillCode().get(i));
-//
-//            if(gls != null) {//更改强发数量 和 该运单状态
-//                GoodsLoadScanRecord param = new GoodsLoadScanRecord();
-//                param.setTaskId(taskNo);
-//                param.setWayBillCode(gls.getWayBillCode());
-//                List<GoodsLoadScanRecord> goodsRecordList  =  goodsLoadScanRecordDao.selectListByCondition(param);
-//
-//                if(goodsRecordList != null && goodsRecordList.size() > 0) {
-//                    for(int k = 0; k < goodsRecordList.size(); k++) {
-//                        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-//                        record.setId(goodsRecordList.get(k).getId());
-//                        record.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y);//强发
-//                        record.setUpdateTime(new Date());
-//                        record.setUpdateUserName(req.getUser().getUserName());
-//                        record.setUpdateUserCode(req.getUser().getUserCode());
-//                        log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--begin--参数【"+ JsonHelper.toJson(record) + "】");
-//                        goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
-//                        log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
-//                    }
-//                }
-//
-//                gls.setForceAmount(gls.getLoadAmount());
-//                gls.setUpdateTime(new Date());
-//                gls.setUpdateUserName(req.getUser().getUserName());
-//                gls.setUpdateUserCode(req.getUser().getUserCode());
-//                gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
-//                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--begin--参数【"+ JsonHelper.toJson(gls) + "】");
-//                boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);
-//                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发运单状态记录--end--参数【"+ JsonHelper.toJson(gls) + "】");
-//
-//            }else {
-//                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发查询运单信息不存在--error--任务号【"+ taskNo + "】，运单号【" + req.getWaybillCode().get(i) + "】");
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
-
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
         Long taskNo = req.getTaskId();
-        for(int i=0; i<req.getWaybillCode().size(); i++) {
+        List<String>  waybillList = req.getWaybillCode();
+        for(int i=0; i<waybillList.size(); i++) {
+            String wayBillCode = waybillList.get(i);
 
-            String cacheKey = taskNo + "_" + req.getWaybillCode().get(i);
+            String cacheKey = taskNo + "_" + wayBillCode;
             //查缓存，查库，获取id，根据id修改
             GoodsLoadScan cacheRes = jimdbCacheService.get(cacheKey, GoodsLoadScan.class);
             if(cacheRes == null || cacheRes.getId() == null) {
-                cacheRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, req.getWaybillCode().get(i));
+                cacheRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, wayBillCode);
                 if(cacheRes == null) {//强发操作时，必须有运单信息
                     throw new GoodsLoadScanException("运单强发操作失败，未查到该运单");
 //                    return false;
@@ -192,8 +139,17 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             }
             log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--end--参数【"+ JsonHelper.toJson(gls) + "】");
 
+            //根据运单号、任务号、修改包裹信息强发标识
 
             GoodsLoadScanRecord param = new GoodsLoadScanRecord();
+            param.setTaskId(taskNo);
+            param.setWayBillCode(wayBillCode);
+            int num = goodsLoadScanRecordDao.updatePackageForceStatus(param);
+            if(num <=0 ) {
+                throw new GoodsLoadScanException("运单【" + wayBillCode + "】强制下发包裹信息记录失败,");
+            }
+
+           /* GoodsLoadScanRecord param = new GoodsLoadScanRecord();
             param.setTaskId(taskNo);
             param.setWayBillCode(cacheRes.getWayBillCode());
             List<GoodsLoadScanRecord> goodsRecordList  =  goodsLoadScanRecordDao.selectListByCondition(param);
@@ -212,7 +168,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                     throw new GoodsLoadScanException("运单强制下发包裹信息记录失败");
                 }
                 log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 强发包裹状态记录--end--参数【"+ JsonHelper.toJson(record) + "】");
-            }
+            }*/
 
         }
         return true;

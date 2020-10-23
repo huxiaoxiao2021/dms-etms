@@ -93,6 +93,30 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private Date ts;
 
+    /**
+     * 创建人所属转运中心Id
+     */
+    private Long createSiteCode;
+
+    /**
+     * 创建人所属转运中心名称
+     */
+    private String createSiteName;
+
+
+
+    /**
+     * 目的场地Id
+     */
+    private Long endSiteCode;
+
+    /**
+     * 目的场地名称
+     */
+    private String endSiteName;
+
+
+
     public Long getId() {
         return id;
     }
@@ -227,5 +251,37 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Long getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
+
+    public String getCreateSiteName() {
+        return createSiteName;
+    }
+
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
+    }
+
+    public Long getEndSiteCode() {
+        return endSiteCode;
+    }
+
+    public void setEndSiteCode(Long endSiteCode) {
+        this.endSiteCode = endSiteCode;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
     }
 }

@@ -72,7 +72,7 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(1021001L);
+        param.setTaskId(1L);
 
         List<String> list = new ArrayList<>();
         list.add("JD0026827277756");
