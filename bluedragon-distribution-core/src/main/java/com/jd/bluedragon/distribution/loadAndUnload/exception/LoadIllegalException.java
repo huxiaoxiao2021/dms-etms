@@ -48,6 +48,8 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE = "B网营业厅寄付未揽收完成禁止发货";
 
+    public static final String BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE = "包裹已经扫描,请勿重复扫描!";
+
     public LoadIllegalException(String message) {
         super(message);
     }
