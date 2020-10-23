@@ -240,6 +240,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         //拦截的包裹不能重复扫描
         try {
+            logger.info("packageIsScanBoard-校验拦截缓存【"+packageCode+"】【"+sealCarCode+"】");
             String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
             String isExistIntercept = redisClientCache.get(key);
             if(StringUtils.isNotBlank(isExistIntercept)){
