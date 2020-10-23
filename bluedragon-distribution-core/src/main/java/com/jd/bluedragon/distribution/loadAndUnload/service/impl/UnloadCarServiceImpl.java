@@ -246,8 +246,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(StringUtils.isNotBlank(isExistIntercept)){
                 throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
             }
-        }catch (Exception e){
-            logger.error("获取缓存【{}】异常","",e);
+        }catch (LoadIllegalException e){
+            throw new LoadIllegalException(e.getMessage());
         }
 
         int unScanPackageCount = 0;
