@@ -34,13 +34,11 @@ public class LoadServiceImpl implements LoadService {
 
     @Override
     public int insert(LoadCar detail) {
-        log.info("创建装车任务入库参数={}", JSON.toJSONString(detail));
         return loadCarDao.insert(detail);
     }
 
     @Override
     public List<LoadTaskListDto> selectByIds(List<Long> list) {
-        log.info("查询装车任务列表taskIds={}", JSON.toJSONString(list));
         return loadCarDao.selectByIds(list);
     }
 
