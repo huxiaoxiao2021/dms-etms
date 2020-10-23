@@ -389,7 +389,7 @@
         <property name="timeout" value="1000"/>
     </bean>
     <!-- 超标mq，提供给京牛系统，由京牛确认后发送FXM -->
-    <bean id="dmsWeightVolumeExcessToJN" parent="dmsWorkerDefaultJMQProducer">
+    <bean id="dmsWeightVolumeExcessToJN" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.weightVolume.excess.toJN}"/>
         <property name="timeout" value="1000"/>
     </bean>
