@@ -147,7 +147,7 @@
         from
         load_scan
         <where>
-            task_id = #{taskId,jdbcType=BIGINT}
+            task_id = #{taskId,jdbcType=BIGINT} and status > 0
             <include refid="Base_Condition_Sql"/>
         </where>
     </select>

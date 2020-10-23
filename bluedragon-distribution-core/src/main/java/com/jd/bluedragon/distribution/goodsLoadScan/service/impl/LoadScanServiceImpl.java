@@ -392,20 +392,36 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
         // 暂存表运单号，运单号对应的暂存记录
-        Map<String, GoodsLoadScan> map = new HashMap<>();
+        Map<String, GoodsLoadScan> map = new HashMap<>(16);
 
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
+            // 记录属于多扫状态的运单
+            List<LoadScanDto> flowDisAccordList = new ArrayList<>();
             log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
-            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map), createSiteId, nextSiteId, null);
+            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordList),
+                    createSiteId, nextSiteId, null);
             if (reportList == null || reportList.isEmpty()) {
                 log.info("根据暂存表记录反查分拣报表返回为空，taskId={}", req.getTaskId());
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据暂存表记录反查分拣报表返回为空");
                 return response;
             }
+            // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
+            if (!flowDisAccordList.isEmpty()) {
+                log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
+                List<LoadScanDto> externalList = getLoadScanListByWaybillCode(flowDisAccordList, createSiteId);
+                if (externalList == null || externalList.isEmpty()) {
+                    log.info("根据暂存表该任务下的多扫记录反查分拣报表返回为空，taskId={}", req.getTaskId());
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    response.setMessage("根据暂存表该任务下的多扫记录反查分拣报表返回为空");
+                    return response;
+                }
+                log.info("根据任务ID查找暂存表有多扫记录,从分拣报表查询多扫记录正常返回，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
+                reportList.addAll(externalList);
+            }
 
-            log.info("根据暂存表记录反查分拣报表不为空，开始转换数据。taskId={}", req.getTaskId());
+            log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
             goodsDetailDtoList = transformData(reportList, map);
 
             log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={}", req.getTaskId());
@@ -484,7 +500,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
         try {
             // 运单，包裹数
-            Map<String, Integer> map = new HashMap<>();
+            Map<String, Integer> map = new HashMap<>(16);
             // 循环处理板上的每一个包裹
             for (String packCode : result.getData()) {
                 if (!WaybillUtil.isPackageCode(packCode)) {
@@ -499,7 +515,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
                 // 当前板子上同一个运单上的包裹数
                 Integer packageNum = map.get(waybillCode);
-                if (packageCode == null) {
+                if (packageNum == null) {
                     map.put(waybillCode, 1);
                 } else {
                     packageNum = packageNum + 1;
@@ -556,9 +572,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
         } catch (Exception e) {
-            log.info("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                    packageCode, transfer, flowDisAccord, boardCode);
-            e.printStackTrace();
+            log.error("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={},e=", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode, e);
+            response.setCode(JdCResponse.CODE_ERROR);
+            response.setMessage("根据板号暂存包裹接口发生异常");
+            return response;
         }
         return response;
     }
@@ -929,13 +947,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user, loadCar);
-//        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
-//        try {
-//            updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
-//        } catch (Exception e) {
-//            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
-//            e.printStackTrace();
-//        }
         try {
             // 获取锁
             if (!lock(newLoadScanRecord)) {
@@ -955,7 +966,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                 computeAndUpdateLoadScan(oldLoadScan, goodsAmount);
                 goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
             }
-            //saveOrUpdate(newLoadScan, user);
 
             // 释放锁
             unLock(newLoadScanRecord);
@@ -1157,10 +1167,19 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
 
-    private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map) {
+    private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map,
+                                         List<LoadScanDto> flowDisAccordList) {
         List<String> list = new ArrayList<>();
+        LoadScanDto scanDto;
         for (GoodsLoadScan scan : scans) {
             list.add(scan.getWayBillCode());
+            // 筛选出属于多扫的
+            if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(scan.getStatus())) {
+                scanDto = new LoadScanDto();
+                scanDto.setWayBillCode(scan.getWayBillCode());
+                flowDisAccordList.add(scanDto);
+            }
+            // 记录原来的运单对应的暂存记录
             map.put(scan.getWayBillCode(), scan);
         }
         return list;

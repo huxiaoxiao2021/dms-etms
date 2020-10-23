@@ -46,6 +46,18 @@
             <if test="transfer != null">
                 transfer,
             </if>
+            <if test="createSiteCode != null">
+                create_site_code,
+            </if>
+            <if test="createSiteName != null">
+                create_site_name,
+            </if>
+            <if test="endSiteCode != null">
+                end_site_code,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
             <if test="createUserCode != null">
                 create_user_code,
             </if>
@@ -86,6 +98,18 @@
             </if>
             <if test="transfer != null">
                 #{transfer,jdbcType=INTEGER},
+            </if>
+            <if test="createSiteCode != null">
+                #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteCode != null">
+                #{endSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
             </if>
             <if test="createUserCode != null">
                 #{createUserCode,jdbcType=VARCHAR},
