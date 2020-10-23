@@ -42,7 +42,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     }
 
     public boolean insert(GoodsLoadScan loadScan) {
-        return super.getSqlSession().insert(NAMESPACE + ".insert", loadScan) > 0;
+        return super.getSqlSession().insert(NAMESPACE + ".add", loadScan) > 0;
     }
 
     public boolean updateByPrimaryKey(GoodsLoadScan goodsLoadScan) {

@@ -124,6 +124,7 @@
 
         <!-- 装车发货扫描 -->
         <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>
+        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" alias="goodsLoadScanRecord"/>
 
 
     </typeAliases>

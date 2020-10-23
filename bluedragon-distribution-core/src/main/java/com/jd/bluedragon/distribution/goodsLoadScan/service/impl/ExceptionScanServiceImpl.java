@@ -54,13 +54,13 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         List<GoodsLoadScanRecord> goodsRecord = goodsLoadScanRecordDao.selectListByCondition(record);
 
         if(goodsRecord != null && goodsRecord.size() > 0 && goodsRecord.get(0).getWayBillCode() != null) {
+            log.info("取消扫描查询包裹信息--success 出参【{}】", JsonHelper.toJson(goodsRecord));
             String wayBill = goodsRecord.get(0).getWayBillCode();
-            log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹记录成功 出参【" + JsonHelper.toJson(goodsRecord) + "】");
 
             GoodsLoadScan loadScanRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(record.getTaskId(),wayBill);
 
             if(loadScanRes != null) {
-                log.info("ExceptionScanServiceImpl#findExceptionGoodsScan 取消扫描查询包裹扫描明细表成功，出参【" + JsonHelper.toJson(loadScanRes) + "】");
+                log.info("取消扫描查询运单信息-，出参【{}】", JsonHelper.toJson(loadScanRes));
                 res = new ExceptionScanDto();
                 res.setTaskId(loadScanRes.getTaskId());
                 res.setWayBillCode(loadScanRes.getWayBillCode());
@@ -68,6 +68,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 res.setLoadAmount(loadScanRes.getLoadAmount());
                 res.setUnloadAmount(loadScanRes.getUnloadAmount());
                 res.setForceStatus(goodsRecord.get(0).getForceStatus());
+            }else {
+                throw  new GoodsLoadScanException("包裹【" + record.getPackageCode() + "】对应运单信息查询为空");
             }
         }
 
@@ -96,10 +98,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
         boolean res = loadScanService.updateGoodsLoadScanAmount(lc, record, exceptionScanDto.getCurrentSiteCode());
 
-        if(res) {
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --success--，参数【"+ JsonHelper.toJson(lc) + "】");
-        }else {
-            log.info("ExceptionScanServiceImpl#removeGoodsScan 取消扫描修改包裹明细表 --error--，参数【"+ JsonHelper.toJson(lc) + "】");
+        if(!res) {
+            log.info("取消扫描修改包裹明细表 --error--，参数【{}】", JsonHelper.toJson(lc));
         }
         return res;
     }
@@ -131,13 +131,11 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
             gls.setId(cacheRes.getId());
 
-            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--begin--参数【"+ JsonHelper.toJson(gls) + "】");
+            log.info("运单强制下发，运单记录表修改--begin--参数【{}】", JsonHelper.toJson(gls));
             boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);
             if(!res) {
-                log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--error--参数【"+ JsonHelper.toJson(gls) + "】");
                 throw new GoodsLoadScanException("运单强制下发，运单记录表修改失败");
             }
-            log.info("ExceptionScanServiceImpl#goodsCompulsoryDeliver 运单强制下发，运单记录表修改--end--参数【"+ JsonHelper.toJson(gls) + "】");
 
             //根据运单号、任务号、修改包裹信息强发标识
 
@@ -178,10 +176,10 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     public List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId) {
         List<GoodsExceptionScanningDto> res= new ArrayList<>();
 
-        log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号查询不齐异常数据： 参数【" + taskId + "】");
+        log.info("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
         List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-        log.info("ExceptionScanServiceImpl#findAllExceptionGoodsScan--begin 根据任务号【" + taskId + "】查询不齐异常数据： 出参【" + JsonHelper.toJson(list) + "】");
-//todo  日志
+        log.info("根据任务号【{}】查询不齐异常数据 --end-- 出参【{}】", taskId, JsonHelper.toJson(list));
+
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
                 if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED || glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW) {

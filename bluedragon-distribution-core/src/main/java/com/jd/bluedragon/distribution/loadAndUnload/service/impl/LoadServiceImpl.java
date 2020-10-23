@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
@@ -21,8 +20,6 @@ import java.util.List;
  */
 @Service("loadService")
 public class LoadServiceImpl implements LoadService {
-
-    private static final Logger log = LoggerFactory.getLogger(LoadServiceImpl.class);
 
     @Autowired
     private LoadCarDao loadCarDao;
