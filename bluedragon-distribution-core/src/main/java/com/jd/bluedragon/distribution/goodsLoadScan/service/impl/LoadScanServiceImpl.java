@@ -58,7 +58,7 @@ import java.util.*;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-@Service("LoadScanService")
+@Service("loadScanService")
 public class LoadScanServiceImpl implements LoadScanService {
     private final static Logger log = LoggerFactory.getLogger(LoadScanServiceImpl.class);
 
