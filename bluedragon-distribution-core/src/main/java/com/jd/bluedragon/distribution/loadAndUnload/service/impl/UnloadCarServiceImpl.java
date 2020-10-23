@@ -208,7 +208,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 卸车处理并回传TC组板关系
                 dealUnloadAndBoxToBoard(request,isSurplusPackage);
             }else{
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,invokeResult.getMessage());
+                result.customMessage(InvokeResult.RESULT_SUCCESS_CODE,invokeResult.getMessage());
             }
             //设置包裹数
             setPackageCount(result.getData());

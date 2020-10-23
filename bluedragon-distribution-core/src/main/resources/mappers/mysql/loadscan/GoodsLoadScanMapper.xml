@@ -165,8 +165,7 @@
     <select id="selectListByCondition" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
-        from load_scan
-        <where>
+        from load_scan where yn = 1
             <if test="id != null">
                 and id = #{id,jdbcType=BIGINT}
             </if>
@@ -209,10 +208,6 @@
             <if test="updateTime != null">
                 and update_time = #{updateTime,jdbcType=TIMESTAMP}
             </if>
-            <if test="yn != null">
-                and yn = #{yn,jdbcType=INTEGER}
-            </if>
-        </where>
     </select>
 
 

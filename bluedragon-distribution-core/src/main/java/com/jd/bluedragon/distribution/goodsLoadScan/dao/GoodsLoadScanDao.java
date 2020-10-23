@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.cross.dao.CrossSortingDao;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
+        goodsLoadScan.setYn(GoodsLoadScanConstants.YN_Y);
         return super.getSqlSession().selectOne(NAMESPACE + ".selectListByCondition", goodsLoadScan);
     }
 
@@ -31,6 +33,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     public List<GoodsLoadScan> findLoadScanByTaskId(Long taskId) {
         GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
         goodsLoadScan.setTaskId(taskId);
+        goodsLoadScan.setYn(GoodsLoadScanConstants.YN_Y);
         return super.getSqlSession().selectList(NAMESPACE + ".selectListByCondition", goodsLoadScan);
     }
 
