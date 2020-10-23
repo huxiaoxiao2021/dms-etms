@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -101,6 +102,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private SortingMaterialSendService sortingMaterialSendService;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -174,9 +178,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
    * 移除空批次
    *
    * @param sourceSealDtos
-   * @param emptyBatchCode
+   * @param
    */
   private void removeEmptyBatchCode(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos,Map<String, String> emptyBatchCode) {
+      String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
+      if(!Constants.OPERATE_SUCCESS.equals(removeEmptyBatchCode)){
+          return;
+      }
+
       for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
           if (sourceSealDto != null && sourceSealDto.getBatchCodes() != null) {
               // 循环验证封车批次号是否有发货记录，如果没有则删除批次
