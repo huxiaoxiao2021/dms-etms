@@ -643,14 +643,12 @@ public class NewSealVehicleResource {
             CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData(),emptyBatchCode);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setData(returnCommonDto.getData());
                     if(emptyBatchCode==null || emptyBatchCode.isEmpty()){
-                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
-                        sealVehicleResponse.setData(returnCommonDto.getData());
                     }else {
-                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode)); //NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN
-                        sealVehicleResponse.setData(returnCommonDto.getData());
                     }
 
                 } else {
@@ -666,14 +664,14 @@ public class NewSealVehicleResource {
     }
 
     private String getMsgByList(Map<String, String> emptyBatchCode){
-        String msg="以下批次没有发货数据，已从封车信息中剔除\r\n";
+        StringBuilder msg= new StringBuilder("封车成功。已剔除无发货数据批次：\r\n");
         for(Map.Entry<String, String> entry : emptyBatchCode.entrySet()){
             String mapKey = entry.getKey();
             String mapValue = entry.getValue();
-            msg=msg+mapValue+":"+mapKey+"\r\n";
+            msg.append(mapValue+":"+mapKey+"\r\n");
         }
 
-        return msg;
+        return msg.toString();
     }
 
     /**
