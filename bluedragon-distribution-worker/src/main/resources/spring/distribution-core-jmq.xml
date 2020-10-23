@@ -351,6 +351,11 @@
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--配送员接货，打印后发送mq信息给sms-->
+    <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
+    </bean>
     <!--驻厂打印面单成功，打印后发送mq信息给终端-->
     <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
