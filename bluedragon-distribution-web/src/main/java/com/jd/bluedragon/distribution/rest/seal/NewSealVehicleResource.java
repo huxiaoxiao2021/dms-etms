@@ -697,7 +697,7 @@ public class NewSealVehicleResource {
 
             sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
             if (sealVehicleResponse != null) {
-                if (Constants.RESULT_SUCCESS == sealVehicleResponse.getCode()) {
+                if (Constants.RESULT_SUCCESS == sealVehicleResponse.getCode()) { //todo
                     if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){
                         sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
                         sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));

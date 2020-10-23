@@ -115,6 +115,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    //去除空批次，并记录去除数据
         removeEmptyBatchCode(sealCars,emptyBatchCode);
 	    List<SealCarDto> paramList = convertList(sealCars);
+
         if(log.isDebugEnabled()){
             log.debug("封车参数：{}", JsonHelper.toJson(paramList));
         }
@@ -200,12 +201,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	    //批次号不存在sendm记录
 	    if(!checkSendIsExist(batchCode)) {
-            boolean existRecord = true;
+
             JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
             if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
-                existRecord = false;
+                res = false;
             }
-            return existRecord;
         }
 
         return res;
