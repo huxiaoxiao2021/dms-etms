@@ -1227,8 +1227,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         return null;
     }
 
-    private boolean lock(GoodsLoadScanRecord req){
-        String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId() + "_" + req.getWayBillCode();
+    private boolean lock(GoodsLoadScanRecord req) {
+        String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId() + "_" + getLockFlag(req);
         try {
             if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 60, TimeUnit.SECONDS)) {
                 Thread.sleep(100);
@@ -1241,9 +1241,17 @@ public class LoadScanServiceImpl implements LoadScanService {
         return true;
     }
 
+    private String getLockFlag(GoodsLoadScanRecord req) {
+        if (StringUtils.isNotBlank(req.getBoardCode())) {
+            return req.getBoardCode();
+        } else {
+            return req.getWayBillCode();
+        }
+    }
+
     private void unLock(GoodsLoadScanRecord req){
         try {
-            String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId()+ "_" + req.getWayBillCode();
+            String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId()+ "_" + getLockFlag(req);
             jimdbCacheService.del(lockKey);
         } catch (Exception e) {
             log.error("装车扫描unLock异常:{}", JsonHelper.toJson(req), e);
