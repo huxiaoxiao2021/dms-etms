@@ -140,6 +140,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.kafka.common.network.Send;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -4796,15 +4797,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
       if (null == list || list.isEmpty()) return list;
       List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
+      List<String> packageCodes = new ArrayList<>();
       for (SendThreeDetail item : list) {
         if (item.getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
           targetList.add(item);
         } else {
-          targetList.addAll(
-              getUnSendPackages(createSiteCode, receiveSiteCode, item.getPackageBarcode()));
+            packageCodes.add(item.getPackageBarcode());//记录需要查询的包裹号的列表
         }
       }
-      return targetList;
+        targetList.addAll(
+                getUnSendPackages(createSiteCode, receiveSiteCode, packageCodes));
+        return targetList;
     }
 
     /**
@@ -4841,6 +4844,63 @@ public class DeliveryServiceImpl implements DeliveryService {
       }
       return list;
     }
+
+      /**
+       * 获取未发货包裹【若已分拣，则箱号显示已分拣箱号，否中央电视台显示空箱号表示未分拣】
+       *
+       * @param createSiteCode 发货站点
+       * @param receiveSiteCode 接收站点
+       * @param packageCodes 包裹号列表
+       * @return
+       */
+      private final List<SendThreeDetail> getUnSendPackages(
+              Integer createSiteCode, Integer receiveSiteCode, List<String> packageCodes) {
+
+          List<SendThreeDetail> list = new ArrayList<SendThreeDetail>(packageCodes.size());
+
+          //按照运单分组
+          Map<String, List<String>> waybillMap = new HashMap<>();
+          for (String packageItem : packageCodes) {
+              String waybillCodeItem = WaybillUtil.getWaybillCode(packageItem);
+              if (!waybillMap.containsKey(waybillCodeItem)) {
+                  List<String> packItems = new ArrayList<>();
+                  packItems.add(packageItem);
+                  waybillMap.put(waybillCodeItem, packItems);
+              } else {
+                  waybillMap.get(waybillCodeItem).add(packageItem);
+              }
+          }
+
+          for (Map.Entry<String,List<String>> entry : waybillMap.entrySet()) {
+              String waybillCode = entry.getKey();
+              List<String> packages = entry.getValue();
+
+              SendDetail sendDatail = new SendDetail();
+              sendDatail.setWaybillCode(waybillCode);
+              sendDatail.setCreateSiteCode(createSiteCode);
+              sendDatail.setReceiveSiteCode(receiveSiteCode);
+              sendDatail.setIsCancel(0);
+              List<SendDetail> resultList = sendDatailDao.querySendDatailsBySelective(sendDatail);
+
+              Map<String, SendDetail> sendMap = new HashMap<>();
+              if (CollectionUtils.isNotEmpty(resultList)) {
+                  for (SendDetail sendDetailItem : resultList) {
+                      if (!sendMap.containsKey(sendDetailItem.getPackageBarcode())) {
+                          sendMap.put(sendDetailItem.getPackageBarcode(), sendDetailItem);
+                      }
+                  }
+              }
+
+              for (String packageCodeItem : packages) {
+                  SendThreeDetail mSend = new SendThreeDetail();
+                  mSend.setPackageBarcode(packageCodeItem);
+                  mSend.setBoxCode(sendMap.containsKey(packageCodeItem)? sendMap.get(packageCodeItem).getBoxCode() : "");
+                  mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
+                  list.add(mSend);
+              }
+          }
+          return list;
+      }
 
     /**
      * 从列表中去除已完全扫描[一单多件齐全]的包裹（按运单为单）
