@@ -374,13 +374,23 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        log.info("开始查找暂存表--判断任务是否已经结束：taskId={}", taskId);
+
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={}", taskId);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
         log.info("根据任务ID查找暂存表，taskId={}", req.getTaskId());
         List<LoadScanDto> reportList;
-        List<GoodsDetailDto> goodsDetailDtoList;
+        List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
         // 暂存表运单号，运单号对应的暂存记录
         Map<String, GoodsLoadScan> map = new HashMap<>();
 
@@ -391,47 +401,24 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (reportList == null || reportList.isEmpty()) {
                 log.info("根据暂存表记录反查分拣报表返回为空，taskId={}", req.getTaskId());
                 response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("根据任务ID没有找到相应的运单记录");
+                response.setMessage("根据暂存表记录反查分拣报表返回为空");
                 return response;
             }
 
             log.info("根据暂存表记录反查分拣报表不为空，开始转换数据。taskId={}", req.getTaskId());
             goodsDetailDtoList = transformData(reportList, map);
 
-        } else {
-            log.info("根据任务ID查找暂存表为空，然后去分拣报表拉取100条。taskId={}", req.getTaskId());
-            // 如果暂存表为空，则去分拣报表拉取100条数据
-            reportList = getLoadScanByWaybillCodes(null, createSiteId, nextSiteId, 100);
-            if (reportList == null || reportList.isEmpty()) {
-                log.warn("去分拣报表拉取100条数据为空，taskId={}", req.getTaskId());
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("根据任务ID没有找到相应的运单记录");
-                return response;
-            }
-            log.info("去分拣报表拉取100条数据不为空，taskId={}", req.getTaskId());
-            goodsDetailDtoList = transformDataForNew(reportList);
+            log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={}", req.getTaskId());
+            // 按照颜色排序
+            Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
+                @Override
+                public int compare(GoodsDetailDto o1, GoodsDetailDto o2) {
+                    // status：0无特殊颜色,1绿色,2橙色,3黄色,4红色
+                    return o2.getStatus().compareTo(o1.getStatus());
+                }
+            });
 
         }
-        log.info("根据任务ID查找装车扫描记录结束，taskId={}", req.getTaskId());
-
-        // 分拣报表查询返回为空
-        if (goodsDetailDtoList.isEmpty()) {
-            log.error("根据任务ID所在的当前网点和下一网点去分拣报表没有找到相应的运单记录或发生错误，taskId={},currentSiteCode={},endSiteCode={}",
-                    taskId, loadCar.getCreateSiteCode(), loadCar.getEndSiteCode());
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据任务ID没有找到相应的运单记录");
-            return response;
-        }
-        log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={}", req.getTaskId());
-        // 按照颜色排序
-        Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
-            @Override
-            public int compare(GoodsDetailDto o1, GoodsDetailDto o2) {
-                // status：0无特殊颜色,1绿色,2橙色,3黄色,4红色
-                return o2.getStatus().compareTo(o1.getStatus());
-            }
-        });
-
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
         scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
@@ -934,8 +921,41 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果不是重复扫，包裹扫描记录表新增一条记录
         GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                 null, transfer, flowDisAccord, user,loadCar);
-        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
-        updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+//        GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode, goodsAmount, flowDisAccord, user);
+//        try {
+//            updateGoodsLoadScanAmount(newLoadScan, newLoadScanRecord, createSiteId);
+//        } catch (Exception e) {
+//            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
+//            e.printStackTrace();
+//        }
+        try {
+            // 获取锁
+            if (!lock(newLoadScanRecord)) {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
+                return response;
+            }
+            goodsLoadScanRecordDao.insert(newLoadScanRecord);
+
+            // 运单暂存表新增或修改
+            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
+                    goodsAmount, flowDisAccord, user);
+            GoodsLoadScan oldLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
+            if (oldLoadScan == null) {
+                goodsLoadScanDao.insert(newLoadScan);
+            } else {
+                computeAndUpdateLoadScan(oldLoadScan, goodsAmount);
+                goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
+            }
+            //saveOrUpdate(newLoadScan, user);
+
+            // 释放锁
+            unLock(newLoadScanRecord);
+        } catch (Exception e) {
+            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
+            e.printStackTrace();
+        }
+
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
@@ -1039,20 +1059,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return baseEntity.getData();
     }
 
-    private  List<GoodsDetailDto> transformDataForNew(List<LoadScanDto> list) {
-        List<GoodsDetailDto> goodsDetails = new ArrayList<>();
-        for (LoadScanDto detailDto : list) {
-            GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
-            goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
-            goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
-            goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
-            goodsDetailDto.setLoadAmount(0);
-            goodsDetailDto.setUnloadAmount(0);
-            goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-            goodsDetails.add(goodsDetailDto);
-        }
-        return goodsDetails;
-    }
 
     private  List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
@@ -1138,17 +1144,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return goodsLoadScan;
     }
 
-    private GoodsDetailDto createGoodsDetailDto(String waybillCode, Integer packageAmount, Integer goodsAmount,
-                                                Integer loadAmount, Integer unloadAmount, Integer status) {
-        GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
-        goodsDetailDto.setWayBillCode(waybillCode);
-        goodsDetailDto.setPackageAmount(packageAmount);
-        goodsDetailDto.setGoodsAmount(goodsAmount);
-        goodsDetailDto.setLoadAmount(loadAmount);
-        goodsDetailDto.setUnloadAmount(unloadAmount);
-        goodsDetailDto.setStatus(status);
-        return goodsDetailDto;
-    }
 
     private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map) {
         List<String> list = new ArrayList<>();
