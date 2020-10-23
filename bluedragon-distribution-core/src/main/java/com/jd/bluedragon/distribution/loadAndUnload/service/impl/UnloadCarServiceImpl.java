@@ -243,7 +243,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
             String isExistIntercept = redisClientCache.get(key);
             if(StringUtils.isNotBlank(isExistIntercept)){
-                throw new LoadIllegalException(String.format(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE,packageCode,boardCode));
+                throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
             }
         }catch (Exception e){
             logger.error("获取缓存【{}】异常","",e);
