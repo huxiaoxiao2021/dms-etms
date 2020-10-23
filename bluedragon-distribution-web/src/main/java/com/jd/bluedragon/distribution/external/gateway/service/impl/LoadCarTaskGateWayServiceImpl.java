@@ -103,7 +103,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         JdCResponse jdCResponse = new JdCResponse();
         if (null == req || null == req.getId()) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("删除任务失败,稍后请重试");
+            jdCResponse.setMessage("接口请求信息不完整,请联系IT");
             return jdCResponse;
         }
         if (loadService.deleteById(req) > 0) {

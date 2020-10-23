@@ -244,7 +244,7 @@
                  close=")" separator=",">
             #{items,jdbcType=VARCHAR}
         </foreach>
-        group by update_time desc
+        order by update_time desc limit 100
     </select>
 
     <select id="selectByCreateUserErp" parameterType="java.lang.String" resultType="long">
