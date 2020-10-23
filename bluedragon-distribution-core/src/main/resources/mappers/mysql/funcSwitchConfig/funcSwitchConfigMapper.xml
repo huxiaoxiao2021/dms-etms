@@ -210,6 +210,7 @@
         from
         func_switch_config
         where 1=1
+        <include refid="Base_Condition_Sql"/>
         <include refid="Query_Params_Condition_Sql"/>
         <if test="limit != -1">
             limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
@@ -223,6 +224,7 @@
         from
         func_switch_config
         where 1=1
+        <include refid="Base_Condition_Sql"/>
         <include refid="Query_Params_Condition_Sql"/>
     </select>
 
