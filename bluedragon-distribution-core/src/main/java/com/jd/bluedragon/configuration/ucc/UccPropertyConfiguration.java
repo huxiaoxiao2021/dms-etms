@@ -145,12 +145,14 @@ public class UccPropertyConfiguration {
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
-
     /**
      * 众邮称重拦截开关。true 拦截，false 不拦截
      */
     private boolean economicNetValidateWeightSwitch;
-
+    /**
+     * 任务redis开关，1-开启
+     */
+    private String redisSwitchOn;
     /**
      * 控制DTC积压 控制关闭 包裹号存在校验
      * true  校验包裹号
@@ -481,4 +483,12 @@ public class UccPropertyConfiguration {
     public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
         this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
     }
+
+	public String getRedisSwitchOn() {
+		return redisSwitchOn;
+	}
+
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
 }
