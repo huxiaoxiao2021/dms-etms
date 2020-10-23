@@ -61,7 +61,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse startTask(CreateLoadTaskReq req) {
-        log.info("添加装车协助人接口请求参数={}", JSON.toJSONString(req));
         JdCResponse jdCResponse = new JdCResponse();
         if (null == req) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -148,7 +147,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.checkLicenseNumber",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> checkLicenseNumber(String licenseNumber) {
-        log.info("车牌转换接口请求参数={}", licenseNumber);
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         if (StringUtils.isBlank(licenseNumber)) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -161,7 +159,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
-        log.info("车牌校验接口响应结果={}", JSON.toJSONString(jdCResponse));
         return jdCResponse;
     }
 
@@ -175,7 +172,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskList",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<LoadTaskListDto>> loadCarTaskList(LoadTaskListReq req) {
-        log.info("装车任务列表接口请求参数={}", JSON.toJSONString(req));
         JdCResponse<List<LoadTaskListDto>> jdCResponse = new JdCResponse<>();
         if (null == req || StringUtils.isBlank(req.getLoginUserErp())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -215,7 +211,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(taskListDto);
-        log.info("装车任务列表接口返回结果={}", JSON.toJSONString(jdCResponse));
         return jdCResponse;
     }
 
@@ -229,7 +224,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskCreate",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
-        log.info("装车任务创建接口请求参数={}", req);
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
         try {
             if (null == req) {
@@ -313,7 +307,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(erp);
-        log.info("获取员工信息接口基础接口响应结果={}", JSON.toJSONString(bssod));
         if (null == bssod || StringUtils.isBlank(bssod.getStaffName())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("暂未查询到员工姓名,稍后请重试！");

@@ -28,7 +28,6 @@ public class LoadCarHelperServiceImpl implements LoadCarHelperService {
 
     @Override
     public int batchInsert(List<LoadCarHelper> dataList) {
-        log.info("添加协助人接口入库参数={}", JSON.toJSONString(dataList));
         return loadCarHelperDao.batchInsert(dataList);
     }
 
