@@ -1231,6 +1231,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if(StringUtils.isBlank(barCode)){
             return result;
         }
+        logger.info("interceptValidate卸车根据包裹号：{}",barCode);
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
         WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
         if(waybillNoCache == null){
@@ -1247,7 +1248,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //纯配快运零担
         boolean isB2BPure = BusinessUtil.isSignChar(waybillSign, 40, '2');
         //无重量禁止发货判断
-        if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() < 0){
+        if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() <= 0){
             logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
             result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
