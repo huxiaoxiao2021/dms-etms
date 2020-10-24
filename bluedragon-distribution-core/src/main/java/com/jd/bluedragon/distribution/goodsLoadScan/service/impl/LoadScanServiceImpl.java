@@ -412,8 +412,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
             if (!flowDisAccordList.isEmpty()) {
-                log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={},flowDisAccord={}",
-                        req.getTaskId(), flowDisAccordList.size(), flowDisAccordList.toString());
+                log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
+
                 List<LoadScanDto> externalList = getLoadScanListByWaybillCode(flowDisAccordList, createSiteId);
                 if (externalList == null || externalList.isEmpty()) {
                     log.info("根据暂存表该任务下的多扫记录反查分拣报表返回为空，taskId={}", req.getTaskId());
@@ -982,11 +982,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             record.setTaskId(taskId);
             record.setWayBillCode(waybillCode);
             record.setPackageCode(packageCode);
-            record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
             record.setYn(Constants.YN_YES);
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
             // 如果是重复扫，返回错误
-            if (loadScanRecord != null) {
+            if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
                 log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_SUCCESS);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
@@ -994,13 +993,23 @@ public class LoadScanServiceImpl implements LoadScanService {
                 unLock(taskId, waybillCode, boardCode);
                 return response;
             }
+
             log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
-            // 如果不是重复扫，包裹扫描记录表新增一条记录
-            GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                    boardCode, transfer, flowDisAccord, user, loadCar);
+            // 不属于重复扫,但被取消扫描过
+            if (loadScanRecord != null) {
+                loadScanRecord.setUpdateTime(new Date());
+                loadScanRecord.setUpdateUserCode(user.getUserCode());
+                loadScanRecord.setUpdateUserName(user.getUserName());
+                loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                goodsLoadScanRecordDao.updateGoodsScanRecordById(loadScanRecord);
+            } else {
+                // 如果不是重复扫，包裹扫描记录表新增一条记录
+                GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
+                        boardCode, transfer, flowDisAccord, user, loadCar);
 
-            goodsLoadScanRecordDao.insert(newLoadScanRecord);
+                goodsLoadScanRecordDao.insert(newLoadScanRecord);
+            }
 
             log.info("常规包裹号后续校验--判断是否是第一个包裹开始：taskId={}", loadCar.getId());
             // 扫描第一个包裹时，修改任务状态为已开始
@@ -1053,6 +1062,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (goodsAmount > loadScan.getLoadAmount()) {
                 status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
             }
+        }
+        // 如果已装等于库存
+        if (loadScan.getLoadAmount().equals(goodsAmount)) {
+            status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
         loadScan.setStatus(status);
     }
@@ -1222,6 +1235,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹为多扫包裹，正常记录的统计表中，"
                     + "底色标位黄色taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+        }
+        // 如果已装等于库存
+        if (goodsLoadScan.getLoadAmount().equals(goodsAmount)) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
         }
 
         goodsLoadScan.setCreateUserCode(user.getUserCode());
