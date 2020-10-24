@@ -129,7 +129,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (CollectionUtils.isEmpty(paramList)){
             sealCarInfo = new CommonDto<String>();
             sealCarInfo.setCode(0);
-            sealCarInfo.setMessage("无有效的封车信息，请重新录入");
+            sealCarInfo.setMessage("封车失败。无有效的封车信息，请重新录入");
             return sealCarInfo;
         }
 
@@ -195,8 +195,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
           return;
       }
 
+      List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> keepsourceSealDtos=new ArrayList<>();
       for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
-          if (sourceSealDto != null && sourceSealDto.getBatchCodes() != null) {
+          if (sourceSealDto == null) {
+              continue;
+          }
+
+          if(sourceSealDto.getBatchCodes() != null && CollectionUtils.isNotEmpty(sourceSealDto.getBatchCodes())){
               // 循环验证封车批次号是否有发货记录，如果没有则删除批次
               List<String> keepBatchCodes=new ArrayList<>();
               for (String item : sourceSealDto.getBatchCodes()) {
@@ -208,8 +213,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
               }
 
               sourceSealDto.setBatchCodes(keepBatchCodes);
+              if(CollectionUtils.isNotEmpty(keepBatchCodes)){
+                  keepsourceSealDtos.add(sourceSealDto);
+              }
+          }else {
+              keepsourceSealDtos.add(sourceSealDto);
           }
       }
+
+      sourceSealDtos=keepsourceSealDtos;
   }
 
 	/**
@@ -250,7 +262,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         NewSealVehicleResponse sealCarInfo = null;
         if (CollectionUtils.isEmpty(paramList)){
-            sealCarInfo = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_EXCUTE_ERROR, "无有效的封车信息，请重新录入");
+            sealCarInfo = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_EXCUTE_ERROR, "封车失败。无有效的封车信息，请重新录入");
             return sealCarInfo;
         }
 
@@ -978,11 +990,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private List<SealCarDto> convertList(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
         List<SealCarDto> sealCarDtos = new ArrayList<SealCarDto>();
         Date nowTime = new Date();//封车取当前服务器当前时间
-
         for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
-            if(sourceSealDto!=null && CollectionUtils.isNotEmpty(sourceSealDto.getBatchCodes())){
-                sealCarDtos.add(convert(sourceSealDto, nowTime));
-            }
+            sealCarDtos.add(convert(sourceSealDto, nowTime));
         }
         return sealCarDtos;
     }
