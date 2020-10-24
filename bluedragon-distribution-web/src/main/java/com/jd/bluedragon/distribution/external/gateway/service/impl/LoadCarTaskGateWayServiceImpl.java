@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDt
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
@@ -49,6 +50,9 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
 
     @Autowired
     BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private LoadScanService loadScanService;
 
     /**
      * 添加装车任务协助人
@@ -280,6 +284,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                         loadDeleteReq.setOperateUserName(req.getCreateUserName());
                         loadDeleteReq.setId(taskInfo.getId());
                         loadService.deleteById(loadDeleteReq);
+                        // 删除已开始任务时，删除关联的运单信息和包裹信息
+                        if(taskInfo.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
+                            loadScanService.deleteLoadScanByTaskId(taskInfo.getId());
+
+                        }
                     } else {
                         jdCResponse.setCode(JdCResponse.CODE_ERROR);
                         jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个进行中任务！");

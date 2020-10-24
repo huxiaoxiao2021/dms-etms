@@ -52,4 +52,8 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     public int updatePackageForceStatus(GoodsLoadScanRecord record) {
         return this.getSqlSession().update(namespace + ".updatePackageForceStatus",record);
     }
+
+    public boolean deleteLoadScanRecordByTaskId(Long taskId) {
+        return super.getSqlSession().update(namespace + ".deleteLoadScanRecordByTaskId", taskId) > 0;
+    }
 }

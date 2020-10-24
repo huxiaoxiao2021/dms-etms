@@ -242,5 +242,11 @@
         </foreach>
     </select>
 
+    <update id="deleteLoadScanByTaskId" parameterType="java.lang.String">
+        update load_scan
+        set yn=0
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+    </update>
+
 
 </mapper>

@@ -1396,4 +1396,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
     }
 
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public void deleteLoadScanByTaskId(Long taskId) {
+        goodsLoadScanDao.deleteLoadScanByTaskId(taskId);
+        goodsLoadScanRecordDao.deleteLoadScanRecordByTaskId(taskId);
+    }
+
 }
