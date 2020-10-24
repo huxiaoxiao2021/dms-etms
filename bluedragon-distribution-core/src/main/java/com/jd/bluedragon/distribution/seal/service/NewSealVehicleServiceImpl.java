@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.wss.dto.SealCarResultDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
@@ -118,8 +120,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception{
 	    long startTime=System.currentTimeMillis();
 	    //去除空批次，并记录去除数据
-        removeEmptyBatchCode(sealCars,emptyBatchCode);
-	    List<SealCarDto> paramList = convertList(sealCars);
+        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(sealCars);
+        emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
+	    List<SealCarDto> paramList = convertList(sealCarResultDto.getSealCarDtos());
 
         if(log.isDebugEnabled()){
             log.debug("封车参数：{}", JsonHelper.toJson(paramList));
@@ -130,6 +133,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             sealCarInfo = new CommonDto<String>();
             sealCarInfo.setCode(0);
             sealCarInfo.setMessage("封车失败。无有效的封车信息，请重新录入");
+            log.error("封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
             return sealCarInfo;
         }
 
@@ -165,6 +169,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 JSONObject response=new JSONObject();
                 response.put("param", param);
                 response.put("msg", msg);
+                response.put("errorSendCode", JsonHelper.toJson(sealCarResultDto.getDisableSendCode()));
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
                         .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_SEAL)
@@ -189,10 +194,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
    * @param sourceSealDtos
    * @param
    */
-  private void removeEmptyBatchCode(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos,Map<String, String> emptyBatchCode) {
+  private SealCarResultDto removeEmptyBatchCode(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
+      Map<String, String> emptyBatchCode = Maps.newHashMap();
       String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
-      if(!Constants.OPERATE_SUCCESS.equals(removeEmptyBatchCode)){
-          return;
+      if(!Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
+          return new SealCarResultDto(sourceSealDtos,emptyBatchCode);
       }
 
       List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> keepsourceSealDtos=new ArrayList<>();
@@ -201,27 +207,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
               continue;
           }
 
-          if(sourceSealDto.getBatchCodes() != null && CollectionUtils.isNotEmpty(sourceSealDto.getBatchCodes())){
+          if(CollectionUtils.isNotEmpty(sourceSealDto.getBatchCodes())){
               // 循环验证封车批次号是否有发货记录，如果没有则删除批次
               List<String> keepBatchCodes=new ArrayList<>();
               for (String item : sourceSealDto.getBatchCodes()) {
                   if (checkBatchCodeIsSend(item)) {
                       keepBatchCodes.add(item);
                   }else {
+                      log.warn("批次内发货信息。车牌号[{}]批次[{}]",sourceSealDto.getVehicleNumber(),item);
                       emptyBatchCode.put(item, sourceSealDto.getVehicleNumber());
                   }
               }
-
-              sourceSealDto.setBatchCodes(keepBatchCodes);
               if(CollectionUtils.isNotEmpty(keepBatchCodes)){
+                  sourceSealDto.setBatchCodes(keepBatchCodes);
                   keepsourceSealDtos.add(sourceSealDto);
               }
           }else {
               keepsourceSealDtos.add(sourceSealDto);
           }
       }
-
-      sourceSealDtos=keepsourceSealDtos;
+      return new SealCarResultDto(keepsourceSealDtos,emptyBatchCode);
   }
 
 	/**
@@ -250,11 +255,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCars
      * @return
      */
+    @Override
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) {
         //去除空批次，并记录去除数据
-        removeEmptyBatchCode(sealCars,emptyBatchCode);
-        List<SealCarDto> paramList = convertList(sealCars);
+        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(sealCars);
+        emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
+        List<SealCarDto> paramList = convertList(sealCarResultDto.getSealCarDtos());
 
         if(log.isDebugEnabled()){
             log.debug("VOS封车业务同时生成车次任务参数：{}", JsonHelper.toJson(paramList));
@@ -263,6 +270,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         NewSealVehicleResponse sealCarInfo = null;
         if (CollectionUtils.isEmpty(paramList)){
             sealCarInfo = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_EXCUTE_ERROR, "封车失败。无有效的封车信息，请重新录入");
+            log.error("传摆封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
             return sealCarInfo;
         }
 

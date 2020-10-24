@@ -668,7 +668,8 @@ public class NewSealVehicleResource {
         for(Map.Entry<String, String> entry : emptyBatchCode.entrySet()){
             String mapKey = entry.getKey();
             String mapValue = entry.getValue();
-            msg.append(mapValue+":"+mapKey+"\r\n");
+            msg.append(mapValue).append(":").append(mapKey).append("\r\n");
+
         }
 
         return msg.toString();
