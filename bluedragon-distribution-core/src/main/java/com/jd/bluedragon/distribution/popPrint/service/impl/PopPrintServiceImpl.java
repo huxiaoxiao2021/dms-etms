@@ -320,7 +320,8 @@ public class PopPrintServiceImpl implements PopPrintService {
 
         popPrint.setCategoryName(request.getCategoryName());
 
-        if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
+        if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())
+                || PopPrintRequest.NOT_PRINT_PACK_TYPE.equals(request.getOperateType())) {
             popPrint.setPrintPackCode(request.getOperatorCode());
             popPrint.setPrintPackTime(DateHelper.getSeverTime(request.getOperateTime()));
             popPrint.setPrintPackUser(request.getOperatorName());
@@ -328,7 +329,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             popPrint.setPrintInvoiceCode(request.getOperatorCode());
             popPrint.setPrintInvoiceTime(DateHelper.getSeverTime(request.getOperateTime()));
             popPrint.setPrintInvoiceUser(request.getOperatorName());
-        } else if(!PopPrintRequest.NOT_PRINT_PACK_TYPE.equals(request.getOperateType())){
+        } else {
             throw new RuntimeException("保存POP打印信息 --> 传入操作类型有误：" + request.getOperateType() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
         }
         return popPrint;
