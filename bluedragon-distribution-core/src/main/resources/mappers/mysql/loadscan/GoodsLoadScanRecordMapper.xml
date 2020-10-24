@@ -188,16 +188,16 @@
                 and transfer = #{transfer,jdbcType=INTEGER}
             </if>
             <if test="createUserCode != null">
-                and create_user_code = #{createUserCode,jdbcType=VARCHAR}
+                and create_user_code = #{createUserCode,jdbcType=BIGINT}
             </if>
             <if test="createUserName != null">
                 and create_user_name = #{createUserName,jdbcType=VARCHAR}
             </if>
             <if test="updateUserCode != null">
-                and #{updateUserCode,jdbcType=VARCHAR}
+                and update_user_code = #{updateUserCode,jdbcType=BIGINT}
             </if>
             <if test="updateUserName != null">
-                and update_user_code = update_user_name = #{updateUserName,jdbcType=VARCHAR}
+                and update_user_name = #{updateUserName,jdbcType=VARCHAR}
             </if>
             <if test="createTime != null">
                 and create_time = #{createTime,jdbcType=TIMESTAMP}
