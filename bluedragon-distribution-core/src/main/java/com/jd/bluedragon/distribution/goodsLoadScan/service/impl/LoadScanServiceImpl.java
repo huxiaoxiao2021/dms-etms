@@ -485,7 +485,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                 packageCode, transfer, flowDisAccord, boardCode);
 
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
-        List<GoodsLoadScanRecord> recordList = new ArrayList<>();
 
         // 板子上可以装车的有效包裹
         List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
@@ -551,6 +550,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 map.put(waybillCode, packageNum);
             }
         }
+        log.info("当前板号上各个包裹所在运单的对应数量map={}", map.toString());
 
         log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
                 updateRecords.size() + insertRecords.size(), boardCode, taskId);
