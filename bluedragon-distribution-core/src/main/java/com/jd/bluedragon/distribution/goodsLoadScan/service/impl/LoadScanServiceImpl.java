@@ -558,14 +558,14 @@ public class LoadScanServiceImpl implements LoadScanService {
                 // 取出板子上该运单下的要装车包裹数量
                 Integer packageNum = map.get(scanDto.getWayBillCode());
                 // 计算已装、未装
-                loadScan.setLoadAmount(loadScan.getLoadAmount() + packageNum);
+                loadScan.setLoadAmount(packageNum);
                 loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
                 // 设置运单颜色状态
                 Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
                         loadScan.getUnloadAmount(), loadScan.getForceAmount());
                 loadScan.setStatus(status);
                 // 如果已存在就更新，不存在就插入
-                saveOrUpdate(loadScan, user);
+                saveOrUpdate(loadScan, scanDto, user);
             }
             // 释放锁
             unLock(recordList.get(0));
@@ -1214,6 +1214,9 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     private Integer getWaybillStatus(Integer goodsAmount, Integer loadAmount, Integer unloadAmount,
                                      Integer forceAmount) {
+        if (forceAmount == null) {
+            forceAmount = 0;
+        }
 
         // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
         // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
@@ -1292,12 +1295,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
     }
 
-    public boolean saveOrUpdate(GoodsLoadScan e, User user) {
+    public boolean saveOrUpdate(GoodsLoadScan e, LoadScanDto scanDto, User user) {
         GoodsLoadScan oldData = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(e.getTaskId(), e.getWayBillCode());
         e.setUpdateTime(new Date());
         e.setUpdateUserCode(user.getUserCode());
         e.setUpdateUserName(user.getUserName());
         if (oldData != null) {
+            e.setLoadAmount(oldData.getLoadAmount() + e.getLoadAmount());
+            e.setUnloadAmount(scanDto.getGoodsAmount() - e.getLoadAmount());
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
         } else {
