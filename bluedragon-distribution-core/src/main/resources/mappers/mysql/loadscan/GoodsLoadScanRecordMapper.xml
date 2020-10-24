@@ -162,6 +162,14 @@
         </foreach>
     </insert>
 
+    <select id="selectRecordByTaskIdAndBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
+    select
+    <include refid="Base_Column_List"/>
+    from load_scan_record where yn = 1 and  and scan_action = #{scanAction,jdbcType=INTEGER}
+    and task_id = #{taskId,jdbcType=BIGINT} and  board_code = #{boardCode,jdbcType=INTEGER} limit 1
+    </select>
+
+
     <select id="selectListByCondition" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
         select
         <include refid="Base_Column_List"/>
@@ -179,7 +187,7 @@
                 and package_code = #{packageCode,jdbcType=VARCHAR}
             </if>
             <if test="boardCode != null">
-                and board_code = #{boardCode,jdbcType=INTEGER}
+                and board_code = #{boardCode,jdbcType=VARCHAR}
             </if>
             <if test="scanAction != null">
                 and scan_action = #{scanAction,jdbcType=INTEGER}

@@ -35,8 +35,9 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
         record.setBoardCode(boardCode);
+        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         record.setYn(Constants.YN_YES);
-        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
+        return this.getSqlSession().selectOne(namespace + ".selectRecordByTaskIdAndBoardCode", record);
     }
 
     public int insert(GoodsLoadScanRecord record) {
