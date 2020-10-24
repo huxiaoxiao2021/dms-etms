@@ -503,8 +503,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 // 当前板子上同一个运单上的包裹数
                 Integer packageNum = map.get(waybillCode);
                 if (packageNum == null) {
+                    log.info("当前板子上该运单号包裹数不存在，boardCode={},waybillCode={},packageNum={}",boardCode, waybillCode, packageCode);
                     map.put(waybillCode, 1);
                 } else {
+                    log.info("当前板子上该运单号包裹数存在，boardCode={},waybillCode={},packageNum={}",boardCode, waybillCode, packageCode);
                     packageNum = packageNum + 1;
                     map.put(waybillCode, packageNum);
                 }
@@ -534,6 +536,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
                 return response;
             }
+            log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
 
             // 根据板号判断是否是重复扫
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
@@ -565,15 +568,23 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScan.setWayBillCode(scanDto.getWayBillCode());
                 // 取出板子上该运单下的要装车包裹数量
                 Integer packageNum = map.get(scanDto.getWayBillCode());
+                log.info("板号暂存接口--反查记录1，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
                 // 计算已装、未装
                 loadScan.setLoadAmount(packageNum);
                 loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
+                log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
                 // 设置运单颜色状态
                 Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
                         loadScan.getUnloadAmount(), loadScan.getForceAmount());
+                log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
                 loadScan.setStatus(status);
                 // 如果已存在就更新，不存在就插入
                 saveOrUpdate(loadScan, scanDto, user);
+                log.info("板号暂存接口--反查记录8，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
             }
             // 释放锁
             unLock(taskId, null, boardCode);
@@ -1310,16 +1321,24 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     public boolean saveOrUpdate(GoodsLoadScan e, LoadScanDto scanDto, User user) {
+        log.info("板号暂存接口--反查记录4");
+
         GoodsLoadScan oldData = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(e.getTaskId(), e.getWayBillCode());
+        log.info("板号暂存接口--反查记录5");
+
         e.setUpdateTime(new Date());
         e.setUpdateUserCode(user.getUserCode());
         e.setUpdateUserName(user.getUserName());
         if (oldData != null) {
+            log.info("板号暂存接口--反查记录6");
+
             e.setLoadAmount(oldData.getLoadAmount() + e.getLoadAmount());
             e.setUnloadAmount(scanDto.getGoodsAmount() - e.getLoadAmount());
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
         } else {
+            log.info("板号暂存接口--反查记录7");
+
             e.setCreateTime(new Date());
             e.setCreateUserCode(user.getUserCode());
             e.setCreateUserName(user.getUserName());
