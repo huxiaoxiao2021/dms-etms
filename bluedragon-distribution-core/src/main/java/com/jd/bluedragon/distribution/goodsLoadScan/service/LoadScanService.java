@@ -40,9 +40,8 @@ public interface LoadScanService {
     JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
 
     JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
-
     JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response);
 
-
+    void deleteLoadScanByTaskId(Long taskId);
 
     }

@@ -52,6 +52,10 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
 
     }
 
+    public boolean deleteLoadScanByTaskId(Long taskId) {
+        return super.getSqlSession().update(NAMESPACE + ".deleteLoadScanByTaskId", taskId) > 0;
+    }
+
 }
 
 
