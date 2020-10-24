@@ -1161,6 +1161,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 多扫仍然显示黄色
             if (flowDisAccordMap.get(detailDto.getWayBillCode()) != null) {
                 goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+                // 如果包裹已装等于库存显示绿色
+                if (detailDto.getGoodsAmount().equals(loadScan.getLoadAmount())) {
+                    goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
+                }
             }
             goodsDetails.add(goodsDetailDto);
         }
