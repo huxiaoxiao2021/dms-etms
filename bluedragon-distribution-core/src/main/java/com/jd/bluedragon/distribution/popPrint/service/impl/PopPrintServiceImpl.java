@@ -227,10 +227,10 @@ public class PopPrintServiceImpl implements PopPrintService {
                     &&PopPrintRequest.BUS_TYPE_SITE_PLATFORM_PRINT.equals(popPrintRequest.getBusinessType())){
                 isNeedSendMQ = true;
             }else if(
-                    isPrintPack
+                    ResidentTypeEnum.RESIDENT_GANTRY.getType() == residentType
+                            || (isPrintPack
                     &&PopPrintRequest.POP_RECEIVE_TYPE_5.equals(popPrintRequest.getPopReceiveType())
-                    &&PopPrintRequest.BUS_TYPE_IN_FACTORY_PRINT.equals(popPrintRequest.getBusinessType())
-                    || ResidentTypeEnum.RESIDENT_GANTRY.getType() == residentType
+                    &&PopPrintRequest.BUS_TYPE_IN_FACTORY_PRINT.equals(popPrintRequest.getBusinessType()))
             ){
                 //驻厂打印 时
                 if(StringUtils.isNotBlank(popPrintRequest.getBoxCode())){
