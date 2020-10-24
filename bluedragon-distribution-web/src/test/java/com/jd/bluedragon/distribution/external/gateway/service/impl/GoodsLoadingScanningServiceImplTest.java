@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsException
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,6 +34,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
+
+    @Resource
+    private LoadCarTaskGateWayService loadCarTaskGateWayService;
 
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
@@ -141,7 +145,7 @@ public class GoodsLoadingScanningServiceImplTest {
 
     }
 
-    @Test
+    @Test //测试批量插入包裹信息
     public void testBatchInsert() {
         List<GoodsLoadScanRecord> list = new ArrayList<>();
 
@@ -194,5 +198,15 @@ public class GoodsLoadingScanningServiceImplTest {
 
     }
 
+    @Test
+    public void testCheckLicenseNumber() {
+
+        JdCResponse<String> res = loadCarTaskGateWayService.checkLicenseNumber("123456789");
+        System.out.println(res.getCode() + res.getMessage() + res.getData());
+
+        JdCResponse<String> res1 = loadCarTaskGateWayService.checkLicenseNumber("010PDA123");
+        System.out.println(res1.getCode() + res1.getMessage() + res1.getData());
+        System.out.println("-------");
+    }
 
 }

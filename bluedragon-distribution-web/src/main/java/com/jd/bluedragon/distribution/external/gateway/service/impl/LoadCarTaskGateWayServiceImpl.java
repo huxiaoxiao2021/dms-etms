@@ -153,7 +153,13 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         if (licenseNumber.length() == 9) {
+            String temp = licenseNumber;//如果是数字，转化成功存在汉字，两者不相等，   如果相等就不正常
             licenseNumber = transferLicenseNumber(licenseNumber);
+            if(temp.equals(licenseNumber)) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("车牌号不合规,请检查后重试");
+                return jdCResponse;
+            }
         }
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
