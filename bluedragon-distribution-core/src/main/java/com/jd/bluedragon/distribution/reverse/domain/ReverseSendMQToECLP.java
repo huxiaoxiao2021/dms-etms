@@ -30,6 +30,10 @@ public class ReverseSendMQToECLP {
     * 库房编号，天音项目增加
     * */
     private Integer warehouseNo;
+	/**
+	 * 0：客退入，为1：病单入，为2：预售入
+	 */
+	private Integer guestBackType;
 
     public String getJdOrderCode() {
         return jdOrderCode;
@@ -126,4 +130,12 @@ public class ReverseSendMQToECLP {
     public void setWarehouseNo(Integer warehouseNo) {
         this.warehouseNo = warehouseNo;
     }
+
+	public Integer getGuestBackType() {
+		return guestBackType;
+	}
+
+	public void setGuestBackType(Integer guestBackType) {
+		this.guestBackType = guestBackType;
+	}
 }

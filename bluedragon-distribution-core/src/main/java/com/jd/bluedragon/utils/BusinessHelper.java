@@ -824,4 +824,15 @@ public class BusinessHelper {
     public static boolean isMustPerSortingSite(String waybillSign){
         return BusinessUtil.isSignChar(waybillSign, 88, '1');
     }
+
+    /**
+     * 判断运单是否是 揽收时需要采集商品信息的运单
+     * 如果是 揽收时需要采集商品信息。运单：true 否则:false
+     * 这个场景会在B2C订单中出现
+     * @param:waybillSign
+     * @return:boolean
+     */
+    public static boolean isNeedCollectingWaybill(String waybillSign){
+        return BusinessUtil.isSignChar(waybillSign, 45, '2');
+    }
 }

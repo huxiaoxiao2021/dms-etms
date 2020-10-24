@@ -112,6 +112,10 @@ public  class SendMDao extends BaseDao<SendM>  {
         //TODO
 		return getSqlSession().selectList(SendMDao.namespace + ".findSendMByBoxCode2", sendM);
 	}
+
+	public String querySendCodeBySelective(SendM sendM) {
+		return getSqlSession().selectOne(SendMDao.namespace + ".querySendCodeBySelective", sendM);
+	}
     
     public boolean cancelSendM(SendM tSendM) {
         return this

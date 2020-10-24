@@ -28,7 +28,7 @@ import java.util.*;
  * @date: 2018年12月25日17:38:01
  */
 @Service("c2cInterceptHandler")
-public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext, String> {
+public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<WaybillPrintContext,String> {
     private static final Logger log = LoggerFactory.getLogger(C2cInterceptHandler.class);
 
     @Autowired
@@ -49,25 +49,45 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType());//站长工作台换单打印
     }
+    /**
+     * 需要检查揽收完成的场景
+     */
+    private static Set<Integer> needCheckCollectFinished = new HashSet<>();
+    static {
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());//平台打印
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType());//包裹补打
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType());//批量包裹补打
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());//站点平台打印
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType());//站长工作台：包裹补打
+    }
 
     @Override
-    public InterceptResult<String> handle(WaybillPrintContext context) {
-        log.debug("C2cInterceptHandler-C2C运单打印面单校验揽收完成");
+    void prepareData(WaybillPrintContext param) {
+        //校验需要的数据是否存在，不存在加载需要的数据
+        if (null == param.getCollectComplete()){
+            //查询揽收完成（-640）全程跟踪结果
+            List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(
+                    param.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+            if (com.jd.ldop.utils.CollectionUtils.isEmpty(collectCompleteResult)){
+                param.setCollectComplete(Boolean.FALSE);
+            }else{
+                param.setCollectComplete(Boolean.TRUE);
+            }
+        }
+    }
+
+    @Override
+    InterceptResult<String> doHandler(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();
         String waybillSign = context.getWaybill().getWaybillSign();
-        if ((WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
-                && BusinessHelper.isC2cForward(waybillSign) && !(BusinessHelper.isC2cChangeAddress(waybillSign))) {
-            //查询揽收完成（-640）全程跟踪结果
-            List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+        if (needCheckCollectFinished.contains(context.getRequest().getOperateType())
+                && BusinessHelper.isC2cForward(waybillSign)
+                && !(BusinessHelper.isC2cChangeAddress(waybillSign))) {
             //揽收交接完成（-1300）全程跟踪结果
             List<PackageStateDto> collectHandoverCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE);
             //存在揽收完成或交接完成的全程跟踪，都可以进行打印，反之，进行拦截提示，禁止打印
-            if (! (collectCompleteResult.size() != 0 || collectHandoverCompleteResult.size() != 0)) {
+            if (! (context.getCollectComplete() || collectHandoverCompleteResult.size() != 0)) {
                 interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
                 return interceptResult;
             }
@@ -110,4 +130,5 @@ public class C2cInterceptHandler implements InterceptHandler<WaybillPrintContext
         }
         return interceptResult;
     }
+
 }
