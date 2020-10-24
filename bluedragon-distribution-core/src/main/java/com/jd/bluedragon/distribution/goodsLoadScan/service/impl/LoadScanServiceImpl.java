@@ -400,10 +400,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
             // 记录属于多扫状态的运单
-            List<LoadScanDto> flowDisAccordList = new ArrayList<>();
+            Map<String, LoadScanDto> flowDisAccordMap = new HashMap<>(16);
+
             log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
-            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordList),
+            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordMap),
                     createSiteId, nextSiteId, null);
+
+            List<LoadScanDto> flowDisAccordList = new ArrayList<>(flowDisAccordMap.values());
+
             if (reportList == null || reportList.isEmpty()) {
                 log.info("根据暂存表记录反查分拣报表返回为空，taskId={}", req.getTaskId());
                 response.setCode(JdCResponse.CODE_FAIL);
@@ -427,7 +431,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
-            goodsDetailDtoList = transformData(reportList, map);
+            goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap);
 
             log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={},size={}", req.getTaskId(), goodsDetailDtoList.size());
             // 按照颜色排序
@@ -574,8 +578,10 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 计算已装、未装
             loadScan.setLoadAmount(packageNum);
-            loadScan.setUnloadAmount(scanDto.getGoodsAmount() - loadScan.getLoadAmount());
+            int unloadNum = scanDto.getGoodsAmount() - loadScan.getLoadAmount();
+            loadScan.setUnloadAmount(unloadNum);
             log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
 
             // 设置运单颜色状态
             Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
@@ -674,10 +680,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 校验通过，暂存
         Integer goodsAmount = scanDto.getGoodsAmount();
 
-        log.info("常规包裹号后续校验--判断是否是第一个包裹开始：taskId={}", loadCar.getId());
-
-        // 扫描第一个包裹时，修改任务状态为已开始
-        updateTaskStatus(loadCar, user);
 
         log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
 
@@ -972,7 +974,20 @@ public class LoadScanServiceImpl implements LoadScanService {
             GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                     null, transfer, flowDisAccord, user, loadCar);
 
+            // 判断是否有所属板号
+            Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
+            if (board != null) {
+                log.info("该常规包裹号有对应的板号！taskId={},packageCode={},waybillCode={},boardCode={}",
+                        taskId, packageCode, waybillCode, board.getCode());
+                // 如果有板号，可能是扫描装车时忘了勾选转板号，记录下来以便转板号时好判断
+                newLoadScanRecord.setBoardCode(board.getCode());
+            }
+
             goodsLoadScanRecordDao.insert(newLoadScanRecord);
+
+            log.info("常规包裹号后续校验--判断是否是第一个包裹开始：taskId={}", loadCar.getId());
+            // 扫描第一个包裹时，修改任务状态为已开始
+            updateTaskStatus(loadCar, user);
 
             // 运单暂存表新增或修改
             GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
@@ -1101,7 +1116,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
 
-    private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map) {
+    private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map,
+                                               Map<String, LoadScanDto> flowDisAccordMap) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
         for (LoadScanDto detailDto : list) {
             GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
@@ -1111,11 +1127,16 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 从map中获取运单号对应的暂存记录
             GoodsLoadScan loadScan = map.get(detailDto.getWayBillCode());
             goodsDetailDto.setLoadAmount(loadScan.getLoadAmount());
-            goodsDetailDto.setUnloadAmount(detailDto.getGoodsAmount() - loadScan.getLoadAmount());
+            int unloadNum = detailDto.getGoodsAmount() - loadScan.getLoadAmount();
+            goodsDetailDto.setUnloadAmount(unloadNum);
             // 重新计算颜色
             Integer status = getWaybillStatus(detailDto.getGoodsAmount(), loadScan.getLoadAmount(),
                     goodsDetailDto.getUnloadAmount(), loadScan.getForceAmount());
             goodsDetailDto.setStatus(status);
+            // 多扫仍然显示黄色
+            if (flowDisAccordMap.get(detailDto.getWayBillCode()) != null) {
+                goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+            }
             goodsDetails.add(goodsDetailDto);
         }
         return goodsDetails;
@@ -1187,7 +1208,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     private List<String> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map,
-                                         List<LoadScanDto> flowDisAccordList) {
+                                         Map<String, LoadScanDto> flowDisAccordMap) {
         List<String> list = new ArrayList<>();
         LoadScanDto scanDto;
         for (GoodsLoadScan scan : scans) {
@@ -1196,7 +1217,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(scan.getStatus())) {
                 scanDto = new LoadScanDto();
                 scanDto.setWayBillCode(scan.getWayBillCode());
-                flowDisAccordList.add(scanDto);
+                // 记录暂存表中的多扫记录，以便再给端上返回时仍显示黄色
+                flowDisAccordMap.put(scan.getWayBillCode(), scanDto);
             }
             // 记录原来的运单对应的暂存记录
             map.put(scan.getWayBillCode(), scan);
