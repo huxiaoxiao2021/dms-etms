@@ -410,6 +410,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("根据暂存表记录反查分拣报表返回为空");
                 return response;
             }
+            log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
+
             // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
             if (!flowDisAccordList.isEmpty()) {
                 log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
@@ -427,7 +429,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
             goodsDetailDtoList = transformData(reportList, map);
 
-            log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={}", req.getTaskId());
+            log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={},size={}", req.getTaskId(), goodsDetailDtoList.size());
             // 按照颜色排序
             Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
                 @Override
@@ -869,9 +871,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 如果批次号已绑定，直接返回
         if (StringUtils.isNotBlank(loadCar.getBatchCode())) {
-            log.warn("该批次号已绑定此任务，taskId={},batchCode={}", taskId, batchCode);
+            log.warn("该任务已经绑定过批次号，taskId={},batchCode={}", taskId, batchCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该批次号已绑定此任务");
+            response.setMessage("该任务已经绑定过批次号");
             return response;
         }
 
