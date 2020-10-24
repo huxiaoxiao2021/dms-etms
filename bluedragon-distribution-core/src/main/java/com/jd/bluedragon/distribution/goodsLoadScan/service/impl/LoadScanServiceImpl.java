@@ -574,6 +574,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         } catch (Exception e) {
             log.error("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={},e=", taskId,
                     packageCode, transfer, flowDisAccord, boardCode, e);
+            // 释放锁
+            unLock(recordList.get(0));
             response.setCode(JdCResponse.CODE_ERROR);
             response.setMessage("根据板号暂存包裹接口发生异常");
             return response;
@@ -971,7 +973,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             unLock(newLoadScanRecord);
         } catch (Exception e) {
             log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
-            e.printStackTrace();
+            // 释放锁
+            unLock(newLoadScanRecord);
         }
 
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
