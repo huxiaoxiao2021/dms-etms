@@ -576,7 +576,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
 
                 // 设置运单颜色状态
-                Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
+                Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
                         loadScan.getUnloadAmount(), loadScan.getForceAmount());
                 log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
 
