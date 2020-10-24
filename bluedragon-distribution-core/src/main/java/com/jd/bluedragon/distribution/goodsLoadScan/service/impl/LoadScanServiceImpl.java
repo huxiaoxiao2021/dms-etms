@@ -60,7 +60,10 @@ import java.util.concurrent.TimeUnit;
 
 @Service("loadScanService")
 public class LoadScanServiceImpl implements LoadScanService {
+
     private final static Logger log = LoggerFactory.getLogger(LoadScanServiceImpl.class);
+
+    private final static int LOCK_TIME = 60;
 
     @Autowired
     private DeliveryService deliveryService;
@@ -484,18 +487,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         updateTaskStatus(loadCar, user);
         log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                 packageCode, transfer, flowDisAccord, boardCode);
-        // 根据板号判断是否是重复扫
-        GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
-                .findLoadScanRecordByTaskIdAndBoardCode(taskId, boardCode);
-        if (loadScanRecord != null) {
-            // 重复扫直接跳过
-            log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该板号属于重复扫！");
-            return response;
-        }
-        log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
+
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
         try {
@@ -540,13 +532,29 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
             // 获取锁
-            if (!lock(recordList.get(0))) {
+            if (!lock(taskId, null, boardCode)) {
                 log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                         packageCode, transfer, flowDisAccord, boardCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
                 return response;
             }
+
+            // 根据板号判断是否是重复扫
+            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
+                    .findLoadScanRecordByTaskIdAndBoardCode(taskId, boardCode);
+            if (loadScanRecord != null) {
+                // 重复扫直接跳过
+                log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该板号属于重复扫！");
+                // 释放锁
+                unLock(taskId, null, boardCode);
+                return response;
+            }
+            log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
+
             // 批量保存板上的包裹记录
             goodsLoadScanRecordDao.batchInsert(recordList);
 
@@ -568,14 +576,14 @@ public class LoadScanServiceImpl implements LoadScanService {
                 saveOrUpdate(loadScan, scanDto, user);
             }
             // 释放锁
-            unLock(recordList.get(0));
+            unLock(taskId, null, boardCode);
             log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
         } catch (Exception e) {
             log.error("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={},e=", taskId,
                     packageCode, transfer, flowDisAccord, boardCode, e);
             // 释放锁
-            unLock(recordList.get(0));
+            unLock(taskId, null, boardCode);
             response.setCode(JdCResponse.CODE_ERROR);
             response.setMessage("根据板号暂存包裹接口发生异常");
             return response;
@@ -929,33 +937,36 @@ public class LoadScanServiceImpl implements LoadScanService {
         JdCResponse<Void> response = new JdCResponse<>();
 
         log.info("常规包裹号后续校验--开始暂存前校验--是否属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-        // 校验重复扫
-        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-        record.setTaskId(taskId);
-        record.setWayBillCode(waybillCode);
-        record.setPackageCode(packageCode);
-        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
-        record.setYn(Constants.YN_YES);
-        GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
-        // 如果是重复扫，返回错误
-        if (loadScanRecord != null) {
-            log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-            response.setCode(JdCResponse.CODE_SUCCESS);
-            response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
-            return response;
-        }
-        log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-
-        // 如果不是重复扫，包裹扫描记录表新增一条记录
-        GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                null, transfer, flowDisAccord, user, loadCar);
         try {
             // 获取锁
-            if (!lock(newLoadScanRecord)) {
+            if (!lock(taskId, waybillCode, null)) {
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
                 return response;
             }
+            // 校验重复扫
+            GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+            record.setTaskId(taskId);
+            record.setWayBillCode(waybillCode);
+            record.setPackageCode(packageCode);
+            record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+            record.setYn(Constants.YN_YES);
+            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
+            // 如果是重复扫，返回错误
+            if (loadScanRecord != null) {
+                log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_SUCCESS);
+                response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
+                // 释放锁
+                unLock(taskId, waybillCode, null);
+                return response;
+            }
+            log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+
+            // 如果不是重复扫，包裹扫描记录表新增一条记录
+            GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
+                    null, transfer, flowDisAccord, user, loadCar);
+
             goodsLoadScanRecordDao.insert(newLoadScanRecord);
 
             // 运单暂存表新增或修改
@@ -970,11 +981,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             // 释放锁
-            unLock(newLoadScanRecord);
+            unLock(taskId, waybillCode, null);
         } catch (Exception e) {
             log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
             // 释放锁
-            unLock(newLoadScanRecord);
+            unLock(taskId, waybillCode, null);
         }
 
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
@@ -1267,34 +1278,34 @@ public class LoadScanServiceImpl implements LoadScanService {
         return null;
     }
 
-    private boolean lock(GoodsLoadScanRecord req) {
-        String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId() + "_" + getLockFlag(req);
+    private boolean lock(Long taskId, String waybillCode, String boardCode) {
+        String lockKey = LOADS_CAN_LOCK_BEGIN + taskId + "_" + getLockFlag(waybillCode, boardCode);
         try {
-            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 60, TimeUnit.SECONDS)) {
+            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS)) {
                 Thread.sleep(100);
-                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 60, TimeUnit.SECONDS);
+                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TIME, TimeUnit.SECONDS);
             }
         } catch (Exception e) {
-            log.error("装车扫描lock异常:{}", JsonHelper.toJson(req), e);
+            log.error("装车扫描unLock异常:taskId={},waybillCode={},boardCode={},e=", taskId, waybillCode, boardCode, e);
             jimdbCacheService.del(lockKey);
         }
         return true;
     }
 
-    private String getLockFlag(GoodsLoadScanRecord req) {
-        if (StringUtils.isNotBlank(req.getBoardCode())) {
-            return req.getBoardCode();
+    private String getLockFlag(String waybillCode, String boardCode) {
+        if (StringUtils.isNotBlank(boardCode)) {
+            return boardCode;
         } else {
-            return req.getWayBillCode();
+            return waybillCode;
         }
     }
 
-    private void unLock(GoodsLoadScanRecord req) {
+    private void unLock(Long taskId, String waybillCode, String boardCode) {
         try {
-            String lockKey = LOADS_CAN_LOCK_BEGIN + req.getTaskId() + "_" + getLockFlag(req);
+            String lockKey = LOADS_CAN_LOCK_BEGIN + taskId + "_" + getLockFlag(waybillCode, boardCode);
             jimdbCacheService.del(lockKey);
         } catch (Exception e) {
-            log.error("装车扫描unLock异常:{}", JsonHelper.toJson(req), e);
+            log.error("装车扫描unLock异常:taskId={},waybillCode={},boardCode={},e=", taskId, waybillCode, boardCode, e);
         }
     }
 
