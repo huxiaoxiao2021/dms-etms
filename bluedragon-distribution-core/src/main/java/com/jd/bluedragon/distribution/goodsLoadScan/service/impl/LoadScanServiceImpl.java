@@ -418,7 +418,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
             if (!flowDisAccordList.isEmpty()) {
-                log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
+                log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={},flowDisAccord={}",
+                        req.getTaskId(), flowDisAccordList.size(), flowDisAccordList.toString());
                 List<LoadScanDto> externalList = getLoadScanListByWaybillCode(flowDisAccordList, createSiteId);
                 if (externalList == null || externalList.isEmpty()) {
                     log.info("根据暂存表该任务下的多扫记录反查分拣报表返回为空，taskId={}", req.getTaskId());
