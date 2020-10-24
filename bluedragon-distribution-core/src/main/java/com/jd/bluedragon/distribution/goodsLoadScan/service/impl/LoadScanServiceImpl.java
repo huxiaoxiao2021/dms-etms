@@ -493,6 +493,20 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
 
+        // 板子上可以装车的有效包裹
+        List<String> loadPackCode = new ArrayList<>();
+
+        // 获取锁
+        if (!lock(taskId, null, boardCode)) {
+            log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
+            return response;
+        }
+        // 根据板号查询之前的包裹扫描记录
+        List<String> packageCodes = goodsLoadScanRecordDao.findPackageCodesByBoardCode(taskId, boardCode);
+
         // 运单，包裹数
         Map<String, Integer> map = new HashMap<>(16);
         // 循环处理板上的每一个包裹
@@ -500,6 +514,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (!WaybillUtil.isPackageCode(packCode)) {
                 continue;
             }
+
+            // 如果之前扫描过板子上的该包裹，则忽略
+            if (packageCodes.contains(packCode)) {
+                continue;
+            }
+
+            loadPackCode.add(packCode);
             String waybillCode = WaybillUtil.getWaybillCode(packCode);
 
             // 板上的包裹列表不需要再校验是否已验货，直接装车
@@ -523,6 +544,24 @@ public class LoadScanServiceImpl implements LoadScanService {
             recordList.add(goodsLoadScanRecord);
         }
 
+        log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(), loadPackCode.size(),
+                boardCode, taskId);
+
+        log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
+
+        // 如果可以装车的包裹为空，则属于重复扫
+        if (loadPackCode.isEmpty()) {
+            // 重复扫直接跳过
+            log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该板号属于重复扫！");
+            // 释放锁
+            unLock(taskId, null, boardCode);
+            return response;
+        }
+
+        log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                packageCode, transfer, flowDisAccord, boardCode);
         log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                 packageCode, transfer, flowDisAccord, boardCode);
         // 根据运单号列表去分拣报表查找已验未发对应的库存数
@@ -534,30 +573,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
-        // 获取锁
-        if (!lock(taskId, null, boardCode)) {
-            log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                    packageCode, transfer, flowDisAccord, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
-            return response;
-        }
-        log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
-
-        // 根据板号判断是否是重复扫
-        GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao
-                .findLoadScanRecordByTaskIdAndBoardCode(taskId, boardCode);
-        if (loadScanRecord != null) {
-            // 重复扫直接跳过
-            log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该板号属于重复扫！");
-            // 释放锁
-            unLock(taskId, null, boardCode);
-            return response;
-        }
-        log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                 packageCode, transfer, flowDisAccord, boardCode);
 
         // 批量保存板上的包裹记录
