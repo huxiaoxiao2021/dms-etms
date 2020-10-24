@@ -466,7 +466,7 @@ public class UccPropertyConfiguration {
         this.clickIntervalSecond = clickIntervalSecond;
     }
 
-    public String getRedisSwitchOn() {
+	public String getRedisSwitchOn() {
 		return redisSwitchOn;
 	}
 
