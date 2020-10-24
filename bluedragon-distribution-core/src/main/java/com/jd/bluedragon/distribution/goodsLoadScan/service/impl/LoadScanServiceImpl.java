@@ -572,7 +572,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
         } catch (Exception e) {
-            log.error("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={},e=", taskId,
+            log.error("板号暂存接口--发生异常：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={},e={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode, e);
             response.setCode(JdCResponse.CODE_ERROR);
             response.setMessage("根据板号暂存包裹接口发生异常");

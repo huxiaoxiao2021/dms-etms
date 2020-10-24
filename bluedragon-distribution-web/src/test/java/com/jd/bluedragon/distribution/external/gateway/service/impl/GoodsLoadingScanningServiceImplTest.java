@@ -6,6 +6,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,6 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +30,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private GoodsLoadScanGatewayService goodsLoadingScanningService;
+
+    @Resource
+    private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
 
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
@@ -132,6 +138,59 @@ public class GoodsLoadingScanningServiceImplTest {
         System.out.println(res.getCode() + "----" + res.getMessage());
 
         System.out.println("-----------------end-----------------");
+
+    }
+
+    @Test
+    public void testBatchInsert() {
+        List<GoodsLoadScanRecord> list = new ArrayList<>();
+
+        GoodsLoadScanRecord param = new GoodsLoadScanRecord();
+
+        param.setTaskId(10L);
+        param.setWayBillCode("test1");
+        param.setEndSiteCode(123L);
+        param.setEndSiteName("目的地");
+        param.setCreateSiteCode(321L);
+        param.setCreateSiteName("出发地");
+        param.setPackageCode("afda");
+        param.setBoardCode("afsdfa");
+        param.setScanAction(-1);
+        param.setTransfer(1);
+        param.setCreateUserCode(123);
+        param.setCreateUserName("zcf");
+        param.setUpdateUserName("zcf");
+        param.setUpdateUserCode(23);
+        param.setUpdateTime(new Date());
+        param.setCreateTime(new Date());
+        param.setForceStatus(1);
+        param.setFlowDisaccord(1);
+        list.add(param);
+
+        GoodsLoadScanRecord param1 = new GoodsLoadScanRecord();
+
+        param1.setTaskId(10L);
+        param.setWayBillCode("test2");
+        param1.setEndSiteCode(123L);
+        param1.setEndSiteName("目的地");
+        param1.setCreateSiteCode(321L);
+        param1.setCreateSiteName("出发地");
+        param1.setPackageCode("afda");
+        param1.setBoardCode("afsdfa");
+        param1.setScanAction(-1);
+        param1.setTransfer(1);
+        param1.setCreateUserCode(123);
+        param1.setCreateUserName("zcf");
+        param1.setUpdateUserName("zcf");
+        param1.setUpdateUserCode(23);
+        param1.setUpdateTime(new Date());
+        param1.setCreateTime(new Date());
+        param1.setForceStatus(1);
+        param1.setFlowDisaccord(1);
+        list.add(param1);
+
+       boolean res =  goodsLoadScanRecordDao.batchInsert(list);
+        System.out.println(res);
 
     }
 
