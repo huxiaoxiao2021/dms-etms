@@ -408,12 +408,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             List<LoadScanDto> flowDisAccordList = new ArrayList<>(flowDisAccordMap.values());
 
-            if (reportList == null || reportList.isEmpty()) {
-                log.info("根据暂存表记录反查分拣报表返回为空，taskId={}", req.getTaskId());
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("根据暂存表记录反查分拣报表返回为空");
-                return response;
-            }
             log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
 
             // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
