@@ -1030,6 +1030,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 计算单子状态
         Integer status = getWaybillStatus(loadScan.getGoodsAmount(), loadScan.getLoadAmount(),
                 loadScan.getUnloadAmount(), loadScan.getForceAmount());
+        // 如果原来是黄颜色
+        if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(loadScan.getStatus())) {
+            // 没装齐仍然显示黄颜色
+            if (goodsAmount > loadScan.getLoadAmount()) {
+                status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
+            }
+        }
         loadScan.setStatus(status);
     }
 
