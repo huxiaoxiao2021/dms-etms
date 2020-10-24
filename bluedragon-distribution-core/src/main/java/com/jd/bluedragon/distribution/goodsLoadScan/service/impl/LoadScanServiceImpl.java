@@ -483,11 +483,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         log.info("板号暂存接口--根据板号找板上的所有包裹结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                 packageCode, transfer, flowDisAccord, boardCode);
 
-        // 扫描第一个包裹时，修改任务状态为已开始
-        updateTaskStatus(loadCar, user);
-        log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
-
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
         try {
@@ -557,6 +552,11 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 批量保存板上的包裹记录
             goodsLoadScanRecordDao.batchInsert(recordList);
+
+            // 扫描第一个包裹时，修改任务状态为已开始
+            updateTaskStatus(loadCar, user);
+            log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
 
             for (LoadScanDto scanDto : scanDtoList) {
                 // 根据任务ID和运单号查询暂存表
