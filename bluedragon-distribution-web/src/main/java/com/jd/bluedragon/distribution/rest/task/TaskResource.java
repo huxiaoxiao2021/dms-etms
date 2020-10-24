@@ -129,7 +129,8 @@ public class TaskResource {
                 log.warn("运单{}已妥投", waybillCode);
                 it.remove();
             }
-            inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+
+            //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         }
         if(inspections.size() ==0){
             return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,

@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import static com.jd.bluedragon.distribution.sorting.domain.SortingBizSourceEnum.AUTOMATIC_SORTING_MACHINE_SORTING;
 
 @Service("taskService")
 public class TaskServiceImpl implements TaskService {
@@ -658,6 +659,7 @@ public class TaskServiceImpl implements TaskService {
         request.setSiteName(dto.getDistributeName());
         request.setUserCode(dto.getOperatorID());
         request.setUserName(dto.getOperatorName());
+        request.setBizSource(AUTOMATIC_SORTING_MACHINE_SORTING.getCode());
         list.add(request);
         taskSorting.setBody(JsonHelper.toJson(list));
         return taskSorting;
