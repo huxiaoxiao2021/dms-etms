@@ -156,6 +156,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             String temp = licenseNumber;//如果是数字，转化成功存在汉字，两者不相等，   如果相等就不正常
             licenseNumber = transferLicenseNumber(licenseNumber);
             if(temp.equals(licenseNumber)) {
+                log.info("车牌号{}前三位不合规，转换汉字失败");
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("车牌号不合规,请检查后重试");
                 return jdCResponse;
