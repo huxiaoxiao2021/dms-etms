@@ -172,6 +172,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                    return result;
+                }
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -192,9 +199,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surfacePackageCheck(request,result);
             }
 
-            //拦截校验
-            InvokeResult<String> invokeResult = interceptValidateUnloadCar(request.getBarCode());
-
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
@@ -204,21 +208,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(result.getCode() == CODE_SUCCESS_HIT){
                 isSurplusPackage = true;
             }
-            if(invokeResult == null || Objects.equals(invokeResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
-                // 卸车处理并回传TC组板关系
-                dealUnloadAndBoxToBoard(request,isSurplusPackage);
-            }else{
-                setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
-                if(isSurplusPackage){
-                   updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(request.getSealCarCode()),1);
-                }else {
-                   updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(request.getSealCarCode()),1);
-                }
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,invokeResult.getMessage());
-            }
+
+            // 卸车处理并回传TC组板关系
+            dealUnloadAndBoxToBoard(request,isSurplusPackage);
             //设置包裹数
             setPackageCount(result.getData());
-
         }catch (LoadIllegalException e){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return result;
