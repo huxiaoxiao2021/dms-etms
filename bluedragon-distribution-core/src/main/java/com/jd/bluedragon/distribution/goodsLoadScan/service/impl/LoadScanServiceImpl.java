@@ -1276,7 +1276,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         // 已装等于库存，未装=0 -- 已扫描完 -- 绿色
-        if (goodsAmount.equals(loadAmount) && unloadAmount == 0) {
+        if (goodsAmount.equals(loadAmount)) {
             return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
 
@@ -1348,9 +1348,18 @@ public class LoadScanServiceImpl implements LoadScanService {
         e.setUpdateUserName(user.getUserName());
         if (oldData != null) {
             log.info("板号暂存接口--反查记录6");
-
             e.setLoadAmount(oldData.getLoadAmount() + e.getLoadAmount());
             e.setUnloadAmount(scanDto.getGoodsAmount() - e.getLoadAmount());
+            Integer status = getWaybillStatus(scanDto.getGoodsAmount(), e.getLoadAmount(), e.getUnloadAmount(),
+                    oldData.getForceAmount());
+            e.setStatus(status);
+            // 如果原来是黄颜色
+            if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(oldData.getStatus())) {
+                // 没装齐仍然显示黄颜色
+                if (scanDto.getGoodsAmount() > e.getLoadAmount()) {
+                    e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+                }
+            }
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
         } else {
