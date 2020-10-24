@@ -76,6 +76,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
+import com.jd.bluedragon.distribution.send.domain.SendTaskCategoryEnum;
 import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
 import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
 import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
@@ -138,6 +139,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.common.network.Send;
@@ -150,6 +152,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -415,7 +418,18 @@ public class DeliveryServiceImpl implements DeliveryService {
      * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
      */
     private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
-
+    
+    private final int BIG_SEND_NUM = 1000;
+    /**
+     * 发货任务类型-发货处理关系
+     */
+    private static final Map<Integer,SendTaskCategoryEnum> TASK_MAPPING_SUBTYPE_CATEGORY = new HashMap<Integer,SendTaskCategoryEnum>();
+    static{
+    	TASK_MAPPING_SUBTYPE_CATEGORY.put(Task.TASK_SUB_TYPE_BATCH_SEND, SendTaskCategoryEnum.BATCH_SEND);
+    	TASK_MAPPING_SUBTYPE_CATEGORY.put(Task.TASK_SUB_TYPE_BOX_SEND, SendTaskCategoryEnum.BOX_SEND);
+    	TASK_MAPPING_SUBTYPE_CATEGORY.put(Task.TASK_SUB_TYPE_BOX_TRANSIT_SEND, SendTaskCategoryEnum.BOX_TRANSIT_SEND);
+    	TASK_MAPPING_SUBTYPE_CATEGORY.put(Task.TASK_SUB_TYPE_PACKAGE_SEND, SendTaskCategoryEnum.PACKAGE_SEND);
+    }
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
@@ -1088,8 +1102,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     public int pushStatusTask(SendM domain) {
+    	/**
+    	 * 是否按箱发货
+    	 */
+    	boolean isSendByBox = BusinessHelper.isBoxcode(domain.getBoxCode());
         SendTaskBody body = new SendTaskBody();
-        body.setHandleCategory(2);
+        if(isSendByBox){
+        	body.setHandleCategory(SendTaskCategoryEnum.BOX_SEND.getCode());
+        }else{
+        	body.setHandleCategory(SendTaskCategoryEnum.PACKAGE_SEND.getCode());
+        }
         body.copyFromParent(domain);
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoxCode());
@@ -1104,12 +1126,18 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setOwnSign(ownSign);
         // 1 回传运单状态
         tTask.setKeyword1("1");
+        if(isSendByBox){
+        	tTask.setSubType(Task.TASK_SUB_TYPE_BOX_SEND);
+        }else{
+        	tTask.setSubType(Task.TASK_SUB_TYPE_PACKAGE_SEND);
+        }
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoxCode() + tTask.getKeyword1()));
         tTaskService.add(tTask, true);
         //只有箱号添加回传周转箱任务
-        if (BusinessHelper.isBoxcode(domain.getBoxCode())) {
+        if (isSendByBox) {
             // 2回传周转箱号
             tTask.setKeyword1("2");
+            tTask.setSubType(null);
             tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoxCode() + tTask.getKeyword1()));
             tTaskService.add(tTask, true);
         }
@@ -1303,7 +1331,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private void addTaskSend(SendM sendM) {
         SendTaskBody body = new SendTaskBody();
-        body.setHandleCategory(1);
+        body.setHandleCategory(SendTaskCategoryEnum.BATCH_SEND.getCode());
         body.copyFromParent(sendM);
         Task tTask = new Task();
         tTask.setBoxCode(sendM.getSendCode());
@@ -1318,8 +1346,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("1");// 1 回传运单状态
+        tTask.setSubType(Task.TASK_SUB_TYPE_BATCH_SEND);
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
+        
+        tTask.setSubType(null);
         tTask.setKeyword1("2");// 2回传周转箱号
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
@@ -2782,53 +2813,106 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null) {
             return true;
         }
+        SendTaskCategoryEnum sendTaskCategory = getTaskCategory(task);
         List<SendM> tSendM = null;
-        if (JsonHelper.isJsonString(task.getBody())) {
-            SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
-            // 按照批次号
-            if (Integer.valueOf(1).equals(body.getHandleCategory())) {
-                tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(body.getCreateSiteCode(), body.getSendCode());
-            } else { // 按照箱号
-                tSendM = new ArrayList<SendM>(1);
-                tSendM.add(body);
-            }
-        } else {
-            tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(task.getCreateSiteCode(), task.getBoxCode());
+        CallerInfo info = null;
+        int sendMNum = 0;
+        int sendDNum = 0;
+        String sendCode = "";
+        try {
+        	//body里是任务
+	        if (JsonHelper.isJsonString(task.getBody())) {
+	            SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
+	            sendCode = body.getSendCode();
+	            if(body.getHandleCategory() != null){
+	            	sendTaskCategory = SendTaskCategoryEnum.getEnum(body.getHandleCategory());
+	            }
+	            info = startMonitor(sendTaskCategory);
+	            // 按照批次号
+	            if (SendTaskCategoryEnum.BATCH_SEND.getCode().equals(body.getHandleCategory())){
+	                tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(body.getCreateSiteCode(), body.getSendCode());
+	            } else { // 按照箱号
+	                tSendM = new ArrayList<SendM>(1);
+	                tSendM.add(body);
+	            }
+	        } else {
+	        	sendCode = task.getBoxCode();
+	        	info = startMonitor(SendTaskCategoryEnum.BATCH_SEND);
+	            tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(task.getCreateSiteCode(), task.getBoxCode());
+	        }
+	        if(tSendM != null){
+	        	sendMNum = tSendM.size();
+	        }
+	        log.info("发货任务处理{}:sendM{}条",sendCode,sendMNum);
+	        if (log.isDebugEnabled()) {
+	            log.debug("SEND_M明细:{}" ,JsonHelper.toJson(tSendM));
+	        }
+	        SendDetail tSendDetail = new SendDetail();
+	        List<SendDetail> sendDetailListTemp;
+	        List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
+	        for (SendM newSendM : tSendM) {
+	            tSendDetail.setBoxCode(newSendM.getBoxCode());
+	            tSendDetail.setCreateSiteCode(newSendM.getCreateSiteCode());
+	            tSendDetail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
+	            tSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+	            sendDetailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
+	
+	            for (SendDetail dSendDetail : sendDetailListTemp) {
+	                //只处理未发货的数据, 如果已发货则跳过
+	                if (dSendDetail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) {
+	                    continue;
+	                }
+	                dSendDetail.setSendCode(newSendM.getSendCode());
+	                dSendDetail.setOperateTime(newSendM.getOperateTime());
+	                dSendDetail.setCreateUser(newSendM.getCreateUser());
+	                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
+	                dSendDetail.setBoardCode(newSendM.getBoardCode());
+	                dSendDetail.setBizSource(newSendM.getBizSource());
+	                sendDetailList.add(dSendDetail);
+	            }
+	        }
+	        if(sendDetailList != null){
+	        	sendDNum = sendDetailList.size();
+	        }
+	        log.info("发货任务处理{}:sendD{}条",sendCode,sendDNum);
+	        if(sendDNum > BIG_SEND_NUM){
+	        	log.warn("发货任务处理-sendD超过{}条,{}:sendD{}条",BIG_SEND_NUM,sendCode,sendDNum);
+	        }
+	        if (log.isDebugEnabled()) {
+	            log.debug("SEND_D明细:{}" , JsonHelper.toJson(sendDetailList));
+	        }
+	        updateWaybillStatus(sendDetailList);
+        }catch(Exception e){
+        	Profiler.functionError(info);
+        	log.error("发货任务处理异常！", e);
+        	throw e;
+        }finally{
+        	Profiler.registerInfoEnd(info);
         }
-        if (log.isInfoEnabled()) {
-            log.info("SEND_M明细:{}" ,JsonHelper.toJson(tSendM));
-        }
-        SendDetail tSendDetail = new SendDetail();
-        List<SendDetail> sendDetailListTemp;
-        List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
-        for (SendM newSendM : tSendM) {
-            tSendDetail.setBoxCode(newSendM.getBoxCode());
-            tSendDetail.setCreateSiteCode(newSendM.getCreateSiteCode());
-            tSendDetail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
-            tSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
-            sendDetailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
-
-            for (SendDetail dSendDetail : sendDetailListTemp) {
-                //只处理未发货的数据, 如果已发货则跳过
-                if (dSendDetail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) {
-                    continue;
-                }
-                dSendDetail.setSendCode(newSendM.getSendCode());
-                dSendDetail.setOperateTime(newSendM.getOperateTime());
-                dSendDetail.setCreateUser(newSendM.getCreateUser());
-                dSendDetail.setCreateUserCode(newSendM.getCreateUserCode());
-                dSendDetail.setBoardCode(newSendM.getBoardCode());
-                dSendDetail.setBizSource(newSendM.getBizSource());
-                sendDetailList.add(dSendDetail);
-            }
-        }
-        if (log.isInfoEnabled()) {
-            log.info("SEND_D明细:{}" , JsonHelper.toJson(sendDetailList));
-        }
-        updateWaybillStatus(sendDetailList);
         return true;
     }
-
+    /**
+     * 根据任务获取对应的SendTaskCategoryEnum
+     * @param task
+     * @return
+     */
+    private SendTaskCategoryEnum getTaskCategory(Task task){
+    	if(task.getSubType()!= null){
+    		return TASK_MAPPING_SUBTYPE_CATEGORY.get(task.getSubType());
+    	}
+    	return null;
+    }
+    /**
+     * 开启任务监控
+     * @param task
+     * @return
+     */
+    private CallerInfo startMonitor(SendTaskCategoryEnum sendTaskCategory){
+    	if(sendTaskCategory != null ){
+    		return ProfilerHelper.registerInfo("dmsWorker.task.sendHandler."+sendTaskCategory.getKey(), Constants.UMP_APP_NAME_DMSWORKER);
+    	}
+    	return ProfilerHelper.registerInfo("dmsWorker.task.sendHandler."+SendTaskCategoryEnum.PACKAGE_SEND.getKey(), Constants.UMP_APP_NAME_DMSWORKER);
+    }
     private Message parseSendDetailToMessage(SendDetail sendDetail, String topic, String source) {
         Message message = new Message();
         SendDetail newSendDetail = new SendDetail();
@@ -2881,7 +2965,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> tSendM = null;
         if (JsonHelper.isJsonString(task.getBody())) {
             SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
-            if (body.getHandleCategory().equals(1)) {
+            if (SendTaskCategoryEnum.BATCH_SEND.getCode().equals(body.getHandleCategory())){
                 tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(
                         body.getCreateSiteCode(), body.getSendCode());
             } else {
@@ -4358,6 +4442,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setKeyword2(String.valueOf(domain.getSendType()));
         tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        tTask.setSubType(Task.TASK_SUB_TYPE_BOX_TRANSIT_SEND);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
         String ownSign = BusinessHelper.getOwnSign();
@@ -4370,7 +4455,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    @JProfiler(jKey = "DMSWORKER.DeliveryService.findTransitSend", mState = {JProEnum.TP})
+    @JProfiler(jKey = "dmsWorker.task.sendHandler.boxTransitSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean findTransitSend(Task task) throws Exception {
         if (task == null || task.getBoxCode() == null
                 || task.getCreateSiteCode() == null
