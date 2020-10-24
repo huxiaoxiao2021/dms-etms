@@ -165,7 +165,7 @@
     <select id="selectRecordByTaskIdAndBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
     select
     <include refid="Base_Column_List"/>
-    from load_scan_record where yn = 1 and  and scan_action = #{scanAction,jdbcType=INTEGER}
+    from load_scan_record where yn = 1 and  scan_action = #{scanAction,jdbcType=INTEGER}
     and task_id = #{taskId,jdbcType=BIGINT} and  board_code = #{boardCode,jdbcType=VARCHAR} limit 1
     </select>
 
