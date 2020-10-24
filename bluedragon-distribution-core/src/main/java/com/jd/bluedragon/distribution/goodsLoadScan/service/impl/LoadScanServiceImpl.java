@@ -587,8 +587,15 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 设置运单颜色状态
             Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
                     loadScan.getUnloadAmount(), loadScan.getForceAmount());
+
             log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
             loadScan.setStatus(status);
+
+            // 如果是多扫
+            if (flowDisAccord != null && flowDisAccord == 1) {
+                loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+            }
+
             // 如果已存在就更新，不存在就插入
             saveOrUpdate(loadScan, scanDto, user);
             log.info("板号暂存接口--反查记录8，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
