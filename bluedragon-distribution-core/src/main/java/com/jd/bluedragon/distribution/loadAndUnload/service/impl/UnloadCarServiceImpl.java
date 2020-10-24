@@ -172,13 +172,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
-                //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
-                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
-                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
-                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
-                    return result;
-                }
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -193,6 +186,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     result.customMessage(invokeResult.getCode(),invokeResult.getMessage());
+                    return result;
+                }
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                     return result;
                 }
             }else {
