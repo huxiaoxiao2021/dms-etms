@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 public class GoodsLoadScanRecordDao extends BaseDao {
 
@@ -35,9 +36,16 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
         record.setBoardCode(boardCode);
-        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         record.setYn(Constants.YN_YES);
         return this.getSqlSession().selectList(namespace + ".selectPackageCodesByBoardCode", record);
+    }
+
+    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long taskId, String boardCode) {
+        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+        record.setTaskId(taskId);
+        record.setBoardCode(boardCode);
+        record.setYn(Constants.YN_YES);
+        return this.getSqlSession().selectMap(namespace + ".selectRecordsByBoardCode", record, "packageCode");
     }
 
     public int insert(GoodsLoadScanRecord record) {

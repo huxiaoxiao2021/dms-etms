@@ -20,6 +20,11 @@
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
     </resultMap>
 
+    <resultMap id="recordMap" type="java.util.Map" >
+        <result column="package_code" property="packageCode" jdbcType="VARCHAR" />
+        <result column="scan_action" property="scanAction" jdbcType="TINYINT" />
+    </resultMap>
+
     <sql id="Base_Column_List" >
 		id,task_id,waybill_code,package_code,board_code,scan_action,transfer,
 		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn
@@ -165,7 +170,14 @@
     <select id="selectPackageCodesByBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultType="java.lang.String">
     select
      package_code
-    from load_scan_record where yn = 1 and  scan_action = #{scanAction,jdbcType=INTEGER}
+    from load_scan_record where yn = 1
+    and task_id = #{taskId,jdbcType=BIGINT} and  board_code = #{boardCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectRecordsByBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
+    select
+        <include refid="Base_Column_List"/>
+    from load_scan_record where yn = 1
     and task_id = #{taskId,jdbcType=BIGINT} and  board_code = #{boardCode,jdbcType=VARCHAR}
     </select>
 

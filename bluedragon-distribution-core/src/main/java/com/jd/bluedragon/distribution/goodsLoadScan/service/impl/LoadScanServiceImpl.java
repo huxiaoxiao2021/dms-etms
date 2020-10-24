@@ -488,8 +488,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<GoodsLoadScanRecord> recordList = new ArrayList<>();
 
         // 板子上可以装车的有效包裹
-        List<String> loadPackCode = new ArrayList<>();
-
+        List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
+        List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
         // 获取锁
         if (!lock(taskId, null, boardCode)) {
             log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
@@ -499,7 +499,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         // 根据板号查询之前的包裹扫描记录
-        List<String> packageCodes = goodsLoadScanRecordDao.findPackageCodesByBoardCode(taskId, boardCode);
+        Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode);
+
 
         // 运单，包裹数
         Map<String, Integer> map = new HashMap<>(16);
@@ -508,14 +509,31 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (!WaybillUtil.isPackageCode(packCode)) {
                 continue;
             }
+            String waybillCode = WaybillUtil.getWaybillCode(packCode);
 
-            // 如果之前扫描过板子上的该包裹，则忽略
-            if (packageCodes.contains(packCode)) {
-                continue;
+            // 该板号上的包裹都不属于重复扫
+            if (packageMap != null && !packageMap.isEmpty()) {
+                GoodsLoadScanRecord record = packageMap.get(packCode);
+                // 重复扫的包裹忽略
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
+                    continue;
+                }
+                // 扫描过但被取消的包裹可以再装
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                    record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                    record.setUpdateUserName(user.getUserName());
+                    record.setUpdateUserCode(user.getUserCode());
+                    record.setUpdateTime(new Date());
+                    updateRecords.add(record);
+                }
+                // 没扫描过的包裹正常装
+                if (record == null) {
+                    GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                            boardCode, transfer, flowDisAccord, user, loadCar);
+                    insertRecords.add(goodsLoadScanRecord);
+                }
             }
 
-            loadPackCode.add(packCode);
-            String waybillCode = WaybillUtil.getWaybillCode(packCode);
 
             // 板上的包裹列表不需要再校验是否已验货，直接装车
             LoadScanDto loadScanDto = new LoadScanDto();
@@ -532,19 +550,15 @@ public class LoadScanServiceImpl implements LoadScanService {
                 packageNum = packageNum + 1;
                 map.put(waybillCode, packageNum);
             }
-            // 保存扫描记录
-            GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                    boardCode, transfer, flowDisAccord, user, loadCar);
-            recordList.add(goodsLoadScanRecord);
         }
 
-        log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(), loadPackCode.size(),
-                boardCode, taskId);
+        log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
+                updateRecords.size() + insertRecords.size(), boardCode, taskId);
 
         log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
 
         // 如果可以装车的包裹为空，则属于重复扫
-        if (loadPackCode.isEmpty()) {
+        if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
             // 重复扫直接跳过
             log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -569,13 +583,23 @@ public class LoadScanServiceImpl implements LoadScanService {
         log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                 packageCode, transfer, flowDisAccord, boardCode);
 
-        // 批量保存板上的包裹记录
-        goodsLoadScanRecordDao.batchInsert(recordList);
+        // 更新之前取消的为已装
+        if (!updateRecords.isEmpty()) {
+            for (GoodsLoadScanRecord record : updateRecords) {
+                goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
+            }
+        }
+        if (!insertRecords.isEmpty()) {
+            // 批量保存板上的包裹记录
+            goodsLoadScanRecordDao.batchInsert(insertRecords);
+        }
 
         // 扫描第一个包裹时，修改任务状态为已开始
-        updateTaskStatus(loadCar, user);
-        log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
+        if (packageMap.isEmpty()) {
+            updateTaskStatus(loadCar, user);
+            log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
+        }
 
         for (LoadScanDto scanDto : scanDtoList) {
             // 根据任务ID和运单号查询暂存表
@@ -591,7 +615,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             int unloadNum = scanDto.getGoodsAmount() - loadScan.getLoadAmount();
             loadScan.setUnloadAmount(unloadNum);
             log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
-
 
             // 设置运单颜色状态
             Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
@@ -890,9 +913,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 如果批次号已绑定，直接返回
         if (StringUtils.isNotBlank(loadCar.getBatchCode())) {
-            log.warn("该任务已经绑定过批次号，taskId={},batchCode={}", taskId, batchCode);
+            log.warn("该任务已经绑定过批次号且不允许修改，taskId={},batchCode={}", taskId, batchCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该任务已经绑定过批次号");
+            response.setMessage("该任务已经绑定过批次号且不允许修改");
             return response;
         }
 
@@ -907,9 +930,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
+            Integer siteCode = siteInfo.getReceiveSiteCode();
             // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
-            if (!siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
-                log.error("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
+            if (siteCode == null || !siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
+                log.warn("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
                 return response;
@@ -1305,6 +1329,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             forceAmount = 0;
         }
 
+        // 已装等于库存，未装=0 -- 已扫描完 -- 绿色
+        if (goodsAmount.equals(loadAmount)) {
+            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
+        }
+
         // 已装等于0且总包裹=库存 -- 货到齐没开始扫 或 扫完取消 -- 无特殊颜色
         // 已装等于0且总包裹≠库存 -- 货没到齐没开始扫 或 扫完取消 -- 无特殊颜色
         if (loadAmount == 0) {
@@ -1318,11 +1347,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE;
             }
             return GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED;
-        }
-
-        // 已装等于库存，未装=0 -- 已扫描完 -- 绿色
-        if (goodsAmount.equals(loadAmount)) {
-            return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
 
         return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
@@ -1404,6 +1428,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 if (scanDto.getGoodsAmount() > e.getLoadAmount()) {
                     e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
                 }
+            }
+            // 已装等于库存- 绿色
+            if (e.getLoadAmount().equals(scanDto.getGoodsAmount())) {
+                e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
             }
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
