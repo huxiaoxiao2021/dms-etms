@@ -111,7 +111,7 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
             popPickup.setPopBusinessName(waybill.getConsigner());
             popPickup.setPackageNumber(waybill.getGoodNumber());
             popPickup.setWaybillType(waybill.getWaybillType());
-            dmsPopPickupMQ.send(popPickup.getPackageBarcode(),JsonHelper.toJson(popPickup));
+            dmsPopPickupMQ.sendOnFailPersistent(popPickup.getPackageBarcode(),JsonHelper.toJson(popPickup));
         }catch (Exception e){
             logger.error("发送pop上门接货消息异常！",e);
         }
@@ -233,6 +233,7 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
             popPrintRequest.setBusinessType(PopPrintRequest.BUS_TYPE_IN_FACTORY_PRINT);
             popPrintRequest.setCategoryName(dto.getConsignGood());
             popPrintRequest.setInterfaceType(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());
+            popPrintRequest.setOperateType(PopPrintRequest.NOT_PRINT_PACK_TYPE);
 
             PopPrintResponse popPrintResponse
                     = popPrintService.dealPopPrintLogic(popPrintRequest, ResidentTypeEnum.RESIDENT_GANTRY.getType());

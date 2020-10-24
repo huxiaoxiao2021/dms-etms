@@ -269,7 +269,7 @@ public class PopPrintServiceImpl implements PopPrintService {
                         msgBody.put("operatorErp",userDto.getErp());
                         msgBody.put("operatorTime",operatorTime.getTime());
                         msgBody.put("operatorSource",PRINT_SOURCE);
-                        zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
+                        zhuchangPrintToTerminalProducer.sendOnFailPersistent(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
                     }
                 }
             }
@@ -277,7 +277,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             if(isNeedSendMQ){
                 PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
                 BeanUtils.copyProperties(popPrint, popPrintSmsMsg);
-                popPrintToSmsProducer.send(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
+                popPrintToSmsProducer.sendOnFailPersistent(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
             }
             PopPrintResponse popPrintResponse = new PopPrintResponse(
                     JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -328,7 +328,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             popPrint.setPrintInvoiceCode(request.getOperatorCode());
             popPrint.setPrintInvoiceTime(DateHelper.getSeverTime(request.getOperateTime()));
             popPrint.setPrintInvoiceUser(request.getOperatorName());
-        } else {
+        } else if(!PopPrintRequest.NOT_PRINT_PACK_TYPE.equals(request.getOperateType())){
             throw new RuntimeException("保存POP打印信息 --> 传入操作类型有误：" + request.getOperateType() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
         }
         return popPrint;
