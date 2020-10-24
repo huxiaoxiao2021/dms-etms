@@ -113,7 +113,7 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
             popPickup.setWaybillType(waybill.getWaybillType());
             dmsPopPickupMQ.sendOnFailPersistent(popPickup.getPackageBarcode(),JsonHelper.toJson(popPickup));
         }catch (Exception e){
-            logger.error("发送pop上门接货消息异常！",e);
+            logger.error("发送pop上门接货消息异常,入参:【{}】",JsonHelper.toJsonMs(dto),e);
         }
     }
 
@@ -203,7 +203,7 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
             task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
             taskService.add(task, true);
         }catch (Exception e){
-            logger.error("创建pop收货任务异常!",e);
+            logger.error("创建pop收货任务异常,入参:【{}】",JsonHelper.toJsonMs(gantryResidentDto),e);
         }
     }
 
@@ -242,7 +242,7 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
                 logger.error("处理pop数据失败，异常原因：【{}】",popPrintResponse.getMessage());
             }
         }catch (Exception e){
-            logger.error("处理pop数据异常!",e);
+            logger.error("处理pop数据异常,入参:【{}】!",JsonHelper.toJsonMs(dto),e);
         }
 
     }
