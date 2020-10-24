@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
@@ -48,6 +47,10 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -136,7 +139,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     protected BaseMajorManager baseMajorManager;
 
     @Autowired
-    private WaybillCacheService waybillCacheService;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
@@ -1247,20 +1250,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try{
             logger.info("interceptValidate卸车根据包裹号：{}",barCode);
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
-            if(waybillNoCache == null){
-                logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+            if(baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null ){
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
                 return result;
             }
+            Waybill waybillNoCache = baseEntity.getData().getWaybill();
             String waybillSign = waybillNoCache.getWaybillSign();
             if(StringUtils.isBlank(waybillSign)){
-                logger.warn("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
                 return result;
             }
             //信任运单标识
-            boolean isTrust = BusinessUtil.isSignChar(waybillSign, 66, '1');
+            boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
             //纯配快运零担
-            boolean isB2BPure = BusinessUtil.isSignChar(waybillSign, 40, '2');
+            boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
             //无重量禁止发货判断
             if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() <= 0){
                 logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
@@ -1269,13 +1277,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return result;
             }
             //B网营业厅
-            boolean isBnet = BusinessUtil.isSignChar(waybillSign, 62, '1');
+            boolean isBnet = BusinessUtil.isBusinessHall(waybillSign);
             //寄付
-            boolean isSendPay = BusinessUtil.isSignChar(waybillSign, 25, '3');
+            boolean isSendPay = BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
             //B网营业厅（原单作废，逆向单不计费）
-            boolean isBnetCancel = BusinessUtil.isSignChar(waybillSign, 14, 'D');
+            boolean isBnetCancel = BusinessUtil.isYDZF(waybillSign);
             //B网营业厅（原单拒收因京东原因产生的逆向单，不计费）
-            boolean isBnetJDCancel = BusinessUtil.isSignChar(waybillSign, 14, 'E');
+            boolean isBnetJDCancel = BusinessUtil.isJDJS(waybillSign);
             //运费寄付无运费金额禁止发货
             if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
                 logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
@@ -1285,9 +1293,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             //是仓配零担
-            boolean isWarehouse = BusinessUtil.isSignChar(waybillSign, 40, '3');
+            boolean isWarehouse = BusinessUtil.isCPLD(waybillSign);
             //到付
-            boolean isArrivePay = BusinessUtil.isSignChar(waybillSign, 25, '2');
+            boolean isArrivePay = BusinessUtil.isDF(waybillSign);
             if((isB2BPure || isWarehouse) && isArrivePay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
                 logger.warn("interceptValidate卸车运费到付无运费金额禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
@@ -1296,7 +1304,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             //寄付临欠
-            boolean isSendPayTemporaryDebt = BusinessUtil.isSignChar(waybillSign, 25, '4');
+            boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
             if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
                     || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
                 logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}",waybillCode);
@@ -1306,7 +1314,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             //有包装服务
-            boolean isPackService = BusinessUtil.isSignChar(waybillSign, 72, '1');
+            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
             if(isPackService && !waybillConsumableRecordService.isConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
@@ -1329,7 +1337,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return result;
             }
         }catch (Exception e){
-            logger.error("判断包裹拦截异常",e);
+            logger.error("判断包裹拦截异常 {}",barCode,e);
         }
         return result;
     }
