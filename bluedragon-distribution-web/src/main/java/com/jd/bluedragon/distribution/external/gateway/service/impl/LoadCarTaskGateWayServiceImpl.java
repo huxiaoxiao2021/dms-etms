@@ -106,6 +106,18 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("接口请求信息不完整,请联系IT");
             return jdCResponse;
         }
+
+        LoadCar lc = loadService.findLoadCarById(req.getId());
+        if(lc.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("该任务已开始，无法进行取消");
+            return jdCResponse;
+        }else if(lc.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END) {
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("该任务已完成，无法进行取消");
+            return jdCResponse;
+        }
+
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);

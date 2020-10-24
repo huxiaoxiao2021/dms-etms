@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
@@ -37,6 +38,7 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private LoadCarTaskGateWayService loadCarTaskGateWayService;
+
 
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
@@ -207,6 +209,24 @@ public class GoodsLoadingScanningServiceImplTest {
         JdCResponse<String> res1 = loadCarTaskGateWayService.checkLicenseNumber("010PDA123");
         System.out.println(res1.getCode() + res1.getMessage() + res1.getData());
         System.out.println("-------");
+    }
+
+    @Test
+    public void testDeleteLoadCarTask() {
+//        LoadDeleteReq param = new LoadDeleteReq();
+//        param.setId(1L);
+//        JdCResponse res = loadCarTaskGateWayService.deleteLoadCarTask(param);
+//        System.out.println(res.getCode() + "----" + res.getMessage());
+
+        LoadDeleteReq param1 = new LoadDeleteReq();
+        param1.setId(2L);
+        JdCResponse res1 = loadCarTaskGateWayService.deleteLoadCarTask(param1);
+        System.out.println(res1.getCode() + "----" + res1.getMessage());
+
+        LoadDeleteReq param2 = new LoadDeleteReq();
+        param2.setId(3L);
+        JdCResponse res2 = loadCarTaskGateWayService.deleteLoadCarTask(param2);
+        System.out.println(res2.getCode() + "----" + res2.getMessage());
     }
 
 }

@@ -239,7 +239,7 @@
         select
         <include refid="Base_Column_List"/>
         from load_car
-        where yn=1 and id in
+        where yn=1 and status in(0,1) id in
         <foreach collection="list" item="items" index="index" open="("
                  close=")" separator=",">
             #{items,jdbcType=VARCHAR}
