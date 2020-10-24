@@ -965,11 +965,20 @@ public class LoadScanServiceImpl implements LoadScanService {
                                                      User user, Integer createSiteId, LoadCar loadCar) {
 
         JdCResponse<Void> response = new JdCResponse<>();
+        String boardCode = null;
 
         log.info("常规包裹号后续校验--开始暂存前校验--是否属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
         try {
+            // 判断是否有所属板号
+            Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
+            if (board != null) {
+                log.info("该常规包裹号有对应的板号！taskId={},packageCode={},waybillCode={},boardCode={}",
+                        taskId, packageCode, waybillCode, board.getCode());
+                // 如果有板号，可能是扫描装车时忘了勾选转板号，记录下来以便转板号时好判断
+                boardCode = board.getCode();
+            }
             // 获取锁
-            if (!lock(taskId, waybillCode, null)) {
+            if (!lock(taskId, waybillCode, boardCode)) {
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
                 return response;
@@ -988,23 +997,14 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setCode(JdCResponse.CODE_SUCCESS);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
                 // 释放锁
-                unLock(taskId, waybillCode, null);
+                unLock(taskId, waybillCode, boardCode);
                 return response;
             }
             log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
             // 如果不是重复扫，包裹扫描记录表新增一条记录
             GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
-                    null, transfer, flowDisAccord, user, loadCar);
-
-            // 判断是否有所属板号
-            Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
-            if (board != null) {
-                log.info("该常规包裹号有对应的板号！taskId={},packageCode={},waybillCode={},boardCode={}",
-                        taskId, packageCode, waybillCode, board.getCode());
-                // 如果有板号，可能是扫描装车时忘了勾选转板号，记录下来以便转板号时好判断
-                newLoadScanRecord.setBoardCode(board.getCode());
-            }
+                    boardCode, transfer, flowDisAccord, user, loadCar);
 
             goodsLoadScanRecordDao.insert(newLoadScanRecord);
 
@@ -1024,16 +1024,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             // 释放锁
-            unLock(taskId, waybillCode, null);
+            unLock(taskId, waybillCode, boardCode);
         } catch (Exception e) {
             log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
             // 释放锁
-            unLock(taskId, waybillCode, null);
+            unLock(taskId, waybillCode, boardCode);
         }
 
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
+        response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
     }
 
