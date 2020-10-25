@@ -599,7 +599,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         // 扫描第一个包裹时，修改任务状态为已开始
-        if (packageMap.isEmpty()) {
+        if (packageMap== null || packageMap.isEmpty()) {
             updateTaskStatus(loadCar, user);
             log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
@@ -1022,7 +1022,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-            log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+            log.info("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={},flowDisAccord={}",
+                    taskId, packageCode, waybillCode, flowDisAccord);
 
             // 不属于重复扫,但被取消扫描过
             if (loadScanRecord != null) {
@@ -1050,7 +1051,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (oldLoadScan == null) {
                 goodsLoadScanDao.insert(newLoadScan);
             } else {
-                computeAndUpdateLoadScan(oldLoadScan, goodsAmount);
+                computeAndUpdateLoadScan(oldLoadScan, goodsAmount, flowDisAccord);
                 goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
             }
 
@@ -1075,7 +1076,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param loadScan    装车扫描运单明细记录
      * @param goodsAmount 库存
      */
-    private void computeAndUpdateLoadScan(GoodsLoadScan loadScan, Integer goodsAmount) {
+    private void computeAndUpdateLoadScan(GoodsLoadScan loadScan, Integer goodsAmount, Integer flowDisAccord) {
         // 计算已装、未装
         // 已装 + 1
         loadScan.setLoadAmount(loadScan.getLoadAmount() + 1);
@@ -1086,6 +1087,13 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScan.getUnloadAmount(), loadScan.getForceAmount());
         // 如果原来是黄颜色
         if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(loadScan.getStatus())) {
+            // 没装齐仍然显示黄颜色
+            if (goodsAmount > loadScan.getLoadAmount()) {
+                status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
+            }
+        }
+        // 如果是多扫
+        if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(flowDisAccord)) {
             // 没装齐仍然显示黄颜色
             if (goodsAmount > loadScan.getLoadAmount()) {
                 status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
