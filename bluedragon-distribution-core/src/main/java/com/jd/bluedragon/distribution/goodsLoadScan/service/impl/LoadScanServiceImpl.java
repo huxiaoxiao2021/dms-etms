@@ -123,6 +123,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         //todo 取出包裹数据
 
         List<GoodsLoadScanRecord> list = new ArrayList<>();
+        list = goodsLoadScanRecordDao.selectRecordByTaskId(req.getTaskId());
+
         for(GoodsLoadScanRecord glc : list) {
             loadDeliver(req, glc);
         }
@@ -158,7 +160,12 @@ public class LoadScanServiceImpl implements LoadScanService {
         domain.setOperateTime(new Date());
 
         log.info("装车完成发货--begin--参数【{}】", JsonHelper.toJson(domain));
-        deliveryService.packageSend(bizSource, domain);
+        try {
+            deliveryService.packageSend(bizSource, domain);
+        }catch (GoodsLoadScanException e) {
+            log.error("装车发货完成失败----error" + e);
+            throw  new GoodsLoadScanException("装车发货完成失败");
+        }
         log.info("装车完成发货--end--参数【{}】", JsonHelper.toJson(domain));
 
     }
