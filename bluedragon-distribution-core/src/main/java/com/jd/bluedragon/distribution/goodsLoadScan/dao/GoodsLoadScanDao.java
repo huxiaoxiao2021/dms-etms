@@ -20,7 +20,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
         goodsLoadScan.setYn(GoodsLoadScanConstants.YN_Y);
-        return super.getSqlSession().selectOne(NAMESPACE + ".selectListByCondition", goodsLoadScan);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findWaybillInfoByTaskIdAndWaybillCode", goodsLoadScan);
     }
 
     public List<String> findWaybillCodesByTaskId(Long taskId) {

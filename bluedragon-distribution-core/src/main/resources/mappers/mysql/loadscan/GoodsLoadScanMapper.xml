@@ -168,53 +168,13 @@
         from load_scan where yn = 1 and task_id = #{taskId,jdbcType=BIGINT}
     </select>
 
-    <select id="selectListByCondition" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
-        select
-        <include refid="Base_Column_List"/>
-        from load_scan where yn = 1
-            <if test="id != null">
-                and id = #{id,jdbcType=BIGINT}
-            </if>
-            <if test="taskId != null">
-                and task_id = #{taskId,jdbcType=BIGINT}
-            </if>
-            <if test="wayBillCode != null and wayBillCode != ''">
-                and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
-            </if>
-            <if test="packageAmount != null">
-                and package_amount = #{packageAmount,jdbcType=INTEGER}
-            </if>
-            <if test="loadAmount != null">
-                and load_amount = #{loadAmount,jdbcType=INTEGER}
-            </if>
-            <if test="unloadAmount != null">
-                and unload_amount = #{unloadAmount,jdbcType=INTEGER}
-            </if>
-            <if test="forceAmount != null">
-                and force_amount = #{forceAmount,jdbcType=INTEGER}
-            </if>
-            <if test="status != null">
-                and status = #{status,jdbcType=INTEGER}
-            </if>
-            <if test="createUserCode != null and createUserCode != ''">
-                and create_user_code = #{createUserCode,jdbcType=VARCHAR}
-            </if>
-            <if test="createUserName != null and createUserName != ''">
-                and create_user_name = #{createUserName,jdbcType=VARCHAR}
-            </if>
-            <if test="updateUserCode != null and updateUserCode != ''">
-                and update_user_name = #{updateUserCode,jdbcType=VARCHAR}
-            </if>
-            <if test="updateUserName != null and updateUserName != ''">
-                and update_user_name = #{updateUserName,jdbcType=VARCHAR}
-            </if>
-            <if test="createTime != null">
-                and create_time = #{createTime,jdbcType=TIMESTAMP}
-            </if>
-            <if test="updateTime != null">
-                and update_time = #{updateTime,jdbcType=TIMESTAMP}
-            </if>
-    </select>
+<!--    <select id="findLoadScanByTaskIdAndWaybillCode" parameterType="goodsLoadScan" resultMap="goodsLoadScan">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from load_scan where yn = 1-->
+<!--                and task_id = #{taskId,jdbcType=BIGINT}-->
+<!--                and waybill_code = #{wayBillCode,jdbcType=VARCHAR}-->
+<!--    </select>-->
 
     <update id="updateByPrimaryKey" parameterType="goodsLoadScan">
         update load_scan
