@@ -52,7 +52,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         ExceptionScanDto res = null;
 
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD); //扫描动作：1是装车扫描，0是取消扫描
-        List<GoodsLoadScanRecord> goodsRecord = goodsLoadScanRecordDao.selectListByCondition(record);
+        List<GoodsLoadScanRecord> goodsRecord = goodsLoadScanRecordDao.selectRecordList(record);
 
         if(goodsRecord != null && goodsRecord.size() > 0 && goodsRecord.get(0).getWayBillCode() != null) {
             if(log.isDebugEnabled()) {
