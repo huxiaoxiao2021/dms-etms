@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService
 import com.jd.ql.dms.common.cache.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @author: zhengchengfa
  * @create: 2020-10-25 12:50
  */
+@Service("loadScanCacheService")
 public class LoadScanCacheServiceImpl implements LoadScanCacheService {
 
     @Autowired
