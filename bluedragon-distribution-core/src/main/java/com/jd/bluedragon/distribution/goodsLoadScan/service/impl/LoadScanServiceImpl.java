@@ -501,6 +501,16 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
                 return response;
             }
+
+            // 校验该任务下运单数量是否已超过上限
+            Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
+            if (waybillCount != null && waybillCount >= 200) {
+                log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该任务下运单数量已达上限！");
+                return response;
+            }
+
             // 根据板号查询之前的包裹扫描记录
             Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode);
 
@@ -1007,10 +1017,21 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             // 获取锁
             if (!lock(taskId, waybillCode, boardCode)) {
+                log.warn("多人同时操作该包裹所在的运单，请稍后重试！");
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
                 return response;
             }
+
+            // 校验该任务下运单数量是否已超过上限
+            Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
+            if (waybillCount != null && waybillCount >= 200) {
+                log.warn("该任务下运单数量已达上限！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该任务下运单数量已达上限！");
+                return response;
+            }
+
             // 校验重复扫
             GoodsLoadScanRecord record = new GoodsLoadScanRecord();
             record.setTaskId(taskId);
