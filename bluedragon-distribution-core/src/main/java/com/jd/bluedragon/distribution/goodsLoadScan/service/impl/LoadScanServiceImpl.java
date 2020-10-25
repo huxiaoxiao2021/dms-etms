@@ -1017,7 +1017,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
                 log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-                response.setCode(JdCResponse.CODE_SUCCESS);
+                response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
                 return response;
             }
