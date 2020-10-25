@@ -239,10 +239,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         }
 
         List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
-        if(list == null || list.size() <= 0) {
-            response.toError("不齐异常数据查找失败");
-            return response;
-        }
+//        if(list == null || list.size() <= 0) {
+//            response.toError("不齐异常数据查找失败");
+//            return response;
+//        }
         response.toSucceed("不齐异常数据查找成功");
         response.setData(list);
         return response;
