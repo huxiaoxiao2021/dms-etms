@@ -717,8 +717,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
                     taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            //todo 提示语
-            response.setMessage("根据包裹号查询运单信息返回空");
+            response.setMessage("根据包裹号查询运单库存失败");
             return response;
         }
         log.info("常规包裹号后续校验--去分拣报表查询库存成功：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
@@ -1014,16 +1013,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             record.setWayBillCode(waybillCode);
             record.setPackageCode(packageCode);
             record.setYn(Constants.YN_YES);
-            //todo 单独写SQL
-            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
+            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findRecordByWaybillCodeAndPackCode(record);
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
                 log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_SUCCESS);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
-                // 释放锁
-                // todo finaly shifangsuo
-                unLock(taskId, waybillCode, boardCode);
                 return response;
             }
 
@@ -1060,10 +1055,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
             }
 
-            // 释放锁
-            unLock(taskId, waybillCode, boardCode);
-        } catch (Exception e) {
-            log.error("常规包裹号后续校验--保存发生异常：taskId={},packageCode={},waybillCode={},e=", taskId, packageCode, waybillCode, e);
+        } finally {
             // 释放锁
             unLock(taskId, waybillCode, boardCode);
         }

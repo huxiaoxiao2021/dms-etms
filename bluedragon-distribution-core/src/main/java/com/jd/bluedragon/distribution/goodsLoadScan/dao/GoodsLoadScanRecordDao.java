@@ -19,17 +19,17 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public int updateGoodsScanRecordById(GoodsLoadScanRecord record) {
 
-        return this.getSqlSession().update(namespace + ".updateGoodsScanRecordById",record);
+        return this.getSqlSession().update(namespace + ".updateGoodsScanRecordById", record);
     }
 
     public List<GoodsLoadScanRecord> selectListByCondition(GoodsLoadScanRecord record) {
         record.setYn(GoodsLoadScanConstants.YN_Y);
-        return this.getSqlSession().selectList(namespace + ".selectListByCondition",record);
+        return this.getSqlSession().selectList(namespace + ".selectListByCondition", record);
     }
 
-    public GoodsLoadScanRecord findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
+    public GoodsLoadScanRecord findRecordByWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
 
-        return this.getSqlSession().selectOne(namespace + ".selectListByCondition",record);
+        return this.getSqlSession().selectOne(namespace + ".selectRecordByWaybillCodeAndPackCode", record);
     }
 
     public List<String> findPackageCodesByBoardCode(Long taskId, String boardCode) {
