@@ -59,7 +59,7 @@
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
-		<property name="loadScanTaskWaybillSize" value="${load.scan.task.waybill.size}"/>
+		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
