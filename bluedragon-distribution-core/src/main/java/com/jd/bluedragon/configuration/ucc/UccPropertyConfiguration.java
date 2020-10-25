@@ -151,6 +151,11 @@ public class UccPropertyConfiguration {
      */
     private boolean economicNetValidateWeightSwitch;
 
+    /**
+     * 装车扫描每个任务下的运单数量上线
+     */
+    private int loadScanTaskWaybillSize;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -437,5 +442,13 @@ public class UccPropertyConfiguration {
 
     public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
+    }
+
+    public int getLoadScanTaskWaybillSize() {
+        return loadScanTaskWaybillSize;
+    }
+
+    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
+        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
     }
 }
