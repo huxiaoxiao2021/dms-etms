@@ -206,7 +206,6 @@
         select
         <include refid="Base_Column_List"/>
         from load_scan_record where yn = 1
-        //todo  任务id  运单id  包裹id
             <if test="id != null">
                 and id = #{id,jdbcType=BIGINT}
             </if>
