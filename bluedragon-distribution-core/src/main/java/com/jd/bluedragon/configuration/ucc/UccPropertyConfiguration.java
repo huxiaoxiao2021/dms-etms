@@ -172,6 +172,11 @@ public class UccPropertyConfiguration {
      */
     private String dellCancelDeliveryCheckSealCar;
 
+    /**
+     * 装车扫描每个任务下的运单数量上线
+     */
+    private int loadScanTaskWaybillSize;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -491,4 +496,12 @@ public class UccPropertyConfiguration {
 	public void setRedisSwitchOn(String redisSwitchOn) {
 		this.redisSwitchOn = redisSwitchOn;
 	}
+
+    public int getLoadScanTaskWaybillSize() {
+        return loadScanTaskWaybillSize;
+    }
+
+    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
+        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
+    }
 }
