@@ -197,7 +197,7 @@
     select
         <include refid="Base_Column_List"/>
     from load_scan_record where yn = 1
-    and task_id = #{taskId,jdbcType=BIGINT} and  waybill_code = #{waybillCode,jdbcType=VARCHAR}
+    and task_id = #{taskId,jdbcType=BIGINT} and  waybill_code = #{wayBillCode,jdbcType=VARCHAR}
     and package_code = #{packageCode,jdbcType=VARCHAR}
     </select>
 
