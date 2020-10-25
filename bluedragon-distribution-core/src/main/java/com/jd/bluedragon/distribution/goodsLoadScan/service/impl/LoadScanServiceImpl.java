@@ -531,8 +531,12 @@ public class LoadScanServiceImpl implements LoadScanService {
                             boardCode, transfer, flowDisAccord, user, loadCar);
                     insertRecords.add(goodsLoadScanRecord);
                 }
+            } else {
+                // 没扫描过的包裹正常装
+                GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                        boardCode, transfer, flowDisAccord, user, loadCar);
+                insertRecords.add(goodsLoadScanRecord);
             }
-
 
             // 板上的包裹列表不需要再校验是否已验货，直接装车
             LoadScanDto loadScanDto = new LoadScanDto();
