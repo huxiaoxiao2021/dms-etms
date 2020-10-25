@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -38,23 +40,24 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     @Autowired
     private LoadScanService loadScanService;
 
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
+    @Resource
+    private LoadScanCacheService loadScanCacheService;
 
     /*
      * 取消扫描查询是否存在：先插记录表  再查扫描表
      */
     @Override
     public ExceptionScanDto findExceptionGoodsScan(GoodsLoadScanRecord record) {
-
+    //todo  mapper sql重写    日志重写
         ExceptionScanDto res = null;
 
         record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD); //扫描动作：1是装车扫描，0是取消扫描
         List<GoodsLoadScanRecord> goodsRecord = goodsLoadScanRecordDao.selectListByCondition(record);
 
         if(goodsRecord != null && goodsRecord.size() > 0 && goodsRecord.get(0).getWayBillCode() != null) {
-            log.info("取消扫描查询包裹信息--success 出参【{}】", JsonHelper.toJson(goodsRecord));
+            if(log.isDebugEnabled()) {
+                log.debug("取消扫描查询包裹信息--success 出参【{}】", JsonHelper.toJson(goodsRecord));
+            }
             String wayBill = goodsRecord.get(0).getWayBillCode();
 
             GoodsLoadScan loadScanRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(record.getTaskId(),wayBill);
@@ -78,8 +81,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
     @Override
     public boolean removeGoodsScan(ExceptionScanDto exceptionScanDto) {
-        boolean flag = false;
-
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setPackageCode(exceptionScanDto.getPackageCode());
         record.setTaskId(exceptionScanDto.getTaskId());
@@ -105,18 +106,19 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    // todo 事务增加 main_undiv
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, value = "main_undiv")
     public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
         Long taskNo = req.getTaskId();
         List<String>  waybillList = req.getWaybillCode();
         for(int i=0; i<waybillList.size(); i++) {
             String wayBillCode = waybillList.get(i);
-
-            String cacheKey = taskNo + "_" + wayBillCode;
+            // todo key format
             //查缓存，查库，获取id，根据id修改
-            GoodsLoadScan cacheRes = jimdbCacheService.get(cacheKey, GoodsLoadScan.class);
+            GoodsLoadScan cacheRes = loadScanCacheService.getWaybillLoadScan(taskNo,wayBillCode);
             if(cacheRes == null || cacheRes.getId() == null) {
-                cacheRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, wayBillCode);
+//                cacheRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskNo, wayBillCode);
+                cacheRes = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskNo, wayBillCode);
                 if(cacheRes == null) {//强发操作时，必须有运单信息
                     throw new GoodsLoadScanException("运单强发操作失败，未查到该运单");
 //                    return false;
@@ -169,16 +171,17 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             }*/
 
         }
-        return true;
+        return  true ;
     }
 
     @Override
     public List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId) {
         List<GoodsExceptionScanningDto> res= new ArrayList<>();
 
-        log.info("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
-        List<GoodsLoadScan> list = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-
+//        if(log.isDebugEnabled()) {
+//            log.debug("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
+//        }
+        List<GoodsLoadScan> list = goodsLoadScanDao.findAllLoadScanByTaskId(taskId);
 
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
@@ -194,7 +197,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 }
             }
         }
-        log.info("根据任务号【{}】查询不齐异常数据 --end-- 返回【{}】", taskId, JsonHelper.toJson(res));
+//        if(log.isDebugEnabled()) {
+//            log.debug("根据任务号【{}】查询不齐异常数据 --end-- 返回【{}】", taskId, JsonHelper.toJson(res));
+//        }
         return res;
     }
 

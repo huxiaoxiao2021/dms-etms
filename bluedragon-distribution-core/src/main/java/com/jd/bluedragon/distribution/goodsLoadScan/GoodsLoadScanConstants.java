@@ -34,4 +34,7 @@ public class GoodsLoadScanConstants {
     public static final String CACHE_KEY_WAYBILL = "Bnet_LoadScan_Waybill_";
     public static final String CACHE_KEY_PACKAGE = "Bnet_LoadScan_Package_";
 
+    // 装车发货加锁标识
+    public static final String LOCK_KEY = "Bnet_LoadScan_Lock_";
+
 }

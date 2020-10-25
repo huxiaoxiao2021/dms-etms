@@ -216,7 +216,6 @@
             </if>
     </select>
 
-
     <update id="updateByPrimaryKey" parameterType="goodsLoadScan">
         update load_scan
         <set>
@@ -253,6 +252,24 @@
         set yn=0
         where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
     </update>
+
+    <!-- 根据id查询所有运单信息 20201025-->
+    <select id="findAllLoadScanByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+    </select>
+
+    <!-- 根据任务号 运单号查询装车扫描运单信息 20201025 -->
+    <select id="findWaybillInfoByTaskIdAndWaybillCode" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan where yn = 1
+            and task_id = #{taskId,jdbcType=BIGINT}
+            and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
+    </select>
+
 
 
 </mapper>

@@ -261,4 +261,12 @@
         create_site_code = #{createSiteCode,jdbcType=BIGINT} and status!=2
     </select>
 
+
+    <!-- 根据id查询任务信息 20201025-->
+    <select id="findLoadCarByTaskId" parameterType="java.lang.Long"  resultMap="loadCar">
+        select <include refid="Base_Column_List"/>
+        from load_car
+        where id = #{id,jdbcType=BIGINT} and  yn = 1;
+    </select>
+
 </mapper>

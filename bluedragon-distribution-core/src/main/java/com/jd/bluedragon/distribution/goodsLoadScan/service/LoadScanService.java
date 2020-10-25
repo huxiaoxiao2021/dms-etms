@@ -17,10 +17,10 @@ public interface LoadScanService {
     Integer findTaskStatus(Long taskId);
 
     //根据任务id和运单号查询缓存中运单数据
-    GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode);
+//    GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode);
 
     //根据任务id和运单号查询缓存中运单数据
-    GoodsLoadScanRecord queryPackageCache(Long taskId, String waybillCode, String packageCode);
+//    GoodsLoadScanRecord queryPackageCache(Long taskId, String waybillCode, String packageCode);
 
     /**
      * 修改装车运单记录，计算已装车、未装车数量
