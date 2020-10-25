@@ -599,7 +599,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         // 扫描第一个包裹时，修改任务状态为已开始
-        if (packageMap.isEmpty()) {
+        if (packageMap== null || packageMap.isEmpty()) {
             updateTaskStatus(loadCar, user);
             log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
