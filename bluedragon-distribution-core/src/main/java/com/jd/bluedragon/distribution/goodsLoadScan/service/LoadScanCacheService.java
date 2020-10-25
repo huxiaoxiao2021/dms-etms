@@ -11,13 +11,19 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
  */
 public interface LoadScanCacheService {
 
-    public boolean setWaybillCacheKey(Long taskId, String waybillCode);
+    public boolean setWaybillLoadScan(Long taskId, String waybillCode, GoodsLoadScan goodsLoadScan);
 
-    public GoodsLoadScan getWaybillCacheValue(Long taskId, String waybillCode);
+    public GoodsLoadScan getWaybillLoadScan(Long taskId, String waybillCode);
 
-    public boolean setPackageCacheKey(Long taskId, String waybillCode, String packageCode);
+    public boolean setWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode, GoodsLoadScanRecord goodsLoadScanRecord);
 
-    public GoodsLoadScanRecord getPackageCacheValue(Long taskId, String waybillCode, String packageCode);
+    public GoodsLoadScanRecord getWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode);
 
+    public boolean lock(String key, long exTime);
 
+    public boolean unLock(String key);
+
+    public boolean delWaybillLoadScan(Long taskId, String waybillCode);
+
+    public boolean delWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode);
 }

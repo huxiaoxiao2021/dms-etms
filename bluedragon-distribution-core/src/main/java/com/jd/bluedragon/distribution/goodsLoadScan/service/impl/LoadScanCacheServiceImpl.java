@@ -8,6 +8,8 @@ import com.jd.ql.dms.common.cache.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @program: bluedragon-distribution
  * @description: 装车扫描缓存相关服务
@@ -21,24 +23,52 @@ public class LoadScanCacheServiceImpl implements LoadScanCacheService {
     private CacheService jimdbCacheService;
 
     @Override
-    public boolean setWaybillCacheKey(Long taskId, String waybillCode) {
-        return false;
+    public boolean setWaybillLoadScan(Long taskId, String waybillCode, GoodsLoadScan goodsLoadScan) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_WAYBILL + taskId.toString() + waybillCode;
+        return jimdbCacheService.setEx(key, goodsLoadScan, 1, TimeUnit.DAYS);
     }
 
     @Override
-    public GoodsLoadScan getWaybillCacheValue(Long taskId, String waybillCode) {
+    public GoodsLoadScan getWaybillLoadScan(Long taskId, String waybillCode) {
         String key = GoodsLoadScanConstants.CACHE_KEY_WAYBILL + taskId.toString() + waybillCode;
         return jimdbCacheService.get(key, GoodsLoadScan.class);
     }
 
     @Override
-    public boolean setPackageCacheKey(Long taskId, String waybillCode, String packageCode) {
-        return false;
+    public boolean setWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode, GoodsLoadScanRecord goodsLoadScanRecord) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_PACKAGE + taskId.toString() + waybillCode + packageCode;
+        return jimdbCacheService.setEx(key, goodsLoadScanRecord, 1, TimeUnit.DAYS);
     }
 
     @Override
-    public GoodsLoadScanRecord getPackageCacheValue(Long taskId, String waybillCode, String packageCode) {
+    public GoodsLoadScanRecord getWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode) {
         String key = GoodsLoadScanConstants.CACHE_KEY_PACKAGE + taskId.toString() + waybillCode + packageCode;
         return jimdbCacheService.get(key, GoodsLoadScanRecord.class);
     }
+
+    @Override
+    public boolean lock(String key, long exTime) {
+        String lock = GoodsLoadScanConstants.LOCK_KEY + key;
+        return jimdbCacheService.setNx(lock, "1",exTime, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public boolean unLock(String key) {
+        String lock =  GoodsLoadScanConstants.LOCK_KEY + key;
+        return jimdbCacheService.del(lock);
+    }
+
+    @Override
+    public boolean delWaybillLoadScan(Long taskId, String waybillCode) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_WAYBILL + taskId.toString() + waybillCode;
+        return jimdbCacheService.del(key);
+    }
+
+    @Override
+    public boolean delWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_PACKAGE + taskId.toString() + waybillCode + packageCode;
+        return jimdbCacheService.del(key);
+    }
+
+
 }

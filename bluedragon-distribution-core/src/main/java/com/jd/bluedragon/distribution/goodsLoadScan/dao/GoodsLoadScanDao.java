@@ -35,7 +35,6 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         return super.getSqlSession().selectOne(NAMESPACE + ".selectWaybillCountByTaskId", taskId);
     }
 
-
     public boolean batchInsert(List<GoodsLoadScan> loadScans) {
         return super.getSqlSession().insert(NAMESPACE + ".batchInsert", loadScans) > 0;
     }
@@ -58,6 +57,20 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
 
     public boolean deleteLoadScanByTaskId(Long taskId) {
         return super.getSqlSession().update(NAMESPACE + ".deleteLoadScanByTaskId", taskId) > 0;
+    }
+
+    // 根据id查询所有运单信息 20201025
+    public List<GoodsLoadScan> findAllLoadScanByTaskId(Long taskId) {
+        return super.getSqlSession().selectList(NAMESPACE + ".findAllLoadScanByTaskId", taskId);
+    }
+
+    //根据任务号 运单号查询装车扫描运单信息  20201025
+    public GoodsLoadScan findWaybillInfoByTaskIdAndWaybillCode(Long taskId, String waybillCode) {
+        GoodsLoadScan goodsLoadScan = new GoodsLoadScan();
+        goodsLoadScan.setTaskId(taskId);
+        goodsLoadScan.setWayBillCode(waybillCode);
+        goodsLoadScan.setYn(GoodsLoadScanConstants.YN_Y);
+        return super.getSqlSession().selectOne(NAMESPACE + ".findWaybillInfoByTaskIdAndWaybillCode", goodsLoadScan);
     }
 
 }

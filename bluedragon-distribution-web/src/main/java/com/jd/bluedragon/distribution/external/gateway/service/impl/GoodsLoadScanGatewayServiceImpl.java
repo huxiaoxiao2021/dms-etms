@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService;
@@ -43,11 +44,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Autowired
     private LoadService loadService;
 
-
-
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Resource
+    private LoadScanCacheService loadScanCacheService;
+
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -147,15 +150,18 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
         if(taskStatus == null) {
-            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+            // todo 本层不要抛异常
+//            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+            response.toFail("该任务状态存在异常,无法操作强发");
+            return response;
 
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
             response.toFail("该任务已经完成发货，请勿操作强发动作");
             return response;
         } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行操作强发动作");
-//                response.toFail("未开始任务无法进行发货发货");
-//                return response;
+//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行操作强发动作");
+                response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
+                return response;
         }
 
         if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
@@ -207,13 +213,16 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
         if(taskStatus == null) {
-            throw new GoodsLoadScanException("该任务存在异常,无法发货");
-
+//            throw new GoodsLoadScanException("该任务存在异常,无法发货");
+            response.toFail("该任务状态存在异常,无法操作查询");
+            return response;
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
             response.toFail("该任务已经完成发货，请勿操作异常查询");
             return response;
         } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行异常数据查询");
+//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行异常数据查询");
+            response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
+            return response;
         }
 
         if(req.getUser() == null) {
@@ -258,29 +267,27 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        String lockKey = req.getTaskId().toString();
-
-        if(!jimdbCacheService.setNx(lockKey, "1",2, TimeUnit.SECONDS)){
-//            Thread.sleep(100);
-            boolean cacheResult = jimdbCacheService.setNx(lockKey, org.apache.commons.lang.StringUtils.EMPTY,2, TimeUnit.SECONDS);
-            if(!cacheResult) {
-                log.info("任务发货【{}】重复提交", req.getTaskId());
-                response.toFail("任务发货重复提交");
-            }
+        String lock = req.getTaskId().toString();
+        //todo 缓存 异常情况未删除  缓存时间扩大 提示语修改成 处理中。。
+        if(!loadScanCacheService.lock(lock, 60)){
+            log.error("任务发货【{}】重复提交", req.getTaskId());
+            response.toFail("任务正在发货中，请勿重复提交");
         }
 
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
             Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
             if(taskStatus == null) {
-                throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+//                throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+                response.toFail("该任务状态存在异常,无法发货");
+                return response;
 
             }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
                 response.toFail("该任务已经完成发货，请勿重复发货");
                 return response;
             } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-                throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
-//                response.toFail("未开始任务无法进行发货发货");
-//                return response;
+//                throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+                response.toFail("仅已开始任务可以执行发货操作，请检查任务状态");
+                return response;
             }
 //        }
 
@@ -319,8 +326,14 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        response = loadScanService.goodsLoadingDeliver(req);
-        jimdbCacheService.del(lockKey);
+        try{
+            response = loadScanService.goodsLoadingDeliver(req);
+        } catch(GoodsLoadScanException e) {
+            response.toFail("发货失败");
+            return response;
+        }finally {
+            loadScanCacheService.unLock(lock);
+        }
 
         return response;
     }

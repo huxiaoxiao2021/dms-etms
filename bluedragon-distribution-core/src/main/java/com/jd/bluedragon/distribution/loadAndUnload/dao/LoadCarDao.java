@@ -54,4 +54,8 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().selectList(namespace + ".selectByEndSiteCode", loadCar);
     }
 
+    public LoadCar findLoadCarByTaskId(Long id) {
+        return this.getSqlSession().selectOne(namespace + ".findLoadCarByTaskId", id);
+    }
+
 }
