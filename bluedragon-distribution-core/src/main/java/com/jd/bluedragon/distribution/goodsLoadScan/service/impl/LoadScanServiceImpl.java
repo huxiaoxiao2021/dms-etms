@@ -901,7 +901,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     /**
      * 校验批次号并绑定任务
      */
-    @Transactional()
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     @Override
     public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
 
