@@ -29,4 +29,9 @@ public class GoodsLoadScanConstants {
     public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_Y = 1;
     public static final Integer GOODS_LOAD_SCAN_FORCE_STATUS_N = 0;
 
+    //装车发货cache key 任务维度、运单维度、包裹维度
+    public static final String CACHE_KEY_TASK = "Bnet_LoadScan_TaskId_";
+    public static final String CACHE_KEY_WAYBILL = "Bnet_LoadScan_Waybill_";
+    public static final String CACHE_KEY_PACKAGE = "Bnet_LoadScan_Package_";
+
 }
