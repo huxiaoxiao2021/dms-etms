@@ -215,6 +215,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             return res;
         } catch (Exception e) {
+            log.error("出错了！"+e.getMessage(),e);
             throw new GoodsLoadScanException("装车发货扫描计算已安装、未安装数据写库操作lock异常, 运单信息【" + JsonHelper.toJson(goodsLoadScan) + "】");
         } finally {
             loadScanCacheService.unLock(lockKey);
@@ -273,7 +274,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (goodsLoadScan.getLoadAmount() == 0) {//  当前已装为1时，取消发货后已装为0，不属于不齐异常，变更状态
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
         } else if (goodsLoadScan.getUnloadAmount() > 0) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
-            int status = goodsLoadScanRecord.getFlowDisaccord();
+            //packageRecord.getFlowDisaccord()一定有值.
+            int status = packageRecord.getFlowDisaccord();
             if(status == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y) {
                 goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }else {

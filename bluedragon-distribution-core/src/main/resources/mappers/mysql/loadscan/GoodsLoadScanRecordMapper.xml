@@ -18,6 +18,8 @@
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
         <result column="yn" javaType="java.lang.Integer" jdbcType="TINYINT" property="yn"/>
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="flow_disaccord" property="flowDisaccord" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="force_status" property="forceStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
     </resultMap>
 
     <resultMap id="recordMap" type="java.util.Map" >
@@ -27,7 +29,7 @@
 
     <sql id="Base_Column_List" >
 		id,task_id,waybill_code,package_code,board_code,scan_action,transfer,
-		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn
+		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn,flow_disaccord,force_status
 	</sql>
 
     <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
