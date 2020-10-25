@@ -70,12 +70,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
 
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，请勿重复发货");
+            response.toFail("该任务已经完成发货，无法操作取消扫描动作");
             return response;
         } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
-//                response.toFail("未开始任务无法进行发货发货");
-//                return response;
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行取消扫描动作");
         }
 
 
@@ -152,10 +150,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
 
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，请勿重复发货");
+            response.toFail("该任务已经完成发货，请勿操作强发动作");
             return response;
         } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行操作强发动作");
 //                response.toFail("未开始任务无法进行发货发货");
 //                return response;
         }
@@ -212,10 +210,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             throw new GoodsLoadScanException("该任务存在异常,无法发货");
 
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，请勿重复发货");
+            response.toFail("该任务已经完成发货，请勿操作异常查询");
             return response;
         } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行异常数据查询");
         }
 
         if(req.getUser() == null) {
