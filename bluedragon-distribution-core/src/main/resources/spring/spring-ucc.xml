@@ -78,6 +78,7 @@
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
 		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
+		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -126,6 +127,7 @@
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
 				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
+				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
 			</list>
 		</property>
 	</bean>

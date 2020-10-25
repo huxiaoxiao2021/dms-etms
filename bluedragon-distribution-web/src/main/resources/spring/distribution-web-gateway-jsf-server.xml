@@ -314,4 +314,22 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--装车任务相关接口-->
+    <bean id="loadCarTaskGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.LoadCarTaskGateWayServiceImpl" />
+    <jsf:provider id="jsfLoadCarTaskGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="loadCarTaskGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 装车扫描发货、不齐异常数据展示变更 -->
+    <bean id="goodsLoadScanGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.GoodsLoadScanGatewayServiceImpl" />
+    <jsf:provider id="jsfGoodsLoadingScanningService"
+                  interface="com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="goodsLoadScanGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

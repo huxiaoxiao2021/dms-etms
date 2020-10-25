@@ -178,6 +178,11 @@ public class UccPropertyConfiguration {
      */
     private String removeEmptyBatchCode;
 
+    /**
+     * 装车扫描每个任务下的运单数量上线
+     */
+    private int loadScanTaskWaybillSize;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -504,5 +509,12 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+    public int getLoadScanTaskWaybillSize() {
+        return loadScanTaskWaybillSize;
+    }
+
+    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
+        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
     }
 }
