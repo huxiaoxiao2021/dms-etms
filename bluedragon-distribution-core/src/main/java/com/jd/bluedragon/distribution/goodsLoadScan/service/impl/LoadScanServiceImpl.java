@@ -129,10 +129,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END);
         boolean flagRes = loadCarDao.updateLoadCarById(loadCar);
         if (!flagRes) {
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】发货完成，任务状态修改失败");
-//            log.info("发货完成后修改任务状态失败，发货信息【{}】",JsonHelper.toJson(domain));
-//            response.toFail("发货状态修改失败");
-//            return response;
+//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】发货完成，任务状态修改失败");
+            log.info("发货完成后修改任务状态失败，发货信息【{}】",JsonHelper.toJson(loadCar));
+            response.toFail("发货状态修改失败");
+            return response;
         }
         response.toSucceed("发货成功");
         return response;
@@ -153,9 +153,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         domain.setCreateTime(new Date());
         domain.setOperateTime(new Date());
 
-//        log.info("装车完成发货--begin--参数【{}】", JsonHelper.toJson(domain));
+        log.info("装车完成发货--begin--参数【{}】", JsonHelper.toJson(domain));
         deliveryService.packageSend(bizSource, domain);
-//        log.info("装车完成发货--end--参数【{}】", JsonHelper.toJson(domain));
+        log.info("装车完成发货--end--参数【{}】", JsonHelper.toJson(domain));
 
     }
 
