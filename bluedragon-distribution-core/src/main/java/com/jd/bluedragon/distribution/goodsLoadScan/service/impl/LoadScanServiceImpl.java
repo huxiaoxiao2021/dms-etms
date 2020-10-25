@@ -365,6 +365,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         return true;
     }
 
+
     @Override
     public JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req) {
         JdCResponse<LoadScanDetailDto> response = new JdCResponse<>();
@@ -386,11 +387,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-
+        // todo null
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
+        //todo 删除无用info
         log.info("根据任务ID查找暂存表，taskId={}", req.getTaskId());
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
@@ -405,7 +407,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordMap),
                     createSiteId, nextSiteId, null);
-
+            // todo null reportList
             List<LoadScanDto> flowDisAccordList = new ArrayList<>(flowDisAccordMap.values());
 
             log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
@@ -633,7 +635,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             // 如果已存在就更新，不存在就插入
-            saveOrUpdate(loadScan, scanDto, user);
+            saveOrUpdate(loadScan, scanDto, user, flowDisAccord);
             log.info("板号暂存接口--反查记录8，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
 
         }
@@ -715,6 +717,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
                     taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
+            //todo 提示语
             response.setMessage("根据包裹号查询运单信息返回空");
             return response;
         }
@@ -727,7 +730,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
 
-        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, createSiteId, loadCar);
+        return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, loadCar);
     }
 
     /**
@@ -984,7 +987,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                      Integer goodsAmount, Integer transfer, Integer flowDisAccord,
-                                                     User user, Integer createSiteId, LoadCar loadCar) {
+                                                     User user, LoadCar loadCar) {
 
         JdCResponse<Void> response = new JdCResponse<>();
         String boardCode = null;
@@ -1011,6 +1014,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             record.setWayBillCode(waybillCode);
             record.setPackageCode(packageCode);
             record.setYn(Constants.YN_YES);
+            //todo 单独写SQL
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findLoadScanRecordByTaskIdAndWaybillCodeAndPackCode(record);
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
@@ -1018,6 +1022,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setCode(JdCResponse.CODE_SUCCESS);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
                 // 释放锁
+                // todo finaly shifangsuo
                 unLock(taskId, waybillCode, boardCode);
                 return response;
             }
@@ -1418,7 +1423,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
     }
 
-    public boolean saveOrUpdate(GoodsLoadScan e, LoadScanDto scanDto, User user) {
+    public boolean saveOrUpdate(GoodsLoadScan e, LoadScanDto scanDto, User user, Integer flowDisAccord) {
         log.info("板号暂存接口--反查记录4");
 
         GoodsLoadScan oldData = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(e.getTaskId(), e.getWayBillCode());
@@ -1441,6 +1446,12 @@ public class LoadScanServiceImpl implements LoadScanService {
                     e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
                 }
             }
+            //
+            // 如果是多扫
+            if (flowDisAccord != null && flowDisAccord == 1) {
+                e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+            }
+
             // 已装等于库存- 绿色
             if (e.getLoadAmount().equals(scanDto.getGoodsAmount())) {
                 e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);

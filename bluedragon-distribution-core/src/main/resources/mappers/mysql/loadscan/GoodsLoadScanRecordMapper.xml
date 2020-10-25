@@ -51,6 +51,12 @@
             <if test="transfer != null">
                 transfer,
             </if>
+            <if test="flowDisaccord != null">
+                flow_disaccord,
+            </if>
+            <if test="forceStatus != null">
+                force_status,
+            </if>
             <if test="createSiteCode != null">
                 create_site_code,
             </if>
@@ -103,6 +109,12 @@
             </if>
             <if test="transfer != null">
                 #{transfer,jdbcType=INTEGER},
+            </if>
+            <if test="flowDisaccord != null">
+                #{flowDisaccord,jdbcType=INTEGER},
+            </if>
+            <if test="forceStatus != null">
+                #{forceStatus,jdbcType=INTEGER},
             </if>
             <if test="createSiteCode != null">
                 #{createSiteCode,jdbcType=BIGINT},
