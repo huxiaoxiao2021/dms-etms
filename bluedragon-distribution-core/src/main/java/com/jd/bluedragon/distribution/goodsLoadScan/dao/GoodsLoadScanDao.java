@@ -31,6 +31,10 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         return super.getSqlSession().selectList(NAMESPACE + ".selectLoadScanByTaskId", taskId);
     }
 
+    public Integer findWaybillCountByTaskId(Long taskId) {
+        return super.getSqlSession().selectOne(NAMESPACE + ".selectWaybillCountByTaskId", taskId);
+    }
+
 
     public boolean batchInsert(List<GoodsLoadScan> loadScans) {
         return super.getSqlSession().insert(NAMESPACE + ".batchInsert", loadScans) > 0;

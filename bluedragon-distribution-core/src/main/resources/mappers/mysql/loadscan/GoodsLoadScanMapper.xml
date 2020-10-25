@@ -162,6 +162,12 @@
         </where>
     </select>
 
+    <select id="selectWaybillCountByTaskId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+          count(*)
+        from load_scan where yn = 1 and task_id = #{taskId,jdbcType=BIGINT}
+    </select>
+
     <select id="selectListByCondition" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
