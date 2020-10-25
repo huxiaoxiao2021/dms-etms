@@ -69,5 +69,8 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectRecordList", record);
     }
 
+    public List<GoodsLoadScanRecord> selectRecordByTaskId(Long taskId) {
+        return this.getSqlSession().selectList(namespace + ".selectRecordByTaskId", taskId);
+    }
 
 }
