@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -109,6 +110,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Resource
     private LoadScanCacheService loadScanCacheService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -544,7 +548,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount >= 200) {
+            if (waybillCount != null && waybillCount >= uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -1065,7 +1069,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount >= 200) {
+            if (waybillCount != null && waybillCount >= uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
