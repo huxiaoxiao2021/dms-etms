@@ -232,7 +232,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	/**
      * 校验批次号是否存在发货记录
 	 */
-	private boolean checkBatchCodeIsSend(String batchCode){
+	@Override
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl.checkBatchCodeIsSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public boolean checkBatchCodeIsSend(String batchCode){
         boolean res=true;
 
 	    //批次号不存在sendm记录

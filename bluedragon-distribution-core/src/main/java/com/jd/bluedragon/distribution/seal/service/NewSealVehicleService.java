@@ -194,4 +194,12 @@ public interface NewSealVehicleService {
      */
     List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange);
 
+    /**
+     * 判断批次号内是否有发货记录
+     * @param batchCode
+     * @return
+     */
+    boolean checkBatchCodeIsSend(String batchCode);
+
+
 }

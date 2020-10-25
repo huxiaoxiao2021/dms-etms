@@ -14,6 +14,8 @@ import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 
+import java.util.List;
+
 /**
  * 封车发布物流网关
  * 发布到物流网关 由安卓调用
@@ -72,4 +74,11 @@ public interface NewSealVehicleGatewayService {
      * @return
      */
     JdCResponse updatePreSealVehicleMeasureInfo(PreSealMeasureInfoRequest request);
+
+    /**
+     * 剔除没有发货记录的批次号。返回值为被剔除的批次列表
+     * @param request
+     * @return
+     */
+    JdCResponse<List<String>> removeEmptyBatchCode(List<String> request);
 }
