@@ -491,158 +491,161 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 板子上可以装车的有效包裹
         List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
         List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
-        // 获取锁
-        if (!lock(taskId, null, boardCode)) {
-            log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                    packageCode, transfer, flowDisAccord, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
-            return response;
-        }
-        // 根据板号查询之前的包裹扫描记录
-        Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode);
 
-
-        // 运单，包裹数
-        Map<String, Integer> map = new HashMap<>(16);
-        // 循环处理板上的每一个包裹
-        for (String packCode : result.getData()) {
-            if (!WaybillUtil.isPackageCode(packCode)) {
-                continue;
+        try {
+            // 获取锁
+            if (!lock(taskId, null, boardCode)) {
+                log.info("板号暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                        packageCode, transfer, flowDisAccord, boardCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("多人同时操作该包裹所在的板，请稍后重试！");
+                return response;
             }
-            String waybillCode = WaybillUtil.getWaybillCode(packCode);
+            // 根据板号查询之前的包裹扫描记录
+            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode);
 
-            // 该板号上的包裹都不属于重复扫
-            if (packageMap != null && !packageMap.isEmpty()) {
-                GoodsLoadScanRecord record = packageMap.get(packCode);
-                // 重复扫的包裹忽略
-                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
+
+            // 运单，包裹数
+            Map<String, Integer> map = new HashMap<>(16);
+            // 循环处理板上的每一个包裹
+            for (String packCode : result.getData()) {
+                if (!WaybillUtil.isPackageCode(packCode)) {
                     continue;
                 }
-                // 扫描过但被取消的包裹可以再装
-                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
-                    record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
-                    record.setUpdateUserName(user.getUserName());
-                    record.setUpdateUserCode(user.getUserCode());
-                    record.setUpdateTime(new Date());
-                    updateRecords.add(record);
-                }
-                // 没扫描过的包裹正常装
-                if (record == null) {
+                String waybillCode = WaybillUtil.getWaybillCode(packCode);
+
+                // 该板号上的包裹都不属于重复扫
+                if (packageMap != null && !packageMap.isEmpty()) {
+                    GoodsLoadScanRecord record = packageMap.get(packCode);
+                    // 重复扫的包裹忽略
+                    if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
+                        continue;
+                    }
+                    // 扫描过但被取消的包裹可以再装
+                    if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                        record.setUpdateUserName(user.getUserName());
+                        record.setUpdateUserCode(user.getUserCode());
+                        record.setUpdateTime(new Date());
+                        updateRecords.add(record);
+                    }
+                    // 没扫描过的包裹正常装
+                    if (record == null) {
+                        GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                                boardCode, transfer, flowDisAccord, user, loadCar);
+                        insertRecords.add(goodsLoadScanRecord);
+                    }
+                } else {
+                    // 没扫描过的包裹正常装
                     GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
                             boardCode, transfer, flowDisAccord, user, loadCar);
                     insertRecords.add(goodsLoadScanRecord);
                 }
-            } else {
-                // 没扫描过的包裹正常装
-                GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                        boardCode, transfer, flowDisAccord, user, loadCar);
-                insertRecords.add(goodsLoadScanRecord);
+
+                // 板上的包裹列表不需要再校验是否已验货，直接装车
+                LoadScanDto loadScanDto = new LoadScanDto();
+                loadScanDto.setWayBillCode(waybillCode);
+                loadScanDtoList.add(loadScanDto);
+
+                // 当前板子上同一个运单上的包裹数
+                Integer packageNum = map.get(waybillCode);
+                if (packageNum == null) {
+                    log.info("当前板子上该运单号包裹数不存在，boardCode={},waybillCode={},packageNum={}", boardCode, waybillCode, packageCode);
+                    map.put(waybillCode, 1);
+                } else {
+                    log.info("当前板子上该运单号包裹数存在，boardCode={},waybillCode={},packageNum={}", boardCode, waybillCode, packageCode);
+                    packageNum = packageNum + 1;
+                    map.put(waybillCode, packageNum);
+                }
+            }
+            log.info("当前板号上各个包裹所在运单的对应数量map={}", map.toString());
+
+            log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
+                    updateRecords.size() + insertRecords.size(), boardCode, taskId);
+
+            log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
+
+            // 如果可以装车的包裹为空，则属于重复扫
+            if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
+                // 重复扫直接跳过
+                log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该板号属于重复扫！");
+                return response;
             }
 
-            // 板上的包裹列表不需要再校验是否已验货，直接装车
-            LoadScanDto loadScanDto = new LoadScanDto();
-            loadScanDto.setWayBillCode(waybillCode);
-            loadScanDtoList.add(loadScanDto);
-
-            // 当前板子上同一个运单上的包裹数
-            Integer packageNum = map.get(waybillCode);
-            if (packageNum == null) {
-                log.info("当前板子上该运单号包裹数不存在，boardCode={},waybillCode={},packageNum={}", boardCode, waybillCode, packageCode);
-                map.put(waybillCode, 1);
-            } else {
-                log.info("当前板子上该运单号包裹数存在，boardCode={},waybillCode={},packageNum={}", boardCode, waybillCode, packageCode);
-                packageNum = packageNum + 1;
-                map.put(waybillCode, packageNum);
+            log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
+            log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
+            // 根据运单号列表去分拣报表查找已验未发对应的库存数
+            List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+            if (scanDtoList == null || scanDtoList.isEmpty()) {
+                log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据板号上的包裹号查询库存失败");
+                return response;
             }
-        }
-        log.info("当前板号上各个包裹所在运单的对应数量map={}", map.toString());
+            log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                    packageCode, transfer, flowDisAccord, boardCode);
 
-        log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
-                updateRecords.size() + insertRecords.size(), boardCode, taskId);
+            // 更新之前取消的为已装
+            if (!updateRecords.isEmpty()) {
+                for (GoodsLoadScanRecord record : updateRecords) {
+                    goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
+                }
+            }
+            if (!insertRecords.isEmpty()) {
+                // 批量保存板上的包裹记录
+                goodsLoadScanRecordDao.batchInsert(insertRecords);
+            }
 
-        log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
+            // 扫描第一个包裹时，修改任务状态为已开始
+            if (packageMap == null || packageMap.isEmpty()) {
+                updateTaskStatus(loadCar, user);
+                log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                        packageCode, transfer, flowDisAccord, boardCode);
+            }
 
-        // 如果可以装车的包裹为空，则属于重复扫
-        if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
-            // 重复扫直接跳过
-            log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该板号属于重复扫！");
+            for (LoadScanDto scanDto : scanDtoList) {
+                // 根据任务ID和运单号查询暂存表
+                GoodsLoadScan loadScan = new GoodsLoadScan();
+                loadScan.setTaskId(taskId);
+                loadScan.setWayBillCode(scanDto.getWayBillCode());
+                // 取出板子上该运单下的要装车包裹数量
+                Integer packageNum = map.get(scanDto.getWayBillCode());
+                log.info("板号暂存接口--反查记录1，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
+                // 计算已装、未装
+                loadScan.setLoadAmount(packageNum);
+                int unloadNum = scanDto.getGoodsAmount() - loadScan.getLoadAmount();
+                loadScan.setUnloadAmount(unloadNum);
+                log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
+                // 设置运单颜色状态
+                Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
+                        loadScan.getUnloadAmount(), loadScan.getForceAmount());
+
+                log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+                loadScan.setStatus(status);
+
+                // 如果是多扫
+                if (flowDisAccord != null && flowDisAccord == 1) {
+                    loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+                }
+
+                // 如果已存在就更新，不存在就插入
+                saveOrUpdate(loadScan, scanDto, user, flowDisAccord);
+                log.info("板号暂存接口--反查记录8，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+
+            }
+        } finally {
             // 释放锁
             unLock(taskId, null, boardCode);
-            return response;
-        }
-
-        log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
-        log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
-        // 根据运单号列表去分拣报表查找已验未发对应的库存数
-        List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
-        if (scanDtoList == null || scanDtoList.isEmpty()) {
-            log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据板号上的包裹号去反查分拣报表返回为空");
-            return response;
-        }
-        log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
-
-        // 更新之前取消的为已装
-        if (!updateRecords.isEmpty()) {
-            for (GoodsLoadScanRecord record : updateRecords) {
-                goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
-            }
-        }
-        if (!insertRecords.isEmpty()) {
-            // 批量保存板上的包裹记录
-            goodsLoadScanRecordDao.batchInsert(insertRecords);
-        }
-
-        // 扫描第一个包裹时，修改任务状态为已开始
-        if (packageMap== null || packageMap.isEmpty()) {
-            updateTaskStatus(loadCar, user);
-            log.info("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+            log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
         }
 
-        for (LoadScanDto scanDto : scanDtoList) {
-            // 根据任务ID和运单号查询暂存表
-            GoodsLoadScan loadScan = new GoodsLoadScan();
-            loadScan.setTaskId(taskId);
-            loadScan.setWayBillCode(scanDto.getWayBillCode());
-            // 取出板子上该运单下的要装车包裹数量
-            Integer packageNum = map.get(scanDto.getWayBillCode());
-            log.info("板号暂存接口--反查记录1，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
-
-            // 计算已装、未装
-            loadScan.setLoadAmount(packageNum);
-            int unloadNum = scanDto.getGoodsAmount() - loadScan.getLoadAmount();
-            loadScan.setUnloadAmount(unloadNum);
-            log.info("板号暂存接口--反查记录2，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
-
-            // 设置运单颜色状态
-            Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
-                    loadScan.getUnloadAmount(), loadScan.getForceAmount());
-
-            log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
-            loadScan.setStatus(status);
-
-            // 如果是多扫
-            if (flowDisAccord != null && flowDisAccord == 1) {
-                loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
-            }
-
-            // 如果已存在就更新，不存在就插入
-            saveOrUpdate(loadScan, scanDto, user, flowDisAccord);
-            log.info("板号暂存接口--反查记录8，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
-
-        }
-        // 释放锁
-        unLock(taskId, null, boardCode);
-        log.info("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                packageCode, transfer, flowDisAccord, boardCode);
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
