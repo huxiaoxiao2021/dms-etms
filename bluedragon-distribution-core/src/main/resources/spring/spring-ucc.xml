@@ -103,6 +103,7 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
+				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
 			</list>
 		</property>
 	</bean>
