@@ -1301,6 +1301,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScanRecord.setTransfer(transfer == null ? 0 : transfer);
         // 多扫标识
         loadScanRecord.setFlowDisaccord(flowDisAccord == null ? 0 : flowDisAccord);
+        // 强发标识
+        loadScanRecord.setForceStatus(0);
 
         loadScanRecord.setCreateUserCode(user.getUserCode());
         loadScanRecord.setCreateUserName(user.getUserName());
