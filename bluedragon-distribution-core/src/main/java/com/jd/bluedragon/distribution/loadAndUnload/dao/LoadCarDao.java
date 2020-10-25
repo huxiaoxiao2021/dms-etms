@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
@@ -39,6 +40,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
     public LoadCar findLoadCarById(Long id) {
         LoadCar loadCar = new LoadCar();
         loadCar.setId(id);
+        loadCar.setYn(Constants.YN_YES);
         return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
     }
 
