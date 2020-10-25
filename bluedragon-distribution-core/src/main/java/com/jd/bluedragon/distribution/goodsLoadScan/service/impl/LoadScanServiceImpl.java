@@ -877,7 +877,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 taskId, packageCode, waybillCode);
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
-        if (loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
+        if (loadScanDto.getNextSiteId()==null||loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
             log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}",
                     taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_CONFIRM);
