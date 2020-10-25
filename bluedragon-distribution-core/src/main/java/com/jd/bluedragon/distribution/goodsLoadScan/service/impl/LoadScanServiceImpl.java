@@ -420,7 +420,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-        // todo null
+        if (loadCar.getCreateSiteCode() == null || loadCar.getEndSiteCode() == null) {
+            log.error("该装车任务网点ID为空taskId={}", taskId);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("装车任务网点ID为空");
+            return response;
+        }
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
