@@ -263,12 +263,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
 //        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
-        GoodsLoadScan glcTemp = loadScanCacheService.getWaybillLoadScan(taskId, waybillCode);
+        GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
+//                loadScanCacheService.getWaybillLoadScan(taskId, waybillCode);
         //缓存失效查库
-        if (glcTemp == null) {
-            // todo 通用查询
-            glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
-        }
+//        if (glcTemp == null) {
+//            // todo 通用查询
+//            glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
+//        }
         Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
 
         goodsLoadScan.setId(glcTemp.getId());
