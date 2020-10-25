@@ -70,13 +70,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
         Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
         if(taskStatus == null) {
-            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+//            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+            response.toFail("该任务状态存在异常,无法发货");
+            return response;
 
         }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
             response.toFail("该任务已经完成发货，无法操作取消扫描动作");
             return response;
-        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行取消扫描动作");
+        } else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN != taskStatus){
+//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行取消扫描动作");
+            response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
+            return response;
         }
 
 

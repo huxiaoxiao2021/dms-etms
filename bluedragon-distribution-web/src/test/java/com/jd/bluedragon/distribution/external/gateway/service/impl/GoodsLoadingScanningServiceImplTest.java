@@ -133,7 +133,7 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(1L);
+        param.setTaskId(58L);
 
         param.setPackageCode("PA002");//多个改数
         JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);

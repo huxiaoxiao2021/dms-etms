@@ -64,4 +64,10 @@ public class GoodsLoadScanRecordDao extends BaseDao {
     public boolean deleteLoadScanRecordByTaskId(Long taskId) {
         return super.getSqlSession().update(namespace + ".deleteLoadScanRecordByTaskId", taskId) > 0;
     }
+
+    public List<GoodsLoadScanRecord> selectRecordList(GoodsLoadScanRecord record) {
+        return this.getSqlSession().selectList(namespace + ".selectRecordList", record);
+    }
+
+
 }
