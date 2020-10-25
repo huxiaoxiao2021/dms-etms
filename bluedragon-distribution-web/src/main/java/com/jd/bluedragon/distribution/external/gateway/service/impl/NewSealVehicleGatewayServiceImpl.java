@@ -26,11 +26,13 @@ import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.PreSealVehicleResource;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,9 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Autowired
     @Qualifier("preSealVehicleResource")
     private PreSealVehicleResource preSealVehicleResource;
+
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
@@ -440,6 +445,30 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             jdCResponse.setCode(newSealVehicleResponse.getCode());
         }
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
+
+        return jdCResponse;
+    }
+
+    @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1018)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.removeEmptyBatchCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<String>> removeEmptyBatchCode(List<String> request){
+        JdCResponse<List<String>> jdCResponse = new JdCResponse();
+        if (CollectionUtils.isEmpty(request)) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("批次号不能为空！");
+            return jdCResponse;
+        }
+        List<String> removeBatchCodes=new ArrayList<>();
+        for (String item : request) {
+            if (!newSealVehicleService.checkBatchCodeIsSend(item)) {
+                removeBatchCodes.add(item);
+            }
+        }
+
+        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData(removeBatchCodes);
 
         return jdCResponse;
     }

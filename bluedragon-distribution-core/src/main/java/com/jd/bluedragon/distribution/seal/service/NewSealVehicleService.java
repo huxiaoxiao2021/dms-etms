@@ -12,6 +12,7 @@ import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 
 import java.util.List;
+import java.util.Map;
 
 public interface NewSealVehicleService {
 
@@ -27,14 +28,14 @@ public interface NewSealVehicleService {
      * @param sealCars
      * @return
      */
-    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
+    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception;
 
     /**
      * VOS封车业务同时生成车次任务
      * @param sealCars
      * @return
      */
-    NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+    NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode);
 
     /*
     * 分拣工作台一键封车
@@ -192,5 +193,13 @@ public interface NewSealVehicleService {
      * 查询全部的未封车批次号
      */
     List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange);
+
+    /**
+     * 判断批次号内是否有发货记录
+     * @param batchCode
+     * @return
+     */
+    boolean checkBatchCodeIsSend(String batchCode);
+
 
 }

@@ -172,6 +172,11 @@ public class UccPropertyConfiguration {
      */
     private String dellCancelDeliveryCheckSealCar;
 
+    /**
+     * 封车空批次剔除开关 1：开启剔除 0：关闭
+     */
+    private String removeEmptyBatchCode;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -491,4 +496,12 @@ public class UccPropertyConfiguration {
 	public void setRedisSwitchOn(String redisSwitchOn) {
 		this.redisSwitchOn = redisSwitchOn;
 	}
+
+    public String getRemoveEmptyBatchCode() {
+        return removeEmptyBatchCode;
+    }
+
+    public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
+        this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
 }

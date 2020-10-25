@@ -77,6 +77,7 @@
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
+		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -124,6 +125,7 @@
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
 				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
+				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
 			</list>
 		</property>
 	</bean>
