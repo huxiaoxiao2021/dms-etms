@@ -106,13 +106,13 @@ public class GoodsLoadingScanningServiceImplTest {
         param.setUser(user);
 
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(755380);
+        currentOperate.setSiteCode(589682);
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(1L);
+        param.setTaskId(72L);
         param.setSendCode("910-364605-20190111122142011");
-        param.setReceiveSiteCode(852798);
+        param.setReceiveSiteCode(589682);
 
         JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
 
