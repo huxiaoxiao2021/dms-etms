@@ -640,10 +640,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
-    <!-- 集包异常举报 -->
-    <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
