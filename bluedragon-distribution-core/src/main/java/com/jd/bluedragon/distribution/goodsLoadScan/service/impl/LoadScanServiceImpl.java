@@ -799,9 +799,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 根据规则把包裹号转成运单号
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         // 根据运单号查运单详情
+        log.info("根据运单号查询运单数据，查询条件:包裹号="+packageCode+";运单号="+waybillCode);
         Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if (waybill == null) {
-            log.warn("根据包裹号查询运单信息接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
+//            log.info("根据运单号查询运单数据，查询条件:包裹号="+packageCode+";运单号="+waybillCode+"未查询到包裹数据");
+            log.info("根据包裹号查询运单信息接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
             return null;
         }
         return waybill;
