@@ -466,6 +466,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             }
         }
 
+        jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
+        jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        jdCResponse.setData(removeBatchCodes);
+
         return jdCResponse;
     }
 
