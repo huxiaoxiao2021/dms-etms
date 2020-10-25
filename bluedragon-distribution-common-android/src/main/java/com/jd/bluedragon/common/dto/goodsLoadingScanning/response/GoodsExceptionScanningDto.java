@@ -23,6 +23,8 @@ public class GoodsExceptionScanningDto {
     //强发包裹数量
     private Integer forceAmount;
 
+    private boolean checked;
+
     public Long getId() {
         return id;
     }
@@ -69,5 +71,13 @@ public class GoodsExceptionScanningDto {
 
     public void setForceAmount(Integer forceAmount) {
         this.forceAmount = forceAmount;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
+    }
+
+    public boolean isChecked() {
+        return checked;
     }
 }
