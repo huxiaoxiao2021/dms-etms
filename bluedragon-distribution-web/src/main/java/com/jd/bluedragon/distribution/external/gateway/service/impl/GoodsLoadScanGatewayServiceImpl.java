@@ -65,6 +65,19 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
+        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+        if(taskStatus == null) {
+            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+
+        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+            response.toFail("该任务已经完成发货，请勿重复发货");
+            return response;
+        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+//                response.toFail("未开始任务无法进行发货发货");
+//                return response;
+        }
+
 
         if(StringUtils.isBlank(req.getPackageCode())){
             response.toFail("包裹号不能为空");
@@ -134,6 +147,19 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
+        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+        if(taskStatus == null) {
+            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
+
+        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+            response.toFail("该任务已经完成发货，请勿重复发货");
+            return response;
+        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+//                response.toFail("未开始任务无法进行发货发货");
+//                return response;
+        }
+
         if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
             response.toFail("运单号不能为空");
             return response;
@@ -181,6 +207,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
+        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+        if(taskStatus == null) {
+            throw new GoodsLoadScanException("该任务存在异常,无法发货");
+
+        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+            response.toFail("该任务已经完成发货，请勿重复发货");
+            return response;
+        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行发货");
+        }
+
         if(req.getUser() == null) {
             response.toFail("当前操作用户信息不能为空");
             return response;
@@ -202,10 +239,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         }
 
         List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
-        if(list == null || list.size() <= 0) {
-            response.toError("不齐异常数据查找失败");
-            return response;
-        }
+//        if(list == null || list.size() <= 0) {
+//            response.toError("不齐异常数据查找失败");
+//            return response;
+//        }
         response.toSucceed("不齐异常数据查找成功");
         response.setData(list);
         return response;
@@ -237,7 +274,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
             Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
             if(taskStatus == null) {
-                throw new GoodsLoadScanException("该任务存在异常,无法发货");
+                throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
 
             }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
                 response.toFail("该任务已经完成发货，请勿重复发货");
