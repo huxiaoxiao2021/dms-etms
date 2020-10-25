@@ -407,7 +407,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
             reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordMap),
                     createSiteId, nextSiteId, null);
-            // todo null reportList
+
             List<LoadScanDto> flowDisAccordList = new ArrayList<>(flowDisAccordMap.values());
 
             log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
@@ -1152,17 +1152,17 @@ public class LoadScanServiceImpl implements LoadScanService {
         } catch (Exception e) {
             log.error("根据暂存表记录去分拣报表查询运单明细接口发生异常currentSiteId={},currentSiteId={}",
                     currentSiteId, nextSiteId);
-            return null;
+            return new ArrayList<>();
         }
 
         if (baseEntity == null) {
             log.warn("根据暂存表记录去分拣报表查询运单明细接口返回空currentSiteId={},nextSiteId={}", currentSiteId, nextSiteId);
-            return null;
+            return new ArrayList<>();
         }
         if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
             log.error("根据暂存表记录去分拣报表查询运单明细接口失败currentSiteId={},currentSiteId={},code={}",
                     currentSiteId, nextSiteId, baseEntity.getCode());
-            return null;
+            return new ArrayList<>();
         }
         return baseEntity.getData();
     }
