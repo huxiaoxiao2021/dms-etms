@@ -1090,24 +1090,31 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 计算单子状态
         Integer status = getWaybillStatus(goodsAmount, loadScan.getLoadAmount(),
                 loadScan.getUnloadAmount(), loadScan.getForceAmount());
+        log.info("包裹暂存--status={},flowDisAccord={}", status, flowDisAccord);
         // 如果原来是黄颜色
         if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(loadScan.getStatus())) {
+            log.info("包裹暂存--之前status={}", loadScan.getStatus());
             // 没装齐仍然显示黄颜色
             if (goodsAmount > loadScan.getLoadAmount()) {
+                log.info("包裹暂存-之前-没装齐status={}", loadScan.getStatus());
                 status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
             }
         }
         // 如果是多扫
         if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(flowDisAccord)) {
+            log.info("包裹暂存--多扫status={}", loadScan.getStatus());
             // 没装齐仍然显示黄颜色
             if (goodsAmount > loadScan.getLoadAmount()) {
+                log.info("包裹暂存--多扫status={}", loadScan.getStatus());
                 status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
             }
         }
         // 如果已装等于库存
         if (loadScan.getLoadAmount().equals(goodsAmount)) {
+            log.info("包裹暂存--装齐status={}", loadScan.getStatus());
             status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
         }
+        log.info("包裹暂存--最后status={}", loadScan.getStatus());
         loadScan.setStatus(status);
     }
 
