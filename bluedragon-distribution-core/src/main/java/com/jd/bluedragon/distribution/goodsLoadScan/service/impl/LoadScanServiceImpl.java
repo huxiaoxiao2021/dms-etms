@@ -406,7 +406,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         JdCResponse<LoadScanDetailDto> response = new JdCResponse<>();
         Long taskId = req.getTaskId();
         // 根据任务号查找当前任务所在网点和下一网点
-        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据任务号找不到对应的装车任务");
@@ -813,7 +813,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         String packageCode = req.getPackageCode();
 
         // 根据任务号查询装车任务记录
-        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
             log.error("根据任务号找不到对应的装车任务，taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -889,7 +889,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         String packageCode = req.getPackageCode();
 
         // 根据任务号查询装车任务记录
-        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
             log.error("根据任务号找不到对应的装车任务，taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -951,7 +951,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         log.info("开始校验批次号！，taskId={},batchCode={}", taskId, batchCode);
 
         // 根据任务号查询装车任务记录
-        LoadCar loadCar = loadCarDao.findLoadCarById(taskId);
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
             log.error("根据任务号找不到对应的装车任务，taskId={},batchCode={}", taskId, batchCode);
             response.setCode(JdCResponse.CODE_FAIL);

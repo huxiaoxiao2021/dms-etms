@@ -41,7 +41,7 @@ public class LoadServiceImpl implements LoadService {
 
     @Override
     public LoadCar findLoadCarById(Long id) {
-        return loadCarDao.findLoadCarById(id);
+        return loadCarDao.findLoadCarByTaskId(id);
     }
 
     @Override

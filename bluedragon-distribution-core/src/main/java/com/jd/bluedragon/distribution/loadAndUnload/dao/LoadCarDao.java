@@ -37,12 +37,12 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().update(namespace + ".deleteById", req);
     }
 
-    public LoadCar findLoadCarById(Long id) {
-        LoadCar loadCar = new LoadCar();
-        loadCar.setId(id);
-        loadCar.setYn(Constants.YN_YES);
-        return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
-    }
+//    public LoadCar findLoadCarById(Long id) {
+//        LoadCar loadCar = new LoadCar();
+//        loadCar.setId(id);
+//        loadCar.setYn(Constants.YN_YES);
+//        return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
+//    }
 
     public boolean updateLoadCarById(LoadCar loadCar) {
         return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
