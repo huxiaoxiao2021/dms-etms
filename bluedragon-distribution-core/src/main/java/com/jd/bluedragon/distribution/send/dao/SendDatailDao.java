@@ -68,6 +68,11 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".queryCountBySiteCodeAndSendCode", query);
     }
 
+    public SendDetail querySendBySiteCodeAndSendCode(SendDetail query) {
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".querySendBySiteCodeAndSendCode", query);
+    }
+
     public List<SendDetail> queryPageBySiteCodeAndSendCode(PagerCondition query) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryPageBySiteCodeAndSendCode", query);

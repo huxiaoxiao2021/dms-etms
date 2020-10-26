@@ -276,6 +276,16 @@
         <include refid="page_Condition_Sql"/>
     </select>
 
+	<select id="querySendBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+		SELECT
+		package_barcode
+		FROM send_d
+		where yn=1 and is_cancel=0
+		and send_code=#{sendCode,jdbcType=VARCHAR}
+		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+		LIMIT 1
+	</select>
+
     <select id="queryPageBySiteCodeAndSendCode" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="SendDetail">
         SELECT
         <include refid="Base_Column_List" />
