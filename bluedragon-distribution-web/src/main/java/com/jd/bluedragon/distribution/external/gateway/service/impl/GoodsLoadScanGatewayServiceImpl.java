@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.eclp.master.goods.exception.GoodsException;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -63,78 +64,83 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
          */
         JdCResponse response = new JdCResponse<Boolean>();
 
-        if(req.getTaskId() == null){
-            response.toFail("任务号不能为空");
-            return response;
-        }
+        try {
+            if(req.getTaskId() == null){
+                response.toFail("任务号不能为空");
+                return response;
+            }
 
-        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
-        if(taskStatus == null) {
+            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            if(taskStatus == null) {
 //            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
-            response.toFail("该任务状态存在异常,无法发货");
-            return response;
+                response.toFail("该任务状态存在异常,无法发货");
+                return response;
 
-        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，无法操作取消扫描动作");
-            return response;
-        } else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN != taskStatus){
+            }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+                response.toFail("该任务已经完成发货，无法操作取消扫描动作");
+                return response;
+            } else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN != taskStatus){
 //            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行取消扫描动作");
-            response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
-            return response;
-        }
-
-
-        if(StringUtils.isBlank(req.getPackageCode())){
-            response.toFail("包裹号不能为空");
-            return response;
-        }
-
-        if(req.getUser() == null) {
-            response.toFail("当前操作用户信息不能为空");
-            return response;
-        }else {
-            if(req.getUser().getUserName() == null) {
-                response.toFail("当前操作用户名称不能为空");
+                response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
             }
-        }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        } else {
-            if(req.getCurrentOperate().getSiteName() == null) {
-                response.toFail("当前分拣中心名称不能为空");
+
+            if(StringUtils.isBlank(req.getPackageCode())){
+                response.toFail("包裹号不能为空");
                 return response;
             }
-        }
 
-        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-        record.setTaskId(req.getTaskId());
-        record.setPackageCode(req.getPackageCode());
+            if(req.getUser() == null) {
+                response.toFail("当前操作用户信息不能为空");
+                return response;
+            }else {
+                if(req.getUser().getUserName() == null) {
+                    response.toFail("当前操作用户名称不能为空");
+                    return response;
+                }
+            }
+
+            if(req.getCurrentOperate() == null) {
+                response.toFail("当前分拣中心信息不能为空");
+                return response;
+            } else {
+                if(req.getCurrentOperate().getSiteName() == null) {
+                    response.toFail("当前分拣中心名称不能为空");
+                    return response;
+                }
+            }
+
+            GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+            record.setTaskId(req.getTaskId());
+            record.setPackageCode(req.getPackageCode());
 //        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号- 参数【" + JsonHelper.toJson(req) + "】");
-        ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);//入参 包裹号  包裹状态=1 yn
+            ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);//入参 包裹号  包裹状态=1 yn
 
-        if(exceptionScanDto == null) {
-            response.toFail("此包裹号未操作装车，无法取消");
-            return response;
-        }else if(exceptionScanDto.getForceStatus() == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y){
-            response.toFail("此包裹已被操作强发，无法取消");
-            return response;
-        }
+            if(exceptionScanDto == null) {
+                response.toFail("此包裹号未操作装车，无法取消");
+                return response;
+            }else if(exceptionScanDto.getForceStatus() == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y){
+                response.toFail("此包裹已被操作强发，无法取消");
+                return response;
+            }
 
 
-        exceptionScanDto.setOperator(req.getUser().getUserName());
-        exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
-        exceptionScanDto.setCurrentSiteCode(req.getCurrentOperate().getSiteCode());
-        exceptionScanDto.setCurrentSiteName(req.getCurrentOperate().getSiteName());
+            exceptionScanDto.setOperator(req.getUser().getUserName());
+            exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
+            exceptionScanDto.setCurrentSiteCode(req.getCurrentOperate().getSiteCode());
+            exceptionScanDto.setCurrentSiteName(req.getCurrentOperate().getSiteName());
 //        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
-        boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
+            boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
-        if(!removeRes) {
-            response.toError("取消包裹扫描失败");
+            if(!removeRes) {
+                response.toError("取消包裹扫描失败");
+            }
+            response.toSucceed("取消包裹扫描成功");
+        }catch (GoodsLoadScanException e) {
+            log.error("取消发货系统异常--error--【{}】", e);
+            response.toError("取消发货系统异常");
         }
-        response.toSucceed("取消包裹扫描成功");
         return response;
 
     }
@@ -146,61 +152,66 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<Void> goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
 
         JdCResponse response = new JdCResponse<Boolean>();
+        try {
+            if(req.getTaskId() == null) {
+                response.toFail("任务号不能为空");
+                return response;
+            }
 
-        if(req.getTaskId() == null) {
-            response.toFail("任务号不能为空");
-            return response;
-        }
-
-        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
-        if(taskStatus == null) {
-            // todo 本层不要抛异常
+            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            if(taskStatus == null) {
+                // todo 本层不要抛异常
 //            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
-            response.toFail("该任务状态存在异常,无法操作强发");
-            return response;
+                response.toFail("该任务状态存在异常,无法操作强发");
+                return response;
 
-        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，请勿操作强发动作");
-            return response;
-        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+            }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+                response.toFail("该任务已经完成发货，请勿操作强发动作");
+                return response;
+            } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
 //            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行操作强发动作");
                 response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
-        }
+            }
 
-        if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
-            response.toFail("运单号不能为空");
-            return response;
-        }
-
-        if(req.getUser() == null) {
-            response.toFail("当前操作用户信息不能为空");
-            return response;
-        }else {
-            if(req.getUser().getUserName() == null) {
-                response.toFail("当前操作用户名称不能为空");
+            if(req.getWaybillCode() == null || req.getWaybillCode().size() <=0) {
+                response.toFail("运单号不能为空");
                 return response;
             }
-        }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }else {
-            if(req.getCurrentOperate().getSiteName() == null) {
-                response.toFail("当前分拣中心名称不能为空");
+            if(req.getUser() == null) {
+                response.toFail("当前操作用户信息不能为空");
+                return response;
+            }else {
+                if(req.getUser().getUserName() == null) {
+                    response.toFail("当前操作用户名称不能为空");
+                    return response;
+                }
+            }
+
+            if(req.getCurrentOperate() == null) {
+                response.toFail("当前分拣中心信息不能为空");
+                return response;
+            }else {
+                if(req.getCurrentOperate().getSiteName() == null) {
+                    response.toFail("当前分拣中心名称不能为空");
+                    return response;
+                }
+            }
+
+            boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
+
+            if(!res) {
+                response.toError("强制下发失败");
                 return response;
             }
+            response.toSucceed("强制下发成功");
+
+        }catch (GoodsLoadScanException e) {
+            log.error("装车强制下发出错--error--【{}】：", e);
+            response.toError("强制下发异常");
         }
 
-        boolean res = exceptionScanService.goodsCompulsoryDeliver(req);
-
-        if(!res) {
-            response.toError("强制下发失败");
-            return response;
-        }
-
-        response.toSucceed("强制下发成功");
         return response;
     }
 
@@ -210,52 +221,57 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<List<GoodsExceptionScanningDto>> findExceptionGoodsLoading(GoodsExceptionScanningReq req) {
         JdCResponse<List<GoodsExceptionScanningDto>> response = new JdCResponse<>();
 
-        if(req.getTaskId() == null) {
-            response.toFail("任务号不能为空");
-            return response;
-        }
+        try {
+            if(req.getTaskId() == null) {
+                response.toFail("任务号不能为空");
+                return response;
+            }
 
-        Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
-        if(taskStatus == null) {
+            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            if(taskStatus == null) {
 //            throw new GoodsLoadScanException("该任务存在异常,无法发货");
-            response.toFail("该任务状态存在异常,无法操作查询");
-            return response;
-        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
-            response.toFail("该任务已经完成发货，请勿操作异常查询");
-            return response;
-        } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
+                response.toFail("该任务状态存在异常,无法操作查询");
+                return response;
+            }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+                response.toFail("该任务已经完成发货，请勿操作异常查询");
+                return response;
+            } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
 //            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行异常数据查询");
-            response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
-            return response;
-        }
-
-        if(req.getUser() == null) {
-            response.toFail("当前操作用户信息不能为空");
-            return response;
-        }else {
-            if(req.getUser().getUserName() == null) {
-                response.toFail("当前操作用户名称不能为空");
+                response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
             }
-        }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }else {
-            if(req.getCurrentOperate().getSiteName() == null) {
-                response.toFail("当前分拣中心名称不能为空");
+            if(req.getUser() == null) {
+                response.toFail("当前操作用户信息不能为空");
                 return response;
+            }else {
+                if(req.getUser().getUserName() == null) {
+                    response.toFail("当前操作用户名称不能为空");
+                    return response;
+                }
             }
-        }
 
-        List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
+            if(req.getCurrentOperate() == null) {
+                response.toFail("当前分拣中心信息不能为空");
+                return response;
+            }else {
+                if(req.getCurrentOperate().getSiteName() == null) {
+                    response.toFail("当前分拣中心名称不能为空");
+                    return response;
+                }
+            }
+
+            List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
 //        if(list == null || list.size() <= 0) {
 //            response.toError("不齐异常数据查找失败");
 //            return response;
 //        }
-        response.toSucceed("不齐异常数据查找成功");
-        response.setData(list);
+            response.toSucceed("不齐异常数据查找成功");
+            response.setData(list);
+        }catch(GoodsLoadScanException e){
+            log.error("查询不齐异常错误--error--【{}】",e);
+            response.toError("不齐异常数据查找异常");
+        }
         return response;
     }
 
@@ -265,18 +281,18 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<Void> goodsLoadingDeliver(GoodsLoadingReq req) {
 
         JdCResponse response = new JdCResponse();
+        try {
+            if(req.getTaskId() == null) {
+                response.toFail("任务号不能为空");
+                return response;
+            }
 
-        if(req.getTaskId() == null) {
-            response.toFail("任务号不能为空");
-            return response;
-        }
-
-        String lock = req.getTaskId().toString();
-        //todo 缓存 异常情况未删除  缓存时间扩大 提示语修改成 处理中。。
-        if(!loadScanCacheService.lock(lock, 60)){
-            log.error("任务发货【{}】重复提交", req.getTaskId());
-            response.toFail("任务正在发货中，请勿重复提交");
-        }
+            String lock = req.getTaskId().toString();
+            //todo 缓存 异常情况未删除  缓存时间扩大 提示语修改成 处理中。。
+            if(!loadScanCacheService.lock(lock, 60)){
+                log.error("任务发货【{}】重复提交", req.getTaskId());
+                response.toFail("任务正在发货中，请勿重复提交");
+            }
 
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
             Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
@@ -295,48 +311,53 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 //        }
 
-        if(req.getSendCode() == null) {
-            response.toFail("发货批次号不能为空");
-            return response;
-        }
-
-        if(req.getReceiveSiteCode() == null) {
-            response.toFail("收货单位编码不能为空");
-            return response;
-        }
-
-        if(req.getUser() == null) {
-            response.toFail("当前操作用户信息不能为空");
-            return response;
-        }else {
-            if(req.getUser().getUserName() == null) {
-                response.toFail("当前操作用户名称不能为空");
+            if(req.getSendCode() == null) {
+                response.toFail("发货批次号不能为空");
                 return response;
             }
-        }
 
-        if(req.getCurrentOperate() == null) {
-            response.toFail("当前分拣中心信息不能为空");
-            return response;
-        }else {
-            if(req.getCurrentOperate().getSiteName() == null) {
-                response.toFail("发货单位名称不能为空");
+            if(req.getReceiveSiteCode() == null) {
+                response.toFail("收货单位编码不能为空");
                 return response;
             }
-        }
 
-        if(exceptionScanService.checkException(req.getTaskId())) {
-            response.toFail("本次装车存在不齐运单，请点击不齐异常处理操作");
-            return response;
-        }
+            if(req.getUser() == null) {
+                response.toFail("当前操作用户信息不能为空");
+                return response;
+            }else {
+                if(req.getUser().getUserName() == null) {
+                    response.toFail("当前操作用户名称不能为空");
+                    return response;
+                }
+            }
 
-        try{
-            response = loadScanService.goodsLoadingDeliver(req);
-        } catch(GoodsLoadScanException e) {
-            response.toFail("发货失败");
-            return response;
-        }finally {
-            loadScanCacheService.unLock(lock);
+            if(req.getCurrentOperate() == null) {
+                response.toFail("当前分拣中心信息不能为空");
+                return response;
+            }else {
+                if(req.getCurrentOperate().getSiteName() == null) {
+                    response.toFail("发货单位名称不能为空");
+                    return response;
+                }
+            }
+
+            if(exceptionScanService.checkException(req.getTaskId())) {
+                response.toFail("本次装车存在不齐运单，请点击不齐异常处理操作");
+                return response;
+            }
+
+            try{
+                response = loadScanService.goodsLoadingDeliver(req);
+            } catch(GoodsLoadScanException e) {
+                response.toFail("发货失败");
+                return response;
+            }finally {
+                loadScanCacheService.unLock(lock);
+            }
+
+        }catch (GoodsLoadScanException e) {
+            log.error("装车完成发货出错--error--【{}】：", e);
+            response.toError("装车发货完成异常");
         }
 
         return response;
