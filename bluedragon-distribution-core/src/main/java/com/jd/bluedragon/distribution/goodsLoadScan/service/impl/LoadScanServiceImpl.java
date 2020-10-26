@@ -1285,6 +1285,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 if (detailDto.getGoodsAmount().equals(loadScan.getLoadAmount())) {
                     goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
                 }
+                // 多扫如果强制下发显示橙色
+                if (loadScan.getForceAmount() > 0) {
+                    goodsDetailDto.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
+                }
             }
             goodsDetails.add(goodsDetailDto);
         }
