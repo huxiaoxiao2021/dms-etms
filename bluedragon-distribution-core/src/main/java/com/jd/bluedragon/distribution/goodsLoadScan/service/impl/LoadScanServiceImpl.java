@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
+import com.google.common.base.Stopwatch;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -47,6 +48,7 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -569,6 +571,10 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
+
+            /**Stopwatch耗时分析**/
+            StopWatch watch=new StopWatch();
+            watch.start();
             // 循环处理板上的每一个包裹
             for (String packCode : result.getData()) {
                 if (!WaybillUtil.isPackageCode(packCode)) {
@@ -620,6 +626,9 @@ public class LoadScanServiceImpl implements LoadScanService {
                     map.put(waybillCode, packageNum);
                 }
             }
+            watch.split();
+            log.info("循环处理板上的每一个包裹耗时={}",watch.getSplitTime());
+
             log.info("当前板号上各个包裹所在运单的对应数量map={}", map.toString());
 
             log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
@@ -641,7 +650,18 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
             // 根据运单号列表去分拣报表查找已验未发对应的库存数
-            List<LoadScanDto> scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+            watch.reset();
+            watch.start();
+            List<LoadScanDto> scanDtoList = new ArrayList<>();
+            try {
+                scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+            } catch (Exception e) {
+                log.error("根据运单去ES获取数据异常={}", e);
+            }
+            watch.split();
+            log.info("根据运单号获取ES数据耗时={}", watch.getSplitTime());
+            watch.stop();
+
             if (scanDtoList == null || scanDtoList.isEmpty()) {
                 log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
                 response.setCode(JdCResponse.CODE_FAIL);
