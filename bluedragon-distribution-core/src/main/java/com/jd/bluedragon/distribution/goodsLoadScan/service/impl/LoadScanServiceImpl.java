@@ -755,8 +755,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         String waybillCode = waybill.getWaybillCode();
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
-
-
         // 查看包裹是否已验货
         Inspection inspection = new Inspection();
         inspection.setCreateSiteCode(createSiteId);
@@ -797,23 +795,25 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDtoList.add(loadScan);
 
         log.info("常规包裹号后续校验--根据运单查询库存：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
-
-        List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
-        if (loadScanDto.isEmpty()) {
-            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单库存失败");
-            return response;
+        Integer goodsAmount = 0;
+        try{
+            List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+            if (loadScanDto.isEmpty()) {
+                log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据包裹号查询运单库存失败");
+                return response;
+            }
+            log.info("常规包裹号后续校验--去分拣报表查询库存成功：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
+            LoadScanDto scanDto = loadScanDto.get(0);
+            // 校验通过，暂存
+            if(scanDto != null){
+                goodsAmount = scanDto.getGoodsAmount();
+            }
+            log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
+        }catch(Exception e){
+            log.error("包裹装车扫描出现异常，异常信息："+e.getMessage(),e);
         }
-        log.info("常规包裹号后续校验--去分拣报表查询库存成功：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
-
-        LoadScanDto scanDto = loadScanDto.get(0);
-        // 校验通过，暂存
-        Integer goodsAmount = scanDto.getGoodsAmount();
-
-
-        log.info("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
-
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, loadCar);
     }
 
@@ -1075,10 +1075,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                      Integer goodsAmount, Integer transfer, Integer flowDisAccord,
                                                      User user, LoadCar loadCar) {
-
         JdCResponse<Void> response = new JdCResponse<>();
         String boardCode = null;
-
         log.info("常规包裹号后续校验--开始暂存前校验--是否属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
         try {
             // 判断是否有所属板号
