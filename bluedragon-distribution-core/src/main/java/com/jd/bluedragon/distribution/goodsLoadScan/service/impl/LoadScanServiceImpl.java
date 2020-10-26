@@ -266,10 +266,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDtoList.add(loadScan);
         Integer createSiteId = currentSiteCode;
         //todo null
-        LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
-        if(scanDto == null) {
+        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        if(CollectionUtils.isEmpty(loadScanDtoList)){
             throw new GoodsLoadScanException("取消发货拉取ES库存为空");
         }
+        LoadScanDto scanDto = loadScanDtoList.get(0);
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
 //        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
         GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
@@ -333,7 +334,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDtoList.add(loadScan);
         Integer createSiteId = currentSiteCode;
         //查ES拿最新库存
-        LoadScanDto scanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId).get(0);
+        List<LoadScanDto> list=getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        if(CollectionUtils.isEmpty(list)){
+            throw new GoodsLoadScanException("取消发货拉取ES库存为空");
+        }
+        LoadScanDto scanDto = list.get(0);
 
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
 
@@ -797,8 +802,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDtoList.add(loadScan);
 
         log.info("常规包裹号后续校验--根据运单查询库存：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
+        List<LoadScanDto> loadScanDto = new ArrayList<>();
+        try {
 
-        List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+            loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        } catch (Exception e) {
+            log.error("根据运单去ES获取数据异常={}", e);
+        }
         if (loadScanDto.isEmpty()) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -1226,7 +1236,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.warn("根据运单号和包裹号条件列表去分拣报表查询运单明细接口返回空currentSiteId={}", currentSiteId);
             return null;
         }
-        if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
+        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode())|| baseEntity.getData() == null) {
             log.error("根据运单号和包裹号条件列表去分拣报表查询运单明细接口失败currentSiteId={}", currentSiteId);
             return null;
         }

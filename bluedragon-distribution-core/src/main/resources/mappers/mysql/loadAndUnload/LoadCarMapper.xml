@@ -18,12 +18,11 @@
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
-        <result column="exp" property="exp" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, license_number, end_site_code, end_site_name, status, operate_user_erp, operate_user_name, create_user_erp, create_site_name,
-        create_site_code, batch_code, create_user_name, create_time, update_time
+        create_site_code, batch_code, create_user_name, create_time, update_time, yn
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" useGeneratedKeys="true"
@@ -266,7 +265,7 @@
     <select id="findLoadCarByTaskId" parameterType="java.lang.Long"  resultMap="loadCar">
         select <include refid="Base_Column_List"/>
         from load_car
-        where id = #{id,jdbcType=BIGINT} and  yn = 1;
+        where id = #{id,jdbcType=BIGINT};
     </select>
 
 </mapper>
