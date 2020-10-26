@@ -227,7 +227,7 @@
         <include refid="Base_Column_List"/>
         from load_scan where yn = 1
             and task_id = #{taskId,jdbcType=BIGINT}
-            and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
+            and waybill_code = #{wayBillCode,jdbcType=VARCHAR} limit 1
     </select>
 
 

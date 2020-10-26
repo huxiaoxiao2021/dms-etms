@@ -449,7 +449,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer nextSiteId = loadCar.getEndSiteCode().intValue();
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
-        //todo 删除无用info
+
         log.info("根据任务ID查找暂存表，taskId={}", req.getTaskId());
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
