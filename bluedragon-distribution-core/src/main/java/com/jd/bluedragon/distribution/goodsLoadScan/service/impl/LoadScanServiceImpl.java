@@ -720,6 +720,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 if (flowDisAccord != null && flowDisAccord == 1) {
                     loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
                 }
+                // 库存等于已装，强发清零
+                if (loadScan.getLoadAmount().equals(scanDto.getGoodsAmount())) {
+                    loadScan.setForceAmount(0);
+                }
 
                 // 如果已存在就更新，不存在就插入
                 saveOrUpdate(loadScan, scanDto, user, flowDisAccord);
@@ -1155,6 +1159,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 计算单子状态
         Integer status = getWaybillStatus(goodsAmount, loadScan.getLoadAmount(),
                 loadScan.getUnloadAmount(), loadScan.getForceAmount());
+        // 库存等于已装，强发清零
+        if (loadScan.getLoadAmount().equals(goodsAmount)) {
+            loadScan.setForceAmount(0);
+        }
         log.info("包裹暂存--status={},flowDisAccord={}", status, flowDisAccord);
         // 如果原来是黄颜色
         if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(loadScan.getStatus())) {
@@ -1520,10 +1528,14 @@ public class LoadScanServiceImpl implements LoadScanService {
                 // 无论有没有没装齐仍然显示黄颜色
                 e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }
-            //
+
             // 如果是多扫
             if (flowDisAccord != null && flowDisAccord == 1) {
                 e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
+            }
+            // 库存等于已装，强发清零
+            if (e.getLoadAmount().equals(scanDto.getGoodsAmount())) {
+                e.setForceAmount(0);
             }
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
