@@ -426,7 +426,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据任务号找不到对应的装车任务");
+            response.setMessage("该装车任务不存在");
             return response;
         }
 
@@ -442,7 +442,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (loadCar.getCreateSiteCode() == null || loadCar.getEndSiteCode() == null) {
             log.error("该装车任务网点ID为空taskId={}", taskId);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("装车任务网点ID为空");
+            response.setMessage("该装车任务网点编码为空");
             return response;
         }
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
@@ -473,16 +473,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 该任务下多扫记录存在，因为多扫的运单流向不一致,需要单独查
             if (!flowDisAccordList.isEmpty()) {
                 log.info("根据任务ID查找暂存表有多扫记录,开始从分拣报表查询多扫记录，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
-
                 List<LoadScanDto> externalList = getLoadScanListByWaybillCode(flowDisAccordList, createSiteId);
-                if (externalList == null || externalList.isEmpty()) {
-                    log.info("根据暂存表该任务下的多扫记录反查分拣报表返回为空，taskId={}", req.getTaskId());
-                    response.setCode(JdCResponse.CODE_FAIL);
-                    response.setMessage("根据暂存表该任务下的多扫记录反查分拣报表返回为空");
-                    return response;
+                if (externalList != null && !externalList.isEmpty()) {
+                    log.info("根据任务ID查找暂存表有多扫记录,从分拣报表查询多扫记录正常返回，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
+                    reportList.addAll(externalList);
                 }
-                log.info("根据任务ID查找暂存表有多扫记录,从分拣报表查询多扫记录正常返回，taskId={},size={}", req.getTaskId(), flowDisAccordList.size());
-                reportList.addAll(externalList);
             }
 
             log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
