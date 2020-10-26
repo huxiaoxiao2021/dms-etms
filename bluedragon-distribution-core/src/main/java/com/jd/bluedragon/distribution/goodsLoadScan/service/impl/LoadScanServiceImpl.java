@@ -658,7 +658,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (scanDtoList == null || scanDtoList.isEmpty()) {
                 log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
                 response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("根据板号上的包裹号查询库存失败");
+                response.setMessage("包裹未验货或已发货，请核实包裹状态");
                 return response;
             }
             log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
@@ -847,7 +847,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单信息返回空");
+            response.setMessage("包裹未验货或已发货，请核实包裹状态");
             return response;
         }
         // 发货校验
