@@ -570,7 +570,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             // 根据板号查询之前的包裹扫描记录
-            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode);
+            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode, loadCar.getCreateSiteCode());
 
 
             // 运单，包裹数
@@ -1090,6 +1090,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             record.setWayBillCode(waybillCode);
             record.setPackageCode(packageCode);
             record.setYn(Constants.YN_YES);
+            record.setCreateSiteCode(loadCar.getCreateSiteCode());
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findRecordByWaybillCodeAndPackCode(record);
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {

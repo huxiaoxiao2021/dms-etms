@@ -40,10 +40,11 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectPackageCodesByBoardCode", record);
     }
 
-    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long taskId, String boardCode) {
+    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long taskId, String boardCode, Long createSiteCode) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
         record.setBoardCode(boardCode);
+        record.setCreateSiteCode(createSiteCode);
         record.setYn(Constants.YN_YES);
         return this.getSqlSession().selectMap(namespace + ".selectRecordsByBoardCode", record, "packageCode");
     }
