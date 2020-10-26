@@ -61,6 +61,11 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
             if (boxBool && !waybillBool) {
                 BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteByDmsCode(messageDto.getEndSiteCode());
 
+                if (null == endSite) {
+                    LOGGER.error("查询众邮分拣目的站点失败：{}", messageDto.getEndSiteCode());
+                    return;
+                }
+
                 WeightVolumeEntity itemEntity = new WeightVolumeEntity();
                 itemEntity.setBarCode(waybillCode);
                 itemEntity.setWaybillCode(waybillCode);
