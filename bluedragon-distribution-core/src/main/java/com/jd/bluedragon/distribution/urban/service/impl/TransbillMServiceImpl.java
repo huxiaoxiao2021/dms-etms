@@ -95,23 +95,40 @@ public class TransbillMServiceImpl implements TransbillMService {
     public TransbillM getByWaybillCode(String waybillCode) {
         if (StringUtils.isNotBlank(waybillCode)) {
             TransbillM transbillM=new TransbillM();
-            WaybillScheduleDto waybillScheduleDto = this.getWaybillScheduleDto(waybillCode);
-            Waybill waybill=this.getWaybill(waybillCode);
-            if(waybill!=null){
-                String waybillSign=waybill.getWaybillSign();
-                if(waybillSign.length()>=75){
-                    Integer requireTransMode= StringHelper.stringToInteger(waybillSign,74);
-                    transbillM.setRequireTransMode(requireTransMode);
+
+            WaybillScheduleDto waybillScheduleDto = null;
+            String waybillSign = null;
+            try {
+                WChoice wChoice = new WChoice();
+                wChoice.setQueryWaybillS(true);
+                wChoice.setQueryWaybillC(true);
+                BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
+                        waybillCode, wChoice);
+                if (baseEntity != null && baseEntity.getData() != null) {
+                    waybillScheduleDto = baseEntity.getData().getWaybillSchedule();
+                    if (null != baseEntity.getData().getWaybill()) {
+                        waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
+                    } else {
+                        log.error("运单号【{}】调度信息查询中没有查到waybillSign标志.", waybillCode);
+                    }
                 }
-               else{
-                    transbillM.setRequireTransMode(0);//和运单沟通，waybillsign长度不足75，默认设0
-                }
+                this.log.info("运单号【{}】调用调度信息成功", waybillCode);
+            } catch (Exception e) {
+                this.log.error("运单号【{}】调用调度信息异常：",waybillCode, e);
             }
-            if(waybillScheduleDto!=null){
+
+            Integer requireTransMode= StringHelper.stringToInteger(waybillSign,74);
+            transbillM.setRequireTransMode(null == requireTransMode? 0 : requireTransMode);
+
+            if (waybillScheduleDto == null) {
+                // 无数据
+                this.log.warn("运单号【{}】的调用调度信息为空",waybillCode);
+            } else {
                 String truckSpot=waybillScheduleDto.getTruckSpot();
                 transbillM.setScheduleBillCode(null);
                 transbillM.setTruckSpot(truckSpot);
             }
+
             return transbillM;
         }
         return null;
