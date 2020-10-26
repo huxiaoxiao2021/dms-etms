@@ -14,7 +14,7 @@ public interface LoadScanService {
     JdCResponse goodsLoadingDeliver(GoodsLoadingReq req);
 
     //根据任务号查询任务状态
-    Integer findTaskStatus(Long taskId);
+    LoadCar findTaskStatus(Long taskId);
 
     //根据任务id和运单号查询缓存中运单数据
 //    GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode);

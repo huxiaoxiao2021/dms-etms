@@ -173,31 +173,9 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public Integer findTaskStatus(Long taskId) {
-
-//        LoadCar lc = loadCarDao.findLoadCarById(taskId);
-        LoadCar lc = loadCarDao.findLoadCarByTaskId(taskId);
-        log.info("根据任务号【{}】查询任务信息,出参【{}】", taskId, JsonHelper.toJson(lc));
-
-        if (lc != null && lc.getStatus() != null) {
-            return lc.getStatus();
-        }
-        return 0;
+    public LoadCar findTaskStatus(Long taskId) {
+        return loadCarDao.findLoadCarByTaskId(taskId);
     }
-
-//    @Override
-//    public GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode) {
-//        //todo key format set
-//        String key = taskId + "_" + waybillCode;
-//        return jimdbCacheService.get(key, GoodsLoadScan.class);
-//    }
-
-//    @Override
-//    public GoodsLoadScanRecord queryPackageCache(Long taskId, String waybillCode, String packageCode) {
-//        // todo key format
-//        String key = taskId + "_" + waybillCode + "_" + packageCode;
-//        return jimdbCacheService.get(key, GoodsLoadScanRecord.class);
-//    }
 
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_undiv")
@@ -207,7 +185,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 //todo  加常量定义锁
         String lockKey = goodsLoadScan.getTaskId().toString();
         try {
-//            if (!jimdbCacheService.setNx(lockKey, "1", 2, TimeUnit.SECONDS)) {
             if (!loadScanCacheService.lock(lockKey, 1)) {
                 Thread.sleep(100);
                 boolean cacheResult = jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 2, TimeUnit.SECONDS);
@@ -220,10 +197,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             //取消扫描
             if (goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_REMOVE) {
                 res = this.scanRemove(goodsLoadScan, goodsLoadScanRecord, currentSiteCode);
+
             } else if (goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_LOAD) { //装车扫描
                 res = this.scanLoad(goodsLoadScan, goodsLoadScanRecord, currentSiteCode);
+
             } else {
-                throw new GoodsLoadScanException("包裹扫描状态错误，请输入1(发货扫描)或0(取消扫描)");
+                throw new GoodsLoadScanException("包裹扫描状态错误，状态值应该为1(发货扫描)或0(取消扫描)");
             }
 
             return res;
@@ -235,12 +214,18 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
     }
 
+    /**
+     *
+     * @param goodsLoadScan  运单维度信息
+     * @param goodsLoadScanRecord  包裹维度信息
+     * @param currentSiteCode   当前网点code
+     * @return
+     */
     private boolean scanRemove(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
         String waybillCode = goodsLoadScan.getWayBillCode();
         Long taskId = goodsLoadScan.getTaskId();
 
-//        GoodsLoadScanRecord packageRecord = this.queryPackageCache(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
         GoodsLoadScanRecord packageRecord  = loadScanCacheService.getWaybillLoadScanRecord(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
         if (packageRecord == null) {
             GoodsLoadScanRecord packageRecordQueryParam = new GoodsLoadScanRecord();
