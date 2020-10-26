@@ -267,6 +267,14 @@
     </select>
 
 
+    <select id="findGoodsLoadRecordPage" parameterType="map" resultMap="goodsLoadScanRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan_record where yn = 1
+        and task_id = #{taskId,jdbcType=BIGINT}
+        limit #{start}, #{end}
+    </select>
+
 
 
 </mapper>

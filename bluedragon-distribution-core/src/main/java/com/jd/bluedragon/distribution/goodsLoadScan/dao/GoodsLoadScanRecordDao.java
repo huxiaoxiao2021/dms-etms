@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,6 +72,14 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public List<GoodsLoadScanRecord> selectRecordByTaskId(Long taskId) {
         return this.getSqlSession().selectList(namespace + ".selectRecordByTaskId", taskId);
+    }
+
+    public List<GoodsLoadScanRecord> findGoodsLoadRecordPage(Long taskId, int start, int end) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("taskId", taskId);
+        map.put("start", start);
+        map.put("end", end);
+        return this.getSqlSession().selectList(namespace + ".findGoodsLoadRecordPage", map);
     }
 
 }

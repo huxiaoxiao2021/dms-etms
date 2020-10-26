@@ -37,4 +37,7 @@ public class GoodsLoadScanConstants {
     // 装车发货加锁标识
     public static final String LOCK_KEY = "Bnet_LoadScan_Lock_";
 
+    //每页数量
+    public static final int PAGE_SIZE = 50;
+
 }

@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,6 +70,24 @@ public class LoadScanCacheServiceImpl implements LoadScanCacheService {
     @Override
     public boolean delWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode) {
         String key = GoodsLoadScanConstants.CACHE_KEY_PACKAGE + taskId.toString() + waybillCode + packageCode;
+        return jimdbCacheService.del(key);
+    }
+
+    @Override
+    public boolean setTaskLoadScan(LoadCar loadCar) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_TASK + loadCar.getId().toString();
+        return jimdbCacheService.setEx(key,  loadCar,1, TimeUnit.DAYS);
+    }
+
+    @Override
+    public LoadCar getTaskLoadScan(Long taskId) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_TASK + taskId.toString();
+        return jimdbCacheService.get(key, LoadCar.class);
+    }
+
+    @Override
+    public boolean delTaskLoadScan(Long taskId) {
+        String key = GoodsLoadScanConstants.CACHE_KEY_TASK + taskId.toString();
         return jimdbCacheService.del(key);
     }
 

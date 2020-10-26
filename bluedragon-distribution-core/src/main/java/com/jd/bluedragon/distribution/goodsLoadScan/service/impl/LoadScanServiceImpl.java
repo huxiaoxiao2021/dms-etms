@@ -121,12 +121,30 @@ public class LoadScanServiceImpl implements LoadScanService {
         JdCResponse response = new JdCResponse();
         //todo 取出包裹数据
 
-        List<GoodsLoadScanRecord> list = new ArrayList<>();
-        list = goodsLoadScanRecordDao.selectRecordByTaskId(req.getTaskId());
+        int start = 0;
+        int end = GoodsLoadScanConstants.PAGE_SIZE;//50条每页
+        boolean flag = true;
 
-        for(GoodsLoadScanRecord glc : list) {
-            loadDeliver(req, glc);
+        while(flag) {
+            List<GoodsLoadScanRecord> list = null;
+            list = findGoodsLoadRecordPage(req.getTaskId(), start, end);
+
+            if(CollectionUtils.isEmpty(list)) {
+                response.toFail("该任务下没有需要发货的包裹信息，请先入库");
+                return response;
+            }
+
+            if(list.size() < 50) {
+                flag = false;
+            }
+
+            for(GoodsLoadScanRecord glc : list) {
+                loadDeliver(req, glc);
+            }
+            start = start + GoodsLoadScanConstants.PAGE_SIZE;
+
         }
+
         log.info("发货完成【{}】", JsonHelper.toJson(req));
 
         LoadCar loadCar = new LoadCar();
@@ -139,8 +157,16 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.toFail("发货状态修改失败");
             return response;
         }
+
+        loadScanCacheService.setTaskLoadScan(loadCar);
+
         response.toSucceed("发货成功");
         return response;
+    }
+
+    public List<GoodsLoadScanRecord> findGoodsLoadRecordPage(Long taskId, int start, int end) {
+        return goodsLoadScanRecordDao.findGoodsLoadRecordPage(taskId, start, end);
+
     }
 
     //调用已有发货接口
@@ -171,7 +197,17 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Override
     public LoadCar findTaskStatus(Long taskId) {
-        return loadCarDao.findLoadCarByTaskId(taskId);
+        LoadCar lc = loadScanCacheService.getTaskLoadScan(taskId);
+
+        if(lc == null) {
+            lc = loadCarDao.findLoadCarByTaskId(taskId);
+
+            if(lc != null) {
+                loadScanCacheService.setTaskLoadScan(lc);
+            }
+        }
+
+        return lc;
     }
 
     @Override
@@ -230,9 +266,18 @@ public class LoadScanServiceImpl implements LoadScanService {
             packageRecordQueryParam.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
             packageRecordQueryParam.setTaskId(goodsLoadScanRecord.getTaskId());
             packageRecordQueryParam.setWayBillCode(goodsLoadScanRecord.getWayBillCode());
-            packageRecord = goodsLoadScanRecordDao.selectListByCondition(packageRecordQueryParam).get(0);
+            List<GoodsLoadScanRecord> list = goodsLoadScanRecordDao.selectListByCondition(packageRecordQueryParam);
+            if(list == null || list.size() <=0) {
+                if(log.isInfoEnabled()) {
+                    log.info("查询包裹为null, 参数【{}】", packageRecordQueryParam);
+                }
+
+                return false;
+            }
+            packageRecord = list.get(0);
         }
-        goodsLoadScanRecord.setId(packageRecord.getId());
+
+        goodsLoadScanRecord.setId(packageRecord.getId());//这里不需要MPE判断， 只有不为空一定有id
 
         //包裹对应运单信息
         List<LoadScanDto> scanDtoList = new ArrayList<>();

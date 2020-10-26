@@ -221,13 +221,16 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         List<GoodsLoadScan> res = new ArrayList<>();
         res = goodsLoadScanDao.findException(taskId, list);
 
-        if(res != null ) {
-            for(GoodsLoadScan gls : res) {
-//                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
-                if(gls.getUnloadAmount() > 0) {//未装>0  说明不齐，，
-                    return true;
-                }
-            }
+//        if(res != null ) {
+//            for(GoodsLoadScan gls : res) {
+////                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
+//                if(gls.getUnloadAmount() > 0) {//未装>0  说明不齐，，
+//                    return true;
+//                }
+//            }
+//        }
+        if(res != null && res.size() > 0) {
+            return true;//存在不齐异常数据
         }
 
         return false;
