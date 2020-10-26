@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
+import com.google.common.base.Stopwatch;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -172,41 +173,17 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    public Integer findTaskStatus(Long taskId) {
-
-//        LoadCar lc = loadCarDao.findLoadCarById(taskId);
-        LoadCar lc = loadCarDao.findLoadCarByTaskId(taskId);
-        log.info("根据任务号【{}】查询任务信息,出参【{}】", taskId, JsonHelper.toJson(lc));
-
-        if (lc != null && lc.getStatus() != null) {
-            return lc.getStatus();
-        }
-        return 0;
+    public LoadCar findTaskStatus(Long taskId) {
+        return loadCarDao.findLoadCarByTaskId(taskId);
     }
 
-//    @Override
-//    public GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode) {
-//        //todo key format set
-//        String key = taskId + "_" + waybillCode;
-//        return jimdbCacheService.get(key, GoodsLoadScan.class);
-//    }
-
-//    @Override
-//    public GoodsLoadScanRecord queryPackageCache(Long taskId, String waybillCode, String packageCode) {
-//        // todo key format
-//        String key = taskId + "_" + waybillCode + "_" + packageCode;
-//        return jimdbCacheService.get(key, GoodsLoadScanRecord.class);
-//    }
-
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_undiv")
     public boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
         boolean res = true;
 //todo  加常量定义锁
         String lockKey = goodsLoadScan.getTaskId().toString();
         try {
-//            if (!jimdbCacheService.setNx(lockKey, "1", 2, TimeUnit.SECONDS)) {
             if (!loadScanCacheService.lock(lockKey, 1)) {
                 Thread.sleep(100);
                 boolean cacheResult = jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, 2, TimeUnit.SECONDS);
@@ -219,10 +196,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             //取消扫描
             if (goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_REMOVE) {
                 res = this.scanRemove(goodsLoadScan, goodsLoadScanRecord, currentSiteCode);
+
             } else if (goodsLoadScanRecord.getScanAction() == GoodsLoadScanConstants.GOODS_SCAN_LOAD) { //装车扫描
                 res = this.scanLoad(goodsLoadScan, goodsLoadScanRecord, currentSiteCode);
+
             } else {
-                throw new GoodsLoadScanException("包裹扫描状态错误，请输入1(发货扫描)或0(取消扫描)");
+                throw new GoodsLoadScanException("包裹扫描状态错误，状态值应该为1(发货扫描)或0(取消扫描)");
             }
 
             return res;
@@ -234,12 +213,19 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
     }
 
+    /**
+     *
+     * @param goodsLoadScan  运单维度信息
+     * @param goodsLoadScanRecord  包裹维度信息
+     * @param currentSiteCode   当前网点code
+     * @return
+     */
     private boolean scanRemove(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
+        //包裹信息
         String waybillCode = goodsLoadScan.getWayBillCode();
         Long taskId = goodsLoadScan.getTaskId();
 
-//        GoodsLoadScanRecord packageRecord = this.queryPackageCache(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
         GoodsLoadScanRecord packageRecord  = loadScanCacheService.getWaybillLoadScanRecord(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
         if (packageRecord == null) {
             GoodsLoadScanRecord packageRecordQueryParam = new GoodsLoadScanRecord();
@@ -251,32 +237,24 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         goodsLoadScanRecord.setId(packageRecord.getId());
 
-        log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
-        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
-        if (num <= 0) {
-            throw new GoodsLoadScanException("取消发货扫描包裹表修改失败，参数【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
-        }
-        log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
-
-
+        //包裹对应运单信息
         List<LoadScanDto> scanDtoList = new ArrayList<>();
         LoadScanDto loadScan = new LoadScanDto();
         loadScan.setWayBillCode(waybillCode);
         scanDtoList.add(loadScan);
-        Integer createSiteId = currentSiteCode;
-        //todo null
-        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        //ES拉取最新缓存数
+        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, currentSiteCode);
         if(CollectionUtils.isEmpty(loadScanDtoList)){
+            log.error("取消发货拉取ES库存失败， 入参【运单信息{} | 当前网点{} 】",scanDtoList , currentSiteCode);
             throw new GoodsLoadScanException("取消发货拉取ES库存为空");
         }
+
         LoadScanDto scanDto = loadScanDtoList.get(0);
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
-//        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
-        GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
+        GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);
 //                loadScanCacheService.getWaybillLoadScan(taskId, waybillCode);
         //缓存失效查库
 //        if (glcTemp == null) {
-//            // todo 通用查询
 //            glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
 //        }
         Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
@@ -288,8 +266,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (goodsLoadScan.getLoadAmount() == 0) {//  当前已装为1时，取消发货后已装为0，不属于不齐异常，变更状态
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
         } else if (goodsLoadScan.getUnloadAmount() > 0) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
-            //packageRecord.getFlowDisaccord()一定有值.
-            int status = packageRecord.getFlowDisaccord();
+            Integer status = packageRecord.getFlowDisaccord();
+            if(status == null) {
+                log.error("取消包裹扫描时，查询该包裹【{}】流向状态flow_disaccord为null" , packageRecord);
+                throw  new GoodsLoadScanException("取消包裹扫描时，查询该包裹流向状态为null");
+            }
             if(status == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y) {
                 goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }else {
@@ -297,25 +278,43 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
         }
 
-//删除  // todo info
-        log.info("取消发货扫描运单表修改 --begin--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
-        boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
-        if (!scNum) {
-            throw new GoodsLoadScanException("取消发货扫描运单表修改失败,运单信息【" + JsonHelper.toJson(goodsLoadScan) + "】");
-        }
-        log.info("取消发货扫描运单表修改 --success--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        //执行逻辑删除
+        goodRemoveOper(goodsLoadScanRecord, goodsLoadScan);
 
-//清缓存
-        // todo 运单缓存更新？
-//        String waybillCacheKey = taskId + "_" + waybillCode;
-//        jimdbCacheService.del(waybillCacheKey);
-
-//        String packageCacheKey = taskId + "_" + waybillCode + "_" + goodsLoadScanRecord.getPackageCode();
-//        jimdbCacheService.del(packageCacheKey);
-        loadScanCacheService.setWaybillLoadScan(taskId, waybillCode, goodsLoadScan);
+        // loadScanCacheService.setWaybillLoadScan(taskId, waybillCode, goodsLoadScan);
         loadScanCacheService.delWaybillLoadScanRecord(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
 
         return true;
+    }
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_undiv")
+    public boolean goodRemoveOper(GoodsLoadScanRecord goodsLoadScanRecord, GoodsLoadScan goodsLoadScan) {
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
+        }
+        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+        if (num <= 0) {
+            log.error("取消发货扫描包裹表修改失败，参数【{}】", goodsLoadScanRecord);
+            throw new GoodsLoadScanException("取消发货扫描包裹表修改失败，参数【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
+        } else if(log.isInfoEnabled()){
+            log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描运单表修改 --begin--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        }
+        boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+        if (!scNum) {
+            log.error("取消发货扫描运单表修改失败,运单信息【{}】" , goodsLoadScan);
+            throw new GoodsLoadScanException("取消发货扫描运单表修改失败,运单信息【" + JsonHelper.toJson(goodsLoadScan) + "】");
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描运单表修改 --success--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        }
+        return num > 0 && scNum;
+
     }
 
     private boolean scanLoad(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
@@ -752,16 +751,17 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         log.info("常规包裹号后续校验开始：taskId={},packageCode={},flowDisAccord={}", taskId, packageCode, flowDisAccord);
         // 根据包裹号查找运单
-        Waybill waybill = getWaybillByPackageCode(packageCode);
-        if (waybill == null) {
-            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单信息返回空");
-            return response;
-        }
-        String waybillCode = waybill.getWaybillCode();
+//        Waybill waybill = getWaybillByPackageCode(packageCode);
+//        if (waybill == null) {
+//            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
+//            response.setCode(JdCResponse.CODE_FAIL);
+//            response.setMessage("根据包裹号查询运单信息返回空");
+//            return response;
+//        }
+//        String waybillCode = waybill.getWaybillCode();
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
-        // 查看包裹是否已验货
+        // 查看包裹是否已验货,查数据库,若库无异常,可不加异常处理机制.
         Inspection inspection = new Inspection();
         inspection.setCreateSiteCode(createSiteId);
         inspection.setPackageBarcode(packageCode);
@@ -848,10 +848,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     @Override
     public JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
-
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
-
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
@@ -860,9 +858,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-
-        log.info("开始校验包裹号--判断任务是否已经结束：taskId={},packageCode={}", taskId, packageCode);
-
+//        log.info("开始校验包裹号--判断任务是否已经结束：taskId={},packageCode={}", taskId, packageCode);
         // 任务是否已经结束
         if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
             log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
@@ -870,42 +866,38 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-
         log.info("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
-        // 根据包裹号查找运单
-        Waybill waybill = getWaybillByPackageCode(packageCode);
-        if (waybill == null) {
-            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号查询运单信息返回空");
-            return response;
-        }
-        String waybillCode = waybill.getWaybillCode();
-
+        // 根据包裹号查找运单,TODO 可以使用工具来截取运单号,减少后台交互.
+//        Waybill waybill = getWaybillByPackageCode(packageCode);
+//        if (waybill == null) {
+//            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
+//            response.setCode(JdCResponse.CODE_FAIL);
+//            response.setMessage("根据包裹号查询运单信息返回空");
+//            return response;
+//        }
+//        String waybillCode = waybill.getWaybillCode();
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         // 根据运单号和包裹号查询已验未发的唯一一条记录
         LoadScanDto loadScan = new LoadScanDto();
         loadScan.setWayBillCode(waybillCode);
         loadScan.setPackageCode(packageCode);
         loadScan.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
 
-        log.info("根据常规包裹号拿到运单号：开始获取包裹下一网点信息：taskId={},packageCode={},waybillCode={}",
-                taskId, packageCode, waybillCode);
+//        log.info("根据常规包裹号拿到运单号：开始获取包裹下一网点信息：taskId={},packageCode={},waybillCode={}",
+//                taskId, packageCode, waybillCode);
 
         LoadScanDto loadScanDto = getLoadScanByWaybillAndPackageCode(loadScan);
         if (loadScanDto == null) {
-            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
-                    taskId, packageCode, waybillCode);
+            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据包裹号查询运单信息返回空");
             return response;
         }
-        log.info("获取常规包裹下一网点信息成功：taskId={},packageCode={},waybillCode={}",
-                taskId, packageCode, waybillCode);
+//        log.info("获取常规包裹下一网点信息成功：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
-        if (loadScanDto.getNextSiteId()==null||loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
-            log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}",
-                    taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
+        if (loadScanDto.getNextSiteId() == null || loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
+            log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_CONFIRM);
             JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
             msgBox.setMsg("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
@@ -989,7 +981,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         String batchCode = req.getBatchCode();
         User user = req.getUser();
         log.info("开始校验批次号！，taskId={},batchCode={}", taskId, batchCode);
-
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
@@ -1054,17 +1045,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("校验批次号发生异常！");
             return response;
         }
-
         // 批次号校验通过，则和任务绑定
         loadCar.setBatchCode(batchCode);
-
         loadCar.setOperateUserErp(user.getUserErp());
         loadCar.setOperateUserName(user.getUserName());
-
         loadCar.setUpdateTime(new Date());
         loadCarDao.updateLoadCarById(loadCar);
         response.setCode(JdCResponse.CODE_SUCCESS);
-
         return response;
     }
 

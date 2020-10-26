@@ -48,22 +48,16 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
      */
     @Override
     public ExceptionScanDto findExceptionGoodsScan(GoodsLoadScanRecord record) {
-    //todo  mapper sql重写    日志重写
         ExceptionScanDto res = null;
 
-        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD); //扫描动作：1是装车扫描，0是取消扫描
+        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         List<GoodsLoadScanRecord> goodsRecord = goodsLoadScanRecordDao.selectRecordList(record);
 
         if(goodsRecord != null && goodsRecord.size() > 0 && goodsRecord.get(0).getWayBillCode() != null) {
-            if(log.isDebugEnabled()) {
-                log.debug("取消扫描查询包裹信息--success 出参【{}】", JsonHelper.toJson(goodsRecord));
-            }
             String wayBill = goodsRecord.get(0).getWayBillCode();
-
             GoodsLoadScan loadScanRes = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(record.getTaskId(),wayBill);
 
             if(loadScanRes != null) {
-                log.info("取消扫描查询运单信息-，出参【{}】", JsonHelper.toJson(loadScanRes));
                 res = new ExceptionScanDto();
                 res.setTaskId(loadScanRes.getTaskId());
                 res.setWayBillCode(loadScanRes.getWayBillCode());
@@ -71,11 +65,12 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 res.setLoadAmount(loadScanRes.getLoadAmount());
                 res.setUnloadAmount(loadScanRes.getUnloadAmount());
                 res.setForceStatus(goodsRecord.get(0).getForceStatus());
-            }else {
-                throw  new GoodsLoadScanException("包裹【" + record.getPackageCode() + "】对应运单信息查询为空");
             }
         }
 
+        if(log.isInfoEnabled()) {
+            log.info("取消发货查询货物是否已装车，入参【{}】，出参【{}】", record, res);
+        }
         return res;
     }
 
@@ -97,12 +92,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         lc.setUpdateUserName(exceptionScanDto.getOperator());
         lc.setUpdateTime(new Date());
 
-        boolean res = loadScanService.updateGoodsLoadScanAmount(lc, record, exceptionScanDto.getCurrentSiteCode());
+        return loadScanService.updateGoodsLoadScanAmount(lc, record, exceptionScanDto.getCurrentSiteCode());
 
-        if(!res) {
-            log.info("取消扫描修改包裹明细表 --error--，参数【{}】", JsonHelper.toJson(lc));
-        }
-        return res;
     }
 
     @Override
@@ -178,28 +169,40 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
     public List<GoodsExceptionScanningDto> findAllExceptionGoodsScan(Long taskId) {
         List<GoodsExceptionScanningDto> res= new ArrayList<>();
 
-//        if(log.isDebugEnabled()) {
-//            log.debug("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
-//        }
+        if(log.isInfoEnabled()) {
+            log.debug("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
+        }
         List<GoodsLoadScan> list = goodsLoadScanDao.findAllLoadScanByTaskId(taskId);
 
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED || glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW) {
-                    GoodsExceptionScanningDto resDto = new GoodsExceptionScanningDto();
-                    resDto.setId(glc.getId());
-                    resDto.setTaskId(glc.getTaskId());
-                    resDto.setWaybillCode(glc.getWayBillCode());
-                    resDto.setLoadAmount(glc.getLoadAmount());
-                    resDto.setUnloadAmount(glc.getUnloadAmount());
-                    resDto.setForceAmount(glc.getForceAmount());
-                    res.add(resDto);
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED) {
+                    GoodsExceptionScanningDto redDto = new GoodsExceptionScanningDto();
+                    redDto.setId(glc.getId());
+                    redDto.setTaskId(glc.getTaskId());
+                    redDto.setWaybillCode(glc.getWayBillCode());
+                    redDto.setLoadAmount(glc.getLoadAmount());
+                    redDto.setUnloadAmount(glc.getUnloadAmount());
+                    redDto.setForceAmount(glc.getForceAmount());
+                    res.add(redDto);
+                }
+                //多扫的判断是否装齐
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW || glc.getLoadAmount() != glc.getGoodsAmount()) {
+                    GoodsExceptionScanningDto yellowDto = new GoodsExceptionScanningDto();
+                    yellowDto.setId(glc.getId());
+                    yellowDto.setTaskId(glc.getTaskId());
+                    yellowDto.setWaybillCode(glc.getWayBillCode());
+                    yellowDto.setLoadAmount(glc.getLoadAmount());
+                    yellowDto.setUnloadAmount(glc.getUnloadAmount());
+                    yellowDto.setForceAmount(glc.getForceAmount());
+                    res.add(yellowDto);
                 }
             }
         }
-//        if(log.isDebugEnabled()) {
-//            log.debug("根据任务号【{}】查询不齐异常数据 --end-- 返回【{}】", taskId, JsonHelper.toJson(res));
-//        }
+
+        if(log.isInfoEnabled()) {
+            log.debug("根据任务号【{}】查询不齐异常数据 --end-- 返回不齐数据【{}】", taskId, JsonHelper.toJson(res));
+        }
         return res;
     }
 
@@ -215,8 +218,12 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         List<GoodsLoadScan> res = new ArrayList<>();
         res = goodsLoadScanDao.findException(taskId, list);
 
-        if(res.size() > 0) {
-            return true;
+        if(res != null ) {
+            for(GoodsLoadScan gls : res) {
+                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
+                    return true;
+                }
+            }
         }
 
         return false;

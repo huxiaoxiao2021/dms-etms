@@ -57,11 +57,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> goodsRemoveScanning(GoodsExceptionScanningReq req) {
-        /*
-            1: 先根据包裹号，去暂存记录表里查询该包裹是否存在  不存在未多扫   查询结果中含该包裹运单号
-            2： 存在该包裹，去修改下该包裹扫描取消的动作
-            2：在通过该包裹运单号，去暂存表中修改该包裹对应运单
-         */
         JdCResponse response = new JdCResponse<Boolean>();
 
         try {
@@ -70,21 +65,28 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 return response;
             }
 
-            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            if(loadCar == null) {
+                if(log.isInfoEnabled()) {
+                    log.info("操作任务【{}】时，查不到该任务信息", req.getTaskId());
+                }
+                response.toFail("无法查询到该任务信息，请确认任务是否存在");
+                return response;
+            }
+
+            Integer taskStatus = loadCar.getStatus();
             if(taskStatus == null) {
-//            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
-                response.toFail("该任务状态存在异常,无法发货");
+                response.toFail("该任务状态存在异常,无法操作取消扫描动作");
                 return response;
 
             }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
                 response.toFail("该任务已经完成发货，无法操作取消扫描动作");
                 return response;
+
             } else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN != taskStatus){
-//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行取消扫描动作");
                 response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
             }
-
 
             if(StringUtils.isBlank(req.getPackageCode())){
                 response.toFail("包裹号不能为空");
@@ -114,38 +116,49 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             GoodsLoadScanRecord record = new GoodsLoadScanRecord();
             record.setTaskId(req.getTaskId());
             record.setPackageCode(req.getPackageCode());
-//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货查询任务号- 参数【" + JsonHelper.toJson(req) + "】");
-            ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);//入参 包裹号  包裹状态=1 yn
+
+            ExceptionScanDto exceptionScanDto = exceptionScanService.findExceptionGoodsScan(record);
 
             if(exceptionScanDto == null) {
+                if(log.isInfoEnabled()) {
+                    log.info("取消包裹扫描查询包裹失败，包裹信息【{}】", record);
+                }
                 response.toFail("此包裹号未操作装车，无法取消");
                 return response;
+
             }else if(exceptionScanDto.getForceStatus() == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_Y){
+                if(log.isInfoEnabled()) {
+                    log.info("取消包裹扫描查询该包裹已被强发，包裹信息【{}】", record);
+                }
                 response.toFail("此包裹已被操作强发，无法取消");
                 return response;
             }
-
 
             exceptionScanDto.setOperator(req.getUser().getUserName());
             exceptionScanDto.setOperatorCode(req.getUser().getUserCode());
             exceptionScanDto.setCurrentSiteCode(req.getCurrentOperate().getSiteCode());
             exceptionScanDto.setCurrentSiteName(req.getCurrentOperate().getSiteName());
-//        log.info("GoodsLoadingScanningServiceImpl#goodsRemoveScanning- 取消发货更改不齐异常数据，参数【" + JsonHelper.toJson(exceptionScanDto) + "】");
             boolean removeRes =  exceptionScanService.removeGoodsScan(exceptionScanDto);
 
             if(!removeRes) {
                 response.toError("取消包裹扫描失败");
+                return response;
             }
+
             response.toSucceed("取消包裹扫描成功");
         }catch (GoodsLoadScanException e) {
             log.error("取消发货系统异常--error--【{}】", e);
             response.toError("取消发货系统异常");
         }
         return response;
-
     }
 
 
+    /**
+     * 该方法已经舍弃，业务需要，不需货物要强制下发
+     * @param req
+     * @return
+     */
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsCompulsoryDeliver",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
@@ -158,10 +171,17 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 return response;
             }
 
-            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            if(loadCar == null) {
+                if(log.isInfoEnabled()) {
+                    log.info("操作任务【{}】时，查不到该任务信息", req.getTaskId());
+                }
+                response.toFail("无法查询到该任务信息，请确认任务是否存在");
+                return response;
+            }
+
+            Integer taskStatus = loadCar.getStatus();
             if(taskStatus == null) {
-                // todo 本层不要抛异常
-//            throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
                 response.toFail("该任务状态存在异常,无法操作强发");
                 return response;
 
@@ -169,7 +189,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 response.toFail("该任务已经完成发货，请勿操作强发动作");
                 return response;
             } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行操作强发动作");
                 response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
             }
@@ -227,16 +246,26 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 return response;
             }
 
-            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            if(loadCar == null) {
+                if(log.isInfoEnabled()) {
+                    log.info("操作任务【{}】时，查不到该任务信息", req.getTaskId());
+                }
+                response.toFail("无法查询到该任务信息，请确认任务是否存在");
+                return response;
+            }
+
+            Integer taskStatus = loadCar.getStatus();
             if(taskStatus == null) {
-//            throw new GoodsLoadScanException("该任务存在异常,无法发货");
+                log.error("装车发货不齐异常数据查询，任务【{}】状态为null", req.getTaskId());
                 response.toFail("该任务状态存在异常,无法操作查询");
                 return response;
+
             }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
                 response.toFail("该任务已经完成发货，请勿操作异常查询");
                 return response;
+
             } else if(!GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskStatus)){
-//            throw new GoodsLoadScanException("任务【" + req.getTaskId() + "】 状态异常，状态值为" + taskStatus + ",仅状态为1(已开始)的任务可进行异常数据查询");
                 response.toFail("只有【已开始】任务可操作发货，请检查任务状态");
                 return response;
             }
@@ -244,6 +273,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if(req.getUser() == null) {
                 response.toFail("当前操作用户信息不能为空");
                 return response;
+
             }else {
                 if(req.getUser().getUserName() == null) {
                     response.toFail("当前操作用户名称不能为空");
@@ -254,6 +284,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if(req.getCurrentOperate() == null) {
                 response.toFail("当前分拣中心信息不能为空");
                 return response;
+
             }else {
                 if(req.getCurrentOperate().getSiteName() == null) {
                     response.toFail("当前分拣中心名称不能为空");
@@ -262,16 +293,14 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 
             List<GoodsExceptionScanningDto> list = exceptionScanService.findAllExceptionGoodsScan(req.getTaskId());
-//        if(list == null || list.size() <= 0) {
-//            response.toError("不齐异常数据查找失败");
-//            return response;
-//        }
             response.toSucceed("不齐异常数据查找成功");
             response.setData(list);
+
         }catch(GoodsLoadScanException e){
             log.error("查询不齐异常错误--error--【{}】",e);
             response.toError("不齐异常数据查找异常");
         }
+
         return response;
     }
 
@@ -295,7 +324,16 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
-            Integer taskStatus = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            if(loadCar == null) {
+                if(log.isInfoEnabled()) {
+                    log.info("操作任务【{}】时，查不到该任务信息", req.getTaskId());
+                }
+                response.toFail("无法查询到该任务信息，请确认任务是否存在");
+                return response;
+            }
+
+            Integer taskStatus = loadCar.getStatus();
             if(taskStatus == null) {
 //                throw new GoodsLoadScanException("该任务状态存在异常,无法发货");
                 response.toFail("该任务状态存在异常,无法发货");

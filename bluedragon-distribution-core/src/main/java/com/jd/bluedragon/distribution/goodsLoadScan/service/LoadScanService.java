@@ -14,7 +14,7 @@ public interface LoadScanService {
     JdCResponse goodsLoadingDeliver(GoodsLoadingReq req);
 
     //根据任务号查询任务状态
-    Integer findTaskStatus(Long taskId);
+    LoadCar findTaskStatus(Long taskId);
 
     //根据任务id和运单号查询缓存中运单数据
 //    GoodsLoadScan queryWaybillCache(Long taskId, String waybillCode);
@@ -36,10 +36,11 @@ public interface LoadScanService {
     JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
 
     JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
-
+    //校验包裹信息对应的流向是否与当前任务流向一致
     JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
-
+    //校验板号相关信息.
     JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
+
     JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response);
 
     void deleteLoadScanByTaskId(Long taskId);

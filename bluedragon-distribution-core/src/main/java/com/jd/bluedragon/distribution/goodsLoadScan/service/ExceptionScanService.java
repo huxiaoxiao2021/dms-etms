@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ExceptionScanService {
 
-    //查询包裹是否存在扫描记录和装车记录
+    //查询包裹是否存在装车记录
     ExceptionScanDto findExceptionGoodsScan(GoodsLoadScanRecord record);
     // 取消包裹扫描修改扫描记录表
     boolean removeGoodsScan(ExceptionScanDto record);
