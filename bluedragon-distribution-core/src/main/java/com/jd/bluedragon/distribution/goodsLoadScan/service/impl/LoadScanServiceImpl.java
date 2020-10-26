@@ -178,7 +178,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_undiv")
     public boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
         boolean res = true;
@@ -223,6 +222,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     private boolean scanRemove(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {
 
+        //包裹信息
         String waybillCode = goodsLoadScan.getWayBillCode();
         Long taskId = goodsLoadScan.getTaskId();
 
@@ -237,32 +237,24 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         goodsLoadScanRecord.setId(packageRecord.getId());
 
-        log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
-        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
-        if (num <= 0) {
-            throw new GoodsLoadScanException("取消发货扫描包裹表修改失败，参数【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
-        }
-        log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
-
-
+        //包裹对应运单信息
         List<LoadScanDto> scanDtoList = new ArrayList<>();
         LoadScanDto loadScan = new LoadScanDto();
         loadScan.setWayBillCode(waybillCode);
         scanDtoList.add(loadScan);
-        Integer createSiteId = currentSiteCode;
-        //todo null
-        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        //ES拉取最新缓存数
+        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, currentSiteCode);
         if(CollectionUtils.isEmpty(loadScanDtoList)){
+            log.error("取消发货拉取ES库存失败， 入参【运单信息{} | 当前网点{} 】",scanDtoList , currentSiteCode);
             throw new GoodsLoadScanException("取消发货拉取ES库存为空");
         }
+
         LoadScanDto scanDto = loadScanDtoList.get(0);
         Integer goodsAmount = scanDto.getGoodsAmount();//ES中拉的最新库存
-//        GoodsLoadScan glcTemp = this.queryWaybillCache(taskId, waybillCode);
-        GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
+        GoodsLoadScan glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);
 //                loadScanCacheService.getWaybillLoadScan(taskId, waybillCode);
         //缓存失效查库
 //        if (glcTemp == null) {
-//            // todo 通用查询
 //            glcTemp = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);//这里上游查询确认库中不为空才会走到这里
 //        }
         Integer loadAmount = glcTemp.getLoadAmount();//缓存中取出已装货数量
@@ -274,8 +266,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (goodsLoadScan.getLoadAmount() == 0) {//  当前已装为1时，取消发货后已装为0，不属于不齐异常，变更状态
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
         } else if (goodsLoadScan.getUnloadAmount() > 0) {//已装等于库存时，说明已经扫描完成，绿色状态，取消一个改为红色状态
-            //packageRecord.getFlowDisaccord()一定有值.
-            int status = packageRecord.getFlowDisaccord();
+            Integer status = packageRecord.getFlowDisaccord();
+            if(status == null) {
+                log.error("取消包裹扫描时，查询该包裹【{}】流向状态flow_disaccord为null" , packageRecord);
+                throw  new GoodsLoadScanException("取消包裹扫描时，查询该包裹流向状态为null");
+            }
             if(status == GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y) {
                 goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }else {
@@ -283,25 +278,43 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
         }
 
-//删除  // todo info
-        log.info("取消发货扫描运单表修改 --begin--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
-        boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
-        if (!scNum) {
-            throw new GoodsLoadScanException("取消发货扫描运单表修改失败,运单信息【" + JsonHelper.toJson(goodsLoadScan) + "】");
-        }
-        log.info("取消发货扫描运单表修改 --success--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        //执行逻辑删除
+        goodRemoveOper(goodsLoadScanRecord, goodsLoadScan);
 
-//清缓存
-        // todo 运单缓存更新？
-//        String waybillCacheKey = taskId + "_" + waybillCode;
-//        jimdbCacheService.del(waybillCacheKey);
-
-//        String packageCacheKey = taskId + "_" + waybillCode + "_" + goodsLoadScanRecord.getPackageCode();
-//        jimdbCacheService.del(packageCacheKey);
-        loadScanCacheService.setWaybillLoadScan(taskId, waybillCode, goodsLoadScan);
+        // loadScanCacheService.setWaybillLoadScan(taskId, waybillCode, goodsLoadScan);
         loadScanCacheService.delWaybillLoadScanRecord(taskId, waybillCode, goodsLoadScanRecord.getPackageCode());
 
         return true;
+    }
+
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_undiv")
+    public boolean goodRemoveOper(GoodsLoadScanRecord goodsLoadScanRecord, GoodsLoadScan goodsLoadScan) {
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
+        }
+        int num = goodsLoadScanRecordDao.updateGoodsScanRecordById(goodsLoadScanRecord);
+        if (num <= 0) {
+            log.error("取消发货扫描包裹表修改失败，参数【{}】", goodsLoadScanRecord);
+            throw new GoodsLoadScanException("取消发货扫描包裹表修改失败，参数【" + JsonHelper.toJson(goodsLoadScanRecord) + "】");
+        } else if(log.isInfoEnabled()){
+            log.info("取消发货扫描包裹表修改--begin--，参数【{}】", JsonHelper.toJson(goodsLoadScanRecord));
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描运单表修改 --begin--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        }
+        boolean scNum = goodsLoadScanDao.updateByPrimaryKey(goodsLoadScan);
+        if (!scNum) {
+            log.error("取消发货扫描运单表修改失败,运单信息【{}】" , goodsLoadScan);
+            throw new GoodsLoadScanException("取消发货扫描运单表修改失败,运单信息【" + JsonHelper.toJson(goodsLoadScan) + "】");
+        }
+
+        if(log.isInfoEnabled()) {
+            log.info("取消发货扫描运单表修改 --success--，参数【{}】", JsonHelper.toJson(goodsLoadScan));
+        }
+        return num > 0 && scNum;
+
     }
 
     private boolean scanLoad(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode) {

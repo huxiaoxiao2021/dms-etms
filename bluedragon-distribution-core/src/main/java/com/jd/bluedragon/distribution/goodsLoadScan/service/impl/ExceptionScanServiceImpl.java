@@ -176,15 +176,26 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED || glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW) {
-                    GoodsExceptionScanningDto resDto = new GoodsExceptionScanningDto();
-                    resDto.setId(glc.getId());
-                    resDto.setTaskId(glc.getTaskId());
-                    resDto.setWaybillCode(glc.getWayBillCode());
-                    resDto.setLoadAmount(glc.getLoadAmount());
-                    resDto.setUnloadAmount(glc.getUnloadAmount());
-                    resDto.setForceAmount(glc.getForceAmount());
-                    res.add(resDto);
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED) {
+                    GoodsExceptionScanningDto redDto = new GoodsExceptionScanningDto();
+                    redDto.setId(glc.getId());
+                    redDto.setTaskId(glc.getTaskId());
+                    redDto.setWaybillCode(glc.getWayBillCode());
+                    redDto.setLoadAmount(glc.getLoadAmount());
+                    redDto.setUnloadAmount(glc.getUnloadAmount());
+                    redDto.setForceAmount(glc.getForceAmount());
+                    res.add(redDto);
+                }
+                //多扫的判断是否装齐
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW || glc.getLoadAmount() != glc.getGoodsAmount()) {
+                    GoodsExceptionScanningDto yellowDto = new GoodsExceptionScanningDto();
+                    yellowDto.setId(glc.getId());
+                    yellowDto.setTaskId(glc.getTaskId());
+                    yellowDto.setWaybillCode(glc.getWayBillCode());
+                    yellowDto.setLoadAmount(glc.getLoadAmount());
+                    yellowDto.setUnloadAmount(glc.getUnloadAmount());
+                    yellowDto.setForceAmount(glc.getForceAmount());
+                    res.add(yellowDto);
                 }
             }
         }
@@ -207,8 +218,12 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         List<GoodsLoadScan> res = new ArrayList<>();
         res = goodsLoadScanDao.findException(taskId, list);
 
-        if(res.size() > 0) {
-            return true;
+        if(res != null ) {
+            for(GoodsLoadScan gls : res) {
+                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
+                    return true;
+                }
+            }
         }
 
         return false;
