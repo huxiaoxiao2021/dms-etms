@@ -743,7 +743,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         inspection.setPackageBarcode(packageCode);
         inspection.setWaybillCode(waybillCode);
         boolean isInspected = inspectionService.haveInspectionByPackageCode(inspection);
-        log.info("常规包裹号后续校验--是否验货校验完成：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord);
+        //至此执行了120ms
+        log.info("常规包裹号后续校验--是否验货校验完成：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord+"返回结果:"+isInspected);
 
         // 未操作验货
         // 此类包裹，页面弹出提示：“此包裹未操作验货，无法扫描，请先操作验货”
@@ -779,8 +780,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
         if (loadScanDto.isEmpty()) {
-            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",
-                    taskId, packageCode, waybillCode);
+            log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据包裹号查询运单库存失败");
             return response;
@@ -1198,6 +1198,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return 运单
      */
     public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
+        log.warn("根据运单去ES获取数据,查询条件:currentSiteId="+currentSiteId+"开始");
         // 根据包裹号查找运单号
         com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity = loadScanPackageDetailService
                 .findLoadScanList(scanDtoList, currentSiteId);
@@ -1209,6 +1210,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("根据运单号和包裹号条件列表去分拣报表查询运单明细接口失败currentSiteId={}", currentSiteId);
             return null;
         }
+        log.warn("根据运单去ES获取数据,查询条件:currentSiteId="+currentSiteId+"结束，返回包裹暂存接口逻辑继续.");
         return baseEntity.getData();
     }
 
