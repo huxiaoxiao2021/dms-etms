@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
-import com.google.common.base.Stopwatch;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -464,8 +463,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             Map<String, LoadScanDto> flowDisAccordMap = new HashMap<>(16);
 
             log.info("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
-            reportList = getLoadScanByWaybillCodes(getWaybillCodes(tempList, map, flowDisAccordMap),
-                    createSiteId, nextSiteId, null);
+
+            List<String> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
+            reportList = getLoadScanByWaybillCodes(waybillCodeList, createSiteId, nextSiteId, null);
 
             List<LoadScanDto> flowDisAccordList = new ArrayList<>(flowDisAccordMap.values());
 
@@ -713,7 +713,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                 Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
                         loadScan.getUnloadAmount(), loadScan.getForceAmount());
 
-                log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={}", boardCode, taskId, packageNum, scanDto.getWayBillCode());
+                log.info("板号暂存接口--反查记录3，boardCode={},taskId={},packageNum={},waybillCode={},flowDisAccord={}",
+                        boardCode, taskId, packageNum, scanDto.getWayBillCode(), flowDisAccord);
                 loadScan.setStatus(status);
 
                 // 如果是多扫
@@ -738,7 +739,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         return response;
     }
 
-    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
+
     @Override
     public JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
@@ -1077,7 +1078,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param flowDisAccord 多扫标识
      * @param transfer      包裹号转板号标识
      */
-    private JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
+    public JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                      Integer goodsAmount, Integer transfer, Integer flowDisAccord,
                                                      User user, LoadCar loadCar) {
         JdCResponse<Void> response = new JdCResponse<>();
@@ -1188,25 +1190,17 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果原来是黄颜色
         if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(loadScan.getStatus())) {
             log.info("包裹暂存--之前status={}", loadScan.getStatus());
-            // 没装齐仍然显示黄颜色
-            if (goodsAmount > loadScan.getLoadAmount()) {
-                log.info("包裹暂存-之前-没装齐status={}", loadScan.getStatus());
-                status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
-            }
+            // 无论有没有装齐仍然显示黄颜色
+            log.info("包裹暂存-之前-没装齐status={}", loadScan.getStatus());
+            status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
+
         }
         // 如果是多扫
         if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(flowDisAccord)) {
             log.info("包裹暂存--多扫status={}", loadScan.getStatus());
-            // 没装齐仍然显示黄颜色
-            if (goodsAmount > loadScan.getLoadAmount()) {
-                log.info("包裹暂存--多扫status={}", loadScan.getStatus());
-                status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
-            }
-        }
-        // 如果已装等于库存
-        if (loadScan.getLoadAmount().equals(goodsAmount)) {
-            log.info("包裹暂存--装齐status={}", loadScan.getStatus());
-            status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
+            // 仍然显示黄颜色
+            log.info("包裹暂存--多扫status={}", loadScan.getStatus());
+            status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
         }
         log.info("包裹暂存--最后status={}", loadScan.getStatus());
         loadScan.setStatus(status);
@@ -1376,15 +1370,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         goodsLoadScan.setForceAmount(0);
         // 运单状态颜色: 已装和未装都大于0，默认红色
         goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
+        // 如果已装等于库存
+        if (goodsLoadScan.getLoadAmount().equals(goodsAmount)) {
+            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
+        }
         //  如果是多扫包裹，底色标位黄色
         if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(flowDisAccord)) {
             log.info("【运单号不在任务列表内的，且此运单本场地已操作验货】|此类包裹为多扫包裹，正常记录的统计表中，"
                     + "底色标位黄色taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
-        }
-        // 如果已装等于库存
-        if (goodsLoadScan.getLoadAmount().equals(goodsAmount)) {
-            goodsLoadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
         }
 
         goodsLoadScan.setCreateUserCode(user.getUserCode());
@@ -1404,6 +1398,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<String> list = new ArrayList<>();
         LoadScanDto scanDto;
         for (GoodsLoadScan scan : scans) {
+            // 如果之前已装大于0，后来都被取消了，那就不显示
+            if (scan.getLoadAmount() <= 0) {
+                continue;
+            }
             list.add(scan.getWayBillCode());
             // 筛选出属于多扫的
             if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(scan.getStatus())) {
@@ -1546,20 +1544,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             e.setStatus(status);
             // 如果原来是黄颜色
             if (GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(oldData.getStatus())) {
-                // 没装齐仍然显示黄颜色
-                if (scanDto.getGoodsAmount() > e.getLoadAmount()) {
-                    e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
-                }
+                // 无论有没有没装齐仍然显示黄颜色
+                e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }
             //
             // 如果是多扫
             if (flowDisAccord != null && flowDisAccord == 1) {
                 e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
-            }
-
-            // 已装等于库存- 绿色
-            if (e.getLoadAmount().equals(scanDto.getGoodsAmount())) {
-                e.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN);
             }
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
