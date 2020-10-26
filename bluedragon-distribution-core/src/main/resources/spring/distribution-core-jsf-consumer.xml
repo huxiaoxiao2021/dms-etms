@@ -658,7 +658,7 @@
     </jsf:consumer>
 
     <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" >
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 
     <jsf:consumer id="dmsDisSendJsfService"

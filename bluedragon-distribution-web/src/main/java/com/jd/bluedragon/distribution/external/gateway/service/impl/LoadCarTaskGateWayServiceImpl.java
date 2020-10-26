@@ -110,18 +110,26 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("接口请求信息不完整,请联系IT");
             return jdCResponse;
         }
-
         LoadCar lc = loadService.findLoadCarById(req.getId());
-        if(lc.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
-            jdCResponse.setCode(JdCResponse.CODE_FAIL);
-            jdCResponse.setMessage("该任务已开始，无法进行取消");
-            return jdCResponse;
-        }else if(lc.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END) {
-            jdCResponse.setCode(JdCResponse.CODE_FAIL);
-            jdCResponse.setMessage("该任务已完成，无法进行取消");
+        if(null==lc){
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("该任务不存在!");
             return jdCResponse;
         }
-
+        if(GoodsLoadScanConstants.YN_N.equals(lc.getYn())){
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("该任务已被删除,不可重复操作!");
+            return jdCResponse;
+        }
+        if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(lc.getStatus())) {
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("该任务已开始,无法删除");
+            return jdCResponse;
+        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(lc.getStatus())) {
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("该任务已完成,无法删除");
+            return jdCResponse;
+        }
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
