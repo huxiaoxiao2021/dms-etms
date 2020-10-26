@@ -121,7 +121,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             gls.setUpdateTime(new Date());
             gls.setUpdateUserName(req.getUser().getUserName());
             gls.setUpdateUserCode(req.getUser().getUserCode());
-            gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
+            if (!GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW.equals(cacheRes.getStatus())) {
+                gls.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
+            }
             gls.setId(cacheRes.getId());
 
             log.info("运单强制下发，运单记录表修改--begin--参数【{}】", JsonHelper.toJson(gls));
