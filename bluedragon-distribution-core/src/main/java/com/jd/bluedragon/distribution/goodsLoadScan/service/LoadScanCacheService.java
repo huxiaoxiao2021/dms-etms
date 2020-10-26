@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.goodsLoadScan.service;
 
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 
 /**
  * @program: bluedragon-distribution
@@ -26,4 +27,10 @@ public interface LoadScanCacheService {
     public boolean delWaybillLoadScan(Long taskId, String waybillCode);
 
     public boolean delWaybillLoadScanRecord(Long taskId, String waybillCode, String packageCode);
+
+    public boolean setTaskLoadScan(LoadCar loadCar);
+
+    public LoadCar getTaskLoadScan(Long taskId);
+
+    public boolean delTaskLoadScan(Long taskId);
 }

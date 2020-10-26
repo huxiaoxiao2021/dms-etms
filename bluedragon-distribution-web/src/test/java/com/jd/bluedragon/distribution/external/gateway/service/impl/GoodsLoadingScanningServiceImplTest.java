@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import org.junit.Test;
@@ -40,10 +41,16 @@ public class GoodsLoadingScanningServiceImplTest {
     private LoadCarTaskGateWayService loadCarTaskGateWayService;
 
 
+    @Resource
+    private LoadScanCacheService loadScanCacheService;
+
+
+
+
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
-        param.setTaskId(40L);
+        param.setTaskId(77L);
 
         User user = new User();
         user.setUserName("admin");
@@ -106,14 +113,16 @@ public class GoodsLoadingScanningServiceImplTest {
         param.setUser(user);
 
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(589682);
+        currentOperate.setSiteCode(910);
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(72L);
-        param.setSendCode("910-364605-20190111122142011");
-        param.setReceiveSiteCode(589682);
+        param.setTaskId(1L);
+        param.setSendCode("910-364605-20190111133142011");
+        param.setReceiveSiteCode(364605);
 
+        loadScanCacheService.unLock(param.getTaskId().toString());//测试代码
+        loadScanCacheService.delTaskLoadScan(param.getTaskId());
         JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
 
         System.out.println(res.getCode() + "----" + res.getMessage());
@@ -133,9 +142,9 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(66L);
+        param.setTaskId(77L);
 
-        param.setPackageCode("JDV000488250208-1-5-");//多个改数
+        param.setPackageCode("JDV000488250234-2-5-");//多个改数
         JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
         System.out.println(res.getCode() + "----" + res.getMessage());
 
