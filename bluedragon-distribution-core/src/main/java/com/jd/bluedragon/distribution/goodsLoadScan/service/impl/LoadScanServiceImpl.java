@@ -660,7 +660,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             try {
                 scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
             } catch (Exception e) {
-                log.error("根据运单去ES获取数据异常={}", e);
+                log.error("根据运单去ES获取数据异常error=", e);
             }
             watch.split();
             log.info("根据运单号获取ES数据耗时={}", watch.getSplitTime());
@@ -750,17 +750,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         User user = req.getUser();
 
         log.info("常规包裹号后续校验开始：taskId={},packageCode={},flowDisAccord={}", taskId, packageCode, flowDisAccord);
+
         // 根据包裹号查找运单
-//        Waybill waybill = getWaybillByPackageCode(packageCode);
-//        if (waybill == null) {
-//            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
-//            response.setCode(JdCResponse.CODE_FAIL);
-//            response.setMessage("根据包裹号查询运单信息返回空");
-//            return response;
-//        }
-//        String waybillCode = waybill.getWaybillCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         Integer createSiteId = loadCar.getCreateSiteCode().intValue();
+
         // 查看包裹是否已验货,查数据库,若库无异常,可不加异常处理机制.
         Inspection inspection = new Inspection();
         inspection.setCreateSiteCode(createSiteId);
@@ -858,7 +852,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
-//        log.info("开始校验包裹号--判断任务是否已经结束：taskId={},packageCode={}", taskId, packageCode);
         // 任务是否已经结束
         if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
             log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
@@ -867,24 +860,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         log.info("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
-        // 根据包裹号查找运单,TODO 可以使用工具来截取运单号,减少后台交互.
-//        Waybill waybill = getWaybillByPackageCode(packageCode);
-//        if (waybill == null) {
-//            log.error("根据包裹号查询运单信息返回空taskId={},packageCode[{}]", taskId, packageCode);
-//            response.setCode(JdCResponse.CODE_FAIL);
-//            response.setMessage("根据包裹号查询运单信息返回空");
-//            return response;
-//        }
-//        String waybillCode = waybill.getWaybillCode();
+
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+
         // 根据运单号和包裹号查询已验未发的唯一一条记录
         LoadScanDto loadScan = new LoadScanDto();
         loadScan.setWayBillCode(waybillCode);
         loadScan.setPackageCode(packageCode);
         loadScan.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
-
-//        log.info("根据常规包裹号拿到运单号：开始获取包裹下一网点信息：taskId={},packageCode={},waybillCode={}",
-//                taskId, packageCode, waybillCode);
 
         LoadScanDto loadScanDto = getLoadScanByWaybillAndPackageCode(loadScan);
         if (loadScanDto == null) {
@@ -893,7 +876,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据包裹号查询运单信息返回空");
             return response;
         }
-//        log.info("获取常规包裹下一网点信息成功：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (loadScanDto.getNextSiteId() == null || loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
