@@ -187,7 +187,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                     res.add(redDto);
                 }
                 //多扫的判断是否装齐
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW || glc.getLoadAmount() != glc.getGoodsAmount()) {
+//                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getLoadAmount() != glc.getGoodsAmount()) {
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getUnloadAmount() != 0) {//未装等于0的多扫
                     GoodsExceptionScanningDto yellowDto = new GoodsExceptionScanningDto();
                     yellowDto.setId(glc.getId());
                     yellowDto.setTaskId(glc.getTaskId());
@@ -220,7 +221,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
         if(res != null ) {
             for(GoodsLoadScan gls : res) {
-                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
+//                if(gls.getLoadAmount() != gls.getGoodsAmount()) {
+                if(gls.getUnloadAmount() > 0) {//未装>0  说明不齐，，
                     return true;
                 }
             }
