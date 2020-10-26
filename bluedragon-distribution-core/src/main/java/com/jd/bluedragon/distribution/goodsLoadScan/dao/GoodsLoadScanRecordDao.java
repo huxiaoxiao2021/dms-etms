@@ -42,7 +42,6 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long taskId, String boardCode, Long createSiteCode) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-        record.setTaskId(taskId);
         record.setBoardCode(boardCode);
         record.setCreateSiteCode(createSiteCode);
         record.setYn(Constants.YN_YES);

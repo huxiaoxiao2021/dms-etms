@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
-import com.google.common.base.Stopwatch;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -38,7 +37,6 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -48,7 +46,6 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -456,6 +453,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 暂存表运单号，运单号对应的暂存记录
         Map<String, GoodsLoadScan> map = new HashMap<>(16);
 
+        // 组装返回对象
+        LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
+        scanDetailDto.setBatchCode(loadCar.getBatchCode());
+
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         if (!tempList.isEmpty()) {
             // 记录属于多扫状态的运单
@@ -480,9 +481,13 @@ public class LoadScanServiceImpl implements LoadScanService {
                 }
             }
 
-            log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
-            goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap);
-
+            if (!reportList.isEmpty()) {
+                log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
+                goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap);
+            } else {
+                log.info("根据暂存表记录反查分拣报表结束，未查询到数据。taskId={}", req.getTaskId());
+                goodsDetailDtoList = new ArrayList<>();
+            }
             log.info("根据任务ID查找装车扫描记录结束,开始排序! taskId={},size={}", req.getTaskId(), goodsDetailDtoList.size());
             // 按照颜色排序
             Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
@@ -494,8 +499,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             });
 
         }
-        LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
-        scanDetailDto.setBatchCode(loadCar.getBatchCode());
+
         scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
 
         response.setCode(JdCResponse.CODE_SUCCESS);
@@ -571,9 +575,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
 
-            /**Stopwatch耗时分析**/
-            StopWatch watch=new StopWatch();
-            watch.start();
             // 循环处理板上的每一个包裹
             for (String packCode : result.getData()) {
                 if (!WaybillUtil.isPackageCode(packCode)) {
@@ -625,8 +626,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                     map.put(waybillCode, packageNum);
                 }
             }
-            watch.split();
-            log.info("循环处理板上的每一个包裹耗时={}",watch.getSplitTime());
 
             log.info("当前板号上各个包裹所在运单的对应数量map={}", map.toString());
 
@@ -649,17 +648,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
             // 根据运单号列表去分拣报表查找已验未发对应的库存数
-            watch.reset();
-            watch.start();
             List<LoadScanDto> scanDtoList = new ArrayList<>();
             try {
                 scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
             } catch (Exception e) {
                 log.error("根据运单去ES获取数据异常error=", e);
             }
-            watch.split();
-            log.info("根据运单号获取ES数据耗时={}", watch.getSplitTime());
-            watch.stop();
 
             if (scanDtoList == null || scanDtoList.isEmpty()) {
                 log.error("根据板号上的包裹号去反查分拣报表返回为空！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
@@ -760,7 +754,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         inspection.setPackageBarcode(packageCode);
         inspection.setWaybillCode(waybillCode);
         boolean isInspected = inspectionService.haveInspectionByPackageCode(inspection);
-        //至此执行了120ms
+
         log.info("常规包裹号后续校验--是否验货校验完成：taskId={},packageCode={},waybillCode={},flowDisAccord={}", taskId, packageCode, waybillCode, flowDisAccord+"返回结果:"+isInspected);
 
         // 未操作验货
@@ -816,25 +810,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, loadCar);
     }
 
-    /**
-     * 根据包裹号获取运单
-     *
-     * @param packageCode 包裹号
-     * @return 运单
-     */
-    private Waybill getWaybillByPackageCode(String packageCode) {
-        // 根据规则把包裹号转成运单号
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        // 根据运单号查运单详情
-        log.info("根据运单号查询运单数据，查询条件:包裹号="+packageCode+";运单号="+waybillCode);
-        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-        if (waybill == null) {
-//            log.info("根据运单号查询运单数据，查询条件:包裹号="+packageCode+";运单号="+waybillCode+"未查询到包裹数据");
-            log.info("根据包裹号查询运单信息接口返回空packageCode={},waybillCode={}", packageCode, waybillCode);
-            return null;
-        }
-        return waybill;
-    }
 
     /**
      * 校验包裹号
@@ -1081,7 +1056,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验重复扫
             GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-            record.setTaskId(taskId);
             record.setWayBillCode(waybillCode);
             record.setPackageCode(packageCode);
             record.setYn(Constants.YN_YES);
