@@ -190,7 +190,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                 }
                 //多扫的判断是否装齐
 //                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getLoadAmount() != glc.getGoodsAmount()) {
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getUnloadAmount() != 0) {//未装等于0的多扫
+                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getUnloadAmount() != 0  && glc.getForceAmount() == 0) {//未装等于0的多扫
                     GoodsExceptionScanningDto yellowDto = new GoodsExceptionScanningDto();
                     yellowDto.setId(glc.getId());
                     yellowDto.setTaskId(glc.getTaskId());
