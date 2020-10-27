@@ -455,8 +455,13 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
+<<<<<<< .mine
     public int getClientPrintQueryGapTime() {
         return clientPrintQueryGapTime;
+=======
+    public boolean isControlCheckPackage() {
+        return controlCheckPackage;
+>>>>>>> .theirs
     }
 
     public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
@@ -491,6 +496,7 @@ public class UccPropertyConfiguration {
         return controlCheckPackage;
     }
 
+<<<<<<< .mine
     public void setControlCheckPackage(boolean controlCheckPackage) {
         this.controlCheckPackage = controlCheckPackage;
     }
@@ -503,6 +509,20 @@ public class UccPropertyConfiguration {
         this.controlCheckRoute = controlCheckRoute;
     }
 
+=======
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
+
+
+
+
+
+
+
+
+
+>>>>>>> .theirs
     public String getRemoveEmptyBatchCode() {
         return removeEmptyBatchCode;
     }
@@ -510,6 +530,7 @@ public class UccPropertyConfiguration {
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
     }
+<<<<<<< .mine
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -517,4 +538,13 @@ public class UccPropertyConfiguration {
     public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
         this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
     }
+=======
+
+
+
+
+
+
+
+>>>>>>> .theirs
 }
