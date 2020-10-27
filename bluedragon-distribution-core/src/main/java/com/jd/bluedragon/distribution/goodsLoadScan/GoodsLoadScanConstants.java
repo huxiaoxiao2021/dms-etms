@@ -38,6 +38,7 @@ public class GoodsLoadScanConstants {
     public static final String LOCK_KEY = "Bnet_LoadScan_Lock_";
 
     //每页数量
-    public static final int PAGE_SIZE = 50;
+    public static final int PAGE_SIZE = 100;
+    public static final int GOODS_LOAD_CYCLE_COUNT = 500;
 
 }

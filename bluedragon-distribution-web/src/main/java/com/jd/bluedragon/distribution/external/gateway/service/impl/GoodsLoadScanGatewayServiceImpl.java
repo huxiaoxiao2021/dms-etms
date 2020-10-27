@@ -488,8 +488,9 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        log.info("开始调用暂存接口--判断任务是否已经结束：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
-
+        if (log.isDebugEnabled()) {
+            log.debug("开始调用暂存接口--判断任务是否已经结束：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
+        }
         // 任务是否已经结束
         if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
             log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
@@ -497,14 +498,16 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             response.setMessage("该装车任务已经结束");
             return response;
         }
-        log.info("开始调用暂存接口--任务合法：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
-
+        if (log.isDebugEnabled()) {
+            log.debug("开始调用暂存接口--任务合法：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
+        }
         // 如果没有勾选【包裹号转板号】
         if (transfer == null || transfer != 1) {
             log.info("开始调用暂存接口--没有勾选【包裹号转板号】：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
             // 校验是否已验货,并暂存包裹号
             return loadScanService.checkInspectAndSave(req, response, loadCar);
         }
+
         log.info("开始调用暂存接口--勾选【包裹号转板号】：taskId={},packageCode={},transfer={}", taskId, packageCode, transfer);
 
         // 勾选【包裹号转板号】
