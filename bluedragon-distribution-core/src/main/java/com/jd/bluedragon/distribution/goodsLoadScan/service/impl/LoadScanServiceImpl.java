@@ -612,10 +612,12 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("该任务下运单数量已达上限！");
                 return response;
             }
-
-            // 根据板号查询之前的包裹扫描记录
-            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode, loadCar.getCreateSiteCode());
-
+            List<String> packageList = new ArrayList<>();
+            for (String packCode : result.getData()) {
+                packageList.add(packCode);
+            }
+            // 根据板号查询之前的包裹扫描记录,需要根据包裹号Response<List<String>> result，来查询当前中心是否扫描过。
+            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(taskId, boardCode, loadCar.getCreateSiteCode(),packageList);
 
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
@@ -640,6 +642,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                         record.setUpdateUserName(user.getUserName());
                         record.setUpdateUserCode(user.getUserCode());
                         record.setUpdateTime(new Date());
+                        record.setBoardCode(boardCode);
                         updateRecords.add(record);
                     }
                     // 没扫描过的包裹正常装

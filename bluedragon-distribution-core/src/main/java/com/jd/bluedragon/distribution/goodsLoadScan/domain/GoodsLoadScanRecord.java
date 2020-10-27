@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.goodsLoadScan.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class GoodsLoadScanRecord implements Serializable {
     private static final long serialVersionUID = -7623509285189482980L;
@@ -115,6 +116,11 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private String endSiteName;
 
+    /**
+     * 包裹编号list
+     * @return
+     */
+    private List<String> packageCodeList;
 
 
     public Long getId() {
@@ -283,5 +289,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setEndSiteName(String endSiteName) {
         this.endSiteName = endSiteName;
+    }
+
+    public List<String> getPackageCodeList() {
+        return packageCodeList;
+    }
+
+    public void setPackageCodeList(List<String> packageCodeList) {
+        this.packageCodeList = packageCodeList;
     }
 }
