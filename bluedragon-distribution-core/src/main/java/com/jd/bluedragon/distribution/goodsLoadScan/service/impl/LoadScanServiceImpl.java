@@ -12,7 +12,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -98,10 +97,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     private InspectionService inspectionService;
 
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
-
-
-    @Autowired
     private DepartureService departureService;
 
     @Autowired
@@ -125,7 +120,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         int end = GoodsLoadScanConstants.PAGE_SIZE;//50条每页
         boolean flag = true;
 
+        int countValue = 0;
         while(flag) {
+            countValue++;
+            if(countValue > GoodsLoadScanConstants.GOODS_LOAD_CYCLE_COUNT) {
+                response.toFail("该任务包裹数超上限不能装车完成，请联系IT处理。");
+                return response;
+            }
             List<GoodsLoadScanRecord> list = null;
             list = findGoodsLoadRecordPage(req.getTaskId(), start, end);
 
@@ -134,7 +135,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-            if(list.size() < 50) {
+            if(list.size() < GoodsLoadScanConstants.PAGE_SIZE) {
                 flag = false;
             }
 
