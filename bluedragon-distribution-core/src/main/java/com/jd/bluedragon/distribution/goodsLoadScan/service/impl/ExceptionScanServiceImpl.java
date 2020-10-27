@@ -172,7 +172,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         List<GoodsExceptionScanningDto> res= new ArrayList<>();
 
         if(log.isInfoEnabled()) {
-            log.debug("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
+            log.info("根据任务号【{}】查询不齐异常数据 --begin--", taskId);
         }
         List<GoodsLoadScan> list = goodsLoadScanDao.findAllLoadScanByTaskId(taskId);
 
