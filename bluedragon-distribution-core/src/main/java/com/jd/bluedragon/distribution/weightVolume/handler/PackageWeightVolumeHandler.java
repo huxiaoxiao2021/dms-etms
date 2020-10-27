@@ -1,22 +1,35 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -37,6 +50,18 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Qualifier("dmsWeightSendMQ")
     private DefaultJMQProducer dmsWeightSendMQ;
 
+    @Autowired
+    private SiteService siteService;
+
+    @Autowired
+    private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
@@ -46,9 +71,21 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
+        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            InvokeResult<Boolean> result
+                    = weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS,new InvokeResult<Boolean>());
+            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
+                logger.warn("包裹【{}】自动化体积重量抽检失败：{}",packWeightVO.getCodeStr(),result.getMessage());
+            }
+        }
+
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
         packOpeDto.setOpeType(1);//分拣操作环节赋值：1
+        // 根据用户ERP获取站点类型，分拣中心默认传1，非分拣中心都传2
+        this.setPackOpeSiteType(entity, packOpeDto);
 
         PackOpeDetail packOpeDetail = new PackOpeDetail();
         packOpeDetail.setPackageCode(entity.getPackageCode());
@@ -64,6 +101,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packOpeDetail.setLongPackage(entity.getLongPackage());
         packOpeDto.setOpeDetails(Collections.singletonList(packOpeDetail));
         try {
+            logger.info("PackageWeightVolumeHandler handlerWeighVolume uploadOpe param: " + JsonHelper.toJson(packOpeDto));
             Map<String, Object> resultMap = waybillPackageManager.uploadOpe(JsonHelper.toJson(packOpeDto));
             if (resultMap != null && resultMap.containsKey("code")
                     && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(resultMap.get("code").toString())) {
@@ -93,4 +131,41 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
     }
 
+    private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
+        // 线上【青龙基础资料】-【数据字典】-【部门类型】
+        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+            packOpeDto.setOpeType(2);
+        }
+    }
+
+    //是否为首次称重量方，根据运单/包裹的全程跟踪状态值是否为“-160”
+    public boolean isFirstWeightVolume(WeightVolumeEntity entity){
+        String waybillCode = WaybillUtil.getWaybillCode(entity.getBarCode());
+        String state = "-160";
+        List<PackageStateDto> packageStateDtos = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode,state);
+        if(CollectionUtils.isEmpty(packageStateDtos)){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
+    public PackWeightVO convertToPackWeightVO(WeightVolumeEntity entity){
+        PackWeightVO packWeightVO = new PackWeightVO();
+        packWeightVO.setWeight(entity.getWeight());
+        packWeightVO.setLength(entity.getLength());
+        packWeightVO.setWidth(entity.getWidth());
+        packWeightVO.setHigh(entity.getHeight());
+        packWeightVO.setCodeStr(entity.getBarCode());
+        packWeightVO.setOperatorId(entity.getOperatorId());
+        packWeightVO.setOperatorName(entity.getOperatorName());
+        packWeightVO.setErpCode(entity.getOperatorCode());
+        BaseStaffSiteOrgDto site = siteService.getSite(entity.getOperateSiteCode());
+        packWeightVO.setOrganizationName(site.getOrgName());
+        packWeightVO.setOrganizationCode(site.getOrgId());
+        packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
+        packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
+        return packWeightVO;
+    }
 }

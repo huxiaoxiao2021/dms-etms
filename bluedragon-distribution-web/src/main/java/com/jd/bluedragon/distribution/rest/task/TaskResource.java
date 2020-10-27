@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -128,6 +129,8 @@ public class TaskResource {
                 log.warn("运单{}已妥投", waybillCode);
                 it.remove();
             }
+
+            //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         }
         if(inspections.size() ==0){
             return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.site.dao.SiteMapper">
+
+    <resultMap id="site" type="com.jd.bluedragon.distribution.ver.domain.Site">
+        <result column="site_code" property="code"/>
+        <result column="site_name" property="name"/>
+        <result column="site_type" property="type"/>
+        <result column="sub_type" property="subType"/>
+        <result column="org_id" property="orgId"/>
+        <result column="city_id" property="cityId"/>
+        <result column="province_id" property="provinceId"/>
+        <result column="air_sign" property="airSign"/>
+        <result column="site_businesstype" property="siteBusinessType"/>
+    </resultMap>
+
+    <select id="get" resultMap="site" parameterType="String">
+		SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
+		FROM Site
+		WHERE site_code = #{code} AND yn = 1
+		LIMIT 1
+	</select>
+
+</mapper>

@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao">
+
+	<resultMap id="unloadCar" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" >
+		<id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_time" property="sealTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="seal_code" property="sealCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="railWay_platForm" property="railWayPlatForm" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="waybill_num" property="waybillNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="package_num" property="packageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="distribute_time" property="distributeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+    <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
+        <id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="start_site_code" property="startSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="start_site_name" property="startSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="seal_time" property="sealTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="seal_code" property="sealCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="railWay_platForm" property="railWayPlatForm" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="waybill_num" property="waybillNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="package_num" property="packageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+        <result column="unload_user_erp" property="unloadUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="unload_user_name" property="unloadUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="distribute_time" property="distributeTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
+		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
+		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,yn
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn=1
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar">
+        insert into unload_car
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadCarId != null">
+                unload_car_id,
+            </if>
+            <if test="sealCarCode != null">
+                seal_car_code,
+            </if>
+            <if test="vehicleNumber != null">
+                vehicle_number,
+            </if>
+            <if test="startSiteCode != null">
+                start_site_code,
+            </if>
+            <if test="startSiteName != null">
+                start_site_name,
+            </if>
+            <if test="endSiteCode != null">
+                end_site_code,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
+            <if test="sealTime != null">
+                seal_time,
+            </if>
+            <if test="sealCode != null">
+                seal_code,
+            </if>
+            <if test="batchCode != null">
+                batch_code,
+            </if>
+            <if test="railWayPlatForm != null">
+                railWay_platForm,
+            </if>
+            <if test="waybillNum != null">
+                waybill_num,
+            </if>
+            <if test="packageNum != null">
+                package_num,
+            </if>
+            <if test="unloadUserErp != null">
+                unload_user_erp,
+            </if>
+            <if test="unloadUserName != null">
+                unload_user_name,
+            </if>
+            <if test="distributeTime != null">
+                distribute_time,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="operateTime != null">
+                operate_time,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            yn
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="unloadCarId != null">
+                #{unloadCarId,jdbcType=BIGINT},
+            </if>
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleNumber != null">
+                #{vehicleNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="startSiteCode != null">
+                #{startSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteCode != null">
+                #{endSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="sealTime != null">
+                #{sealTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCode != null">
+                #{sealCode,jdbcType=VARCHAR},
+            </if>
+            <if test="batchCode != null">
+                #{batchCode,jdbcType=VARCHAR},
+            </if>
+            <if test="railWayPlatForm != null">
+                #{railWayPlatForm,jdbcType=VARCHAR},
+            </if>
+            <if test="waybillNum != null">
+                #{waybillNum,jdbcType=BIGINT},
+            </if>
+            <if test="packageNum != null">
+                #{packageNum,jdbcType=BIGINT},
+            </if>
+            <if test="unloadUserErp != null">
+                #{unloadUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="unloadUserName != null">
+                #{unloadUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="distributeTime != null">
+                #{distributeTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="operateTime != null">
+                #{operateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            1
+        </trim>
+        )
+    </insert>
+
+    <select id="selectBySealCarCode" parameterType="String" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and status = 2
+        <include refid="Base_Condition_Sql"/>
+        limit 1
+    </select>
+
+    <select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="unloadCarTask">
+        select
+        <include refid="Base_Column_List" />
+        from
+        unload_car
+        <where>
+            yn = 1
+            AND end_site_code = #{loginSiteCode,jdbcType=BIGINT}
+            AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            AND status in
+            <foreach collection="status" item="item" index="index" separator="," open="(" close=")">
+                #{item,jdbcType=TINYINT}
+            </foreach>
+            <if test="vehicleNumber != null">
+                AND vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="limit != -1">
+                limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryCountByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        select count(1) as num
+        from unload_car
+        <where>
+            yn = 1
+            AND end_site_code = #{loginSiteCode,jdbcType=BIGINT}
+            AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            AND status in
+            <foreach collection="status" item="item" index="index" separator="," open="(" close=")">
+                #{item,jdbcType=TINYINT}
+            </foreach>
+            <if test="vehicleNumber != null">
+                AND vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <update id="distributeTaskByParams" parameterType="java.util.Map">
+        UPDATE unload_car
+        SET
+        <if test="unloadUserErp != null">
+            unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR},
+        </if>
+        <if test="railWayPlatForm != null">
+            railWay_platForm = #{railWayPlatForm, jdbcType=VARCHAR},
+        </if>
+        update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+        update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        operate_user_erp = #{operateUserErp, jdbcType=VARCHAR},
+        operate_user_name = #{operateUserName, jdbcType=VARCHAR},
+        distribute_time = #{distributeTime, jdbcType=TIMESTAMP},
+        status = 1,
+        update_time = NOW()
+        WHERE
+        YN = 1
+        <if test="unloadCarIds != null">
+            AND unload_car_id in
+            <foreach item="item" index="index" collection="unloadCarIds"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </update>
+    
+    <select id="getUnloadCarTaskByParams" parameterType="unloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        and status in (1,2)
+        <include refid="Base_Condition_Sql"/>
+        order by status desc
+    </select>
+
+    <update id="updateUnloadCarTaskStatus" parameterType="unloadCar">
+        UPDATE unload_car
+        SET
+        status = #{status,jdbcType=TINYINT},
+        update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+        update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        update_time = #{updateTime, jdbcType=TIMESTAMP}
+        WHERE
+        YN = 1
+        AND seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        AND unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR}
+        AND end_site_code = #{endSiteCode,jdbcType=BIGINT}
+    </update>
+
+    <select id="getUnloadCarTaskScan" resultMap="unloadCar">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM unload_car
+        WHERE
+        YN = 1
+        and status = 2
+        and seal_car_code in
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <sql id="whereCondition">
+        <if test="sealCarCode != null">
+            and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        </if>
+        <if test="vehicleNumber != null">
+            and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+        </if>
+        <if test="startSiteCode != null">
+            and start_site_code = #{startSiteCode,jdbcType=BIGINT}
+        </if>
+        <if test="endSiteCode != null">
+            and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        </if>
+        <if test="sealCode != null">
+            and seal_code = #{sealCode,jdbcType=VARCHAR}
+        </if>
+        <if test="railWayPlatForm != null">
+            and railWay_platForm = #{railWayPlatForm,jdbcType=VARCHAR}
+        </if>
+        <if test="unloadUserErp != null">
+            and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <select id="selectByUnloadCar" parameterType="unloadCar" resultMap="unloadCar">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM unload_car
+        WHERE
+        YN = 1
+        <include refid="whereCondition"/>
+    </select>
+</mapper>

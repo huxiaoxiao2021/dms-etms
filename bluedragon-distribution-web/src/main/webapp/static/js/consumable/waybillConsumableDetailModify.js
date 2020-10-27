@@ -70,7 +70,7 @@ $(function () {
                         });
 
                     }else {
-                        $.msg.error("修改信息失败！",res.statusMessage);
+                        $.msg.error("修改信息失败！",res.message);
                     }
                 },'json',function (XMLHttpRequest, textStatus, errorThrown) {
                     $.msg.error("修改信息成功失败！","");

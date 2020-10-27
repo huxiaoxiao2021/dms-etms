@@ -6,11 +6,12 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
-import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.etms.basic.jsf.BasicSiteUpdateService;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -19,8 +20,17 @@ import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.partner.waybill.api.WaybillManagerApi;
 import com.jd.partner.waybill.api.dto.response.ResultData;
-import com.jd.ql.basic.domain.*;
-import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.domain.SiteExtensionDTO;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.BaseStoreInfoDto;
+import com.jd.ql.basic.dto.PageDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
@@ -28,7 +38,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -38,8 +47,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -74,6 +86,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("commonUseMenuApi")
     private CommonUseMenuApi commonUseMenuApi;
+
+    @Autowired
+    private BasicSiteUpdateService basicSiteUpdateService;
 
     /**
      * 站点ID
@@ -170,14 +185,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return basicPrimaryWSProxy.getBaseSiteAll();
     }
 
-    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
 		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
     }
 
-    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSiteType@args0@args1", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgIdSiteType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType) {
@@ -272,7 +287,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
         return null;
     }
-    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+    @Cache(key = "baseMajorManagerImpl.getDmsListByOrgId@args0", memoryEnable = false, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsListByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<SimpleBaseSite> getDmsListByOrgId(Integer orgId) {
@@ -432,6 +447,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.baseMajorManagerImpl.getBaseStaffByStaffIdNoCache", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger) {
         return basicPrimaryWS.getBaseStaffByStaffId(paramInteger);
     }
@@ -755,6 +771,16 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }else {
             log.warn("通过商家ID{}查询商家信息失败!",merchantId);
             return null;
+        }
+    }
+
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.updateBaseSiteBasicProperty", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateBaseSiteBasicProperty(BaseStaffSiteDTO baseStaffSiteDTO) {
+        BaseResult<String> baseResult = basicSiteUpdateService.updateBaseSiteBasicProperty(baseStaffSiteDTO);
+        if(baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS){
+            return true;
+        }else {
+            return false;
         }
     }
 }

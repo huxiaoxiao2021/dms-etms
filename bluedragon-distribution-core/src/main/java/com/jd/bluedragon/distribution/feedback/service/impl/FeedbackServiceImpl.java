@@ -5,22 +5,18 @@ import com.jd.bluedragon.core.base.FeedBackApiManager;
 import com.jd.bluedragon.core.base.MrdFeedbackManager;
 import com.jd.bluedragon.distribution.basic.FileUtils;
 import com.jd.bluedragon.distribution.feedback.domain.FeedBackResponse;
-import com.jd.bluedragon.distribution.feedback.domain.Feedback;
 import com.jd.bluedragon.distribution.feedback.domain.FeedbackNew;
 import com.jd.bluedragon.distribution.feedback.domain.ReplyResponse;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.jss.JssService;
-import com.jd.jdwl.feedback.common.dto.Result;
 import com.jd.jdwl.feedback.dto.FeedbackDto;
 import com.jd.jdwl.feedback.dto.FeedbackQueryDto;
 import com.jd.jdwl.feedback.dto.UserInfoDto;
 import com.jd.jdwl.feedback.vo.FeedbackVo;
 import com.jd.jdwl.feedback.vo.PageVo;
 import com.jd.jdwl.feedback.vo.ReplyVo;
-import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,11 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author lixin39

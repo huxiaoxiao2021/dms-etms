@@ -57,7 +57,12 @@ public class ReverseDeliveryToWhSmsConsumer extends MessageBaseConsumer{
             return;
         }
 
-        WuHanEMSResponse response = wuHanEMSBusinessManager.doRestInterface(whEmsDto);
+        WuHanEMSResponse response = null;
+        try {
+            response = wuHanEMSBusinessManager.doRestInterface(whEmsDto);
+        } catch (Exception e) {
+            log.warn("反向推送武汉邮政消息异常，businessID：{}, e：{}", message.getBusinessId(), e.getMessage());
+        }
 
         if (response == null || response.getPlaintextData() == null) {
             log.warn("反向推送武汉邮政消息异常，将重新发送消息，businessID：{}", message.getBusinessId());

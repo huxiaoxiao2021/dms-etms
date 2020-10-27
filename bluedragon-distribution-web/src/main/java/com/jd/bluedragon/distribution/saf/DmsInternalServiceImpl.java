@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
@@ -20,8 +21,13 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.audit.AuditResource;
@@ -33,17 +39,24 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author dudong
@@ -52,6 +65,9 @@ import java.util.Objects;
 public class DmsInternalServiceImpl implements DmsInternalService {
 
     private static final Logger log = LoggerFactory.getLogger(DmsInternalServiceImpl.class);
+
+    // 功能开关缓存前缀
+    private static final String FUNC_SWITCH_REDIS_KEY_PREFIX = "FUNC_SWITCH_KEY_";
 
     @Autowired
     private BoxResource boxResource;
@@ -100,7 +116,20 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private AbnormalWayBillService abnormalWayBillService;
+    @Autowired
+    SortingService sortingService;
 
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
+    /**
+     * jsf监控key前缀
+     */
+    private static final String UMP_KEY_PREFIX = UmpConstants.UMP_KEY_JSF_SERVER + "DmsInternalService.";
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
     public DatadictResponse getDatadict(Integer parentID, Integer nodeLevel, Integer typeGroup) {
@@ -388,5 +417,85 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         }
         return result;
     }
+    @JProfiler(jKey = UMP_KEY_PREFIX + "getSortingNumberInBox", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode) {
+		JdResult<Integer> result = new JdResult<Integer>();
+		result.setData(0);
+		result.toSuccess();
+		if(BusinessUtil.isBoxcode(boxCode)){
+			Integer boxCreateSiteCode = createSiteCode;
+			/**
+			 * 箱号始发分拣为空，查询箱号获取始发分拣
+			 */
+			if(boxCreateSiteCode == null){
+				Box box = boxService.findBoxByCode(boxCode);
+				if(box == null){
+					result.toFail("未查询到箱号信息！");
+					return result;
+				}else{
+					boxCreateSiteCode = box.getCreateSiteCode();
+				}
+			}
+			result.setData(sortingService.findBoxPack(boxCreateSiteCode, boxCode));
+			return result;
+		}else{
+			result.toFail("传入的箱号编码无效！");
+		}
+		return result;
+	}
 
+    @JProfiler(jKey = UMP_KEY_PREFIX + "checkIsConfigured", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto dto) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        boolean isConfigured = false;
+        try {
+            if(checkParams(result,dto)){
+                return result;
+            }
+            String key = FUNC_SWITCH_REDIS_KEY_PREFIX.concat(String.valueOf(dto.getMenuCode())).concat(Constants.UNDERLINE_FILL)
+                    .concat(String.valueOf(dto.getDimensionCode())).concat(Constants.UNDERLINE_FILL)
+                    .concat(String.valueOf(dto.getSiteCode()));
+            String redisValue = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(redisValue)){
+                result.setData(Boolean.valueOf(redisValue));
+                return result;
+            }
+            isConfigured = funcSwitchConfigService.checkIsConfigured(dto);
+            jimdbCacheService.setEx(key,String.valueOf(isConfigured),5, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("校验是否配置功能权限异常，入参：【{}】",JsonHelper.toJson(dto),e);
+        }
+        result.setData(isConfigured);
+        return result;
+    }
+
+    /**
+     * 功能参数校验
+     * @param result
+     * @param dto
+     * @return
+     */
+    private boolean checkParams(InvokeResult<Boolean> result, FuncSwitchConfigDto dto) {
+        if(dto == null){
+            result.parameterError("参数错误!");
+            return true;
+        }
+        if(dto.getSiteCode() == null){
+            result.parameterError("站点不能为空!");
+            return true;
+        }
+        if(dto.getMenuCode() == null
+                || !FuncSwitchConfigEnum.codeMap.containsKey(dto.getMenuCode())){
+            result.parameterError("功能编码不符合规则!");
+            return true;
+        }
+        if(dto.getDimensionCode() == null
+                || !DimensionEnum.codeMap.containsKey(dto.getDimensionCode())){
+            result.parameterError("维度编码不符合规则!");
+            return true;
+        }
+        return false;
+    }
 }

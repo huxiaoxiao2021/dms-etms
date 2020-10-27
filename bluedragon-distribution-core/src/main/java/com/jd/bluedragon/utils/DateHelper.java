@@ -21,6 +21,7 @@ public class DateHelper {
     public static final String[] DATE_TIME_FORMAT = new String[]{
             "yyyy-MM-dd HH:mm:ss",
             "yyyy/MM/dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm:ss SSS",
             "yyyy/MM/dd HH:mm:ss.SSS",
             "yyyy-MM-dd HH:mm:ss.SSS",
             "yyyyMMddHHmmss",
@@ -28,6 +29,16 @@ public class DateHelper {
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
+
+    /**
+     * 五分钟秒数
+     */
+    public static final long FIVE_MINUTES_SECONDS = 5 * 60;
+
+    /**
+     * 一天的秒数
+     */
+    public static final long ONE_DAY_SECONDS = 24 * 60 * 60;
 
     /**
      * 一分钟的毫秒数
@@ -223,7 +234,7 @@ public class DateHelper {
     }
 
     public static Date parseDate(String dateString, String format) {
-        if (dateString == null || format == null) {
+        if (StringHelper.isEmpty(dateString) || StringHelper.isEmpty(format)) {
             return null;
         }
 
@@ -235,7 +246,7 @@ public class DateHelper {
         }
     }
     public static Date parseDate(String dateString, String... formats) {
-        if (dateString == null || formats == null) {
+        if (StringHelper.isEmpty(dateString) || formats == null) {
             return null;
         }
         for(String format : formats){
@@ -291,7 +302,7 @@ public class DateHelper {
         try {
             pdaTime = DateHelper.parseAllFormatDateTime(sPdaTime);
         } catch (IllegalArgumentException e) {
-            LOGGER.error("解析PDA时间失败：" + sPdaTime, e);
+            LOGGER.warn("解析PDA时间失败：" + sPdaTime);
         } finally {
             if (pdaTime != null) {
                 Long interval = pdaTime.getTime() - serverTime.getTime();

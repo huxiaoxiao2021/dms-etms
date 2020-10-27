@@ -57,11 +57,31 @@
 					<entry key="task_inspection_1601_PRE" value="${jmq.task.topic.partnerWaybillSynchro.pre}"/>
 					<entry key="task_inspection_1601_UAT" value="${jmq.task.topic.partnerWaybillSynchro.uat}"/>
 
+                    <!-- 验货多包裹拆分任务 -->
+                    <entry key="task_inspection_1136_DMS" value="${jmq.task.topic.inspection.split.dms}" />
+                    <entry key="task_inspection_1136_PRE" value="${jmq.task.topic.inspection.split.pre}" />
+                    <entry key="task_inspection_1136_UAT" value="${jmq.task.topic.inspection.split.uat}" />
+
 					<!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
 					<entry key="task_send_1300_DMS" value="${jmq.task.topic.send.dms}"/>
 					<entry key="task_send_1300_PRE" value="${jmq.task.topic.send.pre}"/>
 					<entry key="task_send_1300_UAT" value="${jmq.task.topic.send.uat}"/>
-
+					<!-- 批量发货任务（批次号维度处理）-->
+					<entry key="task_send_130001_DMS" value="${jmq.task.topic.batchSend.dms}"/>
+					<entry key="task_send_130001_PRE" value="${jmq.task.topic.batchSend.pre}"/>
+					<entry key="task_send_130001_UAT" value="${jmq.task.topic.batchSend.uat}"/>
+					<!-- 箱号发货回传运单状态任务-->
+					<entry key="task_send_130002_DMS" value="${jmq.task.topic.boxSend.dms}"/>
+					<entry key="task_send_130002_PRE" value="${jmq.task.topic.boxSend.pre}"/>
+					<entry key="task_send_130002_UAT" value="${jmq.task.topic.boxSend.uat}"/>					
+					<!-- 箱号中转发货任务-->
+					<entry key="task_send_130003_DMS" value="${jmq.task.topic.boxTransitSend.dms}"/>
+					<entry key="task_send_130003_PRE" value="${jmq.task.topic.boxTransitSend.pre}"/>
+					<entry key="task_send_130003_UAT" value="${jmq.task.topic.boxTransitSend.uat}"/>
+					<!-- 包裹发货回传运单状态任务-->
+					<entry key="task_send_130004_DMS" value="${jmq.task.topic.packageSend.dms}"/>
+					<entry key="task_send_130004_PRE" value="${jmq.task.topic.packageSend.pre}"/>
+					<entry key="task_send_130004_UAT" value="${jmq.task.topic.packageSend.uat}"/>
 					<!-- 支线发车推送运单任务-->
 					<entry key="task_send_1400_DMS" value="${jmq.task.topic.thirdDeparture.dms}"/>
 					<entry key="task_send_1400_PRE" value="${jmq.task.topic.thirdDeparture.pre}"/>

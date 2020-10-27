@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,6 +56,7 @@ public class OfflineInspectionServiceImpl implements OfflineService {
 		inspectionRequest.setUserName(offlineLogRequest.getUserName());
 		
 		inspectionRequest.setOperateTime(offlineLogRequest.getOperateTime());
+		inspectionRequest.setBizSource(InspectionBizSourceEnum.OFFLINE_SELF_SUPPORT_INSPECTION.getCode());
 
 		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
 				+ JsonHelper.toJson(inspectionRequest)

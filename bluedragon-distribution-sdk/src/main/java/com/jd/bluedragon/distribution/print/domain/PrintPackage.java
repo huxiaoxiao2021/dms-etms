@@ -57,7 +57,11 @@ public class PrintPackage implements Serializable {
     public Double getWeight() {
         return weight;
     }
-
+    /**
+     * 尽量使用setPackageWeightAndUnit，同时设置重量及单位信息
+     * @param packageWeight
+     */
+    @Deprecated
     public void setWeight(Double weight) {
         this.weight = weight;
     }
@@ -73,7 +77,27 @@ public class PrintPackage implements Serializable {
     public String getPackageWeight() {
         return packageWeight;
     }
-
+    /**
+     * 设置包裹的重量及单位
+     * @param weight 称重数据
+     * @param unit 称重显示单位
+     */
+    public void setWeightAndUnit(Double weight,String unit) {
+    	this.weight = weight;
+    	if(weight != null && weight > 0){
+    		this.packageWeight = weight.toString();
+        	if(unit != null){
+        		this.packageWeight += unit;
+        	}
+    	}else{
+    		this.packageWeight = "";
+    	}
+    }
+    /**
+     * 尽量使用setPackageWeightAndUnit，同时设置重量及单位信息
+     * @param packageWeight
+     */
+    @Deprecated
     public void setPackageWeight(String packageWeight) {
         this.packageWeight = packageWeight;
     }

@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.api.response.ReverseReceiveResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 
@@ -222,4 +224,18 @@ public interface DmsInternalService {
      * @return true:操作过 false:反之
      */
     InvokeResult<Boolean> isTreatedAbnormal(String waybillCode, Integer siteCode);
+    /***
+     * 获取箱号已分拣的包裹数量
+     * @param boxCode 必填项：箱号编码
+     * @param createSiteCode 非必填：箱号始发分拣中心
+     * @return
+     */
+    JdResult<Integer> getSortingNumberInBox(String boxCode,Integer createSiteCode);
+
+    /**
+     * 校验是否有配置
+     * @param funcSwitchConfigDto
+     * @return
+     */
+    InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 }

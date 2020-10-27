@@ -4,10 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
+import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -24,6 +27,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderParentChildDto;
 import com.jd.etms.waybill.dto.SkuPackRelationDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -31,6 +35,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +43,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +51,7 @@ import java.util.Map;
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.waybill.";
 
     @Autowired
     private WaybillQueryApi waybillQueryApi;
@@ -686,4 +693,42 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
         return busiId;
     }
+
+    /**
+     * 根据运单号查询运单增值服务信息
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillVasInfosByWaybillCode" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<List<WaybillVasDto>> getWaybillVasInfosByWaybillCode(String waybillCode) {
+        return waybillQueryApi.getWaybillVasInfosByWaybillCode(waybillCode);
+    }
+    /**
+     * 根据运单号查询出关联的原单和返单单号
+     */
+	@Override
+	public JdResult<List<String>> getOriginalAndReturnWaybillCodes(String waybillCode) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "waybillQueryApi.getOriginalAndReturnWaybillCodes");
+		JdResult<List<String>> result = new JdResult<List<String>>();
+		try {
+			BaseEntity<LinkedList<String>>  rpcResult = waybillQueryApi.getOriginalAndReturnWaybillCodes(waybillCode);
+			if(rpcResult != null
+					&& rpcResult.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode()){
+				result.setData(rpcResult.getData());
+				result.toSuccess();
+			}else{
+				log.warn("调用运单多次换单查询接口失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("调用运单多次换单查询接口失败！");
+			}
+		} catch (Exception e) {
+			log.error("调用运单多次换单查询接口异常！",e);
+			result.toError("调用运单多次换单查询接口异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return result;
+	}
 }

@@ -1,6 +1,9 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -16,7 +19,6 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.*;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
-
     /**
      * 是不是发货批次号
      *
@@ -123,6 +125,30 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否为集货区编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectAreaCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_AREA_CODE_REGEX);
+    }
+
+    /**
+     * 判断是否为集货位编码
+     * @param code
+     * @return
+     */
+    public static final boolean isCollectPlaceCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_COLLECT_PLACE_CODE_REGEX);
     }
 
 
@@ -620,7 +646,12 @@ public class BusinessUtil {
     public static Boolean isC2CJZD(String waybillSign){
         return isSignChar(waybillSign,113,'2');
     }
-
+    /**
+     * 判断是否C2C:waybill_sign 第29位等于8
+     */
+    public static Boolean isC2C(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_29,WaybillSignConstants.CHAR_29_8);
+    }
     /**
      * 是否为三方-合作站点
      * @param type
@@ -717,6 +748,32 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 快运外单判断
+     * <p>
+     *      1、快运零担【waybillSign第40位为2且第80位为0】
+     *      2、特快重货【waybillSign第40位为2或3且第80位为9】
+     *      3、特运零担【waybillSign第40位为2或3且第80位为2】
+     *      4、特慧零担【waybillSign第40位为2且第80位为1】
+     *      5、其他【waybillSign：89=0 & 99=0 & 54=0 & 62=0,1,4 & 29=2 & 10=1】
+     * </p>
+     * @param waybillSign
+     * @return*/
+    public static boolean isKyLdop(String waybillSign){
+        if(waybillSign == null){
+            return false;
+        }
+        if(isSignChar(waybillSign,40,'2') && isSignInChars(waybillSign,80,'0','1')
+                || (isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9'))
+                || (isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
+                && isSignChar(waybillSign,54,'0') && isSignInChars(waybillSign,62,'0','1','4')
+                && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1'))){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 判断是否是移动仓内配单
      * @param waybillSign
@@ -968,7 +1025,7 @@ public class BusinessUtil {
      * 是否寄付
      */
     public static boolean isFreightSend(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_3);
     }
 
     /**
@@ -978,7 +1035,7 @@ public class BusinessUtil {
      * @return true 是，false 不是
      */
     public static boolean isForeignForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_61,WaybillSignConstants.CHAR_61_0);
     }
 
     /**
@@ -987,8 +1044,8 @@ public class BusinessUtil {
      * @param waybillSign waybillSign
      * @return true 是，false 不是
      */
-    private static boolean isWaybillMarkForward(String waybillSign) {
-        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15,WaybillSignConstants.BACKWARD_TYPE_WAYBILL_MARK_POSITION_15_0);
+    public static boolean isWaybillMarkForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_15,WaybillSignConstants.CHAR_15_0);
     }
 
     /**
@@ -1181,6 +1238,48 @@ public class BusinessUtil {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_36, WaybillSignConstants.CHAR_36_4);
     }
 
+    /**
+     *  是否是【特快送 同城】
+     *  waybill_sign第31位=1 且 116位=2，打印【特快送 同城】
+     *  waybill_sign第31位=2，打印【特快送 同城】
+     * @param waybillSign
+     * @return EXPRESS_DELIVERY
+     */
+    public static boolean isExpressDeliverySameCity(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_2)
+                )||isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_2);
+    }
+
+    /**
+     *  是否是【特快送 次晨】
+     *  waybill_sign第31位=1 且 116位=3 且 16位=4 ，打印【特快送 次晨】
+     *  waybill_sign第31位=4 且 16位=4 ，打印【特快送 次晨】
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpressDeliveryNextMorning(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
+                )||(isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
+                    && isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4));
+    }
+
+    /**
+     *  是否是【特快送】
+     *  waybill_sign第31位=1 且 116位=3 且 16位不等于4 ，打印【特快送】
+     *  waybill_sign第31位=4 且 16位不等于4 ，打印【特快送】
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpressDelivery(String waybillSign){
+        return (isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_116,WaybillSignConstants.CHAR_116_3)
+                && !isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4)
+                )||(isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_4)
+                && !isSignChar(waybillSign,WaybillSignConstants.POSITION_16,WaybillSignConstants.CHAR_16_4));
+    }
 
     /**
      * 是否是同城
@@ -1349,7 +1448,7 @@ public class BusinessUtil {
 
     /**
      * @Description
-     * @param [boxCode]
+     * @param boxCode
      * @Author wyh
      * @Date 2020/2/21 14:07
      * @return java.lang.Boolean
@@ -1384,7 +1483,48 @@ public class BusinessUtil {
             return null;
         }
     }
-
+    /**
+     * 根据sendPay判断是否预售,第297位等于1或2
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSell(String sendPay) {
+    	return isSignInChars(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1,SendPayConstants.CHAR_297_2);
+    }
+    /**
+     * 根据sendPay判断是否预售未付款,第297位等于1
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithNoPay(String sendPay) {
+        return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1);
+    }
+    /**
+     * 预售未付款退仓,297位为1 且 228位为1或2
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithNoPayToWms(String sendPay) {
+        return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
+                && isSignInChars(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2);
+    }
+    /**
+     * 预售未付款暂存分拣,297位为1 且 228位为4
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithNoPayStorage(String sendPay) {
+        return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
+                && isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4);
+    }
+    /**
+     * 根据sendPay判断是否预售已付款,第297位等于2
+     * @param sendPay
+     * @return
+     */
+    public static boolean isPreSellWithPay(String sendPay) {
+    	return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_2);
+    }
     /**
      * 航空转陆运，
      * waybillsign第31位等于1或者84位等于3，目前用于航空转陆运通知质控和路由，如果需要确定使用请与产品确定标位
@@ -1396,4 +1536,242 @@ public class BusinessUtil {
 
         return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
     }
+    /**
+     * 根据标位判断是否企配仓数据sendpay标识314=1 或者 waybillSign128=1
+     * @param sendPay
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isEdn(String sendPay, String waybillSign) {
+		return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_314, SendPayConstants.CHAR_314_1)
+				|| BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_128, WaybillSignConstants.CHAR_128_1);
+	}
+	/**
+	 * 根据子类型判断是否企配仓类型
+	 * @param subType
+	 * @return
+	 */
+	public static boolean isEdnDmsSite(Integer subType) {
+		return SITE_SUB_TYPE_EDN.equals(subType);
+	}
+
+    /**
+     * 是否外单自提点
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23位≠5、6、7，面单打印“提”字
+     * @return
+     */
+    public static boolean isZiTiByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                !BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_23,WaybillSignConstants.CHAR_23_5, WaybillSignConstants.CHAR_23_6, WaybillSignConstants.CHAR_23_7);
+    }
+
+    /**
+     * 是否自提柜
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23=5、6，面单打印【柜】字
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isZiTiGuiByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_23,WaybillSignConstants.CHAR_23_5, WaybillSignConstants.CHAR_23_6);
+    }
+
+    /**
+     * 是否自提店
+     *  C网 waybillsign第40位=0
+     *  订单类型 SOP Waybillsign第1位=2
+     * 且79位=2，且23=7，面单打印【店】字
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isZiTiDianByWaybillSign(String waybillSign) {
+        /* C网 waybillsign第40位=0
+         * 订单类型 SOP Waybillsign第1位=2
+         */
+        boolean bool = BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_2) ||
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_0);
+        return bool &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2) &&
+                BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_23, WaybillSignConstants.CHAR_23_7);
+    }
+
+    /**
+     * 判断是否函速达运单，waybill_sign第31位等于B时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLetterExpress(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B);
+    }
+
+    /**
+     * 判断是否是集包袋编号
+     * @param materialCode
+     * @return
+     */
+    public static boolean isCollectionBag(String materialCode) {
+        if (StringUtils.isBlank(materialCode)) {
+            return false;
+        }
+        return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
+    }
+    /**
+     * 判断是否无人车配送，sendpay第307位=1
+     *
+     * @param sendPay
+     * @return
+     */
+    public static boolean isWrcps(String sendPay) {
+        return isSignChar(sendPay, SendPayConstants.POSITION_307, SendPayConstants.CHAR_307_1);
+    }
+
+    /**
+     * 判断站点是否为分拣中心类型
+     * @param siteType 站点类型
+     * @return boolean
+     */
+    public static boolean isSortingSiteType(Integer siteType) {
+        if(null == siteType){
+            return true;
+        }
+        if(SORTING_SITE_TYPE_LIST.contains(siteType)) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 经济网需要拦截的运单范围
+     * 防止少拦截运单，采用反向抛出法判断，优先筛选不拦截类型运单
+     * @param waybillSign
+     * @return true 需要拦截判断
+     *          false 不需要拦截判断
+     */
+    public static boolean isEconomicNetValidateWeightVolume(String waybillCode,String waybillSign) {
+        //非经济网运单不拦截
+        if(!WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(
+                UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            return false;
+        }
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+        //不拦截 售后取件、合约返单等业务层面逆向单
+        if (!BusinessUtil.isSignChar(waybillSign, 15, '0')) {
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+^_^+后四位，否则返回原值
+     * @param phone 原手机号
+     * @return
+     */
+    public static String getHidePhone(String phone) {
+        return getHidePhone(phone,HIDE_SMILE);
+    }
+    /**
+     * 隐藏手机号：7位以上手机号返回前3位+hideStr+后四位，否则返回原值
+     * @param phone 原手机号
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHidePhone(String phone,String hideStr) {
+        if(StringUtils.isNotBlank(phone)){
+        	String hidePlaceStr = hideStr;
+        	if(StringUtils.isBlank(hidePlaceStr)){
+        		hidePlaceStr = HIDE_SMILE;
+        	}
+            //去除号码中间的空白字符
+        	String hidePhone = phone.replaceAll("\\s*", "");
+            if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER) 
+                		+ hidePlaceStr
+                		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
+            }
+        }
+        return phone;
+    } 
+    /**
+     * 隐藏姓名：1位以上地址返回前1位+^_^，否则返回原值
+     * @param name 姓名
+     * @return
+     */
+    public static String getHideName(String name) {
+        if(StringUtils.isNotBlank(name)
+        		&& name.length() >= NAME_SHOW_LENGTH){
+            //保留前1位
+        	return name.substring(0,NAME_SHOW_LENGTH) + HIDE_SMILE;
+        }
+        return getHideStr(name,NAME_SHOW_LENGTH,HIDE_SMILE);
+    }
+    /**
+     * 隐藏地址：9位以上地址返回前9位+^_^，否则返回原值
+     * @param name 姓名
+     * @return
+     */
+    public static String getHideAddress(String address) {
+        if(StringUtils.isNotBlank(address)
+        		&& address.length() >= ADDRESS_SHOW_LENGTH){
+            //保留前9位
+        	return address.substring(0,ADDRESS_SHOW_LENGTH) + HIDE_SMILE;
+        }
+        return getHideStr(address,ADDRESS_SHOW_LENGTH,HIDE_SMILE);
+    }
+    /**
+     * 隐藏处理：显示前showLength位，后几位用hideStr替换，否则返回原值
+     * @param str 原字符串
+     * @param showLength 显示长度
+     * @param hideStr 隐藏后替换字符串，传值为空时默认^_^
+     * @return
+     */
+    public static String getHideStr(String str,int showLength,String hideStr) {
+        if(StringUtils.isNotBlank(str)
+        		&& showLength > 0
+        		&& str.length() >= showLength){
+        	String hidePlaceStr = hideStr;
+        	if(StringUtils.isBlank(hidePlaceStr)){
+        		hidePlaceStr = HIDE_SMILE;
+        	}
+            //保留前几位
+        	return str.substring(0,showLength) + hidePlaceStr;
+        }
+        return str;
+    }
+    /**
+     * 合约机判断：Sendpay292位为1
+     * @param sendPay
+     * @return
+     */
+	public static boolean isContractPhone(String sendPay) {
+		return isSignChar(sendPay, SendPayConstants.POSITION_292, SendPayConstants.CHAR_292_1);
+	}
+	/**
+	 * 判断是否签单返回，waybillSign第4位：1,2,3,4,9
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSignBack(String waybillSign){
+		return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_4,
+				WaybillSignConstants.CHAR_4_1,WaybillSignConstants.CHAR_4_2,WaybillSignConstants.CHAR_4_3,WaybillSignConstants.CHAR_4_4,WaybillSignConstants.CHAR_4_9);
+	}
 }

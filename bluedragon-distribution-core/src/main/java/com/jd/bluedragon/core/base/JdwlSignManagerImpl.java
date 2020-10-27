@@ -107,9 +107,9 @@ public class JdwlSignManagerImpl implements JdwlSignManager {
                 sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
             }else{
                 sLogDetail.setKeyword4(Long.valueOf(actionSlimDtoRs.getCode()));
+                sLogDetail.setContent(actionSlimDtoRs.getMsg());
             }
             sLogDetail.setType(SYSTEM_LOG_TYPE);
-            sLogDetail.setContent(actionSlimDtoRs.getMsg());
             SystemLogUtil.log(sLogDetail);
         }catch (Exception e){
             log.error("JdwlSignManagerImpl.pushSystemLog",e);

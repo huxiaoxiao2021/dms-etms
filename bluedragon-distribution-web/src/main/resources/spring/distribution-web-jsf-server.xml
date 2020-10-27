@@ -157,7 +157,7 @@
     <!-- 为中台提供jsf接口 -->
     <jsf:provider id="jsfDmsForMiddleEndService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsForMiddleEndService"
-                  alias="${dms.jsf.alias}"
+                  alias="${dms.jsf.for.middle.end.alias}"
                   ref="dmsForMiddleEndService" server="dmsjsf">
     </jsf:provider>
 
@@ -176,4 +176,46 @@
                   ref="dmsSendCodeJSFService" server="dmsjsf">
         <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
+
+    <!--  为自动化称重提供接口，上传重量体积并进行抽检  -->
+    <jsf:provider id="dmsWeightVolumeJSFServiceAPI"
+                  interface="com.jd.bluedragon.distribution.weightvolume.DMSWeightVolumeJSFService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsWeightVolumeJSFService" server="dmsjsf">
+    </jsf:provider>
+
+    <!--  为自动化称重提供接口，上传重量体积并进行抽检  -->
+    <jsf:provider id="thirdBoxExternalServiceAPI"
+                  interface="com.jd.bluedragon.distribution.thirdBox.service.ThirdBoxExternalService"
+                  alias="${dms.jsf.alias}"
+                  ref="thirdBoxExternalService" server="dmsjsf">
+    </jsf:provider>
+    <!-- 通知栏及知识库接口 -->
+    <jsf:provider id="dmsNoticeJsfServiceAPI"
+                  interface="com.jd.bluedragon.distribution.notice.service.NoticeJsfService"
+                  alias="${jsf.config.dmsNoticeJsfService.alias}"
+                  ref="dmsNoticeJsfService" server="dmsjsf">
+    </jsf:provider>
+
+    <!--   箱号jsf：终端调用判断是否是经济网箱号     -->
+    <jsf:provider id="dmsBoxQueryServiceJsf"
+                  interface="com.jd.bluedragon.distribution.box.service.DmsBoxQueryService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsBoxQueryService" server="dmsjsf">
+    </jsf:provider>
+
+    <!--  一键封车jsf：分拣工作台调用     -->
+    <jsf:provider id="dmsSealVehicleServiceJsf"
+                  interface="com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsSealVehicleService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 集包异常举报 分拣工作台web页面用 -->
+    <jsf:provider id="dmsCollectionBagExceptionReportJsfService"
+                  interface="com.jd.bluedragon.distribution.bagException.service.CollectionBagExceptionReportService"
+                  alias="${jsf.dmsCollectionBagExceptionReportService.alias}"
+                  ref="dmsCollectionBagExceptionReportService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>

@@ -129,6 +129,24 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 自动识别包裹标签打印标识
 	 * */
 	private Boolean discernFlag = false;
+    /**
+     * 商家Id
+     */
+	private Integer businessId;
+    /**
+     * 扫描单号类
+     */
+	private Integer barCodeType;
+
+	/**
+	 * 靑流箱号 驻厂打印绑定靑流箱用
+	 */
+	private String reBoxCode;
+
+	/**
+	 * 用户ERP
+	 */
+	private String userERP;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -136,6 +154,22 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setTrustBusinessFlag(Boolean trustBusinessFlag) {
 		this.trustBusinessFlag = trustBusinessFlag;
+	}
+
+	public String getReBoxCode() {
+		return reBoxCode;
+	}
+
+	public void setReBoxCode(String reBoxCode) {
+		this.reBoxCode = reBoxCode;
+	}
+
+	public String getUserERP() {
+		return userERP;
+	}
+
+	public void setUserERP(String userERP) {
+		this.userERP = userERP;
 	}
 
 	/**
@@ -276,7 +310,12 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setWeightOperFlow(WeightOperFlow weightOperFlow) {
 		this.weightOperFlow = weightOperFlow;
 	}
-
+	/**
+	 * 判断是否已称重：weightOperFlow不为空，weightOperFlow.weight > 0
+	 */
+	public boolean hasWeighted() {
+		return this.weightOperFlow != null && this.weightOperFlow.getWeight() > 0;
+	}
 	public String getTemplateName() {
 		return templateName;
 	}
@@ -381,5 +420,21 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setDiscernFlag(Boolean discernFlag) {
 		this.discernFlag = discernFlag;
+	}
+
+	public Integer getBusinessId() {
+		return businessId;
+	}
+
+	public void setBusinessId(Integer businessId) {
+		this.businessId = businessId;
+	}
+
+	public Integer getBarCodeType() {
+		return barCodeType;
+	}
+
+	public void setBarCodeType(Integer barCodeType) {
+		this.barCodeType = barCodeType;
 	}
 }

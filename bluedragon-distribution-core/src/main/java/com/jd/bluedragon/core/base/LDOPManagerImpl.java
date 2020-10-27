@@ -1,11 +1,14 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
@@ -19,6 +22,9 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fastjson.JSONObject;
+import com.jd.ldop.business.api.BackAddressInfoApi;
+import com.jd.ldop.business.api.dto.request.BackAddressDTO;
+import com.jd.ldop.business.api.dto.response.ResponseStatus;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
@@ -31,6 +37,7 @@ import com.jd.ldop.center.api.update.dto.WaybillAddress;
 import com.jd.ldop.center.api.waybill.GeneralWaybillQueryApi;
 import com.jd.ldop.center.api.waybill.dto.OrderInfoDTO;
 import com.jd.ldop.center.api.waybill.dto.WaybillQueryByOrderIdDTO;
+import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
 import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
@@ -40,11 +47,13 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -64,6 +73,8 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_3 = 3;
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
+    
+    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.ldop.";
 
     @Autowired
     private LogEngine logEngine;
@@ -96,7 +107,16 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
+    @Autowired
+    @Qualifier("backAddressInfoApi")
+    private BackAddressInfoApi backAddressInfoApi;
+    @Autowired
+    private BaseService baseService;
+    /**
+     * 二次换单限制次数
+     */
+	@Value("${beans.LDOPManagerImpl.twiceExchangeMaxTimes}")
+    private int twiceExchangeMaxTimes;
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -246,7 +266,7 @@ public class LDOPManagerImpl implements LDOPManager {
                 return responseDTO.getData();
             }else {
                 //失败
-                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
+                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage()+"请联系IT 咚咚 ：xnpsxt");
                 log.info("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
             }
             return null;
@@ -302,13 +322,18 @@ public class LDOPManagerImpl implements LDOPManager {
      */
     public WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto){
         WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+        waybillReverseDTO.setLimitReverseFlag(Boolean.FALSE);
         waybillReverseDTO.setSource(2); //分拣中心
         if(exchangeWaybillDto.getIsTotalout()){
             waybillReverseDTO.setReverseType(1);// 整单拒收
         }else{
             waybillReverseDTO.setReverseType(2);// 包裹拒收
         }
-
+        //二次换单时设置换单次数限制
+        if(Boolean.TRUE.equals(exchangeWaybillDto.getTwiceExchangeFlag())){
+        	waybillReverseDTO.setLimitReverseFlag(Boolean.TRUE);
+        	waybillReverseDTO.setAllowReverseCount(twiceExchangeMaxTimes);
+        }
         waybillReverseDTO.setWaybillCode(exchangeWaybillDto.getWaybillCode());
         waybillReverseDTO.setOperateUserId(exchangeWaybillDto.getOperatorId());
         waybillReverseDTO.setOperateUser(exchangeWaybillDto.getOperatorName());
@@ -465,7 +490,29 @@ public class LDOPManagerImpl implements LDOPManager {
         return waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
     }
 
-
+	@Override
+	public JdResult<List<BackAddressDTO>> queryBackAddressByType(Integer backType,String busiCode) {
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "backAddressInfoApi.queryBackAddressByType");
+		JdResult<List<BackAddressDTO>> result = new JdResult<List<BackAddressDTO>>();
+		try {
+			com.jd.ldop.business.api.dto.response.Response<List<BackAddressDTO>>   rpcResult = backAddressInfoApi.queryBackAddressByType(backType, busiCode, null, null);
+			if(rpcResult != null
+					&& ResponseStatus.SUCCESS.equals(rpcResult.getStatus())){
+				result.setData(rpcResult.getResult());
+				result.toSuccess();
+			}else{
+				log.warn("调用ldop获取退货地址接口失败！return:{}",JsonHelper.toJson(rpcResult));
+				result.toFail("调用ldop获取退货地址接口失败！");
+			}
+		} catch (Exception e) {
+			log.error("调用ldop获取退货地址接口异常！",e);
+			result.toError("调用ldop获取退货地址接口异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return result;
+	}
     /**
      * 记录日志
      *
@@ -482,5 +529,41 @@ public class LDOPManagerImpl implements LDOPManager {
             log.error("逆向换单：cassandra操作日志记录失败：" ,e);
         }
     }
+
+	@Override
+	public BackAddressDTOExt getBackAddressDTOExt(BackAddressDTO backAddress) {
+    	BackAddressDTOExt addressData = new BackAddressDTOExt();
+    	if(backAddress != null){
+    		String fullBackAddress = "";
+    		if(backAddress.getProvinceId() != null){
+    			Assort provinceInfo = baseService.getOneAssortById(backAddress.getProvinceId());
+    			if(provinceInfo != null && provinceInfo.getAssDis() != null){
+    				fullBackAddress += provinceInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getCityId() != null){
+    			Assort cityInfo = baseService.getOneAssortById(backAddress.getCityId());
+    			if(cityInfo != null && cityInfo.getAssDis() != null){
+    				fullBackAddress += cityInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getAreaId() != null){
+    			Assort areaInfo = baseService.getOneAssortById(backAddress.getAreaId());
+    			if(areaInfo != null && areaInfo.getAssDis() != null){
+    				fullBackAddress += areaInfo.getAssDis();
+    			}
+    		}
+    		if(backAddress.getBackAddress() != null){
+    			fullBackAddress += backAddress.getBackAddress();
+    		}
+    		addressData.setFullBackAddress(fullBackAddress);
+    		addressData.setBackAddress(backAddress.getBackAddress());
+    		addressData.setContractMobile(backAddress.getContractMobile());
+    		addressData.setContractPhone(backAddress.getContractPhone());
+    		addressData.setContractName(backAddress.getContractName());
+    		return addressData;
+    	}
+    	return null;
+	}
 
 }

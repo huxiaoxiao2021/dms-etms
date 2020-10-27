@@ -1,5 +1,32 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -8,20 +35,35 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.SpareRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.printOnline.service.IPrintOnlineService;
 import com.jd.bluedragon.distribution.product.domain.Product;
-import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.distribution.reverse.domain.GuestBackSubTypeEnum;
+import com.jd.bluedragon.distribution.reverse.domain.MovingWarehouseInnerWaybill;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMCS;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToCLPS;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailStatusEnum;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailTypeEnum;
+import com.jd.bluedragon.distribution.reverse.domain.WaybillOrderCodeDto;
+import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -37,10 +79,20 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
@@ -61,24 +113,6 @@ import com.jd.staig.receiver.rpc.Result;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -173,9 +207,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private IPrintOnlineService printOnlineService;
+    
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
     private ReverseStockInDetailService reverseStockInDetailService;
+    @Autowired
+    AbnormalWayBillService abnormalWayBillService;
 
     // 自营
     public static final Integer businessTypeONE = 10;
@@ -856,6 +895,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * 获取回传运单信息
      * 并初始化病单标识
      * 初始化加履中心订单标识
+     * 设置退库类型标识
      *
      * @param wayBillCode  原单号
      * @param tWayBillCode 逆向单号
@@ -910,12 +950,55 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
             send.setOrderId(send.getBusiOrderCode());
         }
+        //组装退仓类型
+        GuestBackSubTypeEnum reverseSubType = getGuestBackSubType(send,wayBillCode,tWayBillCode);
+        if(reverseSubType !=null){
+        	send.setGuestBackType(reverseSubType.getParentCode());
+        }
         if (log.isInfoEnabled()) {
             log.info("2:构建ReverseSendWms对象结果:{}", JSON.toJSONString(send));
         }
         return send;
     }
-
+    /**
+     * 组装退仓类型
+     * @param reverseSendWms
+     * @param waybillCode
+     * @param tWaybillCode
+     * @return
+     */
+    public GuestBackSubTypeEnum getGuestBackSubType(ReverseSendWms reverseSendWms,String waybillCode,String tWaybillCode){
+        //判断是否病单
+        if(reverseSendWms.isSickWaybill()){
+        	return GuestBackSubTypeEnum.SICK_01;
+        }
+    	//判断拒收
+    	boolean isRejected = waybillTraceManager.isWaybillRejected(waybillCode);
+    	if(isRejected){
+    		return GuestBackSubTypeEnum.CUSTOMER_01;
+    	}
+    	//判断是否拦截
+    	Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(waybillCode);
+    	if(featureType != null){
+    		return GuestBackSubTypeEnum.CUSTOMER_02;
+    	}
+    	//预售类型单子，单独处理
+    	if(BusinessUtil.isPreSell(reverseSendWms.getSendPay())){
+    		//1、预售未付款
+    		if(BusinessUtil.isPreSellWithNoPay(reverseSendWms.getSendPay())){
+    			return GuestBackSubTypeEnum.PRE_SELL_01;
+    		}
+    		//2、异常提交原因是24-预售未付全款
+    		AbnormalWayBill abnormalWayBill = abnormalWayBillService.queryAbnormalWayBillByWayBillCode(waybillCode);
+    		if(abnormalWayBill != null
+    				&& DmsConstants.QC_TYPE.equals(abnormalWayBill.getQcType())
+    				&& abnormalWayBill.getQcName() != null
+    				&& abnormalWayBill.getQcName().startsWith(DmsConstants.QC_TYPE_PRE_SELL_CODE_PRE)){
+    			return GuestBackSubTypeEnum.PRE_SELL_01;
+    		}
+    	}
+        return GuestBackSubTypeEnum.CUSTOMER_03;
+    }
     /**
      * 移动仓内配单发货消息推送到WMS
      *
@@ -1909,6 +1992,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             } else {
                 log.warn("通过运单getWaybillState接口获取到的信息为空！");
             }
+            //eclp报文新增guestBackType字段
+            sendmodel.setGuestBackType(send.getGuestBackType());
             //end
 
             String jsonStr = JsonHelper.toJson(sendmodel);

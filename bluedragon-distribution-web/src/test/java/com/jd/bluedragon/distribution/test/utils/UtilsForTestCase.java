@@ -19,4 +19,25 @@ public class UtilsForTestCase {
     	}
     	return new String(chars);
     }
+	/**
+	 * 给字符串打标
+	 * @param 字符串 
+	 * @param position 打标位
+	 * @param signChar 打标值
+	 * @return
+	 */
+    public static String markSignChar(String str, int position ,char signChar){
+    	if(str != null){
+    		if(str.length() >= position){
+    			char[] chars = str.toCharArray();
+    			chars[position-1] = signChar;
+    			return new String(chars);
+    		}else{
+    			int addLength = position-str.length();
+    			return str+getSignString(addLength,addLength,signChar);
+    		}
+    	}else{
+    		return getSignString(position,position,signChar);
+    	}
+    }
 }

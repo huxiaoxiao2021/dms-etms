@@ -8,20 +8,28 @@ import java.util.Map;
  * @date 2020/3/18 22:39
  */
 public enum DimensionEnum {
-    PERSON(1,"个人"),
-    SITE(2,"场地");
+    PERSON(1,"个人","ALL_MAIL_CACHE_KEY_ONE_"),
+    SITE(2,"场地","ALL_MAIL_CACHE_KEY_"),
+    NATIONAL(3,"全国","ALL_MAIL_CACHE_KEY_ALL_COUNTRY");
 
     private int code;
     private String name;
+    private String cachePreKey;
 
-    private static Map<Integer, DimensionEnum> codeMap;
+    public static Map<Integer, DimensionEnum> codeMap;
+    public static Map<Integer, String> dimensionEnumMap;
+    public static Map<Integer,String> cacheKeyEnumMap;
 
     static {
         //将所有枚举装载到map中
         codeMap = new HashMap<Integer, DimensionEnum>();
+        dimensionEnumMap = new HashMap<Integer, String>();
+        cacheKeyEnumMap = new HashMap<Integer, String>();
 
         for (DimensionEnum _enum : DimensionEnum.values()) {
             codeMap.put(_enum.getCode(), _enum);
+            dimensionEnumMap.put(_enum.getCode(),_enum.getName());
+            cacheKeyEnumMap.put(_enum.getCode(),_enum.getCachePreKey());
         }
     }
 
@@ -32,9 +40,10 @@ public enum DimensionEnum {
         return codeMap.get(code);
     }
 
-    DimensionEnum(int code, String name) {
+    DimensionEnum(int code, String name,String cachePreKey) {
         this.code = code;
         this.name = name;
+        this.cachePreKey=cachePreKey;
     }
 
     public int getCode() {
@@ -43,5 +52,13 @@ public enum DimensionEnum {
 
     public String getName() {
         return name;
+    }
+
+    public String getCachePreKey() {
+        return cachePreKey;
+    }
+
+    public void setCachePreKey(String cachePreKey) {
+        this.cachePreKey = cachePreKey;
     }
 }

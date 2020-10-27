@@ -382,6 +382,20 @@
 			</if>
 		</where>
 	</select>
+
+	<select id="querySendCodeBySelective" parameterType="SendM" resultType="String">
+		select
+		send_code
+		from send_m
+		<where>
+			yn = 1
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			<if test="boxCode!=null">
+				and box_code = #{boxCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		LIMIT 1
+	</select>
 	 
 	 <update id="cancelSendM" parameterType="SendM">
 		update send_m

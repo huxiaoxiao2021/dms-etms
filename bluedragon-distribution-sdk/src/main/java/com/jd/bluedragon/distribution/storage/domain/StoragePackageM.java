@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.storage.domain;
 
-import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+
+import java.util.Date;
 
 /**
  *
@@ -56,6 +57,15 @@ public class StoragePackageM extends DbEntity {
 
 	 /** 更新人 */
 	private String updateUser;
+
+    /** 来源 1、金鹏暂存 2、快运暂存 */
+    private Integer source;
+
+    /** 全部上架完成时间 */
+    private Date putAwayCompleteTime;
+
+    /** 全部下架完成时间 */
+    private Date downAwayCompleteTime;
 
 	/**
 	 * The set method for performanceCode.
@@ -264,4 +274,28 @@ public class StoragePackageM extends DbEntity {
 	public void setCreateSiteName(String createSiteName) {
 		this.createSiteName = createSiteName;
 	}
+
+    public Integer getSource() {
+        return source;
+    }
+
+    public void setSource(Integer source) {
+        this.source = source;
+    }
+
+    public Date getPutAwayCompleteTime() {
+        return putAwayCompleteTime;
+    }
+
+    public void setPutAwayCompleteTime(Date putAwayCompleteTime) {
+        this.putAwayCompleteTime = putAwayCompleteTime;
+    }
+
+    public Date getDownAwayCompleteTime() {
+        return downAwayCompleteTime;
+    }
+
+    public void setDownAwayCompleteTime(Date downAwayCompleteTime) {
+        this.downAwayCompleteTime = downAwayCompleteTime;
+    }
 }

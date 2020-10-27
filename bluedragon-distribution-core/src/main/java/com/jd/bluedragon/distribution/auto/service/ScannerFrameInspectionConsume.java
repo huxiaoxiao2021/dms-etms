@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -41,6 +42,11 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         inspection.setOperateTime(DateHelper.formatDateTime(uploadData.getScannerTime()));
         inspection.setBusinessType(businessType);
         inspection.setPackageBarOrWaybillCode(uploadData.getBarCode());
+        if (uploadData.getSource() != null && uploadData.getSource() == 2) {
+            inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+        } else {
+            inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_GANTRY_INSPECTION.getCode());
+        }
 
         TaskRequest request=new TaskRequest();
         request.setBusinessType(businessType);

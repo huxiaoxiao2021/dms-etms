@@ -23,7 +23,6 @@ public interface LabelPrintingService {
     String PREPARE_SITE_NAME_EMS_DIRECT = "EMS全国直发";
 
     String SPECIAL_MARK_AIRTRANSPORT ="航";
-    String SPECIAL_MARK_SENIOR ="尊";
     String SPECIAL_MARK_ARAYACAK_CABINET = "柜";
     String SPECIAL_MARK_LOCAL_SCHEDULE = "调";
     String SPECIAL_MARK_ARAYACAK_SITE = "提";

@@ -142,6 +142,16 @@ public interface DeliveryService {
     ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ);
 
     /**
+     * 取消发货校验封车业务
+     * 1、已解封车不允许取消发货
+     * 2、封车超过一小时不允许取消发货
+     * 3、取消发货后批次内货物不允许为空
+     * @param tSendM
+     * @return
+     */
+    DeliveryResponse dellCancelDeliveryCheckSealCar(SendM tSendM);
+
+    /**
      * 生成发货数据处理
      *
      * @param source    发货源
@@ -417,4 +427,18 @@ public interface DeliveryService {
      * @return
      */
     List<String> getWaybillCodesByBoxCodeAndFetchNum(String boxCode, Integer fetchNum);
+
+    /**
+     * 校验批次创建时间
+     * @param sendCode
+     * @return
+     */
+    boolean checkSendCodeIsOld(String sendCode);
+
+    /**
+     * 校验批次是否封车
+     * @param sendCode
+     * @return
+     */
+    boolean checkSendCodeIsSealed(String sendCode);
 }

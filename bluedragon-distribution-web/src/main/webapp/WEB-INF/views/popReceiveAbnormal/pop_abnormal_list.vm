@@ -9,6 +9,10 @@
 <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jd/jd.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery.md5.js')"></script>
+<script type="text/javascript" src="#springUrl('/static/js/utils/clickFrequency.js')"></script>
 </head>
 
 <script type="text/javascript">
@@ -114,7 +118,12 @@ $(document).ready(function() {
 		$("#pageNo").val("");
 		$("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/list")');
 		$("#selectPopList").attr("method", "GET");
-		$("#selectPopList").submit();
+
+        let clickStrict = ClickFrequencyUtil.controlClick($('#selectPopList'), $('#search'))
+        if (!clickStrict) {
+
+            $("#selectPopList").submit();
+        }
 	});
 	// 进入反馈页面
 	$("#insertPop").click(function() {
@@ -405,5 +414,18 @@ function cancel(abnormalId) {
   </div>
   <!--opening end-->
 </div>
+<script type="text/javascript">
+    var jaq = jaq || [];
+    jaq.push(['account', 'JA2016_112453']);
+    jaq.push(['domain', 'dms.etms.jd.com']);
+    (function () {
+        var ja = document.createElement('script');
+        ja.type = 'text/javascript';
+        ja.async = true;
+        ja.src = '//wl.jd.com/joya.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ja, s);
+    })()
+</script>
 </body>
 </html>

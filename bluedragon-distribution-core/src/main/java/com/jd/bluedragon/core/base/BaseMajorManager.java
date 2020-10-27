@@ -8,6 +8,7 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 
@@ -158,4 +159,11 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfoById(Integer merchantId);
+
+    /**
+     * 更新网点基本属性
+     * @param baseStaffSiteDTO
+     * @return
+     */
+    boolean updateBaseSiteBasicProperty(BaseStaffSiteDTO baseStaffSiteDTO);
 }

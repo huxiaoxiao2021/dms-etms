@@ -5,8 +5,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import java.util.*;
-
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
@@ -27,10 +25,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.distribution.half.domain.PackageHalf;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -49,20 +43,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.common.Result;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.handler.WaybillSyncParameter;
-import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -831,6 +811,27 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				task.setYn(0);
 			}
+            /**
+             * 快运暂存
+             */
+            if (null != task.getKeyword2() &&
+                    (String.valueOf(WaybillStatus.WAYBILL_STATUS_STORAGE_KYZC).equals(task.getKeyword2()))) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
+            /**
+             * 企配仓订单发上架全流程跟踪
+             */
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY).equals(task.getKeyword2())) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
 		}
 
 

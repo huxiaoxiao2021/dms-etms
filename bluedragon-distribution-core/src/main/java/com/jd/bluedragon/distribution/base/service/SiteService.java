@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -60,6 +61,12 @@ public interface SiteService {
 	 * @return
 	 */
 	public Set<Integer> getBoxFromSSCAllowedList();
+
+	/**
+	 * 从sysconfig表里查出来需要通过DMS生产箱号的分拣中心列表
+	 * @return
+	 */
+	public Set<Integer> getBoxFromDMSAllowedList();
 	/**
 	 * 根据省id获取分拣中心
 	 * @param provinceId
@@ -113,5 +120,21 @@ public interface SiteService {
 	 * @param siteName 站点名称
 	 * @return
 	 */
-	public List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
+	List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
+
+
+	Site get(Integer siteCode);
+
+	Site getNoCache(Integer siteCode);
+	/*
+	* 获取返调度站点
+	* */
+	Integer getLastScheduleSite(String packageCode);
+
+	/**
+	 * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+	 * @param dmsCode
+	 * @return
+	 */
+	String getDmsShortNameByCode(Integer dmsCode);
 }

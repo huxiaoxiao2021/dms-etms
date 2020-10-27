@@ -67,6 +67,14 @@
 		)
 	</insert>
 
+    <select id="getByPrimaryKey" resultMap="notice" parameterType="Long">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice
+        WHERE is_delete = 0
+        AND id = #{id}
+    </select>
+
     <select id="getByParam" resultMap="notice" parameterType="java.util.Map">
         SELECT
         <include refid="Base_Column_List"/>
@@ -76,6 +84,48 @@
         ORDER BY is_top_display desc, create_time desc
         <if test="limit != null">
             LIMIT #{limit}
+        </if>
+    </select>
+
+    <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT count(1)
+        FROM notice
+        WHERE is_delete = 0
+        <if test="title != null and title != ''">
+            and theme like concat(#{title}, '%')
+        </if>
+        <if test="type != null and type != ''">
+            and type = #{type}
+        </if>
+        <if test="level != null and level != ''">
+            and level = #{level}
+        </if>
+        <if test="isDisplay != null">
+            and is_display = #{isDisplay}
+        </if>
+        ORDER BY is_top_display desc, create_time desc
+    </select>
+
+    <select id="queryList" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice
+        WHERE is_delete = 0
+        <if test="title != null and title != ''">
+            and theme like concat(#{title}, '%')
+        </if>
+        <if test="type != null and type != ''">
+            and type = #{type}
+        </if>
+        <if test="level != null and level != ''">
+            and level = #{level}
+        </if>
+        <if test="isDisplay != null">
+            and is_display = #{isDisplay}
+        </if>
+        ORDER BY is_top_display desc, create_time desc
+        <if test="offset != null and offset >= 0">
+            LIMIT #{offset}, #{limit}
         </if>
     </select>
 
@@ -93,6 +143,50 @@
         <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="Notice">
+        UPDATE notice
+        SET
+        is_delete = 1,
+        <if test="updateUser != null">
+            update_user = #{updateUser},
+        </if>
+        update_time = NOW()
+        WHERE
+        is_delete = 0
+        AND id = #{id}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="Notice">
+        UPDATE notice
+        <set>
+            <if test="theme != null and theme != ''">
+                theme = #{theme},
+            </if>
+            <if test="type != null and type != ''">
+                type = #{type},
+            </if>
+            <if test="level != null and level != ''">
+                level = #{level},
+            </if>
+            <if test="isDisplay != null">
+                is_display = #{isDisplay},
+            </if>
+            <if test="isTopDisplay != null">
+                is_top_display = #{isTopDisplay},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE
+        is_delete = 0
+        AND id = #{id}
     </update>
 
 </mapper>	

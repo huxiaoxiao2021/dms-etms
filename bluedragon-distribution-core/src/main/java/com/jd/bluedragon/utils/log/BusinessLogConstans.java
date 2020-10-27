@@ -1,5 +1,8 @@
 package com.jd.bluedragon.utils.log;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * business.log.jd.com 记录日志使用的系统编码，业务类型，操作类型 枚举类
  * 配置指引：https://cf.jd.com/pages/viewpage.action?pageId=146201361
@@ -74,7 +77,13 @@ public class BusinessLogConstans {
         REVERSE_SPARE(SourceSys.DMS_OPERATE,2019,"备件库"),
         LOAD_CAN(SourceSys.DMS_OPERATE,2013,"装载"),
         AFTER_SALE(SourceSys.DMS_OPERATE,2014,"售后"),
-        OTHER_OTHER(SourceSys.DMS_OPERATE,2015,"其他");
+        OTHER_OTHER(SourceSys.DMS_OPERATE,2015,"其他"),
+        //金鹏业务
+        EDN_BUSINESS(SourceSys.DMS_OPERATE,2016,"企配仓业务"),
+
+        ECONOMIC_NET(SourceSys.DMS_OPERATE,2017,"经济网业务"),
+
+        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务");
 
         /**
          * 所属系统；
@@ -136,6 +145,7 @@ public class BusinessLogConstans {
         OUTER_WAYBILL_EXCHANGE_WAYBILL(BizTypeEnum.OUTER_WAYBILL_EXCHANGE,1900002,"触发外单换单"),
         TASK_CONSUME_FAIL(BizTypeEnum.TASK,20062,"消费失败落库"),
         TASK_REDIS_TASK(BizTypeEnum.TASK,20063,"Redis任务数据处理"),
+        CONSUMABLE_RECORD_CONSUME_FAIL(BizTypeEnum.TASK,20064,"B网包装耗材消费失败"),
 
         SORTING_CANCEL_SORTING(BizTypeEnum.SORTING,60017,"取消分拣"),
         SORTING_SORTING(BizTypeEnum.SORTING,60016,"分拣"),
@@ -160,6 +170,7 @@ public class BusinessLogConstans {
 
         SEAL_SEAL(BizTypeEnum.SEAL,1011,"封车"),
         SEAL_FERRY_SEAL(BizTypeEnum.SEAL,1014,"传摆封车"),
+        ONE_CLICK_SEAL_FERRY_SEAL(BizTypeEnum.SEAL,1015,"一键传摆封车"),
         SEAL_OFFLINE_SEAL(BizTypeEnum.SEAL,101104,"离线封车"),
 
         DE_SEAL_DE_SEAL(BizTypeEnum.DE_SEAL,1012,"解封车"),
@@ -199,7 +210,16 @@ public class BusinessLogConstans {
         RECEIVE_POP_RECEIVE(BizTypeEnum.RECEIVE,20086,"pop上门接货"),
         RECEIVE_POP_RECEIVE_OFFLINE(BizTypeEnum.RECEIVE,20088,"离线pop上门接货"),
         OTHER_OTHER(BizTypeEnum.OTHER_OTHER,20151,"其他"),
-        OTHER_OTHER_OFFLINE(BizTypeEnum.OTHER_OTHER,20152,"离线其他");
+        OTHER_OTHER_OFFLINE(BizTypeEnum.OTHER_OTHER,20152,"离线其他"),
+        
+        EDN_PRINT_PICKING_LIST(BizTypeEnum.EDN_BUSINESS,20161,"打印拣货单"),
+        EDN_PRINT_DELIVERY_RECEIPT(BizTypeEnum.EDN_BUSINESS,20162,"打印配送单"),
+
+        ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.ECONOMIC_NET,20171,"经济网推送箱号"),
+
+        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除");
+
+        private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**
          * 业务类型编码；
          */
@@ -217,7 +237,22 @@ public class BusinessLogConstans {
             this.code = code;
             this.text = text;
         }
-
+        /**
+         * 初始化map
+         */
+        static{
+        	for(OperateTypeEnum  item : OperateTypeEnum.values()){
+        		CODE_MAPPING.put(item.code, item);
+        	}
+        }
+        /**
+         * 根据code获取枚举值
+         * @param code
+         * @return
+         */
+        public static OperateTypeEnum toEnum(int enumCode){
+        	return CODE_MAPPING.get(enumCode);
+        }
         public BizTypeEnum getBizType() {
             return bizType;
         }

@@ -4,9 +4,11 @@ import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.api.domain.TemporaryPackageTemplate;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.print.domain.LabelTemplate;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +24,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 
     @Autowired
     SysConfigService sysConfigService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 获取站点对应的模板名
@@ -47,13 +51,24 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 PackageTemplate packageTemplate = JsonHelper.fromJson(content, PackageTemplate.class);
                 //如果没有测试模板的信息则返回正式模板
                 if (packageTemplate !=null){
-                	if(packageTemplate.getTemporaryTemplate() != null 
+                	if(siteCode != null
+                		&& packageTemplate.getTemporaryTemplate() != null 
                 		&& !packageTemplate.getTemporaryTemplate().isEmpty()) {
 	                    //能够查到测试模板的信息，则循环测试模板，获取匹配的模板
 	                    List<TemporaryPackageTemplate> temporaryTemplateList = packageTemplate.getTemporaryTemplate();
 	                    for (TemporaryPackageTemplate template : temporaryTemplateList) {
-	                        if (template.getSiteCodeList() != null && template.getSiteCodeList().size() > 0 &&
-	                                template.getSiteCodeList().contains(siteCode)) {
+	                    	//判断是否限制运行环境
+	                    	boolean runningModeEnable = Boolean.TRUE.equals(template.getAllRunningModeEnable());
+	                        if(!runningModeEnable 
+	                        		&& template.getRunningModeList() != null 
+	                        		&& template.getRunningModeList().size() > 0
+	                        		&& template.getRunningModeList().contains(userService.getServerRunningMode())){
+	                        	runningModeEnable = true;
+	                        }
+	                    	if (runningModeEnable
+	                    			&& template.getSiteCodeList() != null 
+	                    			&& template.getSiteCodeList().size() > 0 
+									&& template.getSiteCodeList().contains(siteCode)) {
 	                            //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
 	                            matchedTemplate.setTemplateName(template.getTemporaryTemplateName());
 	                            matchedTemplate.setTemplateVersion(template.getTemporaryTemplateVersion());

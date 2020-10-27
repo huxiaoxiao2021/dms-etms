@@ -122,8 +122,18 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             return result;
         }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
-        log.info("查询包裹信息结果：{}", commandResult);
         JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
+        if(jdResult == null){
+            result.toFail("获取打印数据为空！");
+            return result;
+        }
+        //调用不成功，返回相应的信息
+        if(!jdResult.isSucceed()){
+            result.setCode(jdResult.getCode());
+            result.setMessageCode(jdResult.getMessageCode());
+            result.setMessage(jdResult.getMessage());
+            return result;
+        }
         String data = JSONObject.parseObject(commandResult).getString("data");
         Map map = JsonHelper.json2MapNormal(data);
 
@@ -229,17 +239,21 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      * @return
      */
     private void filterData(Map<String, Object> data, String packageCode){
-
-        List<PrintPackage> printPackages = Arrays.asList(JsonHelper.jsonToArray(JsonHelper.toJson(data.get("packList")), PrintPackage[].class));
-
-        for(PrintPackage printPackage: printPackages){
-            if(packageCode.equals(printPackage.getPackageCode())){
-                List<PrintPackage> temp = new ArrayList<PrintPackage>();
-                temp.add(printPackage);
-                data.put("packList", temp);
-                break;
-            }
-        }
+    	//增加null判断
+    	Object packList = data.get("packList");
+    	if(packList != null){
+	        List<PrintPackage> printPackages = Arrays.asList(JsonHelper.jsonToArray(JsonHelper.toJson(packList), PrintPackage[].class));
+	        if(printPackages != null ){
+		        for(PrintPackage printPackage: printPackages){
+		            if(packageCode.equals(printPackage.getPackageCode())){
+		                List<PrintPackage> temp = new ArrayList<PrintPackage>();
+		                temp.add(printPackage);
+		                data.put("packList", temp);
+		                break;
+		            }
+		        }
+	        }
+    	}
     }
     /**
      * 校验基本传入参数和权限

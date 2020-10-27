@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.storageputaway.request.StoragePutawayRequest;
+import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 
 import java.util.List;
 
@@ -17,6 +18,10 @@ public interface StoragePutawayGatewayService {
     JdCResponse<List<String>> getStorageInfo(Integer siteCode);
 
     JdCResponse<Boolean> checkStorage(Integer siteCode, String storageCode);
+
+    JdCResponse<Boolean> checkIsNeedStorage(String barCode, Integer siteCode);
+
+    JdCResponse<StorageCheckDto> storageTempCheck(String barCode, Integer siteCode);
 
     JdCResponse<Boolean> putaway(StoragePutawayRequest request);
 

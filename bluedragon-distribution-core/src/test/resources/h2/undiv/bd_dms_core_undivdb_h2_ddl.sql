@@ -1951,3 +1951,105 @@ CREATE TABLE `code_check_record` (
   KEY `IDX_OPERATE_SITE_CODE` (`OPERATE_SITE_CODE`),
   KEY `IDX_BUSI_CODE` (`BUSI_CODE`)
 ) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='单号校验记录表';
+
+--
+-- Table structure for table `waybill_consumable_record`
+--
+
+DROP TABLE IF EXISTS `waybill_consumable_record`;
+
+CREATE TABLE `waybill_consumable_record` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
+  `dms_id` int(11) NOT NULL COMMENT '分拣中心编号',
+  `dms_name` varchar(64) NOT NULL COMMENT '分拣中心名称',
+  `waybill_code` varchar(32) NOT NULL COMMENT '运单号',
+  `confirm_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '确认状态（0：未确认 1：已确认）',
+  `modify_status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '修改状态（0：未修改 1：已修改）',
+  `receive_user_code` varchar(64) DEFAULT '' COMMENT '揽收人编号',
+  `receive_user_erp` varchar(64) DEFAULT '' COMMENT '揽收人erp',
+  `receive_user_name` varchar(64) DEFAULT NULL,
+  `confirm_user_name` varchar(64) DEFAULT '' COMMENT '确认人编号',
+  `confirm_user_erp` varchar(64) DEFAULT '' COMMENT '确认人erp',
+  `receive_time` datetime DEFAULT NULL COMMENT '揽收时间',
+  `confirm_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `create_time` datetime DEFAULT NULL COMMENT '确认时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT '删除标识',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`id`),
+  KEY `IND_DMS_ID` (`dms_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=458 DEFAULT CHARSET=utf8 COMMENT='运单耗材记录表';
+
+
+DROP TABLE IF EXISTS `unload_car`;
+CREATE TABLE `unload_car` (
+  `unload_car_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '卸车任务主键ID',
+  `seal_car_code` varchar(32) NOT NULL COMMENT '封车编码',
+  `start_site_code` bigint(20) NOT NULL COMMENT '上游机构ID',
+  `start_site_name` varchar(64) DEFAULT NULL COMMENT '上游机构名称',
+  `end_site_code` bigint(20) NOT NULL COMMENT '下游机构ID',
+  `end_site_name` varchar(64) DEFAULT NULL COMMENT '下游机构名称',
+  `seal_time` datetime DEFAULT NULL COMMENT '封车时间',
+  `seal_code` varchar(200) DEFAULT NULL COMMENT '封车号',
+  `batch_code` varchar(400) DEFAULT NULL COMMENT '批次号',
+  `railWay_platForm` varchar(20) DEFAULT NULL COMMENT '月台号',
+  `waybill_num` bigint(10) NOT NULL DEFAULT '0' COMMENT '运单数量',
+  `package_num` bigint(10) NOT NULL DEFAULT '0' COMMENT '包裹数量',
+  `unload_user_erp` varchar(32) DEFAULT NULL COMMENT '卸车人ERP',
+  `unload_user_name` varchar(32) DEFAULT NULL COMMENT '卸车人名称',
+  `distribute_time` datetime DEFAULT NULL COMMENT '分配时间',
+  `update_user_erp` varchar(32) DEFAULT NULL COMMENT '更新人ERP',
+  `update_user_name` varchar(32) DEFAULT NULL COMMENT '更新人名称',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `operate_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '卸车任务状态：0-未分配，1-已开始，2-已完结',
+  `vehicle_number` varchar(32) DEFAULT NULL COMMENT '车牌号',
+  `operate_user_erp` varchar(32) DEFAULT NULL COMMENT '操作人ERP',
+  `operate_user_name` varchar(32) DEFAULT NULL COMMENT '操作人姓名',
+  `yn` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-有效，0-删除',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`unload_car_id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='卸车任务表';
+DROP TABLE IF EXISTS `unload_car_distribute`;
+CREATE TABLE `unload_car_distribute` (
+  `unload_distribute_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '卸车人主键ID',
+  `seal_car_code` varchar(32) NOT NULL COMMENT '封车编码',
+  `unload_user_erp` varchar(32) NOT NULL COMMENT '卸车人ERP',
+  `unload_user_name` varchar(32) DEFAULT NULL COMMENT '卸车人名称',
+  `unload_user_type` tinyint(1) DEFAULT NULL COMMENT '卸车人类型：0-负责人，1-协助人',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `yn` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-有效，0-删除',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`unload_distribute_id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='卸车任务与卸车人关系表';
+DROP TABLE IF EXISTS `unload_car_board`;
+CREATE TABLE `unload_car_board` (
+  `unload_board_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '卸车任务板关系主键ID',
+  `seal_car_code` varchar(32) NOT NULL COMMENT '封车编码',
+  `board_code` varchar(32) NOT NULL COMMENT '组板号',
+  `package_scan_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '已扫包裹数',
+  `surplus_package_scan_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '多货包裹数',
+  `operate_time` datetime NOT NULL COMMENT '操作时间',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `yn` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否删除：1-有效，0-删除',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`unload_board_id`)
+) ENGINE = INNODB AUTO_INCREMENT = 1 DEFAULT CHARSET = utf8  COMMENT='卸车任务与板关系表';
+
+CREATE TABLE `box_limit_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `site_name` varchar(50) DEFAULT NULL COMMENT '站点名称',
+  `site_id` int(11) DEFAULT NULL COMMENT '站点ID',
+  `limit_num` int(11) DEFAULT NULL COMMENT '建箱包裹数上限',
+  `operator_erp` varchar(50) DEFAULT NULL COMMENT '操作人ERP',
+  `operator_site_id` int(11) DEFAULT NULL COMMENT '操作人所在站点ID',
+  `operator_site_name` varchar(50) DEFAULT NULL COMMENT '操作人所在站点名称',
+  `operating_time` datetime DEFAULT NULL COMMENT '操作时间',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `yn` tinyint(1) DEFAULT NULL COMMENT '记录是否有效：0-无效，已删除 1-有效',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='PDA建箱包裹数配置表';

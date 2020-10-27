@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -592,7 +593,7 @@ public class BusinessHelper {
             return false;
         }
         return !BusinessUtil.isSignChar(sendPay, 275, '0')
-                && BusinessUtil.isSignInChars(sendPay, 265, '3','5');
+                && BusinessUtil.isSignInChars(sendPay, 269, '3','5');
     }
 
     /**
@@ -616,5 +617,222 @@ public class BusinessHelper {
             return false;
         }
         return BusinessUtil.isSignChar(waybillSign, 24, '8');
+    }
+
+
+    /**
+     * 检查分拣自己存储的运单的数据是否完整。如果有关键字段为空则返回true,正常情况返回false.
+     * 普通运单检查机构ID、站点编码、站点编号、支付类型、特殊属性、重量;POP(23&&25)还检查数量、商家ID、商家名称.
+     *
+     * @param waybillCache
+     * @return boolean
+     */
+    public static boolean isInvalidCacheWaybill(WaybillCache waybillCache) {
+        if (waybillCache == null) {
+            return true;
+        }
+        Integer type = waybillCache.getType();
+        boolean isPop = false;
+
+        if (type != null && (type.equals(Constants.POP_FBP) || type.equals(Constants.POP_SOPL))) {
+            isPop = true;
+        }
+
+        Integer orgId = waybillCache.getOrgId();
+        Integer siteCode = waybillCache.getSiteCode();
+        Integer paymentType = waybillCache.getPaymentType();
+        String sendPay = waybillCache.getSendPay();
+        Double weight = waybillCache.getWeight();
+        if (orgId == null || siteCode == null || siteCode == 0 || sendPay == null || sendPay.trim().length() == 0
+                || paymentType == null || weight == null) {
+            return true;
+        }
+
+        if (isPop) {
+            Integer quantity = waybillCache.getQuantity();
+            Integer popSupId = waybillCache.getPopSupId();
+            String popSupName = waybillCache.getPopSupName();
+            if (quantity == null || popSupId == null || popSupName == null || popSupName.trim().length() == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 是否验证运单数据包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时， 返回true
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCheckFreightForB2b(String waybillSign) {
+        if (StringHelper.isNotEmpty(waybillSign)) {
+            //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
+            if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
+                    && BusinessUtil.isSignChar(waybillSign, 25, '2')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否验证运单数据包含-寄付运费，WaybillSign62=1，且WaybillSign25=3时， 返回true
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCheckSendFreightForB2b(String waybillSign) {
+        if (StringHelper.isNotEmpty(waybillSign)) {
+            //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
+            if (BusinessUtil.isSignChar(waybillSign, 62, '1')
+                    && BusinessUtil.isSignChar(waybillSign, 25, '3')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 根据站点类型校验是否是仓
+     * @param siteType
+     * @return
+     */
+    public static boolean isWMSBySiteType(Integer siteType){
+        if(siteType == null){
+            return false;
+        }
+        return(new Integer(900).equals(siteType));
+    }
+
+    /**
+     * 分离B网和C网判断称重范围逻辑
+     *
+     * @param waybillSign
+     * @param switchOn    此开关控制C网是否需要校验
+     * @return
+     */
+    public static boolean isValidateWeightVolume(String waybillSign, boolean switchOn) {
+        //逆向不拦截
+        if(!BusinessUtil.isSignChar(waybillSign, 61, '0')){
+            return false;
+        }
+        //added by hanjiaxing3 2018.07.26
+        //40位非0（即C网以外）并且66位为1（不必须称重），不需要称重量方拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 40, '0') && BusinessUtil.isNoNeedWeight(waybillSign)) {
+            return false;
+        }
+        //end
+
+        //edited by hanjiaxing3 2019.04.13 临时欠款运单也需要称重拦截
+        if (BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isTemporaryArrearsWaybill(waybillSign)) {
+            return true;
+        }
+
+        if (switchOn && BusinessUtil.isSignChar(waybillSign, 40, '0')) {
+            return isValidateWeightVolume(waybillSign);
+        }
+
+        return false;
+    }
+
+    /**
+     * 是否满足 C网漏称重量方的校验 条件
+     */
+    public static boolean isValidateWeightVolume(String waybillSign) {
+        //纯配校验2  仓配1 不校验
+        if (!BusinessUtil.isSignChar(waybillSign, 53, '2')) {
+            return false;
+        }
+        //退货取件  不校验
+        if (!BusinessUtil.isSignChar(waybillSign, 17, '0')) {
+            return false;
+        }
+        //RMA1 订单不校验 其他校验
+        if (!(BusinessUtil.isSignChar(waybillSign, 32, '0')
+                || BusinessUtil.isSignChar(waybillSign, 32, '2')
+                || BusinessUtil.isSignChar(waybillSign, 32, 'K')
+                || BusinessUtil.isSignChar(waybillSign, 32, 'Y'))) {
+            return false;
+        }
+        //站点打印电子发票运单2  不校验 其他校验
+        if (!(BusinessUtil.isSignChar(waybillSign, 24, '0')
+                || BusinessUtil.isSignChar(waybillSign, 24, '1')
+                || BusinessUtil.isSignChar(waybillSign, 24, '3'))) {
+            return false;
+        }
+        //信任商家1 不校验  其他校验
+        if (!(BusinessUtil.isSignChar(waybillSign, 56, '0')
+                || BusinessUtil.isSignChar(waybillSign, 56, '2')
+                || BusinessUtil.isSignChar(waybillSign, 56, '3'))) {
+            return false;
+        }
+        // 1、 京东自营订单
+        //2、 SOP订单
+        //3、 纯外单
+        //4、 售后绑定的面单
+        //5、 和易迅对接的外单
+        //6、 O2O订单
+        //7、返单（妥投后新生成F单）
+        //8、站点移动仓逆向面单
+        //9、拍拍订单
+        //K、开普勒订单
+        //T、逆向换单（T单）
+        //Y、一号店
+        if (!(BusinessUtil.isSignChar(waybillSign, 1, '2')
+                || BusinessUtil.isSignChar(waybillSign, 1, '3')
+                || BusinessUtil.isSignChar(waybillSign, 1, '5')
+                || BusinessUtil.isSignChar(waybillSign, 1, '6')
+                || BusinessUtil.isSignChar(waybillSign, 1, '9')
+                || BusinessUtil.isSignChar(waybillSign, 1, 'K')
+                || BusinessUtil.isSignChar(waybillSign, 1, 'Y'))) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 判断是否为大件订单
+     */
+    public static boolean isLasOrder(String waybillSign){
+        return BusinessUtil.isSignChar(waybillSign, 29, 'B');
+    }
+
+    /**
+     * 是否多宝岛订单 waybill.wabillType = 2
+     * 拍卖订单
+     *
+     * @param waybillType
+     * @return
+     */
+    public static boolean isAuction(Integer waybillType) {
+        if (waybillType == null) {
+            return Boolean.FALSE;
+        }
+        if (DmsConstants.AUCTION.equals(waybillType)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 按照预分拣站点强制校验
+     */
+    public static boolean isMustPerSortingSite(String waybillSign){
+        return BusinessUtil.isSignChar(waybillSign, 88, '1');
+    }
+
+    /**
+     * 判断运单是否是 揽收时需要采集商品信息的运单
+     * 如果是 揽收时需要采集商品信息。运单：true 否则:false
+     * 这个场景会在B2C订单中出现
+     * @param:waybillSign
+     * @return:boolean
+     */
+    public static boolean isNeedCollectingWaybill(String waybillSign){
+        return BusinessUtil.isSignChar(waybillSign, 45, '2');
     }
 }

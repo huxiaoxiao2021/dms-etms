@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -13,7 +15,11 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.wss.dto.SealCarResultDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
@@ -40,6 +46,7 @@ import com.jd.tms.tfc.ws.TfcQueryWS;
 import com.jd.tms.tfc.ws.TfcSelectWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +99,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private LogEngine logEngine;
 
+    @Autowired
+    private SendMService sendMService;
+
+    @Autowired
+    private SortingMaterialSendService sortingMaterialSendService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
     private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
@@ -100,13 +117,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
-	    long startTime=new Date().getTime();
-	    List<SealCarDto> paramList = convertList(sealCars);
+	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) throws Exception{
+	    long startTime=System.currentTimeMillis();
+	    //去除空批次，并记录去除数据
+        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(sealCars);
+        emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
+	    List<SealCarDto> paramList = convertList(sealCarResultDto.getSealCarDtos());
+
         if(log.isDebugEnabled()){
             log.debug("封车参数：{}", JsonHelper.toJson(paramList));
         }
+
         CommonDto<String> sealCarInfo = null;
+        if (CollectionUtils.isEmpty(paramList)){
+            sealCarInfo = new CommonDto<String>();
+            sealCarInfo.setCode(0);
+            sealCarInfo.setMessage("封车失败。无有效的封车信息，请重新录入");
+            log.error("封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
+            return sealCarInfo;
+        }
+
         String msg = "";
         try {
             sealCarInfo = vosBusinessWS.doSealCar(paramList);
@@ -127,7 +157,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             throw e;
         }finally {
 //            addSystemLog(paramList, msg);
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             for (int i = 0; i < paramList.size(); i++) {
                 SealCarDto param = paramList.get(i);
@@ -139,6 +169,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 JSONObject response=new JSONObject();
                 response.put("param", param);
                 response.put("msg", msg);
+                response.put("errorSendCode", JsonHelper.toJson(sealCarResultDto.getDisableSendCode()));
 
                 BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
                         .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_SEAL)
@@ -157,20 +188,111 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
+  /**
+   * 移除空批次
+   *
+   * @param sourceSealDtos
+   * @param
+   */
+  private SealCarResultDto removeEmptyBatchCode(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sourceSealDtos) {
+      Map<String, String> emptyBatchCode = Maps.newHashMap();
+      String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
+      if(!Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
+          return new SealCarResultDto(sourceSealDtos,emptyBatchCode);
+      }
+
+      List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> keepsourceSealDtos=new ArrayList<>();
+      for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sourceSealDtos) {
+          if (sourceSealDto == null) {
+              continue;
+          }
+
+          if(CollectionUtils.isNotEmpty(sourceSealDto.getBatchCodes())){
+              // 循环验证封车批次号是否有发货记录，如果没有则删除批次
+              List<String> keepBatchCodes=new ArrayList<>();
+              for (String item : sourceSealDto.getBatchCodes()) {
+                  if (checkBatchCodeIsSend(item)) {
+                      keepBatchCodes.add(item);
+                  }else {
+                      log.warn("批次内发货信息。车牌号[{}]批次[{}]",sourceSealDto.getVehicleNumber(),item);
+                      emptyBatchCode.put(item, sourceSealDto.getVehicleNumber());
+                  }
+              }
+              if(CollectionUtils.isNotEmpty(keepBatchCodes)){
+                  sourceSealDto.setBatchCodes(keepBatchCodes);
+                  keepsourceSealDtos.add(sourceSealDto);
+              }
+          }else {
+              keepsourceSealDtos.add(sourceSealDto);
+          }
+      }
+      return new SealCarResultDto(keepsourceSealDtos,emptyBatchCode);
+  }
+
+	/**
+     * 校验批次号是否存在发货记录
+	 */
+	@Override
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl.checkBatchCodeIsSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public boolean checkBatchCodeIsSend(String batchCode){
+        boolean res=true;
+
+	    //批次号不存在sendm记录
+	    if(!checkSendIsExist(batchCode)) {
+
+            JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
+            if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
+                res = false;
+            }
+        }
+
+        return res;
+    }
+
+
+
 
     /**
      * VOS封车业务同时生成车次任务
      * @param sealCars
      * @return
      */
+    @Override
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
-        long startTime=new Date().getTime();
-        List<SealCarDto> paramList = convertList(sealCars);
+    public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars,Map<String, String> emptyBatchCode) {
+        //去除空批次，并记录去除数据
+        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(sealCars);
+        emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
+        List<SealCarDto> paramList = convertList(sealCarResultDto.getSealCarDtos());
+
         if(log.isDebugEnabled()){
             log.debug("VOS封车业务同时生成车次任务参数：{}", JsonHelper.toJson(paramList));
         }
 
+        NewSealVehicleResponse sealCarInfo = null;
+        if (CollectionUtils.isEmpty(paramList)){
+            sealCarInfo = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_EXCUTE_ERROR, "封车失败。无有效的封车信息，请重新录入");
+            log.error("传摆封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
+            return sealCarInfo;
+        }
+
+        return doSealCarWithVehicleJobCore(paramList);
+    }
+
+    /**
+     * 分拣工作台一键封车
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarFromDmsWorkBench",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse doSealCarFromDmsWorkBench(List<SealCarDto> sealCarDtoList) {
+        log.info("执行分拣工作台一键封车任务参数：{}", JsonHelper.toJson(sealCarDtoList));
+        return doSealCarWithVehicleJobCore(sealCarDtoList);
+    }
+
+    /*
+    * 执行传摆封车主体
+    * */
+    private NewSealVehicleResponse doSealCarWithVehicleJobCore(List<SealCarDto> paramList) {
+        long startTime=System.currentTimeMillis();
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         String errorMsg = "";
         List<SealCarDto> successSealCarList = new ArrayList<>(); //封车成功的
@@ -207,7 +329,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         for (int i = 0; i < paramList.size(); i++) {
             SealCarDto sealCarDto = paramList.get(i);
 
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request=new JSONObject();
             request.put("siteCode",sealCarDto.getSealSiteId());
@@ -303,35 +425,34 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     /**
-     * 离线传摆封车
+     * 一键传摆封车
      * @param sealCars
      * @return
      */
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.offlineFerrySeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public NewSealVehicleResponse offlineFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.oneClickFerrySeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public NewSealVehicleResponse oneClickFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
         if(log.isDebugEnabled()){
-            log.debug("离线传摆封车参数：{}", JsonHelper.toJson(sealCars));
+            log.debug("一键传摆封车参数：{}", JsonHelper.toJson(sealCars));
         }
         NewSealVehicleResponse newSealVehicleResponse = null;
-        String msg = "离线传摆封车失败：";
+        String msg = "一键传摆封车失败：";
         try {
-            newSealVehicleResponse = this.doSealCarWithVehicleJob(sealCars);
+            List<SealCarDto> paramList = offlineConvertList(sealCars);
+            newSealVehicleResponse = this.doSealCarWithVehicleJobCore(paramList);
 
             if(newSealVehicleResponse == null) {
                 msg += "传摆封车JSF接口返回为空";
             } else if (NewSealVehicleResponse.CODE_OK.equals(newSealVehicleResponse.getCode())){
-                log.debug("离线传摆封车成功！");
-                msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
+                log.debug("一键传摆封车成功！");
+                msg = MESSAGE_ONE_CLICK_FERRY_SEAL_SUCCESS;
             } else {
                 msg += "["+newSealVehicleResponse.getCode()+":"+newSealVehicleResponse.getMessage()+"]";
             }
         } catch (Exception e){
-            this.log.error("离线传摆封车-error参数：{}", JsonHelper.toJson(sealCars), e);
+            this.log.error("一键传摆封车-error参数：{}", JsonHelper.toJson(sealCars), e);
             msg += "["+ e.getMessage() +"]";
         } finally {
-
-
             addFerrySealSystemLog(sealCars, msg);
         }
         return newSealVehicleResponse;
@@ -527,6 +648,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     /**
      * 校验批次的体积是否超标
+     * @see 'https://cf.jd.com/pages/viewpage.action?pageId=246546459'
      * @param sealCarDto
      * @return
      */
@@ -591,6 +713,37 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return null;
     }
 
+
+    /**
+     * 查询全部的未封车批次号
+     */
+    @Override
+    public List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
+
+        Date date = DateHelper.newTimeRangeHoursAgo(new Date(), hourRange);
+        Set<String> sendCodeSet = new HashSet<>();
+        //sendM获取所有批次信息
+        List<SendM> sendMList = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, date);
+        if (sendMList != null && ! sendMList.isEmpty()) {
+            for(SendM sendM : sendMList) {
+                //封车批次缓存中找出未封车的批次数据
+                if(! this.checkSendCodeIsSealed(sendM.getSendCode())) {
+                    sendCodeSet.add(sendM.getSendCode());
+                }
+            }
+        } else {
+            return null;
+        }
+
+        List<String> result = new ArrayList<>(sendCodeSet);
+        //利用封车记录表再次筛选sendCode
+        List<String> sealedSendCodeList = sealVehiclesService.findBySealDataCodes(sendCodeSet);
+        if (sealedSendCodeList != null && ! sealedSendCodeList.isEmpty()) {
+            result.removeAll(sealedSendCodeList);
+        }
+        return result;
+    }
+
     /**
      * 将封车的批次号缓存到Redis里
      *
@@ -603,7 +756,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         for (SealCarDto dto : paramList) {
             for (String sendCode : dto.getBatchCodes()) {
                 try {
-                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getSealCarTime().getTime()));
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_FIFTEEN_DAY, String.valueOf(dto.getSealCarTime().getTime()));
                     log.debug("已封车批次号存入缓存成功:{}" , sendCode);
                 } catch (Throwable e) {
                     log.error("已封车批次号存入缓存失败:{}",sendCode,e);
@@ -691,18 +844,19 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
             JSONObject request=new JSONObject();
             request.put("siteCode",dto.getSealSiteId());
+            request.put("siteName",dto.getSealSiteName());
 
             JSONObject response=new JSONObject();
-            response.put("head", dto.getSealSiteId() + "-" + dto.getDesealSiteId());
-            response.put("body", JsonHelper.toJson(dto));
+            response.put("param",dto);
+            response.put("errmsg",remark);
 
             BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_FERRY_SEAL)
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.ONE_CLICK_SEAL_FERRY_SEAL)
+                    .methodName("NewSealVehicleServiceImpl#oneClickFerrySeal")
                     .operateRequest(request)
                     .operateResponse(response)
                     .processTime(endTime,startTime)
                     .build();
-
             logEngine.addLog(businessLogProfiler);
 
             goddessService.save(goddess);

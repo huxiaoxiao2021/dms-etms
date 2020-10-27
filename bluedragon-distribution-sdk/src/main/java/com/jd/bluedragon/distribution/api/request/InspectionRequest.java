@@ -45,7 +45,39 @@ public class InspectionRequest extends JdRequest{
 
 	private Float volume;
 
-	public String getBoxCode() {
+	private Integer bizSource;
+
+    private int pageNo;
+
+    private int pageSize;
+
+    private int totalPage;
+
+    public int getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(int pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public int getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(int pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public int getTotalPage() {
+        return totalPage;
+    }
+
+    public void setTotalPage(int totalPage) {
+        this.totalPage = totalPage;
+    }
+
+    public String getBoxCode() {
 		return boxCode;
 	}
 
@@ -149,12 +181,33 @@ public class InspectionRequest extends JdRequest{
 		this.volume = volume;
 	}
 
-	@Override
-	public String toString() {
-		return "InspectionRequest [boxCode=" + boxCode + ", packageBarcode="
-				+ packageBarcode + ", waybillCode=" + waybillCode
-				+ ", inspectionType=" + inspectionType + ", receiveSiteCode="
-				+ receiveSiteCode + " ,siteCode="+super.getSiteCode()+"]";
+	public Integer getBizSource() {
+		return bizSource;
 	}
 
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
+	}
+
+    @Override
+    public String toString() {
+        return "InspectionRequest{" +
+                "boxCode='" + boxCode + '\'' +
+                ", packageBarOrWaybillCode='" + packageBarOrWaybillCode + '\'' +
+                ", packageBarcode='" + packageBarcode + '\'' +
+                ", waybillCode='" + waybillCode + '\'' +
+                ", exceptionType='" + exceptionType + '\'' +
+                ", inspectionType=" + inspectionType +
+                ", receiveSiteCode=" + receiveSiteCode +
+                ", sealBoxCode='" + sealBoxCode + '\'' +
+                ", operateType=" + operateType +
+                ", length=" + length +
+                ", width=" + width +
+                ", high=" + high +
+                ", volume=" + volume +
+                ", pageNo=" + pageNo +
+                ", pageSize=" + pageSize +
+                ", totalPage=" + totalPage +
+                '}';
+    }
 }

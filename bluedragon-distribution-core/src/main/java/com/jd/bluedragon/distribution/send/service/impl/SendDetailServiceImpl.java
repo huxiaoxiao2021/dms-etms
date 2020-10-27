@@ -88,4 +88,14 @@ public class SendDetailServiceImpl implements SendDetailService {
     public List<String> queryPackageCodeByboxCode(SendDetailDto params){
         return sendDatailDao.queryPackageCodeByboxCode(params);
     }
+
+    /**
+     * 根据运单号查询 包裹号
+     * @param params
+     * @return
+     */
+    @Override
+    public List<String> queryPackageByWaybillCode(SendDetailDto params){
+        return sendDatailDao.queryPackageByWaybillCode(params);
+    }
 }

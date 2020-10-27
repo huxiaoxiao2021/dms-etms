@@ -32,6 +32,8 @@ public class DynamicSortingQueryDao implements ISortingDao{
     private SiteService siteService;
 
     private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN = "failover.sorting.query.site.open";
+    private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_CLOSE = "failover.sorting.query.site.close";
+
 
     private static final String SORTING_QUERY_MODE_DMS ="DMS";
     private static final String SORTING_QUERY_MODE_MIDDLEEND ="MIDDLEEND";
@@ -54,9 +56,9 @@ public class DynamicSortingQueryDao implements ISortingDao{
             return middleEndSortingDao;
         }else if(SORTING_QUERY_MODE_FAILOVER.equals(sortingQueryMode)){
             //配置列表里有
-            Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN);
-            //配置为空代表开启全国
-            if(CollectionUtils.isEmpty(siteCodeSet) || siteCodeSet.contains(createSiteCode)){
+            Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_CLOSE);
+            //配置为空代表开启全国不用使用中台模式
+            if(CollectionUtils.isNotEmpty(siteCodeSet) && !siteCodeSet.contains(createSiteCode)){
                 log.info("站点:{}使用failoverSortingDao进行查询",createSiteCode);
                 return failoverSortingDao;
             }else{

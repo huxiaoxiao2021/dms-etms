@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.reverse.service;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseStockInDetailDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetail;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailStatusEnum;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseStockInDetailTypeEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
@@ -204,6 +205,26 @@ public class ReverseStockInDetailServiceImpl extends BaseService<ReverseStockInD
         return reverseStockInDetailDao.findByWaybillCodeAndType(reverseStockInDetail);
     }
 
+
+    /**
+     * 检查是否存在收货数据
+     *
+     * @param waybillCode 运单号
+     * @param type        类型
+     * @return
+     */
+    @Override
+    public boolean isReceive(String waybillCode, ReverseStockInDetailTypeEnum type) {
+
+        ReverseStockInDetail reverseStockInDetail = new ReverseStockInDetail();
+        reverseStockInDetail.setWaybillCode(waybillCode);
+        reverseStockInDetail.setStatus(ReverseStockInDetailStatusEnum.REVERSE.getCode());
+        reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+        List<ReverseStockInDetail> resultList = reverseStockInDetailDao.findByParam(reverseStockInDetail);
+
+        return resultList!=null && !resultList.isEmpty();
+
+    }
 
     public static void main(String[] args) {
         System.out.println(new ReverseStockInDetailServiceImpl().genBatchExternalCode("12",12).size());

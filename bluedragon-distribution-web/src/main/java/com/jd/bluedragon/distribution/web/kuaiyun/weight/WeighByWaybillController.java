@@ -307,9 +307,19 @@ public class WeighByWaybillController {
             return false;
         }
 
+        if (WaybillUtil.isEconomicNet(WaybillUtil.getWaybillCode(vo.getCodeStr()))) {
+            //经济网称重的体积为null或者<=0时，体积填默认值0.22（无意义）
+            if (vo.getVolume() == null || vo.getVolume() <= 0.0) {
+                vo.setVolume(0.22/1000000);
+            }
+            return true;
+        }
+
         if (volume.compareTo(this.MAX_VOLUME) != -1 || volume <= 0.0) {
             return false;
         }
+
+
 
         return true;
     }

@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.storage.dao.impl;
 
-import org.springframework.stereotype.Repository;
-
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
 import java.util.List;
@@ -43,5 +41,15 @@ public class StoragePackageDDaoImpl extends BaseDao<StoragePackageD> implements 
     @Override
     public int cancelPutaway(String waybillCode) {
         return sqlSession.update(this.nameSpace+".cancelPutaway", waybillCode);
+    }
+
+    @Override
+    public int updateKYStorageCodeByPackageCode(StoragePackageD storagePackageD) {
+        return sqlSession.update(this.nameSpace+".updateKYStorageCodeByPackageCode", storagePackageD);
+    }
+
+    @Override
+    public int updateKYStorageCodeByWaybillCode(StoragePackageD storagePackageD) {
+        return sqlSession.update(this.nameSpace+".updateKYStorageCodeByWaybillCode", storagePackageD);
     }
 }

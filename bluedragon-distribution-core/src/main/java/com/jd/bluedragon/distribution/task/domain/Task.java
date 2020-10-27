@@ -57,6 +57,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     /** 验货相关　 */
     public static final Integer TASK_TYPE_INSPECTION = 1130; // 分拣中心验货
+    public static final Integer TASK_TYPE_INSPECTION_SPLIT = 1136; // 验货拆分任务
     public static final Integer TASK_TYPE_SHIELDS_BOX_ERROR = 1140;// 分拣中心验货箱号封签异常
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL = 1600;// 运单号关联包裹信息
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL_NOTIFY = 1601;// 运单号关联包裹回传
@@ -79,6 +80,23 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 1300-发货
      */
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
+    /**
+     * 130001-批量发货（老发货、快运、冷链，批次维度处理）
+     */
+    public static final Integer TASK_SUB_TYPE_BATCH_SEND = 130001;
+    /**
+     * 130002-箱号发货
+     */
+    public static final Integer TASK_SUB_TYPE_BOX_SEND = 130002;
+    /**
+     * 130003-箱号中转发货
+     */
+    public static final Integer TASK_SUB_TYPE_BOX_TRANSIT_SEND = 130003;
+    /**
+     * 130004-包裹发货
+     */
+    public static final Integer TASK_SUB_TYPE_PACKAGE_SEND = 130004;    
+    
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
     public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
@@ -311,7 +329,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
     private Integer queueId;
 
     private List<Integer> statusesList;
-
+    /** 子类型 */
+    private Integer subType;
+    
     public Task() {
     }
     
@@ -517,7 +537,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         if (Task.TASK_TYPE_SORTING.equals(type) || Task.TASK_TYPE_SEAL_BOX.equals(type)
                 || Task.TASK_TYPE_RETURNS.equals(type) || Task.TASK_TYPE_SORTING_SPLIT.equals(type) || TASK_TYPE_SORTING_CORE_SUCCESS.equals(type)) {
             return Task.TABLE_NAME_SORTING;
-        } else if (Task.TASK_TYPE_RECEIVE.equals(type) || Task.TASK_TYPE_INSPECTION.equals(type)
+        } else if (Task.TASK_TYPE_RECEIVE.equals(type) || Task.TASK_TYPE_INSPECTION.equals(type) || Task.TASK_TYPE_INSPECTION_SPLIT.equals(type)
                 || Task.TASK_TYPE_SHIELDS_CAR_ERROR.equals(type)
                 || Task.TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)
                 || Task.TASK_TYPE_PARTNER_WAY_BILL.equals(type)
@@ -799,7 +819,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "PushMQ2ArteryBillingSysTask";
         }else if(TASK_TYPE_INSPECTION.equals(type)){
             return "InspectionTaskN";
-        }else if(TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)){
+        }
+        else if (TASK_TYPE_INSPECTION_SPLIT.equals(type)) {
+            return "InspectionSplitTaskN";
+        }
+        else if(TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)){
             return "ShieldsBoxErrorTask";
         }else if(TASK_TYPE_PARTNER_WAY_BILL.equals(type)){
             return "PartnerWaybillTaskN";
@@ -973,4 +997,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 ", queueId=" + queueId +
                 '}';
     }
+
+	public Integer getSubType() {
+		return subType;
+	}
+
+	public void setSubType(Integer subType) {
+		this.subType = subType;
+	}
 }

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -102,6 +104,10 @@ public class DmsConstants {
      */
     public static final Integer SITE_TYPE_DMS = 64;
     /**
+     * 分拣中心子类型-企配仓
+     */
+    public static final Integer SITE_SUB_TYPE_EDN = 6540;
+    /**
      * 站点类型-站点
      */
     public static final Integer SITE_TYPE_SITE = 4;
@@ -176,7 +182,17 @@ public class DmsConstants {
     /**
      * 封箱号正则
      */
-    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJH]$";
+    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJHC]$";
+
+    /**
+     * 集货区编码正则
+     */
+    public static final String RULE_COLLECT_AREA_CODE_REGEX ="^[A-Z]$";
+
+    /**
+     * 集货位编码正则
+     */
+    public static final String RULE_COLLECT_PLACE_CODE_REGEX ="^[A-Z][0-9]{3}$";
 
     /**
      * 冷链卡班
@@ -201,4 +217,52 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+    /**
+     * 预售异常原因-上级编码
+     */
+    public static final Integer QC_TYPE = 2;
+    /**
+     * 预售异常原因前缀
+     */
+    public static final String QC_TYPE_PRE_SELL_CODE_PRE = "24-";
+    /**
+     * 企配仓拣货单模板-名称
+     */
+    public static final String TEMPLATE_NAME_EDN_PICKING = "dmsEdnPickingList";
+    /**
+     * 企配仓拣货单-模板版本配置key
+     */
+    public static final String TEMPLATE_VERSION_KEY_EDN_PICKING = "print.template.version.dmsEdnPickingList";
+    /**
+     * 企配仓拣货单模板-默认版本号1
+     */
+    public static final String TEMPLATE_VERSION_DEFAULT_EDN_PICKING = "1";
+
+    /**
+     * 集包袋前缀
+     */
+    public static final String COLLECTION_BAG_PREFIX = "AD";
+
+    /**
+     * 分拣中心类型（数据字典-站点类型）
+     */
+    public static final List<Integer> SORTING_SITE_TYPE_LIST = Arrays.asList(64);
+    /**
+     * 退货地址类型6-二次换单退货地址
+     */
+    public static final int RETURN_BACK_ADDRESS_TYPE_6 = 6;
+    /**
+     * 微笑符号-^_^
+     */
+    public static final String  HIDE_SMILE = "^_^";
+    /**
+     * 微笑符号-****
+     */
+    public static final String  HIDE_STAR = "****";
+    public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
+    public static final int PHONE_LEAST_NUMBER = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;//隐藏处理的最小长度
+    public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
+    public static final int ADDRESS_HIDE_LENGTH = 6; //地址信息需要隐藏的后几位，用微笑符号替代
+    public static final int NAME_SHOW_LENGTH = 1; //姓名信息需要隐藏的位数
 }

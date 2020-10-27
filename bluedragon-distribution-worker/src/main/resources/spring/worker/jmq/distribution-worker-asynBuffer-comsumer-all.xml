@@ -48,6 +48,22 @@
                     </bean>
                 </entry>
 
+                <!-- 验货多包裹拆分任务 -->
+                <entry key="${jmq.task.topic.inspection.split.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="inspectionSplitWaybillProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <entry key="${jmq.task.topic.inspection.split.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="inspectionSplitWaybillProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
                 <!-- 处理运单号关联包裹任务 -->
                 <entry key="${jmq.task.topic.partnerWaybill.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
@@ -120,6 +136,38 @@
                         <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
                     </bean>
                 </entry>
+                <!-- 批量发货任务（批次号维度处理）-->
+                <entry key="${jmq.task.topic.batchSend.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 箱号发货回传运单状态任务-->
+                <entry key="${jmq.task.topic.boxSend.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 箱号中转发货任务-->
+                <entry key="${jmq.task.topic.boxTransitSend.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 包裹发货回传运单状态任务-->
+                <entry key="${jmq.task.topic.packageSend.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>                
                 <entry key="${jmq.task.topic.send.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
@@ -127,7 +175,38 @@
                         <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
                     </bean>
                 </entry>
-
+                <!-- 批量发货任务（批次号维度处理）-->
+                <entry key="${jmq.task.topic.batchSend.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 箱号发货回传运单状态任务-->
+                <entry key="${jmq.task.topic.boxSend.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 箱号中转发货任务-->
+                <entry key="${jmq.task.topic.boxTransitSend.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <!-- 包裹发货回传运单状态任务-->
+                <entry key="${jmq.task.topic.packageSend.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
                 <!-- 支线发车推送运单任务-->
                 <entry key="${jmq.task.topic.thirdDeparture.dms}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
@@ -245,14 +324,14 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target" ref="asynBufferService"/>
-                        <constructor-arg name="methodName" value="weightTaskProcess"/>
+                        <constructor-arg name="methodName" value="weightVolumeTaskProcess"/>
                     </bean>
                 </entry>
                 <entry key="${jmq.task.topic.weight.volume.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target" ref="asynBufferService"/>
-                        <constructor-arg name="methodName" value="weightTaskProcess"/>
+                        <constructor-arg name="methodName" value="weightVolumeTaskProcess"/>
                     </bean>
                 </entry>
 

@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -14,12 +16,17 @@ import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
+import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.*;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
-import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
@@ -43,6 +50,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.asset.dto.MatterPackageRelationDto;
+import com.jd.ql.asset.dto.ResultData;
+import com.jd.ql.asset.enums.ResultStateEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
@@ -58,7 +68,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * 验货Service
@@ -113,6 +128,9 @@ public class InspectionServiceImpl implements InspectionService {
     @Autowired
     private StoragePackageMService storagePackageMService;
 
+    @Autowired
+    private AssertQueryManager assertQueryManager;
+
 	/**
 	 * 运单包裹关联信息
 	 */
@@ -127,6 +145,9 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     public boolean isExists(Integer Storeid)
     {
@@ -303,10 +324,11 @@ public class InspectionServiceImpl implements InspectionService {
 		return result;
 	}
 
+	@JProfiler(jKey = "DMSWEB.InspectionServiceImpl.gatherCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse gatherCheck(PdaOperateRequest pdaOperateRequest,SortingJsfResponse sortingJsfResponse){
 
         //校验运单验货是否集齐
-        if(pdaOperateRequest.getIsGather() == 1){
+        if(pdaOperateRequest != null && pdaOperateRequest.getIsGather() != null && pdaOperateRequest.getIsGather() == 1){
             String packageCode = pdaOperateRequest.getPackageCode();
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();
@@ -670,16 +692,16 @@ public class InspectionServiceImpl implements InspectionService {
 		Integer preSiteCode = null;
 		Integer destinationDmsId = null;
 		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
-		if(waybill != null && waybill.getWaybillSign() != null){
+		if(waybill != null){
+			//预分拣站点
+			preSiteCode = waybill.getSiteCode();
+			BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
+			if(bDto != null && bDto.getDmsId() != null){
+				//末级分拣中心
+				destinationDmsId = bDto.getDmsId();
+			}
 			//是否是金鹏订单
 			if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){
-				//预分拣站点
-				preSiteCode = waybill.getSiteCode();
-				BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
-				if(bDto != null && bDto.getDmsId() != null){
-					//末级分拣中心
-					destinationDmsId = bDto.getDmsId();
-				}
 				String dmsIds = PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH);
 				String[] dmsCodes = dmsIds.split(",");
 				List<String> dmsList = Arrays.asList(dmsCodes);
@@ -695,6 +717,14 @@ public class InspectionServiceImpl implements InspectionService {
 					}
 				}
 
+			}else if(BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign())){
+				BaseStaffSiteOrgDto destinationDmsInfo = siteService.getSite(destinationDmsId);
+				//判断末级分拣中心、企配仓类型
+				if(destinationDmsInfo != null
+						&& Objects.equals(destinationDmsId,dmsSiteCode)
+                        && BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
+					hintMessage = "此单为企配仓运单，必须操作暂存上架";
+				}
 			}
 		}
 		return hintMessage;
@@ -753,4 +783,131 @@ public class InspectionServiceImpl implements InspectionService {
         result.setUnCheckedPackNos(unCheckedPacks);
         return result;
 	}
+
+    /**
+     * 校验运单号是否绑定集包袋
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public boolean checkIsBindMaterial(String waybillCode) {
+
+        try {
+            MatterPackageRelationDto dto = new MatterPackageRelationDto();
+            dto.setWaybillCode(waybillCode);
+            ResultData<List<String>> result = assertQueryManager.queryBindMaterialByCode(dto);
+            if(result == null){
+                log.warn("校验运单号【{}】是否绑定集包袋返回值为空...",waybillCode);
+                return false;
+            }
+            if(!ResultStateEnum.RESULT_SUCCESS.getStatusCode().equals(result.getStatusCode())){
+                log.warn("校验运单号【{}】是否绑定集包袋失败,失败信息:【{}】",waybillCode,result.getResultMsg());
+                return false;
+            }
+            if(CollectionUtils.isNotEmpty(result.getData())){
+                return true;
+            }else {
+                return false;
+            }
+        }catch (Exception e){
+            log.error("校验运单号【{}】是否绑定集包袋异常",waybillCode,e);
+        }
+        return true;
+    }
+
+    @Override
+    public InspectionExeModeEnum findInspectionExeMode(InspectionRequest request) {
+
+        if (request.getPageNo() > 0 && request.getPageSize() > 0) {
+            return InspectionExeModeEnum.PACKAGE_PAGE_MODE;
+        }
+
+        String code = request.getPackageBarOrWaybillCode();
+        boolean isByWayBillCode = WaybillUtil.isWaybillCode(code);
+        // 大运单包裹数超过上限，验货拆分任务执行
+        boolean executeBySplitTask = isByWayBillCode && satisfyWaybillSplitCondition(request);
+
+        if (executeBySplitTask) {
+            return InspectionExeModeEnum.INIT_SPLIT_MODE;
+        }
+        else {
+            return InspectionExeModeEnum.NONE_SPLIT_MODE;
+        }
+    }
+
+    /**
+     * 满足拆分验货任务的条件
+     * <ul>
+     *     <li>UCC配置站点开启拆分任务开关</li>
+     *     <li>运单包裹数量超过配置的数量</li>
+     * </ul>
+     * @param request
+     * @return
+     */
+    private boolean satisfyWaybillSplitCondition(InspectionRequest request) {
+        return siteEnableSplitWaybill(request.getSiteCode())
+                && bigWaybillTask(request);
+    }
+
+    /**
+     * 判断运单是否是大包裹
+     * @param request
+     * @return
+     */
+    private boolean bigWaybillTask(InspectionRequest request) {
+
+        String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
+        BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
+
+        if (bigWaybillDto != null
+                && bigWaybillDto.getWaybill() != null
+                && bigWaybillDto.getWaybill().getGoodNumber() != null) {
+
+            return bigWaybillDto.getWaybill().getGoodNumber() >= getInspectionTaskPackageSplitNum();
+        }
+
+        return false;
+    }
+
+    private boolean siteEnableSplitWaybill(Integer siteCode) {
+        String configSite = uccConfig.getInspectionBigWaybillEffectiveSites();
+        if (StringUtils.isBlank(configSite)) {
+            return false;
+        }
+        // 验货拆分任务对全部分拣中心开启
+        if (Constants.STR_ALL.equalsIgnoreCase(configSite)) {
+            return true;
+        }
+
+        List<String> sites = null;
+        try {
+            sites = Arrays.asList(StringUtils.split(configSite, Constants.SEPARATOR_COMMA));
+        }
+        catch (Exception ex) {
+            log.error("transfer inspection split waybill site error.", ex);
+        }
+
+        if (CollectionUtils.isEmpty(sites) || null == siteCode) {
+            return false;
+        }
+
+        return sites.contains(siteCode.toString());
+    }
+
+    /**
+     * 运单多包裹限制数量
+     */
+    private static final int BIG_WAYBILL_LIMIT_NUM = 100;
+
+    /**
+     * 取得运单多包裹数量触发上限
+     * @return
+     */
+    @Override
+    public int getInspectionTaskPackageSplitNum() {
+        return 0 == uccConfig.getWaybillSplitPageSize() ?
+                BIG_WAYBILL_LIMIT_NUM :
+                uccConfig.getWaybillSplitPageSize();
+    }
 }

@@ -29,21 +29,6 @@ public class SysConfigServiceImpl implements SysConfigService {
 		return this.sysConfigDao.getList(sysConfig);
 	}
 
-
-	/**
-	 * 此接口仅用于查询sysconfig表的redis开关,其他接口禁止调用
-     * fix 4/22 关闭redis缓存
-	 * @param sysConfig
-	 * @return
-	 */
-	@Override
-	@Cache(key = "SysConfigServiceImpl.getRedisSwitchList@args0", memoryEnable = true, memoryExpiredTime = 5 * 1000, redisEnable = false)
-	public List<SysConfig> getRedisSwitchList(String conName) {
-		SysConfig config = new SysConfig();
-		config.setConfigName(conName);
-		return this.sysConfigDao.getList(config);
-	}
-
 	@Override
 	@Cache(key = "SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
 			,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
@@ -84,7 +69,7 @@ public class SysConfigServiceImpl implements SysConfigService {
     /**
      * 通过配置名获取配置列表信息，并缓存2分钟
      */
-    @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
+    @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public List<SysConfig> getListByConfigName(String configName) {
 		SysConfig config = new SysConfig();
@@ -96,7 +81,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 	 * 从sysconfig表里查出来内容为json格式的配置
 	 * @return
 	 */
-	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
+	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public SysConfigContent getSysConfigJsonContent(String key){
 		List<SysConfig> sysConfigs = getListByConfigName(key);
@@ -115,7 +100,7 @@ public class SysConfigServiceImpl implements SysConfigService {
 	 * @param configName
 	 * @return
 	 */
-	@Cache(key = "sysConfigService.getConfigByName@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = false)
+	@Cache(key = "sysConfigService.getConfigByName@args0",memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public boolean getConfigByName(String configName) {
 		try {

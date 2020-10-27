@@ -11,6 +11,10 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
+    private boolean offlineLogGlobalSwitch;
+
+    private boolean systemLogGlobalSwitch;
+
     /** 将日志通过kafka写入businesslog开关 **/
     private boolean logToBusinessLogByKafka;
 
@@ -55,11 +59,6 @@ public class UccPropertyConfiguration {
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
 
-    /**
-     * 驻场打印 是否开启校验 鸡毛信必输设备号；true 开启,false 不开启
-     */
-    private boolean stationPrintFeatherLetterCheck;
-
     /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
     private String sortingQueryMode;
 
@@ -76,21 +75,107 @@ public class UccPropertyConfiguration {
      * 老log查询页面提示
      */
     private String oldLogPageTips;
-    
-    /**
-     * b2b分拣补验货开关
-     */
-    private boolean b2bPushInspectionSwitch;
-
-    /**
-     * 冷链卡班短信开关;true 开启
-     */
-    private boolean coldChainStorageSmsSwitch;
 
     /**
      * 离线任务的操作时间的更正时间范围
      */
     private int offlineTaskOperateTimeCorrectHours;
+
+    /**
+     * 自动化称重的入口切换开关
+     */
+    private boolean automaticWeightVolumeExchangeSwitch;
+
+    /**
+     * 自动化称重的入口切换站点
+     */
+    private String automaticWeightVolumeExchangeSiteCode;
+
+    /**
+     * 封车体积校验
+     *  验证场地，例：910,39
+     */
+    private String sealVolumeCheckSites;
+
+    /*
+    * 分拣验证切换到web试用站点
+    * */
+    private String switchVerToWebSites;
+
+    /**
+     * 禁用老版本登陆
+     * @return
+     */
+    private boolean disablePdaOldLogin;
+
+    /**
+     * 客户端打印清单查询时间间隔
+     * @return
+     */
+    private int clientPrintQueryGapTime;
+
+    /**
+     * 开启集包地场地开关
+     *  例：910,39 （-1代表全国）
+     */
+    private String collectionAddressSiteCodes;
+    /*
+     * PDA建箱包裹数量限制 试用站点
+     * */
+    private String boxLimitSites;
+
+    /** 漏称重量方校验 开通全国开关；true打开全国 */
+    private boolean weightVolumeFilterWholeCountryFlag;
+    /**
+     * 集货区可删除站点
+     *  例：910,39（-1代表全国）
+     */
+    private String collectGoodsDeleteSites;
+
+    /**
+     * 按钮点击间隔(秒)，配置为-1则关闭控制
+     */
+    private int clickIntervalSecond;
+
+    /**
+     * 验货运单多包裹拆分任务生效的分拣中心
+     */
+    private String inspectionBigWaybillEffectiveSites;
+
+    private String singleSendSwitchVerToWebSites;
+
+    private String boardCombinationSwitchVerToWebSites;
+    /**
+     * 众邮称重拦截开关。true 拦截，false 不拦截
+     */
+    private boolean economicNetValidateWeightSwitch;
+    /**
+     * 任务redis开关，1-开启
+     */
+    private String redisSwitchOn;
+    /**
+     * 控制DTC积压 控制关闭 包裹号存在校验
+     * true  校验包裹号
+     * false 不校验包裹号
+     */
+    private boolean  controlCheckPackage;
+
+    /**
+     * 组板 开关控制是否校验路由
+     * true  校验
+     * false 不校验
+     */
+    private boolean   controlCheckRoute;
+
+    /**
+     * 取消发货校验封车业务开关。1：开启 0：关闭
+     */
+    private String dellCancelDeliveryCheckSealCar;
+
+    /**
+     * 封车空批次剔除开关 1：开启剔除 0：关闭
+     */
+    private String removeEmptyBatchCode;
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -196,14 +281,6 @@ public class UccPropertyConfiguration {
         this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 
-    public boolean isStationPrintFeatherLetterCheck() {
-        return stationPrintFeatherLetterCheck;
-    }
-
-    public void setStationPrintFeatherLetterCheck(boolean stationPrintFeatherLetterCheck) {
-        this.stationPrintFeatherLetterCheck = stationPrintFeatherLetterCheck;
-    }
-
     public String getSortingQueryMode() {
         return sortingQueryMode;
     }
@@ -244,33 +321,187 @@ public class UccPropertyConfiguration {
         this.oldLogPageTips = oldLogPageTips;
     }
 
-    public boolean isColdChainStorageSmsSwitch() {
-        return coldChainStorageSmsSwitch;
-    }
-
-    public void setColdChainStorageSmsSwitch(boolean coldChainStorageSmsSwitch) {
-        this.coldChainStorageSmsSwitch = coldChainStorageSmsSwitch;
-    }
-
-	/**
-	 * @return the b2bPushInspectionSwitch
-	 */
-	public boolean isB2bPushInspectionSwitch() {
-		return b2bPushInspectionSwitch;
-	}
-
-	/**
-	 * @param b2bPushInspectionSwitch the b2bPushInspectionSwitch to set
-	 */
-	public void setB2bPushInspectionSwitch(boolean b2bPushInspectionSwitch) {
-		this.b2bPushInspectionSwitch = b2bPushInspectionSwitch;
-	}
-
     public int getOfflineTaskOperateTimeCorrectHours() {
         return offlineTaskOperateTimeCorrectHours;
     }
 
     public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
+
+    public boolean getAutomaticWeightVolumeExchangeSwitch() {
+        return automaticWeightVolumeExchangeSwitch;
+    }
+
+    public void setAutomaticWeightVolumeExchangeSwitch(boolean automaticWeightVolumeExchangeSwitch) {
+        this.automaticWeightVolumeExchangeSwitch = automaticWeightVolumeExchangeSwitch;
+    }
+
+    public String getAutomaticWeightVolumeExchangeSiteCode() {
+        return automaticWeightVolumeExchangeSiteCode;
+    }
+
+    public void setAutomaticWeightVolumeExchangeSiteCode(String automaticWeightVolumeExchangeSiteCode) {
+        this.automaticWeightVolumeExchangeSiteCode = automaticWeightVolumeExchangeSiteCode;
+    }
+
+    public String getSealVolumeCheckSites() {
+        return sealVolumeCheckSites;
+    }
+
+    public void setSealVolumeCheckSites(String sealVolumeCheckSites) {
+        this.sealVolumeCheckSites = sealVolumeCheckSites;
+    }
+
+    public String getSwitchVerToWebSites() {
+        return switchVerToWebSites;
+    }
+
+    public void setSwitchVerToWebSites(String switchVerToWebSites) {
+        this.switchVerToWebSites = switchVerToWebSites;
+    }
+
+    public boolean isDisablePdaOldLogin() {
+        return disablePdaOldLogin;
+    }
+
+    public void setDisablePdaOldLogin(boolean disablePdaOldLogin) {
+        this.disablePdaOldLogin = disablePdaOldLogin;
+    }
+
+    public String getCollectionAddressSiteCodes() {
+        return collectionAddressSiteCodes;
+    }
+
+    public void setCollectionAddressSiteCodes(String collectionAddressSiteCodes) {
+        this.collectionAddressSiteCodes = collectionAddressSiteCodes;
+    }
+
+    public String getBoxLimitSites() {
+        return boxLimitSites;
+    }
+
+    public void setBoxLimitSites(String boxLimitSites) {
+        this.boxLimitSites = boxLimitSites;
+    }
+
+    public int getClientPrintQueryGapTime() {
+        return clientPrintQueryGapTime;
+    }
+
+    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
+        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
+    }
+
+    public String getCollectGoodsDeleteSites() {
+        return collectGoodsDeleteSites;
+    }
+
+    public void setCollectGoodsDeleteSites(String collectGoodsDeleteSites) {
+        this.collectGoodsDeleteSites = collectGoodsDeleteSites;
+    }
+
+    public String getInspectionBigWaybillEffectiveSites() {
+        return inspectionBigWaybillEffectiveSites;
+    }
+
+    public void setInspectionBigWaybillEffectiveSites(String inspectionBigWaybillEffectiveSites) {
+        this.inspectionBigWaybillEffectiveSites = inspectionBigWaybillEffectiveSites;
+    }
+
+    public boolean isOfflineLogGlobalSwitch() {
+        return offlineLogGlobalSwitch;
+    }
+
+    public void setOfflineLogGlobalSwitch(boolean offlineLogGlobalSwitch) {
+        this.offlineLogGlobalSwitch = offlineLogGlobalSwitch;
+    }
+
+    public boolean isSystemLogGlobalSwitch() {
+        return systemLogGlobalSwitch;
+    }
+
+    public void setSystemLogGlobalSwitch(boolean systemLogGlobalSwitch) {
+        this.systemLogGlobalSwitch = systemLogGlobalSwitch;
+    }
+
+    public boolean getWeightVolumeFilterWholeCountryFlag() {
+        return weightVolumeFilterWholeCountryFlag;
+    }
+
+    public void setWeightVolumeFilterWholeCountryFlag(boolean weightVolumeFilterWholeCountryFlag) {
+        this.weightVolumeFilterWholeCountryFlag = weightVolumeFilterWholeCountryFlag;
+    }
+
+    public String getSingleSendSwitchVerToWebSites() {
+        return singleSendSwitchVerToWebSites;
+    }
+
+    public void setSingleSendSwitchVerToWebSites(String singleSendSwitchVerToWebSites) {
+        this.singleSendSwitchVerToWebSites = singleSendSwitchVerToWebSites;
+    }
+
+    public int getClickIntervalSecond() {
+        return clickIntervalSecond;
+    }
+
+    public void setClickIntervalSecond(int clickIntervalSecond) {
+        this.clickIntervalSecond = clickIntervalSecond;
+    }
+
+    public String getBoardCombinationSwitchVerToWebSites() {
+        return boardCombinationSwitchVerToWebSites;
+    }
+
+    public void setBoardCombinationSwitchVerToWebSites(String boardCombinationSwitchVerToWebSites) {
+        this.boardCombinationSwitchVerToWebSites = boardCombinationSwitchVerToWebSites;
+    }
+
+    public boolean getEconomicNetValidateWeightSwitch() {
+        return economicNetValidateWeightSwitch;
+    }
+
+    public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
+        this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
+    }
+
+    public boolean isControlCheckPackage() {
+        return controlCheckPackage;
+    }
+
+    public void setControlCheckPackage(boolean controlCheckPackage) {
+        this.controlCheckPackage = controlCheckPackage;
+    }
+
+    public boolean isControlCheckRoute() {
+        return controlCheckRoute;
+    }
+
+    public void setControlCheckRoute(boolean controlCheckRoute) {
+        this.controlCheckRoute = controlCheckRoute;
+    }
+
+    public String getDellCancelDeliveryCheckSealCar() {
+        return dellCancelDeliveryCheckSealCar;
+    }
+
+    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
+        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
+    }
+
+	public String getRedisSwitchOn() {
+		return redisSwitchOn;
+	}
+
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
+
+    public String getRemoveEmptyBatchCode() {
+        return removeEmptyBatchCode;
+    }
+
+    public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
+        this.removeEmptyBatchCode = removeEmptyBatchCode;
     }
 }

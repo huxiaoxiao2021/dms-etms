@@ -56,7 +56,26 @@ public class WaybillPrintContext implements Context{
 	 * 商家标识位
 	 * */
 	private String traderSign;
-
+	/**
+	 * 获取waybillSign信息
+	 * @return
+	 */
+	public String getWaybillSign(){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null){
+			return bigWaybillDto.getWaybill().getWaybillSign();
+		}
+		return null;
+	}
+	/**
+	 * 获取SendPay信息
+	 * @return
+	 */
+	public String getSendPay(){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null){
+			return bigWaybillDto.getWaybill().getSendPay();
+		}
+		return null;
+	}
 	public String getBusiCode() {
 		return busiCode;
 	}
@@ -80,6 +99,11 @@ public class WaybillPrintContext implements Context{
 	 * 站点平台打印-打印结果数据
 	 */
 	private LabelPrintingResponse labelPrintingResponse;
+
+	/**
+	 * 运单是否交接完成
+	 */
+	private Boolean isCollectComplete;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -202,5 +226,13 @@ public class WaybillPrintContext implements Context{
 
 	public void setTraderSign(String traderSign) {
 		this.traderSign = traderSign;
+	}
+
+	public Boolean getCollectComplete() {
+		return isCollectComplete;
+	}
+
+	public void setCollectComplete(Boolean collectComplete) {
+		isCollectComplete = collectComplete;
 	}
 }

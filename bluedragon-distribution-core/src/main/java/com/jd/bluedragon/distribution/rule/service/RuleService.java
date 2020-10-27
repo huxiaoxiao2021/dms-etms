@@ -19,7 +19,9 @@ public interface RuleService {
 
     void update(Rule rule);
 
-    List<Rule>  queryByParamNoPage(Map map);
+    List<Rule>  queryByParamNoPage(Integer createSiteCode);
 
     Integer addRuleByReferSite(Integer siteCode, Integer referSiteCode);
+
+    Rule get(Integer siteCode,String type) throws Exception;
 }

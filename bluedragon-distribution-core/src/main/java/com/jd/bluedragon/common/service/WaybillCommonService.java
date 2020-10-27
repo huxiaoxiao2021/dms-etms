@@ -168,6 +168,13 @@ public interface WaybillCommonService {
 	 */
 	boolean isPerformanceWaybill(String waybillCode);
 
+    /**
+     * 是否快运暂存运单
+     * @param waybillCode
+     * @return
+     */
+    boolean isStorageWaybill(String waybillCode);
+
 	/**
 	 * 	加载面单中的特殊需求字段
 	 * @param printWaybill

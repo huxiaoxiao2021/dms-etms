@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao">
+	<resultMap id="exportLogResult"
+		type="com.jd.bluedragon.distribution.exportlog.domain.ExportLog">
+		<id column="id" property="id" jdbcType="BIGINT" />
+		<result column="id" property="id" jdbcType="INTEGER" />
+		<result column="export_code" property="exportCode" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" jdbcType="INTEGER" />
+		<result column="file_name" property="fileName" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="INTEGER" />
+	</resultMap>
+	<sql id="Base_Column_List" >
+    id, export_code, create_user,file_name,status, create_time, update_time, yn, ts
+  </sql>
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.exportlog.domain.ExportLog">
+		insert into dms_export_log (
+		export_code,create_user,type,create_time,update_time,query_where,yn,status
+		)
+		values
+		(
+			#{exportCode,jdbcType=VARCHAR},
+			#{createUser,jdbcType=VARCHAR},
+			#{type,jdbcType=INTEGER},
+			NOW(),
+			NOW(),
+			#{queryWhere,jdbcType=VARCHAR},
+			1,
+			0
+		)
+	</insert>
+	<update id="update" parameterType="com.jd.bluedragon.distribution.exportlog.domain.ExportLog">
+		update dms_export_log
+			set
+				status = #{status,jdbcType=INTEGER},
+				file_name = #{fileName,jdbcType=VARCHAR},
+				update_time=now()
+		where  export_code = #{exportCode,jdbcType=VARCHAR}
+	</update>
+
+
+	<sql id="where_condition">
+	<where>
+	yn = 1
+	<if test="createUser != null">
+		AND create_user = #{createUser,jdbcType=VARCHAR}
+	</if>
+		<if test="type != null">
+			AND type = #{type,jdbcType=INTEGER}
+		</if>
+		<if test="startTime != null and endTime !=null">
+			and create_time BETWEEN #{startTime} and #{endTime}
+		</if>
+		<if test="startTime != null and endTime ==null">
+			and  <![CDATA[   create_time >= #{startTime}  ]]>
+		</if>
+		<if test="startTime == null and endTime !=null">
+			and  <![CDATA[   create_time <= #{endTime}  ]]>
+		</if>
+	</where>
+	</sql>
+	<select id="queryCountByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		SELECT
+		COUNT(1) AS num
+		FROM
+		dms_export_log
+		<include refid="where_condition"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="exportLogResult">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM
+		dms_export_log
+
+		<include refid="where_condition"/>
+		ORDER BY id DESC
+		LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
+	</select>
+	<select id="get"  parameterType="java.lang.Long" resultMap="exportLogResult">
+		SELECT
+		<include refid="Base_Column_List"/>
+		FROM
+		dms_export_log
+		where  id=#{id,jdbcType=BIGINT}
+	</select>
+	<update id="deleteById"  parameterType="java.lang.Long">
+        UPDATE dms_export_log
+        SET YN = 0
+        WHERE id = #{id,jdbcType=BIGINT}
+    </update>
+
+</mapper>

@@ -94,7 +94,7 @@ $(function () {
             title: '机构类型',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value == null || value == -1) ? "" : ((value == 0) ? "分拣中心" : "转运中心");
+                return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
             }
         }, {
             field: 'reviewSiteName',
@@ -109,11 +109,11 @@ $(function () {
             }
         }, {
             field: 'normalPackageNum',
-            title: '普通应抽查包裹数',
+            title: '普通应抽查运单数',
             align: 'center'
         },{
             field: 'normalPackageNumOfActual',
-            title: '普通实际抽查包裹数',
+            title: '普通实际抽查运单数',
             align: 'center'
         }, {
             field: 'normalCheckRate',
@@ -121,7 +121,7 @@ $(function () {
             align: 'center'
         },{
             field: 'normalPackageNumOfDiff',
-            title: '普通抽查差异包裹数',
+            title: '普通抽查差异运单数',
             align: 'center'
         },{
             field: 'normalCheckRateOfDiff',
@@ -129,11 +129,11 @@ $(function () {
             align: 'center'
         },{
             field: 'trustPackageNum',
-            title: '信任商家应抽查包裹数',
+            title: '信任商家应抽查运单数',
             align: 'center'
         },{
             field: 'trustPackageNumOfActual',
-            title: '信任商家实际抽查包裹数',
+            title: '信任商家实际抽查运单数',
             align: 'center'
         },{
             field: 'trustCheckRate',
@@ -141,7 +141,7 @@ $(function () {
             align: 'center'
         },{
             field: 'trustPackageNumOfDiff',
-            title: '信任商家抽查差异包裹数',
+            title: '信任商家抽查差异运单数',
             align: 'center'
         },{
             field: 'trustCheckRateOfDiff',

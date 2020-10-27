@@ -87,6 +87,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
     }
 
+    public String querySendCodeBySelective(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".querySendCodeBySelective", querySendDatail);
+    }
+
+    public Integer queryCountExclusion(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".queryCountExclusion", querySendDatail);
+    }
+
     public boolean updateSendDatail(SendDetail SendDatail) {
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateSendDatail",
                 SendDatail) > 0;
@@ -290,6 +300,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".queryBoxCodeBySendCode", query);
     }
 
+    public List<String> queryBoxCodeSingleBySendCode(SendDetail sendDetail){
+        return	this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBoxCodeSingleBySendCode", sendDetail);
+    }
+
     public List<SendDetail> queryWaybillsByDepartID(Long departureID) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsByDepartID", departureID);
@@ -446,4 +460,30 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".queryPackageCodeByboxCode", params);
     }
 
+    /**
+     * 根据运单号查询 包裹号
+     * @param params
+     * @return
+     */
+    public List<String> queryPackageByWaybillCode(SendDetailDto params){
+        return this.getSqlSession().selectList(namespace + ".queryPackageByWaybillCode", params);
+    }
+
+    /**
+     * 根据批次号列表查询运单数
+     * @param params
+     * @return
+     */
+    public Integer queryWaybillNumBybatchCodes (Map<String,Object> params) {
+        return this.getSqlSession().selectOne(namespace + ".queryWaybillNumBybatchCodes", params);
+    }
+
+    /**
+     * 根据批次号列表查询包裹数
+     * @param params
+     * @return
+     */
+    public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
+        return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
+    }
 }

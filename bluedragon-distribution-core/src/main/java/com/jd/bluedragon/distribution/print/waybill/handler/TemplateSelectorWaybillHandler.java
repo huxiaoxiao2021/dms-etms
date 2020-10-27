@@ -8,30 +8,40 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.DateHelper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import static java.util.Arrays.asList;
+
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
     
     /**B网统一面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-unite";
+    /**大件模板 **/
+    private static final String TEMPlATE_NAME_DJ_JDB_MAIN = "dms-dj-jdb-m";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
-    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
+    private static final String TEMPlATE_NAME_C_MAIN = "dms-unite1011-new";
     /** C网统一面单-10*10 **/
-    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-m";
+    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-new";
     /** 一号店面单 -10*11**/
     private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
     /** 一号店面单 10*10 **/
     private static final String TEMPlATE_NAME_C1010_BUSINESS = "dms-unite1010-business-m";
-    /** C2C京准达面单 **/
-    private static final String TEMPlATE_NAME_C_2_C = "dms-c2c-m";
     /** 招商银行面单**/
     private static final String TEMPlATE_NAME_C_CMBC = "dms-nopaperyhd-m";
 
@@ -44,6 +54,12 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 	
     @Autowired
     private SiteService siteService;
+
+    @Value("${time.dubboEleven}")
+    private String timeDubboEleven;//双十一期间需要达标的日期, 以逗号分隔
+    @Value("${mask.dubboEleven}")
+    private String maskDubboEleven;//每天对应的标签
+
 
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -73,7 +89,10 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             	//冷链合伙人打印，指定为冷链模板
             	if(WaybillPrintOperateTypeEnum.COLD_CHAIN_PRINT.getType().equals(operateType)){
             		templateName = TEMPlATE_NAME_B2B_MAIN;
-            	}else if(BusinessUtil.isBusinessNet(waybillSign)){
+            	}else if(WaybillPrintOperateTypeEnum.PDF_DJ_JDB_PACKAGE_REPRINT.getType().equals(operateType)){
+            	    //大件-京东帮打印，指定模板
+                    templateName = TEMPlATE_NAME_DJ_JDB_MAIN;
+                }else if(BusinessUtil.isBusinessNet(waybillSign)){
             	    //经济网模板
                     templateName = TEMPlATE_NAME_C1010_MAIN;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
@@ -91,13 +110,11 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                         if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_BUSINESS;
                         }
-                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
+                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())
+                                && !BusinessUtil.isLetterExpress(waybillSign)) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
-                    } else if(BusinessUtil.isC2CJZD(waybillSign)){
-                        templateName = TEMPlATE_NAME_C_2_C;
-                    }
-                    else {
+                    } else {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
@@ -117,9 +134,14 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                 .contains(context.getRequest().getDmsSiteCode())){
             basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
         }
+        // 双十一1234项目使用四天后面删除此处代码
+        if(isInDubboElevenTime() &&
+                (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C_MAIN)){
+            setMask(context);
+        }
         //得到业务模板
         //根据key查config
-        if (needMatchTemplate && siteCode != null) {
+        if (needMatchTemplate) {
         	LabelTemplate matchedTemplate = templateSelectService.getMatchLabelTemplate(templateName, siteCode);
             if (matchedTemplate != null && StringUtils.isNotBlank(matchedTemplate.getTemplateName())) {
                 templateName = matchedTemplate.getTemplateName();
@@ -131,4 +153,41 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         basePrintWaybill.setTemplateName(templateName);
 		return context.getResult();
 	}
+
+    /**
+     * 打标
+     * 双十一第一天是1，逐天加1
+     * @param context
+     */
+    private void setMask(WaybillPrintContext context) {
+        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
+        List<String> masks = Arrays.asList(this.maskDubboEleven.split(","));
+        if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks)){
+            return;
+        }
+        int index = dubboElevenTimes.indexOf(currentDate);
+        String mask = index < masks.size() ? masks.get(index) : null;
+        if (!StringUtils.isEmpty(mask)){
+            context.getBasePrintWaybill().setTransportTypeText(mask);
+        }
+    }
+
+    /**
+     * 判断是否在双十一期间
+     * 双十一期间的定义（开始时间 <= 当前时间 <=开始时间+持续天数）
+     * 如果在双十一期间返回 true 否则返回 false
+     * @return
+     */
+    private boolean isInDubboElevenTime() {
+	    if (StringUtils.isEmpty(timeDubboEleven) || StringUtils.isEmpty(maskDubboEleven)){
+	        return Boolean.FALSE;
+        }
+        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
+        if (dubboElevenTimes.contains(currentDate)){
+            return Boolean.TRUE;
+        };
+        return Boolean.FALSE;
+    }
 }

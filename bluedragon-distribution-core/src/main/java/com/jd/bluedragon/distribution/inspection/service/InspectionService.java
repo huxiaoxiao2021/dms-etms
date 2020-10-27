@@ -1,12 +1,13 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
+import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
-import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -173,4 +174,26 @@ public interface InspectionService {
 	 * @return
 	 */
 	InspectionPackProgress getWaybillCheckProgress(String waybillCode, Integer createSiteCode);
+
+    /**
+     * 校验运单号是否绑定集包袋
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean checkIsBindMaterial(String waybillCode);
+
+    /**
+     * 确认验货任务执行模式
+     *
+     * @param request
+     * @return
+     */
+    InspectionExeModeEnum findInspectionExeMode(InspectionRequest request);
+
+    /**
+     * 验货运单多包裹拆分任务，分页数量
+     * @return
+     */
+    int getInspectionTaskPackageSplitNum();
 }

@@ -6,6 +6,8 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @ClassName: PreSealVehicleDao
@@ -36,6 +38,17 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
     int updateStatusByTransportCodes(List<String> transportCodes, String updateUserErp, String updateUserName, Integer status);
+
+    /**
+     * 根据运力编码和车牌批量更新预封车数据状态
+     *
+     * @param transportCodes
+     * @param updateUserErp
+     * @param updateUserName
+     * @param status
+     * @return
+     */
+    int updateStatusByTransportCodesAndVehicleNumbers(List<String> transportCodes, List<String> vehicleNumbers, String updateUserErp, String updateUserName, int status);
 
     /**
      * 根据始发目的取消预封车
@@ -88,4 +101,15 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
     int updatePreSealVehicleMeasureInfo(PreSealVehicle preSealVehicle);
+
+    /*
+     * 根据运力编码获取预封车信息
+     * */
+    List<PreSealVehicle> getPreSealInfoByParams(Map<String, Object> params);
+
+    /*
+     * 完成预封车任务
+     *
+     * */
+    int completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 }

@@ -4,7 +4,6 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -49,12 +48,12 @@ public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
         /* 调用原始的加盟商的逻辑 */
         AllianceBusiDeliveryDto allianceBusiDeliveryDto = new AllianceBusiDeliveryDto();
-        allianceBusiDeliveryDto.setForce(Boolean.FALSE);
+        allianceBusiDeliveryDto.setForce(Boolean.TRUE);
         allianceBusiDeliveryDto.setOperatorId(entity.getOperatorId());
         allianceBusiDeliveryDto.setOperatorName(entity.getOperatorName());
         allianceBusiDeliveryDto.setOperatorSiteCode(entity.getOperateSiteCode());
         allianceBusiDeliveryDto.setOperatorSiteName(entity.getOperateSiteName());
-        allianceBusiDeliveryDto.setOpeType(4);//todo 什么是揽收 ，什么是派送
+        allianceBusiDeliveryDto.setOpeType(1);//todo 什么是揽收 ，什么是派送
         AllianceBusiDeliveryDetailDto detailDto = new AllianceBusiDeliveryDetailDto();
         detailDto.setOpeCode(entity.getBarCode());
         detailDto.setHeight(entity.getHeight());

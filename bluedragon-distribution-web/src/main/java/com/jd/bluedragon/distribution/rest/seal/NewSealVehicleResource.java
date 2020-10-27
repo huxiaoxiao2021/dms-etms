@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
@@ -52,9 +54,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -89,6 +93,9 @@ public class NewSealVehicleResource {
     /** 仓库网点类型 */
     private static final Integer WMS_NODE_TYPE = 3;
 
+    /** 封车体积确认CODE */
+    private static final Integer SEAL_VOLUME_CONFIRM = 100;
+
     @Autowired
     private NewSealVehicleService newsealVehicleService;
 
@@ -115,6 +122,9 @@ public class NewSealVehicleResource {
     private int rollBackDay;
 
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 校验并获取运力编码信息
@@ -539,8 +549,13 @@ public class NewSealVehicleResource {
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 
+        if(!isNeedCheck(request.getSealSiteId())){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            return response;
+        }
         if (request == null) {
-            log.warn("NewSealVehicleResource seal --> 传入参数非法");
+            log.warn("NewSealVehicleResource verifySendVolume --> 传入参数非法");
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return response;
@@ -552,7 +567,7 @@ public class NewSealVehicleResource {
             sealCarDto.setTransportCode(request.getTransportCode());
             sealCarDto.setBatchCodes(request.getBatchCodes());
             sealCarDto.setSealCodes(request.getSealCodes());
-            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),"yyyy-MM-dd HH:mm:ss"));
+            sealCarDto.setSealCarTime(DateHelper.parseDate(request.getSealCarTime(),Constants.DATE_TIME_FORMAT));
             sealCarDto.setSealSiteId(request.getSealSiteId());
             sealCarDto.setSealSiteCode(request.getSealSiteCode());
             sealCarDto.setSealSiteName(request.getSealSiteName());
@@ -564,16 +579,45 @@ public class NewSealVehicleResource {
             sealCarDto.setWeight(request.getWeight());
 
             CommonDto<String> dto = newsealVehicleService.verifySealVehicleVolume(sealCarDto);
-            response.setCode(dto.getCode());
-            response.setMessage(dto.getMessage());
-            response.setData(dto.getData());
-
+            if(dto == null){
+                response.setCode(JdCResponse.CODE_ERROR);
+                response.setMessage(JdCResponse.MESSAGE_ERROR);
+                return response;
+            }
+            if(dto.getCode() == CommonDto.CODE_SUCCESS){
+                response.setCode(JdCResponse.CODE_SUCCESS);
+                response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+            }else if(dto.getCode() == SEAL_VOLUME_CONFIRM){
+                response.setCode(JdCResponse.CODE_CONFIRM);
+                response.setMessage(dto.getMessage());
+            }else {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage(dto.getMessage());
+            }
         }catch(Exception e){
-            response.setCode(JdResponse.CODE_SERVICE_ERROR);
-            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            response.setCode(JdCResponse.CODE_ERROR);
+            response.setMessage(JdCResponse.MESSAGE_ERROR);
             this.log.error("校验批次的体积异常，批次号:{}",request.getBatchCodes().toString(), e);
         }
         return response;
+    }
+
+    /**
+     * 是否需要校验封车批次体积
+     *
+     * @param siteCode
+     * @return
+     */
+    private boolean isNeedCheck(Integer siteCode) {
+        String sealVolumeCheckSites = uccPropertyConfiguration.getSealVolumeCheckSites();
+        if(StringUtils.isEmpty(sealVolumeCheckSites)){
+            return true;
+        }
+        List<String> siteCodes = Arrays.asList(sealVolumeCheckSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(String.valueOf(siteCode))){
+            return true;
+        }
+        return false;
     }
 
 
@@ -593,12 +637,20 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData(),emptyBatchCode);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    if(emptyBatchCode==null || emptyBatchCode.isEmpty()){
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+                    }else {
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode)); //NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN
+                    }
+
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
@@ -609,6 +661,18 @@ public class NewSealVehicleResource {
             this.log.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    private String getMsgByList(Map<String, String> emptyBatchCode){
+        StringBuilder msg= new StringBuilder("封车成功。已剔除无发货数据批次：\r\n");
+        for(Map.Entry<String, String> entry : emptyBatchCode.entrySet()){
+            String mapKey = entry.getKey();
+            String mapValue = entry.getValue();
+            msg.append(mapValue).append(":").append(mapKey).append("\r\n");
+
+        }
+
+        return msg.toString();
     }
 
     /**
@@ -627,7 +691,18 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
+            if (sealVehicleResponse != null) {
+                if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+                    if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){
+                        //sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
+                    }
+                }
+            }
         } catch (Exception e) {
             this.log.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
         }

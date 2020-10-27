@@ -6,21 +6,20 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
+import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -33,6 +32,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -45,19 +45,13 @@ import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -87,16 +81,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -175,9 +162,8 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private LogEngine logEngine;
 
-
 	@Autowired
-	private JsfSortingResourceService jsfSortingResourceService;
+	private SortingCheckService sortingCheckService;
 
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
@@ -185,8 +171,8 @@ public class SortingServiceImpl implements SortingService {
 	@Value("${beans.SortingServiceImpl.sortingDealWarnTime:100}")
 	private long sortingDealWarnTime;
 
-    @Resource
-    private UccPropertyConfiguration uccPropertyConfiguration;
+    @Autowired
+    private CycleMaterialNoticeService cycleMaterialNoticeService;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -423,7 +409,6 @@ public class SortingServiceImpl implements SortingService {
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
-				this.b2bPushInspection(sorting);//B网建箱自动触发验货全程跟踪
 				this.addSorting(sorting, null); // 添加分拣记录
 				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
@@ -863,67 +848,6 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	/**
-	 * B网建箱自动触发验货全程跟踪
-	 * 推验货任务
-	 * @param sorting
-	 */
-	public void b2bPushInspection(Sorting sorting) {
-    	//ucc判断B网分拣是否需要补验货
-    	if(!uccPropertyConfiguration.isB2bPushInspectionSwitch()){
-    		return;
-    	}
-		BaseStaffSiteOrgDto createSite = null;
-		try {
-			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
-		} catch (Exception e) {
-			this.log.error("sortingServiceImpl.pushInspection:查询始发站点异常：{}",JsonHelper.toJson(sorting), e);
-		}
-		//B网建箱自动触发验货全程跟踪
-		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSubType()){
-			return;
-		}
-		Inspection inspectionQ=new Inspection();
-		inspectionQ.setWaybillCode(sorting.getWaybillCode());
-		inspectionQ.setPackageBarcode(sorting.getPackageCode());
-		inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
-		boolean have=inspectionDao.haveInspectionByPackageCode(inspectionQ);
-		//如果已经验过货  就不用补了
-		if (have){
-			return;
-		}
-		InspectionRequest inspection=new InspectionRequest();
-		inspection.setUserCode(sorting.getCreateUserCode());
-		inspection.setUserName(sorting.getCreateUser());
-		inspection.setSiteCode(sorting.getCreateSiteCode());
-		inspection.setSiteName(createSite.getSiteName());
-		//验货操作提前5秒
-		inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
-		inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-		inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
-
-		TaskRequest request=new TaskRequest();
-		request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-		request.setKeyword1(String.valueOf(sorting.getCreateUserCode()));
-		request.setKeyword2(sorting.getPackageCode());
-		request.setType(Task.TASK_TYPE_INSPECTION);
-		request.setOperateTime(inspection.getOperateTime());
-		request.setSiteCode(sorting.getCreateSiteCode());
-		request.setSiteName(createSite.getSiteName());
-		request.setUserCode(sorting.getCreateUserCode());
-		request.setUserName(sorting.getCreateUser());
-		//request.setBody();
-		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
-				+ JsonHelper.toJson(inspection)
-				+ Constants.PUNCTUATION_CLOSE_BRACKET;
-		Task task=this.taskService.toTask(request, eachJson);
-
-		int result= this.taskService.add(task, true);
-		if(log.isDebugEnabled()){
-			log.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:{}条,请求参数:{}",result,JsonHelper.toJson(task));
-		}
-        addBusinessLog(sorting,task);
-	}
-	/**
 	 * 记录业务日志
 	 *
 	 * @param sorting
@@ -976,8 +900,32 @@ public class SortingServiceImpl implements SortingService {
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
 			}
+
+			// 先发货后分拣的场景，补发循环集包袋MQ
+			if (transitSendMs.size() > 0 || sendMs.size() > 0) {
+                this.deliverGoodsNoticeMQ(sorting);
+            }
 		}
 	}
+
+    /**
+     * 发送循环集包袋发货MQ
+     * @param sorting
+     */
+    private void deliverGoodsNoticeMQ(Sorting sorting) {
+        BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
+        mq.setBoxCode(sorting.getBoxCode());
+        mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
+        mq.setOperatorName(sorting.getCreateUser());
+        mq.setOperatorCode(sorting.getCreateUserCode());
+        mq.setSiteCode(sorting.getCreateSiteCode().toString());
+
+        mq.setReceiveSiteCode(sorting.getReceiveSiteCode().longValue());
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sorting.getReceiveSiteCode());
+        mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
+
+        cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
+    }
 
 	/**
 	 * 获取直接发货和中转发货的SendM数据
@@ -1544,8 +1492,24 @@ public class SortingServiceImpl implements SortingService {
 		fillSortingIfPickup(sorting);
 		sortingAddInspection(sorting);
 		sortingAddSend(sorting);
+		// 分拣发送循环物资MQ
+        pushCycleMaterialMessage(sorting);
 		addOpetationLog(sorting,OperationLog.LOG_TYPE_SORTING,"SortingServiceImpl#doSortingAfter");
 	}
+
+    private void pushCycleMaterialMessage(Sorting sortingData) {
+        BoxMaterialRelationMQ mqBody = new BoxMaterialRelationMQ();
+        mqBody.setBusinessType(BoxMaterialRelationEnum.SORTING.getType());
+        mqBody.setBoxCode(sortingData.getBoxCode());
+        mqBody.setSiteCode(String.valueOf(sortingData.getCreateSiteCode()));
+        mqBody.setPackageCode(Collections.singletonList(sortingData.getPackageCode()));
+        mqBody.setWaybillCode(Collections.singletonList(sortingData.getWaybillCode()));
+        mqBody.setOperatorTime(sortingData.getOperateTime());
+        mqBody.setOperatorName(sortingData.getCreateUser());
+        mqBody.setOperatorCode(sortingData.getCreateUserCode());
+
+        cycleMaterialNoticeService.sendSortingMaterialMessage(mqBody);
+    }
 
 	/**
 	 * 分拣补验货
@@ -1554,7 +1518,6 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 */
 	private void sortingAddInspection(Sorting sorting){
-		b2bPushInspection(sorting);
 		saveOrUpdateInspectionEC(sorting);
 	}
 
@@ -1576,13 +1539,14 @@ public class SortingServiceImpl implements SortingService {
 		return dynamicSortingQueryDao.findPackageCodesByWaybillCode(sorting);
 	}
 
+	@JProfiler(jKey = "DMSWEB.SortingServiceImpl.check", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
-			SortingCheck sortingCheck = convertToSortingCheck(pdaOperateRequest);
-			sortingJsfResponse = jsfSortingResourceService.check(sortingCheck);
-			if(sortingJsfResponse.getCode() != 200){
+			//调用web分拣验证校验链
+			sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
+			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}
 
@@ -1600,19 +1564,4 @@ public class SortingServiceImpl implements SortingService {
 		return sortingJsfResponse;
 	}
 
-	public SortingCheck convertToSortingCheck(PdaOperateRequest request){
-		SortingCheck sortingCheck = new SortingCheck();
-		sortingCheck.setBoxCode(request.getBoxCode());
-		sortingCheck.setBusinessType(request.getBusinessType());
-		sortingCheck.setCreateSiteCode(request.getCreateSiteCode());
-		sortingCheck.setCreateSiteName(request.getCreateSiteName());
-		sortingCheck.setOperateTime(request.getOperateTime());
-		sortingCheck.setOperateType(request.getOperateType());
-		sortingCheck.setOperateUserCode(request.getOperateUserCode());
-		sortingCheck.setOperateUserName(request.getOperateUserName());
-		sortingCheck.setPackageCode(request.getPackageCode());
-		sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
-		sortingCheck.setIsLoss(request.getIsLoss());
-		return sortingCheck;
-	}
 }

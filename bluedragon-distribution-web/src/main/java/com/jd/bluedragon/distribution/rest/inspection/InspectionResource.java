@@ -31,10 +31,7 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -103,6 +100,9 @@ public class InspectionResource {
 
 	@Autowired
     private SiteService siteService;
+
+	@Autowired
+	private QueryGapTimeUtil queryGapTimeUtil;
 
 	private final static Logger log = LoggerFactory.getLogger(InspectionResource.class);
 
@@ -395,15 +395,24 @@ public class InspectionResource {
 			@QueryParam("createSiteCode") int createSiteCode,
 			@QueryParam("startTime") String startTime,
 			@QueryParam("endTime") String endTime) {
-		List<HandoverDetailResponse> data = new ArrayList<HandoverDetailResponse>();
-		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(createSiteCode);
+
 		HandoverResponse response = new HandoverResponse();
-		String siteName = (bDto == null ? "" : bDto.getSiteName());
 		CenConfirm queryParam = new CenConfirm();
 		queryParam.setType(Short.valueOf(type));
 		queryParam.setCreateSiteCode(createSiteCode);
 		queryParam.setCreateTime(DateHelper.parseDateTime(startTime));// start
 		queryParam.setInspectionTime(DateHelper.parseDateTime(endTime));// end
+
+		if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(queryParam),QueryGapTimeUtil.INSPECTION_RESOURCE_GET)){
+			response.setCode(HandoverResponse.CODE_PARAM_ERROR);
+			response.setMessage("您操作的太快了！稍作休息后再操作！");
+			return response;
+		}
+
+		List<HandoverDetailResponse> data = new ArrayList<HandoverDetailResponse>();
+		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(createSiteCode);
+		String siteName = (bDto == null ? "" : bDto.getSiteName());
+
 		List<CenConfirm> cenConfirms = cenConfirmService
 				.queryHandoverInfo(queryParam);
 		if (cenConfirms != null && !cenConfirms.isEmpty()) {
@@ -457,6 +466,13 @@ public class InspectionResource {
 				.parseDateTime(inspectionFCRequest.getEndTime()));// end
 		queryParam.setWaybillCode(inspectionFCRequest.getWaybillCode());
 		queryParam.setCreateSiteCode(inspectionFCRequest.getSiteCode());
+
+		if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(queryParam),QueryGapTimeUtil.INSPECTION_RESOURCE_RETURN_WAREHOUSE)){
+			response.setCode(HandoverResponse.CODE_PARAM_ERROR);
+			response.setMessage("您操作的太快了！稍作休息后再操作！");
+			return response;
+		}
+
 		List<CenConfirm> cenConfirms = cenConfirmService
 				.queryHandoverInfo(queryParam);
 		if (cenConfirms != null && !cenConfirms.isEmpty()) {
@@ -540,6 +556,12 @@ public class InspectionResource {
         if(WaybillUtil.isPackageCode(packageBarOrWaybillCode)){
 			isPack = true;
             waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
+        }
+        // 运单绑定集包袋校验
+        if(WaybillUtil.isWaybillCode(packageBarOrWaybillCode)
+                && inspectionService.checkIsBindMaterial(waybillCode)){
+            jdResponse.toFail(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+            return jdResponse;
         }
 		InspectionResult inspectionResult = new InspectionResult("");
         //提取获取操作站点信息
