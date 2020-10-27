@@ -57,4 +57,11 @@ public interface SendDetailService {
      * @return
      */
     List<String> queryPackageByWaybillCode(SendDetailDto params);
+
+    /**
+     * 检查批次是否存在发货记录
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendIsExist(String sendCode);
 }

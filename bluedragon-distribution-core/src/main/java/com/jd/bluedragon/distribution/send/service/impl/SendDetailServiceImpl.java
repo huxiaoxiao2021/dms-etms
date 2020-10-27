@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,5 +98,22 @@ public class SendDetailServiceImpl implements SendDetailService {
     @Override
     public List<String> queryPackageByWaybillCode(SendDetailDto params){
         return sendDatailDao.queryPackageByWaybillCode(params);
+    }
+
+    @Override
+    public boolean checkSendIsExist(String sendCode) {
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        if(null == createSiteCode){
+            log.error("checkSendIsExist-->参数sendCode:{}",sendCode);
+            return false;
+        }
+
+        SendDetail queryDetail = new SendDetail();
+        queryDetail.setSendCode(sendCode);
+        queryDetail.setCreateSiteCode(createSiteCode);
+
+        //查询存在
+        return sendDatailDao.querySendBySiteCodeAndSendCode(queryDetail) != null;
+
     }
 }

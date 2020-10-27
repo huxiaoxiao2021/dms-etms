@@ -18,14 +18,18 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarResultDto;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
@@ -73,9 +77,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@Autowired
 	private TfcSelectWS tfcSelectWS;
 
-	@Autowired
-	private SendMDao sendMDao;
-
     @Autowired
     private GoddessService goddessService;
 
@@ -107,6 +108,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private SendDetailService sendDetailService;
 
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
@@ -229,10 +233,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
       return new SealCarResultDto(keepsourceSealDtos,emptyBatchCode);
   }
 
-	/**
+    /**
      * 校验批次号是否存在发货记录
-	 */
-	private boolean checkBatchCodeIsSend(String batchCode){
+     * @param batchCode
+     * @return true 存在发货数据或者物质数据 false 不存在
+     */
+	@Override
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl.checkBatchCodeIsSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public boolean checkBatchCodeIsSend(String batchCode){
+        String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
+        if(!Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
+            return true;
+        }
         boolean res=true;
 
 	    //批次号不存在sendm记录
@@ -685,8 +697,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Override
     public boolean checkSendIsExist(String sendCode) {
-		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
-		return sendM != null;
+        return sendDetailService.checkSendIsExist(sendCode);
 	}
 
     @Override
