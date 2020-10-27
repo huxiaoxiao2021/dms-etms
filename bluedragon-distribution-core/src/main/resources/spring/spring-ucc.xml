@@ -78,11 +78,7 @@
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
 		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
-<<<<<<< .mine
 		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
-=======
-		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
->>>>>>> .theirs
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -127,19 +123,11 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
-<<<<<<< .mine
 				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
-=======
-
->>>>>>> .theirs
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
 				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
-<<<<<<< .mine
 				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
-=======
-				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
->>>>>>> .theirs
 			</list>
 		</property>
 	</bean>
