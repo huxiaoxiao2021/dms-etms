@@ -52,6 +52,11 @@ public enum InspectionBizSourceEnum {
          */
         AUTOMATIC_SORTING_MACHINE_INSPECTION(40, "分拣机验货"),
 
+        /**
+         * 安卓：交接扫描
+         */
+        ANDROID_HANDOVER_INSPECTION(41, "安卓交接扫描"),
+
         ;
 
         /**
