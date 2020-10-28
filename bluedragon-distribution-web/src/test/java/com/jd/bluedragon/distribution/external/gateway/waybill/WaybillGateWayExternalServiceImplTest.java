@@ -80,8 +80,6 @@ public class WaybillGateWayExternalServiceImplTest {
         message.setBoxCode(box.getCode());
         message.setCreateSiteCode(String.valueOf(box.getCreateSiteCode()));
         message.setReceiveSiteCode(String.valueOf(box.getReceiveSiteCode()));
-        message.setBoxType(String.valueOf(box.getType()));
-        message.setCreateSiteType(String.valueOf(10000));
 
 //       pushBoxCode.invoke(waybillGateWayExternalService, box, 10000);
         thirdBoxCodeProducer.sendOnFailPersistent(box.getCode(), JsonHelper.toJson(message));

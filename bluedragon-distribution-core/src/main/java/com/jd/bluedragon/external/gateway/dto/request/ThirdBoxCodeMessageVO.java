@@ -21,16 +21,6 @@ public class ThirdBoxCodeMessageVO implements Serializable {
      */
     private String receiveSiteCode;
 
-    /**
-     * 箱号类型
-     */
-    private String boxType;
-
-    /**
-     * 始发站点类型
-     */
-    private String createSiteType;
-
     public String getBoxCode() {
         return boxCode;
     }
@@ -55,30 +45,12 @@ public class ThirdBoxCodeMessageVO implements Serializable {
         this.receiveSiteCode = receiveSiteCode;
     }
 
-    public String getBoxType() {
-        return boxType;
-    }
-
-    public void setBoxType(String boxType) {
-        this.boxType = boxType;
-    }
-
-    public String getCreateSiteType() {
-        return createSiteType;
-    }
-
-    public void setCreateSiteType(String createSiteType) {
-        this.createSiteType = createSiteType;
-    }
-
     @Override
     public String toString() {
         return "ThirdBoxCodeMessageVO{" +
                 "boxCode='" + boxCode + '\'' +
                 ", createSiteCode='" + createSiteCode + '\'' +
                 ", receiveSiteCode='" + receiveSiteCode + '\'' +
-                ", boxType='" + boxType + '\'' +
-                ", createSiteType='" + createSiteType + '\'' +
                 '}';
     }
 }
