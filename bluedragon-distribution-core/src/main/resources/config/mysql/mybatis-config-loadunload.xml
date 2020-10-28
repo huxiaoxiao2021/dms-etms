@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+    <settings>
+        <setting name="lazyLoadingEnabled" value="false"/>
+        <setting name="autoMappingBehavior" value="FULL"/>
+        <setting name="defaultStatementTimeout" value="30"/>
+    </settings>
+
+    <typeAliases>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>
+
+        <!-- 装车发货扫描 -->
+        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>
+        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" alias="goodsLoadScanRecord"/>
+    </typeAliases>
+
+
+    <mappers>
+
+        <!-- 装卸车业务 -->
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />
+
+        <!-- 装车扫描业务 -->
+        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />
+        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />
+
+    </mappers>
+</configuration>

@@ -126,6 +126,9 @@
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
 				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
 				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
+				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
+				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
+				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
 			</list>
 		</property>
 	</bean>
