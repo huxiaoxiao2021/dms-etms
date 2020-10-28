@@ -1933,7 +1933,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMqToJN.setPictureAddress(abnormalResultMq.getPictureAddress());
         abnormalResultMqToJN.setDutyErp(abnormalResultMq.getDutyErp());
         abnormalResultMqToJN.setThreeLevelId(abnormalResultMq.getThreeLevelId());
-        abnormalResultMqToJN.setReviewDutyErp(abnormalResultMq.getReviewDutyErp());
+        abnormalResultMqToJN.setReviewErp(abnormalResultMq.getReviewErp());
         abnormalResultMqToJN.setReviewSecondLevelId(abnormalResultMq.getReviewSecondLevelId());
         return  abnormalResultMqToJN;
     }

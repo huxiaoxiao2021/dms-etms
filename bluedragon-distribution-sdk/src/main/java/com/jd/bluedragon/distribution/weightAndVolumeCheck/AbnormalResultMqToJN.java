@@ -75,7 +75,7 @@ public class AbnormalResultMqToJN implements Serializable {
     /**
      * 复核责任人erp
      * */
-    private String reviewDutyErp;
+    private String reviewErp;
 
     /**
      * 复核责任二级id
@@ -214,12 +214,12 @@ public class AbnormalResultMqToJN implements Serializable {
         this.threeLevelId = threeLevelId;
     }
 
-    public String getReviewDutyErp() {
-        return reviewDutyErp;
+    public String getReviewErp() {
+        return reviewErp;
     }
 
-    public void setReviewDutyErp(String reviewDutyErp) {
-        this.reviewDutyErp = reviewDutyErp;
+    public void setReviewErp(String reviewErp) {
+        this.reviewErp = reviewErp;
     }
 
     public Integer getReviewSecondLevelId() {
