@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.external.gateway.waybill;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -12,6 +11,7 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
+import com.jd.bluedragon.external.gateway.dto.request.ThirdBoxCodeMessageVO;
 import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
 import com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -57,6 +57,9 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
     @Autowired
     @Qualifier(value = "thirdBoxWeightProducer")
     private DefaultJMQProducer thirdBoxWeightDealProducer;
+    @Autowired
+    @Qualifier(value = "thirdBoxCodeProducer")
+    private DefaultJMQProducer thirdBoxCodeProducer;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -103,6 +106,8 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             response.toFail(GateWayBaseResponse.MESSAGE_FAIL);
             return response;
         }
+        //推送箱号给众邮
+        pushBoxCode(box);
         //业务操作
         if(OPERATION_SORTING.equals(request.getOperationType())){
             //处理箱号明细：如果箱号已经操作了称重，则需要将明细也进行分拣内部称重，不回传给运单
@@ -113,6 +118,18 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
         }else{
             response.toError(GateWayBaseResponse.MESSAGE_OPERATION_TYPE_ERROR);
             return response;
+        }
+    }
+
+    private void pushBoxCode(Box box) {
+        try {
+            ThirdBoxCodeMessageVO message = new ThirdBoxCodeMessageVO();
+            message.setBoxCode(box.getCode());
+            message.setCreateSiteCode(String.valueOf(box.getCreateSiteCode()));
+            message.setReceiveSiteCode(String.valueOf(box.getReceiveSiteCode()));
+            thirdBoxCodeProducer.sendOnFailPersistent(message.getBoxCode(),JsonHelper.toJson(message));
+        } catch (Exception e) {
+            logger.error("推送箱号给众邮出错:e={}", e);
         }
     }
 
