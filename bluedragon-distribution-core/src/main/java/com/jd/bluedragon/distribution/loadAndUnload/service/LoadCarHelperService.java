@@ -38,5 +38,28 @@ public interface LoadCarHelperService {
      */
     int deleteById(Long taskId);
 
+    /**
+     * 根据任务查询创建人erp
+     *
+     * @param taskId
+     * @return
+     */
+    List<String> selectCreateUserErpByTaskId(Long taskId);
 
+    /**
+     * 根据任务查询协助人erp
+     *
+     * @param taskId
+     * @return
+     */
+    List<String> selectHelperErpByTaskId(Long taskId);
+
+    /**
+     * 校验是否具备权限 true(证明有权限)
+     *
+     * @param taskId
+     * @param erp
+     * @return
+     */
+    Boolean checkUserPermission(Long taskId, String erp);
 }

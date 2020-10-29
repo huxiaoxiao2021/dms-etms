@@ -41,9 +41,8 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectPackageCodesByBoardCode", record);
     }
 
-    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long taskId, String boardCode, Long createSiteCode,List<String> packageCodeList) {
+    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long createSiteCode,List<String> packageCodeList) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-        record.setBoardCode(boardCode);
         record.setCreateSiteCode(createSiteCode);
         record.setYn(Constants.YN_YES);
         record.setPackageCodeList(packageCodeList);
@@ -83,4 +82,13 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".findGoodsLoadRecordPage", map);
     }
 
+    //根据任务id查询该任务下有效包裹数据（sql限制yn=1 and scan_action=1）
+    public int getPackageCountByTaskId(Long taskId) {
+        return this.getSqlSession().selectOne(namespace + ".getPackageCountByTaskId", taskId);
+    }
+
+    //删除包裹和任务关系时,先查有没有记录
+    public List<GoodsLoadScanRecord> loadScanRecordIsExist(Long taskId) {
+        return this.getSqlSession().selectList(namespace + ".loadScanRecordIsExist", taskId);
+    }
 }

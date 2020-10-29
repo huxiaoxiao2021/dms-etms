@@ -38,7 +38,14 @@ public class GoodsLoadScanConstants {
     public static final String LOCK_KEY = "Bnet_LoadScan_Lock_";
 
     //每页数量
-    public static final int PAGE_SIZE = 100;
-    public static final int GOODS_LOAD_CYCLE_COUNT = 500;
+    public static final int PAGE_SIZE = 500;
+    //循环次数限制
+    public static final int GOODS_LOAD_CYCLE_COUNT = 50;
+
+    //一条任务对应最大包裹数
+    //public static final int GOODS_LOAD_MAX_SIZE = 20000;
+
+    //删除任务同步删除包裹
+    public static final String LOAD_TASK_DELETE = "LOAD_TASK_DELETE_";
 
 }

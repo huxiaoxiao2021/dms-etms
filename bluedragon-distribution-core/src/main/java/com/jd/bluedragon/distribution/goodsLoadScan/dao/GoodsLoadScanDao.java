@@ -61,7 +61,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
 
     // 根据id查询所有运单信息 20201025
     public List<GoodsLoadScan> findAllLoadScanByTaskId(Long taskId) {
-        return super.getSqlSession().selectList(NAMESPACE + ".findAllLoadScanByTaskId", taskId);
+        return super.getSqlSession().selectList(NAMESPACE + ".findAllLoadScanExceptionByTaskId", taskId);
     }
 
     //根据任务号 运单号查询装车扫描运单信息  20201025
@@ -73,6 +73,10 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         return super.getSqlSession().selectOne(NAMESPACE + ".findWaybillInfoByTaskIdAndWaybillCode", goodsLoadScan);
     }
 
+    //删除包裹和任务关系时,先查有没有记录
+    public List<GoodsLoadScan> loadScanRecordIsExist(Long taskId) {
+        return super.getSqlSession().selectList(NAMESPACE + ".loadScanRecordIsExist", taskId);
+    }
 }
 
 

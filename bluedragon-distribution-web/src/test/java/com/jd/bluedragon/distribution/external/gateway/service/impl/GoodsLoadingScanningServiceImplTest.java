@@ -1,26 +1,26 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
-import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
-import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+        import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+        import com.jd.bluedragon.common.dto.base.request.User;
+        import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
+        import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+        import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+        import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+        import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
+        import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+        import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+        import org.junit.Test;
+        import org.junit.runner.RunWith;
+        import org.springframework.test.context.ContextConfiguration;
+        import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+        import javax.annotation.Resource;
+        import java.util.ArrayList;
+        import java.util.Date;
+        import java.util.List;
 
 /**
  * 装车发货相关功能测试
@@ -49,8 +49,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
+
         GoodsExceptionScanningReq param = new GoodsExceptionScanningReq();
-        param.setTaskId(77L);
+        param.setTaskId(1L);
 
         User user = new User();
         user.setUserName("admin");
@@ -61,6 +62,8 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteCode(1241136);
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
+
+        loadScanCacheService.delTaskLoadScan(param.getTaskId());
 
         JdCResponse<List<GoodsExceptionScanningDto>> res = null;
         for(int i=0; i< 3; i++) {
@@ -108,18 +111,18 @@ public class GoodsLoadingScanningServiceImplTest {
         GoodsLoadingReq param = new GoodsLoadingReq();
 
         User user = new User();
-        user.setUserName("admin");
-        user.setUserCode(2020001);
+        user.setUserName("bjxings");
+        user.setUserCode(10053);
         param.setUser(user);
 
         CurrentOperate currentOperate = new CurrentOperate();
         currentOperate.setSiteCode(910);
-        currentOperate.setSiteName("这是哪里啊");
+        currentOperate.setSiteName("北京马驹桥分拣中心");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(1L);
-        param.setSendCode("910-364605-20190111133142011");
-        param.setReceiveSiteCode(364605);
+        param.setTaskId(114L);
+        param.setSendCode("910-483-20201029015536423");
+        param.setReceiveSiteCode(483);
 
         loadScanCacheService.unLock(param.getTaskId().toString());//测试代码
         loadScanCacheService.delTaskLoadScan(param.getTaskId());
@@ -135,6 +138,7 @@ public class GoodsLoadingScanningServiceImplTest {
         User user = new User();
         user.setUserName("admin");
         user.setUserCode(2020001);
+        user.setUserErp("bjxings");
         param.setUser(user);
 
         CurrentOperate currentOperate = new CurrentOperate();
@@ -142,15 +146,15 @@ public class GoodsLoadingScanningServiceImplTest {
         currentOperate.setSiteName("这是哪里啊");
         param.setCurrentOperate(currentOperate);
 
-        param.setTaskId(77L);
+        param.setTaskId(95L);
+        loadScanCacheService.delTaskLoadScan(param.getTaskId());
 
-        param.setPackageCode("JDV000488250234-2-5-");//多个改数
+        param.setPackageCode("B001");//多个改数
         JdCResponse res = goodsLoadingScanningService.goodsRemoveScanning(param);
-        System.out.println(res.getCode() + "----" + res.getMessage());
 
-        param.setPackageCode("PA001");//多个改数
-        res = goodsLoadingScanningService.goodsRemoveScanning(param);
-        System.out.println(res.getCode() + "----" + res.getMessage());
+//        param.setPackageCode("PA001");//多个改数
+//        res = goodsLoadingScanningService.goodsRemoveScanning(param);
+//        System.out.println(res.getCode() + "----" + res.getMessage());
 
         System.out.println("-----------------end-----------------");
 
@@ -204,7 +208,7 @@ public class GoodsLoadingScanningServiceImplTest {
         param1.setFlowDisaccord(1);
         list.add(param1);
 
-       boolean res =  goodsLoadScanRecordDao.batchInsert(list);
+        boolean res =  goodsLoadScanRecordDao.batchInsert(list);
         System.out.println(res);
 
     }
@@ -227,15 +231,12 @@ public class GoodsLoadingScanningServiceImplTest {
 //        JdCResponse res = loadCarTaskGateWayService.deleteLoadCarTask(param);
 //        System.out.println(res.getCode() + "----" + res.getMessage());
 
-        LoadDeleteReq param1 = new LoadDeleteReq();
-        param1.setId(2L);
-        JdCResponse res1 = loadCarTaskGateWayService.deleteLoadCarTask(param1);
-        System.out.println(res1.getCode() + "----" + res1.getMessage());
+        LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
+        loadDeleteReq.setId(97L);
+        loadDeleteReq.setOperateUserErp("jiaowenqiang");
+        loadDeleteReq.setOperateUserName("焦文强");
+        JdCResponse res1 = loadCarTaskGateWayService.deleteLoadCarTask(loadDeleteReq);
 
-        LoadDeleteReq param2 = new LoadDeleteReq();
-        param2.setId(3L);
-        JdCResponse res2 = loadCarTaskGateWayService.deleteLoadCarTask(param2);
-        System.out.println(res2.getCode() + "----" + res2.getMessage());
     }
 
 }

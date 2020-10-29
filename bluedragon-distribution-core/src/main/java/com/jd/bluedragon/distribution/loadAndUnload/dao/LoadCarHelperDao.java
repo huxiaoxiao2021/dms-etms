@@ -39,4 +39,11 @@ public class LoadCarHelperDao extends BaseDao<LoadCarHelper> {
         return this.getSqlSession().update(namespace+".deleteById",taskId);
     }
 
+    public List<String> selectCreateUserErpByTaskId(Long taskId){
+        return this.getSqlSession().selectList(namespace + ".selectCreateUserErpByTaskId", taskId);
+    }
+
+    public List<String> selectHelperErpByTaskId(Long taskId){
+        return this.getSqlSession().selectList(namespace + ".selectHelperErpByTaskId", taskId);
+    }
 }

@@ -31,18 +31,39 @@ public interface LoadScanService {
      */
     boolean updateGoodsLoadScanAmount(GoodsLoadScan goodsLoadScan, GoodsLoadScanRecord goodsLoadScanRecord, Integer currentSiteCode);
 
+    /**
+     * 获取装车扫描运单暂存列表
+     */
     JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req);
 
+    /**
+     * 包裹号转板号进行暂存
+     */
     JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
 
+    /**
+     * 校验包裹号并暂存
+     */
     JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
-    //校验包裹信息对应的流向是否与当前任务流向一致
+
+    /**
+     * 校验包裹号
+     */
     JdVerifyResponse<Void> checkPackageCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
-    //校验板号相关信息.
+
+    /**
+     * 校验板号
+     */
     JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
 
+    /**
+     * 校验批次号
+     */
     JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response);
 
+    /**
+     * 根据任务ID删除装车扫描运单暂存记录和包裹扫描记录
+     */
     void deleteLoadScanByTaskId(Long taskId);
 
-    }
+}

@@ -112,5 +112,13 @@
 		where task_id = #{taskId,jdbcType=BIGINT}
     </update>
 
+    <select id="selectCreateUserErpByTaskId" parameterType="java.lang.Long" resultType="String">
+        select  create_user_erp from  load_car_helper
+        where  yn=1 and  task_id= #{taskId,jdbcType=BIGINT}
+    </select>
 
+    <select id="selectHelperErpByTaskId" parameterType="java.lang.Long" resultType="String">
+        select  helper_erp from  load_car_helper
+        where  yn=1 and  task_id= #{taskId,jdbcType=BIGINT}
+    </select>
 </mapper>

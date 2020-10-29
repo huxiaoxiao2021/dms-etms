@@ -1438,7 +1438,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 		<!--测试环境  -->

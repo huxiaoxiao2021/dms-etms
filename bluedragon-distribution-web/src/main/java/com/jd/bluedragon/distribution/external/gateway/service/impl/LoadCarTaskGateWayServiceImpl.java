@@ -11,12 +11,14 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDt
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -52,7 +54,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     BaseMajorManager baseMajorManager;
 
     @Autowired
+    private LoadScanCacheService loadScanCacheService;
+
+    @Autowired
     private LoadScanService loadScanService;
+
 
     /**
      * 添加装车任务协助人
@@ -130,6 +136,13 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("该任务已完成,无法删除");
             return jdCResponse;
         }
+        //校验删除任务人的权限
+        if (!loadCarHelperService.checkUserPermission(req.getId(), req.getOperateUserErp())) {
+            jdCResponse.setCode(JdCResponse.CODE_FAIL);
+            jdCResponse.setMessage("非任务创建人或协助人不可删除任务！");
+            return jdCResponse;
+        }
+        loadScanCacheService.delTaskLoadScan(req.getId());
         if (loadService.deleteById(req) > 0) {
             loadCarHelperService.deleteById(req.getId());
             jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
@@ -180,7 +193,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             String temp = licenseNumber;//如果是数字，转化成功存在汉字，两者不相等，   如果相等就不正常
             licenseNumber = transferLicenseNumber(licenseNumber);
             if(temp.equals(licenseNumber)) {
-                log.info("车牌号{}前三位不合规，转换汉字失败", licenseNumber);
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("车牌号不合规,请检查后重试");
                 return jdCResponse;
@@ -254,6 +266,9 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @JProfiler(jKey = "DMSWEB.LoadCarTaskGateWayServiceImpl.loadCarTaskCreate",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Long> loadCarTaskCreate(LoadCarTaskCreateReq req) {
+        if (log.isDebugEnabled()) {
+            log.debug("装车任务创建接口请求参数={}", JSON.toJSONString(req));
+        }
         JdCResponse<Long> jdCResponse = new JdCResponse<>();
         try {
             if (null == req) {
@@ -261,7 +276,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 jdCResponse.setMessage("装车任务信息不完整,请检查必填信息！");
                 return jdCResponse;
             }
-            if (null == req.getCreateUserErp() || StringUtils.isBlank(req.getCreateUserName())) {
+            if (StringUtils.isBlank(req.getCreateUserErp()) || StringUtils.isBlank(req.getCreateUserName())) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("当前登录人信息为空,请重新登录！");
                 return jdCResponse;
@@ -284,23 +299,21 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             //库中如果存在
             if (CollectionUtils.isNotEmpty(taskList)) {
                 for (LoadCar taskInfo : taskList) {
-                    //判断是否有3天还没结束的任务,有的话直接删除任务
-                    if (daysDiff(taskInfo.getUpdateTime(), now) >= 3) {
-                        loadCarHelperService.deleteById(taskInfo.getId());
-                        LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
-                        loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
-                        loadDeleteReq.setOperateUserName(req.getCreateUserName());
-                        loadDeleteReq.setId(taskInfo.getId());
-                        loadService.deleteById(loadDeleteReq);
-                        // 删除已开始任务时，删除关联的运单信息和包裹信息
-                        if(taskInfo.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
-                            loadScanService.deleteLoadScanByTaskId(taskInfo.getId());
-
-                        }
-                    } else {
+                    if (daysDiff(taskInfo.getUpdateTime(), now) < 3) {
                         jdCResponse.setCode(JdCResponse.CODE_ERROR);
                         jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个进行中任务！");
                         return jdCResponse;
+                    }
+                    //判断是否有3天还没结束的任务,有的话直接删除任务
+                    loadCarHelperService.deleteById(taskInfo.getId());
+                    LoadDeleteReq loadDeleteReq = new LoadDeleteReq();
+                    loadDeleteReq.setOperateUserErp(req.getCreateUserErp());
+                    loadDeleteReq.setOperateUserName(req.getCreateUserName());
+                    loadDeleteReq.setId(taskInfo.getId());
+                    loadService.deleteById(loadDeleteReq);
+                    // 删除已开始任务时，删除关联的运单信息和包裹信息
+                    if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskInfo.getStatus())) {
+                        loadScanService.deleteLoadScanByTaskId(taskInfo.getId());
                     }
                 }
             }

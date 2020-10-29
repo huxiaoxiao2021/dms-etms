@@ -183,6 +183,45 @@ public class UccPropertyConfiguration {
      */
     private int loadScanTaskWaybillSize;
 
+    /**
+     * 装车扫描每个任务下的运单数量上线
+     */
+    private int loadScanTaskWaybillSize;
+
+    /**
+     * 版号转包裹号最大包裹数限制
+     */
+    private int loadScanTaskPackageSize;
+
+    /**
+     * 最大包裹数限制
+     */
+    private int loadScanTaskPackageMaxSize;
+
+    public int getLoadScanTaskWaybillSize() {
+        return loadScanTaskWaybillSize;
+    }
+
+    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
+        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
+    }
+
+    public int getLoadScanTaskPackageSize() {
+        return loadScanTaskPackageSize;
+    }
+
+    public void setLoadScanTaskPackageSize(int loadScanTaskPackageSize) {
+        this.loadScanTaskPackageSize = loadScanTaskPackageSize;
+    }
+
+    public int getLoadScanTaskPackageMaxSize() {
+        return loadScanTaskPackageMaxSize;
+    }
+
+    public void setLoadScanTaskPackageMaxSize(int loadScanTaskPackageMaxSize) {
+        this.loadScanTaskPackageMaxSize = loadScanTaskPackageMaxSize;
+    }
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }

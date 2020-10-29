@@ -800,7 +800,6 @@ public class BusinessUtil {
         return isSignChar(waybillSign,14,'E');
     }
 
-
     /**
      * 判断是否是运费临时欠款 【WaybillSign 62位 =1（营业厅运单），且WaybillSign 25位 = 4 时】
      * @param waybillSign
