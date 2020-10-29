@@ -14,6 +14,7 @@
 	<import resource="classpath:spring/distribution-core-datasource-jddl-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
 	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
 	<import resource="classpath:spring/distribution-core-dao.xml" />
 	<import resource="classpath:spring/distribution-core-ws.xml" />

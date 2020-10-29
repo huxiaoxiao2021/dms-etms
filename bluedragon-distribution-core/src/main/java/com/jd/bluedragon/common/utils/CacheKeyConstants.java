@@ -71,4 +71,9 @@ public class CacheKeyConstants {
 	 * 包裹发货状态缓存redis的key
 	 */
 	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:";
+	/**
+	 * 卸车任务已拦截包裹扫描
+	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
+	 */
+	public static final String REDIS_PREFIX_SEAL_PACK_INTERCEPT = "unload.seal.package.intercept-";
 }

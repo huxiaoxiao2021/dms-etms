@@ -102,7 +102,13 @@ public enum SendBizSourceEnum {
     /**
      * 极速版本PDA发货
      */
-    EXTREME_SPEED_SEND(19, "极速版本PDA发货");
+    EXTREME_SPEED_SEND(19, "极速版本PDA发货"),
+
+
+    /**
+     * 安卓版本PDA装车发货
+     */
+    ANDROID_PDA_LOAD_SEND(20, "安卓PDA装车发货");
 
     /**
      * 编码
