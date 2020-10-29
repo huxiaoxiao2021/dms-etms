@@ -16,17 +16,14 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -44,15 +41,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Autowired
     private LoadService loadService;
 
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
-
     @Resource
     private LoadScanCacheService loadScanCacheService;
-
-    @Resource
-    private LoadCarHelperService loadCarHelperService;
 
 
     @Override
