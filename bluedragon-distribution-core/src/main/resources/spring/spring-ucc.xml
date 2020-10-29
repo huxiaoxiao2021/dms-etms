@@ -78,6 +78,10 @@
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
 		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
 		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
+		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
+		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
+		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
