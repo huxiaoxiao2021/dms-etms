@@ -265,7 +265,7 @@
     <select id="findLoadCarByTaskId" parameterType="java.lang.Long"  resultMap="loadCar">
         select <include refid="Base_Column_List"/>
         from load_car
-        where id = #{id,jdbcType=BIGINT};
+        where yn = 1 and id = #{id,jdbcType=BIGINT}
     </select>
 
     <select id="selectCreateUserErpByTaskId" parameterType="java.lang.Long" resultType="String">
