@@ -91,10 +91,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 
             //校验删除任务人的权限
-            if (!loadCarHelperService.checkUserPermission(req.getTaskId(), req.getUser().getUserErp())) {
-                response.toFail("非任务创建人或协助人不可取消包裹！");
-                return response;
-            }
+//            if (!loadCarHelperService.checkUserPermission(req.getTaskId(), req.getUser().getUserErp())) {
+//                response.toFail("非任务创建人或协助人不可取消包裹！");
+//                return response;
+//            }
 
             if(StringUtils.isBlank(req.getPackageCode())){
                 response.toFail("包裹号不能为空");
