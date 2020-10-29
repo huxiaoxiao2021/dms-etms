@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanExceptio
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
@@ -48,7 +50,9 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
 
         SendBizSourceEnum bizSource = SendBizSourceEnum.ANDROID_PDA_LOAD_SEND;
         SendM domain = new SendM();
-        domain.setReceiveSiteCode(req.getReceiveSiteCode());
+        domain.setReceiveSiteCode(
+                req.getReceiveSiteCode() == null || Integer.valueOf(0).equals(req.getReceiveSiteCode()) ?
+                        BusinessUtil.getReceiveSiteCodeFromSendCode(req.getSendCode()):req.getReceiveSiteCode());
         domain.setCreateSiteCode(req.getCurrentOperate().getSiteCode());
         domain.setSendCode(req.getSendCode());
         domain.setBoxCode(req.getPackageCode());//包裹号
