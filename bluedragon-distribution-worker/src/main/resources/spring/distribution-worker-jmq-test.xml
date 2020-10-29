@@ -17,11 +17,6 @@
                    address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
                    password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
 
-    <!--dmsWeb mq消费应用-->
-    <jmq:transport id="jmq.dmsWork.transport"
-                   address="${jmq.dmsWork.address}" user="${jmq.dmsWork.user}"
-                   password="${jmq.dmsWork.password}" app="${jmq.dmsWork.app}" />
-
 	<jmq:transport id="jmq.BlueDragonDistributionStock.transport"
 		address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"
 		password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />
@@ -278,12 +273,12 @@
     </jmq:consumer>
 
     <!-- 装车发货任务消费 -->
-    <jmq:consumer id="jmq.goodsLoadTaskConsume" transport="jmq.dmsWork.transport">
+    <jmq:consumer id="jmq.goodsLoadTaskConsume" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.goods.load.task.deal}" listener="goodsLoadTaskConsume"/>
     </jmq:consumer>
 
     <!-- 装车发货包裹消费 -->
-    <jmq:consumer id="jmq.goodsLoadPackageConsume" transport="jmq.dmsWork.transport">
+    <jmq:consumer id="jmq.goodsLoadPackageConsume" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.goods.load.package.deal}" listener="goodsLoadPackageConsume"/>
     </jmq:consumer>
 

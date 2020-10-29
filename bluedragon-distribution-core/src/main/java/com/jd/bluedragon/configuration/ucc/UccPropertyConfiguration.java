@@ -184,11 +184,6 @@ public class UccPropertyConfiguration {
     private int loadScanTaskWaybillSize;
 
     /**
-     * 装车扫描每个任务下的运单数量上线
-     */
-    private int loadScanTaskWaybillSize;
-
-    /**
      * 版号转包裹号最大包裹数限制
      */
     private int loadScanTaskPackageSize;
@@ -548,12 +543,5 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
-    }
-    public int getLoadScanTaskWaybillSize() {
-        return loadScanTaskWaybillSize;
-    }
-
-    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
-        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
     }
 }
