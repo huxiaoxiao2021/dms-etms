@@ -27,13 +27,11 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanExceptio
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -88,9 +86,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private SiteService siteService;
-
-    @Autowired
-    private InspectionService inspectionService;
 
     @Autowired
     private DepartureService departureService;
@@ -561,9 +556,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
 
-        //if (log.isDebugEnabled()) {
-            log.info("板号暂存接口--根据包裹号找板号开始：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
-       // }
+        if (log.isDebugEnabled()) {
+            log.debug("板号暂存接口--根据包裹号找板号开始：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
+        }
         // 根据包裹号查板号
         Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
         if (board == null) {
@@ -572,9 +567,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据包裹号没有找到对应的板号");
             return response;
         }
-       // if (log.isDebugEnabled()) {
-            log.info("板号暂存接口--根据包裹号找板号结束：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
-       // }
+        if (log.isDebugEnabled()) {
+            log.debug("板号暂存接口--根据包裹号找板号结束：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
+        }
         String boardCode = board.getCode();
         Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
         if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
@@ -591,10 +586,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
-        //if (log.isDebugEnabled()) {
-            log.info("板号暂存接口--根据板号找板上的所有包裹结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+        if (log.isDebugEnabled()) {
+            log.debug("板号暂存接口--根据板号找板上的所有包裹结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                     packageCode, transfer, flowDisAccord, boardCode);
-       // }
+        }
         List<LoadScanDto> loadScanDtoList = new ArrayList<>();
 
         // 板子上可以装车的有效包裹
@@ -676,13 +671,13 @@ public class LoadScanServiceImpl implements LoadScanService {
                     map.put(waybillCode, packageNum);
                 }
             }
-           // if (log.isDebugEnabled()) {
-                log.info("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
+            if (log.isDebugEnabled()) {
+                log.debug("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
                         updateRecords.size() + insertRecords.size(), boardCode, taskId);
-           // }
-           // if (log.isDebugEnabled()) {
-                log.info("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
-            //}
+            }
+            if (log.isDebugEnabled()) {
+                log.debug("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
+            }
             // 如果可以装车的包裹为空，则属于重复扫
             if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
                 // 重复扫直接跳过
@@ -692,12 +687,12 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-           // if (log.isDebugEnabled()) {
-                log.info("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+            if (log.isDebugEnabled()) {
+                log.debug("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                         packageCode, transfer, flowDisAccord, boardCode);
-                log.info("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+                log.debug("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                         packageCode, transfer, flowDisAccord, boardCode);
-           // }
+            }
             // 根据运单号列表去分拣报表查找已验未发对应的库存数
             List<LoadScanDto> scanDtoList = new ArrayList<>();
             try {
@@ -712,10 +707,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("包裹未验货或已发货，请核实包裹状态");
                 return response;
             }
-           // if (log.isDebugEnabled()) {
-                log.info("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
+            if (log.isDebugEnabled()) {
+                log.debug("板号暂存接口--根据板号上的运单号去分拣报表反查结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                         packageCode, transfer, flowDisAccord, boardCode);
-           // }
+            }
             // 更新之前取消的为已装
             if (!updateRecords.isEmpty()) {
                 for (GoodsLoadScanRecord record : updateRecords) {
@@ -735,7 +730,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                             packageCode, transfer, flowDisAccord, boardCode);
                 }
             }
-log.info("11111111");
+
             for (LoadScanDto scanDto : scanDtoList) {
                 // 根据任务ID和运单号查询暂存表
                 GoodsLoadScan loadScan = new GoodsLoadScan();
@@ -743,37 +738,33 @@ log.info("11111111");
                 loadScan.setWayBillCode(scanDto.getWayBillCode());
                 // 取出板子上该运单下的要装车包裹数量
                 Integer packageNum = map.get(scanDto.getWayBillCode());
-                log.info("11111111-1111");
                 // 计算已装、未装
                 loadScan.setLoadAmount(packageNum);
                 int unloadNum = scanDto.getGoodsAmount() - loadScan.getLoadAmount();
                 loadScan.setUnloadAmount(unloadNum);
-                log.info("11111111-2222");
                 // 设置运单颜色状态
                 Integer status = getWaybillStatus(scanDto.getGoodsAmount(), loadScan.getLoadAmount(),
                         loadScan.getUnloadAmount(), loadScan.getForceAmount());
                 loadScan.setStatus(status);
-                log.info("11111111-3333");
+
                 // 如果是多扫
                 if (flowDisAccord != null && flowDisAccord == 1) {
                     loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
                 }
                 loadScan.setForceAmount(0);
-                log.info("11111111-3333");
+
                 // 如果已存在就更新，不存在就插入
                 saveOrUpdate(loadScan, scanDto, user, flowDisAccord);
-                log.info("11111111-4444");
+
                 if (log.isDebugEnabled()) {
                     log.debug("板号暂存接口--板号暂存结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                             packageCode, transfer, flowDisAccord, boardCode);
                 }
-                log.info("11111111-5555");
             }
-log.info("77777777");
-        }catch (Exception e) {
-            log.error("按板号暂存逻辑发生错误e="+e.getMessage(), e);
-        }finally {
-            // 释放锁 // todo 鎖超時時間修改
+        } catch (Exception e) {
+            log.error("按板号暂存逻辑发生错误e=", e);
+        } finally {
+            // 释放锁
             unLock(taskId, null, boardCode);
             if (log.isDebugEnabled()) {
                 log.debug("板号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
@@ -1017,7 +1008,7 @@ log.info("77777777");
             if (log.isDebugEnabled()) {
                 log.debug("开始根据批次号查询网点信息！，taskId={},batchCode={}", taskId, batchCode);
             }
-            // 根据批次号查询下一网点信息
+            // 根据批次号查询始发与目的网点信息
             CreateAndReceiveSiteInfo siteInfo = siteService.getCreateAndReceiveSiteBySendCode(batchCode);
             if (siteInfo == null) {
                 log.warn("根据批次号没有找到对应的网点信息，taskId={},batchCode={}", taskId, batchCode);
@@ -1026,10 +1017,21 @@ log.info("77777777");
                 return response;
             }
 
-            Integer siteCode = siteInfo.getReceiveSiteCode();
+            Integer createSiteCode = siteInfo.getCreateSiteCode();
+            Integer receiveSiteCode = siteInfo.getReceiveSiteCode();
+            // 系统校验批次号的始发地与输入的始发场地是否一致，如果不一致则系统提示：“当前批次始发地与操作场地不一致，请核实批次号是否正确”
+            if (createSiteCode == null || !createSiteCode.equals(loadCar.getCreateSiteCode().intValue())) {
+                log.warn("当前批次始发地与操作场地不一致，请核实批次号是否正确，taskId={},batchCode={},batchSite={},taskSite={}",
+                        taskId, batchCode, createSiteCode, loadCar.getCreateSiteCode().intValue());
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("当前批次始发地与操作场地不一致，请核实批次号是否正确");
+                return response;
+            }
+
             // 系统校验批次号的目的地与输入的目的场地是否一致，如果不一致则系统提示：“批次号目的地与目的场地不一致，请检查后重新扫描”
-            if (siteCode == null || !siteInfo.getReceiveSiteCode().equals(loadCar.getEndSiteCode().intValue())) {
-                log.warn("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={}", taskId, batchCode);
+            if (receiveSiteCode == null || !receiveSiteCode.equals(loadCar.getEndSiteCode().intValue())) {
+                log.warn("批次号目的地与目的场地不一致，请检查后重新扫描，taskId={},batchCode={},batchSite={},taskSite={}",
+                        taskId, batchCode, receiveSiteCode, loadCar.getEndSiteCode().intValue());
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("批次号目的地与目的场地不一致，请检查后重新扫描");
                 return response;
