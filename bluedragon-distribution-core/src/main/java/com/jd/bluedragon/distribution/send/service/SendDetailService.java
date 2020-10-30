@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.send.service;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,4 +65,13 @@ public interface SendDetailService {
      * @return
      */
     public boolean checkSendIsExist(String sendCode);
+
+    /**
+     * 根据起始时间查询所有发货批次信息
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param startDate
+     * @return
+     */
+    List<SendDetail> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate);
 }

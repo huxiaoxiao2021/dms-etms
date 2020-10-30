@@ -1,16 +1,19 @@
 package com.jd.bluedragon.distribution.send.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +34,7 @@ public class SendDetailServiceImpl implements SendDetailService {
      * @param createSiteCode
      * @return
      */
+    @Override
     public List<SendDetail> findSendByPackageCodeFromReadDao(String waybillCode, Integer createSiteCode){
         return sendDatailReadDao.findSendByPackageCode(waybillCode, createSiteCode);
     }
@@ -116,4 +120,11 @@ public class SendDetailServiceImpl implements SendDetailService {
         return sendDatailDao.querySendBySiteCodeAndSendCode(queryDetail) != null;
 
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendDetailServiceImpl.findAllSendCodesWithStartTime", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public List<SendDetail> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
+        return sendDatailDao.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
+    }
+
 }
