@@ -11,7 +11,12 @@ import com.jd.bluedragon.distribution.api.JdObject;
  */
 public class PopPrintRequest extends JdObject {
 	private static final long serialVersionUID = 1L;
-	
+
+    /**
+     * 龙门架驻厂：无打印
+     */
+    public static final Integer NOT_PRINT_PACK_TYPE = -1;
+
 	/**
 	 * 打印包裹
 	 */

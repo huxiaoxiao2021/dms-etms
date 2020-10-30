@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
@@ -47,12 +48,7 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.LongHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -60,6 +56,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -69,6 +66,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -154,6 +152,9 @@ public class DeliveryResource {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -349,6 +350,14 @@ public class DeliveryResource {
                     JdResponse.MESSAGE_UNLOADBILL, null);
         }
         /*****/
+
+        /**
+         * 取消发货校验封车业务
+         */
+        DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(toSendM(request));
+        if (checkResponse!=null && !JdResponse.CODE_OK.equals(checkResponse.getCode())) {
+            return new ThreeDeliveryResponse(checkResponse.getCode(),checkResponse.getMessage(), null);
+        }
 
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
@@ -574,9 +583,9 @@ public class DeliveryResource {
             Integer opType = request.get(0).getOpType();
             ThreeDeliveryResponse response = null;
             if(KY_DELIVERY.equals(opType)){//快运发货
-                response =  deliveryService.checkThreePackageForKY(toSendDetailList(request));
+                response =  deliveryService.checkThreePackageForKY(toSendDetailListInFirstIndex(request));
             }else{
-                response =  deliveryService.checkThreePackage(toSendDetailList(request));
+                response =  deliveryService.checkThreePackage(toSendDetailListInFirstIndex(request));
             }
             this.log.debug("结束三方发货不全验证");
             return response;
@@ -996,6 +1005,36 @@ public class DeliveryResource {
         return sendMList;
     }
 
+    /**
+     * toSendDetailList(java.util.List) 的优化方法，主要优化isValidWaybillCode()的循环调用问题
+     * @see DeliveryResource#toSendDetailList(java.util.List)
+     * @param request 发货列表
+     * @return
+     */
+    private List<SendM> toSendDetailListInFirstIndex(List<DeliveryRequest> request) {
+        List<SendM> sendMList = new ArrayList<SendM>();
+        boolean ifBColdChain = CollectionUtils.isNotEmpty(request) && request.size() > 0
+                 && JdResponse.CODE_OK.equals(isValidWaybillCode(request.get(0)).getCode());//是否B冷链快运发货
+        if (request != null && !request.isEmpty()) {
+            for (DeliveryRequest deliveryRequest : request) {
+                if (WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) || BusinessHelper.isBoxcode(deliveryRequest.getBoxCode())) {
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                } else if (WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
+                    //B冷链快运发货支持扫运单号发货
+                    if (!ifBColdChain) {
+                        log.warn("DeliveryResource--toSendDatailList出现运单号，但非冷链快运发货,siteCode:{},单号:{}",
+                                deliveryRequest.getSiteCode() , deliveryRequest.getBoxCode());
+                    } else {
+                        sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
+                    }
+                } else {
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                }
+            }
+        }
+        return sendMList;
+    }
+
     protected <T extends DeliveryRequest> List<SendM> assembleSendMForWaybillCode(List<T> request) {
         List<SendM> sendMList = new ArrayList<>();
         if (request != null && !request.isEmpty()) {
@@ -1032,6 +1071,9 @@ public class DeliveryResource {
      * @return true 滑道号正确，或者非包裹号，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(String packageCode){
+        if(!uccPropertyConfiguration.isControlCheckPackage()){
+            return true;
+        }
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
     }
 

@@ -31,13 +31,6 @@ public interface SysConfigService {
      * @return
      */
     long getMaxRedisQueueSize();
-
-	/**
-	 * 专用于获取redis开关的接口,其他接口禁止调用
-	 * @param conName
-	 * @return
-	 */
-	public List<SysConfig> getRedisSwitchList(String conName);
 	/**
 	 * 根据配置名称获取配置列表
 	 * @param configName

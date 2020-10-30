@@ -56,6 +56,20 @@
         </if>
     </sql>
 
+    <sql id="Query_Yn_Condition_Sql">
+        and menu_code = #{menuCode,jdbcType=BIGINT}
+        <if test="siteCode != null">
+            and site_code = #{siteCode,jdbcType=BIGINT}
+        </if>
+        <if test="dimensionCode != null">
+            and dimension_code = #{dimensionCode,jdbcType=BIGINT}
+        </if>
+        <if test="operateErp != null and operateErp != ''">
+            and operate_erp = #{operateErp,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+
     <insert id="add" parameterType="com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto">
         insert into func_switch_config
         (
@@ -138,11 +152,11 @@
             <if test="siteName != null">
                 #{siteName,jdbcType=VARCHAR},
             </if>
-            <if test="operateErp != null">
-                #{operateErp,jdbcType=VARCHAR},
-            </if>
             <if test="createErp != null">
                 #{createErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateErp != null">
+                #{operateErp,jdbcType=VARCHAR},
             </if>
             <if test="createUser != null">
                 #{createUser,jdbcType=VARCHAR},
@@ -196,6 +210,7 @@
         from
         func_switch_config
         where 1=1
+        <include refid="Base_Condition_Sql"/>
         <include refid="Query_Params_Condition_Sql"/>
         <if test="limit != -1">
             limit #{offset,jdbcType=BIGINT},#{limit,jdbcType=BIGINT}
@@ -209,6 +224,7 @@
         from
         func_switch_config
         where 1=1
+        <include refid="Base_Condition_Sql"/>
         <include refid="Query_Params_Condition_Sql"/>
     </select>
 
@@ -226,7 +242,7 @@
             and dimension_code = #{dimensionCode,jdbcType=TINYINT}
         </if>
         <if test="siteCode != null">
-            and site_code = #{menuCode,jdbcType=BIGINT}
+            and site_code = #{siteCode,jdbcType=BIGINT}
         </if>
         <if test="operateErp != null">
             and operate_erp = #{operateErp,jdbcType=VARCHAR}
@@ -259,14 +275,14 @@
         from
         func_switch_config
         where yn = 1
+        <if test="siteCode != null">
+            and site_code = #{siteCode,jdbcType=BIGINT}
+        </if>
         <if test="menuCode != null">
             and menu_code = #{menuCode,jdbcType=BIGINT}
         </if>
         <if test="dimensionCode != null">
             and dimension_code = #{dimensionCode,jdbcType=BIGINT}
-        </if>
-        <if test="siteCode != null">
-            and site_code = #{siteCode,jdbcType=BIGINT}
         </if>
     </select>
 
@@ -287,4 +303,12 @@
 
     </select>
 
+    <!--查询站点是否拦截-->
+    <select id="queryYnByCondition" parameterType="com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition" resultType="Integer">
+     select yn
+     from
+     func_switch_config
+     where  yn = 1
+     <include refid="Query_Yn_Condition_Sql"/>
+    </select>
 </mapper>

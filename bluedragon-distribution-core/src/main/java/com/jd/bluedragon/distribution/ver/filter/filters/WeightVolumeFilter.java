@@ -1,8 +1,14 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -10,15 +16,20 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 漏称重量方校验
@@ -38,6 +49,9 @@ public class WeightVolumeFilter implements Filter {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     private static final String RULE_WEIGHT_VOLUMN_SWITCH = "1123";
     private static final String SWITCH_OFF = "1";
@@ -64,8 +78,10 @@ public class WeightVolumeFilter implements Filter {
         String waybillCode = request.getWaybillCode();
         String waybillSign = request.getWaybillCache().getWaybillSign();
         String packageCode = request.getPackageCode();
+
         //判断waybillSign是否满足条件 判断 是否是经济网单号 20200824增加无需拦截经济网逆向运单
-        boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign);
+        boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign,request);
+
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
         if( isEconomicNetNeedWeight ){
@@ -100,13 +116,29 @@ public class WeightVolumeFilter implements Filter {
     }
 
     /**
-     * 众邮运单是否拦截
+     * 众邮运单是否拦截 -
      * @param waybillCode
      * @param waybillSign
      * @return
      */
-    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign) {
-        return BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign) && uccPropertyConfiguration.getEconomicNetValidateWeightSwitch();
-    }
+    private boolean isEconomicNetValidateWeight(String waybillCode, String waybillSign,FilterContext request) {
 
+        //首先满足经济网的单子----
+        if(!BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode, waybillSign)){
+            return  false;
+        }
+
+        //如果是全国有效,直接返回不拦截
+        if(!funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode())){
+            return false;
+        }
+
+        //不是全国-查询站点维度
+        if(request.getCreateSiteCode()!=null){
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
+        }
+        return true;
+    }
 }

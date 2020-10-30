@@ -219,6 +219,7 @@ $(function () {
                     var data = {};
                     data["id"] = rows[i].id;
                     data["menuCode"] = rows[i].menuCode;
+                    data["dimensionCode"] = rows[i].dimensionCode;
                     data["siteCode"] = rows[i].siteCode;
                     params.push(data);
                 };
@@ -241,8 +242,12 @@ $(function () {
             $('#btn_add_submit').click(function() {
                 $('#btn_add_submit').attr("disabled",true);
                 var param = convert2param();
-                if(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
-                    || param['siteCode'] == null || param['yn'] == null){
+                if(param["dimensionCode"]=='3'&&(param["menuCode"] == null || param["dimensionCode"] == null || param['yn'] == null)){
+                    $.msg.warn("带 * 号选项必填!");
+                    $('#btn_add_submit').attr("disabled",false);
+                    return;
+                }else if(param["dimensionCode"]!='3'&&(param["menuCode"] == null || param["dimensionCode"] == null || param["orgId"] == null
+                    || param['siteCode'] == null || param['yn'] == null)){
                     $.msg.warn("带 * 号选项必填!");
                     $('#btn_add_submit').attr("disabled",false);
                     return;
@@ -337,6 +342,8 @@ $(function () {
 
 // 重置状态
 function resetStatus(){
+    //当选择了操作人需要置空
+    $('#operateErp-EG').val(null);
     $('#menuCode-EG').attr("disabled",false);
     $('#dimensionCode-EG').attr("disabled",false);
     $('#orgId-EG').attr("disabled",false);
@@ -428,6 +435,18 @@ function initDimension(menu) {
                 placeholder: '请选择维度',
                 allowClear: true,
                 data: result
+            });
+            $(menu).on("change", function(e) {
+                //选择全国时,将区域和分拣中心置灰不可选
+                if($(menu).val()=='3'){
+                    $('#orgId-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
+                    $('#siteCode-EG').attr("disabled","disabled").css("background-color","#EEEEEE;");
+                    $('#orgId-EG').val(null).trigger('change');
+                    $('#siteCode-EG').val(null).trigger('change');
+                }else{
+                    $('#orgId-EG').attr("disabled",false).css("background-color","#FFFFFF;");
+                    $('#siteCode-EG').attr("disabled",false).css("background-color","#FFFFFF;");
+                }
             });
             $(menu).val(null).trigger('change');
         }

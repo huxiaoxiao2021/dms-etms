@@ -145,11 +145,32 @@ public class UccPropertyConfiguration {
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
-
     /**
      * 众邮称重拦截开关。true 拦截，false 不拦截
      */
     private boolean economicNetValidateWeightSwitch;
+    /**
+     * 任务redis开关，1-开启
+     */
+    private String redisSwitchOn;
+    /**
+     * 控制DTC积压 控制关闭 包裹号存在校验
+     * true  校验包裹号
+     * false 不校验包裹号
+     */
+    private boolean  controlCheckPackage;
+
+    /**
+     * 组板 开关控制是否校验路由
+     * true  校验
+     * false 不校验
+     */
+    private boolean   controlCheckRoute;
+
+    /**
+     * 取消发货校验封车业务开关。1：开启 0：关闭
+     */
+    private String dellCancelDeliveryCheckSealCar;
 
     /**
      * 封车空批次剔除开关 1：开启剔除 0：关闭
@@ -443,6 +464,38 @@ public class UccPropertyConfiguration {
     public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
+
+    public boolean isControlCheckPackage() {
+        return controlCheckPackage;
+    }
+
+    public void setControlCheckPackage(boolean controlCheckPackage) {
+        this.controlCheckPackage = controlCheckPackage;
+    }
+
+    public boolean isControlCheckRoute() {
+        return controlCheckRoute;
+    }
+
+    public void setControlCheckRoute(boolean controlCheckRoute) {
+        this.controlCheckRoute = controlCheckRoute;
+    }
+
+    public String getDellCancelDeliveryCheckSealCar() {
+        return dellCancelDeliveryCheckSealCar;
+    }
+
+    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
+        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
+    }
+
+	public String getRedisSwitchOn() {
+		return redisSwitchOn;
+	}
+
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
 
     public String getRemoveEmptyBatchCode() {
         return removeEmptyBatchCode;

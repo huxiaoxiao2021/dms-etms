@@ -261,5 +261,11 @@
     <jmq:consumer id="jmq.thirdBoxWeightConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.third.box.weight.deal}" listener="ThirdBoxWeightConsumer"/>
     </jmq:consumer>
+
+    <!--龙门架驻厂扫描消息-->
+    <jmq:consumer id="jmq.gantryResidentScanConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.gantryResidentScan}" listener="gantryResidentScanConsumer" />
+    </jmq:consumer>
+
 </beans>
 

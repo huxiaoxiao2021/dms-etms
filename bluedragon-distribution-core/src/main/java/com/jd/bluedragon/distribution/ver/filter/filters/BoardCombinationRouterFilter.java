@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +40,9 @@ public class BoardCombinationRouterFilter implements Filter {
 
     @Autowired
     private SiteService siteService;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -69,44 +74,47 @@ public class BoardCombinationRouterFilter implements Filter {
 
                 boolean getCurNodeFlag = false;
 
-
                 logger.info("BoardCombinationRouterFilter根据运单号获取运单路由，运单号:" + waybillCode + "，路由：" + router);
-                if (StringHelper.isNotEmpty(router)) {
-                    //路由校验逻辑
-                    String[] routerNodes = router.split(WAYBILL_ROUTER_SPLITER);
-                    for (int i = 0; i < routerNodes.length - 1; i++) {
-                        int curNode = Integer.parseInt(routerNodes[i]);
-                        int nexNode = Integer.parseInt(routerNodes[i + 1]);
-                        if(curNode == createSiteCode){
-                            getCurNodeFlag = true;
-                            routerShow.add(nexNode);
-                            if(nexNode == receiveSiteCode){
-                                verifyPass = true;
-                                break;
+
+                    if (StringHelper.isNotEmpty(router)) {
+                        //路由校验逻辑
+                        String[] routerNodes = router.split(WAYBILL_ROUTER_SPLITER);
+                        for (int i = 0; i < routerNodes.length - 1; i++) {
+                            int curNode = Integer.parseInt(routerNodes[i]);
+                            int nexNode = Integer.parseInt(routerNodes[i + 1]);
+                            if(curNode == createSiteCode){
+                                getCurNodeFlag = true;
+                                routerShow.add(nexNode);
+                                if(nexNode == receiveSiteCode){
+                                    verifyPass = true;
+                                    break;
+                                }
                             }
                         }
+
+                        //路由中包括当前操作的分拣中心并且没有通过校验
+                        if(getCurNodeFlag && !verifyPass) {
+                            //将下一站由编码转换成名称，并进行截取，供pda提示
+                            StringBuilder routerShortNames= new StringBuilder();
+                            for(Integer dmsCode : routerShow){
+                                if(StringHelper.isEmpty(siteService.getDmsShortNameByCode(dmsCode))){
+                                    continue;
+                                }
+                                routerShortNames.append(siteService.getDmsShortNameByCode(dmsCode)).append(Constants.SEPARATOR_COMMA);
+                            }
+                            if(StringHelper.isNotEmpty(routerShortNames.toString())){
+                                routerShortNames = new StringBuilder(routerShortNames.substring(0, routerShortNames.length() - 1));
+                            }
+                            throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
+                                    SortingResponse.MESSAGE_BOARD_ROUTER_ERROR + "路由下一站：" + routerShortNames);
+                        }
+                    }else{
+                        if(uccPropertyConfiguration.isControlCheckRoute()){
+                            throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
+                                    SortingResponse.MESSAGE_BOARD_ROUTER_EMPTY_ERROR);
+                       }
                     }
 
-                    //路由中包括当前操作的分拣中心并且没有通过校验
-                    if(getCurNodeFlag && !verifyPass) {
-                        //将下一站由编码转换成名称，并进行截取，供pda提示
-                        StringBuilder routerShortNames= new StringBuilder();
-                        for(Integer dmsCode : routerShow){
-                            if(StringHelper.isEmpty(siteService.getDmsShortNameByCode(dmsCode))){
-                                continue;
-                            }
-                            routerShortNames.append(siteService.getDmsShortNameByCode(dmsCode)).append(Constants.SEPARATOR_COMMA);
-                        }
-                        if(StringHelper.isNotEmpty(routerShortNames.toString())){
-                            routerShortNames = new StringBuilder(routerShortNames.substring(0, routerShortNames.length() - 1));
-                        }
-                        throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
-                                SortingResponse.MESSAGE_BOARD_ROUTER_ERROR + "路由下一站：" + routerShortNames);
-                    }
-                }else{
-                    throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
-                            SortingResponse.MESSAGE_BOARD_ROUTER_EMPTY_ERROR);
-                }
             }
             if(SiteHelper.isDelivery(request.getReceiveSite())&&!WaybillUtil.isLasWaybillCode(waybillCode)){
                 //下一站是站点的情况

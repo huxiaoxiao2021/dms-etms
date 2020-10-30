@@ -153,10 +153,8 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="dmsPopPickupMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="dmsPopPickupMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.pop.pickup}"/>
-        <property name="timeout" value="1000"/>
-        <!---->
     </bean>
     <bean id="bdDmsAbnormalOrderToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.dms.abnormal.order.to.qc}"/>
@@ -351,8 +349,13 @@
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--配送员接货，打印后发送mq信息给sms-->
+    <bean id="popPrintToSmsProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
+    </bean>
     <!--驻厂打印面单成功，打印后发送mq信息给终端-->
-    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
     </bean>
 

@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.popPrint.service;
 
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
+import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+
 import java.util.List;
 import java.util.Map;
-
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 
 /**
  * @author zhaohc 
@@ -70,4 +72,11 @@ public interface PopPrintService {
 	 * @param popPrint
 	 */
 	public void pushInspection(PopPrint popPrint);
+
+    /**
+     * pop收货处理逻辑
+     * @param popPrintRequest
+     * @param residentType
+     */
+    PopPrintResponse dealPopPrintLogic(PopPrintRequest popPrintRequest, Integer residentType);
 }

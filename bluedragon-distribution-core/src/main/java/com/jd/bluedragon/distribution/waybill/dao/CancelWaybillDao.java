@@ -50,7 +50,7 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("featureType", featureType);
         paramMap.put("businessType", businessType);
         paramMap.put("limitCount", limitCount);
-        return super.getSqlSession().selectOne(NAMESPACE + ".findPackageCodesByFeatureTypeAndWaybillCode", paramMap);
+        return super.getSqlSession().selectList(NAMESPACE + ".findPackageCodesByFeatureTypeAndWaybillCode", paramMap);
     }
     /**
      * 根据运单号查询锁定状态为businessType的包裹号数量

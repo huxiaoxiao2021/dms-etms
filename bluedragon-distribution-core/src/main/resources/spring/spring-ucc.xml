@@ -42,6 +42,7 @@
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
 		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
 		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
+		<property name="redisSwitchOn" value="${sys.config.task.redisSwitchOn:0}"/>
 		<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>
 		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
@@ -73,6 +74,9 @@
         <property name="clickIntervalSecond" value="${clickIntervalSecond}" />
 		<property name="boardCombinationSwitchVerToWebSites" value="${boardCombinationSwitchVerToWebSites}" />
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
+		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
+		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
 		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
 	</bean>
 
@@ -86,6 +90,7 @@
                 <value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
                 <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
                 <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
+                <value>uccPropertyConfiguration.redisSwitchOn</value>
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp</value>
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
@@ -117,6 +122,9 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
+				<value>uccPropertyConfiguration.controlCheckPackage</value>
+				<value>uccPropertyConfiguration.controlCheckRoute</value>
+				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
 				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
 			</list>
 		</property>

@@ -477,11 +477,11 @@ public class Constants {
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
     /**
-     * String类型标识-true
+     * String类型标识-1-true
      */
     public static final String STRING_FLG_TRUE = "1";
     /**
-     * String类型标识-false
+     * String类型标识-0-false
      */
     public static final String STRING_FLG_FALSE = "0";
     /**
@@ -1332,4 +1332,11 @@ public class Constants {
     public static final String STR_ALL = "ALL";
 
     public static final String UNDER_LINE = "_";
+
+    /**
+     * 众邮称重拦截缓存-生效时间  5分钟的秒数
+     */
+    public static final int  ALL_MAIL_CACHE_SECONDS = 5;
+
+
 }
