@@ -30,6 +30,7 @@ import com.jd.etms.waybill.dto.WaybillServiceRelationDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -203,7 +204,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
             //备注拼接服务单号
             BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
-            if(serviceCodeInfoByWaybillCode!=null&&serviceCodeInfoByWaybillCode.getData()!=null){
+            if(serviceCodeInfoByWaybillCode!=null && CollectionUtils.isNotEmpty(serviceCodeInfoByWaybillCode.getData())){
                 if(serviceCodeInfoByWaybillCode.getData().size()>0){
                     //抛弃一对多关系--只打印第一服务单号
                     commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
