@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -14,7 +15,9 @@ import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -59,12 +62,18 @@ public class PreSealVehicleController extends DmsBaseController{
     @Autowired
     private SendMService sendMService;
 
+    @Autowired
+    private SendDetailService sendDetailService;
+
 	@Autowired
 	private SiteService siteService;
 
     @Autowired
     @Qualifier("newSealVehicleService")
     private NewSealVehicleService newSealVehicleService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private static final Integer SEAL_LIMIT = 5;
 	/**
@@ -267,19 +276,55 @@ public class PreSealVehicleController extends DmsBaseController{
      */
     private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
         List<SealVehicles> result = null;
-        List<SendM> sendMS = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
-        if(sendMS != null && !sendMS.isEmpty()){
-            result = new ArrayList<>(sendMS.size());
-            for(SendM sendM : sendMS){
-                if(newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())){
+
+        List<SealVehicles> sourceList =null;
+        String removeEmptyBatchCode=uccPropertyConfiguration.getRemoveEmptyBatchCode();
+        if(Constants.STRING_FLG_TRUE.equals(removeEmptyBatchCode)){
+            sourceList= convertSealVehiclesBySendD(sendDetailService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate));
+        }else {
+            sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate));
+        }
+
+        if(sourceList != null && !sourceList.isEmpty()){
+            result = new ArrayList<>(sourceList.size());
+            for(SealVehicles itme : sourceList){
+                if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
                     continue;
                 }
+
+                result.add(itme);
+            }
+        }
+        return result;
+    }
+
+    private List<SealVehicles> convertSealVehiclesBySendM(List<SendM> sendMList){
+        List<SealVehicles> result = null;
+        if(sendMList != null && !sendMList.isEmpty()){
+            result = new ArrayList<>();
+            for(SendM sendM : sendMList){
                 SealVehicles vehicles = new SealVehicles();
                 vehicles.setSealDataCode(sendM.getSendCode());
                 vehicles.setReceiveSiteCode(sendM.getReceiveSiteCode());
                 result.add(vehicles);
             }
         }
+
+        return result;
+    }
+
+    private List<SealVehicles> convertSealVehiclesBySendD(List<SendDetail> sendDList){
+        List<SealVehicles> result = null;
+        if(sendDList != null && !sendDList.isEmpty()){
+            result = new ArrayList<>();
+            for(SendDetail sendD : sendDList){
+                SealVehicles vehicles = new SealVehicles();
+                vehicles.setSealDataCode(sendD.getSendCode());
+                vehicles.setReceiveSiteCode(sendD.getReceiveSiteCode());
+                result.add(vehicles);
+            }
+        }
+
         return result;
     }
 

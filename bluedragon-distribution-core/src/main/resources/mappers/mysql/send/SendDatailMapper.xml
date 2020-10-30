@@ -1076,4 +1076,16 @@
             and is_cancel = 0
         ) t
     </select>
+
+	<select id="findAllSendCodesWithStartTime" parameterType="SendDetail"  resultMap="SendDetail">
+		select
+		send_code,receive_site_code
+		from send_d
+		where yn=1
+		and is_cancel = 0
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		AND operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
+		group by send_code,receive_site_code
+	</select>
 </mapper>

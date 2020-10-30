@@ -477,4 +477,25 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
     }
+
+    /**
+     * 根据始发场地和起始时间查询发货记录
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param startDate
+     * @return
+     */
+    public List<SendDetail> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
+        if(createSiteCode == null || startDate == null){
+            throw new IllegalArgumentException("始发分拣中心、起始时间不能为空.");
+        }
+
+        SendDetail query = new SendDetail();
+        query.setCreateSiteCode(createSiteCode);
+        query.setReceiveSiteCode(receiveSiteCode);
+        query.setOperateTime(startDate);
+
+        return this.getSqlSession().selectList(
+                SendDatailDao.namespace + ".findAllSendCodesWithStartTime", query);
+    }
 }
