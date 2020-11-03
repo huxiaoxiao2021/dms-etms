@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <aop:aspectj-autoproxy proxy-target-class="true" />
+    <bean id="cacheMethodAspect" class="com.jd.common.cache.aop.CacheMethodAspect" >
+        <property name="cacheBeans">
+            <map>
+                <entry key="memoryCache"><ref bean="memoryCache"/></entry>
+                <entry key="redisCache"><ref bean="redisCache"/></entry>
+                <entry key="multiCache"><ref bean="multiCache"/></entry>
+            </map>
+        </property>
+    </bean>
+    <bean id="memoryCache" class="com.jd.common.cache.MemoryCache"/>
+    <bean id="redisCache" class="com.jd.common.cache.JimdbCache">
+        <property name="jimdbClient" ref="redisClientCache" />
+    </bean>
+    <bean id="multiCache" class="com.jd.common.cache.MultiCache">
+        <property name="levelOneCache" ref="memoryCache" />
+        <property name="levelTwoCache" ref="redisCache" />
+        <property name="levelOneCacheTimeout" value="60000" />
+    </bean>
+
+    <!-- 缓存策略自动注册(init-method) -->
+
+    <!-- CacheMethod refresh 策略：
+       1，通过方法重新加载缓存，如果加载数据不是null，则将数据缓存。
+       2，如果所加载的数据是null，则删除缓存。 -->
+    <bean id="refreshCacheMethodStrategy" class="com.jd.common.cache.aop.support.RefreshCacheMethodStrategy" init-method="init">
+        <property name="cacheMethodStrategyCenter" ref="cacheMethodAspect" />
+    </bean>
+    <!-- CacheMethod refuse 策略：
+       1，执行方法前判断，如果当前时间距离上一次执行时间小于timeout设置，则抛出异常AccessRefuseException拒绝访问。 -->
+    <bean id="refuseCacheMethodStrategy" class="com.jd.common.cache.aop.support.RefuseCacheMethodStrategy" init-method="init">
+        <property name="cacheMethodStrategyCenter" ref="cacheMethodAspect" />
+    </bean>
+    <!-- CacheMethod reload 策略：
+       1，通过方法重新加载缓存，如果加载数据不是null，则将数据缓存。 -->
+    <bean id="reloadCacheMethodStrategy" class="com.jd.common.cache.aop.support.ReloadCacheMethodStrategy" init-method="init">
+        <property name="cacheMethodStrategyCenter" ref="cacheMethodAspect" />
+    </bean>
+    <!-- CacheMethod remove 策略：
+       1，执行方法后，会将指定的缓存key删除。 -->
+    <bean id="removeCacheMethodStrategy" class="com.jd.common.cache.aop.support.RemoveCacheMethodStrategy" init-method="init">
+        <property name="cacheMethodStrategyCenter" ref="cacheMethodAspect" />
+    </bean>
+    <!-- CacheMethod reput 策略：
+       1，执行方法后，会将指定的args[strategyArgs]存入缓存，默认将args[0]存入缓存。 -->
+    <bean id="reputCacheMethodStrategy" class="com.jd.common.cache.aop.support.ReputCacheMethodStrategy" init-method="init">
+        <property name="cacheMethodStrategyCenter" ref="cacheMethodAspect" />
+    </bean>
+</beans>

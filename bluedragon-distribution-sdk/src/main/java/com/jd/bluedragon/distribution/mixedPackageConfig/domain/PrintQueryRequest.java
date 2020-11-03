@@ -1,4 +1,7 @@
-package com.jd.bluedragon.distribution.jsf.domain;
+package com.jd.bluedragon.distribution.mixedPackageConfig.domain;
+
+import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
+import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum;
 
 import java.io.Serializable;
 
@@ -37,13 +40,13 @@ public class PrintQueryRequest implements Serializable {
 
     /**
      * 运输类型
-     *  @see com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum
+     *  @see TransportTypeEnum
      * */
     private Integer transportType;
 
     /**
      * 规则类型
-     *  @see com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum
+     *  @see RuleTypeEnum
      * */
     private Integer ruleType;
 
