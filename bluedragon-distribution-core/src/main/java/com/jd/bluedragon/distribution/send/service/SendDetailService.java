@@ -66,12 +66,4 @@ public interface SendDetailService {
      */
     public boolean checkSendIsExist(String sendCode);
 
-    /**
-     * 根据起始时间查询所有发货批次信息
-     * @param createSiteCode
-     * @param receiveSiteCode
-     * @param startDate
-     * @return
-     */
-    List<SendDetail> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate);
 }

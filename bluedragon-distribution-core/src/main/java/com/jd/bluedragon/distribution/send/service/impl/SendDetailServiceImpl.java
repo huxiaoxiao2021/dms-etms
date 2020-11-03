@@ -120,11 +120,4 @@ public class SendDetailServiceImpl implements SendDetailService {
         return sendDatailDao.querySendBySiteCodeAndSendCode(queryDetail) != null;
 
     }
-
-    @Override
-    @JProfiler(jKey = "DMSWEB.SendDetailServiceImpl.findAllSendCodesWithStartTime", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
-    public List<SendDetail> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
-        return sendDatailDao.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
-    }
-
 }

@@ -288,19 +288,17 @@ public class PreSealVehicleController extends DmsBaseController{
     private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
         List<SealVehicles> result = null;
 
-        List<SealVehicles> sourceList =null;
         String preSealVehicleRemoveEmptyBatchCode = uccPropertyConfiguration.getPreSealVehicleRemoveEmptyBatchCode();
-        if(Constants.STRING_FLG_TRUE.equals(preSealVehicleRemoveEmptyBatchCode)){
-            sourceList= convertSealVehiclesBySendD(sendDetailService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
-        }else {
-            sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
-        }
+        List<SealVehicles> sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
 
         if(sourceList != null && !sourceList.isEmpty()){
             result = new ArrayList<>(sourceList.size());
             for(SealVehicles itme : sourceList){
-
-
+                if(Constants.STRING_FLG_TRUE.equals(preSealVehicleRemoveEmptyBatchCode)){
+                    if(!sendDetailService.checkSendIsExist(itme.getSealDataCode())){
+                        continue;
+                    }
+                }
 
                 if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
                     continue;
@@ -319,21 +317,6 @@ public class PreSealVehicleController extends DmsBaseController{
             for(SendM sendM : sendMList){
                 SealVehicles vehicles = new SealVehicles();
                 vehicles.setSealDataCode(sendM.getSendCode());
-                vehicles.setReceiveSiteCode(receiveSiteCode);
-                result.add(vehicles);
-            }
-        }
-
-        return result;
-    }
-
-    private List<SealVehicles> convertSealVehiclesBySendD(List<SendDetail> sendDList,Integer receiveSiteCode){
-        List<SealVehicles> result = null;
-        if(sendDList != null && !sendDList.isEmpty()){
-            result = new ArrayList<>();
-            for(SendDetail sendD : sendDList){
-                SealVehicles vehicles = new SealVehicles();
-                vehicles.setSealDataCode(sendD.getSendCode());
                 vehicles.setReceiveSiteCode(receiveSiteCode);
                 result.add(vehicles);
             }
