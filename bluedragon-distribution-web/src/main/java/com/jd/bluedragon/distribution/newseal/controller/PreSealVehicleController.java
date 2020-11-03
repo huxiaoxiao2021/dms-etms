@@ -299,6 +299,9 @@ public class PreSealVehicleController extends DmsBaseController{
         if(sourceList != null && !sourceList.isEmpty()){
             result = new ArrayList<>(sourceList.size());
             for(SealVehicles itme : sourceList){
+
+
+
                 if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
                     continue;
                 }
