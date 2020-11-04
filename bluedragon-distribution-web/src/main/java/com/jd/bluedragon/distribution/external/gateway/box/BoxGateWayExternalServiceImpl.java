@@ -78,6 +78,11 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         return gateWayBaseResponse;
     }
 
+    /**
+     * 推送箱号给众邮
+     * @param dto 众邮箱号
+     * @param request 请求体
+     */
     private void pushBoxCode(BoxDto dto, BoxGenerateRequest request) {
         if (dto == null || dto.getBoxCodes() == null || request == null) {
             return;
