@@ -79,7 +79,7 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
     }
 
     private void pushBoxCode(BoxDto dto, BoxResponse response) {
-        if (dto == null || response == null) {
+        if (dto == null || dto.getBoxCodes() == null || response == null) {
             return;
         }
         for (String boxCode : dto.getBoxCodes()) {
