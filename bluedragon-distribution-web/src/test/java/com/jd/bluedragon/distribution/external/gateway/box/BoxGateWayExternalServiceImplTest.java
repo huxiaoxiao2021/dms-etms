@@ -56,16 +56,16 @@ public class BoxGateWayExternalServiceImplTest {
 
     @Test
     public void pushBoxCodeTest() throws Exception {
-        Method pushBoxCode = boxGateWayExternalService.getClass().getDeclaredMethod("pushBoxCode", BoxDto.class, BoxResponse.class);
+        Method pushBoxCode = boxGateWayExternalService.getClass().getDeclaredMethod("pushBoxCode", BoxDto.class, BoxGenerateRequest.class);
         pushBoxCode.setAccessible(true);
 
         BoxDto boxDto = new BoxDto();
         boxDto.setBoxCodes(Arrays.asList("BC202011040001","BC202011040002","BC202011040003","BC202011040004"));
 
-        BoxResponse boxResponse = new BoxResponse();
+        BoxGenerateRequest boxResponse = new BoxGenerateRequest();
 
-        boxResponse.setCreateSiteCode(1001);
-        boxResponse.setReceiveSiteCode(1002);
+        boxResponse.setStartSiteCode("1001");
+        boxResponse.setEndSiteCode("1002");
 
         pushBoxCode.invoke(boxGateWayExternalService, boxDto, boxResponse);
 

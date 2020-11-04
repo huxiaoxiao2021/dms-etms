@@ -86,8 +86,6 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
             try {
                 ThirdBoxCodeMessageVO message = new ThirdBoxCodeMessageVO();
                 message.setBoxCode(boxCode);
-                message.setCreateSiteCode(request.getStartSiteCode());
-                message.setReceiveSiteCode(request.getEndSiteCode());
                 thirdBoxCodeProducer.sendOnFailPersistent(message.getBoxCode(), JsonHelper.toJson(message));
             } catch (Exception e) {
                 logger.error("推送箱号给众邮出错:e={}", e);
