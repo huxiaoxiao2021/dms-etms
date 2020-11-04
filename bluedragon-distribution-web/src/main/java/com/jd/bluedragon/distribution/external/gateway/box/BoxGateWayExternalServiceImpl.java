@@ -74,20 +74,20 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         gateWayBaseResponse.toSucceed(GateWayBaseResponse.MESSAGE_SUCCESS);
         gateWayBaseResponse.setData(dto);
         //推送箱号给众邮
-        pushBoxCode(dto, response);
+        pushBoxCode(dto, request);
         return gateWayBaseResponse;
     }
 
-    private void pushBoxCode(BoxDto dto, BoxResponse response) {
-        if (dto == null || dto.getBoxCodes() == null || response == null) {
+    private void pushBoxCode(BoxDto dto, BoxGenerateRequest request) {
+        if (dto == null || dto.getBoxCodes() == null || request == null) {
             return;
         }
         for (String boxCode : dto.getBoxCodes()) {
             try {
                 ThirdBoxCodeMessageVO message = new ThirdBoxCodeMessageVO();
                 message.setBoxCode(boxCode);
-                message.setCreateSiteCode(String.valueOf(response.getCreateSiteCode()));
-                message.setReceiveSiteCode(String.valueOf(response.getReceiveSiteCode()));
+                message.setCreateSiteCode(request.getStartSiteCode());
+                message.setReceiveSiteCode(request.getEndSiteCode());
                 thirdBoxCodeProducer.sendOnFailPersistent(message.getBoxCode(), JsonHelper.toJson(message));
             } catch (Exception e) {
                 logger.error("推送箱号给众邮出错:e={}", e);
