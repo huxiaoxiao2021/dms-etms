@@ -102,8 +102,13 @@
         <if test="barCode != null and barCode != ''">
             AND bar_code = #{barCode}
         </if>
-        <if test="operatorErpOrName != null">
-            AND ( operator_code like concat('%', #{operatorErpOrName}, '%') or operator_name like concat('%', #{operatorErpOrName}, '%'))
+        <if test="operatorErpOrName != null and operatorErpOrName != ''">
+            <if test="operatorId != null">
+                AND operator_code = #{operatorId}
+            </if>
+            <if test="operatorId == null">
+                AND operator_name like concat('%', #{operatorErpOrName}, '%')
+            </if>
         </if>
         <if test="operateTimeFrom != null">
             AND operate_time >= #{operateTimeFrom}

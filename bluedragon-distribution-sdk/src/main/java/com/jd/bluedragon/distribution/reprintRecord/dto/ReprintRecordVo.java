@@ -35,6 +35,8 @@ public class ReprintRecordVo implements Serializable {
 
     private Integer operatorCode;
 
+    private String operatorErp;
+
     private String operatorName;
 
     private Date operateTime;
@@ -87,6 +89,14 @@ public class ReprintRecordVo implements Serializable {
 
     public void setOperatorCode(Integer operatorCode) {
         this.operatorCode = operatorCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
     }
 
     public String getOperatorName() {

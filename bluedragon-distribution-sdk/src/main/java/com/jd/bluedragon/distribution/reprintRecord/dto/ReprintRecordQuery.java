@@ -30,6 +30,8 @@ public class ReprintRecordQuery extends BasePagerCondition implements Serializab
      */
     private String operatorErpOrName;
 
+    private Integer operatorId;
+
     private String operateTimeFromStr;
 
     private String operateTimeToStr;
@@ -64,6 +66,14 @@ public class ReprintRecordQuery extends BasePagerCondition implements Serializab
 
     public void setOperatorErpOrName(String operatorErpOrName) {
         this.operatorErpOrName = operatorErpOrName;
+    }
+
+    public Integer getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(Integer operatorId) {
+        this.operatorId = operatorId;
     }
 
     public String getOperateTimeFromStr() {
