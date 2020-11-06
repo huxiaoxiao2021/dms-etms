@@ -89,5 +89,6 @@
 ##  分页
     <div id="pager" class="tbl-n" style="width:80%"></div>
 </div>
+#parse("system/security/watermark.vm")
 </body>
 </html>

@@ -158,6 +158,7 @@
         </div>
         <table id="dataTable"></table>
 </div>
+#parse("system/security/watermark.vm")
 <script type="text/javascript">
     var jaq = jaq || [];
     jaq.push(['account', 'JA2016_112453']);
@@ -171,5 +172,6 @@
         s.parentNode.insertBefore(ja, s);
     })()
 </script>
+#parse("system/security/watermark.vm")
 </body>
 </html>
