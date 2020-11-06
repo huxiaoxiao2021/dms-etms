@@ -45,6 +45,7 @@ public class DMSMixedPackageConfigJSFServiceImpl implements DMSMixedPackageConfi
                 || request.getTransportType() == null
                 || !TransportTypeEnum.transportTypeMap.containsKey(request.getTransportType())){
             logger.warn("参数错误!");
+            result.parameterError("参数错误");
             return result;
         }
         MixedSite mixedSite = mixedPackageConfigService.queryMixedSiteCodeForPrint(request);
