@@ -391,10 +391,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 // 预分拣站点
                 Integer siteCode = waybill.getOldSiteId();
                 if (siteCode != null && siteCode.intValue() != 0) {
-                    // 判断运单是不是(自提柜,便民自提,合作代收)，如果是，则将siteCode设置为归属站点
-                    if (isZiTiGui(waybill) || isBianMinZiTi(waybill) || isHeZuoDaiShou(waybill)) {
-                        // 获取自提柜所属站点编号
-                        siteCode = baseService.getSiteSelfDBySiteCode(siteCode);
+                    Integer selfSite = baseService.getMappingSite(waybill,null);
+                    if(selfSite != null){
+                        siteCode = selfSite;
                     }
                     return siteCode;
                 } else {
@@ -484,48 +483,6 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             return scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), siteCode, config).getSendCode();
         }
         return null;
-    }
-
-    /**
-     * 判断自提柜类型
-     *
-     * @param waybill
-     * @return
-     */
-    private Boolean isZiTiGui(Waybill waybill) {
-        if (waybill == null || waybill.getSendPay() == null) {
-            return Boolean.FALSE;
-        }
-        if ('5' == waybill.getSendPay().charAt(21)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    /**
-     * 便民自提判断 【sendpay 第22位等于6(合作自提柜 )】
-     */
-    private static Boolean isBianMinZiTi(Waybill waybill) {
-        if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
-            return Boolean.FALSE;
-        }
-        if ('6' == waybill.getSendPay().charAt(21)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    /**
-     * 便民自提判断 【sendpay 7的订单(合作代收点)】
-     */
-    private static Boolean isHeZuoDaiShou(Waybill waybill) {
-        if (waybill == null || StringUtils.isBlank(waybill.getSendPay()) || waybill.getSendPay().length() < 64) {
-            return Boolean.FALSE;
-        }
-        if ('7' == waybill.getSendPay().charAt(21)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
     }
 
     /**

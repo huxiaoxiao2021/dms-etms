@@ -17,6 +17,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -162,6 +163,9 @@ public class WaybillResource {
 
 	@Autowired
 	private TaskService taskService;
+
+	@Autowired
+	private BaseService baseService;
 
 	@Autowired
 	private CrossSortingService crossSortingService;
@@ -1495,19 +1499,22 @@ public class WaybillResource {
 		long operateTime = DateHelper.parseAllFormatDateTime(request.getOperateTime()).getTime();
 		/* 预分拣站点 */
 		Integer siteCode = null;
+		com.jd.etms.waybill.domain.Waybill waybill = null;
 		try {
 			/* 获取包裹的运单数据，如果单号正确的话 */
-			Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode,true,
-					false,false,false);
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+			if(baseEntity !=null && baseEntity.getData()!=null){
+				waybill = baseEntity.getData().getWaybill();
+			}
 			/* 判断运单信息准确性 */
-			if (null == waybill || null == waybill.getSiteCode() || waybill.getSiteCode() < 0) {
+			if (null == waybill || null == waybill.getOldSiteId() || waybill.getOldSiteId() < 0) {
                 log.warn("WaybillResource.getBarCodeAllRouters-->运单:{}信息为空或者预分拣站点信息为空", barCode);
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 				result.setMessage("运单"+waybillCode+"信息为空，请联系 配送系统运营");
 				return result;
 			}
 			/* 预分拣站点 */
-			siteCode = waybill.getSiteCode();
+			siteCode = waybill.getOldSiteId();
 		} catch (Exception e) {
 			log.error("WaybillResource.getBarCodeAllRouters-->运单接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -1525,8 +1532,14 @@ public class WaybillResource {
 			/* 通过路由调用 */
 			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
 		} else if (2 == request.getOperateType()) {
+			/* 按龙门架时需要先获取大小站逻辑 */
+			Integer receiveSite = siteCode;
+			Integer selfSite = baseService.getMappingSite(waybill,null);
+			if(selfSite != null ){
+				receiveSite = selfSite;
+			}
 			/* 通过发货配置jsf接口调用 */
-			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,receiveSite,operateTime,waybillCode,nextRouters);
 		}
 		siteRouters.addAll(nextRouters);
 		result.setData(siteRouters);

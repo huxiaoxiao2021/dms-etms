@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.DictDto;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -244,5 +245,14 @@ public interface BaseService{
 	 * @return
      */
 	public String getDmsShortNameByCode(Integer dmsCode);
+
+	/**
+	 * 获取运单大小站逻辑
+	 *
+	 * 返回所属自营站点
+	 * @param waybill
+	 * @return
+	 */
+	Integer getMappingSite(Waybill waybill,BaseStaffSiteOrgDto perSite);
 
 }
