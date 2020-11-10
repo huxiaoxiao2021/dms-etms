@@ -32,7 +32,6 @@
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
-	<import resource="classpath:spring/distribution-core-ucc.xml"/>
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
@@ -51,9 +50,6 @@
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />
 	<context:component-scan base-package="com.jd.bluedragon.core.redis" />
 	<context:component-scan base-package="com.jd.bluedragon.core.base" />
-	<context:component-scan base-package="com.jd.bluedragon.alpha.jss" />
-	<context:component-scan base-package="com.jd.bluedragon.alpha.service" />
-	<context:component-scan base-package="com.jd.bluedragon.alpha.ucc" />
 	<context:component-scan base-package="com.jd.lsb" />
 
 	<bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>

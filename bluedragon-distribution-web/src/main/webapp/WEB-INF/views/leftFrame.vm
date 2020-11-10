@@ -112,9 +112,6 @@
         <dd><a href="#springUrl('/offlinePwd/list')" target="mainFrame">离线密码管理</a></dd>
         <dt><a href="#" class="curr">订单</a></dt>
         <dd><a href="#springUrl('/kuGuan/goListPage')" target="mainFrame">库管单号查询</a></dd>
-        <dt><a href="#" class="curr">ISV版控制</a></dt>
-        <dd><a href="#springUrl('/printDevice/index')" target="mainFrame">ISV版本控制</a></dd>
-        <dd><a href="#springUrl('/version/index')" target="mainFrame">ISV版本管理</a></dd>
     </dl>
 </div>
 <div id="control" class="control" jQuery1328083232241="11"></div>
