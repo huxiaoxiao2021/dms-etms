@@ -70,5 +70,10 @@ public interface GoodsLoadScanGatewayService {
      */
     JdCResponse<Void> saveByPackageCode(GoodsLoadingScanningReq req);
 
+    /**
+     * 未装包裹明细接口
+     */
+    JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req);
+
 
 }

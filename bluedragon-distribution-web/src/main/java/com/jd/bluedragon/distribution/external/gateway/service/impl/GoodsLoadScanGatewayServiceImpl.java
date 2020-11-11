@@ -537,14 +537,25 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         return loadScanService.saveLoadScanByBoardCode(req, response, loadCar);
     }
 
-
-
-
-
-
-
-
-
+    @Override
+    @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.findUnloadPackages",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req) {
+        JdCResponse<List<String>> response = new JdCResponse<>();
+        if (req == null || req.getTaskId() == null) {
+            log.warn("运单未装包裹明细接口--任务ID为空");
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("参数为空");
+            return response;
+        }
+        if (StringUtils.isBlank(req.getWayBillCode())) {
+            log.warn("开始调用运单未装包裹明细接口--参数校验--运单号不能为空：taskId={}", req.getTaskId());
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("运单号不能为空");
+            return response;
+        }
+        return loadScanService.findUnloadPackages(req, response);
+    }
 
 
 }

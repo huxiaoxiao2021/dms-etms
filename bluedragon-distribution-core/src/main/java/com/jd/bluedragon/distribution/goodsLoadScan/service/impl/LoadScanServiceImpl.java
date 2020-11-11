@@ -622,6 +622,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                         record.setUpdateUserCode(user.getUserCode());
                         record.setUpdateTime(new Date());
                         record.setBoardCode(boardCode);
+                        record.setLicenseNumber(loadCar.getLicenseNumber());
                         updateRecords.add(record);
                     }
                     // 没扫描过的包裹正常装
@@ -1268,6 +1269,38 @@ public class LoadScanServiceImpl implements LoadScanService {
         return baseEntity.getData();
     }
 
+    /**
+     * 根据运单号、当前网点、已装包裹号查询未装包裹号列表
+     *
+     * @param waybillCode 运单号
+     * @param createSiteId 当前网点ID
+     * @param packageCodes 已装包裹号列表
+     * @return 未装包裹号列表
+     */
+    public List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId,
+                                                           List<String> packageCodes) {
+        com.jd.ql.dms.report.domain.BaseEntity<List<String>> baseEntity;
+        try {
+            baseEntity = loadScanPackageDetailService.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
+        } catch (Exception e) {
+            log.error("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表发生异常waybillCode={},createSiteId={},e=",
+                    waybillCode, createSiteId, e);
+            return new ArrayList<>();
+        }
+
+        if (baseEntity == null) {
+            log.warn("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表发生异常waybillCode={},createSiteId={}",
+                    waybillCode, createSiteId);
+            return new ArrayList<>();
+        }
+        if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
+            log.error("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表失败waybillCode={},createSiteId={},code={}",
+                    waybillCode, createSiteId, baseEntity.getCode());
+            return new ArrayList<>();
+        }
+        return baseEntity.getData();
+    }
+
 
     private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map,
                                                Map<String, LoadScanDto> flowDisAccordMap) {
@@ -1560,6 +1593,49 @@ public class LoadScanServiceImpl implements LoadScanService {
         if(CollectionUtils.isNotEmpty(goodsLoadScanRecordDao.loadScanRecordIsExist(taskId))){
             goodsLoadScanRecordDao.deleteLoadScanRecordByTaskId(taskId);
         }
+    }
+
+    @Override
+    public JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req, JdCResponse<List<String>> response) {
+        Long taskId = req.getTaskId();
+        String waybillCode = req.getWayBillCode();
+        log.info("开始查询未装包裹明细列表！taskId={},waybillCode={}", taskId, waybillCode);
+        // 根据任务号查询装车任务记录
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
+        if (loadCar == null) {
+            log.error("根据任务号找不到对应的装车任务，taskId={},waybillCode={}", taskId, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据任务号找不到对应的装车任务");
+            return response;
+        }
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={},waybillCode={}", taskId, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+        List<String> unloadPackages;
+        try {
+            // 获取锁
+            if (!lock(taskId, waybillCode, null)) {
+                log.info("未装包裹明细--获取锁失败：taskId={},waybillCode={}", taskId, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("多人同时查看该运单下未装包裹明细，请稍后重试！");
+                return response;
+            }
+            // 从包裹记录表查询该运单下所有已装车的包裹
+            List<String> packageCodes = goodsLoadScanRecordDao.findPackageCodesByWaybillCodeAndTaskId(taskId, waybillCode);
+            // 从ES中根据已装车包裹筛选出未装包裹列表
+            unloadPackages = getUnloadPackageCodesByWaybillCode(waybillCode,
+                    loadCar.getCreateSiteCode().intValue(), packageCodes);
+        } finally {
+            // 释放锁
+            unLock(taskId, waybillCode, null);
+        }
+        response.setCode(JdCResponse.CODE_SUCCESS);
+        response.setData(unloadPackages);
+        return response;
     }
 
 }
