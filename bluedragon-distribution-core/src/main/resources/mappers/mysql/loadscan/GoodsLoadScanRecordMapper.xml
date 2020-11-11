@@ -20,6 +20,7 @@
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="flow_disaccord" property="flowDisaccord" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="force_status" property="forceStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="license_number" javaType="java.lang.String" jdbcType="VARCHAR" property="licenseNumber"/>
     </resultMap>
 
     <resultMap id="recordMap" type="java.util.Map" >
@@ -29,7 +30,8 @@
 
     <sql id="Base_Column_List" >
 		id,task_id,waybill_code,package_code,board_code,scan_action,transfer,
-		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn,flow_disaccord,force_status
+		create_user_code,create_user_name,update_user_code,update_user_name,create_time,update_time,yn,flow_disaccord,force_status,
+		license_number
 	</sql>
 
     <insert id="add" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
@@ -70,6 +72,9 @@
             </if>
             <if test="endSiteName != null">
                 end_site_name,
+            </if>
+            <if test="licenseNumber != null">
+                license_number,
             </if>
             <if test="createUserCode != null">
                 create_user_code,
@@ -130,6 +135,9 @@
             <if test="endSiteName != null">
                 #{endSiteName,jdbcType=VARCHAR},
             </if>
+            <if test="licenseNumber != null">
+                #{licenseNumber,jdbcType=VARCHAR},
+            </if>
             <if test="createUserCode != null">
                 #{createUserCode,jdbcType=VARCHAR},
             </if>
@@ -154,7 +162,7 @@
     </insert>
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
-        insert into load_scan_record (task_id, waybill_code,end_site_code, end_site_name,create_site_name,create_site_code,package_code,
+        insert into load_scan_record (task_id, waybill_code,end_site_code, end_site_name,create_site_name,create_site_code,license_number,package_code,
         board_code, scan_action, transfer, flow_disaccord, force_status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
@@ -164,6 +172,7 @@
             #{info.endSiteName,jdbcType=VARCHAR},
             #{info.createSiteName,jdbcType=VARCHAR},
             #{info.createSiteCode,jdbcType=BIGINT},
+            #{info.licenseNumber,jdbcType=VARCHAR},
             #{info.packageCode,jdbcType=VARCHAR},
             #{info.boardCode,jdbcType=VARCHAR},
             #{info.scanAction,jdbcType=INTEGER},
@@ -228,6 +237,7 @@
             <if test="scanAction != null">scan_action = #{scanAction,jdbcType=INTEGER},</if>
             <if test="transfer != null">transfer = #{transfer,jdbcType=INTEGER},</if>
             <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>
+            <if test="licenseNumber != null">license_number = #{licenseNumber,jdbcType=VARCHAR},</if>
             <if test="createUserName != null">create_user_name = #{createUserName,jdbcType=VARCHAR},</if>
             <if test="updateUserCode != null">update_user_code = #{updateUserCode,jdbcType=VARCHAR},</if>
             <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>

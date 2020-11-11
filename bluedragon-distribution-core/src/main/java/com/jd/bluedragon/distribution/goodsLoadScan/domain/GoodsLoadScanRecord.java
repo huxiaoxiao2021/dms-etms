@@ -118,9 +118,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     /**
      * 包裹编号list
-     * @return
      */
     private List<String> packageCodeList;
+
+    /**
+     * 车牌号
+     */
+    private String licenseNumber;
 
 
     public Long getId() {
@@ -297,5 +301,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setPackageCodeList(List<String> packageCodeList) {
         this.packageCodeList = packageCodeList;
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
     }
 }

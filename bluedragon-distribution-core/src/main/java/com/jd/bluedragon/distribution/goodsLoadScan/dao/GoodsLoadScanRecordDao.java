@@ -28,8 +28,12 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectListByCondition", record);
     }
 
-    public GoodsLoadScanRecord findRecordByWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
-
+    public GoodsLoadScanRecord findRecordByWaybillCodeAndPackCode(String waybillCode, String packageCode, Long createSiteCode) {
+        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+        record.setWayBillCode(waybillCode);
+        record.setPackageCode(packageCode);
+        record.setYn(Constants.YN_YES);
+        record.setCreateSiteCode(createSiteCode);
         return this.getSqlSession().selectOne(namespace + ".selectRecordByWaybillCodeAndPackCode", record);
     }
 

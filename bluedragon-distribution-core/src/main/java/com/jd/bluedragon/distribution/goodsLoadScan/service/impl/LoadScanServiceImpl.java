@@ -1081,16 +1081,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
 
             // 校验重复扫
-            GoodsLoadScanRecord record = new GoodsLoadScanRecord();
-            record.setWayBillCode(waybillCode);
-            record.setPackageCode(packageCode);
-            record.setYn(Constants.YN_YES);
-            record.setCreateSiteCode(loadCar.getCreateSiteCode());
-            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findRecordByWaybillCodeAndPackCode(record);
+            GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findRecordByWaybillCodeAndPackCode(waybillCode, packageCode, loadCar.getCreateSiteCode());
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
-                log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
+                if (!loadCar.getLicenseNumber().equals(loadScanRecord.getLicenseNumber())) {
+                    log.warn("该包裹所属运单已装入{}车内，不能改装！taskId={},packageCode={},waybillCode={}",
+                            loadScanRecord.getLicenseNumber(), taskId, packageCode, waybillCode);
+                    response.setMessage("该包裹所属运单已装入" + loadScanRecord.getLicenseNumber() + "车内，不能改装！");
+                    return response;
+                }
+                log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
                 return response;
             }
@@ -1104,6 +1105,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScanRecord.setUpdateUserCode(user.getUserCode());
                 loadScanRecord.setUpdateUserName(user.getUserName());
                 loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                loadScanRecord.setLicenseNumber(loadCar.getLicenseNumber());
                 goodsLoadScanRecordDao.updateGoodsScanRecordById(loadScanRecord);
             } else {
                 // 如果不是重复扫，包裹扫描记录表新增一条记录
@@ -1333,7 +1335,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScanRecord.setCreateSiteName(loadCar.getCreateSiteName());
         loadScanRecord.setEndSiteCode(loadCar.getEndSiteCode());
         loadScanRecord.setEndSiteName(loadCar.getEndSiteName());
-
+        loadScanRecord.setLicenseNumber(loadCar.getLicenseNumber());
 
         return loadScanRecord;
     }
