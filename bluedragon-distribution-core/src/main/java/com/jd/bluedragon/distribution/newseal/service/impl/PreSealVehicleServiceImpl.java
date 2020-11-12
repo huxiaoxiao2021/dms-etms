@@ -198,7 +198,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         sealVehiclesService.batchAdd(sealVehiclesList);
         try{
             addSealTask(data, updateUserCode, updateUserName,operateTime);
-            addRedisCache(sealVehiclesList);
+//            addRedisCache(sealVehiclesList);
         }catch (Exception e){
             clearRedisCache(sealVehiclesList);
             throw e;
