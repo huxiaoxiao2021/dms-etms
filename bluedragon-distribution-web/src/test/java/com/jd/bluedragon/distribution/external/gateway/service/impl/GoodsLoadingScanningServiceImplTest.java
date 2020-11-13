@@ -239,4 +239,10 @@ public class GoodsLoadingScanningServiceImplTest {
 
     }
 
+
+    @Test
+    public void testLicenseNumber(){
+    String licenseNumber="010A01077";
+    loadCarTaskGateWayService.checkLicenseNumber(licenseNumber);
+    }
 }
