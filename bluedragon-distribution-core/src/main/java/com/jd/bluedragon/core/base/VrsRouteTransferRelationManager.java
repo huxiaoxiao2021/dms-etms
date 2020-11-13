@@ -92,5 +92,14 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType);
+
+    /**
+     * 根据运单号和当前网点查询下一路由信息
+     * @param waybillCode 运单号
+     * @param createSiteId 当前网点ID
+     * @return 下一路由网点ID
+     */
+    Integer findNextDmsSiteByWaybillCode(String waybillCode, Integer createSiteId);
+
 }
 

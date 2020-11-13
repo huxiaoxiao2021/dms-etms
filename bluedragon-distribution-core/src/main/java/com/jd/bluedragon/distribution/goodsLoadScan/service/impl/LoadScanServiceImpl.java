@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -98,6 +99,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteManager;
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -872,9 +876,16 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("包裹未验货或已发货，请核实包裹状态");
             return response;
         }
+        Integer nextDmsSiteId = loadScanDto.getNextSiteId();
+        // 如果ES中的路由还没计算出来，再实时调用一次
+        if (nextDmsSiteId == null) {
+            log.info("分拣报表中的路由还没计算出来，开始实时调用路由接口taskId={},packageCode={}", taskId, packageCode);
+            nextDmsSiteId = vrsRouteManager.findNextDmsSiteByWaybillCode(waybillCode, loadCar.getCreateSiteCode().intValue());
+            log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
+        }
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
-        if (loadScanDto.getNextSiteId() == null || loadCar.getEndSiteCode().intValue() != loadScanDto.getNextSiteId()) {
+        if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
             log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_CONFIRM);
             JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
