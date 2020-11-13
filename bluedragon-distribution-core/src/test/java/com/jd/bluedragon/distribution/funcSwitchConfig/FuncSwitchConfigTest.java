@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -56,13 +57,13 @@ public class FuncSwitchConfigTest {
         if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
             BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
             if(funcSwitchConfigDto.getDimensionCode()== DimensionEnum.NATIONAL.getCode()){
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF? WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF? WeightValidateSwitchEnum.ZY_OFF:WeightValidateSwitchEnum.ZY_ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     System.out.println("众邮分拣机开关调用失败,全国");
                 }
             }else {
                 Integer[] siteCodes = {funcSwitchConfigDto.getSiteCode()};
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.ZY_OFF:WeightValidateSwitchEnum.ZY_ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     System.out.println("众邮分拣机开关调用失败,站点:"+siteCodes);
                 }
@@ -151,6 +152,31 @@ public class FuncSwitchConfigTest {
 
         }
         System.out.println(isAllMailFilter);
+    }
+
+    @Test
+    public void test07() throws Exception {
+        List<Integer>  zySiteCodesOffList = null;
+        //纯配外单-调用分拣机list
+       // List<Integer>  cpSiteCodesOffList = null;
+        FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
+        dto.setSiteCode(11111);
+        dto.setDimensionCode(2);
+        zySiteCodesOffList  =  checkDimensionGetList(dto,zySiteCodesOffList);
+        System.out.println(zySiteCodesOffList.toString());
+    }
+
+    public List<Integer> checkDimensionGetList  (FuncSwitchConfigDto dto, List<Integer> siteCodesOffList) throws Exception {
+        if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
+            if(CollectionUtils.isEmpty(siteCodesOffList)){
+                siteCodesOffList = new ArrayList<>();
+            }
+            //调用不拦截
+            siteCodesOffList.add(dto.getSiteCode());
+        }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+            throw  new Exception("批量导入不支持全国数据,请手动添加");
+        }
+        return siteCodesOffList;
     }
 
 }

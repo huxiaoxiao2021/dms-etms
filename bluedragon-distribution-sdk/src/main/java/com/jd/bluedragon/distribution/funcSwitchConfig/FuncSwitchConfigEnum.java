@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,7 +23,8 @@ public enum FuncSwitchConfigEnum {
     FUNCTION_SPOT_CHECK(9001,"DMS-WEB-FUNCTION-SWITCH-SPOT-CHECK","抽检"),
     FUNCTION_COLLECTION_ADDRESS(9002,"DMS-WEB-FUNCTION-SWITCH-COLLECTION-ADDRESS","集包地"),
     FUNCTION_PRE_SELL(9003,"DMS-WEB-FUNCTION-SWITCH-PRE-SELL","预售"),
-    FUNCTION_ALL_MAIL(9004,"DMS-WEB-FUNCTION_SWITCH-ALL-MAIL","众邮无重量拦截");
+    FUNCTION_ALL_MAIL(9004,"DMS-WEB-FUNCTION_SWITCH-ALL-MAIL","众邮无重量拦截"),
+    FUNCTION_COMPLETE_DELIVERY(9005,"DMS-WEB-FUNCTION-SWITCH-COMPLETE_DELIVERY","纯配无重量拦截");
 
     private int code;
     // 权限码
@@ -30,11 +33,16 @@ public enum FuncSwitchConfigEnum {
 
     public static Map<Integer, FuncSwitchConfigEnum> codeMap;
     public static Map<Integer, String> interceptMenuEnumMap;
+    //需要走拦截遍历的配置
+    public static List<FuncSwitchConfigEnum> filterList;
 
     static {
         //将所有枚举装载到map中
         codeMap = new HashMap<Integer, FuncSwitchConfigEnum>();
         interceptMenuEnumMap = new HashMap<Integer, String>();
+        filterList = new ArrayList<FuncSwitchConfigEnum>();
+        filterList.add(FUNCTION_ALL_MAIL);
+        filterList.add(FUNCTION_COMPLETE_DELIVERY);
 
         for (FuncSwitchConfigEnum _enum : FuncSwitchConfigEnum.values()) {
             codeMap.put(_enum.getCode(), _enum);

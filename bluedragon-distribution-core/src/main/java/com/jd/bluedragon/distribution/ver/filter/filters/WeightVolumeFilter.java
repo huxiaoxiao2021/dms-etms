@@ -82,9 +82,13 @@ public class WeightVolumeFilter implements Filter {
         //判断waybillSign是否满足条件 判断 是否是经济网单号 20200824增加无需拦截经济网逆向运单
         boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign,request);
 
+        //判断纯配外单是否需要无重量拦截
+        boolean isAllPureNeedWeight =  isAllPureValidateWeight(waybillSign,request);
+
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
-        if( isEconomicNetNeedWeight ){
+
+        if( isEconomicNetNeedWeight || isAllPureNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
@@ -140,5 +144,40 @@ public class WeightVolumeFilter implements Filter {
             return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
         }
         return true;
+    }
+
+    /**
+     * 纯配运单拦截 (除信任商家、内部商家外的纯配外单)
+     * @param waybillSign
+     * @param request
+     * @return
+     */
+    private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
+        //是否是纯配外单
+        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
+            return  false;
+        }
+
+        //信任商家不拦截
+        if(!BusinessHelper.isTrust(waybillSign)){
+            return false;
+        }
+
+        //内部商家不拦截
+
+
+        //如果是全国有效,直接返回不拦截
+        if(!funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
+            return false;
+        }
+
+        //不是全国-查询站点维度
+        if(request.getCreateSiteCode()!=null){
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode(),siteCode);
+        }
+
+        return  true;
     }
 }
