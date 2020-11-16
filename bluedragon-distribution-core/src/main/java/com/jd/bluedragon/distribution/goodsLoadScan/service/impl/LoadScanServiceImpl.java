@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -103,7 +105,16 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteManager;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
+
+    private static final String PACKAGES_INSERT = "PACKAGES_INSERT";
+
+    private static final String PACKAGES_UPDATE = "PACKAGES_UPDATE";
+
+    private static final String BOARD_FIRST = "BOARD_FIRST";
 
     @Autowired
     @Qualifier(value = "goodsLoadTaskProducer")
@@ -501,17 +512,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             List<LoadScanDto> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
             reportList = getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
 
-            if (log.isDebugEnabled()) {
-                log.debug("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
-            }
+            log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
             // 转换数据
             if (!reportList.isEmpty()) {
                 log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
-                goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap);
+                goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap, scanDetailDto);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("根据任务ID查找装车扫描记录结束,开始排序! taskId={},size={}", req.getTaskId(), goodsDetailDtoList.size());
-            }
+
             // 按照颜色排序
             Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
                 @Override
@@ -539,46 +546,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 多扫标识
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
+        String boardCode = req.getBoardCode();
 
-        if (log.isDebugEnabled()) {
-            log.debug("板号暂存接口--根据包裹号找板号开始：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
-        }
-        // 根据包裹号查板号
-        Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
-        if (board == null) {
-            log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据包裹号没有找到对应的板号");
-            return response;
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("板号暂存接口--根据包裹号找板号结束：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId, packageCode, transfer, flowDisAccord);
-        }
-        String boardCode = board.getCode();
-        Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
-        if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
-                || CollectionUtils.isEmpty(result.getData())) {
-            log.error("根据板号没有找到对应的包裹列表！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据板号没有找到对应的包裹列表");
-            return response;
-        }
-        //校验包裹最大数量
-        if(result.getData().size()>uccPropertyConfiguration.getLoadScanTaskPackageSize()){
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("此板号下包裹超"+uccPropertyConfiguration.getLoadScanTaskPackageSize()+"件，请切换至快运发货功能进行发货操作");
-            return response;
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("板号暂存接口--根据板号找板上的所有包裹结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                    packageCode, transfer, flowDisAccord, boardCode);
-        }
-        List<LoadScanDto> loadScanDtoList = new ArrayList<>();
-
-        // 板子上可以装车的有效包裹
-        List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
-        List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
+        // 从缓存中取出板子上可以装车的有效包裹
+        List<GoodsLoadScanRecord> insertRecords = jimdbCacheService.getList(taskId + boardCode + PACKAGES_INSERT, GoodsLoadScanRecord.class);
+        List<GoodsLoadScanRecord> updateRecords = jimdbCacheService.getList(taskId + boardCode + PACKAGES_INSERT, GoodsLoadScanRecord.class);
 
         try {
             // 获取锁
@@ -599,82 +571,17 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-            // 根据板号查询之前的包裹扫描记录,需要根据包裹号Response<List<String>> result，来查询当前中心是否扫描过。
-            Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(loadCar.getCreateSiteCode(), result.getData());
-
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
+            // 板上的运单记录
+            Map<String, LoadScanDto> waybillMap = new HashMap<>(16);
 
-            // 循环处理板上的每一个包裹
-            for (String packCode : result.getData()) {
-                if (!WaybillUtil.isPackageCode(packCode)) {
-                    continue;
-                }
-                String waybillCode = WaybillUtil.getWaybillCode(packCode);
+            // 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
+            computeLoadAndFilterWaybill(insertRecords, waybillMap, map);
+            computeLoadAndFilterWaybill(updateRecords, waybillMap, map);
 
-                // 该板号上的包裹都不属于重复扫
-                if (packageMap != null && !packageMap.isEmpty()) {
-                    GoodsLoadScanRecord record = packageMap.get(packCode);
-                    // 重复扫的包裹忽略
-                    if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
-                        continue;
-                    }
-                    // 扫描过但被取消的包裹可以再装
-                    if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
-                        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
-                        record.setUpdateUserName(user.getUserName());
-                        record.setUpdateUserCode(user.getUserCode());
-                        record.setUpdateTime(new Date());
-                        record.setBoardCode(boardCode);
-                        record.setLicenseNumber(loadCar.getLicenseNumber());
-                        updateRecords.add(record);
-                    }
-                    // 没扫描过的包裹正常装
-                    if (record == null) {
-                        GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                                boardCode, transfer, flowDisAccord, user, loadCar);
-                        insertRecords.add(goodsLoadScanRecord);
-                    }
-                } else {
-                    // 没扫描过的包裹正常装
-                    GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                            boardCode, transfer, flowDisAccord, user, loadCar);
-                    insertRecords.add(goodsLoadScanRecord);
-                }
-
-                // 板上的包裹列表不需要再校验是否已验货，直接装车
-                LoadScanDto loadScanDto = new LoadScanDto();
-                loadScanDto.setWayBillCode(waybillCode);
-                loadScanDtoList.add(loadScanDto);
-
-                // 当前板子上同一个运单上的包裹数
-                Integer packageNum = map.get(waybillCode);
-                if (packageNum == null) {
-                    map.put(waybillCode, 1);
-                } else {
-                    packageNum = packageNum + 1;
-                    map.put(waybillCode, packageNum);
-                }
-            }
+            List<LoadScanDto> loadScanDtoList = new ArrayList<>(waybillMap.values());
             if (log.isDebugEnabled()) {
-                log.debug("板号暂存接口--板上包裹数={},有效包裹数={},boardCode={},taskId={}", result.getData().size(),
-                        updateRecords.size() + insertRecords.size(), boardCode, taskId);
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("板号暂存接口--开始检验板号是否重复扫，boardCode={},taskId={}", boardCode, taskId);
-            }
-            // 如果可以装车的包裹为空，则属于重复扫
-            if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
-                // 重复扫直接跳过
-                log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("该板号属于重复扫！");
-                return response;
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("板号暂存接口--板号不属于重复扫：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
-                        packageCode, transfer, flowDisAccord, boardCode);
                 log.debug("板号暂存接口--根据板号上的运单号去分拣报表反查开始：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
                         packageCode, transfer, flowDisAccord, boardCode);
             }
@@ -707,8 +614,10 @@ public class LoadScanServiceImpl implements LoadScanService {
                 goodsLoadScanRecordDao.batchInsert(insertRecords);
             }
 
-            // 扫描第一个包裹时，修改任务状态为已开始
-            if (packageMap == null || packageMap.isEmpty()) {
+            // 如果板上的包裹从来没扫过
+            if (jimdbCacheService.get(taskId + boardCode + BOARD_FIRST) != null) {
+                log.info("板上的包裹从来没扫过,redis中板号标识不为空。taskId={},boardCode={}", taskId, boardCode);
+                // 扫描第一个包裹时，修改任务状态为已开始
                 updateTaskStatus(loadCar, user);
                 if (log.isDebugEnabled()) {
                     log.debug("板号暂存接口--更新任务状态结束：taskId={},packageCode={},transfer={},flowDisAccord={},boardCode={}", taskId,
@@ -749,6 +658,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         } catch (Exception e) {
             log.error("按板号暂存逻辑发生错误e=", e);
         } finally {
+            // 清除缓存
+            jimdbCacheService.del(taskId + boardCode + PACKAGES_INSERT);
+            jimdbCacheService.del(taskId + boardCode + PACKAGES_UPDATE);
+            jimdbCacheService.del(taskId + boardCode + BOARD_FIRST);
             // 释放锁
             unLock(taskId, null, boardCode);
             if (log.isDebugEnabled()) {
@@ -760,6 +673,100 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
+    }
+
+    /**
+     * 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
+     * @param records 板上有效的包裹列表
+     * @param waybillMap 运单集合，key为运单号，value为查询库存参数对象
+     * @param map 运单集合，key为运单号，value为板上这个运单所对应的包裹数
+     */
+    private void computeLoadAndFilterWaybill(List<GoodsLoadScanRecord> records, Map<String, LoadScanDto> waybillMap,
+                                             Map<String, Integer> map) {
+        if (!records.isEmpty()) {
+            for (GoodsLoadScanRecord record : records) {
+                LoadScanDto scanDto = waybillMap.get(record.getWayBillCode());
+                if (scanDto == null) {
+                    // 板上的包裹列表不需要再校验是否已验货，直接装车
+                    LoadScanDto loadScanDto = new LoadScanDto();
+                    loadScanDto.setWayBillCode(record.getWayBillCode());
+                    waybillMap.put(record.getWayBillCode(), loadScanDto);
+                }
+                // 当前板子上同一个运单上的包裹数
+                Integer packageNum = map.get(record.getWayBillCode());
+                if (packageNum == null) {
+                    map.put(record.getWayBillCode(), 1);
+                } else {
+                    packageNum = packageNum + 1;
+                    map.put(record.getWayBillCode(), packageNum);
+                }
+            }
+        }
+    }
+
+    /**
+     * 对板上的每个包裹进行处理，梳理出新增的和要修改的，从而判断是否重复扫
+     * @param packages 板上的所有包裹
+     * @param loadCar 装车任务对象
+     * @param boardCode 板号
+     * @param req 查询参数对象
+     * @param insertRecords 新增的包裹集合
+     * @param updateRecords 修改的包裹集合
+     */
+    private void handlePackagesOfBoard(List<String> packages, LoadCar loadCar, String boardCode, GoodsLoadingScanningReq req,
+                                       List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
+        User user = req.getUser();
+        Long taskId = loadCar.getId();
+        Integer transfer = req.getTransfer();
+        Integer flowDisAccord = req.getFlowDisaccord();
+
+        // 根据板号查询之前的包裹扫描记录,需要根据包裹号Response<List<String>> result，来查询当前中心是否扫描过。
+        Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByBoardCode(loadCar.getCreateSiteCode(), packages);
+
+        // 如果板上的包裹有之前扫过的，需要过滤
+        if (packageMap != null && !packageMap.isEmpty()) {
+            // 循环处理板上的每一个包裹
+            for (String packCode : packages) {
+                if (!WaybillUtil.isPackageCode(packCode)) {
+                    continue;
+                }
+                String waybillCode = WaybillUtil.getWaybillCode(packCode);
+                GoodsLoadScanRecord record = packageMap.get(packCode);
+                // 重复扫的包裹忽略
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
+                    continue;
+                }
+                // 扫描过但被取消的包裹可以再装
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                    record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                    record.setUpdateUserName(user.getUserName());
+                    record.setUpdateUserCode(user.getUserCode());
+                    record.setUpdateTime(new Date());
+                    record.setBoardCode(boardCode);
+                    record.setLicenseNumber(loadCar.getLicenseNumber());
+                    updateRecords.add(record);
+                }
+                // 没扫描过的包裹正常装
+                if (record == null) {
+                    GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                            boardCode, transfer, flowDisAccord, user, loadCar);
+                    insertRecords.add(goodsLoadScanRecord);
+                }
+            }
+        } else {
+            // 板上的包裹都是新增的
+            for (String packCode : packages) {
+                if (!WaybillUtil.isPackageCode(packCode)) {
+                    continue;
+                }
+                String waybillCode = WaybillUtil.getWaybillCode(packCode);
+                GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                        boardCode, transfer, flowDisAccord, user, loadCar);
+                insertRecords.add(goodsLoadScanRecord);
+            }
+            // 设置板号的标识，代表板上的包裹都是全新从来没扫过的
+            jimdbCacheService.setEx(taskId + boardCode + BOARD_FIRST, StringUtils.EMPTY, 3, TimeUnit.DAYS);
+        }
     }
 
 
@@ -941,20 +948,61 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (log.isDebugEnabled()) {
             log.debug("获取板信息成功，taskId={},packageCode={},boardCode:{}", taskId, packageCode, boardCode);
         }
+
+        // 查询板号上包裹的数量
+        Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
+        if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
+                || CollectionUtils.isEmpty(result.getData())) {
+            log.error("根据板号没有找到对应的包裹列表！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据板号没有找到对应的包裹列表");
+            return response;
+        }
+
+        //校验板上包裹最大数量
+        if (result.getData().size() > uccPropertyConfiguration.getLoadScanTaskPackageSize()) {
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("此板号下包裹超" + uccPropertyConfiguration.getLoadScanTaskPackageSize() + "件，请切换至快运发货功能进行发货操作");
+            return response;
+        }
+
+        // 板子上可以装车的有效包裹
+        List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
+        List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
+        // 校验板号是否属于重复扫
+        handlePackagesOfBoard(result.getData(), loadCar, boardCode, req, insertRecords, updateRecords);
+        // 如果可以装车的包裹为空，则属于重复扫
+        if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
+            log.error("该板号属于重复扫！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该板号属于重复扫！");
+            return response;
+        }
+
+        // 以任务ID和板号作为key放入缓存
+        jimdbCacheService.setEx(taskId + boardCode + PACKAGES_INSERT, insertRecords, 3, TimeUnit.DAYS);
+        jimdbCacheService.setEx(taskId + boardCode + PACKAGES_UPDATE, updateRecords, 3, TimeUnit.DAYS);
+
+        JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+        msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+        msgBox.setData(boardCode);
+        response.setCode(JdCResponse.CODE_CONFIRM);
+        String msg;
+
         // 校验板号流向与批次号流向是否一致，如不一致进行错发弹框提醒（“错发！请核实！板号与批次目的地不一致，请确认是否继续发货！”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的板号
         if (loadCar.getEndSiteCode().intValue() != board.getDestinationId()) {
             log.warn("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！taskId={},packageCode={},boardCode={},taskSite={}, boardSite={}",
                     taskId, packageCode, boardCode, loadCar.getEndSiteCode(), board.getDestinationId());
-            response.setCode(JdCResponse.CODE_CONFIRM);
-            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
-            msgBox.setMsg("错发！请核实！板号与批次目的地不一致，请确认是否继续发货！");
-            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            msg = "该包裹所在板号共有" + result.getData().size() + "个包裹！\n" + "错发！请核实！板号与批次目的地不一致，请确认是否继续发货！";
+            msgBox.setMsg(msg);
             response.addBox(msgBox);
             return response;
         }
 
-        response.setCode(JdCResponse.CODE_SUCCESS);
-        response.setMessage(JdCResponse.MESSAGE_SUCCESS);
+        // 板流向一致，则提示板上包裹数量
+        msg = "该包裹所在板号共有" + result.getData().size() + "个包裹，请确认实物数量正确后，再点击【确认】，转为板号装车。";
+        msgBox.setMsg(msg);
+        response.addBox(msgBox);
         return response;
     }
 
@@ -1138,6 +1186,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                     goodsAmount, flowDisAccord, user);
             GoodsLoadScan oldLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
             if (oldLoadScan == null) {
+                // 设置重量和体积
+                setWeightAndVolume(newLoadScan);
                 goodsLoadScanDao.insert(newLoadScan);
             } else {
                 computeAndUpdateLoadScan(oldLoadScan, goodsAmount, flowDisAccord);
@@ -1154,6 +1204,25 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
+    }
+
+    /**
+     * 设置运单重量和体积
+     * @param newLoadScan 运单暂存对象
+     */
+    private void setWeightAndVolume(GoodsLoadScan newLoadScan) {
+        // 查询运单详情
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(newLoadScan.getWayBillCode());
+        if (waybill != null) {
+            Double weight = waybill.getAgainWeight();
+            String volume = waybill.getSpareColumn2();
+            // 复重：againWeight 无值则取重量：goodWeight
+            newLoadScan.setWeight(weight == null ? waybill.getGoodWeight() : weight);
+            // 复量方：spareColumn2 无值则取体积：goodVolume
+            newLoadScan.setVolume(StringUtils.isBlank(volume) ? waybill.getGoodVolume() : Double.parseDouble(volume));
+        } else {
+            log.error("查询运单接口返回空:taskId={},waybillCode={}", newLoadScan.getTaskId(), newLoadScan.getWayBillCode());
+        }
     }
 
     /**
@@ -1314,18 +1383,31 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map,
-                                               Map<String, LoadScanDto> flowDisAccordMap) {
+                                               Map<String, LoadScanDto> flowDisAccordMap, LoadScanDetailDto scanDetailDto) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
+        double totalWeight = 0.00;
+        double totalVolume = 0.00;
+        int totalPackageNum = 0;
+
         for (LoadScanDto detailDto : list) {
             GoodsDetailDto goodsDetailDto = new GoodsDetailDto();
             goodsDetailDto.setWayBillCode(detailDto.getWayBillCode());
             goodsDetailDto.setPackageAmount(detailDto.getPackageAmount());
             goodsDetailDto.setGoodsAmount(detailDto.getGoodsAmount());
+
             // 从map中获取运单号对应的暂存记录
             GoodsLoadScan loadScan = map.get(detailDto.getWayBillCode());
             goodsDetailDto.setLoadAmount(loadScan.getLoadAmount());
             int unloadNum = detailDto.getGoodsAmount() - loadScan.getLoadAmount();
             goodsDetailDto.setUnloadAmount(unloadNum);
+
+            // 累计运单总重量
+            totalWeight = totalWeight + loadScan.getWeight();
+            // 累计运单总体积
+            totalVolume = totalVolume + loadScan.getVolume();
+            // 累计所有已操作运单已装包裹数
+            totalPackageNum = totalPackageNum + loadScan.getLoadAmount();
+
             // 重新计算颜色
             Integer status = getWaybillStatus(detailDto.getGoodsAmount(), loadScan.getLoadAmount(),
                     goodsDetailDto.getUnloadAmount(), loadScan.getForceAmount());
@@ -1344,6 +1426,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             goodsDetails.add(goodsDetailDto);
         }
+        scanDetailDto.setTotalWeight(totalWeight);
+        scanDetailDto.setTotalVolume(totalVolume);
+        scanDetailDto.setTotalPackageNum(totalPackageNum);
         return goodsDetails;
     }
 
@@ -1588,6 +1673,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             e.setId(oldData.getId());
             return goodsLoadScanDao.updateByPrimaryKey(e);
         } else {
+            // 设置重量和体积
+            setWeightAndVolume(e);
             e.setCreateTime(new Date());
             e.setCreateUserCode(user.getUserCode());
             e.setCreateUserName(user.getUserName());

@@ -2,16 +2,15 @@ package com.jd.bluedragon.common.service;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.codehaus.jackson.type.JavaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,6 +71,17 @@ public class JimdbCacheServiceImpl implements CacheService{
 	public <T> T get(String key,Class<T> responseType) {
 		return deserialize(get(key),responseType);
 	}
+
+	/**
+	 * 从缓存中获取一个List对象
+	 * @param key
+	 * @param responseType
+	 * @return
+	 */
+	public <T> List<T> getList(String key, Class<T> responseType) {
+		return deserializeList(get(key), responseType);
+	}
+
 	/**
 	 * 缓存中放入一个可序列化的对象
 	 * @param key
@@ -323,6 +333,22 @@ public class JimdbCacheServiceImpl implements CacheService{
 		}
 		try {
 			return JsonHelper.fromJsonMs(in, responseType);
+		} catch (Exception e) {
+			log.error("Caught Exception decoding {}",in, e);
+		}
+		return null;
+	}
+
+	/**
+	 * List对象反序列化
+	 */
+	private <T> List<T> deserializeList(String in, Class<T> responseType) {
+		if (in == null || in.length()==0) {
+			return null;
+		}
+		try {
+			JavaType javaType = JsonHelper.getCollectionType(ArrayList.class, responseType);
+			return JsonHelper.getMapper().readValue(in, javaType);
 		} catch (Exception e) {
 			log.error("Caught Exception decoding {}",in, e);
 		}
