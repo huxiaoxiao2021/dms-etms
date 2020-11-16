@@ -401,10 +401,6 @@
         <property name="topic" value="${jmq.topic.handOverWeight}"/>
     </bean>
 
-    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
-    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
-    </bean>
     <!-- 银行卡运单号校验 -->
     <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.waybill.check.exportlog}"/>
