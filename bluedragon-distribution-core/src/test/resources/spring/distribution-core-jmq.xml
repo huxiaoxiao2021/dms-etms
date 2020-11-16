@@ -355,12 +355,6 @@
         <property name="topic" value="${jmq.topic.ar.transportModeChange}"/>
     </bean>
 
-    <!-- ECLP退备件库-->
-    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="10000"/>
-        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
-    </bean>
-
     <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
