@@ -119,11 +119,6 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.20.90}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
     <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.monitor.turnover.report}"/>
         <property name="timeout" value="1000"/>
