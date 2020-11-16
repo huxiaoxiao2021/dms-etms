@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
@@ -16,6 +17,12 @@ import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ldop.basic.api.BasicTraderAPI;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -73,6 +80,13 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    @Qualifier("basicTraderAPI")
+    private BasicTraderAPI basicTraderAPI;
+
+    @Autowired
+    private WaybillQueryApi waybillQueryApi;
 
     /**
      * 根据条件分页查询
@@ -691,5 +705,36 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      */
     public String getErpOneCacheKey(String cachePre,Integer menuCode,String operateErp){
         return cachePre+menuCode+"_"+operateErp;
+    }
+
+    /**
+     * 通过运单号-判断是否是内部商家
+     * @param waybillCode
+     * @return
+     */
+    public boolean  isInsideMode(String waybillCode){
+        String traderCode = null;
+        try {
+            BaseEntity<Waybill>  waybillBaseEntity = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
+            if(waybillBaseEntity==null || waybillBaseEntity.getData()==null || StringUtils.isEmpty(waybillBaseEntity.getData().getCustomerCode()) ){
+                if(logger.isInfoEnabled()){
+                    logger.info("运单号获取青龙业主号结果为空,入参waybillCode:{}",waybillCode);
+                }
+                return false;
+            }
+            traderCode = waybillBaseEntity.getData().getCustomerCode();
+            ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO =  basicTraderAPI.getBaseTraderNeccesaryInfoByCode(traderCode);
+            if(responseDTO == null || !responseDTO.isSuccess() || responseDTO.getResult() == null ){
+                return false;
+            }
+            BasicTraderNeccesaryInfoDTO  basicTraderNeccesaryInfoDTO = responseDTO.getResult();
+            if(!basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
+                return false;
+            }
+        }catch (Exception e){
+            logger.error("调用商家基础资料接口异常,入参traderCode:{}",traderCode);
+            return false;
+        }
+        return  true;
     }
 }

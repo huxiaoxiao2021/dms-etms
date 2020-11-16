@@ -105,4 +105,11 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp);
+
+    /**
+     * 拿运单号获取商家青龙业主号-通过青龙业务号判断是否是内部商家
+     * @param waybillCode
+     * @return
+     */
+    boolean isInsideMode(String waybillCode);
 }

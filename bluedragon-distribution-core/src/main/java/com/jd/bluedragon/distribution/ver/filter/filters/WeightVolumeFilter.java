@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
@@ -20,6 +21,9 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.ldop.basic.api.BasicTraderAPI;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -83,7 +87,7 @@ public class WeightVolumeFilter implements Filter {
         boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign,request);
 
         //判断纯配外单是否需要无重量拦截
-        boolean isAllPureNeedWeight =  isAllPureValidateWeight(waybillSign,request);
+        boolean isAllPureNeedWeight =  isAllPureValidateWeight(waybillSign,waybillCode,request);
 
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
@@ -152,21 +156,23 @@ public class WeightVolumeFilter implements Filter {
      * @param request
      * @return
      */
-    private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
-        //是否是纯配外单
+    private boolean isAllPureValidateWeight(String waybillSign,String waybillCode,FilterContext request){
+        //1.是否是纯配外单
         if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
             return  false;
         }
 
-        //信任商家不拦截
+        //2.信任商家不拦截
         if(!BusinessHelper.isTrust(waybillSign)){
             return false;
         }
 
-        //内部商家不拦截
+        //3.内部商家不拦截
+        if(!funcSwitchConfigService.isInsideMode(waybillCode)){
+            return false;
+        }
 
-
-        //如果是全国有效,直接返回不拦截
+        //4.如果是全国有效,直接返回不拦截
         if(!funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
             return false;
         }
