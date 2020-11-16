@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -221,6 +222,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return result;
         }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                result.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return result;
+            }
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
@@ -563,25 +568,32 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              * 组板失败
              *  500：失败-当前箱已经绑过板
              *  直接强制组板到新版上
+             *
+             *  二期优化增加【组板转移】提示
              * */
-            if (response.getCode() == 500) {
-                //调用TC的板号转移接口
-                InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
-                if(invokeResult == null){
-                    throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
+            /****/
+            if(response.getCode() == 500){
+                if(request.getIsCombinationTransfer()==1){
+                    //调用TC的板号转移接口
+                    InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
+                    if(invokeResult == null){
+                        throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
+                    }
+                    //重新组板失败
+                    if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
+                        logger.warn("组板转移成功.原板号【{}】新板号【{}】失败原因【{}】",
+                                invokeResult.getData(),request.getBoardCode(),response.getMesseage());
+                        throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+                    }
+                    //重新组板成功处理
+                    logger.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
+                            invokeResult.getData(),request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode());
+                    setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
+                    boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
+                    return;
+                }else {
+                    throw new UnloadPackageBoardException("此包裹已在板号"+request.getBoardCode()+"内，是否确认重新组板？");
                 }
-                //重新组板失败
-                if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
-                    logger.warn("组板转移成功.原板号【{}】新板号【{}】失败原因【{}】",
-                            invokeResult.getData(),request.getBoardCode(),response.getMesseage());
-                    throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
-                }
-                //重新组板成功处理
-                logger.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
-                        invokeResult.getData(),request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode());
-                setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
-                boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
-                return;
             }
             logger.warn("组板失败.板号【{}】包裹号【{}】站点【{}】.失败原因:【{}】",
                     request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMesseage());
