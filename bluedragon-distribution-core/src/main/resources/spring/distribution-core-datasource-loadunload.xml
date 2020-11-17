@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
+
+
+    <!-- loadunload 写-->
+    <bean id="dms_main_loadunload" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+        <property name="url" value="${dms.write.mysql.db.loadunload.url}"/>
+        <property name="username" value="${db.mysql.loadunload.username}"/>
+        <property name="password" value="${db.mysql.loadunload.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.write.mysql.db.loadunload.initialSize}"/>
+        <property name="maxIdle" value="${dms.write.mysql.db.loadunload.maxIdle}"/>
+        <property name="minIdle" value="${dms.write.mysql.db.loadunload.minIdle}"/>
+        <property name="maxActive" value="${dms.write.mysql.db.loadunload.maxActive}"/>
+        <property name="maxWait" value="${dms.write.mysql.db.loadunload.maxWait}"/>
+        <property name="logAbandoned" value="${dms.write.mysql.db.loadunload.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.write.mysql.db.loadunload.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.write.mysql.db.loadunload.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.write.mysql.db.loadunload.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.write.mysql.db.loadunload.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.write.mysql.db.loadunload.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.loadunload.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.loadunload.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
+    </bean>
+
+    <bean id="transactionManager_loadunload"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dms_main_loadunload"/>
+        <qualifier value="main_loadunload"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager_loadunload" proxy-target-class="true"/>
+
+    <bean id="loadUnloadSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dms_main_loadunload"/>
+        <property name="configLocation" value="classpath:config/mysql/mybatis-config-loadunload.xml"/>
+    </bean>
+
+    <bean id="loadUnloadSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="loadUnloadSqlSessionFactory"/>
+    </bean>
+    <!-- dms单库写库 数据源 end -->
+
+
+</beans>

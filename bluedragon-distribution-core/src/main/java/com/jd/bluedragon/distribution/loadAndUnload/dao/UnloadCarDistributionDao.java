@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 类描述信息

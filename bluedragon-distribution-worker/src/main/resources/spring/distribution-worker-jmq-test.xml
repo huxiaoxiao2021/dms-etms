@@ -267,5 +267,15 @@
         <jmq:listener topic="${jmq.topic.gantryResidentScan}" listener="gantryResidentScanConsumer" />
     </jmq:consumer>
 
+    <!-- 装车发货任务消费 -->
+    <jmq:consumer id="jmq.goodsLoadTaskConsume" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.goods.load.task.deal}" listener="goodsLoadTaskConsume"/>
+    </jmq:consumer>
+
+    <!-- 装车发货包裹消费 -->
+    <jmq:consumer id="jmq.goodsLoadPackageConsume" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.goods.load.package.deal}" listener="goodsLoadPackageConsume"/>
+    </jmq:consumer>
+
 </beans>
 

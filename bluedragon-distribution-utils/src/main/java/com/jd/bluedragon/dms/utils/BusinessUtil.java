@@ -784,6 +784,24 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断原单作废，逆向单不计费
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isYDZF(String waybillSign){
+        return isSignChar(waybillSign,14,'D');
+    }
+
+    /**
+     * 判断原单拒收因京东原因产生的逆向单，不计费
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isJDJS(String waybillSign){
+        return isSignChar(waybillSign,14,'E');
+    }
+
+    /**
      * 判断是否是运费临时欠款 【WaybillSign 62位 =1（营业厅运单），且WaybillSign 25位 = 4 时】
      * @param waybillSign
      * @return
@@ -867,6 +885,24 @@ public class BusinessUtil {
                 && isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2)
                 && isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
                 && isSignChar(waybillSign,WaybillSignConstants.POSITION_118,WaybillSignConstants.CHAR_118_1);
+    }
+
+    /**
+     * 40位=2（纯配快运零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isCPKYLD(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2);
+    }
+
+    /**
+     * 40位=3（仓配零担）
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isCPLD(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_3);
     }
 
     /**
@@ -1026,6 +1062,20 @@ public class BusinessUtil {
      */
     public static boolean isFreightSend(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_3);
+    }
+
+    /**
+     * 是否到付
+     */
+    public static boolean isDF(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_2);
+    }
+
+    /**
+     * 是否寄付临欠
+     */
+    public static boolean isJFLQ(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_4);
     }
 
     /**

@@ -87,6 +87,15 @@ public interface BaseMajorManager {
 
 	public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode);
 
+    /**
+     * 根据员工编号获取用户信息
+     * @param staffNo 员工编号
+     * @return 员工信息
+     * @author fanggang7
+     * @time 2020-11-05 13:56:29 周四
+     */
+    BaseStaffSiteOrgDto getBaseStaffInAllRoleByStaffNo(Integer staffNo);
+
     public Pager<List<SiteWareHouseMerchant>>  getBaseSiteByPage(int pageIndex);
 
     /**

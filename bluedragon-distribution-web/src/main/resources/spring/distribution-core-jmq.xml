@@ -484,5 +484,14 @@
     <bean id="thirdBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.third.box.weight.deal}"/>
     </bean>
+    <!--  分拣推送箱号至众邮  -->
+    <bean id="thirdBoxCodeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.third.box.code.deal}"/>
+    </bean>
+
+    <!--  装车发货任务处理消息  -->
+    <bean id="goodsLoadTaskProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.goods.load.task.deal}"/>
+    </bean>
 
 </beans>
