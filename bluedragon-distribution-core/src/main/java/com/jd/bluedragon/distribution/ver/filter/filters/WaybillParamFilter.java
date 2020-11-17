@@ -58,8 +58,10 @@ public class WaybillParamFilter implements Filter {
             if(BusinessHelper.isAllPureOutWayBillAndIsTrust(waybillCache.getWaybillSign())){
                 Waybill waybill =  basicInfoPackService.packBasicInfo(waybillCode);
                 request.setWaybill(waybill);
-                BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =   basicInfoPackService.getBaseTraderNeccesaryInfo(waybill.getCustomerCode());
-                request.setBasicTraderNeccesaryInfoDTO(basicTraderNeccesaryInfoDTO);
+                if(waybill!=null){
+                    BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =   basicInfoPackService.getBaseTraderNeccesaryInfo(waybill.getCustomerCode());
+                    request.setBasicTraderNeccesaryInfoDTO(basicTraderNeccesaryInfoDTO);
+                }
             }
         }
 
