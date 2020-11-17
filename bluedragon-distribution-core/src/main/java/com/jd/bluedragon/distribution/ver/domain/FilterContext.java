@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -63,6 +65,16 @@ public class FilterContext {
      * 分拣操作时，箱号已分拣的包裹数
      */
     private Integer hasSortingPackageNum;
+
+    /**
+     * 青龙基础资料对象
+     */
+    private Waybill waybill;
+
+    /**
+     *  商家必要资料
+     */
+    private BasicTraderNeccesaryInfoDTO  basicTraderNeccesaryInfoDTO;
 
     public String getBoxCode() {
         return boxCode;
@@ -251,4 +263,20 @@ public class FilterContext {
 	public void setHasSortingPackageNum(Integer hasSortingPackageNum) {
 		this.hasSortingPackageNum = hasSortingPackageNum;
 	}
+
+    public Waybill getWaybill() {
+        return waybill;
+    }
+
+    public void setWaybill(Waybill waybill) {
+        this.waybill = waybill;
+    }
+
+    public BasicTraderNeccesaryInfoDTO getBasicTraderNeccesaryInfoDTO() {
+        return basicTraderNeccesaryInfoDTO;
+    }
+
+    public void setBasicTraderNeccesaryInfoDTO(BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO) {
+        this.basicTraderNeccesaryInfoDTO = basicTraderNeccesaryInfoDTO;
+    }
 }

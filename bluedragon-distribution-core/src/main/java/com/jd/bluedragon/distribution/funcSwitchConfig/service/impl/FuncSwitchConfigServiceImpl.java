@@ -81,13 +81,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
-    @Autowired
-    @Qualifier("basicTraderAPI")
-    private BasicTraderAPI basicTraderAPI;
-
-    @Autowired
-    private WaybillQueryApi waybillQueryApi;
-
     /**
      * 根据条件分页查询
      * @param condition
@@ -705,36 +698,5 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      */
     public String getErpOneCacheKey(String cachePre,Integer menuCode,String operateErp){
         return cachePre+menuCode+"_"+operateErp;
-    }
-
-    /**
-     * 通过运单号-判断是否是内部商家
-     * @param waybillCode
-     * @return
-     */
-    public boolean  isInsideMode(String waybillCode){
-        String traderCode = null;
-        try {
-            BaseEntity<Waybill>  waybillBaseEntity = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
-            if(waybillBaseEntity==null || waybillBaseEntity.getData()==null || StringUtils.isEmpty(waybillBaseEntity.getData().getCustomerCode()) ){
-                if(logger.isInfoEnabled()){
-                    logger.info("运单号获取青龙业主号结果为空,入参waybillCode:{}",waybillCode);
-                }
-                return false;
-            }
-            traderCode = waybillBaseEntity.getData().getCustomerCode();
-            ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO =  basicTraderAPI.getBaseTraderNeccesaryInfoByCode(traderCode);
-            if(responseDTO == null || !responseDTO.isSuccess() || responseDTO.getResult() == null ){
-                return false;
-            }
-            BasicTraderNeccesaryInfoDTO  basicTraderNeccesaryInfoDTO = responseDTO.getResult();
-            if(!basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
-                return false;
-            }
-        }catch (Exception e){
-            logger.error("调用商家基础资料接口异常,入参traderCode:{}",traderCode);
-            return false;
-        }
-        return  true;
     }
 }
