@@ -87,7 +87,7 @@ public class WeightVolumeFilter implements Filter {
         boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign,request);
 
         //判断纯配外单是否需要无重量拦截
-        boolean isAllPureNeedWeight =  isAllPureValidateWeight(waybillSign,waybillCode,request);
+        boolean isAllPureNeedWeight =  isAllPureValidateWeight(waybillSign,request);
 
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
@@ -156,7 +156,7 @@ public class WeightVolumeFilter implements Filter {
      * @param request
      * @return
      */
-    private boolean isAllPureValidateWeight(String waybillSign,String waybillCode,FilterContext request){
+    private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
         //1.是否是纯配外单
         if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
             return  false;
@@ -168,8 +168,13 @@ public class WeightVolumeFilter implements Filter {
         }
 
         //3.内部商家不拦截
-        if(!funcSwitchConfigService.isInsideMode(waybillCode)){
+        if(request.getBasicTraderNeccesaryInfoDTO() == null){
             return false;
+        }else {
+            Integer traderMold = request.getBasicTraderNeccesaryInfoDTO().getTraderMold();
+            if(traderMold==null||traderMold.equals(TraderMoldTypeEnum.inside_type.getCode())){
+                return false;
+            }
         }
 
         //4.如果是全国有效,直接返回不拦截

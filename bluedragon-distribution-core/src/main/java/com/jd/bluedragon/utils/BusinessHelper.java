@@ -863,4 +863,15 @@ public class BusinessHelper {
     public static boolean isTrust(String waybillSign){
         return  BusinessUtil.isSignChar(waybillSign,56,'1');
     }
+
+    /**
+     * 是否是纯配外单且是信任商家
+     * @return
+     */
+    public static boolean isAllPureOutWayBillAndIsTrust(String waybillSign){
+        if(isAllPureOutWaybill(waybillSign) && isTrust(waybillSign)){
+            return  true;
+        }
+        return  false;
+    }
 }
