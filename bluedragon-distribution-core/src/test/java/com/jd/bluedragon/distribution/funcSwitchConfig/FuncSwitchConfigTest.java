@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchCo
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
@@ -179,5 +181,20 @@ public class FuncSwitchConfigTest {
         return siteCodesOffList;
     }
 
+    @Test
+    public  void test08(){
+        BaseEntity<Waybill>  waybillBaseEntity =    test09();
+        System.out.println(waybillBaseEntity);
+    }
+
+    public BaseEntity<Waybill> test09(){
+        BaseEntity<Waybill> waybillBaseEntity = null;
+        try {
+            int i = 10/0;
+        }catch (Exception e){
+
+        }
+        return null;
+    }
 }
     

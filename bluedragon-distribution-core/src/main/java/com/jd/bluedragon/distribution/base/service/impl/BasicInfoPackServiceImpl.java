@@ -9,6 +9,10 @@ import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +39,9 @@ public class BasicInfoPackServiceImpl implements BasicInfoPackService {
      * @param waybillCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.BasicInfoPackServiceImpl.packBasicInfo",mState = JProEnum.TP)
     public Waybill packBasicInfo(String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BasicInfoPackServiceImpl.packBasicInfo", false, true);
         BaseEntity<Waybill> waybillBaseEntity = null;
         try {
             //调用运单接口-分装运单对象
@@ -45,6 +51,9 @@ public class BasicInfoPackServiceImpl implements BasicInfoPackService {
             }
         }catch (Exception e){
             logger.error("通过运单获取青龙业主基本信息error,入参waybillCode:{},出参waybillBaseEntity{}",waybillCode,JSON.toJSONString(waybillBaseEntity),e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return  null;
     }
@@ -55,7 +64,9 @@ public class BasicInfoPackServiceImpl implements BasicInfoPackService {
      * @param traderCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.BasicInfoPackServiceImpl.getBaseTraderNeccesaryInfo",mState = JProEnum.TP)
     public  BasicTraderNeccesaryInfoDTO  getBaseTraderNeccesaryInfo(String traderCode){
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BasicInfoPackServiceImpl.getBaseTraderNeccesaryInfo", false, true);
         //封装商家的基本信息
         ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO = null;
         try {
@@ -65,6 +76,8 @@ public class BasicInfoPackServiceImpl implements BasicInfoPackService {
             }
         }catch (Exception e){
             logger.error("通过青龙业主号获取业主基本信息error,入参traderCode:{},出参responseDTO{}:",traderCode, JSON.toJSONString(responseDTO),e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
