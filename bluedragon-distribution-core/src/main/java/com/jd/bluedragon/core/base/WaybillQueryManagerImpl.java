@@ -733,8 +733,20 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getServiceCodeInfoByWaybillCode" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<List<WaybillServiceRelationDto>> getServiceCodeInfoByWaybillCode(String waybillCode) {
-        return waybillQueryApi.getServiceCodeInfoByWaybillCode(waybillCode);
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "waybillQueryApi.getServiceCodeInfoByWaybillCode");
+        BaseEntity<List<WaybillServiceRelationDto>> baseEntity = null;
+        try {
+            baseEntity =  waybillQueryApi.getServiceCodeInfoByWaybillCode(waybillCode);
+        } catch (Exception e) {
+            log.error("调用运单获取服务单号接口异常！入参waybillCode:{}",waybillCode,e);
+            Profiler.functionError(callerInfo);
+        }finally{
+            Profiler.registerInfoEnd(callerInfo);
+        }
+       return baseEntity;
     }
 
 }

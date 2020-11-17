@@ -205,10 +205,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //备注拼接服务单号
             BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
             if(serviceCodeInfoByWaybillCode!=null && CollectionUtils.isNotEmpty(serviceCodeInfoByWaybillCode.getData())){
-                if(serviceCodeInfoByWaybillCode.getData().size()>0){
-                    //抛弃一对多关系--只打印第一服务单号
-                    commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
-                }
+                //抛弃一对多关系--只打印第一服务单号
+                commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
             }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
