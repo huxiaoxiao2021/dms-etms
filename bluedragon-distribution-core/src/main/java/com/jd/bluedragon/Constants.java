@@ -1338,5 +1338,8 @@ public class Constants {
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
-
+    /**
+     * 组板转移标识
+     */
+    public static final Integer IS_COMBITION_TRANSFER = 1;
 }

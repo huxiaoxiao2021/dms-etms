@@ -33,7 +33,6 @@ public class InvokeResult<T> implements Serializable {
     public static final String RESULT_BOX_SENT_MESSAGE = "该箱号已发货，不能再绑定集包袋";
 
     public static final int RESULT_PACKAGE_ALREADY_BIND=302;
-    public static final String PACKAGE_ALREADY_BIND = "此包裹已在板号{0}内，是否确认重新组板？";
 
 
 

@@ -573,7 +573,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              * */
             /****/
             if(response.getCode() == 500){
-                if(request.getIsCombinationTransfer()==1){
+                if(Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())){
                     //调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
                     if(invokeResult == null){
@@ -592,7 +592,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
                     return;
                 }else {
-                    throw new UnloadPackageBoardException("此包裹已在板号"+request.getBoardCode()+"内，是否确认重新组板？");
+                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,request.getBoardCode()));
                 }
             }
             logger.warn("组板失败.板号【{}】包裹号【{}】站点【{}】.失败原因:【{}】",
