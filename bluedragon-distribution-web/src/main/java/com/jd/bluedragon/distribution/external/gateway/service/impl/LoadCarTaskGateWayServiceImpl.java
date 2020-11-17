@@ -304,6 +304,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             LoadCar loadCar = new LoadCar();
             loadCar.setCreateSiteCode(req.getCreateSiteCode());
             loadCar.setEndSiteCode(req.getEndSiteCode());
+            loadCar.setLicenseNumber(req.getLicenseNumber());
             List<LoadCar> taskList = loadService.selectByEndSiteCode(loadCar);
             Date now = new Date();
             //库中如果存在
