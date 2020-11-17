@@ -16,7 +16,7 @@ $(function() {
 				uniqueId : "ID", // 每一行的唯一标识，一般为主键列
 				pagination : true, // 是否显示分页（*）
 				pageNumber : 1, // 初始化加载第一页，默认第一页
-				pageSize : 100, // 每页的记录行数（*）
+				pageSize : 10, // 每页的记录行数（*）
 				pageList : [ 10, 25, 50, 100 ,500 ], // 可供选择的每页的行数（*）
 				cache : false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
 				sidePagination : "server", // 分页方式：client客户端分页，server服务端分页（*）
@@ -71,14 +71,19 @@ $(function() {
 		    return params;
 		};
         oTableInit.tableColums = [{
-            field : 'rowNum',
-            title : '序号'
+            checkbox: true
+        },{
+            field : 'dmsSiteCode',
+            title : '场地ID',
+            align: 'center'
         },{
             field : 'dmsSiteName',
-            title : '机构'
+            title : '场地名称',
+            align: 'center'
         }, {
             field : 'lastOperateTime',
-            title : '换单时间',
+            title : '最新换单时间',
+            align: 'center',
             formatter: function (value, row, index) {
                 if (value == null) {
                     return null;
@@ -88,13 +93,24 @@ $(function() {
             }
         },{
             field : 'businessId',
-            title : '商家ID'
+            title : '商家ID',
+            align: 'center'
         },{
             field : 'businessName',
-            title : '商家名称'
+            title : '商家名称',
+            align: 'center'
+        },{
+            field : 'deptNo',
+            title : '事业部编码',
+            align: 'center'
         },{
             field : 'returnAdressStatusDesc',
-            title : '此时是否已维护退货信息'
+            title : '此时是否已维护退货信息',
+            align: 'center'
+        },{
+            field : 'returnQuantity',
+            title : '退货量',
+            align: 'center'
         }];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
@@ -175,9 +191,9 @@ function checkQueryParams(){
 		alert('结束时间不能小于开始时间！');
 		return false;
 	}
-	var date00 = $.dateHelper.addDays(date0,7);
+	var date00 = $.dateHelper.addDays(date0,30);
 	if(date1.getTime()>date00.getTime()){
-		alert('时间区间不能大于7天！');
+		alert('时间区间不能大于30天！');
 		return false;
 	}	
 	return true;

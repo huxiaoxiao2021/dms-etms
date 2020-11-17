@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.business.dao.BusinessReturnAdressDao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  * @ClassName: BusinessReturnAdressDaoImpl
  * @Description: 商家退货地址信息--Dao接口实现
@@ -27,4 +29,24 @@ public class BusinessReturnAdressDaoImpl extends BaseDao<BusinessReturnAdress> i
 	public PagerResult<BusinessReturnAdress> queryListByConditionWithPage(BusinessReturnAdressCondition businessReturnAdressCondition) {
 		return super.queryByPagerCondition("queryListByConditionWithPage", businessReturnAdressCondition);
 	}
+
+    @Override
+    public List<BusinessReturnAdress> queryByBusinessIdWithNoMaintain(Integer businessId) {
+        return sqlSession.selectList(this.nameSpace+".queryByBusinessIdWithNoMaintain", businessId);
+    }
+
+    @Override
+    public BusinessReturnAdress queryBySiteAndBusinessId(BusinessReturnAdress businessReturnAddress) {
+        return sqlSession.selectOne(this.nameSpace+".queryBySiteAndBusinessId", businessReturnAddress);
+    }
+
+    @Override
+    public int batchUpdateStatus(List<BusinessReturnAdress> list) {
+        return sqlSession.update(this.nameSpace+".batchUpdateStatus", list);
+    }
+
+    @Override
+    public int updateReturnQuantity(BusinessReturnAdress businessReturnAddress) {
+        return sqlSession.update(this.nameSpace+".updateReturnQuantity", businessReturnAddress);
+    }
 }
