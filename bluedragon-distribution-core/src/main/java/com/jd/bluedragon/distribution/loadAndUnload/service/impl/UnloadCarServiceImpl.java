@@ -573,7 +573,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              * */
             /****/
             if(response.getCode() == 500){
-                if(Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())){
+                if (null == request.getIsCombinationTransfer() || Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
                     //调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
                     if(invokeResult == null){
