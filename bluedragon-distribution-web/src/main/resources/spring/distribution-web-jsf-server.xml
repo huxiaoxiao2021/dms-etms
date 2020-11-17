@@ -218,4 +218,11 @@
                   ref="dmsCollectionBagExceptionReportService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 补打记录 分拣工作台web页面用 -->
+    <jsf:provider id="dmsReprintRecordJsfService"
+                  interface="com.jd.bluedragon.distribution.reprintRecord.service.ReprintRecordJsfService"
+                  alias="${jsf.dmsReprintRecordJsfService.alias}"
+                  ref="dmsReprintRecordService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
