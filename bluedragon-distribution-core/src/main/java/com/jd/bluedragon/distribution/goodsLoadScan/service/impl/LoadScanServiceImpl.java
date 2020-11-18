@@ -951,6 +951,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("根据包裹号没有找到对应的板号");
             return response;
         }
+        log.info("根据包裹号查板号结果：board={}", JsonHelper.toJson(board));
 
         String boardCode = board.getCode();
         if (log.isDebugEnabled()) {
