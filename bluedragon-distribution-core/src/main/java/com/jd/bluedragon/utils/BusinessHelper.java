@@ -638,6 +638,11 @@ public class BusinessHelper {
             isPop = true;
         }
 
+        //纯配外单且是信任商家
+        if(StringUtils.isEmpty(waybillCache.getWaybillSign())|| BusinessHelper.isAllPureOutWayBillAndIsTrust(waybillCache.getWaybillSign())){
+           return  true;
+        }
+
         Integer orgId = waybillCache.getOrgId();
         Integer siteCode = waybillCache.getSiteCode();
         Integer paymentType = waybillCache.getPaymentType();

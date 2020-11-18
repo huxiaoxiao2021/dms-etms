@@ -126,6 +126,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             dealWaybillSiteName(waybillCache);
         }
 
+        waybillCache.setCustomerCode(waybillWS.getCustomerCode());
         waybillCache.setPaymentType(waybillWS.getPayment());
         waybillCache.setQuantity(waybillWS.getGoodNumber());
         waybillCache.setWeight(waybillWS.getGoodWeight());

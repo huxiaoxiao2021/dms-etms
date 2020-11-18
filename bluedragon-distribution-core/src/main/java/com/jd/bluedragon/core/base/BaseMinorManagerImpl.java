@@ -5,12 +5,10 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
-import com.jd.ldop.basic.dto.PageDTO;
-import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.ldop.basic.dto.*;
 import com.jd.ql.basic.domain.AirTransport;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
@@ -441,5 +439,29 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return null;
 	}
 
+
+	/**
+	 * 通过青龙业主号-获取商家基本信息
+	 * @param traderCode
+	 * @return
+	 */
+	@JProfiler(jKey = "DMSWEB.BASE.BaseMinorManagerImpl.getBaseTraderNeccesaryInfo",mState = JProEnum.TP)
+	public BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfo(String traderCode){
+		CallerInfo info = Profiler.registerInfo("DMSWEB.BasicInfoPackServiceImpl.getBaseTraderNeccesaryInfo", false, true);
+		//封装商家的基本信息
+		ResponseDTO<BasicTraderNeccesaryInfoDTO> responseDTO = null;
+		try {
+			responseDTO =  basicTraderAPI.getBaseTraderNeccesaryInfoByCode(traderCode);
+			if(responseDTO != null && responseDTO.isSuccess() && responseDTO.getResult() != null ){
+				return  responseDTO.getResult();
+			}
+		}catch (Exception e){
+			log.error("通过青龙业主号获取业主基本信息error,入参traderCode:{},出参responseDTO{}:",traderCode, JSON.toJSONString(responseDTO),e);
+			Profiler.functionError(info);
+		}finally {
+			Profiler.registerInfoEnd(info);
+		}
+		return null;
+	}
 
 }

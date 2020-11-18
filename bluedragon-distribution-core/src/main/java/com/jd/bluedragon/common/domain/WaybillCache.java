@@ -320,7 +320,10 @@ public class WaybillCache implements Serializable {
 	 */
 	private int packageNum;
 
-
+	/**
+	 * 青龙业主号
+	 */
+    private String customerCode;
 
 	public WaybillCache() {
 
@@ -829,5 +832,13 @@ public class WaybillCache implements Serializable {
 
 	public void setPackageNum(int packageNum) {
 		this.packageNum = packageNum;
+	}
+
+	public String getCustomerCode() {
+		return customerCode;
+	}
+
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
 	}
 }
