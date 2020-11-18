@@ -46,16 +46,16 @@ public interface BusinessReturnAdressDao extends Dao<BusinessReturnAdress> {
     BusinessReturnAdress queryBySiteAndBusinessId(BusinessReturnAdress businessReturnAddress);
 
     /**
-     * 批量更新退货地址状态
-     * @param list
-     * @return
-     */
-    int batchUpdateStatus(List<BusinessReturnAdress> list);
-
-    /**
      * 根据id更新退货量
      * @param businessReturnAddress
      * @return
      */
     int updateReturnQuantity(BusinessReturnAdress businessReturnAddress);
+
+    /**
+     * 根据商家ID更新状态
+     * @param businessId
+     * @return
+     */
+    int updateStatusByBusinessId(Integer businessId);
 }

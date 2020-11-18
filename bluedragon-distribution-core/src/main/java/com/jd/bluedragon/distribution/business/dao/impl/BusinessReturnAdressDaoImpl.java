@@ -41,12 +41,12 @@ public class BusinessReturnAdressDaoImpl extends BaseDao<BusinessReturnAdress> i
     }
 
     @Override
-    public int batchUpdateStatus(List<BusinessReturnAdress> list) {
-        return sqlSession.update(this.nameSpace+".batchUpdateStatus", list);
+    public int updateReturnQuantity(BusinessReturnAdress businessReturnAddress) {
+        return sqlSession.update(this.nameSpace+".updateReturnQuantity", businessReturnAddress);
     }
 
     @Override
-    public int updateReturnQuantity(BusinessReturnAdress businessReturnAddress) {
-        return sqlSession.update(this.nameSpace+".updateReturnQuantity", businessReturnAddress);
+    public int updateStatusByBusinessId(Integer businessId) {
+        return sqlSession.update(this.nameSpace+".updateStatusByBusinessId", businessId);
     }
 }

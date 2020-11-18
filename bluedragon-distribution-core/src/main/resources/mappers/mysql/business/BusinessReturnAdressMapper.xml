@@ -174,9 +174,6 @@
 	<update id="updateReturnQuantity" parameterType="com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress">
         update business_return_adress
         <set>
-            <if test="returnQuantity == null">
-                return_quantity = 1,
-            </if>
             <if test="returnQuantity != null">
                 return_quantity = return_quantity + 1,
             </if>
@@ -186,13 +183,12 @@
         and yn = 1
 	</update>
 
-	<update id="batchUpdateStatus" parameterType="List">
+	<update id="updateStatusByBusinessId" parameterType="java.lang.Long">
         update business_return_adress
         set return_adress_status = 1
-        where id in
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
-            #{item.id,jdbcType=BIGINT}
-        </foreach>
+        where business_id = #{businessId,jdbcType=INTEGER}
+        and return_adress_status = 0
+        and yn = 1
 	</update>
 
 	<select id="queryById" parameterType="java.lang.Long" resultMap="BusinessReturnAdress">
@@ -233,6 +229,7 @@
 		where yn = 1
 		and dms_site_code = #{dmsSiteCode,jdbcType=BIGINT}
 		and business_id = #{businessId,jdbcType=BIGINT}
+        order by last_operate_time desc
         limit 1
 	</select>
 

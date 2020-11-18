@@ -60,6 +60,13 @@ public interface ReversePrintService {
     JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);
 
     /**
+     * 换单成功后操作
+     * @param request
+     * @return
+     */
+    InvokeResult exchangeSuccessAfter(ExchangeWaybillDto request);
+
+    /**
      * 保存二次换单地址信息
      * @param request
      */

@@ -1772,9 +1772,9 @@ public class WaybillResource {
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage(errorMessage.toString());
 			}else{
-			    //换单成功则保存二次换单地址信息
-                reversePrintService.saveReturnAddressInfo(request);
-				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			    //换单成功后处理
+                reversePrintService.exchangeSuccessAfter(request);
+                invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				invokeResult.setData(waybillReverseResult);
 			}
 

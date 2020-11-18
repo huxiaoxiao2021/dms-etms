@@ -86,6 +86,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     private final Logger log = LoggerFactory.getLogger(ReversePrintServiceImpl.class);
 
+    /**
+     * 二次换单站内信通知时间缓存前缀
+     * */
+    private static final String RETURN_ADDRESS_REDIS_KEY_PREFIX = "RETURN_ADDRESS_REDIS_KEY_PREFIX-";
+
     private static final String REVERSE_PRINT_MQ_MESSAGE_CATEGORY="BLOCKER_QUEUE_DMS_REVERSE_PRINT";
 
     private static final Integer PICKUP_FINISHED_STATUS=Integer.valueOf(20); //取件单完成态
@@ -162,6 +167,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     @Qualifier("eclpItemManager")
     private EclpItemManager eclpItemManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
@@ -660,7 +669,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 					|| LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(twiceExchangeResponse.getStatusOfLP())){
 				twiceExchangeResponse.setReturnDestinationTypes("011");
 				//获取商家退货地址
-				JdResult<BackAddressDTOExt> backInfo = getBackInfoAndNotice(busiId);
+				JdResult<BackAddressDTOExt> backInfo = getBackAddress(busiId);
 				if(backInfo != null 
 						&& backInfo.isSucceed() 
 						&& backInfo.getData() != null){
@@ -685,11 +694,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 		return jdResult;
 	}
 	/**
-	 * 获取商家退货信息,获取失败时给商家工作台发站内信通知
+	 * 获取商家退货信息
 	 * @param busiId
 	 * @return
 	 */
-	private JdResult<BackAddressDTOExt> getBackInfoAndNotice(Integer busiId){
+	private JdResult<BackAddressDTOExt> getBackAddress(Integer busiId){
 		JdResult<BackAddressDTOExt> jdResult = new JdResult<BackAddressDTOExt>();
 		jdResult.toSuccess();
         //调用外单接口，根据商家id获取商家编码
@@ -717,13 +726,32 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 	}
 
     /**
+     * 换单成功后逻辑处理
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult exchangeSuccessAfter(ExchangeWaybillDto request) {
+        InvokeResult result = new InvokeResult();
+        try {
+            if(request.getTwiceExchangeFlag() != null && request.getTwiceExchangeFlag()){
+                saveReturnAddressInfo(request);
+            }
+        }catch (Exception e){
+            log.error("保存二次换单退货地址信息异常!入参【{}】",JsonHelper.toJsonMs(request),e);
+            result.error("保存二次换单退货地址信息异常!");
+        }
+        return result;
+    }
+
+    /**
      * 保存二次换单退货地址信息
      * @param request
      */
     @Override
     @JProfiler(jKey = "DMS.BASE.ReversePrintServiceImpl.saveReturnAddressInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void saveReturnAddressInfo(ExchangeWaybillDto request) {
         String oldWaybillCode = request.getWaybillCode();
         com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(oldWaybillCode);
@@ -742,8 +770,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         String businessName = basicTraderInfoDTO.getTraderName();
         Integer dmsSiteCode = request.getCreateSiteCode();
 
-        List<BusinessReturnAdress> list
-                = businessReturnAdressService.queryByBusinessIdWithNoMaintain(businessId);
         BusinessReturnAdress businessReturnAdress
                 = businessReturnAdressService.queryBySiteAndBusinessId(dmsSiteCode,businessId);
         // 组装商家退货地址
@@ -754,10 +780,10 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 = lDOPManager.queryBackAddressByType(DmsConstants.RETURN_BACK_ADDRESS_TYPE_6, businessCode);
         boolean hasBackInfo = jdResult != null && !CollectionUtils.isEmpty(jdResult.getData());
         // 未维护退货地址处理
-        update(businessReturnAdress,commonAddress,list,hasBackInfo);
+        update(businessReturnAdress,commonAddress,businessId,hasBackInfo);
         // 站内信通知
         if(!hasBackInfo){
-            importSiteNotice(businessCode,list);
+            importSiteNotice(businessCode,businessId);
         }
     }
 
@@ -765,17 +791,21 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * 发送站内信通知
      *   未维护退货地址 && 一天一个商家只能触发一次
      * @param businessCode
-     * @param list
+     * @param businessId
      */
-    private void importSiteNotice(String businessCode,List<BusinessReturnAdress> list) {
-        Date currentDate = new Date();
-        if(!CollectionUtils.isEmpty(list)){
-            BusinessReturnAdress businessReturnAddress = list.get(0);
-            Date date = DateHelper.addDate(currentDate, -NOTIC_DIFFER_DAYS);
-            if(!date.after(businessReturnAddress.getLastNoticeTime())){
-                return;
-            }
+    private void importSiteNotice(String businessCode,Integer businessId) {
+        String key = RETURN_ADDRESS_REDIS_KEY_PREFIX.concat(String.valueOf(businessId));
+        boolean exists = false;
+        try {
+            exists = jimdbCacheService.exists(key);
+        }catch (Exception e){
+            log.error("获取商家【{}】的站内信通知缓存异常!",businessId,e);
         }
+        if(exists){
+            // 1天内则不处理
+            return;
+        }
+        Date currentDate = new Date();
         BatchImportDTO noticeInfo = new BatchImportDTO();
         noticeInfo.setChannel(ChannelEnum.POST);
         noticeInfo.setPostType(PostTypeEnum.NOTICE);
@@ -786,7 +816,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         noticeInfo.setHandleLink(noticeHandleLink);
         noticeInfo.setReceivers(businessCode);
         noticeInfo.setPostTime(currentDate);
-        eclpImportServiceManager.batchImport(noticeInfo);
+        JdResult<Boolean> jdResult = eclpImportServiceManager.batchImport(noticeInfo);
+        if(jdResult != null && jdResult.isSucceed()){
+            try {
+                // 记录缓存
+                jimdbCacheService.setEx(key,String.valueOf(true),Constants.CONSTANT_NUMBER_ONE, TimeUnit.DAYS);
+            }catch (Exception e){
+               log.error("记录商家【{}】的站内信通知缓存异常!",businessId,e);
+            }
+        }
     }
 
     /**
@@ -834,11 +872,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      *      2、更新商家退货地址状态
      * @param businessReturnAddress
      * @param commonAddress
-     * @param list
+     * @param businessId
      * @param hasBackInfo
      */
     private void update(BusinessReturnAdress businessReturnAddress,BusinessReturnAdress commonAddress,
-                        List<BusinessReturnAdress> list, boolean hasBackInfo) {
+                        Integer businessId, boolean hasBackInfo) {
         int returnAddressStatus = hasBackInfo ?
                 BusinessReturnAdressStatusEnum.YES.getStatusCode() : BusinessReturnAdressStatusEnum.NO.getStatusCode();
         if(businessReturnAddress != null){
@@ -850,7 +888,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         if(hasBackInfo){
             // 更新商家退货地址状态
-            businessReturnAdressService.batchUpdateStatus(list);
+            businessReturnAdressService.updateStatusByBusinessId(businessId);
         }
     }
 }

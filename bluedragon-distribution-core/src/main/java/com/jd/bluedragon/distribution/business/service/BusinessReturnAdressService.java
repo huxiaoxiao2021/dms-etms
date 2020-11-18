@@ -62,16 +62,15 @@ public interface BusinessReturnAdressService extends Service<BusinessReturnAdres
     BusinessReturnAdress queryBySiteAndBusinessId(Integer dmsSiteCode, Integer businessId);
 
     /**
-     * 批量更新退货地址状态
-     * @param list
-     * @return
-     */
-    int batchUpdateStatus(List<BusinessReturnAdress> list);
-
-    /**
      * 根据id更新退货量
      * @param businessReturnAddress
      * @return
      */
     int updateReturnQuantity(BusinessReturnAdress businessReturnAddress);
+
+    /**
+     * 根据商家ID更新状态
+     * @param businessId
+     */
+    int updateStatusByBusinessId(Integer businessId);
 }

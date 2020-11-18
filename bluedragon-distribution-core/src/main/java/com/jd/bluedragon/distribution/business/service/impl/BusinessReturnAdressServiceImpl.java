@@ -18,8 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +35,13 @@ import java.util.List;
 public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnAdress> implements BusinessReturnAdressService {
 
 	private static final Logger logger = LoggerFactory.getLogger(BusinessReturnAdressServiceImpl.class);
+
+	/**
+     * 商家退货地址导出限制条数，默认：5000
+     * */
+    @Value("${business.return.export.max:5000}")
+	private Integer businessReturnExportMax;
+
 	/**
 	 * 导出excel头
 	 */
@@ -64,14 +71,14 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 	public List<List<Object>> queryBusinessReturnAdressExcelData(BusinessReturnAdressCondition businessReturnAdressCondition) {
 		List<List<Object>> resList = new ArrayList<List<Object>>();
 		resList.add(EXCELL_HEADS);
-		businessReturnAdressCondition.setLimit(5000);
+		businessReturnAdressCondition.setLimit(businessReturnExportMax);
 		PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
 		if(result != null
 				&& result.getRows() != null){
 			for(BusinessReturnAdress row : result.getRows()){
 				loadReturnAdressStatusDesc(row);
 				List<Object> body = new ArrayList<Object>();
-				body.add(row.getRowNum());
+				body.add(row.getDmsSiteCode());
 				body.add(row.getDmsSiteName());
 				body.add(DateHelper.formatDateTime(row.getLastOperateTime()));
 				body.add(row.getBusinessId());
@@ -152,19 +159,19 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
     }
 
     @Override
-    public int batchUpdateStatus(List<BusinessReturnAdress> list) {
-	    if(CollectionUtils.isEmpty(list)){
-	        return 0;
-        }
-	    return businessReturnAdressDao.batchUpdateStatus(list);
-    }
-
-    @Override
     public int updateReturnQuantity(BusinessReturnAdress businessReturnAddress) {
 	    if(businessReturnAddress == null){
 	        return 0;
         }
         return businessReturnAdressDao.updateReturnQuantity(businessReturnAddress);
+    }
+
+    @Override
+    public int updateStatusByBusinessId(Integer businessId) {
+        if(businessId == null){
+            return 0;
+        }
+        return businessReturnAdressDao.updateStatusByBusinessId(businessId);
     }
 
 }
