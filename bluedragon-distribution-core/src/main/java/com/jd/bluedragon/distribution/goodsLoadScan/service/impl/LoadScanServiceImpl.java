@@ -12,7 +12,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -32,6 +31,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
@@ -103,7 +103,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    private VrsRouteTransferRelationManager vrsRouteManager;
+    private WaybillService waybillService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -887,7 +887,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果ES中的路由还没计算出来，再实时调用一次
         if (nextDmsSiteId == null) {
             log.info("分拣报表中的路由还没计算出来，开始实时调用路由接口taskId={},packageCode={}", taskId, packageCode);
-            nextDmsSiteId = vrsRouteManager.findNextDmsSiteByWaybillCode(waybillCode, loadCar.getCreateSiteCode().intValue());
+            nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
             log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
         }
         // 发货校验
@@ -1220,8 +1220,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             newLoadScan.setWeight(weight == null ? waybill.getGoodWeight() : weight);
             // 复量方：spareColumn2 无值则取体积：goodVolume
             newLoadScan.setVolume(StringUtils.isBlank(volume) ? waybill.getGoodVolume() : Double.parseDouble(volume));
+            log.info("设置运单重量和体积:taskId={},waybillCode={},weight={},volume={}", newLoadScan.getTaskId(),
+                    newLoadScan.getWayBillCode(), weight, volume);
         } else {
-            log.error("查询运单接口返回空:taskId={},waybillCode={}", newLoadScan.getTaskId(), newLoadScan.getWayBillCode());
+            log.error("设置运单重量和体积--查询运单接口返回空:taskId={},waybillCode={}", newLoadScan.getTaskId(),
+                    newLoadScan.getWayBillCode());
         }
     }
 
