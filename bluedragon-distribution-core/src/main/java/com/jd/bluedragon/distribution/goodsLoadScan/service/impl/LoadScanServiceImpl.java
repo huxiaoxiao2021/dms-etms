@@ -1216,12 +1216,12 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (waybill != null) {
             Double weight = waybill.getAgainWeight();
             String volume = waybill.getSpareColumn2();
+            log.info("设置运单重量和体积:taskId={},waybillCode={},复重={},复量方={}|原重={},原量方={}", newLoadScan.getTaskId(),
+                    newLoadScan.getWayBillCode(), weight, volume, waybill.getGoodWeight(), waybill.getGoodVolume());
             // 复重：againWeight 无值则取重量：goodWeight
             newLoadScan.setWeight(weight == null ? waybill.getGoodWeight() : weight);
             // 复量方：spareColumn2 无值则取体积：goodVolume
             newLoadScan.setVolume(StringUtils.isBlank(volume) ? waybill.getGoodVolume() : Double.parseDouble(volume));
-            log.info("设置运单重量和体积:taskId={},waybillCode={},weight={},volume={}", newLoadScan.getTaskId(),
-                    newLoadScan.getWayBillCode(), weight, volume);
         } else {
             log.error("设置运单重量和体积--查询运单接口返回空:taskId={},waybillCode={}", newLoadScan.getTaskId(),
                     newLoadScan.getWayBillCode());
@@ -1388,8 +1388,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map,
                                                Map<String, LoadScanDto> flowDisAccordMap, LoadScanDetailDto scanDetailDto) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
-        double totalWeight = 0.00;
-        double totalVolume = 0.00;
+        double totalWeight = 0d;
+        double totalVolume = 0d;
         int totalPackageNum = 0;
 
         for (LoadScanDto detailDto : list) {
