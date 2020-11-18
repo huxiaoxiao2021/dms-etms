@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -16,7 +15,6 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -63,18 +61,12 @@ public class PreSealVehicleController extends DmsBaseController{
     @Autowired
     private SendMService sendMService;
 
-    @Autowired
-    private SendDetailService sendDetailService;
-
 	@Autowired
 	private SiteService siteService;
 
     @Autowired
     @Qualifier("newSealVehicleService")
     private NewSealVehicleService newSealVehicleService;
-
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private static final Integer SEAL_LIMIT = 5;
 	/**

@@ -46,7 +46,7 @@
 		vehicle_number,seal_codes,dseal_codes,send_car_time,status,
 		seal_car_type,weight,volume,create_user_erp,create_user_name,
 		create_time,update_user_erp,update_user_name,update_time,source,
-		operate_time,is_delete,ts
+		operate_time,is_delete,ts,execute_type,execute_message
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles">

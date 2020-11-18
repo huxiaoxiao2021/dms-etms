@@ -12,8 +12,8 @@ public class SealCarResultDto {
 
     public SealCarResultDto(List<SealCarDto> sealCarDtos,List<SealCarDto> removeCarDtos, Map<String, String> disableSendCode) {
         this.sealCarDtos = sealCarDtos;
-        this.disableSendCode = disableSendCode;
         this.removeCarDtos=removeCarDtos;
+        this.disableSendCode = disableSendCode;
     }
 
     public Map<String, String> getDisableSendCode() {

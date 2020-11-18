@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
-import com.jd.bluedragon.distribution.newseal.domain.SaveSealData;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -129,7 +128,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         //去除空批次，并记录去除数据
-        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(paramList);
+        SealCarResultDto sealCarResultDto = getEmptyBatchAndSealData(paramList);
         emptyBatchCode.putAll(sealCarResultDto.getDisableSendCode());
         //需要操作封车的数据
         List<SealCarDto> doSealCarDtos =sealCarResultDto.getSealCarDtos();
@@ -141,28 +140,31 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             sealCarInfo = new CommonDto<String>();
             sealCarInfo.setCode(0);
             sealCarInfo.setMessage("封车失败。无有效的封车信息，请重新录入");
-            log.error("封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
+            log.warn("封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
             return sealCarInfo;
         }
 
+        List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "";
         try {
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg = "封车JSF接口返回为空";
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.FAIL,msg));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(doSealCarDtos);
                 addRedisCache(doSealCarDtos);
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.FAIL,msg));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }
 
-            saveSealDataNew(sealDtosToSaveDatas(removeSealCarDtos,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+            saveSealDataList.addAll(convert2SealVehicles(removeSealCarDtos,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+
+            saveSealData(saveSealDataList);
         }catch (Exception e){
             this.log.error("封车-error，参数：{}", JsonHelper.toJson(paramList), e);
             msg = "封车异常：["+ e.getMessage() +"]";
@@ -201,12 +203,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
   /**
-   * 移除空批次
+   * 拆解封车入参对象列表，把列表分为空批次封车信息、要操作封车的信息
    *
    * @param sourceSealDtos
    * @param
    */
-  private SealCarResultDto removeEmptyBatchCode(List<SealCarDto> sourceSealDtos) {
+  private SealCarResultDto getEmptyBatchAndSealData(List<SealCarDto> sourceSealDtos) {
       Map<String, String> emptyBatchCode = Maps.newHashMap();
       List<SealCarDto> keepsourceSealDtos=new ArrayList<>();
       List<SealCarDto> removesourceSealDtos=new ArrayList<>();
@@ -328,7 +330,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         //封车成功的数据
         List<SealCarDto> successSealCarList = new ArrayList<>();
         //需要保存的封车记录
-        List<SaveSealData> saveSealCarList = new ArrayList<>();
+        List<SealVehicles> saveSealCarList = new ArrayList<>();
 
         //循环调用运输封车同时生成车次任务的接口
         for (SealCarDto param : paramList) {
@@ -350,9 +352,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 }
                 if(CollectionUtils.isNotEmpty(removeBatchCodes)){
                     //把剔除空批次的封车记录加入到待保存
-                    SaveSealData removeDto=sealDtoToSaveData(param,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName());
-                    removeDto.setBatchCodes(removeBatchCodes);
-                    saveSealCarList.add(removeDto);
+                    SealCarDto temp=new SealCarDto();
+                    BeanUtils.copyProperties(param,temp);
+                    temp.setBatchCodes(removeBatchCodes);
+                    saveSealCarList.addAll(convert2SealVehicles(temp,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
                 }
                 if(CollectionUtils.isNotEmpty(keepBatchCodes)){
                     param.setBatchCodes(keepBatchCodes);
@@ -367,14 +370,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
                 log.warn("VOS封车业务同时生成车次任务接口返回为空.参数:{}", JSON.toJSONString(param));
 
-                saveSealCarList.add(sealDtoToSaveData(param,SealVehicleExecute.FAIL,singleErrorMsg));
+                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.FAIL,singleErrorMsg));
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
-                saveSealCarList.add(sealDtoToSaveData(param,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
-                saveSealCarList.add(sealDtoToSaveData(param,SealVehicleExecute.FAIL,singleErrorMsg));
+                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.FAIL,singleErrorMsg));
             }
             errorMsg += singleErrorMsg;
         }
@@ -387,7 +390,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         //记录封车操作数据
-        saveSealDataNew(saveSealCarList);
+        saveSealData(saveSealCarList);
 
 //        addSystemLog(paramList, errorMsg);
 
@@ -429,38 +432,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     /**
-     * 运输封车对象列表转换为数据记录对象列表
-     * @param sealDtoS
-     * @param sealVehicleExecute
-     * @param msg
-     * @return
-     */
-    private List<SaveSealData> sealDtosToSaveDatas(List<SealCarDto> sealDtoS,SealVehicleExecute sealVehicleExecute,String msg){
-        List<SaveSealData> res=new ArrayList<>();
-        for (SealCarDto item : sealDtoS) {
-            res.add(sealDtoToSaveData(item,sealVehicleExecute,msg));
-        }
-
-        return res;
-    }
-
-    /**
-     * 运输封车对象转换为数据记录对象
-     * @param sealDto
-     * @param sealVehicleExecute
-     * @param msg
-     * @return
-     */
-    private SaveSealData sealDtoToSaveData(SealCarDto sealDto,SealVehicleExecute sealVehicleExecute,String msg){
-        SaveSealData dto=new SaveSealData();
-        BeanUtils.copyProperties(sealDto,dto);
-        dto.setExecuteType(sealVehicleExecute.getCode());
-        dto.setExecuteMessage(msg);
-
-        return dto;
-    }
-
-    /**
      * 离线封车
      * @param sealCars
      * @return
@@ -475,7 +446,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         //去除空批次，并记录去除数据
-        SealCarResultDto sealCarResultDto = removeEmptyBatchCode(paramList);
+        SealCarResultDto sealCarResultDto = getEmptyBatchAndSealData(paramList);
         //需要操作封车的数据
         List<SealCarDto> doSealCarDtos =sealCarResultDto.getSealCarDtos();
         //被剔除空批次的封车数据
@@ -490,29 +461,31 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             return sealCarInfo;
         }
 
+        List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "离线封车失败：";
         try {
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg += "封车JSF接口返回为空";
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.FAIL,msg));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(doSealCarDtos);
                 addRedisCache(doSealCarDtos);
                 saveNXSealData(doSealCarDtos);
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
-                saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.FAIL,msg));
+                saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }
 
-            saveSealDataNew(sealDtosToSaveDatas(removeSealCarDtos,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+            saveSealDataList.addAll(convert2SealVehicles(removeSealCarDtos,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+
+            saveSealData(saveSealDataList);
         }catch (Exception e){
             this.log.error("离线封车-error：{}", JsonHelper.toJson(paramList), e);
             msg += "["+ e.getMessage() +"]";
-            saveSealDataNew(sealDtosToSaveDatas(doSealCarDtos,SealVehicleExecute.FAIL,msg));
         }finally {
 
             for (SealCarDto sealCarDto : paramList) {
@@ -1209,29 +1182,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarDto;
     }
 
-    /**
-     * 保存封车业务数据
-     * @param sealist
-     */
-    private void saveSealData(List<SealCarDto> sealist){
-        if(log.isDebugEnabled()){
-            log.debug("保存封车业务数据：{}" , JsonHelper.toJson(sealist));
-        }
-        if(sealist == null || sealist.isEmpty()){
-            return;
-        }
-        try {
-            sealVehiclesService.batchAdd(convert2SealVehicles(sealist));
-        }catch (Exception e){
-            log.error("保存封车业务数据异常，封车数据：{}" , JsonHelper.toJson(sealist), e);
-        }
-    }
 
     /**
      * 保存封车操作数据，增加操作结果
      * @param sealist
      */
-    private void saveSealDataNew(List<SaveSealData> sealist){
+    private void saveSealData(List<SealVehicles> sealist){
         if(log.isDebugEnabled()){
             log.debug("保存封车业务数据：{}" , JsonHelper.toJson(sealist));
         }
@@ -1239,7 +1195,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             return;
         }
         try {
-            sealVehiclesService.batchAdd(convert2SealVehiclesNew(sealist));
+            sealVehiclesService.batchAdd(sealist);
         }catch (Exception e){
             log.error("保存封车业务数据异常，封车数据：{}" , JsonHelper.toJson(sealist), e);
         }
@@ -1371,49 +1327,58 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealVehiclesList;
     }
 
-    private List<SealVehicles> convert2SealVehiclesNew(List<SaveSealData> sealist){
+    private List<SealVehicles> convert2SealVehicles(List<SealCarDto> dts,SealVehicleExecute sealVehicleExecute,String msg){
+        List<SealVehicles> res = new ArrayList<>();
+        for (SealCarDto dt : dts) {
+            List<SealVehicles> sealVehiclesList=convert2SealVehicles(dt,sealVehicleExecute,msg);
+            res.addAll(sealVehiclesList);
+        }
+
+        return res;
+    }
+
+    private List<SealVehicles> convert2SealVehicles(SealCarDto dt,SealVehicleExecute sealVehicleExecute,String msg){
         List<SealVehicles> sealVehiclesList = new ArrayList<>();
-        for (SaveSealData dto : sealist){
-            if(dto.getBatchCodes() == null){
-                continue;
+        if(dt.getBatchCodes() == null){
+            return sealVehiclesList;
+        }
+
+        for (String sendCode : dt.getBatchCodes()){
+            SealVehicles temp = new SealVehicles();
+            temp.setSealDataCode(sendCode);
+
+            //seal
+            temp.setCreateSiteCode(dt.getSealSiteId());
+            temp.setCreateSiteName(dt.getSealSiteName());
+            temp.setCreateUserErp(dt.getSealUserCode());
+            temp.setCreateUserName(dt.getSealUserName());
+            temp.setSource(Constants.SEND_DETAIL_SOUCRE_NORMAL);
+            temp.setVehicleNumber(dt.getVehicleNumber());
+            temp.setVolume(dt.getVolume());
+            temp.setWeight(dt.getWeight());
+            if(dt.getSealCodes() != null){
+                temp.setSealCodes(dt.getSealCodes().toString());
             }
-            for (String sendCode : dto.getBatchCodes()){
-                SealVehicles temp = new SealVehicles();
-                temp.setSealDataCode(sendCode);
+            temp.setSealCarType(dt.getSealCarType());
+            temp.setOperateTime(dt.getSealCarTime());
+            temp.setTransWorkItemCode(dt.getItemSimpleCode());
+            temp.setTransportCode(dt.getTransportCode());
+            temp.setStatus(SealVehicleEnum.SEAL.getCode());
+            temp.setExecuteType(sealVehicleExecute.getCode());
+            temp.setExecuteMessage(msg);
 
-                //seal
-                temp.setCreateSiteCode(dto.getSealSiteId());
-                temp.setCreateSiteName(dto.getSealSiteName());
-                temp.setCreateUserErp(dto.getSealUserCode());
-                temp.setCreateUserName(dto.getSealUserName());
-                temp.setSource(Constants.SEND_DETAIL_SOUCRE_NORMAL);
-                temp.setVehicleNumber(dto.getVehicleNumber());
-                temp.setVolume(dto.getVolume());
-                temp.setWeight(dto.getWeight());
-                if(dto.getSealCodes() != null){
-                    temp.setSealCodes(dto.getSealCodes().toString());
-                }
-                temp.setSealCarType(dto.getSealCarType());
-                temp.setOperateTime(dto.getSealCarTime());
-                temp.setTransWorkItemCode(dto.getItemSimpleCode());
-                temp.setTransportCode(dto.getTransportCode());
-                temp.setStatus(SealVehicleEnum.SEAL.getCode());
-                temp.setExecuteType(dto.getExecuteType());
-                temp.setExecuteMessage(dto.getExecuteMessage());
-
-                //deseal
-                temp.setUpdateUserErp(dto.getDesealUserCode());
-                temp.setUpdateUserName(dto.getDesealUserName());
-                temp.setUpdateTime(dto.getDesealCarTime());
-                if(dto.getDesealCodes() != null){
-                    temp.setDsealCodes(dto.getDesealCodes().toString());
-                }
-                temp.setReceiveSiteCode(dto.getDesealSiteId());
-                temp.setReceiveSiteName(dto.getDesealSiteName());
-                temp.setSealCarCode(dto.getSealCarCode());
-
-                sealVehiclesList.add(temp);
+            //deseal
+            temp.setUpdateUserErp(dt.getDesealUserCode());
+            temp.setUpdateUserName(dt.getDesealUserName());
+            temp.setUpdateTime(dt.getDesealCarTime());
+            if(dt.getDesealCodes() != null){
+                temp.setDsealCodes(dt.getDesealCodes().toString());
             }
+            temp.setReceiveSiteCode(dt.getDesealSiteId());
+            temp.setReceiveSiteName(dt.getDesealSiteName());
+            temp.setSealCarCode(dt.getSealCarCode());
+
+            sealVehiclesList.add(temp);
         }
 
         return sealVehiclesList;
