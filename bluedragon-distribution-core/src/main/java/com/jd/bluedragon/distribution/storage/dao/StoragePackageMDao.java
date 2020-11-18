@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -55,7 +56,12 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
      * @return
      */
     List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition);
-
+    /**
+     * 根据条件导出
+     * @param params
+     * @return
+     */
+    List<StoragePackageM> queryByWaybillCodeListAndSiteCode(Map<String,Object> params);
     /**
      * 更新储位号
      *  只针对快运暂存

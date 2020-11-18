@@ -5,7 +5,9 @@ import java.util.concurrent.*;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +82,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	private BusinessLogManager businessLogManager;
 
 	@Autowired
-	@Qualifier("storagePackageDService")
-	private StoragePackageDService storagePackageDService;
-
-	private ExecutorService threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*25,
-			0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10000));//使用默认拒绝策略，如果超过最大线程数，抛异常。
+	@Qualifier("storagePackageMService")
+	private StoragePackageMService storagePackageMService;
 
 	
 	@Override
@@ -166,34 +165,24 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		List<DmsScheduleInfo> dataList = dmsScheduleInfoDao.queryEdnDmsScheduleInfoList(scheduleBillCode);
 		//设置序号值
 		if(dataList != null && !dataList.isEmpty()){
+            List<String> waybillCodeList=new LinkedList<String>();
 			int rowNum = 1;
 			for(DmsScheduleInfo item : dataList){
 				item.setRowNum(rowNum ++);
+                waybillCodeList.add(item.getWaybillCode());
 			}
-		}
-		for( DmsScheduleInfo dmsScheduleInfo:dataList){
-			threadPoolExecutor.submit(new QueryStorageCodesService(dmsScheduleInfo));
+            List<StoragePackageM> storagePackageMList=storagePackageMService.queryByWaybillCodeListAndSiteCode(waybillCodeList,dataList.get(0).getDestDmsSiteCode().longValue());
+			if(storagePackageMList !=null && !storagePackageMList.isEmpty()){
+                for(DmsScheduleInfo item : dataList){
+                    for(StoragePackageM storagePackageM:storagePackageMList){
+                        if(StringUtils.equals(item.getWaybillCode(),storagePackageM.getWaybillCode())){
+                            item.setStorageCodes(storagePackageM.getStorageCode());
+                        }
+                    }
+                }
+            }
 		}
 		return dataList;
-	}
-
-	private class QueryStorageCodesService implements Runnable{
-		private DmsScheduleInfo dmsScheduleInfo;
-		QueryStorageCodesService(DmsScheduleInfo dmsScheduleInfo){
-			this.dmsScheduleInfo=dmsScheduleInfo;
-		}
-		@Override
-		public void run() {
-			List<StoragePackageD> storagePackageDList=storagePackageDService.queryByWaybillCodeAndSiteCode(dmsScheduleInfo.getWaybillCode(),dmsScheduleInfo.getDestDmsSiteCode().longValue());
-			if(!CollectionUtils.isEmpty(storagePackageDList)){
-				Set<String> stringSet=new HashSet<String>();
-				for(StoragePackageD storagePackageD:storagePackageDList){
-					List<String> storageCodeList = Arrays.asList(storagePackageD.getStorageCode().split(Constants.SEPARATOR_COMMA))  ;
-					stringSet.addAll(storageCodeList);
-				}
-				dmsScheduleInfo.setStorageCodes(StringUtils.join(stringSet,Constants.SEPARATOR_COMMA));
-			}
-		}
 	}
 
 	@Override

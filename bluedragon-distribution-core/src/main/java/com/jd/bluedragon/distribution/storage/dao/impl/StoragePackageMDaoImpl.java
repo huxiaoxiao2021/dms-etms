@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -66,6 +67,11 @@ public class StoragePackageMDaoImpl extends BaseDao<StoragePackageM> implements 
     @Override
     public List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition) {
         return sqlSession.selectList(this.nameSpace+".queryExportByCondition", condition);
+    }
+
+    @Override
+    public List<StoragePackageM> queryByWaybillCodeListAndSiteCode(Map<String, Object> params) {
+        return sqlSession.selectList(this.nameSpace+".queryByWaybillCodeListAndSiteCode", params);
     }
 
     @Override

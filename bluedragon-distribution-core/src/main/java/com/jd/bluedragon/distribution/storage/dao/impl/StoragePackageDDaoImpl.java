@@ -39,11 +39,6 @@ public class StoragePackageDDaoImpl extends BaseDao<StoragePackageD> implements 
     }
 
     @Override
-    public List<StoragePackageD> findByWaybillCodeAndSiteCode(StoragePackageD storagePackageD) {
-        return sqlSession.selectList(this.nameSpace+".findLastStoragePackageDByWaybillCodeAndSiteCode", storagePackageD);
-    }
-
-    @Override
     public int cancelPutaway(String waybillCode) {
         return sqlSession.update(this.nameSpace+".cancelPutaway", waybillCode);
     }
