@@ -32,6 +32,7 @@ public enum FuncSwitchConfigEnum {
     private String name;
 
     public static Map<Integer, FuncSwitchConfigEnum> codeMap;
+    //功能名称
     public static Map<Integer, String> interceptMenuEnumMap;
     //需要走拦截遍历的配置
     public static List<FuncSwitchConfigEnum> filterList;

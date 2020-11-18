@@ -66,16 +66,6 @@ public class FilterContext {
      */
     private Integer hasSortingPackageNum;
 
-    /**
-     * 青龙基础资料对象
-     */
-    private Waybill waybill;
-
-    /**
-     *  商家必要资料
-     */
-    private BasicTraderNeccesaryInfoDTO  basicTraderNeccesaryInfoDTO;
-
     public String getBoxCode() {
         return boxCode;
     }
@@ -264,19 +254,4 @@ public class FilterContext {
 		this.hasSortingPackageNum = hasSortingPackageNum;
 	}
 
-    public Waybill getWaybill() {
-        return waybill;
-    }
-
-    public void setWaybill(Waybill waybill) {
-        this.waybill = waybill;
-    }
-
-    public BasicTraderNeccesaryInfoDTO getBasicTraderNeccesaryInfoDTO() {
-        return basicTraderNeccesaryInfoDTO;
-    }
-
-    public void setBasicTraderNeccesaryInfoDTO(BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO) {
-        this.basicTraderNeccesaryInfoDTO = basicTraderNeccesaryInfoDTO;
-    }
 }

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
@@ -57,6 +58,9 @@ public class WeightVolumeFilter implements Filter {
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
 
+    @Autowired
+    private BaseMinorManager baseMinorManager;
+
     private static final String RULE_WEIGHT_VOLUMN_SWITCH = "1123";
     private static final String SWITCH_OFF = "1";
 
@@ -96,7 +100,8 @@ public class WeightVolumeFilter implements Filter {
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
-        }else if ( isNeedWeight ) {
+        }
+        else if ( isNeedWeight ) {
             logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
@@ -157,6 +162,11 @@ public class WeightVolumeFilter implements Filter {
      * @return
      */
     private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+
         //1.是否是纯配外单
         if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
             return  false;
@@ -168,13 +178,14 @@ public class WeightVolumeFilter implements Filter {
         }
 
         //3.内部商家不拦截
-        if(request.getBasicTraderNeccesaryInfoDTO() == null){
+        String customerCode = request.getWaybillCache().getCustomerCode();
+        if(StringUtils.isEmpty(customerCode)){
+            return  false;
+        }
+        BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =  baseMinorManager.getBaseTraderNeccesaryInfo(customerCode);
+        //traderMold  内部商家类型编码
+        if(basicTraderNeccesaryInfoDTO == null || basicTraderNeccesaryInfoDTO.getTraderMold()==null ||!basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
             return false;
-        }else {
-            Integer traderMold = request.getBasicTraderNeccesaryInfoDTO().getTraderMold();
-            if(traderMold==null||traderMold.equals(TraderMoldTypeEnum.inside_type.getCode())){
-                return false;
-            }
         }
 
         //4.如果是全国有效,直接返回不拦截

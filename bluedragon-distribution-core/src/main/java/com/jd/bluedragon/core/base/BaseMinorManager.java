@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.AirTransport;
@@ -95,5 +96,12 @@ public interface BaseMinorManager {
      * @return
      */
     CrossPackageTagNew queryNonDmsSiteCrossPackageTagForPrint(Integer targetSiteId, Integer originalDmsId);
+
+    /**
+     * 通过青龙业主号获取-业主基础信息(商家类型等)
+     * @param traderCode
+     * @return
+     */
+    BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfo(String traderCode);
 
 }
