@@ -26,6 +26,11 @@ public class DMSMixedPackageConfigJSFServiceImpl implements DMSMixedPackageConfi
 
     private static final Logger logger = LoggerFactory.getLogger(DMSMixedPackageConfigJSFServiceImpl.class);
 
+    /**
+     * 自定义异常编码
+     * */
+    private static final Integer CUSTOM_ERROR_CODE = 600;
+
     @Autowired
     private MixedPackageConfigService mixedPackageConfigService;
 
@@ -44,14 +49,14 @@ public class DMSMixedPackageConfigJSFServiceImpl implements DMSMixedPackageConfi
                 || request.getDestinationDmsCode() == null
                 || request.getTransportType() == null
                 || !TransportTypeEnum.transportTypeMap.containsKey(request.getTransportType())){
-            logger.warn("参数错误!");
+            logger.warn("参数错误!入参【{}】",JsonHelper.toJsonMs(request));
             result.parameterError("参数错误");
             return result;
         }
         MixedSite mixedSite = mixedPackageConfigService.queryMixedSiteCodeForPrint(request);
         if(mixedSite == null){
             logger.warn("查询集包地为空，入参：【{}】", JsonHelper.toJsonMs(request));
-            result.customMessage(600,"未维护混集包配置!");
+            result.customMessage(CUSTOM_ERROR_CODE,"未维护混集包配置!");
             return result;
         }
         result.setData(mixedSite);

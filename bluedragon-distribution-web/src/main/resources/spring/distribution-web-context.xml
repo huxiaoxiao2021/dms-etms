@@ -55,6 +55,7 @@
 	<import resource="classpath:spring/distribution-web-resteasy.xml" />
 	<import resource="classpath:spring/distribution-web-wss-service.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
+	<import resource="classpath:spring/distribution-web-foreign-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />

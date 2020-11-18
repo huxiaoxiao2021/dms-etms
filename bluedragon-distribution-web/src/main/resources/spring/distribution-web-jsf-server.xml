@@ -225,12 +225,4 @@
                   ref="dmsReprintRecordService" server="dmsjsf">
     </jsf:provider>
 
-    <!--  面单集包地：外单调用  -->
-    <jsf:provider id="dmsMixedPackageConfigJSFServiceApi"
-                  interface="com.jd.bluedragon.distribution.mixedPackageConfig.service.DMSMixedPackageConfigJSFService"
-                  alias="${dms.jsf.mixedPackageConfig.alias}"
-                  ref="dmsMixedPackageConfigJSFService" server="dmsjsf">
-        <jsf:parameter key="token" value="${dms.jsf.mixedPackageConfig.token}" hide="true"/>
-    </jsf:provider>
-
 </beans>

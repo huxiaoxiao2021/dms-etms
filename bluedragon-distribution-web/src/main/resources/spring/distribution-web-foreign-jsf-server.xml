@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
+
+    <!-- 发布给外部系统特殊读接口 -->
+    <jsf:server id="dmsForeignJsf" protocol="jsf"/>
+
+    <!--  面单集包地：京配调用  -->
+    <jsf:provider id="dmsMixedPackageConfigJSFServiceApi"
+                  interface="com.jd.bluedragon.distribution.mixedPackageConfig.service.DMSMixedPackageConfigJSFService"
+                  alias="${dms.jsf.mixedPackageConfig.alias}"
+                  ref="dmsMixedPackageConfigJSFService" server="dmsForeignJsf">
+        <jsf:parameter key="token" value="${dms.jsf.mixedPackageConfig.token}" hide="true"/>
+    </jsf:provider>
+
+</beans>

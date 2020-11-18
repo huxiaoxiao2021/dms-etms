@@ -16,7 +16,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.annotation.CacheMethod;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,8 +25,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 @Service("mixedPackageConfigService")
@@ -202,46 +199,39 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setRuleType(RuleTypeEnum.BUILD_PACKAGE.getCode());
         mixedPackageConfig.setCreateSiteCode(printQueryRequest.getOriginalDmsCode());
         mixedPackageConfig.setMixedSiteCode(printQueryRequest.getDestinationDmsCode());
-        List<MixedPackageConfig> mixedPackList = mixedPackageConfigDao.queryMixedPackageConfigs(mixedPackageConfig);
-        if(CollectionUtils.isEmpty(mixedPackList)){
-            mixedPackageConfig.setMixedSiteCode(null);
-            mixedPackageConfig.setReceiveSiteCode(printQueryRequest.getDestinationDmsCode());
-            mixedPackList = mixedPackageConfigDao.queryMixedPackageConfigs(mixedPackageConfig);
+        Integer receiveSiteCode = mixedPackageConfig.getReceiveSiteCode();
+        if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
+            mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
+            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
         }
-        if(CollectionUtils.isEmpty(mixedPackList)){
-            logger.warn("始发【{}】目的【{}】未维护到集包地",printQueryRequest.getOriginalDmsCode(),printQueryRequest.getDestinationDmsCode());
-            return null;
-        }
-        // 按时间降序排序
-        Collections.sort(mixedPackList, new Comparator<MixedPackageConfig>() {
-            @Override
-            public int compare(MixedPackageConfig o1, MixedPackageConfig o2) {
-                if(o1.getTs() == null || o2.getTs() == null){
-                    return 0;
-                }
-               return new Long(o2.getTs() - o1.getTs()).intValue();
-            }
-        });
-        // 按运输方式拆分
-        List<MixedPackageConfig> airList = new ArrayList<MixedPackageConfig>();
-        List<MixedPackageConfig> highWayList = new ArrayList<MixedPackageConfig>();
-        for(MixedPackageConfig mixedPack : mixedPackList){
-            if(TransportTypeEnum.AIR_TRANSPORT.getCode().equals(mixedPack.getTransportType())){
-                airList.add(mixedPack);
-            }else if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(mixedPack.getTransportType())){
-                highWayList.add(mixedPack);
-            }
-        }
-        // 面单打【航】则取航空运输，未取到则取公路运输；面单未打【航】取公路运输
         if(TransportTypeEnum.AIR_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
-            if(!CollectionUtils.isEmpty(airList)){
-                return airList.get(0);
+            mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
+            MixedPackageConfig mixedResult = getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
+            if(mixedResult != null){
+                return mixedResult;
             }
-        }
-        if(!CollectionUtils.isEmpty(highWayList)){
-            return highWayList.get(0);
+            mixedPackageConfig.setTransportType(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode());
+            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
         }
         return null;
+    }
+
+    /**
+     * 根据条件查询集包地
+     *  1、根据始发、集包地查询
+     *  2、未查询到则根据始发、目的查询
+     * @param receiveSiteCode
+     * @param mixedPackageConfig
+     * @return
+     */
+    private MixedPackageConfig getMixedPackageConfig(Integer receiveSiteCode, MixedPackageConfigRequest mixedPackageConfig) {
+        MixedPackageConfig mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
+        if(mixedPack == null){
+            mixedPackageConfig.setMixedSiteCode(null);
+            mixedPackageConfig.setReceiveSiteCode(receiveSiteCode);
+            mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
+        }
+        return mixedPack;
     }
 
 
