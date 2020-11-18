@@ -471,11 +471,6 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         }
         log.info("根据任务ID和包裹号开始检验,包裹号转板号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
 
-        if (StringUtils.isBlank(req.getBoardCode())) {
-            response.setCode(JdVerifyResponse.CODE_FAIL);
-            response.setMessage("参数校验错误，板号不能为空");
-            return response;
-        }
         // 如果勾选【包裹号转板号】
         // 校验板号
         return loadScanService.checkBoardCode(req, response);
