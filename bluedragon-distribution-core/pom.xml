@@ -201,7 +201,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.5.1-SNAPSHOT</version>
+			<version>1.5.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -228,7 +228,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.1.5-SNAPSHOT</version>
+            <version>1.1.7-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -342,7 +342,11 @@
 					<groupId>commons-lang</groupId>
 					<artifactId>commons-lang</artifactId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -422,7 +426,13 @@
 			<groupId>net.sf.json-lib</groupId>
 			<artifactId>json-lib</artifactId>
 			<version>2.4</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.common</groupId>
 			<artifactId>jd-common-util</artifactId>
@@ -456,7 +466,11 @@
 					<artifactId>commons-io</artifactId>
 					<groupId>commons-io</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -496,7 +510,7 @@
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
 			<version>1.2.28-SNAPSHOT</version>
-		</dependency>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
@@ -609,6 +623,12 @@
         	<groupId>com.jd.packExchange</groupId>
 			<artifactId>wms-packExchange-domain</artifactId>
        		<version>0.0.1-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
 		<dependency>
@@ -709,7 +729,11 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
         <!-- 国际化-库存出管 -->
         <dependency>
@@ -725,7 +749,11 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
@@ -790,7 +818,13 @@
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-notice-api</artifactId>
 			<version>${eclp.notice.api.version}</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- cassandra -->
 		<dependency>
             <groupId>com.datastax.cassandra</groupId>
@@ -1282,7 +1316,11 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lsb.component</groupId>
@@ -1356,7 +1394,11 @@
 					<artifactId>jackson-dataformat-yaml</artifactId>
 					<groupId>com.fasterxml.jackson.dataformat</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -1438,7 +1480,23 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-    </dependencies>
+        <!-- 方法注解缓存插件 -->
+        <dependency>
+            <groupId>com.jd.etms</groupId>
+            <artifactId>etms-common</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-api</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.8.3</version>
+        </dependency>
+	</dependencies>
 
 	<profiles>
 		<!--测试环境  -->

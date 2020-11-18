@@ -147,6 +147,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private StoragePackageMService storagePackageMService;
 
+    @Autowired
     private WaybillTraceManager waybillTraceManager;
 
     @Override

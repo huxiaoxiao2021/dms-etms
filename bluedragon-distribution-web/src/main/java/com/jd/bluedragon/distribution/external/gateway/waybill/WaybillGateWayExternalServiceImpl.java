@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
+import com.jd.bluedragon.external.gateway.dto.request.ThirdBoxCodeMessageVO;
 import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
 import com.jd.bluedragon.external.gateway.waybill.WaybillGateWayExternalService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -116,6 +117,7 @@ public class WaybillGateWayExternalServiceImpl implements WaybillGateWayExternal
             return response;
         }
     }
+
 
     /**
      * 核心参数校验
