@@ -1344,7 +1344,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                     loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
             return null;
         }
-        if (baseEntity.getCode() != Constants.SUCCESS_CODE || baseEntity.getData() == null) {
+        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode()) || baseEntity.getData() == null) {
             log.error("根据运单号和包裹号去分拣报表查询流向接口失败packageCode={},waybillCode={},code={}",
                     loadScanDto.getPackageCode(), loadScanDto.getWayBillCode(), baseEntity.getCode());
             return null;
