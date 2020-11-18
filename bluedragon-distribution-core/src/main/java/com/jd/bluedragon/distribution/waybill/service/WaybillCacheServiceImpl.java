@@ -126,7 +126,6 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
             dealWaybillSiteName(waybillCache);
         }
 
-        waybillCache.setCustomerCode(waybillWS.getCustomerCode());
         waybillCache.setPaymentType(waybillWS.getPayment());
         waybillCache.setQuantity(waybillWS.getGoodNumber());
         waybillCache.setWeight(waybillWS.getGoodWeight());
@@ -146,6 +145,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
         waybillCache.setAgainWeight(waybillWS.getAgainWeight());//added by tangchunqing 2018年4月24日
         waybillCache.setSpareColumn2(waybillWS.getSpareColumn2());//added by tangchunqing 2018年4月24日
         waybillCache.setFreight(waybillWS.getFreight());//added by shipeilin 2018年12月19日
+        waybillCache.setCustomerCode(waybillWS.getCustomerCode());// add by liming 2020.11.08
         return waybillCache;
     }
 
