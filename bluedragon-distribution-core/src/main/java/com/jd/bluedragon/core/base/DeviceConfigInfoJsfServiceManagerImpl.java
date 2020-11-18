@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -32,7 +33,7 @@ public class DeviceConfigInfoJsfServiceManagerImpl implements DeviceConfigInfoJs
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BASE.DeviceConfigInfoJsfServiceManagerImpl.maintainWeightSwitch",mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.BASE.DeviceConfigInfoJsfServiceManagerImpl.maintainWeightSwitch",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseDmsAutoJsfResponse maintainWeightSwitch(WeightValidateSwitchEnum weightValidateSwitchEnum) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeviceConfigInfoJsfServiceManagerImpl.maintainWeightSwitch", false, true);
         BaseDmsAutoJsfResponse baseDmsAutoJsfResponse = null;
@@ -62,7 +63,7 @@ public class DeviceConfigInfoJsfServiceManagerImpl implements DeviceConfigInfoJs
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BASE.DeviceConfigInfoJsfServiceManagerImpl.maintainSiteWeightSwitch",mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.BASE.DeviceConfigInfoJsfServiceManagerImpl.maintainSiteWeightSwitch",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseDmsAutoJsfResponse maintainSiteWeightSwitch(Integer[] siteCodesArray, WeightValidateSwitchEnum weightValidateSwitchEnum) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeviceConfigInfoJsfServiceManagerImpl.maintainSiteWeightSwitch", false, true);
         BaseDmsAutoJsfResponse baseDmsAutoJsfResponse = null;

@@ -96,12 +96,12 @@ public class WeightVolumeFilter implements Filter {
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
 
-        if( isEconomicNetNeedWeight || isAllPureNeedWeight){
+        if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
         }
-        else if ( isNeedWeight ) {
+        else if ( isNeedWeight || isAllPureNeedWeight) {
             logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
