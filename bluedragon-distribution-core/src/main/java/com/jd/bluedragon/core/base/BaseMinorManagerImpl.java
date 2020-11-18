@@ -445,7 +445,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	 * @param traderCode
 	 * @return
 	 */
-	@JProfiler(jKey = "DMSWEB.BASE.BaseMinorManagerImpl.getBaseTraderNeccesaryInfo",mState = JProEnum.TP)
+	@JProfiler(jKey = "DMSWEB.BASE.BaseMinorManagerImpl.getBaseTraderNeccesaryInfo",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfo(String traderCode){
 		CallerInfo info = Profiler.registerInfo("DMSWEB.BasicInfoPackServiceImpl.getBaseTraderNeccesaryInfo", false, true);
 		//封装商家的基本信息
