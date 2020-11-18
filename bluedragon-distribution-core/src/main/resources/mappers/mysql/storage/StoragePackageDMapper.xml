@@ -289,6 +289,18 @@
 		limit 1
 	</select>
 
+	<select id="findLastStoragePackageDByWaybillCodeAndSiteCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" resultMap="StoragePackageD">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_d
+		where
+		waybill_code = #{waybillCode}
+		and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		<include refid="Base_Condition_Sql"/>
+		ORDER by putaway_time desc
+	</select>
+
 	<select id="findLastStoragePackageDByPackageCode" parameterType="String" resultMap="StoragePackageD">
 		select
 		<include refid="Base_Column_List"/>
@@ -323,4 +335,5 @@
 		<include refid="Base_Condition_Sql"/>
 		ORDER by putaway_time
 	</select>
+
 </mapper>

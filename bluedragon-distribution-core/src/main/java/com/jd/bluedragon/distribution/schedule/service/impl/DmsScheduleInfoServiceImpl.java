@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.schedule.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.*;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,7 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.print.utils.StringHelper;
+import org.springframework.util.CollectionUtils;
 
 /**
  * @ClassName: DmsScheduleInfoServiceImpl
@@ -72,7 +77,15 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	
 	@Autowired
 	@Qualifier("businessLogManager")
-	private BusinessLogManager businessLogManager;	
+	private BusinessLogManager businessLogManager;
+
+	@Autowired
+	@Qualifier("storagePackageDService")
+	private StoragePackageDService storagePackageDService;
+
+	private ExecutorService threadPoolExecutor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(), Runtime.getRuntime().availableProcessors()*25,
+			0L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(10000));//使用默认拒绝策略，如果超过最大线程数，抛异常。
+
 	
 	@Override
 	public Dao<DmsScheduleInfo> getDao() {
@@ -158,7 +171,29 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 				item.setRowNum(rowNum ++);
 			}
 		}
+		for( DmsScheduleInfo dmsScheduleInfo:dataList){
+			threadPoolExecutor.submit(new QueryStorageCodesService(dmsScheduleInfo));
+		}
 		return dataList;
+	}
+
+	private class QueryStorageCodesService implements Runnable{
+		private DmsScheduleInfo dmsScheduleInfo;
+		QueryStorageCodesService(DmsScheduleInfo dmsScheduleInfo){
+			this.dmsScheduleInfo=dmsScheduleInfo;
+		}
+		@Override
+		public void run() {
+			List<StoragePackageD> storagePackageDList=storagePackageDService.queryByWaybillCodeAndSiteCode(dmsScheduleInfo.getWaybillCode(),dmsScheduleInfo.getDestDmsSiteCode().longValue());
+			if(!CollectionUtils.isEmpty(storagePackageDList)){
+				Set<String> stringSet=new HashSet<String>();
+				for(StoragePackageD storagePackageD:storagePackageDList){
+					List<String> storageCodeList = Arrays.asList(storagePackageD.getStorageCode().split(Constants.SEPARATOR_COMMA))  ;
+					stringSet.addAll(storageCodeList);
+				}
+				dmsScheduleInfo.setStorageCodes(StringUtils.join(stringSet,Constants.SEPARATOR_COMMA));
+			}
+		}
 	}
 
 	@Override
