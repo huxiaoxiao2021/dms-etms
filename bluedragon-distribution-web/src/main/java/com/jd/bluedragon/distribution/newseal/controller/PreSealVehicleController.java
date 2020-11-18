@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -288,16 +287,13 @@ public class PreSealVehicleController extends DmsBaseController{
     private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
         List<SealVehicles> result = null;
 
-        String preSealVehicleRemoveEmptyBatchCode = uccPropertyConfiguration.getPreSealVehicleRemoveEmptyBatchCode();
         List<SealVehicles> sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
 
         if(sourceList != null && !sourceList.isEmpty()){
             result = new ArrayList<>(sourceList.size());
             for(SealVehicles itme : sourceList){
-                if(Constants.STRING_FLG_TRUE.equals(preSealVehicleRemoveEmptyBatchCode)){
-                    if(!sendDetailService.checkSendIsExist(itme.getSealDataCode())){
-                        continue;
-                    }
+                if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(itme.getSealDataCode())){
+                    continue;
                 }
 
                 if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
@@ -350,11 +346,12 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setMessage("登录已过期，请重新登录!");
             return rest;
         }
+
+        //去除的空批次封车数据或者失败的数据
+        List<PreSealVehicle> removeOrFailedList = new ArrayList<>();
         String userErp = user.getUserErp();
         String usetName = user.getUserName();
         Integer userCode = user.getStaffNo();
-        //小批量执行封车
-        List<PreSealVehicle> failedList = new ArrayList<>();
         //实操时间取服务器时间
         Date operateTime = new Date();
         int total = data.size();
@@ -373,16 +370,16 @@ public class PreSealVehicleController extends DmsBaseController{
             }
 
             try{
-                preSealVehicleService.batchSeal(partList, userCode, userErp, usetName, operateTime);
+                removeOrFailedList.addAll(preSealVehicleService.batchSeal(partList, userCode, userErp, usetName, operateTime));
             }catch (Exception e){
-                failedList.addAll(partList);
                 log.error("批量封车异常：{}", JsonHelper.toJson(partList), e);
             }
         }
-        if(!failedList.isEmpty()){
-            rest.setData(failedList);
+
+        if(!removeOrFailedList.isEmpty()){
+            rest.setData(removeOrFailedList);
             rest.setCode(JdResponse.CODE_PARTIAL_SUCCESS);
-            rest.setMessage("以下数据一键封车失败!");
+            rest.setMessage("以下数据一键封车失败,请确认封车批次内是否有发货数据后，重新查询待封车数据再封车。");
         }
 
         return rest;

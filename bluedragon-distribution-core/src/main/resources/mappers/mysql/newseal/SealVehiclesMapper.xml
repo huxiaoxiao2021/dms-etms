@@ -31,6 +31,8 @@
 		<result column="source" property="source" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="execute_type" property="executeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="execute_message" property="executeMessage" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
@@ -224,7 +226,7 @@
 				seal_data_code,vehicle_number,seal_codes,dseal_codes,send_car_time,
 				status,seal_car_type,weight,volume,create_user_erp,
 				create_user_name,create_time,update_user_erp,update_user_name,update_time,
-				source,operate_time,is_delete,ts
+				source,operate_time,is_delete,execute_type,execute_message,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -256,6 +258,8 @@
 					#{item.source,jdbcType=VARCHAR},
 					#{item.operateTime,jdbcType=TIMESTAMP},
 					0,
+				    #{item.executeType,jdbcType=TINYINT},
+				    #{item.executeMessage,jdbcType=VARCHAR},
 					now()
 				)
 			</foreach>
@@ -425,6 +429,7 @@
         where create_site_code = #{createSiteCode,jdbcType=BIGINT}
         and create_time <![CDATA[ >= ]]> #{createTime,jdbcType=TIMESTAMP}
         and is_delete=0
+        and execute_type=1
     </select>
 
     <select id="findSealDataBySealDataCodes" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles" resultMap="sealVehiclesList">
@@ -438,6 +443,7 @@
         </foreach>
 		and status in (1,2)
 		and is_delete=0
+		and execute_type=1
     </select>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
