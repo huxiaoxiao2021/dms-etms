@@ -202,11 +202,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
 
-            //备注拼接服务单号
-            BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
-            if(serviceCodeInfoByWaybillCode!=null && CollectionUtils.isNotEmpty(serviceCodeInfoByWaybillCode.getData())){
-                //抛弃一对多关系--只打印第一服务单号
-                commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
+            //备注拼接服务单号-只有"逆向"的调用(waybill_sign第61位为0标记正向)
+            if (!BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 61, '0')) {
+                BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
+                if(serviceCodeInfoByWaybillCode!=null && CollectionUtils.isNotEmpty(serviceCodeInfoByWaybillCode.getData())){
+                    //抛弃一对多关系--只打印第一服务单号
+                    commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
+                }
             }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
