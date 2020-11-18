@@ -355,7 +355,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     SealCarDto temp=new SealCarDto();
                     BeanUtils.copyProperties(param,temp);
                     temp.setBatchCodes(removeBatchCodes);
-                    saveSealCarList.addAll(convert2SealVehicles(temp,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
+                    saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(temp),SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
                 }
                 if(CollectionUtils.isNotEmpty(keepBatchCodes)){
                     param.setBatchCodes(keepBatchCodes);
@@ -370,14 +370,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
                 log.warn("VOS封车业务同时生成车次任务接口返回为空.参数:{}", JSON.toJSONString(param));
 
-                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.FAIL,singleErrorMsg));
+                saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.FAIL,singleErrorMsg));
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
-                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
-                saveSealCarList.addAll(convert2SealVehicles(param,SealVehicleExecute.FAIL,singleErrorMsg));
+                saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.FAIL,singleErrorMsg));
             }
             errorMsg += singleErrorMsg;
         }
@@ -1288,39 +1288,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 continue;
             }
             for (String sendCode : dto.getBatchCodes()){
-                SealVehicles temp = new SealVehicles();
-                temp.setSealDataCode(sendCode);
+                SealVehicles sealVehicles = sealCarDtoToSealVehicles(dto);
+                sealVehicles.setSealDataCode(sendCode);
 
-                //seal
-                temp.setCreateSiteCode(dto.getSealSiteId());
-                temp.setCreateSiteName(dto.getSealSiteName());
-                temp.setCreateUserErp(dto.getSealUserCode());
-                temp.setCreateUserName(dto.getSealUserName());
-                temp.setSource(Constants.SEND_DETAIL_SOUCRE_NORMAL);
-                temp.setVehicleNumber(dto.getVehicleNumber());
-                temp.setVolume(dto.getVolume());
-                temp.setWeight(dto.getWeight());
-                if(dto.getSealCodes() != null){
-                    temp.setSealCodes(dto.getSealCodes().toString());
-                }
-                temp.setSealCarType(dto.getSealCarType());
-                temp.setOperateTime(dto.getSealCarTime());
-                temp.setTransWorkItemCode(dto.getItemSimpleCode());
-                temp.setTransportCode(dto.getTransportCode());
-                temp.setStatus(SealVehicleEnum.SEAL.getCode());
-
-                //deseal
-                temp.setUpdateUserErp(dto.getDesealUserCode());
-                temp.setUpdateUserName(dto.getDesealUserName());
-                temp.setUpdateTime(dto.getDesealCarTime());
-                if(dto.getDesealCodes() != null){
-                    temp.setDsealCodes(dto.getDesealCodes().toString());
-                }
-                temp.setReceiveSiteCode(dto.getDesealSiteId());
-                temp.setReceiveSiteName(dto.getDesealSiteName());
-                temp.setSealCarCode(dto.getSealCarCode());
-
-                sealVehiclesList.add(temp);
+                sealVehiclesList.add(sealVehicles);
             }
         }
 
@@ -1330,57 +1301,50 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private List<SealVehicles> convert2SealVehicles(List<SealCarDto> dts,SealVehicleExecute sealVehicleExecute,String msg){
         List<SealVehicles> res = new ArrayList<>();
         for (SealCarDto dt : dts) {
-            List<SealVehicles> sealVehiclesList=convert2SealVehicles(dt,sealVehicleExecute,msg);
-            res.addAll(sealVehiclesList);
+            for (String sendCode : dt.getBatchCodes()){
+                SealVehicles sealVehicles = sealCarDtoToSealVehicles(dt);
+                sealVehicles.setSealDataCode(sendCode);
+                sealVehicles.setExecuteType(sealVehicleExecute.getCode());
+                sealVehicles.setExecuteMessage(msg);
+
+                res.add(sealVehicles);
+            }
         }
 
         return res;
     }
 
-    private List<SealVehicles> convert2SealVehicles(SealCarDto dt,SealVehicleExecute sealVehicleExecute,String msg){
-        List<SealVehicles> sealVehiclesList = new ArrayList<>();
-        if(dt.getBatchCodes() == null){
-            return sealVehiclesList;
+    private SealVehicles sealCarDtoToSealVehicles(SealCarDto dto) {
+        SealVehicles temp = new SealVehicles();
+        //seal
+        temp.setCreateSiteCode(dto.getSealSiteId());
+        temp.setCreateSiteName(dto.getSealSiteName());
+        temp.setCreateUserErp(dto.getSealUserCode());
+        temp.setCreateUserName(dto.getSealUserName());
+        temp.setSource(Constants.SEND_DETAIL_SOUCRE_NORMAL);
+        temp.setVehicleNumber(dto.getVehicleNumber());
+        temp.setVolume(dto.getVolume());
+        temp.setWeight(dto.getWeight());
+        if(dto.getSealCodes() != null){
+            temp.setSealCodes(dto.getSealCodes().toString());
         }
+        temp.setSealCarType(dto.getSealCarType());
+        temp.setOperateTime(dto.getSealCarTime());
+        temp.setTransWorkItemCode(dto.getItemSimpleCode());
+        temp.setTransportCode(dto.getTransportCode());
+        temp.setStatus(SealVehicleEnum.SEAL.getCode());
 
-        for (String sendCode : dt.getBatchCodes()){
-            SealVehicles temp = new SealVehicles();
-            temp.setSealDataCode(sendCode);
-
-            //seal
-            temp.setCreateSiteCode(dt.getSealSiteId());
-            temp.setCreateSiteName(dt.getSealSiteName());
-            temp.setCreateUserErp(dt.getSealUserCode());
-            temp.setCreateUserName(dt.getSealUserName());
-            temp.setSource(Constants.SEND_DETAIL_SOUCRE_NORMAL);
-            temp.setVehicleNumber(dt.getVehicleNumber());
-            temp.setVolume(dt.getVolume());
-            temp.setWeight(dt.getWeight());
-            if(dt.getSealCodes() != null){
-                temp.setSealCodes(dt.getSealCodes().toString());
-            }
-            temp.setSealCarType(dt.getSealCarType());
-            temp.setOperateTime(dt.getSealCarTime());
-            temp.setTransWorkItemCode(dt.getItemSimpleCode());
-            temp.setTransportCode(dt.getTransportCode());
-            temp.setStatus(SealVehicleEnum.SEAL.getCode());
-            temp.setExecuteType(sealVehicleExecute.getCode());
-            temp.setExecuteMessage(msg);
-
-            //deseal
-            temp.setUpdateUserErp(dt.getDesealUserCode());
-            temp.setUpdateUserName(dt.getDesealUserName());
-            temp.setUpdateTime(dt.getDesealCarTime());
-            if(dt.getDesealCodes() != null){
-                temp.setDsealCodes(dt.getDesealCodes().toString());
-            }
-            temp.setReceiveSiteCode(dt.getDesealSiteId());
-            temp.setReceiveSiteName(dt.getDesealSiteName());
-            temp.setSealCarCode(dt.getSealCarCode());
-
-            sealVehiclesList.add(temp);
+        //deseal
+        temp.setUpdateUserErp(dto.getDesealUserCode());
+        temp.setUpdateUserName(dto.getDesealUserName());
+        temp.setUpdateTime(dto.getDesealCarTime());
+        if(dto.getDesealCodes() != null){
+            temp.setDsealCodes(dto.getDesealCodes().toString());
         }
+        temp.setReceiveSiteCode(dto.getDesealSiteId());
+        temp.setReceiveSiteName(dto.getDesealSiteName());
+        temp.setSealCarCode(dto.getSealCarCode());
 
-        return sealVehiclesList;
+        return temp;
     }
 }
