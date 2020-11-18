@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution;
 
 import com.alibaba.fastjson.JSONObject;
-import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.distribution.site.dao.SiteDao;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ public class TestLog {
     private Logger log = LoggerFactory.getLogger(TestLog.class);
 
     @Autowired
-    SiteMapper siteMapper;
+    SiteDao siteDao;
 
 
     @RequestMapping("/testLogLevel")
@@ -34,7 +34,7 @@ public class TestLog {
     @RequestMapping("/siteMapperLogTest")
     public @ResponseBody
     String siteMapperLogTest() {
-        Site site = siteMapper.get(1);
+        Site site = siteDao.get(1);
         return JSONObject.toJSONString(site);
     }
 
