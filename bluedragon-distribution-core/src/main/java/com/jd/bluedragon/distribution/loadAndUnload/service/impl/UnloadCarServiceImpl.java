@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
@@ -572,10 +573,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              *  二期优化增加【组板转移】提示
              * */
             /****/
+            logger.info("组板转移请求参数={}", JSON.toJSONString(request));
             if(response.getCode() == 500){
                 if (null == request.getIsCombinationTransfer() || Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
                     //调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
+                    logger.info("调用TC组板转移接口返回结果={}",JSON.toJSONString(invokeResult));
                     if(invokeResult == null){
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
                     }
@@ -599,6 +602,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMesseage());
 
         }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, request.getBoardCode()));
+            }
             logger.error("推TC组板关系异常，入参【{}】",JsonHelper.toJson(addBoardBox),e);
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
