@@ -1,0 +1,16 @@
+<script src="/static/imports/watermark/watermark.min.js"></script>
+<script type="text/javascript">
+    // 获取用户信息
+    $.ajax({
+        type: "get",
+        url: '/common/getCurrentUser',
+        data: {},
+        async: false,
+        success: function (data) {
+            const text = data.userErp + '-' + data.userName;
+            // 渲染水印
+            const watermarkInstance = new Watermark();
+            watermarkInstance.init({ text: text });
+        }
+    });
+</script>

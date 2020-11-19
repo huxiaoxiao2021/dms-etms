@@ -287,6 +287,7 @@
         <input type="button" id="exceptionOutBoundOffLineBtn" href="#" class="btn_c jqmClose" value="知道了" />
     </div>
 </div>
+#parse("system/security/watermark.vm")
 <script type="text/javascript">
     var jaq = jaq || [];
     jaq.push(['account', 'JA2016_112453']);

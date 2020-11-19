@@ -181,6 +181,7 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+#parse("system/security/watermark.vm")
 <script type="text/javascript">
     var jaq = jaq || [];
     jaq.push(['account', 'JA2016_112453']);
