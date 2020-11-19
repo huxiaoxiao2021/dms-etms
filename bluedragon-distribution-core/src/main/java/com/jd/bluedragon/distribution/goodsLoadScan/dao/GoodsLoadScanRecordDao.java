@@ -37,7 +37,7 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectOne(namespace + ".selectRecordByWaybillCodeAndPackCode", record);
     }
 
-    public List<String> findPackageCodesByWaybillCodeAndTaskId(Long taskId, String waybillCode) {
+    public List<String> selectPackageCodesByWaybillCode(Long taskId, String waybillCode) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
         record.setWayBillCode(waybillCode);

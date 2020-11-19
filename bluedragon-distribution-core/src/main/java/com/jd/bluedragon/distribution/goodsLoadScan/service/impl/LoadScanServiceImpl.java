@@ -53,6 +53,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
@@ -1389,8 +1390,10 @@ public class LoadScanServiceImpl implements LoadScanService {
     private List<GoodsDetailDto> transformData(List<LoadScanDto> list, Map<String, GoodsLoadScan> map,
                                                Map<String, LoadScanDto> flowDisAccordMap, LoadScanDetailDto scanDetailDto) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
-        double totalWeight = 0d;
-        double totalVolume = 0d;
+        BigDecimal totalWeight = new BigDecimal("0");
+        BigDecimal totalVolume = new BigDecimal("0");
+        BigDecimal weight;
+        BigDecimal volume;
         int totalPackageNum = 0;
 
         for (LoadScanDto detailDto : list) {
@@ -1406,9 +1409,15 @@ public class LoadScanServiceImpl implements LoadScanService {
             goodsDetailDto.setUnloadAmount(unloadNum);
 
             // 累计运单总重量
-            totalWeight = totalWeight + loadScan.getWeight();
+            if (loadScan.getWeight() != null) {
+                weight = new BigDecimal(Double.toString(loadScan.getWeight()));
+                totalWeight = totalWeight.add(weight);
+            }
             // 累计运单总体积
-            totalVolume = totalVolume + loadScan.getVolume();
+            if (loadScan.getVolume() != null) {
+                volume = new BigDecimal(Double.toString(loadScan.getVolume()));
+                totalVolume = totalVolume.add(volume);
+            }
             // 累计所有已操作运单已装包裹数
             totalPackageNum = totalPackageNum + loadScan.getLoadAmount();
 
@@ -1430,8 +1439,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             goodsDetails.add(goodsDetailDto);
         }
-        scanDetailDto.setTotalWeight(totalWeight);
-        scanDetailDto.setTotalVolume(totalVolume);
+        scanDetailDto.setTotalWeight(totalWeight.doubleValue());
+        scanDetailDto.setTotalVolume(totalVolume.doubleValue());
         scanDetailDto.setTotalPackageNum(totalPackageNum);
         return goodsDetails;
     }
@@ -1727,7 +1736,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
             // 从包裹记录表查询该运单下所有已装车的包裹
-            List<String> packageCodes = goodsLoadScanRecordDao.findPackageCodesByWaybillCodeAndTaskId(taskId, waybillCode);
+            List<String> packageCodes = goodsLoadScanRecordDao.selectPackageCodesByWaybillCode(taskId, waybillCode);
             // 从ES中根据已装车包裹筛选出未装包裹列表
             unloadPackages = getUnloadPackageCodesByWaybillCode(waybillCode,
                     loadCar.getCreateSiteCode().intValue(), packageCodes);
