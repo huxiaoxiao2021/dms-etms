@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jsf.domain;
+package com.jd.bluedragon.distribution.mixedPackageConfig.domain;
 
 import java.io.Serializable;
 

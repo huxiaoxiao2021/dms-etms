@@ -119,12 +119,12 @@
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
 
-        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>
-        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>
+<!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>-->
+<!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>-->
 
-        <!-- 装车发货扫描 -->
-        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>
-
+<!--        &lt;!&ndash; 装车发货扫描 &ndash;&gt;-->
+<!--        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>-->
+<!--        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" alias="goodsLoadScanRecord"/>-->
 
     </typeAliases>
 
@@ -363,16 +363,18 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
-        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />
-        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />
         <mapper resource="mappers/mysql/bagException/CollectionBagExceptionReportMapper.xml" />
-
-        <!-- 装车扫描业务 -->
-        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />
-        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />
 
         <!-- 功能开关配置 -->
         <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
+
+<!--        &lt;!&ndash; 装卸车业务 &ndash;&gt;-->
+<!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />-->
+<!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />-->
+
+<!--        &lt;!&ndash; 装车扫描业务 &ndash;&gt;-->
+<!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />-->
+<!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
     </mappers>
 </configuration>

@@ -2543,7 +2543,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 取消发货明细表数据处理
      *
-     * @param tlist 发货相关数据
+     * @param sendM 发货相关数据
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean cancelSendDatailByBox(SendM sendM) {
@@ -2904,7 +2904,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
     /**
      * 开启任务监控
-     * @param task
+     * @param sendTaskCategory
      * @return
      */
     private CallerInfo startMonitor(SendTaskCategoryEnum sendTaskCategory){
@@ -3308,12 +3308,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendDetail> allList = new ArrayList<SendDetail>();
         getAllList(sendMList, allList);
         //1.判断发货数据是否包含派车单并进行派车单运单不齐校验
-        DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
-        scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
-        if(!businessType.equals(20)){    //非逆向才进行派车单运单齐全校验
-            log.debug("发货数据判断运单是否不全");
-            checkScheduleWaybill(allList, scheduleWaybillResponse);    //发货请求是否包含派车单
-        }
+//        DeliveryResponse scheduleWaybillResponse = new DeliveryResponse();
+//        scheduleWaybillResponse.setCode(DeliveryResponse.CODE_OK);
+//        if(!businessType.equals(20)){    //非逆向才进行派车单运单齐全校验
+//            log.debug("发货数据判断运单是否不全");
+//            checkScheduleWaybill(allList, scheduleWaybillResponse);    //发货请求是否包含派车单
+//        }
         //2.发货数据判断包裹是否不全
         this.log.debug("发货数据判断包裹是否不全");
         if (businessType.equals(20)) {
@@ -3323,9 +3323,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         //派车单发货不齐不返回明细数据
         String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
-        if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
-            msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
-        }
+//        if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
+//            msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
+//        }
         if(StringUtils.isNotBlank(msg)){
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE, msg, null);
         }else{

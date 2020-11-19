@@ -277,6 +277,17 @@
         limit #{start}, #{end}
     </select>
 
+    <!-- 根据任务id查询有效包裹数量 20201027 -->
+    <select id="getPackageCountByTaskId" parameterType="Long" resultType="int">
+        select COUNT(*) from load_scan_record where yn = 1 and scan_action = 1
+        and task_id = #{taskId,jdbcType=BIGINT}
+    </select>
 
+    <select id="loadScanRecordIsExist" parameterType="Long" resultMap="goodsLoadScanRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan_record where yn = 1 and scan_action = 1
+        and task_id = #{taskId,jdbcType=BIGINT} limit 1
+    </select>
 
 </mapper>

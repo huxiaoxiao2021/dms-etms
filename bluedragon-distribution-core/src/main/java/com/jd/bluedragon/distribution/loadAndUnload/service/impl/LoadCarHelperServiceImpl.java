@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.distribution.crossbox.service.CrossBoxServiceImpl;
+
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,9 @@ public class LoadCarHelperServiceImpl implements LoadCarHelperService {
     @Autowired
     private LoadCarHelperDao loadCarHelperDao;
 
+    @Autowired
+    private LoadCarDao loadCarDao;
+
     @Override
     public int batchInsert(List<LoadCarHelper> dataList) {
         return loadCarHelperDao.batchInsert(dataList);
@@ -46,5 +52,34 @@ public class LoadCarHelperServiceImpl implements LoadCarHelperService {
         return loadCarHelperDao.deleteById(taskId);
     }
 
+    @Override
+    public List<String> selectCreateUserErpByTaskId(Long taskId) {
+        return loadCarHelperDao.selectCreateUserErpByTaskId(taskId);
+    }
+
+    @Override
+    public List<String> selectHelperErpByTaskId(Long taskId) {
+        return loadCarHelperDao.selectHelperErpByTaskId(taskId);
+    }
+
+    @Override
+    public Boolean checkUserPermission(Long taskId, String erp) {
+        if (null == taskId || StringUtils.isBlank(erp)) {
+            return false;
+        }
+        List<String> creatorList = loadCarHelperDao.selectCreateUserErpByTaskId(taskId);
+        List<String> helperList = loadCarHelperDao.selectHelperErpByTaskId(taskId);
+        List<String> taskCreatorList = loadCarDao.selectCreateUserErpByTaskId(taskId);
+        if (CollectionUtils.isNotEmpty(creatorList) && creatorList.contains(erp)) {
+            return true;
+        }
+        if (CollectionUtils.isNotEmpty(helperList) && helperList.contains(erp)) {
+            return true;
+        }
+        if (CollectionUtils.isNotEmpty(taskCreatorList) && taskCreatorList.contains(erp)) {
+            return true;
+        }
+        return false;
+    }
 
 }

@@ -580,6 +580,14 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <bean id="siteDao" class="com.jd.bluedragon.distribution.site.dao.SiteDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <bean id="mixedPackageConfigDao" class="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
@@ -614,20 +622,20 @@
     <!--装车任务-->
     <bean id="loadCarDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
     <bean id="loadCarHelperDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" >
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 
     <bean id="goodsLoadScanDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao" >
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
     <bean id="goodsLoadScanRecordDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 
     <!-- 集包异常举报 -->
@@ -639,7 +647,6 @@
     <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">

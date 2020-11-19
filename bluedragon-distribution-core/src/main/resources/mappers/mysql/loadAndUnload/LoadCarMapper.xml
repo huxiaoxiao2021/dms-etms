@@ -257,7 +257,7 @@
         <include refid="Base_Column_List"/>
         from load_car
         where yn=1 and end_site_code= #{endSiteCode,jdbcType=BIGINT} and
-        create_site_code = #{createSiteCode,jdbcType=BIGINT} and status!=2
+        create_site_code = #{createSiteCode,jdbcType=BIGINT} and status in (0,1)
     </select>
 
 
@@ -265,7 +265,12 @@
     <select id="findLoadCarByTaskId" parameterType="java.lang.Long"  resultMap="loadCar">
         select <include refid="Base_Column_List"/>
         from load_car
-        where id = #{id,jdbcType=BIGINT};
+        where yn = 1 and id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="selectCreateUserErpByTaskId" parameterType="java.lang.Long" resultType="String">
+        select  create_user_erp from  load_car
+        where  yn=1 and  id= #{taskId,jdbcType=BIGINT}
     </select>
 
 </mapper>

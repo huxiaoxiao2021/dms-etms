@@ -13,11 +13,9 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.ExceptionScanService
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ql.dms.common.cache.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,8 +66,8 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             }
         }
 
-        if(log.isInfoEnabled()) {
-            log.info("取消发货查询货物是否已装车，入参【{}】，出参【{}】", record, res);
+        if(log.isDebugEnabled()) {
+            log.debug("取消发货查询货物是否已装车，入参【{}】，出参【{}】", record, res);
         }
         return res;
     }
@@ -126,7 +124,9 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
             }
             gls.setId(cacheRes.getId());
 
-            log.info("运单强制下发，运单记录表修改--begin--参数【{}】", JsonHelper.toJson(gls));
+            if(log.isDebugEnabled()) {
+                log.debug("运单强制下发，运单记录表修改--begin--参数【{}】", JsonHelper.toJson(gls));
+            }
             boolean res = goodsLoadScanDao.updateByPrimaryKey(gls);
             if(!res) {
                 throw new GoodsLoadScanException("运单强制下发，运单记录表修改失败");
@@ -178,7 +178,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
         if(list != null && list.size() > 0) {
             for(GoodsLoadScan glc : list) {
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED) {
                     GoodsExceptionScanningDto redDto = new GoodsExceptionScanningDto();
                     redDto.setId(glc.getId());
                     redDto.setTaskId(glc.getTaskId());
@@ -187,19 +186,6 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
                     redDto.setUnloadAmount(glc.getUnloadAmount());
                     redDto.setForceAmount(glc.getForceAmount());
                     res.add(redDto);
-                }
-                //多扫的判断是否装齐
-//                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getLoadAmount() != glc.getGoodsAmount()) {
-                if(glc.getStatus() == GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW && glc.getUnloadAmount() != 0  && glc.getForceAmount() == 0) {//未装等于0的多扫
-                    GoodsExceptionScanningDto yellowDto = new GoodsExceptionScanningDto();
-                    yellowDto.setId(glc.getId());
-                    yellowDto.setTaskId(glc.getTaskId());
-                    yellowDto.setWaybillCode(glc.getWayBillCode());
-                    yellowDto.setLoadAmount(glc.getLoadAmount());
-                    yellowDto.setUnloadAmount(glc.getUnloadAmount());
-                    yellowDto.setForceAmount(glc.getForceAmount());
-                    res.add(yellowDto);
-                }
             }
         }
 

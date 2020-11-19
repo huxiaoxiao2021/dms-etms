@@ -29,6 +29,7 @@
     <hr />
     <table id="dataTable"></table>
 </div>
+#parse("system/security/watermark.vm")
 </body>
 <script src="/static/js/financialForKA/searchExportTask.js"></script>
 </html>

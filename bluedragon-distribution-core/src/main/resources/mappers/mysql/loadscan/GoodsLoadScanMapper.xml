@@ -214,11 +214,12 @@
     </update>
 
     <!-- 根据id查询所有运单信息 20201025-->
-    <select id="findAllLoadScanByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+    <select id="findAllLoadScanExceptionByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
         select
         <include refid="Base_Column_List"/>
         from load_scan
         where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+        and (status = 4 or (status = 3 and unload_amount != 0 and force_amount = 0))
     </select>
 
     <!-- 根据任务号 运单号查询装车扫描运单信息 20201025 -->
@@ -228,6 +229,13 @@
         from load_scan where yn = 1
             and task_id = #{taskId,jdbcType=BIGINT}
             and waybill_code = #{wayBillCode,jdbcType=VARCHAR} limit 1
+    </select>
+
+    <select id="loadScanRecordIsExist" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 limit 1
     </select>
 
 </mapper>

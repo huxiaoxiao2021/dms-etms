@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
@@ -37,13 +36,6 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().update(namespace + ".deleteById", req);
     }
 
-//    public LoadCar findLoadCarById(Long id) {
-//        LoadCar loadCar = new LoadCar();
-//        loadCar.setId(id);
-//        loadCar.setYn(Constants.YN_YES);
-//        return this.getSqlSession().selectOne(namespace + ".selectListByCondition", loadCar);
-//    }
-
     public boolean updateLoadCarById(LoadCar loadCar) {
         return this.getSqlSession().update(namespace + ".updateByPrimaryKey", loadCar) > 0;
     }
@@ -58,6 +50,11 @@ public class LoadCarDao extends BaseDao<LoadCar> {
 
     public LoadCar findLoadCarByTaskId(Long id) {
         return this.getSqlSession().selectOne(namespace + ".findLoadCarByTaskId", id);
+    }
+
+
+    public List<String>selectCreateUserErpByTaskId(Long taskId){
+        return this.getSqlSession().selectList(namespace + ".selectCreateUserErpByTaskId", taskId);
     }
 
 }

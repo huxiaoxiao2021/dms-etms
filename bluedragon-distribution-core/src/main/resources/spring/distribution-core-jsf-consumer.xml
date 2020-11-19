@@ -657,10 +657,6 @@
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
-    <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
-    </jsf:consumer>
-
     <jsf:consumer id="dmsDisSendJsfService"
                   interface="com.jd.ql.dms.report.DmsDisSendJsfService"
                   protocol="jsf"
@@ -668,5 +664,9 @@
                   timeout="${jsf.reportExternalService.timeout}"
                   retries="${jsf.retries}"
                   serialization="hessian">
+    </jsf:consumer>
+
+    <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 </beans>
