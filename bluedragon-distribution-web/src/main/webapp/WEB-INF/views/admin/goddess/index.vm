@@ -92,5 +92,7 @@
         s.parentNode.insertBefore(ja, s);
     })()
 </script>
+<script src="/static/imports/jquery/v1.11.3/jquery.min.js"></script>
+#parse("system/security/watermark.vm")
 </body>
 </html>
