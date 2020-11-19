@@ -332,6 +332,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         //需要保存的封车记录
         List<SealVehicles> saveSealCarList = new ArrayList<>();
 
+        //记录封车失败次数
+        int failCount=0;
         //循环调用运输封车同时生成车次任务的接口
         for (SealCarDto param : paramList) {
             String singleErrorMsg = "";
@@ -361,6 +363,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                     param.setBatchCodes(keepBatchCodes);
                 }else {
                     log.warn("封车批次全部为空批次，不进行封车操作[{}]。",JsonHelper.toJson(param));
+                    singleErrorMsg="运力编码封车批次全部没有发货数据：" + transportCode;
+                    errorMsg += singleErrorMsg;
                     continue;
                 }
             }
@@ -369,7 +373,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             if (sealCarInfo == null) {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
                 log.warn("VOS封车业务同时生成车次任务接口返回为空.参数:{}", JSON.toJSONString(param));
-
+                failCount++;
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.FAIL,singleErrorMsg));
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
@@ -377,6 +381,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
+                failCount++;
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.FAIL,singleErrorMsg));
             }
             errorMsg += singleErrorMsg;
@@ -420,7 +425,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
 
-        if(successSealCarList.size() == paramList.size()){
+        if(failCount<=0){
             sealVehicleResponse.setCode(JdResponse.CODE_OK);
             sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
         }else{

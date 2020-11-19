@@ -321,7 +321,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
     @RequestMapping(value = "/batchSeal")
     @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
-    public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
+    public @ResponseBody JdResponse<List<PreSealVehicle>> batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if(log.isDebugEnabled()){
             log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));

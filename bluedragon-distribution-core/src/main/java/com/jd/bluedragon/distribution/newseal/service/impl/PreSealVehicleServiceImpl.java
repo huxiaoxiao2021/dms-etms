@@ -18,6 +18,7 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -215,11 +216,19 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 continue;
             }
 
+            PreSealVehicle temp=new PreSealVehicle();
+            BeanUtils.copyProperties(pre,temp);
+
+            List<SealVehicles> tempSendCodes=new ArrayList<>();
             for (SealVehicles sv: sendCodes) {
                 //如果批次内没有发货数据则进行记录并返回
                 if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(sv.getSealDataCode())){
-                    res.add(pre);
+                    tempSendCodes.add(sv);
                 }
+            }
+            if(!tempSendCodes.isEmpty()){
+                temp.setSendCodes(tempSendCodes);
+                res.add(temp);
             }
         }
 
