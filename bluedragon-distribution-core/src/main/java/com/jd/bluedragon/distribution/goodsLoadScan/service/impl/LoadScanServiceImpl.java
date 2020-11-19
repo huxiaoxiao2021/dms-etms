@@ -495,34 +495,42 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
 
-        // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
-        if (!CollectionUtils.isEmpty(tempList)) {
-            // 记录属于多扫状态的运单
-            Map<String, LoadScanDto> flowDisAccordMap = new HashMap<>(16);
-
-            if (log.isDebugEnabled()) {
-                log.debug("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
-            }
-
-            List<LoadScanDto> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
-            reportList = getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
-
-            log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
-            // 转换数据
-            if (!CollectionUtils.isEmpty(reportList)) {
-                log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
-                goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap, scanDetailDto);
-            }
-
-            // 按照颜色排序
-            Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
-                @Override
-                public int compare(GoodsDetailDto o1, GoodsDetailDto o2) {
-                    // status：0无特殊颜色,1绿色,2橙色,3黄色,4红色
-                    return o2.getStatus().compareTo(o1.getStatus());
-                }
-            });
+        if (CollectionUtils.isEmpty(tempList)) {
+            scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
+            scanDetailDto.setTotalWeight(0d);
+            scanDetailDto.setTotalVolume(0d);
+            scanDetailDto.setTotalPackageNum(0);
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setData(scanDetailDto);
+            return response;
         }
+
+        // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
+        // 记录属于多扫状态的运单
+        Map<String, LoadScanDto> flowDisAccordMap = new HashMap<>(16);
+
+        if (log.isDebugEnabled()) {
+            log.debug("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
+        }
+
+        List<LoadScanDto> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
+        reportList = getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
+
+        log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
+        // 转换数据
+        if (!CollectionUtils.isEmpty(reportList)) {
+            log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
+            goodsDetailDtoList = transformData(reportList, map, flowDisAccordMap, scanDetailDto);
+        }
+
+        // 按照颜色排序
+        Collections.sort(goodsDetailDtoList, new Comparator<GoodsDetailDto>() {
+            @Override
+            public int compare(GoodsDetailDto o1, GoodsDetailDto o2) {
+                // status：0无特殊颜色,1绿色,2橙色,3黄色,4红色
+                return o2.getStatus().compareTo(o1.getStatus());
+            }
+        });
 
         scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
         response.setCode(JdCResponse.CODE_SUCCESS);
