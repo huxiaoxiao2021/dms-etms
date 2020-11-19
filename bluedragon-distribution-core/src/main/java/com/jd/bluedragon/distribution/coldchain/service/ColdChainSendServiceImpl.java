@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
+import com.jd.bluedragon.KeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.ScheduleCargoSimpleDto;
 import com.jd.tms.tfc.dto.TransPlanScheduleCargoDto;
@@ -17,9 +19,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lixin39
@@ -43,6 +47,10 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
 
     @Autowired
     private TmsTfcWSManager tmsTfcWSManager;
+
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
 
     @Override
     public boolean add(ColdChainSend coldChainSend) {
@@ -237,11 +245,26 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
 
     @Override
     public String getOrGenerateSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode) {
-        ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
-        if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
-            return coldChainSend.getSendCode();
-        } else {
-            return SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, new Date());
+        // // 同一运输计划编号加锁，解决并发问题
+        String keyTemplate = KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING;
+        String key = String.format(keyTemplate, transPlanCode);
+        boolean isExistHandling = redisClientCache.exists(key);
+        if(isExistHandling){
+            throw new RuntimeException("操作太快，正在处理中");
+        }
+        try{
+            redisClientCache.setEx(key, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS);
+            ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
+            if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
+                return coldChainSend.getSendCode();
+            } else {
+                return SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, new Date());
+            }
+        } catch (Exception e){
+            log.error("getOrGenerateSendCode exception: ", e);
+            return null;
+        }finally {
+            redisClientCache.del(key);
         }
     }
 
