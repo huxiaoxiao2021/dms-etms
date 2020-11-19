@@ -169,6 +169,11 @@ public interface WaybillQueryManager{
 
     Waybill getWaybillByWayCode(String waybillCode);
 
+	/**
+	 * 根据运单号获取运单基本信息（轻量）
+	 */
+	Waybill queryWaybillByWaybillCode(String waybillCode);
+
     /**
 	 * 根据运单号获取运单信息
 	 * @param waybillCode

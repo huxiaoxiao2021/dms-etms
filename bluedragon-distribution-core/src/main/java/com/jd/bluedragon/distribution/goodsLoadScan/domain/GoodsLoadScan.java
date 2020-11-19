@@ -53,6 +53,17 @@ public class GoodsLoadScan implements Serializable {
     private Integer forceAmount;
 
     /**
+     * 运单总重量
+     */
+    private Double weight;
+
+    /**
+     * 运单总体积
+     */
+    private Double volume;
+
+
+    /**
      * 运单颜色状态--0无特殊颜色,1绿色,2橙色,3黄色,4红色
      */
     private Integer status;
@@ -159,6 +170,22 @@ public class GoodsLoadScan implements Serializable {
 
     public void setForceAmount(Integer forceAmount) {
         this.forceAmount = forceAmount;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 
     public Integer getStatus() {

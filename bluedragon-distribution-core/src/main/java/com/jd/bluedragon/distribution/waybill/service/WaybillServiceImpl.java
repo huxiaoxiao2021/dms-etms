@@ -102,6 +102,9 @@ public class WaybillServiceImpl implements WaybillService {
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+
     /**
      * 普通运单类型（非移动仓内配）
      **/
@@ -699,6 +702,30 @@ public class WaybillServiceImpl implements WaybillService {
         cancelResponse.setCode(BlockResponse.UNBLOCK);
         log.info(MessageFormat.format("根据包裹号：{0}查询拦截状态，该包裹拦截已解除", packageCode));
         return cancelResponse;
+    }
+
+    @Override
+    public Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode) {
+        // 根据waybillCode查库获取路由信息
+        String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        if (StringUtils.isBlank(router)) {
+            log.error("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},createSiteCode={}", waybillCode, createSiteCode);
+            return null;
+        }
+        Integer nextSiteCode = null;
+        String[] routerNodes = router.split("\\|");
+        for (int i = 0; i < routerNodes.length - 1; i ++) {
+            int curNode = Integer.parseInt(routerNodes[i]);
+            // 如果当前网点等于始发站点
+            if (curNode == createSiteCode) {
+                // 如果当前路由节点不是最后一个
+                if (i != (routerNodes.length - 1)) {
+                    // 获取下一个
+                    nextSiteCode = Integer.parseInt(routerNodes[i + 1]);
+                }
+            }
+        }
+        return nextSiteCode;
     }
 
     /**

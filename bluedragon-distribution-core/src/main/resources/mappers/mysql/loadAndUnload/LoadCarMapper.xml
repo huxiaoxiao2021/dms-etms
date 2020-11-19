@@ -258,6 +258,7 @@
         from load_car
         where yn=1 and end_site_code= #{endSiteCode,jdbcType=BIGINT} and
         create_site_code = #{createSiteCode,jdbcType=BIGINT} and status in (0,1)
+        and license_number = #{licenseNumber,jdbcType=VARCHAR}
     </select>
 
 

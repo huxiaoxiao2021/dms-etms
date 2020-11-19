@@ -5,6 +5,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.base.response.JdCResponse;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -238,5 +239,30 @@ public class GoodsLoadingScanningServiceImplTest {
         JdCResponse res1 = loadCarTaskGateWayService.deleteLoadCarTask(loadDeleteReq);
 
     }
+
+
+    @Test
+    public void testLicenseNumber(){
+    String licenseNumber="010A01077";
+    loadCarTaskGateWayService.checkLicenseNumber(licenseNumber);
+    }
+
+    @Test
+    public void testCreateTask(){
+        LoadCarTaskCreateReq loadCarTaskCreateReq=new LoadCarTaskCreateReq();
+        loadCarTaskCreateReq.setCreateSiteCode(910L);
+        loadCarTaskCreateReq.setEndSiteCode(698L);
+        loadCarTaskCreateReq.setEndSiteName("杭州配送中心");
+        loadCarTaskCreateReq.setCreateSiteName("北京马驹桥分拣中心");
+        loadCarTaskCreateReq.setEndSiteName("杭州配送中心");
+        loadCarTaskCreateReq.setCreateUserErp("ssssssss");
+        loadCarTaskCreateReq.setCreateUserName("焦文强");
+        loadCarTaskCreateReq.setLicenseNumber("藏A2637B");
+
+        loadCarTaskGateWayService.loadCarTaskCreate(loadCarTaskCreateReq);
+
+    }
+
+
 
 }

@@ -1,5 +1,6 @@
 package com.jd.ql.dms.common.cache;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,14 @@ public interface CacheService {
 	 * @return
 	 */
 	<T> T get(String key,Class<T> responseType);
+
+	/**
+	 * 从缓存中获取一个List对象
+	 * @param key
+	 * @param responseType
+	 * @return
+	 */
+	<T> List<T> getList(String key, Class<T> responseType);
 	/**
 	 * 缓存中放入一个可序列化的对象
 	 * @param key

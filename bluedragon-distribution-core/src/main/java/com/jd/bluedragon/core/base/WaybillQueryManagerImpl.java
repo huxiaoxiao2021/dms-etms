@@ -414,6 +414,21 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return baseEntity.getData();
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.queryWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Waybill queryWaybillByWaybillCode(String waybillCode) {
+        BaseEntity<Waybill> baseEntity = waybillQueryApi.queryWaybillByWaybillCode(waybillCode);
+        if (baseEntity == null) {
+            log.warn("查询运单信息接口返回空waybillCode[{}]", waybillCode);
+            return null;
+        }
+        if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
+            log.warn("查询运单信息接口失败waybillCode[{}]code[{}]",waybillCode,baseEntity.getResultCode());
+            return null;
+        }
+        return baseEntity.getData();
+    }
+
     public Waybill getOnlyWaybillByWaybillCode(String waybillCode) {
         BaseEntity<Waybill> result = getWaybillByWaybillCode(waybillCode);
         if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
