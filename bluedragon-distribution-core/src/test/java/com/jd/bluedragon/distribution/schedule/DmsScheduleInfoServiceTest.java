@@ -1,22 +1,28 @@
 package com.jd.bluedragon.distribution.schedule;
 
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
-import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
-@ContextConfiguration(locations = { "classpath:/spring/distribution-core-context-test.xml" })
-public class DmsScheduleInfoServiceTest{
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+
+public class DmsScheduleInfoServiceTest extends AbstractDaoIntegrationTest{
     @Autowired
-    private DmsScheduleInfoService dmsScheduleInfoService;
+    private StoragePackageMDao storagePackageMDao;
     @Test
     public void testPrintEdnPickingList(){
-        LoginUser user=new LoginUser();
-        user.setUserErp("cl");
-        dmsScheduleInfoService.printEdnPickingList("ZD20200507",user);
+        Map<String,Object> params=new HashMap<>();
+        List<String> waybillCodeList=Lists.newArrayList("JDV000465437205","JDVA00119327272","JDV000465428968");
+        params.put("waybillCodeList",waybillCodeList);
+        params.put("createSiteCode","23822");
+        List<StoragePackageM> storagePackageMList=  storagePackageMDao.queryByWaybillCodeListAndSiteCode(params);
+        System.out.printf(JSON.toJSONString(storagePackageMList));
     }
 }

@@ -2,15 +2,14 @@ package com.jd.bluedragon.distribution.receive.dao;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.utils.ListUtil;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
-public class ReceiveDaoTest extends AbstractDaoIntegrationTest{
+public class ReceiveDaoTest{
 	
 	@Autowired
 	private ReceiveDao receiveDao;
@@ -19,22 +18,17 @@ public class ReceiveDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testAdd() {
-        Receive parameter = new Receive();
-        parameter.setCreateUser("James");
-        parameter.setCreateUserCode(260);
-        parameter.setCreateTime(new Date());
-        parameter.setCreateSiteCode(463);
-        parameter.setWaybillCode("James");
-        parameter.setPackageBarcode("James");
-        parameter.setBoxCode("James");
-        parameter.setReceiveType((short)14360);
-        parameter.setBoxingType((short)31422);
-        parameter.setUpdateTime(new Date());
-        parameter.setTurnoverBoxCode("James");
-        parameter.setQueueNo("James");
-//        parameter.setDepartureCarId(1l);
-        parameter.setShieldsCarTime(new Date());
-        Assert.assertTrue(receiveDao.add(receiveDao.getClass().getName(), parameter) > 0);
+        List<String> list=new LinkedList<>();
+        list.add("1");
+        list.add("2");
+        list.add("3");
+        list.add("4");
+        list.add("5");
+        list.add("6");
+        list.add("7");
+        list.add("8");
+        List<List<String>> list1=ListUtil.splitList(list,3);
+        System.out.printf("");
     }
 
 
