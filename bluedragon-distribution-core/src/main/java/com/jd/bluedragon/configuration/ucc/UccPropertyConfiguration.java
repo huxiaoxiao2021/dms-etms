@@ -177,6 +177,11 @@ public class UccPropertyConfiguration {
      */
     private String removeEmptyBatchCode;
 
+    /**
+     * 验货聚合逻辑生效的分拣中心
+     */
+    private String inspectionAggEffectiveSites;
+
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
     }
@@ -503,5 +508,13 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+
+    public String getInspectionAggEffectiveSites() {
+        return inspectionAggEffectiveSites;
+    }
+
+    public void setInspectionAggEffectiveSites(String inspectionAggEffectiveSites) {
+        this.inspectionAggEffectiveSites = inspectionAggEffectiveSites;
     }
 }

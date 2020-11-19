@@ -74,7 +74,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             context.setPackageCode(packageCodeList);
             context.setOperatorTime(new Date());
 
-            cycleMaterialSendMQ.send(context.getBoxCode(),JsonHelper.toJson(context));
+            cycleMaterialSendMQ.send(context.getMaterialCode(), JsonHelper.toJson(context));
         }catch (Exception e) {
             log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);

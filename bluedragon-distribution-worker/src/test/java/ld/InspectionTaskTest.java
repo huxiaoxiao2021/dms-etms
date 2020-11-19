@@ -2,9 +2,11 @@ package ld;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
+import com.jd.bluedragon.distribution.consumer.inspection.InspectionPackageConsumer;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.InspectionTask;
 import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitTask;
+import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class InspectionTaskTest {
 
     @Autowired
     private AsynBufferService asynBufferService;
+
+    @Autowired
+    private InspectionPackageConsumer inspectionPackageConsumer;
 
     @Test
     public void testSplitExecute() throws Exception {
@@ -66,5 +71,26 @@ public class InspectionTaskTest {
         Task task = JSON.parseObject(taskBody, Task.class);
 
         asynBufferService.inspectionTaskProcess(task);
+    }
+
+    @Test
+    public void inspectionPackageConsumerTest() throws Exception {
+
+        String mqBody = "{\n" +
+                "    \"packageCode\": \"JDVA00119406626-1-5-\",\n" +
+                "    \"waybillCode\": \"JDVA00119406626\",\n" +
+                "    \"operateUserId\": 21181471,\n" +
+                "    \"operateUser\": \"梁丽娟\",\n" +
+                "    \"inspectionTime\": 1600682342265,\n" +
+                "    \"operateSiteCode\": 910,\n" +
+                "    \"inspectionType\": 10,\n" +
+                "    \"operateType\": 0,\n" +
+                "    \"receiveSiteCode\": 0\n" +
+                "}";
+
+        Message message = new Message();
+        message.setText(mqBody);
+        message.setTopic("dms_inspection");
+        inspectionPackageConsumer.consume(message);
     }
 }

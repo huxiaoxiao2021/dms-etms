@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionPackageMQ;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -196,4 +197,18 @@ public interface InspectionService {
      * @return
      */
     int getInspectionTaskPackageSplitNum();
+
+    /**
+     * 处理包裹验货消息
+     * @param packageMQ
+     * @return
+     */
+    boolean doPackageInspection(InspectionPackageMQ packageMQ);
+
+    /**
+     * 验货逻辑聚合开关
+     * @param siteCode
+     * @return
+     */
+    boolean siteEnableInspectionAgg(Integer siteCode);
 }

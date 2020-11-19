@@ -267,5 +267,10 @@
         <jmq:listener topic="${jmq.topic.gantryResidentScan}" listener="gantryResidentScanConsumer" />
     </jmq:consumer>
 
+    <!--  包裹验货消息  -->
+    <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
+    </jmq:consumer>
+
 </beans>
 

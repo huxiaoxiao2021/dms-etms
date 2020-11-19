@@ -243,4 +243,13 @@ public class InspectionDao extends BaseDao<Inspection>{
 		paramMap.put("waybillCode", waybillCode);
 		return this.getSqlSession().selectList(namespace + ".listInspectionByWaybillCode", paramMap);
 	}
+
+    /**
+     * 查询包裹验货记录
+     * @param inspectionQuery
+     * @return
+     */
+	public Inspection queryUniqInspection(Inspection inspectionQuery) {
+        return this.getSqlSession().selectOne(namespace + ".queryUniqInspection", inspectionQuery);
+    }
 }
