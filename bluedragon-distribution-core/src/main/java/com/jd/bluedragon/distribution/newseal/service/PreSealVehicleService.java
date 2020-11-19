@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.service;
 
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
@@ -156,5 +158,12 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      */
     boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
+
+    /**
+     * 取消预封车
+     * @param request
+     * @return
+     */
+    JdResult<Boolean> cancelPreSeal(CancelPreSealVehicleRequest request);
 
 }
