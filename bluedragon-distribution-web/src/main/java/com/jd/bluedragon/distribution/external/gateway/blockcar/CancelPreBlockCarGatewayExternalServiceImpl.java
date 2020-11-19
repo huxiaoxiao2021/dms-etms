@@ -34,6 +34,7 @@ public class CancelPreBlockCarGatewayExternalServiceImpl implements CancelPreBlo
         String checkParam = this.checkParam(request);
         if (StringUtils.isNotEmpty(checkParam)){
             result.toFail(checkParam);
+            return result;
         }
         //取消封车逻辑
         CancelPreSealVehicleRequest param = this.prepareParam(request);
@@ -55,9 +56,7 @@ public class CancelPreBlockCarGatewayExternalServiceImpl implements CancelPreBlo
             result.append("请输入车牌号！");
             return result.toString();
         }
-        if (null == request.getUser()
-                || StringUtils.isEmpty(request.getUser().getUserErp())
-                || StringUtils.isEmpty(request.getUser().getUserName())){
+        if (null == request.getUser()){
             result.append("没有登录人信息！");
             return result.toString();
         }
