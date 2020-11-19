@@ -708,7 +708,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
             BeanUtils.copyProperties(request,boardCommonRequest);
             InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
-            logger.info("创建板号返回结果={}",JSON.toJSONString(invokeResult));
             if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                 throw new LoadIllegalException(invokeResult.getMessage());
             }
