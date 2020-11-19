@@ -55,13 +55,13 @@ public class CancelPreBlockCarGatewayExternalServiceImpl implements CancelPreBlo
             result.append("请输入车牌号！");
             return result.toString();
         }
-        if (ObjectUtils.NULL.equals(request.getUser())
+        if (null == request.getUser()
                 || StringUtils.isEmpty(request.getUser().getUserErp())
                 || StringUtils.isEmpty(request.getUser().getUserName())){
             result.append("没有登录人信息！");
             return result.toString();
         }
-        if (ObjectUtils.NULL.equals(request.getCurrentOperate())
+        if (null == request.getCurrentOperate()
                 || StringUtils.isEmpty(request.getCurrentOperate().getSiteName())
                 || ObjectUtils.NULL.equals(request.getCurrentOperate().getSiteCode())){
             result.append("没有站点信息！");
