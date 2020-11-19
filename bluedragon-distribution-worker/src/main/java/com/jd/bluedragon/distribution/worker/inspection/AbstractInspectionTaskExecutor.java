@@ -38,11 +38,16 @@ public abstract class AbstractInspectionTaskExecutor<T extends TaskExecuteContex
 
         if (context.isPassCheck()) {
 
-            executeCoreFlow(context);
+            if (executeCoreFlow(context)) {
 
-            if (CollectionUtils.isNotEmpty(hooks)) {
-                for (TaskHook<T> hook : hooks) {
-                    hook.hook(context);
+                if (CollectionUtils.isNotEmpty(hooks)) {
+                    for (TaskHook<T> hook : hooks) {
+                        if (hook.escape(context)) {
+                            continue;
+                        }
+
+                        hook.hook(context);
+                    }
                 }
             }
 

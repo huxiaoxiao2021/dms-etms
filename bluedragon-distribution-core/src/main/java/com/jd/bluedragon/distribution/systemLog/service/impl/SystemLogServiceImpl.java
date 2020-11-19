@@ -59,7 +59,7 @@ public class SystemLogServiceImpl implements SystemLogService {
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(SystemLog systemLog) {
 
-	    if (uccPropertyConfiguration.isSystemLogGlobalSwitch()) {
+	    if (!uccPropertyConfiguration.isSystemLogGlobalSwitch()) {
 	        return 0;
         }
 

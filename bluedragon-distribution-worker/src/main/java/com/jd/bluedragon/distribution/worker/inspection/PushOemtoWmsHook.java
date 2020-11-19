@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,16 +15,15 @@ import org.springframework.beans.factory.annotation.Autowired;
  * OEM推送WMS
  * Created by wangtingwei on 2017/1/17.
  */
-public class PushOemtoWmsHook implements TaskHook<InspectionTaskExecuteContext> {
+public class PushOemtoWmsHook extends AbstractTaskHook {
 
     private static final Logger log = LoggerFactory.getLogger(PushOemtoWmsHook.class);
 
     @Autowired
     private InspectionService inspectionService;
 
-
     @Override
-    @JProfiler( jKey = "dmsworker.PushOemtoWmsHook.hook")
+    @JProfiler(jKey = "dmsworker.PushOemtoWmsHook.hook", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public int hook(InspectionTaskExecuteContext context) {
         for (Inspection inspection:context.getInspectionList()) {
             if (Constants.BUSSINESS_TYPE_OEM == inspection.getInspectionType()) {
@@ -37,5 +37,11 @@ public class PushOemtoWmsHook implements TaskHook<InspectionTaskExecuteContext> 
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean escape(InspectionTaskExecuteContext context) {
+
+        return siteEnableInspectionAgg(context);
     }
 }

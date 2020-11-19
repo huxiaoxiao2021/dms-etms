@@ -45,8 +45,6 @@
         <property name="firstInterval" value="1"/>
     </bean>
 
-    <bean id="inspectionTaskExecute" class="com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExecute" />
-
     <bean id="hooks" class="java.util.ArrayList">
         <constructor-arg type="java.util.Collection">
             <list>
@@ -56,6 +54,8 @@
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.PushOemtoWmsHook"/>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.ThirdDifferenceHook"/>
                 <bean class="com.jd.bluedragon.distribution.worker.inspection.TraceHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.CycleMaterialHook" />
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.PackageInspectionHook" />
             </list>
         </constructor-arg>
     </bean>
