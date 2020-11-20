@@ -192,6 +192,13 @@ public class UccPropertyConfiguration {
      */
     private int loadScanTaskPackageMaxSize;
 
+    /**
+     * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
+     * true： 表示使用新的序号生成器生成
+     * false：使用原始的工具类生成
+     */
+    private boolean sendCodeGenSwitchOn;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -542,5 +549,13 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+
+    public boolean isSendCodeGenSwitchOn() {
+        return sendCodeGenSwitchOn;
+    }
+
+    public void setSendCodeGenSwitchOn(boolean sendCodeGenSwitchOn) {
+        this.sendCodeGenSwitchOn = sendCodeGenSwitchOn;
     }
 }

@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.sendCode.jsf;
 
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService;
 import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
-import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.report.WeightVolSendCodeJSFService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolSendCodeSumVo;
@@ -12,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -55,6 +59,19 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         entity.setFreshCode(Boolean.TRUE.equals(isFreshCode));
 
         result.setData(entity);
+        return result;
+    }
+
+    @Override
+    public InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+
+        result.setData(sendCodeService.createSendCode(attributeKeyEnumObjectMap,fromSourceEnum, createUser));
+        if (StringHelper.isEmpty(result.getData())) {
+            result.customMessage(400,"创建批次失败");
+        }
+
         return result;
     }
 }

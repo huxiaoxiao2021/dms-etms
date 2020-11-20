@@ -14,12 +14,15 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArg
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDevice;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceConfigService;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
+import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -90,6 +93,9 @@ public class GantryAutoSendController {
 
     @Autowired
     private AreaDestPlanDetailService areaDestPlanDetailService;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -359,7 +365,12 @@ public class GantryAutoSendController {
                 scannerFrameBatchSend.setCreateTime(new Date());
                 scannerFrameBatchSend.setUpdateTime(new Date());
                 scannerFrameBatchSend.setYn((byte) 1);
-                scannerFrameBatchSend.setSendCode(SerialRuleUtil.generateSendCode(scannerFrameBatchSend.getCreateSiteCode(), scannerFrameBatchSend.getReceiveSiteCode(), scannerFrameBatchSend.getCreateTime()));
+
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, scannerFrameBatchSend.getCreateSiteCode());
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, scannerFrameBatchSend.getReceiveSiteCode());
+                scannerFrameBatchSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, scannerFrameBatchSend.getCreateUserName()));
+
                 boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
                 if (!bool) {
                     result.setCode(500);
@@ -496,7 +507,12 @@ public class GantryAutoSendController {
                 itemtoEndSend.setCreateTime(new Date());
                 itemtoEndSend.setUpdateTime(new Date());
                 itemtoEndSend.setYn((byte) 1);
-                itemtoEndSend.setSendCode(SerialRuleUtil.generateSendCode(itemtoEndSend.getCreateSiteCode(), itemtoEndSend.getReceiveSiteCode(), itemtoEndSend.getCreateTime()));
+
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, itemtoEndSend.getCreateSiteCode());
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, itemtoEndSend.getReceiveSiteCode());
+                itemtoEndSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, itemtoEndSend.getCreateUserName()));
+
                 boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);
                 if (!bool) {
                     log.warn("换批次动作失败：打印跳过该批次：{}", item.toString());

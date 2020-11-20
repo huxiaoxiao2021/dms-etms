@@ -94,6 +94,7 @@ public class SerialRuleUtil {
      * @param receiveSiteCode 接收站点
      * @return
      */
+    @Deprecated
     public static String generateSendCode(long createSiteCode, long receiveSiteCode, Date time) {
         if (null == time) {
             time = new Date();
@@ -128,4 +129,21 @@ public class SerialRuleUtil {
         return null;
     }
 
+    /**
+     * 获取批次号的尾部取余
+     * @param createSiteCode 始发站点
+     * @param receiveSiteCode 目的站定
+     * @param timeLong 时间序列号
+     * @param sequence 序列号
+     * @return
+     */
+    public static String getSendCodeMod(Integer createSiteCode, Integer receiveSiteCode, String timeLong, Long sequence) {
+        String sb = new StringBuilder()
+                .append(NumberHelper.getFirstDigit(createSiteCode))
+                .append(NumberHelper.getFirstDigit(receiveSiteCode))
+                .append(timeLong)
+                .append(String.format("%06d", sequence))
+                .toString();
+        return String.format("%01d", Long.parseLong(sb) % 7);
+    }
 }

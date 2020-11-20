@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.sendCode.service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeNodeTypeEnum;
@@ -8,16 +11,21 @@ import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributeP
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.coo.sa.sn.GenContextItem;
+import com.jd.coo.sa.sn.SmartSNGen;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * <p>
@@ -35,48 +43,55 @@ public class SendCodeServiceImpl implements SendCodeService {
     @Autowired
     private BusinessCodeDao businessCodeDao;
 
+    @Autowired
+    @Qualifier("smartSendCodeSNGen")
+    private SmartSNGen smartSendCodeSNGen;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
-    public String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource) {
+    @JProfiler(jKey = "DMS.CORE.SendCodeService.createSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser) {
 
-        String sendCode = SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, date);
-        List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>();
-        /* 1. 创建业务单号的副表 */
-        BusinessCodeAttributePo businessCodeAttributePo1 = new BusinessCodeAttributePo();
-        businessCodeAttributePo1.setCode(sendCode);
-        businessCodeAttributePo1.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code.name());
-        businessCodeAttributePo1.setAttributeValue(String.valueOf(createSiteCode));
-        businessCodeAttributePo1.setCreateUser(createUser);
-        businessCodeAttributePo1.setUpdateUser(createUser);
-        businessCodeAttributePo1.setFromSource(fromSource.name());
-        businessCodeAttributePos.add(businessCodeAttributePo1);
-
-        BusinessCodeAttributePo businessCodeAttributePo2 = new BusinessCodeAttributePo();
-        businessCodeAttributePo2.setCode(sendCode);
-        businessCodeAttributePo2.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name());
-        businessCodeAttributePo2.setAttributeValue(String.valueOf(receiveSiteCode));
-        businessCodeAttributePo2.setCreateUser(createUser);
-        businessCodeAttributePo2.setUpdateUser(createUser);
-        businessCodeAttributePo2.setFromSource(fromSource.name());
-        businessCodeAttributePos.add(businessCodeAttributePo2);
-
-        if (Boolean.TRUE.equals(isFresh)) {
-            BusinessCodeAttributePo businessCodeAttributePo3 = new BusinessCodeAttributePo();
-            businessCodeAttributePo3.setCode(sendCode);
-            businessCodeAttributePo3.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
-            businessCodeAttributePo3.setAttributeValue(Boolean.TRUE.toString());
-            businessCodeAttributePo3.setCreateUser(createUser);
-            businessCodeAttributePo3.setUpdateUser(createUser);
-            businessCodeAttributePo3.setFromSource(fromSource.name());
-            businessCodeAttributePos.add(businessCodeAttributePo3);
-        }
-
-        Integer insertNum = businessCodeDao.batchInsertBusinessCodeAttribute(businessCodeAttributePos);
-        if (insertNum <= 0) {
-            logger.warn("插入业务单号的属性值副表失败，创建批次号失败，始发：{}，目的：{}，生鲜：{}", createSiteCode, receiveSiteCode, isFresh);
+        if (attributeKeyMap == null || attributeKeyMap.isEmpty()) {
+            logger.error("创建批次参数不正确：{}, 数据来源：{}", JsonHelper.toJson(attributeKeyMap), fromSource.name());
             return StringUtils.EMPTY;
         }
+        String sendCode = "";
+        /* 判断UCC的批次开关是否开启：开启则使用新的生成器生成，未开启则使用原来的工具类生成 */
+        if (uccPropertyConfiguration.isSendCodeGenSwitchOn()) {
+            GenContextItem[] genContextItems = new GenContextItem[3];
+            genContextItems[0] = GenContextItem.create("createSiteCode", attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code));
+            genContextItems[1] = GenContextItem.create("receiveSiteCode", attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code));
+            genContextItems[2] = GenContextItem.create("currentTimeLong", DateHelper.formatDate(new Date(),"yyyyMMddHH"));
+            sendCode = smartSendCodeSNGen.gen(fromSource.name(), genContextItems);
+        } else {
+          sendCode = SerialRuleUtil.generateSendCode(
+                  (Long) attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code),
+                  (Long) attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code),
+                  new Date()
+                  ) ;
+        }
 
-        /* 2. 创建业务单号的主表 */
+        /* 写入business_code表：1. 写入副表；*/
+        List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>(attributeKeyMap.size());
+        for (Map.Entry<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeEntry : attributeKeyMap.entrySet()) {
+            BusinessCodeAttributePo businessCodeAttributePoItem = new BusinessCodeAttributePo();
+            businessCodeAttributePoItem.setCode(sendCode);
+            businessCodeAttributePoItem.setAttributeKey(attributeEntry.getKey().name());
+            businessCodeAttributePoItem.setAttributeValue(String.valueOf(attributeEntry.getValue()));
+            businessCodeAttributePoItem.setCreateUser(createUser);
+            businessCodeAttributePoItem.setUpdateUser(createUser);
+            businessCodeAttributePoItem.setFromSource(fromSource.name());
+            businessCodeAttributePos.add(businessCodeAttributePoItem);
+        }
+        Integer insertNum = businessCodeDao.batchInsertBusinessCodeAttribute(businessCodeAttributePos);
+        if (insertNum <= 0) {
+            logger.warn("插入业务单号的属性值副表失败，创建批次号失败，批次属性值：{}", JsonHelper.toJson(attributeKeyMap));
+            return StringUtils.EMPTY;
+        }
+        /* 创建业务单号的主表 */
         BusinessCodePo businessCodePo = new BusinessCodePo();
         businessCodePo.setCode(sendCode);
         businessCodePo.setNodeType(BusinessCodeNodeTypeEnum.send_code.name());
@@ -85,11 +100,22 @@ public class SendCodeServiceImpl implements SendCodeService {
         businessCodePo.setFromSource(fromSource.name());
         Integer businessCodeInsertNum = businessCodeDao.insertBusinessCode(businessCodePo);
         if (businessCodeInsertNum <= 0) {
-            logger.warn("插入业务单号的主表失败，创建批次号失败，始发：{}，目的：{}，生鲜：{}", createSiteCode, receiveSiteCode, isFresh);
+            logger.warn("插入业务单号的主表失败，创建批次号失败，批次属性值：{}", JsonHelper.toJson(attributeKeyMap));
             return StringUtils.EMPTY;
         }
 
         return sendCode;
+    }
+
+    @Override
+    public String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource) {
+
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, isFresh);
+
+        return createSendCode(attributeKeyEnumObjectMap, fromSource, createUser);
     }
 
     @Override
