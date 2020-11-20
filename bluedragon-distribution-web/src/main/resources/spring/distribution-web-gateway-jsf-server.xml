@@ -330,13 +330,4 @@
                   ref="goodsLoadScanGatewayService"
                   server="dmsjsf">
     </jsf:provider>
-
-    <!--取消预封车-->
-    <bean id="cancelPreBlockCarGatewayExternalService" class="com.jd.bluedragon.distribution.external.gateway.blockcar.CancelPreBlockCarGatewayExternalServiceImpl" />
-    <jsf:provider id="jsfCancelPreBlockCarGatewayExternalService"
-                  interface="com.jd.bluedragon.external.gateway.blockcar.CancelPreBlockCarGatewayExternalService"
-                  alias="${dms.gateway.jsf.alias}"
-                  ref="cancelPreBlockCarGatewayExternalService"
-                  server="dmsjsf">
-    </jsf:provider>
 </beans>
