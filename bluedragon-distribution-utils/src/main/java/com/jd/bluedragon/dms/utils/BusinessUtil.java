@@ -1777,7 +1777,7 @@ public class BusinessUtil {
     }
     /**
      * 隐藏地址：9位以上地址返回前9位+^_^，否则返回原值
-     * @param name 姓名
+     * @param address
      * @return
      */
     public static String getHideAddress(String address) {
