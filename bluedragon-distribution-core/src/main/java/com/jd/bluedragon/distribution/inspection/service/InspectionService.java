@@ -199,16 +199,11 @@ public interface InspectionService {
     int getInspectionTaskPackageSplitNum();
 
     /**
-     * 处理包裹验货消息
-     * @param packageMQ
-     * @return
-     */
-    boolean doPackageInspection(InspectionPackageMQ packageMQ);
-
-    /**
      * 验货逻辑聚合开关
      * @param siteCode
      * @return
      */
     boolean siteEnableInspectionAgg(Integer siteCode);
+
+    Inspection queryUniqInspection(Inspection inspectionQuery);
 }

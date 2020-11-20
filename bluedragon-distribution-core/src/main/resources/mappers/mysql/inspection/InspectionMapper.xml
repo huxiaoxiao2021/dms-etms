@@ -679,6 +679,7 @@
         FROM
             inspection
         WHERE
+        asdgasdgas
             yn = 1
         <if test="null!=boxCode and ''!=boxCode">
             AND box_code = #{boxCode}
