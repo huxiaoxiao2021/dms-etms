@@ -159,21 +159,21 @@ public class WeightVolumeFilter implements Filter {
      * 纯配运单拦截 (除信任商家、内部商家外的纯配外单)
      * @param waybillSign
      * @param request
-     * @return
+     * @return  true:拦截   false:不拦截
      */
     private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
+        //1.是否是纯配外单-非纯配不拦截
+        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
+            return  false;
+        }
+
         //逆向不拦截
         if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
             return false;
         }
 
-        //1.是否是纯配外单
-        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
-            return  false;
-        }
-
         //2.信任商家不拦截
-        if(!BusinessHelper.isTrust(waybillSign)){
+        if(BusinessHelper.isTrust(waybillSign)){
             return false;
         }
 
@@ -184,7 +184,7 @@ public class WeightVolumeFilter implements Filter {
         }
         BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =  baseMinorManager.getBaseTraderNeccesaryInfo(customerCode);
         //traderMold  内部商家类型编码
-        if(basicTraderNeccesaryInfoDTO == null || basicTraderNeccesaryInfoDTO.getTraderMold()==null ||!basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
+        if(basicTraderNeccesaryInfoDTO == null || basicTraderNeccesaryInfoDTO.getTraderMold()==null || basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
             return false;
         }
 
