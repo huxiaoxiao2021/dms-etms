@@ -2,17 +2,13 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.PreSealMeasureInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.*;
 import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
+import com.jd.ql.dms.common.domain.JdResponse;
 
 import java.util.List;
 
@@ -81,4 +77,12 @@ public interface NewSealVehicleGatewayService {
      * @return
      */
     JdCResponse<List<String>> removeEmptyBatchCode(List<String> request);
+
+
+    /**
+     * 取消预封车
+     * @param request
+     * @return
+     */
+    public JdResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request);
 }
