@@ -466,6 +466,21 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return basicPrimaryWS.getBaseStaffIgnoreIsResignByErp(erpCode);
     }
 
+    /**
+     * 根据员工编号获取用户信息
+     * @param staffNo 员工编号
+     * @return 员工信息
+     * @author fanggang7
+     * @time 2020-11-05 13:56:29 周四
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffInAllRoleByStaffNo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffInAllRoleByStaffNo@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    public BaseStaffSiteOrgDto getBaseStaffInAllRoleByStaffNo(Integer staffNo) {
+        return basicPrimaryWS.getBaseStaffInAllRoleByStaffNo(staffNo);
+    }
+
     public Pager<List<SiteWareHouseMerchant>> getBaseSiteByPage(int pageIndex) {
         PageDto<List<BaseStaffSiteOrgDto>> resPageDto = basicPrimaryWS.getBaseSiteAllByPage(pageIndex);
         Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();

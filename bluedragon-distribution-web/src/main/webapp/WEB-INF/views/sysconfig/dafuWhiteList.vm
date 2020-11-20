@@ -138,5 +138,6 @@
         s.parentNode.insertBefore(ja, s);
     })()
 </script>
+#parse("system/security/watermark.vm")
 </body>
 </html>

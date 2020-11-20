@@ -33,5 +33,6 @@
     </div>
     <table id="dataTable" data-classes="table table-no-border"></table>
 </div>
+#parse("system/security/watermark.vm")
 </body>
 </html>

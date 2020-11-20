@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -24,7 +25,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/common")
-public class CommonController {
+public class CommonController extends DmsBaseController {
 
     private static final Logger log = LoggerFactory.getLogger(CommonController.class);
 
@@ -41,6 +42,13 @@ public class CommonController {
     RedisManager redisManager;
 
     private static final String ALL_SITES_KEY = "Q_ALL_SITES_KEY";
+
+    @Authorization(Constants.DMS_WEB_COMMON_R)
+    @ResponseBody
+    @RequestMapping("/getCurrentUser")
+    public Object getCurrentUser() {
+       return this.getLoginUser();
+    }
 
     /**
      * 获取机构

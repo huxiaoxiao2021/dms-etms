@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.box;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.external.gateway.base.GateWayBaseResponse;
 import com.jd.bluedragon.external.gateway.box.BoxGateWayExternalService;
 import com.jd.bluedragon.external.gateway.dto.request.BoxGenerateRequest;
+import com.jd.bluedragon.external.gateway.dto.request.ThirdBoxCodeMessageVO;
 import com.jd.bluedragon.external.gateway.dto.response.BoxDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -18,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +44,9 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    @Qualifier(value = "thirdBoxCodeProducer")
+    private DefaultJMQProducer thirdBoxCodeProducer;
 
     private final Logger logger = LoggerFactory.getLogger(BoxGateWayExternalServiceImpl.class);
 
@@ -67,10 +73,29 @@ public class BoxGateWayExternalServiceImpl implements BoxGateWayExternalService 
         BoxDto dto = convertBoxDto(response, param);
         gateWayBaseResponse.toSucceed(GateWayBaseResponse.MESSAGE_SUCCESS);
         gateWayBaseResponse.setData(dto);
-
+        //推送箱号给众邮
+        pushBoxCode(dto, request);
         return gateWayBaseResponse;
     }
 
+    /**
+     * 推送箱号给众邮
+     * @param dto 众邮箱号
+     * @param request 请求体
+     */
+    private void pushBoxCode(BoxDto dto, BoxGenerateRequest request) {
+        if (dto == null || dto.getBoxCodes() == null || request == null) {
+            return;
+        }
+        for (String boxCode : dto.getBoxCodes()) {
+            ThirdBoxCodeMessageVO message = new ThirdBoxCodeMessageVO();
+            message.setBoxCode(boxCode);
+            message.setCreateSiteCode(request.getStartSiteCode());
+            message.setReceiveSiteCode(request.getEndSiteCode());
+            thirdBoxCodeProducer.sendOnFailPersistent(message.getBoxCode(), JsonHelper.toJson(message));
+        }
+
+    }
     /**
      * dto转换
      * @param response

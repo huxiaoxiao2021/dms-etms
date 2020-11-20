@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.business.entity;
 
-import java.util.Date;
-
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+
+import java.util.Date;
 
 /**
  *
@@ -31,6 +31,14 @@ public class BusinessReturnAdressCondition extends BasePagerCondition {
 	 * 上次操作换单结束时间
 	 */
 	private String lastOperateTimeGteStr;
+    /**
+     * 场地ID
+     * */
+	private Integer dmsSiteCode;
+    /**
+     * 商家ID
+     * */
+	private Integer businessId;
 	
 	public Date getLastOperateTimeLt() {
 		return lastOperateTimeLt;
@@ -56,4 +64,20 @@ public class BusinessReturnAdressCondition extends BasePagerCondition {
 	public void setLastOperateTimeGteStr(String lastOperateTimeGteStr) {
 		this.lastOperateTimeGteStr = lastOperateTimeGteStr;
 	}
+
+    public Integer getDmsSiteCode() {
+        return dmsSiteCode;
+    }
+
+    public void setDmsSiteCode(Integer dmsSiteCode) {
+        this.dmsSiteCode = dmsSiteCode;
+    }
+
+    public Integer getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(Integer businessId) {
+        this.businessId = businessId;
+    }
 }

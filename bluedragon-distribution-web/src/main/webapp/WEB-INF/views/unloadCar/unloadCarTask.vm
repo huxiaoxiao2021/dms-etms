@@ -110,5 +110,6 @@
 
         <table id="dataTable"></table>
 </div>
+#parse("system/security/watermark.vm")
 </body>
 </html>
