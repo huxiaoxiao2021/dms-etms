@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.domain.*;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
@@ -385,10 +384,30 @@ public class PreSealVehicleResource {
             newSealVehicleResponse.setMessage("车牌号不能为空！");
             return newSealVehicleResponse;
         }
-        JdResult<Boolean> serviceResult = preSealVehicleService.cancelPreSeal(request);
-        if (!JdResult.CODE_SUC.equals(serviceResult.getCode())){
+
+        try {
+            List<PreSealVehicle> list = preSealVehicleService.queryBySiteCodeAndVehicleNumber(request.getSiteCode(), request.getVehicleNumber());
+
+            if (list == null || list.isEmpty()) {
+                newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
+                newSealVehicleResponse.setMessage("该车牌在本场地没有预封车信息，无需取消！");
+                return newSealVehicleResponse;
+            }
+
+            for (PreSealVehicle preSealVehicle : list) {
+                preSealVehicle.setStatus(SealVehicleEnum.CANCEL_PRE_SEAL.getCode());
+                preSealVehicle.setUpdateUserErp(request.getOperateUserErp());
+                preSealVehicle.setUpdateUserName(request.getOperateUserName());
+                preSealVehicle.setUpdateTime(new Date());
+                //更新成功并且是传摆预封车，才需要调用运输
+                if (preSealVehicleService.updateById(preSealVehicle) && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
+                    preSealVehicleService.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.CANCEL_FLAG);
+                }
+            }
+        } catch (Exception e) {
             newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SERVICE_ERROR);
             newSealVehicleResponse.setMessage("取消预封车任务失败，请稍后重试！");
+            log.error("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request), e);
         }
         return newSealVehicleResponse;
     }

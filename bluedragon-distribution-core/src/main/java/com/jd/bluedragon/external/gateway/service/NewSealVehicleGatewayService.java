@@ -8,7 +8,6 @@ import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
-import com.jd.ql.dms.common.domain.JdResponse;
 
 import java.util.List;
 
@@ -84,5 +83,5 @@ public interface NewSealVehicleGatewayService {
      * @param request
      * @return
      */
-    public JdResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request);
+    public JdCResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request);
 }

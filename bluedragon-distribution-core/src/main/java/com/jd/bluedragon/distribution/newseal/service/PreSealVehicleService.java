@@ -159,11 +159,4 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      */
     boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 
-    /**
-     * 取消预封车
-     * @param request
-     * @return
-     */
-    JdResult<Boolean> cancelPreSeal(CancelPreSealVehicleRequest request);
-
 }

@@ -29,7 +29,6 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -508,8 +507,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * @return
      */
     @Override
-    public com.jd.ql.dms.common.domain.JdResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request) {
-        com.jd.ql.dms.common.domain.JdResponse<Boolean> result = new com.jd.ql.dms.common.domain.JdResponse<Boolean>();
+    public JdCResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request) {
+        JdCResponse<Boolean> result = new JdCResponse<Boolean>();
         result.toSucceed("取消预封车成功！");
         //取消封车逻辑
         CancelPreSealVehicleRequest param = this.prepareParam(request);

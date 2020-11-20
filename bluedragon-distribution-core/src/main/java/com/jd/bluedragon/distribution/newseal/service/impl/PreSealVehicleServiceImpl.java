@@ -1,12 +1,8 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.domain.*;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -22,7 +18,6 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -455,37 +450,5 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Override
     public boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
         return preSealVehicleDao.completePreSealVehicleRecord(preSealVehicle) > 0;
-    }
-
-    /**
-     * 取消预封车
-     * @param request
-     * @return
-     */
-    @Override
-    public JdResult<Boolean> cancelPreSeal(CancelPreSealVehicleRequest request) {
-        JdResult<Boolean> result = new JdResult<Boolean>();
-        try{
-            List<PreSealVehicle> list = this.queryBySiteCodeAndVehicleNumber(request.getSiteCode(), request.getVehicleNumber());
-            if (CollectionUtils.isEmpty(list)) {
-                result.toError("该车牌在本场地没有预封车信息，无需取消！");
-                return result;
-            }
-            for (PreSealVehicle preSealVehicle : list) {
-                preSealVehicle.setStatus(SealVehicleEnum.CANCEL_PRE_SEAL.getCode());
-                preSealVehicle.setUpdateUserErp(request.getOperateUserErp());
-                preSealVehicle.setUpdateUserName(request.getOperateUserName());
-                preSealVehicle.setUpdateTime(new Date());
-                //更新成功并且是传摆预封车，才需要调用运输
-                if (this.updateById(preSealVehicle) && PreSealVehicleSourceEnum.FERRY_PRE_SEAL.getCode() == preSealVehicle.getPreSealSource()) {
-                    this.notifyVosPreSealJob(preSealVehicle, PreSealVehicleService.CANCEL_FLAG);
-                }
-            }
-            result.toSuccess();
-        }catch (Exception ex){
-            log.error("PreSealVehicleServiceImpl.cancelPreSeal has error. The param is "+ JSONObject.toJSONString(request),ex);
-            result.toError();
-        }
-        return result;
     }
 }

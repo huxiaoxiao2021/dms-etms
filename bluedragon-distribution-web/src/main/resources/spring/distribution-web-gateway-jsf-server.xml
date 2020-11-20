@@ -330,4 +330,5 @@
                   ref="goodsLoadScanGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
 </beans>
