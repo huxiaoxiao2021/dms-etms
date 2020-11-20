@@ -12,6 +12,7 @@ public class DataCompareDto {
     private String newUserName;
     private String newPassword;
     private String sql;
+    private String tableName;
 
     public String getOldUrl() {
         return oldUrl;
@@ -67,5 +68,13 @@ public class DataCompareDto {
 
     public void setSql(String sql) {
         this.sql = sql;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 }
