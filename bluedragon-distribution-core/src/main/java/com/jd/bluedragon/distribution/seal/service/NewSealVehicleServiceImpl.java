@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
+import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -316,12 +317,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             if (sealCarInfo == null) {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
                 log.warn("VOS封车业务同时生成车次任务接口返回为空.参数:{}", JSON.toJSONString(param));
+                removeRedisCache(param.getBatchCodes());
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
-
+                removeRedisCache(param.getBatchCodes());
             }
             errorMsg += singleErrorMsg;
         }
@@ -392,6 +394,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             sealCarInfo = vosBusinessWS.doSealCar(paramList);
             if(sealCarInfo == null) {
                 msg += "封车JSF接口返回为空";
+                log.error("封车JSF接口返回为空sealCarInfo[{}]",JsonHelper.toJson(paramList));
+                removeBatchCodeRedisCache(paramList);
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
@@ -400,9 +404,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(paramList);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
+                log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);
+                removeBatchCodeRedisCache(paramList);
             }
         }catch (Exception e){
             this.log.error("离线封车-error：{}", JsonHelper.toJson(paramList), e);
+            removeBatchCodeRedisCache(paramList);
             msg += "["+ e.getMessage() +"]";
         }finally {
 
@@ -774,6 +781,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
     }
 
+    public void removeBatchCodeRedisCache(List<SealCarDto> paramList){
+        if(CollectionUtils.isEmpty(paramList)){
+            return;
+        }
+        for (SealCarDto dto:paramList){
+            removeRedisCache(dto.getBatchCodes());
+        }
+    }
   /**
    * 将封车的批次号从Redis里删除
    *

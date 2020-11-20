@@ -255,10 +255,12 @@ public class CollectGoodsPlaceServiceImpl extends BaseService<CollectGoodsPlace>
                 belongsPlace = collectGoodsPlace;
                 break;
             }
-            if(belongsPlace == null){
-                return null;
-            }
         }
+
+        if(belongsPlace == null){
+            return null;
+        }
+
         //最后获取最大扫描运单数
         for(CollectGoodsPlaceType collectGoodsPlaceType : allPlaceTypes){
             if(Objects.equals(collectGoodsPlaceType.getCollectGoodsPlaceType(),belongsPlace.getCollectGoodsPlaceType())){

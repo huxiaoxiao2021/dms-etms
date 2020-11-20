@@ -1,24 +1,12 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
@@ -38,17 +26,15 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -70,10 +56,26 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 逆向换单打印
@@ -82,14 +84,14 @@ import com.jd.ump.annotation.JProfiler;
 @Service("ReversePrintService")
 public class ReversePrintServiceImpl implements ReversePrintService {
 
-
     private final Logger log = LoggerFactory.getLogger(ReversePrintServiceImpl.class);
 
-    private static final String REVERSE_PRINT_MQ_TOPIC="bd_blocker_complete";
+    /**
+     * 二次换单站内信通知时间缓存前缀
+     * */
+    private static final String RETURN_ADDRESS_REDIS_KEY_PREFIX = "RETURN_ADDRESS_REDIS_KEY_PREFIX-";
 
     private static final String REVERSE_PRINT_MQ_MESSAGE_CATEGORY="BLOCKER_QUEUE_DMS_REVERSE_PRINT";
-
-    private static final Integer EXCHANGE_OWN_WAYBILL_OP_TYPE=Integer.valueOf(4200);
 
     private static final Integer PICKUP_FINISHED_STATUS=Integer.valueOf(20); //取件单完成态
 
@@ -102,9 +104,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private OperationLogService operationLogService;
-
-    @Autowired
-    private IPushPackageToMqService pushMqService;
 
     @Autowired
     private ReceiveManager receiveManager;
@@ -122,9 +121,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private WaybillCommonService waybillCommonService;
 
     @Autowired
-    private WaybillService waybillService;
-
-    @Autowired
     AbnormalWayBillService abnormalWayBillService;
 
     @Autowired
@@ -138,9 +134,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private PopPrintService popPrintService;
-    @Autowired
     private ReverseSpareEclp reverseSpareEclp;
+
     @Autowired
     private BaseMajorManager baseMajorManager;
 
@@ -158,14 +153,25 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
 	@Qualifier("eclpImportServiceManager")
 	private EclpImportServiceManager eclpImportServiceManager;
+
     @Autowired
 	@Qualifier("businessReturnAdressService")
 	private BusinessReturnAdressService businessReturnAdressService;
+
     @Autowired
 	private LDOPManager lDOPManager;  
     
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    @Qualifier("eclpItemManager")
+    private EclpItemManager eclpItemManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
      * 退货地址维护通知key
@@ -663,7 +669,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 					|| LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(twiceExchangeResponse.getStatusOfLP())){
 				twiceExchangeResponse.setReturnDestinationTypes("011");
 				//获取商家退货地址
-				JdResult<BackAddressDTOExt> backInfo = getBackInfoAndNotice(busiId,twiceExchangeRequest.getDmsSiteCode(),twiceExchangeRequest.getDmsSiteName());
+				JdResult<BackAddressDTOExt> backInfo = getBackAddress(busiId);
 				if(backInfo != null 
 						&& backInfo.isSucceed() 
 						&& backInfo.getData() != null){
@@ -688,27 +694,23 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 		return jdResult;
 	}
 	/**
-	 * 获取商家退货信息,获取失败时给商家工作台发站内信通知
+	 * 获取商家退货信息
 	 * @param busiId
 	 * @return
 	 */
-	private JdResult<BackAddressDTOExt> getBackInfoAndNotice(Integer busiId,Integer dmsSiteCode,String dmsSiteName){
+	private JdResult<BackAddressDTOExt> getBackAddress(Integer busiId){
 		JdResult<BackAddressDTOExt> jdResult = new JdResult<BackAddressDTOExt>();
 		jdResult.toSuccess();
         //调用外单接口，根据商家id获取商家编码
         BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(busiId);
-        String busiCode = null;
-        String busiName = null;
+        String busiCode;
         if(basicTraderInfoDTO != null){
         	busiCode = basicTraderInfoDTO.getTraderCode();
-        	busiName = basicTraderInfoDTO.getTraderName();
         }else{
         	jdResult.toFail("商家Id无效!");
         	log.warn("getBackInfoAndNotice(),入参商家Id无效!busiId=" +busiId);
         	return jdResult;
         }
-        Date currentDate = new Date();
-    	boolean hasBackInfo = false;
 		//调用jsf获取退货地址
         JdResult<List<BackAddressDTO>> backAddressResult = lDOPManager.queryBackAddressByType(DmsConstants.RETURN_BACK_ADDRESS_TYPE_6, busiCode);
         if(backAddressResult != null 
@@ -717,63 +719,176 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         		&& backAddressResult.getData().size() > 0){
         	BackAddressDTO backAddress = backAddressResult.getData().get(0);
         	if(backAddress != null){
-        		hasBackInfo = true;
         		jdResult.setData(lDOPManager.getBackAddressDTOExt(backAddress));
         	}
         }
-        //查询数据维护状态
-		BusinessReturnAdress businessReturnAdress = businessReturnAdressService.queryBusinessReturnAdressByBusiId(busiId);
-		if(hasBackInfo){
-			//存在地址时修改数据状态
-			if(businessReturnAdress != null
-					&& !BusinessReturnAdressStatusEnum.YES.getStatusCode().equals(businessReturnAdress.getReturnAdressStatus())){
-				businessReturnAdress.setReturnAdressStatus(BusinessReturnAdressStatusEnum.YES.getStatusCode());
-				businessReturnAdressService.update(businessReturnAdress);
-			}
-		}else{
-			//未维护退货地址处理逻辑
-			boolean needNotice = false;
-			if(businessReturnAdress == null){
-				businessReturnAdress = new BusinessReturnAdress();
-				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
-				businessReturnAdress.setDmsSiteName(dmsSiteName);
-				businessReturnAdress.setBusinessId(busiId);
-				businessReturnAdress.setBusinessCode(busiCode);
-				businessReturnAdress.setBusinessName(busiName);
-				businessReturnAdress.setCreateTime(currentDate);
-				businessReturnAdress.setLastNoticeTime(currentDate);
-				businessReturnAdress.setLastOperateTime(currentDate);
-				businessReturnAdress.setReturnAdressStatus(BusinessReturnAdressStatusEnum.NO.getStatusCode());
-				businessReturnAdressService.add(businessReturnAdress);
-				needNotice = true;
-			}else{
-				//距离上次通知超过一天，需要发站内信通知
-				Date date = DateHelper.addDate(currentDate, -NOTIC_DIFFER_DAYS);
-				if(date.after(businessReturnAdress.getLastNoticeTime())){
-					needNotice = true;
-					businessReturnAdress.setLastNoticeTime(currentDate);
-				}
-				businessReturnAdress.setDmsSiteCode(dmsSiteCode);
-				businessReturnAdress.setDmsSiteName(dmsSiteName);
-				businessReturnAdress.setLastOperateTime(currentDate);
-				businessReturnAdress.setReturnAdressStatus(BusinessReturnAdressStatusEnum.NO.getStatusCode());
-				businessReturnAdressService.update(businessReturnAdress);
-			}
-			//需要发站内信通知
-			if(needNotice){
-				BatchImportDTO noticeInfo = new BatchImportDTO();
-				noticeInfo.setChannel(ChannelEnum.POST);
-				noticeInfo.setPostType(PostTypeEnum.NOTICE);
-				noticeInfo.setResolveType(ResolveTypeEnum.TRADER_NO);
-				noticeInfo.setKey(noticeKey);
-				noticeInfo.setTitle(noticeTitle);
-				noticeInfo.setContent(noticeContent);
-				noticeInfo.setHandleLink(noticeHandleLink);
-				noticeInfo.setReceivers(busiCode);
-				noticeInfo.setPostTime(currentDate);
-				eclpImportServiceManager.batchImport(noticeInfo);
-			}
-		}
 		return jdResult;
 	}
+
+    /**
+     * 换单成功后逻辑处理
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult exchangeSuccessAfter(ExchangeWaybillDto request) {
+        InvokeResult result = new InvokeResult();
+        try {
+            if(request.getTwiceExchangeFlag() != null && request.getTwiceExchangeFlag()){
+                saveReturnAddressInfo(request);
+            }
+        }catch (Exception e){
+            log.error("保存二次换单退货地址信息异常!入参【{}】",JsonHelper.toJsonMs(request),e);
+            result.error("保存二次换单退货地址信息异常!");
+        }
+        return result;
+    }
+
+    /**
+     * 保存二次换单退货地址信息
+     * @param request
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.ReversePrintServiceImpl.saveReturnAddressInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public void saveReturnAddressInfo(ExchangeWaybillDto request) {
+        String oldWaybillCode = request.getWaybillCode();
+        com.jd.etms.waybill.domain.Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(oldWaybillCode);
+        if(waybill == null || waybill.getBusiId() == null){
+            log.warn("根据运单号【{}】查询商家id不存在!",request.getWaybillCode());
+            return;
+        }
+        Integer businessId = waybill.getBusiId();
+        BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(businessId);
+        if(basicTraderInfoDTO == null || StringUtils.isEmpty(basicTraderInfoDTO.getTraderCode())
+                || StringUtils.isEmpty(basicTraderInfoDTO.getTraderName())){
+            log.warn("根据商家id【{}】查询商家信息不存在!",businessId);
+            return;
+        }
+        String businessCode = basicTraderInfoDTO.getTraderCode();
+        String businessName = basicTraderInfoDTO.getTraderName();
+        Integer dmsSiteCode = request.getCreateSiteCode();
+
+        BusinessReturnAdress businessReturnAdress
+                = businessReturnAdressService.queryBySiteAndBusinessId(dmsSiteCode,businessId);
+        // 组装商家退货地址
+        BusinessReturnAdress commonAddress
+                = createCommonAddress(oldWaybillCode,dmsSiteCode,businessId,businessCode,businessName);
+        // 是否存在退货地址
+        JdResult<List<BackAddressDTO>> jdResult
+                = lDOPManager.queryBackAddressByType(DmsConstants.RETURN_BACK_ADDRESS_TYPE_6, businessCode);
+        boolean hasBackInfo = jdResult != null && !CollectionUtils.isEmpty(jdResult.getData());
+        // 未维护退货地址处理
+        update(businessReturnAdress,commonAddress,businessId,hasBackInfo);
+        // 站内信通知
+        if(!hasBackInfo){
+            importSiteNotice(businessCode,businessId);
+        }
+    }
+
+    /**
+     * 发送站内信通知
+     *   未维护退货地址 && 一天一个商家只能触发一次
+     * @param businessCode
+     * @param businessId
+     */
+    private void importSiteNotice(String businessCode,Integer businessId) {
+        String key = RETURN_ADDRESS_REDIS_KEY_PREFIX.concat(String.valueOf(businessId));
+        boolean exists = false;
+        try {
+            exists = jimdbCacheService.exists(key);
+        }catch (Exception e){
+            log.error("获取商家【{}】的站内信通知缓存异常!",businessId,e);
+        }
+        if(exists){
+            // 1天内则不处理
+            return;
+        }
+        Date currentDate = new Date();
+        BatchImportDTO noticeInfo = new BatchImportDTO();
+        noticeInfo.setChannel(ChannelEnum.POST);
+        noticeInfo.setPostType(PostTypeEnum.NOTICE);
+        noticeInfo.setResolveType(ResolveTypeEnum.TRADER_NO);
+        noticeInfo.setKey(noticeKey);
+        noticeInfo.setTitle(noticeTitle);
+        noticeInfo.setContent(noticeContent);
+        noticeInfo.setHandleLink(noticeHandleLink);
+        noticeInfo.setReceivers(businessCode);
+        noticeInfo.setPostTime(currentDate);
+        JdResult<Boolean> jdResult = eclpImportServiceManager.batchImport(noticeInfo);
+        if(jdResult != null && jdResult.isSucceed()){
+            try {
+                // 记录缓存
+                jimdbCacheService.setEx(key,String.valueOf(true),Constants.CONSTANT_NUMBER_ONE, TimeUnit.DAYS);
+            }catch (Exception e){
+               log.error("记录商家【{}】的站内信通知缓存异常!",businessId,e);
+            }
+        }
+    }
+
+    /**
+     * 构建商家退货数据
+     * @param oldWaybillCode
+     * @param dmsSiteCode
+     * @param businessId
+     * @param businessCode
+     * @param businessName
+     * @return
+     */
+    private BusinessReturnAdress createCommonAddress(String oldWaybillCode, Integer dmsSiteCode, Integer businessId,
+                                                     String businessCode, String businessName) {
+        String dmsSiteName = null;
+        String deptNo = null;
+        try {
+            BaseSiteInfoDto baseSite = baseMajorManager.getBaseSiteInfoBySiteId(dmsSiteCode);
+            dmsSiteName = baseSite == null ? null : baseSite.getSiteName();
+            // 事业部编码
+            LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCode);
+            String settleSubjectCode = claimInfoRespDTO == null ? null : claimInfoRespDTO.getSettleSubjectCode();
+            deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+        }catch (Exception e){
+            log.error("根据站点编码【{}】获取站点|根据运单号【{}】获取事业部编码异常!",e,dmsSiteCode,oldWaybillCode);
+        }
+        BusinessReturnAdress commonAddress = new BusinessReturnAdress();
+        commonAddress.setDmsSiteCode(dmsSiteCode);
+        commonAddress.setDmsSiteName(dmsSiteName);
+        commonAddress.setBusinessId(businessId);
+        commonAddress.setBusinessCode(businessCode);
+        commonAddress.setBusinessName(businessName);
+        Date currentDate = new Date();
+        commonAddress.setCreateTime(currentDate);
+        commonAddress.setLastNoticeTime(currentDate);
+        commonAddress.setLastOperateTime(currentDate);
+        commonAddress.setReturnAdressStatus(BusinessReturnAdressStatusEnum.NO.getStatusCode());
+        commonAddress.setDeptNo(deptNo);
+        commonAddress.setReturnQuantity(1);
+        return commonAddress;
+    }
+
+    /**
+     * 商家退货地址处理
+     *      1、更新退货次数
+     *      2、更新商家退货地址状态
+     * @param businessReturnAddress
+     * @param commonAddress
+     * @param businessId
+     * @param hasBackInfo
+     */
+    private void update(BusinessReturnAdress businessReturnAddress,BusinessReturnAdress commonAddress,
+                        Integer businessId, boolean hasBackInfo) {
+        int returnAddressStatus = hasBackInfo ?
+                BusinessReturnAdressStatusEnum.YES.getStatusCode() : BusinessReturnAdressStatusEnum.NO.getStatusCode();
+        if(businessReturnAddress != null){
+            // 更新退货次数
+            businessReturnAdressService.updateReturnQuantity(businessReturnAddress);
+        }else {
+            commonAddress.setReturnAdressStatus(returnAddressStatus);
+            businessReturnAdressService.add(commonAddress);
+        }
+        if(hasBackInfo){
+            // 更新商家退货地址状态
+            businessReturnAdressService.updateStatusByBusinessId(businessId);
+        }
+    }
 }

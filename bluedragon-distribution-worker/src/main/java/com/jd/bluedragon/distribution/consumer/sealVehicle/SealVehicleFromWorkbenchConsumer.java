@@ -138,6 +138,7 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
 
         } catch (Exception e) {
             log.error("处理一键封车任务失败，参数：{}", JsonHelper.toJson(submitSealVehicleDto), e);
+            callBackNoticeFail(sealVehicleTaskCode, "服务器异常，一键封车失败！", transportCode);
             //写失败回执
         } finally {
             jimdbCacheService.del(redisKey);

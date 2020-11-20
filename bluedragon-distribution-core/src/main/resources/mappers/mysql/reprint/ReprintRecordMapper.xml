@@ -127,6 +127,7 @@
         <include refid="Base_Column_List" />
         FROM `reprint_record`
         <include refid="where"/>
+        order by id desc
         limit #{offset}, #{limit}
     </select>
 </mapper>

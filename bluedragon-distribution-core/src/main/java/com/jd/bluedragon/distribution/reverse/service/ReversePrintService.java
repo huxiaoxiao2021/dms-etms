@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
 
@@ -56,5 +57,18 @@ public interface ReversePrintService {
      * @param twiceExchangeRequest
      * @return
      */
-    JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);  
+    JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest);
+
+    /**
+     * 换单成功后操作
+     * @param request
+     * @return
+     */
+    InvokeResult exchangeSuccessAfter(ExchangeWaybillDto request);
+
+    /**
+     * 保存二次换单地址信息
+     * @param request
+     */
+    void saveReturnAddressInfo(ExchangeWaybillDto request);
 }
