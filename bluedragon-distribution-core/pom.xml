@@ -1065,7 +1065,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.1.8-SNAPSHOT</version>
+			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1436,7 +1436,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-    </dependencies>
+	</dependencies>
 
 	<profiles>
 		<!--测试环境  -->
