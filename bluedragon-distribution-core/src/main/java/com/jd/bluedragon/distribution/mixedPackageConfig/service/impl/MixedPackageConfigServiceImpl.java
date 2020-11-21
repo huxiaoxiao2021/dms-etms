@@ -199,7 +199,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setRuleType(RuleTypeEnum.BUILD_PACKAGE.getCode());
         mixedPackageConfig.setCreateSiteCode(printQueryRequest.getOriginalDmsCode());
         mixedPackageConfig.setMixedSiteCode(printQueryRequest.getDestinationDmsCode());
-        Integer receiveSiteCode = mixedPackageConfig.getReceiveSiteCode();
+        Integer receiveSiteCode = printQueryRequest.getDestinationDmsCode();
         if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
             mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
             return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
