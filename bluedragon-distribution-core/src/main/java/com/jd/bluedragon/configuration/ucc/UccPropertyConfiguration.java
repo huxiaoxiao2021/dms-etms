@@ -193,6 +193,11 @@ public class UccPropertyConfiguration {
      */
     private int loadScanTaskPackageMaxSize;
 
+    /**
+     * 一键封车空批次剔除开关 1：开启剔除 0：关闭
+     */
+    private String preSealVehicleRemoveEmptyBatchCode;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -543,5 +548,13 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+
+    public String getPreSealVehicleRemoveEmptyBatchCode() {
+        return preSealVehicleRemoveEmptyBatchCode;
+    }
+
+    public void setPreSealVehicleRemoveEmptyBatchCode(String preSealVehicleRemoveEmptyBatchCode) {
+        this.preSealVehicleRemoveEmptyBatchCode = preSealVehicleRemoveEmptyBatchCode;
     }
 }

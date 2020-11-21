@@ -33,6 +33,7 @@
 	<div class="m">
 		<div class="tbl-n">
 			<form id="dataForm" name="dataForm" action="" method="post">
+                <input type="hidden" name = "tableName" id = "tableName"/>
 				<table border="0" cellpadding="0" cellspacing="0" >
 					<tbody>
 						<tr>
@@ -87,6 +88,8 @@
                         </tr>
                         <tr>
                         <td>
+                            <input type="button" id="findAllTables" name="findAllTables" value="获取旧库所有表" class="btn_c" />
+
                             <input type="button" id="compare" name="compare" value="对比" class="btn_c" />
                         </td>
                         </tr>
@@ -94,6 +97,8 @@
                 </table>
             </form>
         </div>
+    </div>
+    <div id="allTable">
     </div>
 	 <!--[if !ie]>tbl-n<![endif]-->
 	 <div id="opening">
@@ -117,5 +122,6 @@
         </div>
 	 </div>
 </div>
+#parse("system/security/watermark.vm")
 </body>
 </html>

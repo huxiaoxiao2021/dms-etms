@@ -461,7 +461,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         }
         List<String> removeBatchCodes=new ArrayList<>();
         for (String item : request) {
-            if (!newSealVehicleService.checkBatchCodeIsSend(item)) {
+            if (!newSealVehicleService.checkBatchCodeIsNewSealVehicle(item)) {
                 removeBatchCodes.add(item);
             }
         }

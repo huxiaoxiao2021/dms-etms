@@ -132,4 +132,6 @@ public interface WaybillService {
 
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
 
+    Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
+
 }

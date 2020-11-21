@@ -42,17 +42,24 @@ public class DapResource {
 	private static final String TASK_TABLE_NAMES = "taskTableNames";
 	private static final String DIV_TABLE_NAMES = "divTableNames";
 
-	private static final List<String> unDivTableNames;
-	private static final List<String> taskTableNames;
-	private static final List<String> divTableNames;
+	private static final List<String> unDivTableNames = new ArrayList<>();
+	private static final List<String> taskTableNames = new ArrayList<>();
+	private static final List<String> divTableNames = new ArrayList<>();
 
 	private static final String STATEMENT_TIME_OUT;
 	private DataSource dataSource = null;
 
 	static {
-		unDivTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.UN_DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
-		taskTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.TASK_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
-		divTableNames = Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA));
+		if(PropertiesHelper.newInstance().getValue(DapResource.UN_DIV_TABLE_NAMES)!=null){
+			unDivTableNames.addAll(Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.UN_DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA)));
+		}
+		if(PropertiesHelper.newInstance().getValue(DapResource.TASK_TABLE_NAMES)!=null){
+			taskTableNames.addAll(Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.TASK_TABLE_NAMES).split(Constants.SEPARATOR_COMMA)));
+		}
+		if(PropertiesHelper.newInstance().getValue(DapResource.DIV_TABLE_NAMES)!=null){
+			divTableNames.addAll(Arrays.asList(PropertiesHelper.newInstance().getValue(DapResource.DIV_TABLE_NAMES).split(Constants.SEPARATOR_COMMA)));
+		}
+
 		STATEMENT_TIME_OUT=PropertiesHelper.newInstance().getValue("statementTimeOut");
 	}
 

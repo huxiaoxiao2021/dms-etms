@@ -66,6 +66,11 @@ public class UnloadCarScanRequest implements Serializable {
      * **/
     private boolean isForceCombination = false;
 
+    /**
+     * 1:组板转移标识
+     */
+    private Integer isCombinationTransfer;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -168,5 +173,13 @@ public class UnloadCarScanRequest implements Serializable {
 
     public void setIsForceCombination(boolean forceCombination) {
         isForceCombination = forceCombination;
+    }
+
+    public Integer getIsCombinationTransfer() {
+        return isCombinationTransfer;
+    }
+
+    public void setIsCombinationTransfer(Integer isCombinationTransfer) {
+        this.isCombinationTransfer = isCombinationTransfer;
     }
 }

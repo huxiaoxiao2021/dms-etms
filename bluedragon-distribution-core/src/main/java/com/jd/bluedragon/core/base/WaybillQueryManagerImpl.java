@@ -22,12 +22,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -419,6 +414,21 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return baseEntity.getData();
     }
 
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.queryWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public Waybill queryWaybillByWaybillCode(String waybillCode) {
+        BaseEntity<Waybill> baseEntity = waybillQueryApi.queryWaybillByWaybillCode(waybillCode);
+        if (baseEntity == null) {
+            log.warn("查询运单信息接口返回空waybillCode[{}]", waybillCode);
+            return null;
+        }
+        if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() || baseEntity.getData() == null) {
+            log.warn("查询运单信息接口失败waybillCode[{}]code[{}]",waybillCode,baseEntity.getResultCode());
+            return null;
+        }
+        return baseEntity.getData();
+    }
+
     public Waybill getOnlyWaybillByWaybillCode(String waybillCode) {
         BaseEntity<Waybill> result = getWaybillByWaybillCode(waybillCode);
         if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
@@ -731,4 +741,27 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return result;
 	}
+
+    /***
+     * 根据运单号获取服务单号
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getServiceCodeInfoByWaybillCode" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<List<WaybillServiceRelationDto>> getServiceCodeInfoByWaybillCode(String waybillCode) {
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "waybillQueryApi.getServiceCodeInfoByWaybillCode");
+        BaseEntity<List<WaybillServiceRelationDto>> baseEntity = null;
+        try {
+            baseEntity =  waybillQueryApi.getServiceCodeInfoByWaybillCode(waybillCode);
+        } catch (Exception e) {
+            log.error("调用运单获取服务单号接口异常！入参waybillCode:{}",waybillCode,e);
+            Profiler.functionError(callerInfo);
+        }finally{
+            Profiler.registerInfoEnd(callerInfo);
+        }
+       return baseEntity;
+    }
+
 }

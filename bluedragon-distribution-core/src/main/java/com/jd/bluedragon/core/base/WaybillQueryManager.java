@@ -6,11 +6,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.List;
@@ -173,6 +169,11 @@ public interface WaybillQueryManager{
 
     Waybill getWaybillByWayCode(String waybillCode);
 
+	/**
+	 * 根据运单号获取运单基本信息（轻量）
+	 */
+	Waybill queryWaybillByWaybillCode(String waybillCode);
+
     /**
 	 * 根据运单号获取运单信息
 	 * @param waybillCode
@@ -278,5 +279,12 @@ public interface WaybillQueryManager{
      * @return
      */
 	JdResult<List<String>> getOriginalAndReturnWaybillCodes(String waybillCode);
+
+	/**
+	 * 根据运单号查询服务单号
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<List<WaybillServiceRelationDto>>  getServiceCodeInfoByWaybillCode(String waybillCode);
 
 }

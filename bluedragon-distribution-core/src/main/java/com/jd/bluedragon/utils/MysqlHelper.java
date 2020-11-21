@@ -1,12 +1,8 @@
 package com.jd.bluedragon.utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -91,6 +87,45 @@ public class MysqlHelper {
         return false;
     }
 
+    public static String findPK(String jdbcUrl,String username,String pword,String tableName){
+        Connection conn = getConnection(jdbcUrl,username,pword);
+        ResultSet rs = null;
+        try {
+            DatabaseMetaData dmd = conn.getMetaData();
+            rs = dmd.getPrimaryKeys(null, "%", tableName);
+            rs.next();
+            return rs.getString("column_name");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            close(rs);
+            close(conn);
+        }
+        return null;
+    }
+
+    public static List<String> findAllTables(String jdbcUrl,String username,String pword){
+        Connection conn = getConnection(jdbcUrl,username,pword);
+        try {
+           return findAllTables(conn);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }finally {
+            close(conn);
+        }
+        return new ArrayList<>();
+    }
+
+    public static List<String> findAllTables(Connection conn) throws SQLException {
+        DatabaseMetaData databaseMetaData = conn.getMetaData();
+        ResultSet tables = databaseMetaData.getTables(null, null, "%", null);
+        ArrayList<String> tablesList = new ArrayList<String>();
+        while (tables.next()) {
+            tablesList.add(tables.getString("TABLE_NAME"));
+        }
+        return tablesList;
+    }
+
     /**
      * 无参数查询,返回类型据情况稍加修改,以mysql为例，其他类似
      *
@@ -158,5 +193,12 @@ public class MysqlHelper {
         System.out.println(getPrimaryKey("select * from ddd   limit 100;--id"));
         System.out.println(getTable("select * from ddd  limit 1000;--id"));
         System.out.println(getSqlBeforeWhere("select * from ddd  limit 1000;--dd"));
+
+        Connection connection = getConnection("jdbc:mysql://mysql-cn-north-1-f51a5018ea1d406c.rds.jdcloud.com:3358/bd_dms_con??characterEncoding=UTF-8","testwl","4x1eSVxcq0816pytgeyQAh1wUS");
+        try {
+            System.out.println(findAllTables(connection));
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 }

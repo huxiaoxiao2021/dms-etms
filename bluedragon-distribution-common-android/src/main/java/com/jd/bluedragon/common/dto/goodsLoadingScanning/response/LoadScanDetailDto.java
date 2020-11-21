@@ -9,6 +9,12 @@ public class LoadScanDetailDto implements Serializable {
 
     private String batchCode;
 
+    private Double totalWeight;
+
+    private Double totalVolume;
+
+    private Integer totalPackageNum;
+
     private List<GoodsDetailDto> goodsDetailDtoList;
 
     public String getBatchCode() {
@@ -25,5 +31,29 @@ public class LoadScanDetailDto implements Serializable {
 
     public void setGoodsDetailDtoList(List<GoodsDetailDto> goodsDetailDtoList) {
         this.goodsDetailDtoList = goodsDetailDtoList;
+    }
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Double totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public Double getTotalVolume() {
+        return totalVolume;
+    }
+
+    public void setTotalVolume(Double totalVolume) {
+        this.totalVolume = totalVolume;
+    }
+
+    public Integer getTotalPackageNum() {
+        return totalPackageNum;
+    }
+
+    public void setTotalPackageNum(Integer totalPackageNum) {
+        this.totalPackageNum = totalPackageNum;
     }
 }

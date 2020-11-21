@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sqlkit.domain.DataCompareDto;
 import com.jd.bluedragon.utils.MysqlHelper;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -33,6 +34,19 @@ public class DataCompareController {
         return "sqlkit/comparePage";
     }
 
+    @RequestMapping(value = "/findTables", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<List<String>> findTables(DataCompareDto dataCompareDto){
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        result.success();
+
+        String oldJdbc = "jdbc:mysql://"+dataCompareDto.getOldUrl()+"?characterEncoding=UTF-8";
+
+        result.setData(MysqlHelper.findAllTables(oldJdbc,dataCompareDto.getOldUserName(),
+                dataCompareDto.getOldPassword()));
+
+        return result;
+    }
 
     @RequestMapping(value = "/compare", method = RequestMethod.POST)
     @ResponseBody
@@ -53,6 +67,21 @@ public class DataCompareController {
             }
             String oldJdbc = "jdbc:mysql://"+dataCompareDto.getOldUrl()+"?characterEncoding=UTF-8";
             String newJdbc = "jdbc:mysql://"+dataCompareDto.getNewUrl()+"?characterEncoding=UTF-8";
+
+            //如果传入table替换原table
+            String tableName = dataCompareDto.getTableName();
+            if(!StringUtils.isBlank(tableName)){
+
+                String _tableName = MysqlHelper.getTable(dataCompareDto.getSql());
+                dataCompareDto.setSql(dataCompareDto.getSql().replaceFirst(_tableName,tableName));
+                sqlBeforeWhere = MysqlHelper.getSqlBeforeWhere(dataCompareDto.getSql());
+
+                primaryKey = MysqlHelper.findPK(oldJdbc,dataCompareDto.getOldUserName(),
+                        dataCompareDto.getOldPassword(),tableName);
+            }
+
+
+
             List<LinkedHashMap<String, String>> oldDataList = MysqlHelper.executeQuery(oldJdbc,dataCompareDto.getOldUserName(),
                     dataCompareDto.getOldPassword(),dataCompareDto.getSql());
             if(CollectionUtils.isEmpty(oldDataList)){
