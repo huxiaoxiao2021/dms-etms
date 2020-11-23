@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.business.dao;
 
-import org.springframework.stereotype.Repository;
-
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -16,7 +14,6 @@ import java.util.List;
  * @date 2020年07月28日 16:45:14
  *
  */
-@Repository("businessReturnAdressDao")
 public interface BusinessReturnAdressDao extends Dao<BusinessReturnAdress> {
 	/**
 	 * 根据商家id查询

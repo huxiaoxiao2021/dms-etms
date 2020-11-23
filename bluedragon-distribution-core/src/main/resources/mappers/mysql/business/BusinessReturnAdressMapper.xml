@@ -177,6 +177,9 @@
             <if test="returnQuantity != null">
                 return_quantity = return_quantity + 1,
             </if>
+            <if test="deptNo != null">
+                dept_no = #{deptNo,jdbcType=VARCHAR},
+            </if>
             last_operate_time = NOW()
         </set>
         where id = #{id,jdbcType=BIGINT}
