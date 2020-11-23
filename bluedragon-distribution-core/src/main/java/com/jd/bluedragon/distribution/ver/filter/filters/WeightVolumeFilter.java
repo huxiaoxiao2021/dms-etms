@@ -96,16 +96,24 @@ public class WeightVolumeFilter implements Filter {
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
 
+        if(logger.isInfoEnabled()){
+            logger.info("运单{}无重量判断标识 isEconomicNetNeedWeight:{},isAllPureNeedWeight:{},isNeedWeight:{}",waybillCode,isEconomicNetNeedWeight,isAllPureNeedWeight,isNeedWeight);
+        }
+
         if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
         }
         else if ( isNeedWeight || isAllPureNeedWeight) {
-            logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+            if(logger.isInfoEnabled()) {
+                logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+            }
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
-                logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+                if(logger.isInfoEnabled()) {
+                    logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+                }
                 //从运单接口查  数据没有下放的极端情况下 一般不会走
                 WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
                 if (waybillNoCache == null) {
