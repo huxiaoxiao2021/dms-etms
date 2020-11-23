@@ -617,40 +617,73 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             String boardCode = request.getBoardCode();
             String sealCarCode = request.getSealCarCode();
-            Integer surplusCount = 0;
-            Integer scanCount = 0;
-            // 新板包裹数变更
-            if(isSurplusPackage){
-                updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT.concat(boardCode),1);
-                surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(sealCarCode),1);
-            }else {
-                updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode),1);
-                scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),1);
-            }
-            updatePackCount(request, scanCount, surplusCount);
-
-            // 老板包裹数变更
-            if(StringUtils.isNotEmpty(oldBoardCode)){
-                UnloadCarTransBoard oldUnloadBoard = unloadCarTransBoardDao.searchBySealCode(oldBoardCode);
+            int surplusCount = 0;
+            int scanCount = 0;
+            if (StringUtils.isBlank(oldBoardCode)) {
+                // 新板包裹数变更
+                if(isSurplusPackage){
+                    updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT.concat(boardCode),1);
+                    surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(sealCarCode), 1);
+                }else {
+                    updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode),1);
+                    scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),1);
+                }
+                updatePackCount(request, scanCount, surplusCount);
+            } else {
+                UnloadCarTransBoard oldUnloadBoard = unloadCarTransBoardDao.searchByBoardCode(oldBoardCode);
                 if(oldUnloadBoard == null || StringUtils.isEmpty(oldUnloadBoard.getSealCarCode())){
+                    // 新板包裹数变更
+                    updateCacheAndTable(request, boardCode, isSurplusPackage, sealCarCode, null, 1);
                     //老板未绑定封车编码则不更新
                     return;
                 }
                 String oldSealCarCode = oldUnloadBoard.getSealCarCode();
-                if(isSurplusPackage){
-                    updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT.concat(oldBoardCode),-1);
-                    surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(oldSealCarCode),-1);
-                }else {
-                    updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(oldBoardCode),-1);
-                    scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(oldSealCarCode),-1);
-                }
-                request.setSealCarCode(oldSealCarCode);
-                request.setBarCode(oldBoardCode);
-                updatePackCount(request, scanCount, surplusCount);
+                // 新板包裹数变更
+                updateCacheAndTable(request, boardCode, isSurplusPackage, sealCarCode, oldSealCarCode, 1);
+                // 旧板包裹数变更
+                updateCacheAndTable(request, oldBoardCode, isSurplusPackage, sealCarCode, oldSealCarCode, -1);
             }
         }catch (Exception e){
             logger.error("卸车扫描处理异常,参数【{}】",JsonHelper.toJson(request),e);
         }
+    }
+
+    private void updateCacheAndTable(UnloadCarScanRequest request, String boardCode, boolean isSurplusPackage,
+                                     String sealCarCode, String oldSealCarCode, int count) {
+        int surplusCount = 0;
+        int scanCount = 0;
+        String sealCode;
+        request.setBoardCode(boardCode);
+        if (count == 1) {
+            sealCode = sealCarCode;
+            request.setSealCarCode(sealCarCode);
+        } else {
+            sealCode = oldSealCarCode;
+            request.setSealCarCode(oldSealCarCode);
+        }
+        if (isSurplusPackage) {
+            updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_SURPLUS_PACKAGE_COUNT.concat(boardCode), count);
+            // 旧封车编码与参数中传入的封车编码不相同时才减一
+            if (!sealCarCode.equals(oldSealCarCode)) {
+                if (StringUtils.isBlank(oldSealCarCode) && count == -1) {
+                    return;
+                } else {
+                    surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(sealCode), count);
+                }
+            }
+        } else {
+            updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode), count);
+            // 旧封车编码与参数中传入的封车编码不相同时才减一
+            if (!sealCarCode.equals(oldSealCarCode)) {
+                if (StringUtils.isBlank(oldSealCarCode) && count == -1) {
+                    return;
+                } else {
+                    scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCode), count);
+
+                }
+            }
+        }
+        updatePackCount(request, scanCount, surplusCount);
     }
 
     /**

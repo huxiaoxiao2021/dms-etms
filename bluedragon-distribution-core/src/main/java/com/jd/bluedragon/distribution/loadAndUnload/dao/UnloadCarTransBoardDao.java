@@ -49,4 +49,11 @@ public class UnloadCarTransBoardDao extends BaseDao<UnloadCarTransBoard> {
     public UnloadCarTransBoard searchBySealCode(String sealCarCode) {
         return this.getSqlSession().selectOne(namespace + ".searchBySealCode",sealCarCode);
     }
+
+    /**
+     * 根据板号查询
+     */
+    public UnloadCarTransBoard searchByBoardCode(String boardCode) {
+        return this.getSqlSession().selectOne(namespace + ".searchByBoardCode", boardCode);
+    }
 }
