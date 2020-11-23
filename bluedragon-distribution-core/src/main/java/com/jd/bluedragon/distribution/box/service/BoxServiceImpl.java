@@ -94,14 +94,12 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	private ContainerManager containerManager;
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         return this.boxDao.add(BoxDao.namespace, box);
     }
 
     @JProfiler(jKey = "DMSWEB.BoxService.batchAdd",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public List<Box> batchAdd(Box param) {
     	List<Box> boxes = Lists.newArrayList();
         String boxCodePrefix = this.generateBoxCodePrefix(param);
@@ -402,7 +400,6 @@ public class BoxServiceImpl implements BoxService {
                 + box.getReceiveSiteCode();
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateVolumeByCode(Box box) {
         this.delboxCodeCache(box.getCode());
         return this.boxDao.updateVolumeByCode(box);
@@ -475,7 +472,6 @@ public class BoxServiceImpl implements BoxService {
         return this.boxDao.findBoxByBoxCode(box);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");
         Assert.notNull(box.getUpdateUser(), "box updateUser must not be null");

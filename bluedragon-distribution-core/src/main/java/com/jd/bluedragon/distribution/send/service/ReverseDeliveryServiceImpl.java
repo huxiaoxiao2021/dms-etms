@@ -106,7 +106,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 	@SuppressWarnings("rawtypes")
 	@JProfiler(jKey= "DMSWORKER.ReverseDeliveryService.findsendMToReverse",mState = {JProEnum.TP})
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public boolean findsendMToReverse(Task task) throws Exception {
 		if (task == null || task.getBoxCode() == null
 				|| task.getCreateSiteCode() == null
@@ -140,7 +139,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		return true;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelToWaybillByBox(SendM tSendM,
 			List<SendDetail> tlist) {
 		// 取消发货的时候添加运单回传worker
@@ -157,13 +155,11 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		}
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelByBox(SendM tSendM) {
 		deliveryService.cancelSendDatailByBox(tSendM);
 		deliveryService.cancelSendM(tSendM);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelToWaybillByPackageCode(SendM tSendM,
 			SendDetail tSendDatail) {
 		List<SendDetail> tlist = new ArrayList<SendDetail>();
@@ -179,7 +175,6 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		deliveryService.updateWaybillStatus(tlist);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateIsCancelByPackageCode(SendM tSendM, SendDetail tSendDatail) {
 		// 由于使用了双写，写从库为异步操作，更新双写主从数据库的对象使用同一个，
 		// 若后续代码对该对象进行修改，会导致写从库写入出现问题，故此处copy一个新对象
