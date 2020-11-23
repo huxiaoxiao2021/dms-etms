@@ -22,6 +22,8 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
@@ -164,12 +166,17 @@ public class WeightVolumeFilter implements Filter {
     }
 
     /**
-     * 纯配运单拦截 (除信任商家、内部商家外的纯配外单)
+     * 纯配运单拦截 (除信任商家、内部商家、众邮以外的纯配外单)
      * @param waybillSign
      * @param request
      * @return  true:拦截   false:不拦截
      */
     private boolean isAllPureValidateWeight(String waybillSign,FilterContext request){
+        //众邮不拦截
+        if(WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(UniformValidateUtil.getSpecificWaybillCodePattern(request.getWaybillCode()))){
+            return false;
+        }
+
         //1.是否是纯配外单-非纯配不拦截
         if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
             return  false;
