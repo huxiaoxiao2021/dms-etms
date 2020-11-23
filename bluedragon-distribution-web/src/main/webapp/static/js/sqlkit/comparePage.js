@@ -1,4 +1,5 @@
 function oneTableClick(tableName){
+    $("#countTable tbody").html('');
     if(tableName){
         $("#tableName").val(tableName);
     }
@@ -51,9 +52,47 @@ function oneTableClick(tableName){
 }
 
 function main() {
+    $("#compareCount").click(function(){
+        $.ajax({
+            type : "post",
+            url : '/dataCompare/findTables',
+            data :getFormData(),
+            async : false,
+            success : function (data) {
+                $('#errorMsg').html('');
+                $("#allTable").html('');
+                $("#countTable tbody").html('');
+                if(data.code == 200){
+                    $.each(data.data,function(index,value){
+                        $("#tableName").val(value);
+                        var postData = getFormData();
+                        $.ajax({
+                            type : "post",
+                            url : '/dataCompare/compareCount',
+                            data :postData,
+                            async : true,
+                            success : function (data2) {
+                                $('#errorMsg').html('');
 
+                                if(data2.code == 200){
+                                    $("#countTable tbody").append("<tr><td>"+data2.data+"</td></tr>")
+                                }else{
+                                    console.error(data2.message);
+                                }
+
+                            }});
+                    });
+                    $("#allTable").html(alltablesBtn);
+                }else{
+                    $('#errorMsg').html(data.message);
+                }
+
+            }});
+
+    });
 
     $("#findAllTables").click(function (){
+        $("#countTable tbody").html('');
         $.ajax({
             type : "post",
             url : '/dataCompare/findTables',

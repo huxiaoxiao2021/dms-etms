@@ -89,8 +89,8 @@
                         <tr>
                         <td>
                             <input type="button" id="findAllTables" name="findAllTables" value="获取旧库所有表" class="btn_c" />
-
-                            <input type="button" id="compare" name="compare" value="对比" class="btn_c" />
+                            <input type="button" id="compareCount" name="compareCount" value="对比新旧所有表总数" class="btn_c" />
+                            <input type="button" id="compare" name="compare" value="单表对比" class="btn_c" />
                         </td>
                         </tr>
                     </tbody>
@@ -99,6 +99,13 @@
         </div>
     </div>
     <div id="allTable">
+    </div>
+    <div >
+        <TABLE  id="countTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
+            <TBODY>
+                <tr><td></td></tr>
+            </TBODY>
+        </TABLE>
     </div>
 	 <!--[if !ie]>tbl-n<![endif]-->
 	 <div id="opening">

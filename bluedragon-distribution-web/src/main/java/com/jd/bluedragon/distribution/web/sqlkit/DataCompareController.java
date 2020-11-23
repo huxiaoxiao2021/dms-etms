@@ -47,6 +47,25 @@ public class DataCompareController {
 
         return result;
     }
+    @RequestMapping(value = "/compareCount",method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<String> compareCount(DataCompareDto dataCompareDto){
+        InvokeResult<String> result = new InvokeResult<>();
+        String oldJdbc = "jdbc:mysql://"+dataCompareDto.getOldUrl()+"?characterEncoding=UTF-8";
+        String newJdbc = "jdbc:mysql://"+dataCompareDto.getNewUrl()+"?characterEncoding=UTF-8";
+
+        String countSql = "select count(1) as tableCount from "+dataCompareDto.getTableName();
+
+        List<LinkedHashMap<String, String>> oldResult = MysqlHelper.executeQuery(oldJdbc,dataCompareDto.getOldUserName(),
+                dataCompareDto.getOldPassword(),countSql);
+
+        List<LinkedHashMap<String, String>> newResult = MysqlHelper.executeQuery(newJdbc,dataCompareDto.getNewUserName(),
+                dataCompareDto.getNewPassword(),countSql);
+
+        result.setData(dataCompareDto.getTableName()+":旧"+oldResult.get(0).get("tableCount")+"|新"+newResult.get(0).get("tableCount"));
+
+        return result;
+    }
 
     @RequestMapping(value = "/compare", method = RequestMethod.POST)
     @ResponseBody
