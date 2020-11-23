@@ -74,12 +74,10 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	private ReversePartDetailService reversePartDetailService;
 
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.add(ReverseReceiveDao.namespace, reverseReceive);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(ReverseReceive reverseReceive) {
         return this.reverseReceiveDao.update(ReverseReceiveDao.namespace, reverseReceive);
     }

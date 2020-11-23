@@ -28,13 +28,11 @@ public class SealBoxServiceImpl implements SealBoxService {
 	@Autowired
 	private SealBoxDao sealBoxDao;
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(SealBox sealBox) {
 		Assert.notNull(sealBox, "sealBox must not be null");
 		return this.sealBoxDao.add(SealBoxDao.namespace, sealBox);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer update(SealBox sealBox) {
 		Assert.notNull(sealBox, "sealBox must not be null");
 		return this.sealBoxDao.update(SealBoxDao.namespace, sealBox);

@@ -65,7 +65,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	 * 插入分拣任务表
 	 */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int insert(OfflineLogRequest request) {
 		int n = 0;
 		if (StringUtils.isEmpty(request.getPackageCode())) {// 按照运单进行分拣
@@ -119,7 +118,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	 * @return
 	 */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int insertSealBox(OfflineLogRequest request) {
 		int n = this.sealBoxService.addSealBox(toSealBox(request));
 		return n;

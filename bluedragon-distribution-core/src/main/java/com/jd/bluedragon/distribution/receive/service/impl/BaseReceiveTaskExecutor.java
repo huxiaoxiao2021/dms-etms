@@ -117,7 +117,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * @param
 	 */
 	@JProfiler(jKey = "DMSWEB.ReceiveTaskExecutor.execute", mState = { JProEnum.TP })
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean execute(TaskContext<T> taskContext, String ownSign) {
 		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录

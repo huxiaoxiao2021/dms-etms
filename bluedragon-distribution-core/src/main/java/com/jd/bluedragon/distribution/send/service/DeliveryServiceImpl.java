@@ -1187,7 +1187,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendMDao.findSendMByBoxCode(domain);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer add(SendDetail sendDetail) {
         if (sendDetail.getPackageBarcode() == null) {
@@ -1204,7 +1203,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendDatailDao.add(SendDatailDao.namespace, sendDetail);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer update(SendDetail sendDetail) {
         return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
@@ -1212,12 +1210,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.updateCancel", mState = {JProEnum.TP,
             JProEnum.FunctionError})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateCancel(SendDetail sendDetail) {
         return this.sendDatailDao.updateCancel(sendDetail);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void saveOrUpdateBatch(List<SendDetail> sdList) {
         List<SendDetail>[] sendArray = splitList(sdList);
         List<String> result = new ArrayList<String>();
@@ -1257,7 +1253,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public void saveOrUpdate(SendDetail sendDetail) {
         if (Constants.NO_MATCH_DATA == this.update(sendDetail).intValue()) {
@@ -1265,7 +1260,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Boolean canCancel(SendDetail sendDetail) {
         return this.sendDatailDao.canCancel(sendDetail);
@@ -1280,7 +1274,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendDatailDao.canCancel2(sendDetail);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Boolean canCancelFuzzy(SendDetail sendDetail) {
         return this.sendDatailDao.canCancelFuzzy(sendDetail);
@@ -1291,7 +1284,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendMList 发货相关数据
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void insertSendM(SendBizSourceEnum source, List<SendM> sendMList, List<String> list) {
         Integer sourceCode = null;
         if (source != null){
@@ -2516,7 +2508,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param tSendM 发货相关数据
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean cancelSendM(SendM tSendM) {
         return this.sendMDao.cancelSendM(tSendM);
     }
@@ -2526,7 +2517,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param tSendDetail 发货相关数据
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean cancelSendDatailByPackage(SendDetail tSendDetail) {
         if (tSendDetail != null) {
             try {
@@ -2545,7 +2535,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendM 发货相关数据
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean cancelSendDatailByBox(SendM sendM) {
         SendDetail tSendDatail = new SendDetail();
         tSendDatail.setBoxCode(sendM.getBoxCode());
@@ -2597,7 +2586,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @JProfiler(jKey = "DMSWEB.DeliveryService.updateWaybillStatus", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean updateWaybillStatus(List<SendDetail> sendDetails) {
         if (sendDetails != null && !sendDetails.isEmpty()) {
@@ -2804,7 +2792,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @JProfiler(jKey = "DMSWORKER.DeliveryService.updatewaybillCodeMessage", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean updatewaybillCodeMessage(Task task) {
         if(log.isInfoEnabled()){
@@ -3277,7 +3264,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendDetail
      * @return
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public boolean checkSendByPackage(SendDetail sendDetail) {
         //step 1.判断箱子是否发货send_m
@@ -4374,7 +4360,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean transitSend(SendM domain) {
         if (isTransferSend(domain)) {
             pushTransferSendTask(domain);
@@ -4433,7 +4418,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void pushTransferSendTask(SendM domain) {
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoxCode());
@@ -4454,7 +4438,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "dmsWorker.task.sendHandler.boxTransitSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean findTransitSend(Task task) throws Exception {
         if (task == null || task.getBoxCode() == null

@@ -18,7 +18,11 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
@@ -94,9 +98,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -1742,7 +1757,9 @@ public class WaybillResource {
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage(errorMessage.toString());
 			}else{
-				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			    //换单成功后处理
+                reversePrintService.exchangeSuccessAfter(request);
+                invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				invokeResult.setData(waybillReverseResult);
 			}
 

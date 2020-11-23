@@ -16,13 +16,11 @@ public class CrossSortingDao extends BaseDao<CrossSorting> {
 
 	public static final String namespace = CrossSortingDao.class.getName();
 
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int deleteCrossSorting(Map<String, Object> params) {
 		log.info("CrossSortingDao.deleteCrossSorting begin...");
 		return super.getSqlSession().delete(CrossSortingDao.namespace + ".delete", params);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int addBatchCrossSorting(List<CrossSorting> csList) {
 		log.info("CrossSortingDao.addBatchCrossSorting begin...");
 		return super.getSqlSession().insert(CrossSortingDao.namespace + ".addBatch", csList);
@@ -35,7 +33,6 @@ public class CrossSortingDao extends BaseDao<CrossSorting> {
 		return crossSortings.get(0);
 	}
 
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false)
 	public int updateCrossSorting(CrossSorting crossSorting) {
 		return super.getSqlSession().update(CrossSortingDao.namespace + ".updateCrossSorting", crossSorting);
 	}
