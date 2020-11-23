@@ -130,7 +130,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 批次汇总&&批次汇总打印
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria) {
         SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
@@ -195,7 +194,6 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param criteria
      * @return
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<SummaryPrintResult> summaryPrintResultToList(List<SendM> sendMList, PrintQueryCriteria criteria) {
         List<SummaryPrintResult> res = new ArrayList<SummaryPrintResult>(8);
         if (sendMList == null || sendMList.isEmpty()) {
@@ -231,7 +229,6 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param boardMap
      * @return
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public SummaryPrintResult summaryPrintResult(SendM oriSendM, List<SendM> sendMList, PrintQueryCriteria criteria, Map<String, Double> boardMap) {
         Date startDate = new Date();
         String roadCode = null;
@@ -925,7 +922,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 基本查询
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @Override
     public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQuery", Constants.UMP_APP_NAME_DMSWEB, false, true);
@@ -1584,7 +1580,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 快生打印
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
         Date startDate = new Date();
         log.debug("打印交接清单-基本信息查询开始:{}" , DateHelper.formatDate(startDate));
@@ -1771,7 +1766,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 批次汇总&&批次汇总打印 -- 新接口
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria) {
         SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();

@@ -174,12 +174,10 @@ public class SortingServiceImpl implements SortingService {
     @Autowired
     private CycleMaterialNoticeService cycleMaterialNoticeService;
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
 		return this.sortingDao.add(SortingDao.namespace, sorting);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer update(Sorting sorting) {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
@@ -192,7 +190,6 @@ public class SortingServiceImpl implements SortingService {
 		return this.dynamicSortingQueryDao.findByBoxCode(sorting);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancel(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.canCancel", false, true);
@@ -210,7 +207,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelSorting(Sorting sorting) {
 		boolean result = this.sortingDao.canCancel(sorting)
 				&& this.deliveryService.canCancel(this.parseSendDetail(sorting));
@@ -220,7 +216,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelSorting2(Sorting sorting) {
 		//fixme sorting send_d 分布式事务问题
 		boolean result = this.sortingDao.canCancel2(sorting)
@@ -233,7 +228,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public Boolean canCancelSortingFuzzy(Sorting sorting) {
 		boolean result = this.sortingDao.canCancelFuzzy(sorting)
@@ -244,7 +238,6 @@ public class SortingServiceImpl implements SortingService {
 		return result;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelInspectionEC(Sorting sorting) {
 		InspectionEC inspectionEC = new InspectionEC.Builder(sorting.getPackageCode(), sorting.getCreateSiteCode())
 				.waybillCode(sorting.getWaybillCode()).boxCode(sorting.getBoxCode())
@@ -306,7 +299,6 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
 
 		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
