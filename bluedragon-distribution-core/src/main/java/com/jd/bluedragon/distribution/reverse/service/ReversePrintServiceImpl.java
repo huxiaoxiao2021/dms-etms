@@ -842,7 +842,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             // 事业部编码
             LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCode);
             String settleSubjectCode = claimInfoRespDTO == null ? null : claimInfoRespDTO.getSettleSubjectCode();
-            deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+            if(settleSubjectCode != null){
+                deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+            }
         }catch (Exception e){
             log.error("根据站点编码【{}】获取站点|根据运单号【{}】获取事业部编码异常!",e,dmsSiteCode,oldWaybillCode);
         }
