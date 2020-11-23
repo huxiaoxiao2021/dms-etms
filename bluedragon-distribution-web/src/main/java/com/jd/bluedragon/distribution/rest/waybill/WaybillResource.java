@@ -84,6 +84,11 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,11 +97,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -1742,7 +1742,9 @@ public class WaybillResource {
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage(errorMessage.toString());
 			}else{
-				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			    //换单成功后处理
+                reversePrintService.exchangeSuccessAfter(request);
+                invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				invokeResult.setData(waybillReverseResult);
 			}
 

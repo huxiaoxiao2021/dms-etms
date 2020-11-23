@@ -102,13 +102,8 @@
         <if test="barCode != null and barCode != ''">
             AND bar_code = #{barCode}
         </if>
-        <if test="operatorErpOrName != null and operatorErpOrName != ''">
-            <if test="operatorId != null">
-                AND operator_code = #{operatorId}
-            </if>
-            <if test="operatorId == null">
-                AND operator_name like concat('%', #{operatorErpOrName}, '%')
-            </if>
+        <if test="operatorId != null">
+            AND operator_code = #{operatorId}
         </if>
         <if test="operateTimeFrom != null">
             AND operate_time >= #{operateTimeFrom}
@@ -132,8 +127,7 @@
         <include refid="Base_Column_List" />
         FROM `reprint_record`
         <include refid="where"/>
-        <if test="pageNumber > 0">
-            limit #{offset}, #{limit}
-        </if>
+        order by id desc
+        limit #{offset}, #{limit}
     </select>
 </mapper>

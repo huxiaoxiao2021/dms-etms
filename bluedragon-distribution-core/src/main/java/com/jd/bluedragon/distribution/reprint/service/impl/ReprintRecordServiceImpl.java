@@ -16,6 +16,8 @@ import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,6 +100,10 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
                 result.toWarn(checkResult.getMessage());
                 return result;
             }
+            if(StringUtils.isNotEmpty(query.getOperatorErpOrName()) && query.getOperatorId() == null){
+                result.setData(0L);
+                return result;
+            }
             long total = rePrintRecordDao.queryCount(query);
             result.setData(total);
         }catch (Exception e){
@@ -116,6 +122,7 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
      * @date 2020-11-03 14:30:34 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ReprintRecordServiceImpl.queryPageList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<PageDto<ReprintRecordVo>> queryPageList(ReprintRecordQuery query) {
         if(log.isInfoEnabled()) {
             log.info("ReprintRecordServiceImpl.queryPageList param: {}", JSON.toJSONString(query));
@@ -127,10 +134,17 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
         pageData.setCurrentPage(query.getPageNumber());
         pageData.setPageSize(query.getLimit());
         List<ReprintRecordVo> dataList = new ArrayList<>();
+
+        pageData.setTotalRow((int)total);
+        pageData.setResult(dataList);
+        result.setData(pageData);
         try {
             Response<Boolean> checkResult = this.checkParam4QueryPageList(query);
             if(!checkResult.isSucceed()){
                 result.toWarn(checkResult.getMessage());
+                return result;
+            }
+            if(StringUtils.isNotEmpty(query.getOperatorErpOrName()) && query.getOperatorId() == null){
                 return result;
             }
             total = rePrintRecordDao.queryCount(query);
@@ -162,9 +176,6 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
             result.toError(e.getMessage());
             log.error("ReprintRecordServiceImpl.queryPageList exception: {}", e.getMessage(), e);
         }
-        pageData.setTotalRow((int)total);
-        pageData.setResult(dataList);
-        result.setData(pageData);
         return result;
     }
 

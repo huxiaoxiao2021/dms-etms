@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.business.entity;
 
-import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+
+import java.util.Date;
 
 /**
  * @ClassName: BusinessReturnAdress
@@ -40,6 +41,11 @@ public class BusinessReturnAdress extends DbEntity {
 	 */
 	private String businessName;
 
+    /**
+     * 事业部编码
+     * */
+    private String deptNo;
+
 	/**
 	 * 上次通知时间
 	 */
@@ -58,6 +64,11 @@ public class BusinessReturnAdress extends DbEntity {
 	 * 退货地址维护状态-0-未维护 1-已维护
 	 */
 	private String returnAdressStatusDesc;
+
+	/**
+     * 退货量
+     * */
+	private Integer returnQuantity;
 
 	/**
 	 * 1-有效，0-无效
@@ -144,7 +155,15 @@ public class BusinessReturnAdress extends DbEntity {
 		return this.businessName;
 	}
 
-	/**
+    public String getDeptNo() {
+        return deptNo;
+    }
+
+    public void setDeptNo(String deptNo) {
+        this.deptNo = deptNo;
+    }
+
+    /**
 	 *
 	 * @param lastNoticeTime
 	 */
@@ -200,7 +219,15 @@ public class BusinessReturnAdress extends DbEntity {
 		this.returnAdressStatusDesc = returnAdressStatusDesc;
 	}
 
-	/**
+    public Integer getReturnQuantity() {
+        return returnQuantity;
+    }
+
+    public void setReturnQuantity(Integer returnQuantity) {
+        this.returnQuantity = returnQuantity;
+    }
+
+    /**
 	 *
 	 * @param yn
 	 */

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    
+	    <!-- 多级异步缓冲组件配置，集成了消息中间件JMQ和定时调度器tbschedule -->
+	    
+	    
+	    <!-- 淘宝调度的任务生产者配置。 -->
+	    <bean id="dmsTbscheduleTaskStore" class="com.jd.bluedragon.distribution.task.asynBuffer.tbschedule.DmsTbscheduleTaskStore" autowire="byType"></bean>
+	    
+	    <bean id="simpleTaskStoreRouter" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.SimpleTbscheduleTaskStoreRouter">
+	    	<constructor-arg name="store" ref="dmsTbscheduleTaskStore"></constructor-arg>
+	    </bean>
+	    
+	    <bean id="tbscheduleProducer" class="com.jd.ql.framework.asynBuffer.producer.tbchedule.TbscheduleProducer">
+	    	<constructor-arg name="router" ref="simpleTaskStoreRouter"></constructor-arg>
+	    </bean>
+
+	    <!-- JMQ的任务生产者配置。 -->
+	    <bean id="jmqTopicRouter" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskOwnSignJmqTopicRouter">
+	    	<constructor-arg>
+	    		<map>
+					<!-- 分拣中心收货 -->
+					<entry key="task_inspection_1110_DMS" value="${jmq.task.topic.receive.dms}"/>
+					<entry key="task_inspection_1110_PRE" value="${jmq.task.topic.receive.pre}"/>
+					<entry key="task_inspection_1110_UAT" value="${jmq.task.topic.receive.uat}"/>
+
+					<!-- 分拣中心验货 -->
+					<entry key="task_inspection_1130_DMS" value="${jmq.task.topic.inspection.dms}"/>
+					<entry key="task_inspection_1130_PRE" value="${jmq.task.topic.inspection.pre}"/>
+					<entry key="task_inspection_1130_UAT" value="${jmq.task.topic.inspection.uat}"/>
+
+					<!-- 处理运单号关联包裹任务 -->
+					<entry key="task_inspection_1600_DMS" value="${jmq.task.topic.partnerWaybill.dms}"/>
+					<entry key="task_inspection_1600_PRE" value="${jmq.task.topic.partnerWaybill.pre}"/>
+					<entry key="task_inspection_1600_UAT" value="${jmq.task.topic.partnerWaybill.uat}"/>
+
+					<!-- 封签[封箱]异常任务 -->
+					<entry key="task_inspection_1140_DMS" value="${jmq.task.topic.shieldsBoxError.dms}"/>
+					<entry key="task_inspection_1140_PRE" value="${jmq.task.topic.shieldsBoxError.pre}"/>
+					<entry key="task_inspection_1140_UAT" value="${jmq.task.topic.shieldsBoxError.uat}"/>
+
+					<!-- 封签[封车]异常任务 -->
+					<entry key="task_inspection_1120_DMS" value="${jmq.task.topic.shieldsCarError.dms}"/>
+					<entry key="task_inspection_1120_PRE" value="${jmq.task.topic.shieldsCarError.pre}"/>
+					<entry key="task_inspection_1120_UAT" value="${jmq.task.topic.shieldsCarError.uat}"/>
+
+					<!-- 运单号关联包裹回传 -->
+					<entry key="task_inspection_1601_DMS" value="${jmq.task.topic.partnerWaybillSynchro.dms}"/>
+					<entry key="task_inspection_1601_PRE" value="${jmq.task.topic.partnerWaybillSynchro.pre}"/>
+					<entry key="task_inspection_1601_UAT" value="${jmq.task.topic.partnerWaybillSynchro.uat}"/>
+
+                    <!-- 验货多包裹拆分任务 -->
+                    <entry key="task_inspection_1136_DMS" value="${jmq.task.topic.inspection.split.dms}" />
+                    <entry key="task_inspection_1136_PRE" value="${jmq.task.topic.inspection.split.pre}" />
+                    <entry key="task_inspection_1136_UAT" value="${jmq.task.topic.inspection.split.uat}" />
+
+					<!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
+					<entry key="task_send_1300_DMS" value="${jmq.task.topic.send.dms}"/>
+					<entry key="task_send_1300_PRE" value="${jmq.task.topic.send.pre}"/>
+					<entry key="task_send_1300_UAT" value="${jmq.task.topic.send.uat}"/>
+					<!-- 批量发货任务（批次号维度处理）-->
+					<entry key="task_send_130001_DMS" value="${jmq.task.topic.batchSend.dms}"/>
+					<entry key="task_send_130001_PRE" value="${jmq.task.topic.batchSend.pre}"/>
+					<entry key="task_send_130001_UAT" value="${jmq.task.topic.batchSend.uat}"/>
+					<!-- 箱号发货回传运单状态任务-->
+					<entry key="task_send_130002_DMS" value="${jmq.task.topic.boxSend.dms}"/>
+					<entry key="task_send_130002_PRE" value="${jmq.task.topic.boxSend.pre}"/>
+					<entry key="task_send_130002_UAT" value="${jmq.task.topic.boxSend.uat}"/>					
+					<!-- 箱号中转发货任务-->
+					<entry key="task_send_130003_DMS" value="${jmq.task.topic.boxTransitSend.dms}"/>
+					<entry key="task_send_130003_PRE" value="${jmq.task.topic.boxTransitSend.pre}"/>
+					<entry key="task_send_130003_UAT" value="${jmq.task.topic.boxTransitSend.uat}"/>
+					<!-- 包裹发货回传运单状态任务-->
+					<entry key="task_send_130004_DMS" value="${jmq.task.topic.packageSend.dms}"/>
+					<entry key="task_send_130004_PRE" value="${jmq.task.topic.packageSend.pre}"/>
+					<entry key="task_send_130004_UAT" value="${jmq.task.topic.packageSend.uat}"/>
+					<!-- 支线发车推送运单任务-->
+					<entry key="task_send_1400_DMS" value="${jmq.task.topic.thirdDeparture.dms}"/>
+					<entry key="task_send_1400_PRE" value="${jmq.task.topic.thirdDeparture.pre}"/>
+					<entry key="task_send_1400_UAT" value="${jmq.task.topic.thirdDeparture.uat}"/>
+
+					<!-- 封箱解封箱Redis任务-->
+					<entry key="task_sorting_1210_DMS" value="${jmq.task.topic.sealBox.dms}"/>
+					<entry key="task_sorting_1210_PRE" value="${jmq.task.topic.sealBox.pre}"/>
+					<entry key="task_sorting_1210_UAT" value="${jmq.task.topic.sealBox.uat}"/>
+
+					<!-- 分拣退货Redis任务-->
+					<entry key="task_sorting_1220_DMS" value="${jmq.task.topic.sortingReturn.dms}"/>
+					<entry key="task_sorting_1220_PRE" value="${jmq.task.topic.sortingReturn.pre}"/>
+					<entry key="task_sorting_1220_UAT" value="${jmq.task.topic.sortingReturn.uat}"/>
+
+					<!-- 分拣-->
+					<entry key="task_sorting_1200_DMS" value="${jmq.task.topic.sorting.dms}"/>
+					<entry key="task_sorting_1200_PRE" value="${jmq.task.topic.sorting.pre}"/>
+					<entry key="task_sorting_1200_UAT" value="${jmq.task.topic.sorting.uat}"/>
+
+					<!-- 分拣拆分-->
+					<entry key="task_sorting_1260_DMS" value="${jmq.task.topic.sorting.split.dms}"/>
+					<entry key="task_sorting_1260_PRE" value="${jmq.task.topic.sorting.split.pre}"/>
+					<entry key="task_sorting_1260_UAT" value="${jmq.task.topic.sorting.split.uat}"/>
+
+					<!-- 分拣成功-->
+					<entry key="task_sorting_1280_DMS" value="${jmq.task.topic.sorting.success.dms}"/>
+					<entry key="task_sorting_1280_PRE" value="${jmq.task.topic.sorting.success.pre}"/>
+					<entry key="task_sorting_1280_UAT" value="${jmq.task.topic.sorting.success.uat}"/>
+
+					<!-- 称重信息回传运单中心（将弃用 -->
+					<entry key="task_weight_1160_DMS" value="${jmq.task.topic.weight.dms}"/>
+					<entry key="task_weight_1160_PRE" value="${jmq.task.topic.weight.pre}"/>
+					<entry key="task_weight_1160_UAT" value="${jmq.task.topic.weight.uat}"/>
+
+					<!-- 分拣操作称重量方回传（整合 -->
+					<entry key="task_weight_volume_1170_DMS" value="${jmq.task.topic.weight.volume.dms}"/>
+					<entry key="task_weight_volume_1170_PRE" value="${jmq.task.topic.weight.volume.pre}"/>
+					<entry key="task_weight_volume_1170_UAT" value="${jmq.task.topic.weight.volume.uat}"/>
+
+					<!-- 逆向备件库 -->
+					<entry key="task_reverse_3300_DMS" value="${jmq.task.topic.reverse.spare.dms}"/>
+					<entry key="task_reverse_3300_PRE" value="${jmq.task.topic.reverse.spare.pre}"/>
+					<entry key="task_reverse_3300_UAT" value="${jmq.task.topic.reverse.spare.uat}"/>
+
+					<!-- 运单状态-验货 -->
+					<entry key="task_waybill_0_DMS" value="${jmq.task.topic.waybill.status.inspection.dms}"/>
+					<entry key="task_waybill_0_PRE" value="${jmq.task.topic.waybill.status.inspection.pre}"/>
+					<entry key="task_waybill_0_UAT" value="${jmq.task.topic.waybill.status.inspection.uat}"/>
+
+					<!-- 运单状态-分拣 -->
+					<entry key="task_waybill_1_DMS" value="${jmq.task.topic.waybill.status.sorting.dms}"/>
+					<entry key="task_waybill_1_PRE" value="${jmq.task.topic.waybill.status.sorting.pre}"/>
+					<entry key="task_waybill_1_UAT" value="${jmq.task.topic.waybill.status.sorting.uat}"/>
+
+					<!-- 运单状态-逆向验货 -->
+					<entry key="task_waybill_30_DMS" value="${jmq.task.topic.waybill.status.reverse.inspection.dms}"/>
+					<entry key="task_waybill_30_PRE" value="${jmq.task.topic.waybill.status.reverse.inspection.pre}"/>
+					<entry key="task_waybill_30_UAT" value="${jmq.task.topic.waybill.status.reverse.inspection.uat}"/>
+
+					<!-- 运单状态-逆向分拣 -->
+					<entry key="task_waybill_40_DMS" value="${jmq.task.topic.waybill.status.reverse.sorting.dms}"/>
+					<entry key="task_waybill_40_PRE" value="${jmq.task.topic.waybill.status.reverse.sorting.pre}"/>
+					<entry key="task_waybill_40_UAT" value="${jmq.task.topic.waybill.status.reverse.sorting.uat}"/>
+
+					<!-- 运单状态-分拣退货 -->
+					<entry key="task_waybill_60_DMS" value="${jmq.task.topic.waybill.status.sorting.return.dms}"/>
+					<entry key="task_waybill_60_PRE" value="${jmq.task.topic.waybill.status.sorting.return.pre}"/>
+					<entry key="task_waybill_60_UAT" value="${jmq.task.topic.waybill.status.sorting.return.uat}"/>
+
+					<!-- 运单状态-三方验货 -->
+					<entry key="task_waybill_80_DMS" value="${jmq.task.topic.waybill.status.third.inspection.dms}"/>
+					<entry key="task_waybill_80_PRE" value="${jmq.task.topic.waybill.status.third.inspection.pre}"/>
+					<entry key="task_waybill_80_UAT" value="${jmq.task.topic.waybill.status.third.inspection.uat}"/>
+
+					<!-- 运单状态-发货 -->
+					<entry key="task_waybill_1300_DMS" value="${jmq.task.topic.waybill.status.delivery.dms}"/>
+					<entry key="task_waybill_1300_PRE" value="${jmq.task.topic.waybill.status.delivery.pre}"/>
+					<entry key="task_waybill_1300_UAT" value="${jmq.task.topic.waybill.status.delivery.uat}"/>
+
+					<!-- 运单状态-售后备件库 -->
+					<entry key="task_waybill_4300_DMS" value="${jmq.task.topic.waybill.status.aftersale.spare.dms}"/>
+					<entry key="task_waybill_4300_PRE" value="${jmq.task.topic.waybill.status.aftersale.spare.pre}"/>
+					<entry key="task_waybill_4300_UAT" value="${jmq.task.topic.waybill.status.aftersale.spare.uat}"/>
+
+					<!-- 运单状态-妥投 -->
+					<entry key="task_waybill_6667_DMS" value="${jmq.task.topic.waybill.status.done.dms}"/>
+					<entry key="task_waybill_6667_PRE" value="${jmq.task.topic.waybill.status.done.pre}"/>
+					<entry key="task_waybill_6667_UAT" value="${jmq.task.topic.waybill.status.done.uat}"/>
+
+					<!-- 运单状态-全程跟踪-6666 -->
+					<entry key="task_pop_6666_DMS" value="${jmq.task.topic.waybill.track.dms}"/>
+					<entry key="task_pop_6666_PRE" value="${jmq.task.topic.waybill.track.pre}"/>
+					<entry key="task_pop_6666_UAT" value="${jmq.task.topic.waybill.track.uat}"/>
+
+					<!-- 离线任务 -->
+					<entry key="task_offline_1800_DMS" value="${jmq.task.topic.offline.dms}"/>
+					<entry key="task_offline_1800_PRE" value="${jmq.task.topic.offline.pre}"/>
+					<entry key="task_offline_1800_UAT" value="${jmq.task.topic.offline.uat}"/>
+
+					<!-- 龙门架自动发货 -->
+					<entry key="task_scanner_frame_7779_DMS" value="${jmq.task.topic.scannerFrame.dms}"/>
+					<entry key="task_scanner_frame_7779_PRE" value="${jmq.task.topic.scannerFrame.pre}"/>
+					<entry key="task_scanner_frame_7779_UAT" value="${jmq.task.topic.scannerFrame.uat}"/>
+
+					<!-- 平台打印补验货任务 -->
+					<entry key="task_pop_print_inspection_1180_DMS" value="${jmq.task.topic.popprint.inspection.dms}"/>
+					<entry key="task_pop_print_inspection_1180_PRE" value="${jmq.task.topic.popprint.inspection.pre}"/>
+					<entry key="task_pop_print_inspection_1180_UAT" value="${jmq.task.topic.popprint.inspection.uat}"/>
+
+					<!-- 整板发货 -->
+					<entry key="task_board_send_1320_DMS" value="${jmq.task.topic.boardSend.dms}"/>
+					<entry key="task_board_send_1320_PRE" value="${jmq.task.topic.boardSend.pre}"/>
+					<entry key="task_board_send_1320_UAT" value="${jmq.task.topic.boardSend.uat}"/>
+
+					<!-- 整板取消发货 -->
+					<entry key="task_board_send_cancel_1321_DMS" value="${jmq.task.topic.boardSendCancel.dms}"/>
+					<entry key="task_board_send_cancel_1321_PRE" value="${jmq.task.topic.boardSendCancel.pre}"/>
+					<entry key="task_board_send_cancel_1321_UAT" value="${jmq.task.topic.boardSendCancel.uat}"/>
+				</map>
+	    	</constructor-arg>
+	    </bean>
+	    
+	    <bean id="jmqBizIdGen" class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskBusinessIdGen"></bean>
+	    
+		<jmq:transport id="dmsTaskJmqTransport" address="${dms.task.jmq.address}" user="${dms.task.jmq.user}" password="${dms.task.jmq.password}" app="${dms.task.jmq.app}"/>
+		<jmq:producer id="dmsTaskJmqProducer" retryTimes="2" transport="dmsTaskJmqTransport"/>
+
+	    <bean id="asynBufferJmqProducer" class="com.jd.ql.framework.asynBuffer.producer.jmq.DefaultJmqProducer">
+	    	<constructor-arg name="router" ref="jmqTopicRouter"></constructor-arg>
+	    	<constructor-arg name="gen" ref="jmqBizIdGen"></constructor-arg>
+	    	<constructor-arg name="coder">
+	    		<bean class="com.jd.bluedragon.distribution.task.asynBuffer.jmq.TaskJmqMessageJsonCoder"></bean>
+	    	</constructor-arg>
+	    	<property name="jmqProducer" ref="dmsTaskJmqProducer"></property>
+	    </bean>
+	    
+	    <!-- 自动故障转移的任务生产者配置。 -->
+	    <bean id="asynBufferFailoverProducer" class="com.jd.ql.framework.asynBuffer.producer.failover.FailoverProducer">
+	    	<constructor-arg name="producers">
+	    		<list>
+	    			<ref bean="asynBufferJmqProducer"/>
+	    			<ref bean="tbscheduleProducer"/>
+	    		</list>
+	    	</constructor-arg>	
+	    </bean>
+	    
+	    <!-- 动态可管理任务生产者配置。 -->
+	    <bean id="dynamicProducer" class="com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer">
+	    	<property name="jmqProducer" ref="asynBufferJmqProducer"/>
+	    	<property name="tbscheduleProducer" ref="tbscheduleProducer"/>
+	    	<property name="failoverProducer" ref="asynBufferFailoverProducer"/>
+	    	<property name="producerType" value="FAILOVER"></property>
+	    </bean>
+	    
+</beans>

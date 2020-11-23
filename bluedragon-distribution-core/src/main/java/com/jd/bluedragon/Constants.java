@@ -1338,5 +1338,8 @@ public class Constants {
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
-
+    /**
+     * 常量值：1
+     * */
+    public static final int  CONSTANT_NUMBER_ONE = 1;
 }
