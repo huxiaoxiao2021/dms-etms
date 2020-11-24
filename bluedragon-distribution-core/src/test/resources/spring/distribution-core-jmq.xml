@@ -250,6 +250,11 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--PDA操作取消发货MQ-->
+    <bean id="deliveryCancelSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.dms.delivery.cancel.send}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
     <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
     <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.sortscheme.send.DTC}"/>
