@@ -98,6 +98,10 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_29316 = 29316;
     public static final String MESSAGE_29316 = "此单为[白条强制拦截],请退货";
+    
+    //运营退货拦截
+    public static final Integer CODE_29317 = 29317;
+    public static final String MESSAGE_29317 = "此单为[运营退货拦截],请退货";
 
     /**************************************配送拦截新逻辑END******************************/
 
