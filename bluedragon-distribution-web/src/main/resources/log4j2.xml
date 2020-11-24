@@ -54,6 +54,19 @@
             </Policies>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
+
+        <!--安全日志-->
+        <RollingFile name="security.log" fileName="${LOG_HOME}/security.log"
+                     filePattern="${LOG_HOME}/security.%i.log">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="1G"/>
+            </Policies>
+            <DefaultRolloverStrategy max="2"/>
+        </RollingFile>
+
     </Appenders>
 
     <Loggers>

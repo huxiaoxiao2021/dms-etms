@@ -3,12 +3,16 @@ package com.jd.bluedragon.distribution.command;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.dms.utils.SecurityLog;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.transportation.common.security.log.dto.UniqueIdentifier;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -18,6 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,6 +41,7 @@ import java.util.Set;
 @Service("jsonCommandService")
 public class JsonCommandServiceImpl implements JdCommandService{
 	private static final Logger log = LoggerFactory.getLogger(JsonCommandServiceImpl.class);
+	private static final Logger securityLog = LoggerFactory.getLogger("security.log");
 
 	private static Set<String> encryptedInfo = new HashSet<String>();
 	static {
@@ -93,6 +102,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		String jsonResponse = JsonHelper.toJson(jdResult);
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
+		//写入安全日志
+		this.writeSecurityLog(jdCommand);
 
 		return jsonResponse;
 	}
@@ -159,5 +170,77 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			jsonObject.put(fieldName,null);
 		}
 		return jsonObject.toJSONString();
+	}
+
+	/**
+	 * 写入安全日志
+	 * @param jsonCommand
+	 * @param responseJsonString
+	 */
+	private void writeSecurityLog(JdCommand<String> jsonCommand){
+		try{
+			//构建参数
+			String reportLog =this.makeParamForSecurityLog(jsonCommand);
+			if (StringUtils.isEmpty(reportLog))return;
+			//打印日志
+			securityLog.info(reportLog);
+		}catch (Exception ex){
+			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
+		}
+	}
+
+	/**
+	 * 构建安全日志参数
+	 * @param jsonCommand
+	 * @param responseJsonString
+	 * @return
+	 */
+	private String makeParamForSecurityLog(JdCommand<String> jsonCommand) throws UnknownHostException {
+		//请求数据
+		WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
+		if (null == waybillPrintRequest)return null;
+
+		//头部信息
+		SecurityLog.HeadLogSecurityInfo head = new SecurityLog.HeadLogSecurityInfo();
+		head.setOp(SecurityLog.OpTypeEnum.QUERY.ordinal());
+		head.setInterfaceName(JsonCommandServiceImpl.class.getName());
+		head.setTime(new Date().getTime());
+		head.setServerIp(InetAddress.getLocalHost().getHostAddress());
+		head.setSystemName("QLFJZXJT");// TODO: 2020/11/24 看看有没有配置 替换配置
+		head.setAppName("dms.etms");// TODO: 2020/11/24
+		head.setClientIp(SecurityLog.LOCALHOST);
+		head.setVersion("V1.0");
+		head.setAccountName(SecurityLog.ACCOUNTNAME);
+		head.setAccountType(SecurityLog.AccountTypeEnum.ERP.ordinal());
+
+		//请求信息
+		SecurityLog.ReqLogSecurityInfo reqInfo = new SecurityLog.ReqLogSecurityInfo();
+		reqInfo.setErpId(waybillPrintRequest.getUserERP());
+		reqInfo.setTimeFrom(new Date().getTime());
+		reqInfo.setTimeTo(new Date().getTime());
+
+
+		//返回信息
+		SecurityLog.RespLogSecurityInfo respInfo = new SecurityLog.RespLogSecurityInfo();
+		respInfo.setStatus(0);
+		respInfo.setRecordCnt(1L);
+		SecurityLog.RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new SecurityLog.RespLogSecurityInfo.UniqueIdentifier();
+		uniqueIdentifier.setCarryBillId(waybillPrintRequest.getBarCode());
+		respInfo.setUniqueIdentifier(Arrays.asList(uniqueIdentifier));
+
+		SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
+
+		return JsonHelper.toJson(securityLog);
+
+	}
+
+	/**
+	 * 判断是否是平台打印或站点打印，是返回true,否则返回false
+	 * @param operateType
+	 * @return
+	 */
+	private Boolean isPlatformOrSitePrint(Integer operateType){
+		return operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
+				|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType()) ? Boolean.TRUE:Boolean.FALSE;
 	}
 }
