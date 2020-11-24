@@ -117,6 +117,15 @@
         and board_code = #{boardCode,jdbcType=VARCHAR}
     </select>
 
+    <select id="searchBySealCodeAndBoardCode" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" resultMap="unloadCarTransBoard">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car_board
+        where yn = 1 and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and board_code = #{boardCode,jdbcType=VARCHAR}
+    </select>
+
     <update id="updateCount" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard">
 		UPDATE unload_car_board
 		SET
