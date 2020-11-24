@@ -725,7 +725,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             logger.error("更新【{}】缓存异常",cacheKey,e);
         }
-        logger.info("卸车扫描5:cacheKey={}, addCount={}", cacheKey, addCount);
+        logger.info("卸车扫描5:cacheKey={}, addCount={}, count={}", cacheKey, addCount, count);
         return count;
     }
 
@@ -745,11 +745,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCarTransBoard.setCreateTime(new Date());
         unloadCarTransBoard.setUpdateTime(new Date());
         unloadCarTransBoard.setYn(1);
+        logger.info("卸车扫描20: unloadCarTransBoard={}", JsonHelper.toJson(unloadCarTransBoard));
+
         UnloadCarTransBoard unloadCarBoard = unloadCarTransBoardDao.searchBySealCode(request.getSealCarCode());
+        logger.info("卸车扫描21: unloadCarBoard={}", JsonHelper.toJson(unloadCarBoard));
         if(unloadCarBoard != null){
-            unloadCarTransBoardDao.updateCount(unloadCarTransBoard);
+            logger.info("卸车扫描22: unloadCarBoard={}", JsonHelper.toJson(unloadCarBoard));
+            int a = unloadCarTransBoardDao.updateCount(unloadCarTransBoard);
+            logger.info("卸车扫描23: updateCount={}", a);
         }else {
-            unloadCarTransBoardDao.add(unloadCarTransBoard);
+            logger.info("卸车扫描24: unloadCarBoard={}", JsonHelper.toJson(unloadCarBoard));
+            int b = unloadCarTransBoardDao.add(unloadCarTransBoard);
+            logger.info("卸车扫描25: updateCount={}", b);
         }
     }
 
