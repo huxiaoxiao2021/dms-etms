@@ -491,4 +491,5 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
     }
+
 }
