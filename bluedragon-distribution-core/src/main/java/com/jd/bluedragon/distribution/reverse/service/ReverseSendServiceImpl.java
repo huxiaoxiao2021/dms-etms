@@ -142,10 +142,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     SpareService spareService;
 
     @Autowired
-    @Qualifier("reverseSendSpareEclpProducer")
-    private DefaultJMQProducer reverseSendSpareEclpProducer;
-
-    @Autowired
     @Qualifier("reverseSpareEclp")
     private ReverseSpareEclp reverseSpareEclp;
 

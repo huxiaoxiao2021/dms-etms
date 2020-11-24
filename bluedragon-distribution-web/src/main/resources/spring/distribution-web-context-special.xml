@@ -66,13 +66,4 @@
 		</property>
 	</bean>
 
-	<bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl">
-		<property name="stores">
-			<list>
-				<value>6,6,80</value>
-				<value>006,006,080</value>
-			</list>
-		</property>
-	</bean>
-
 </beans>

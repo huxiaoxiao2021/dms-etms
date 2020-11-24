@@ -36,7 +36,6 @@
     *#
         <dd><a href="#springUrl('/globalTrade')" target="mainFrame">全球购</a></dd>
         <dd><a href="#springUrl('/gantry/index')" target="mainFrame">龙门架注册</a></dd>
-        <dd><a href="#springUrl('/autosorting/sortScheme/index')" target="mainFrame">分拣计划配置</a></dd>
         <dd><a href="#springUrl('/admin/remote-access')" target="mainFrame">客户改址查询</a></dd>
         <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
         <dd><a href="#springUrl('/businesslog/goListPage')" target="mainFrame">日志查询</a></dd>
@@ -45,7 +44,6 @@
         <dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
         <dd><a href="#springUrl('/fresh/index')" target="mainFrame">生鲜温度录入</a></dd>
         <dd><a href="#springUrl('/gantryAutoSend/index')" target="mainFrame">龙门架自动发货</a></dd>
-        <dd><a href="#springUrl('/sortMachineAutoSend/index')" target="mainFrame">分拣机自动发货</a></dd>
         <dd><a href="#springUrl('/abnormal/dmsAbnormalEclp/toIndex')" target="mainFrame">库房拒收外呼申请</a></dd>
         <dd><a href="#springUrl('http://dms.sc.jd.com/kaSortingReport/toIndex')" target="mainFrame">KA商家实时报表</a></dd>
         <dd><a href="#springUrl('/abnormalDispose/abnormalDispose/toIndex')" target="mainFrame">分拣批次清零</a></dd>
@@ -99,7 +97,6 @@
         <dd><a href="/sysconfig/dafu/index" target="mainFrame">大福线白名单管理</a></dd>
         <dd><a href="http://dmsver1.etms.jd.com/gantry/index" target="mainFrame">龙门架账号管理</a></dd>
         <dd><a href="#springUrl('/reverseReceive/index')" target="mainFrame">逆向收货查询</a></dd>
-        <dd><a href="#springUrl('/sortingCenter/index')" target="mainFrame">分拣中心测试查询工具</a></dd>
         <dd><a href="#springUrl('/areaDestPlan/index')" target="mainFrame">龙门架发货关系维护</a></dd>
         <dd><a href="$!{mixedConfigUrl}?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
         <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
@@ -112,9 +109,6 @@
         <dd><a href="#springUrl('/offlinePwd/list')" target="mainFrame">离线密码管理</a></dd>
         <dt><a href="#" class="curr">订单</a></dt>
         <dd><a href="#springUrl('/kuGuan/goListPage')" target="mainFrame">库管单号查询</a></dd>
-        <dt><a href="#" class="curr">ISV版控制</a></dt>
-        <dd><a href="#springUrl('/printDevice/index')" target="mainFrame">ISV版本控制</a></dd>
-        <dd><a href="#springUrl('/version/index')" target="mainFrame">ISV版本管理</a></dd>
     </dl>
 </div>
 <div id="control" class="control" jQuery1328083232241="11"></div>

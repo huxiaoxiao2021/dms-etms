@@ -103,11 +103,6 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.20.90}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
     <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.monitor.turnover.report}"/>
         <property name="timeout" value="1000"/>
@@ -211,11 +206,6 @@
     <!-- 空铁项目 - 发货登记 推送报表MQ -->
     <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
-    </bean>
-
-    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
-    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
     </bean>
 
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
@@ -370,12 +360,6 @@
     <!--空铁转陆运 提报外呼异常 发路由和质控 -->
     <bean id="arTransportModeChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ar.transportModeChange}"/>
-    </bean>
-
-    <!-- ECLP退备件库-->
-    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="10000"/>
-        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
     </bean>
 
     <!-- 冷链发货 -->
