@@ -101,6 +101,22 @@ public class CapacityDomain implements Serializable{
 	 */
 	private String airShiftName;
 
+	/**
+	 * 运力生效时间
+	 */
+	private String transEnableTime;
+
+	/**
+	 * 运力失效时间
+	 */
+	private String transDisableTime;
+
+	/**
+	 * 运力状态 (1:生效,2:失效)
+	 */
+	private Integer effectiveStatus;
+
+
 	public String getSorgid() {
 		return sorgid;
 	}
@@ -252,4 +268,28 @@ public class CapacityDomain implements Serializable{
     public void setRname(String rname) {
         this.rname = rname;
     }
+
+	public String getTransEnableTime() {
+		return transEnableTime;
+	}
+
+	public void setTransEnableTime(String transEnableTime) {
+		this.transEnableTime = transEnableTime;
+	}
+
+	public String getTransDisableTime() {
+		return transDisableTime;
+	}
+
+	public void setTransDisableTime(String transDisableTime) {
+		this.transDisableTime = transDisableTime;
+	}
+
+	public Integer getEffectiveStatus() {
+		return effectiveStatus;
+	}
+
+	public void setEffectiveStatus(Integer effectiveStatus) {
+		this.effectiveStatus = effectiveStatus;
+	}
 }

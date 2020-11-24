@@ -26,9 +26,14 @@
                 <value>classpath:configured/sms.properties</value>
             </list>
         </property>
+        <property name="properties" ref="secApplicationProperties"/>
     </bean>
-
-	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+    <!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
+    <bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
+        <property name="ignoreResourceNotFound" value="true" />
+        <property name="secLocation" value="classpath:configured/important.properties"/>
+    </bean>
+    <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 
 	<import resource="classpath:spring/distribution-core-datasource-jddl-test.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
@@ -95,4 +100,6 @@
             </bean>
         </constructor-arg>
     </bean>
+    <bean id="basicSelectWsManagerImpl" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl" ></bean>
+
 </beans>

@@ -6,6 +6,7 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
@@ -32,6 +33,9 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.tms.basic.dto.TransportResourceDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +58,10 @@ public class SiteServiceImpl implements SiteService {
     private VtsQueryWSProxy vtsQueryWSProxy;
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private BasicSelectWsManager basicSelectWsManager;
+
     @Autowired
     private SiteDao siteDao;
 
@@ -105,11 +113,16 @@ public class SiteServiceImpl implements SiteService {
         return base;
     }
 
+    /**
+     * 运力编码打印信息查询
+     * 运输接口人 : xuzhangwang
+     * @param request
+     * @return
+     */
     @Override
-    public CapacityCodeResponse queryCapacityCodeInfo(
-            CapacityCodeRequest request) {
+    public CapacityCodeResponse queryCapacityCodeInfo(CapacityCodeRequest request) {
         CapacityCodeResponse response = new CapacityCodeResponse();
-        VtsTransportResourceDto dtorequest = new VtsTransportResourceDto();
+        TransportResourceDto transportResourceDto = new TransportResourceDto();
 
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -117,87 +130,100 @@ public class SiteServiceImpl implements SiteService {
         try {
             // 始发区域
             if (request.getSorgid() != null)
-                dtorequest.setStartOrgId(request.getSorgid());
+                transportResourceDto.setStartOrgCode(String.valueOf(request.getSorgid()));
             // 始发站
             if (request.getScode() != null)
-                dtorequest.setStartNodeId(request.getScode());
+               transportResourceDto.setStartNodeCode(String.valueOf(request.getScode()));
             // 目的区域
             if (request.getRorgid() != null)
-                dtorequest.setEndOrgId(request.getRorgid());
+                transportResourceDto.setEndOrgCode(String.valueOf(request.getRorgid()));
             // 目的站
             if (request.getRcode() != null)
-                dtorequest.setEndNodeId(request.getRcode());
+                transportResourceDto.setEndNodeCode(String.valueOf(request.getRcode()));
             // 线路类型
             if (request.getRouteType() != null)
-                dtorequest.setRouteType(request.getRouteType());
-            // 运力类型
+                transportResourceDto.setTransType(request.getRouteType());
+            // 运力类型-承运商类型
             if (request.getTranType() != null)
-                dtorequest.setTransType(request.getTranType());
+                transportResourceDto.setCarrierType(request.getTranType());
             // 运输方式
             if (request.getTranMode() != null)
-                dtorequest.setTransMode(request.getTranMode());
+                transportResourceDto.setTransWay(request.getTranMode());
             // 运力编码
             if (request.getTranCode() != null)
-                dtorequest.setTransCode(request.getTranCode());
+                transportResourceDto.setTransCode(request.getTranCode());
             // 承运人信息
             if (request.getCarrierId() != null) {
                 //承运商ID
                 if (NumberHelper.isNumber(request.getCarrierId()) || request.getCarrierId().equals(Constants.JDZY))
-                    dtorequest.setCarrierId(Integer.parseInt(request.getCarrierId()));
+                    transportResourceDto.setCarrierCode(request.getCarrierId());
                     //承运商名称
-                else dtorequest.setCarrierName(request.getCarrierId());
-            }
-
-            List<VtsTransportResourceDto> result = vtsQueryWSProxy.getVtsTransportResourceDtoAll(dtorequest);
-
-            if (result != null && !result.isEmpty()) {
-                List<CapacityDomain> domainList = new ArrayList<CapacityDomain>();
-                for (VtsTransportResourceDto dto : result) {
-                    // 返回客户端所有信息
-                    CapacityDomain domain = new CapacityDomain();
-
-                    // 到车时间
-                    domain.setArriveTime(String.valueOf(dto.getArriveCarTime()));
-                    // 承运商
-                    domain.setCarrierName(String.valueOf(dto.getCarrierName()));
-                    // 目的站
-                    domain.setRcode(String.valueOf(dto.getEndNodeId()));
-                    domain.setRname(dto.getEndNodeName());
-                    // 目的区域
-                    domain.setRorgid(String.valueOf(dto.getEndOrgId()));
-                    domain.setRorgName(dto.getEndOrgName());
-                    // 线路类型
-                    domain.setRouteType(String.valueOf(dto.getRouteType()));
-                    // 始发站
-                    domain.setScode(String.valueOf(dto.getStartNodeId()));
-                    domain.setSname(dto.getStartNodeName());
-                    // 发车时间
-                    domain.setSendTime(String.valueOf(dto.getSendCarTime()));
-                    domain.setSendTimeStr(dto.getSendCarTimeStr());
-                    // 始发区域
-                    domain.setSorgid(String.valueOf(dto.getStartOrgId()));
-                    domain.setSorgName(dto.getStartOrgName());
-                    // 运力编码
-                    domain.setTranCode(String.valueOf(dto.getTransCode()));
-                    // 运输方式
-                    domain.setTranMode(String.valueOf(dto.getTransMode()));
-                    // 运力类型
-                    domain.setTranType(String.valueOf(dto.getTransType()));
-                    // 在途时长
-                    domain.setTravelTime(String.valueOf(dto.getTravelTime()));
-                    // 承运商名称
-                    domain.setCarrierName(dto.getCarrierName());
-                    // 承运商ID
-                    domain.setCarrierId(String.valueOf(dto.getCarrierId()));
-                    //航空班次
-                    domain.setAirShiftName(dto.getAirShiftName());
-
-                    domainList.add(domain);
-                }
-                if (domainList != null && !domainList.isEmpty()) {
-                    response.setData(domainList);
+                else {
+                    transportResourceDto.setCarrierName(request.getCarrierId());
                 }
             }
+
+            List<TransportResourceDto>  result = basicSelectWsManager.queryPageTransportResource(transportResourceDto);
+            if (CollectionUtils.isEmpty(result)) {
+                return response;
+            }
+
+            List<CapacityDomain> domainList = new ArrayList<>();
+            for (TransportResourceDto dto : result) {
+                // 返回客户端所有信息
+                CapacityDomain domain = new CapacityDomain();
+
+                // 到车时间
+                domain.setArriveTime(String.valueOf(dto.getArriveCarTime()));
+                // 承运商
+                domain.setCarrierName(String.valueOf(dto.getCarrierName()));
+                // 目的站
+                domain.setRcode(String.valueOf(dto.getEndNodeCode()));
+                domain.setRname(dto.getEndNodeName());
+                // 目的区域
+                domain.setRorgid(String.valueOf(dto.getEndOrgCode()));
+                domain.setRorgName(dto.getEndOrgName());
+                // 线路类型
+                domain.setRouteType(String.valueOf(dto.getTransType()));
+                // 始发站
+                domain.setScode(String.valueOf(dto.getStartNodeCode()));
+                domain.setSname(dto.getStartNodeName());
+                // 发车时间
+                domain.setSendTime(String.valueOf(dto.getSendCarTime()));
+                domain.setSendTimeStr(dto.getSendCarTimeStr());
+                // 始发区域
+                domain.setSorgid(String.valueOf(dto.getStartOrgCode()));
+                domain.setSorgName(dto.getStartOrgName());
+                // 运力编码
+                domain.setTranCode(String.valueOf(dto.getTransCode()));
+                // 运输方式
+                domain.setTranMode(String.valueOf(dto.getTransWay()));
+                // 运力类型
+                domain.setTranType(String.valueOf(dto.getTransType()));
+                // 在途时长
+                domain.setTravelTime(String.valueOf(dto.getTravelTime()));
+                // 承运商名称
+                domain.setCarrierName(dto.getCarrierName());
+                // 承运商ID
+                domain.setCarrierId(String.valueOf(dto.getCarrierCode()));
+                //航空班次
+                domain.setAirShiftName(dto.getAirShiftName());
+                //运力状态-
+                domain.setEffectiveStatus(dto.getEffectiveStatus());
+                //运力生效时间
+                if(dto.getTransEnableTime()!=null){
+                    domain.setTransEnableTime(DateHelper.formatDate(dto.getTransEnableTime()));
+                }
+                //运力失效时间
+                if(dto.getTransEnableTime()!=null){
+                    domain.setTransDisableTime(DateHelper.formatDate(dto.getTransDisableTime()));
+                }
+                domainList.add(domain);
+            }
+            if (!CollectionUtils.isEmpty(domainList)) {
+                response.setData(domainList);
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
