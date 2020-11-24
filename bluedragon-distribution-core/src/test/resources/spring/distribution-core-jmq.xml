@@ -255,11 +255,6 @@
         <property name="topic" value="${jmq.topic.bd.dms.delivery.cancel.send}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
-    <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.sortscheme.send.DTC}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
 
     <!--PDA循环箱收发箱MQ-->
     <bean id="recyclableBoxSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -292,12 +287,6 @@
     <!--驻厂打印面单成功，打印后发送mq信息给终端-->
     <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
-    </bean>
-
-    <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
-    <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="bd_sortscheme_send_DTC"/>
-        <property name="timeout" value="1000"/>
     </bean>
 
     <!--封车mq-->
