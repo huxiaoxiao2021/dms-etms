@@ -500,7 +500,7 @@
     </bean>
 
     <!--  包裹验货消息  -->
-    <bean id="dmsInspectionMQProducer" parent="dmsWebDefaultJMQProducer" >
+    <bean id="dmsInspectionMQProducer" parent="dmsWorkerDefaultJMQProducer" >
         <property name="topic" value="${jmq.topic.dms.package.inspection}"/>
     </bean>
 

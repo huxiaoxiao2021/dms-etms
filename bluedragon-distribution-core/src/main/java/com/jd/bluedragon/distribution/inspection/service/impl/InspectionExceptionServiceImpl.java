@@ -132,7 +132,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 */
 	@Override
 	@JProfiler(jKey = "DMSWEB.InspectionExceptionService.exceptionCancel", mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int exceptionCancel(List<InspectionEC> inspectionECs, Integer operationType) {
 		int sortingResult = 0;
 		int inspectionResult =0 ;
@@ -210,7 +209,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 */
 	@Override
 	@JProfiler(jKey= "DMSWEB.InspectionExceptionService.directDistribution")
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int directDistribution(List<InspectionEC> inspectionECs, Integer operationType) {
 		
 		int result = 0;

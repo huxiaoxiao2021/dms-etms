@@ -1,28 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd" default-lazy-init="true">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:configured/*.properties</value>
-                <value>classpath:configured/important.properties</value>
-            </list>
-        </property>
-    </bean>
-    <!--<import resource="classpath:spring/distribution-core-common.xml" />-->
-    <!--<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />-->
-
-    <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor" lazy-init="false">
-        <constructor-arg index="0">
-            <bean class="com.jd.coo.sa.sequence.snowflake.impl.PropertiesFileSnowflakeSequenceGen">
-                <constructor-arg index="0" value="/configured/snowflake.properties"/>
-            </bean>
-        </constructor-arg>
-    </bean>
     <!-- 采用JProxy分库分表 start -->
     <bean id="inspectionDao"
           class="com.jd.bluedragon.distribution.inspection.dao.InspectionDao">
@@ -34,7 +14,7 @@
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
-    <bean id="sendMDao" class="com.jd.bluedragon.distribution.send.router.SendMRouter" lazy-init="true">
+    <bean id="sendMDao" class="com.jd.bluedragon.distribution.send.router.SendMRouter">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
@@ -43,7 +23,7 @@
         <property name="sqlSessionRead" ref="readSqlSessionTemplate"/>
     </bean>
 
-    <bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao" lazy-init="true">
+    <bean id="SendDatailDao" class="com.jd.bluedragon.distribution.send.dao.SendDetailRouterDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
@@ -62,7 +42,7 @@
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
-    <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao" lazy-init="true">
+    <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
 
@@ -105,6 +85,11 @@
 
     <bean id="inspectionECDao"
           class="com.jd.bluedragon.distribution.inspection.dao.InspectionECDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="WhiteListDao"
+          class="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
@@ -294,6 +279,7 @@
 
     <bean id="loadBillDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"/>
     </bean>
 
     <bean id="loadBillReadDao" class="com.jd.bluedragon.distribution.globaltrade.dao.LoadBillReadDao">
@@ -505,10 +491,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
-    <bean id="reprintRecordDao" class="com.jd.bluedragon.distribution.reprint.dao.ReprintRecordDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
     <!-- 备件库分拣记录 -->
     <bean id="spareSortingRecordDao" class="com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -527,15 +509,94 @@
     <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 分拣复重抽检任务统计 -->
+    <bean id="reviewWeightSpotCheckDao" class="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 清场 -->
+    <bean id="inventoryTaskDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryTaskDaoImpl"/>
+
+    <bean id="inventoryScanDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryScanDetailDaoImpl"/>
+
+    <bean id="inventoryExceptionDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryExceptionDaoImpl"/>
+
+    <!-- 交接 -->
+    <bean id="allianceBusiDeliveryDetailDao" class="com.jd.bluedragon.distribution.alliance.dao.impl.AllianceBusiDeliveryDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 包裹补打记录 -->
+    <bean id="rePrintRecord" class="com.jd.bluedragon.distribution.reprint.dao.ReprintRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 转运集货 -->
+    <bean id="collectGoodsAreaDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsAreaDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="collectGoodsPlaceTypeDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsPlaceTypeDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
     <bean id="collectGoodsDetailDao" class="com.jd.bluedragon.distribution.collect.dao.impl.CollectGoodsDetailDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 箱号与集包袋绑定 -->
+    <bean id="boxMaterialRelationDao" class="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 商家称重量方白名单 -->
+    <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 中台过渡 -->
+    <bean id="middleEndSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.MiddleEndSortingDao"></bean>
+    <bean id="failoverSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.FailoverSortingDao"></bean>
+    <bean id="dynamicSortingQueryDao" class="com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao">
+        <property name="sortingDao" ref="sortingDao"></property>
+        <property name="middleEndSortingDao" ref="middleEndSortingQueryDao"></property>
+        <property name="failoverSortingDao" ref="failoverSortingQueryDao"></property>
+    </bean>
+
+    <!-- 规则管理 -->
+    <bean id="ruleDao" class="com.jd.bluedragon.distribution.rule.dao.RuleDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <bean id="cancelWaybillDao" class="com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
+    <!-- 逆向入库单 -->
+    <bean id="reverseStockInDetailDao" class="com.jd.bluedragon.distribution.reverse.dao.impl.ReverseStockInDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="interceptConfigInfoDao" class="com.jd.bluedragon.distribution.interceptconfig.dao.InterceptConfigInfoDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!-- KA单号校验记录 -->
     <bean id="waybillCodeCheckDao" class="com.jd.bluedragon.distribution.financialForKA.dao.WaybillCodeCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="exportLogDao" class="com.jd.bluedragon.distribution.exportlog.dao.ExportLogDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
@@ -550,22 +611,40 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!--装车任务-->
+    <bean id="loadCarDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao">
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+    <bean id="loadCarHelperDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="goodsLoadScanDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+    <bean id="goodsLoadScanRecordDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao">
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 集包异常举报 -->
+    <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 功能开关配置表 -->
+    <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
-        <property name="sqlSession" ref="divSqlSessionTemplate"/>
+        <property name="sqlSession" ref="sessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
-
-    <!-- PDA功能使用白名单 -->
-    <bean id="WhiteListDao"
-          class="com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
-    <bean id="boxLimitDao" class="com.jd.bluedragon.distribution.boxlimit.dao.BoxLimitConfigDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>
@@ -585,5 +664,24 @@
 
     <bean id="materialSendFlowDao" parent="businessBaseDao"
           class="com.jd.bluedragon.distribution.material.dao.impl.MaterialSendFlowDaoImpl" />
+
+    <bean id="dmsScheduleInfoDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.schedule.dao.impl.DmsScheduleInfoDaoImpl" />
+    <bean id="businessReturnAdressDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.business.dao.impl.BusinessReturnAdressDaoImpl" />
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
+
+    <!--################################## 总部waybill库 相关DAO Start ############################################ -->
+
+    <bean id="waybillCacheDao" class="com.jd.bluedragon.distribution.waybill.dao.WaybillCacheDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+
+    <!-- 包裹重量体积流水 -->
+    <bean id="packageWeightingDao" class="com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao">
+        <property name="sqlSession" ref = "sessionTemplate_waybill"/>
+    </bean>
+    <!--################################## bd_dms_business 相关DAO End ############################################ -->
+
 </beans>

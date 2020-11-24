@@ -265,4 +265,7 @@ public class DmsConstants {
     public static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
     public static final int ADDRESS_HIDE_LENGTH = 6; //地址信息需要隐藏的后几位，用微笑符号替代
     public static final int NAME_SHOW_LENGTH = 1; //姓名信息需要隐藏的位数
+
+    /*车牌号正则表达式*/
+    public static final String NUMBERPLATE_CODE = "^([\\u4e00-\\u9fa5]{1}|[0-9]{3,4})[0-9A-Za-z]{6,7}$";
 }

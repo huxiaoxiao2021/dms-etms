@@ -229,7 +229,6 @@ public class InspectionServiceImpl implements InspectionService {
 		}
 	}
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void saveData(Inspection inspection, String methodName) {//FIXME:private
         this.insertOrUpdate(inspection);
         addOperationLog(inspection,methodName);
@@ -381,7 +380,6 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int addInspectionPop(Inspection inspectionPop) {
 		int result = inspectionDao.updatePop(inspectionPop);
 		if (Constants.NO_MATCH_DATA == result) {

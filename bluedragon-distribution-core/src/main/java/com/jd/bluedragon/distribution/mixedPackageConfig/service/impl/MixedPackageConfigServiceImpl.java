@@ -3,34 +3,29 @@ package com.jd.bluedragon.distribution.mixedPackageConfig.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.jsf.domain.MixedSite;
-import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
-import com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigMapper;
+import com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest;
+import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedSite;
+import com.jd.bluedragon.distribution.mixedPackageConfig.domain.PrintQueryRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.service.MixedPackageConfigService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service("mixedPackageConfigService")
 public class MixedPackageConfigServiceImpl implements MixedPackageConfigService {
@@ -40,14 +35,10 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     private static final String COLLECTION_ADDRESS_REDIS_KEY_PREFIX = "COLLECTION_ADDRESS_";
 
     @Autowired
-    private MixedPackageConfigMapper mixedPackageConfigMapper;
+    private MixedPackageConfigDao mixedPackageConfigDao;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
 
     @Override
     public boolean checkMixedPackageConfig(Integer createSiteCode, Integer reciveSiteCode, Integer mixedSiteCode, Integer transportType, Integer ruleType) {
@@ -58,13 +49,13 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setTransportType(transportType);
         mixedPackageConfig.setRuleType(ruleType);
         //直接根据预分拣站点查询混装规则
-        boolean passFlag = mixedPackageConfigMapper.queryConfings(mixedPackageConfig) > 0 ? true : false;
+        boolean passFlag = mixedPackageConfigDao.queryConfigs(mixedPackageConfig) > 0 ? true : false;
         // 如果查询不到，则根据预分拣站点绑定的分拣中心进行查询
         if (!passFlag) {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = getBaseStaffSiteOrgDtoBySiteCode(mixedSiteCode);
             if (null != baseStaffSiteOrgDto && null != baseStaffSiteOrgDto.getDmsId()) {
                 mixedPackageConfig.setMixedSiteCode(baseStaffSiteOrgDto.getDmsId());
-                passFlag = mixedPackageConfigMapper.queryConfings(mixedPackageConfig) > 0 ? true : false;
+                passFlag = mixedPackageConfigDao.queryConfigs(mixedPackageConfig) > 0 ? true : false;
             }
         }
         return passFlag;
@@ -85,7 +76,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<MixedPackageConfig> queryMixedPackageConfigs(MixedPackageConfigRequest mixedPackageConfigRequest, Pager pager) {
         List<MixedPackageConfig> mixedPackageConfigList = new ArrayList<MixedPackageConfig>();
-        Integer count = mixedPackageConfigMapper.queryMixedPackageConfigCountByRequest(mixedPackageConfigRequest);
+        Integer count = mixedPackageConfigDao.queryMixedPackageConfigCountByRequest(mixedPackageConfigRequest);
         if (pager == null) {
             pager = new Pager();
         }
@@ -94,7 +85,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
             pager.init();
             mixedPackageConfigRequest.setStartIndex(pager.getStartIndex());
             mixedPackageConfigRequest.setPageSize(pager.getPageSize());
-            mixedPackageConfigList = mixedPackageConfigMapper.queryMixedPackageConfigs(mixedPackageConfigRequest);
+            mixedPackageConfigList = mixedPackageConfigDao.queryMixedPackageConfigs(mixedPackageConfigRequest);
         }
 
         return getEnumNameByCode(mixedPackageConfigList);
@@ -108,13 +99,13 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setUpdateUser(userName);
         mixedPackageConfig.setUpdateUserCode(userCode);
         mixedPackageConfig.setTs(System.currentTimeMillis());
-        return mixedPackageConfigMapper.updateConfigYNById(mixedPackageConfig);
+        return mixedPackageConfigDao.updateConfigYNById(mixedPackageConfig);
     }
 
     @Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<MixedPackageConfig> querySelectedConfigs(MixedPackageConfigRequest mixedPackageConfigRequest) {
-        return mixedPackageConfigMapper.querySelectedConfigs(mixedPackageConfigRequest);
+        return mixedPackageConfigDao.querySelectedConfigs(mixedPackageConfigRequest);
     }
 
     @Override
@@ -122,7 +113,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     public Integer saveConfigs(MixedPackageConfigRequest request, Integer userCode, String userName) {
         List<MixedPackageConfig> mixedPackageConfigList = new ArrayList<MixedPackageConfig>();
         mixedPackageConfigList.addAll(getMixedPackageConfigList(request, userCode, userName));
-        return mixedPackageConfigMapper.saveConfigs(mixedPackageConfigList);
+        return mixedPackageConfigDao.saveConfigs(mixedPackageConfigList);
     }
 
     @Override
@@ -136,7 +127,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfigRequest.setUserCode(userCode);
         mixedPackageConfigRequest.setUserName(userName);
         mixedPackageConfigRequest.setTs(System.currentTimeMillis());
-        return mixedPackageConfigMapper.updateConfigs(mixedPackageConfigRequest);
+        return mixedPackageConfigDao.updateConfigs(mixedPackageConfigRequest);
     }
 
     @Override
@@ -147,7 +138,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setReceiveSiteCode(receiveSiteCode);
         mixedPackageConfig.setTransportType(transportType);
         mixedPackageConfig.setRuleType(ruleType);
-        return mixedPackageConfigMapper.queryConfigsForPrint(mixedPackageConfig);
+        return mixedPackageConfigDao.queryConfigsForPrint(mixedPackageConfig);
     }
 
     /**
@@ -161,6 +152,8 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
      * @return
      */
     @Override
+    @CacheMethod(key="MixedPackageConfigServiceImpl.queryMixedSiteCodeForPrint-{0.originalDmsCode}-{0.destinationDmsCode}" +
+            "-{0.transportType}-{0.ruleType}",cacheBean="redisCache", nullTimeout = 1000 * 60 * 10, timeout=1000 * 60 * 10)
     public MixedSite queryMixedSiteCodeForPrint(PrintQueryRequest request) {
         if(request == null || request.getOriginalDmsCode() == null
                 || request.getDestinationDmsCode() == null
@@ -169,18 +162,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
             logger.warn("参数错误!");
             return null;
         }
-        StringBuilder keyBuilder = new StringBuilder(COLLECTION_ADDRESS_REDIS_KEY_PREFIX);
-        keyBuilder.append(request.getOriginalDmsCode()).append("_").append(request.getDestinationDmsCode())
-                .append("_").append(request.getTransportType());
-        try {
-            String mixedFromCache = jimdbCacheService.get(keyBuilder.toString());
-            if(StringUtils.isNotEmpty(mixedFromCache)){
-                return JsonHelper.fromJsonDateFormat(mixedFromCache,MixedSite.class);
-            }
-        }catch (Exception e){
-            logger.error("获取集包地缓存【{}】异常",keyBuilder.toString(),e);
-        }
-
         try {
             MixedPackageConfig mixedPackageConfig = queryMixedSiteCode(request);
             if(mixedPackageConfig == null){
@@ -201,11 +182,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
             if(StringUtils.isNotEmpty(mixedSiteName)){
                 mixedSite.setCollectionAddress(Constants.MIXED_SITE_NAME_PREFIX + mixedSiteName);
             }
-            try {
-                jimdbCacheService.setEx(keyBuilder.toString(), JsonHelper.toJson(mixedSite), 5, TimeUnit.MINUTES);
-            }catch (Exception e){
-                logger.error("设置集包地缓存【{}】异常",JsonHelper.toJson(mixedSite),e);
-            }
             return mixedSite;
         }catch (Exception e){
             logger.error("查询集包地异常,入参【{}】", JsonHelper.toJson(request),e);
@@ -223,46 +199,39 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
         mixedPackageConfig.setRuleType(RuleTypeEnum.BUILD_PACKAGE.getCode());
         mixedPackageConfig.setCreateSiteCode(printQueryRequest.getOriginalDmsCode());
         mixedPackageConfig.setMixedSiteCode(printQueryRequest.getDestinationDmsCode());
-        List<MixedPackageConfig> mixedPackList = mixedPackageConfigMapper.queryMixedPackageConfigs(mixedPackageConfig);
-        if(CollectionUtils.isEmpty(mixedPackList)){
-            mixedPackageConfig.setMixedSiteCode(null);
-            mixedPackageConfig.setReceiveSiteCode(printQueryRequest.getDestinationDmsCode());
-            mixedPackList = mixedPackageConfigMapper.queryMixedPackageConfigs(mixedPackageConfig);
+        Integer receiveSiteCode = printQueryRequest.getDestinationDmsCode();
+        if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
+            mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
+            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
         }
-        if(CollectionUtils.isEmpty(mixedPackList)){
-            logger.warn("始发【{}】目的【{}】未维护到集包地",printQueryRequest.getOriginalDmsCode(),printQueryRequest.getDestinationDmsCode());
-            return null;
-        }
-        // 按时间降序排序
-        Collections.sort(mixedPackList, new Comparator<MixedPackageConfig>() {
-            @Override
-            public int compare(MixedPackageConfig o1, MixedPackageConfig o2) {
-                if(o1.getTs() == null || o2.getTs() == null){
-                    return 0;
-                }
-               return new Long(o2.getTs() - o1.getTs()).intValue();
-            }
-        });
-        // 按运输方式拆分
-        List<MixedPackageConfig> airList = new ArrayList<MixedPackageConfig>();
-        List<MixedPackageConfig> highWayList = new ArrayList<MixedPackageConfig>();
-        for(MixedPackageConfig mixedPack : mixedPackList){
-            if(TransportTypeEnum.AIR_TRANSPORT.getCode().equals(mixedPack.getTransportType())){
-                airList.add(mixedPack);
-            }else if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(mixedPack.getTransportType())){
-                highWayList.add(mixedPack);
-            }
-        }
-        // 面单打【航】则取航空运输，未取到则取公路运输；面单未打【航】取公路运输
         if(TransportTypeEnum.AIR_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
-            if(!CollectionUtils.isEmpty(airList)){
-                return airList.get(0);
+            mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
+            MixedPackageConfig mixedResult = getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
+            if(mixedResult != null){
+                return mixedResult;
             }
-        }
-        if(!CollectionUtils.isEmpty(highWayList)){
-            return highWayList.get(0);
+            mixedPackageConfig.setTransportType(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode());
+            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
         }
         return null;
+    }
+
+    /**
+     * 根据条件查询集包地
+     *  1、根据始发、集包地查询
+     *  2、未查询到则根据始发、目的查询
+     * @param receiveSiteCode
+     * @param mixedPackageConfig
+     * @return
+     */
+    private MixedPackageConfig getMixedPackageConfig(Integer receiveSiteCode, MixedPackageConfigRequest mixedPackageConfig) {
+        MixedPackageConfig mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
+        if(mixedPack == null){
+            mixedPackageConfig.setMixedSiteCode(null);
+            mixedPackageConfig.setReceiveSiteCode(receiveSiteCode);
+            mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
+        }
+        return mixedPack;
     }
 
 
@@ -330,7 +299,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
                         mixedPackageConfig.setRuleType(rule);
                         mixedPackageConfig.setTransportType(transportType);
                         mixedPackageConfig.setTs(now);
-                        if (mixedPackageConfigMapper.queryMixedPackageConfigCount(mixedPackageConfig) == 0) {
+                        if (mixedPackageConfigDao.queryMixedPackageConfigCount(mixedPackageConfig) == 0) {
                             mixedPackageConfigList.add(mixedPackageConfig);
                         }
 
