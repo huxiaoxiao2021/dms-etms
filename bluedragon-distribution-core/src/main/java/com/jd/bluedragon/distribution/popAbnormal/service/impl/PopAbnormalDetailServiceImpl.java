@@ -44,7 +44,6 @@ public class PopAbnormalDetailServiceImpl implements PopAbnormalDetailService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(PopAbnormalDetail popAbnormalDetail) {
 		if (popAbnormalDetail == null) {
 			this.log.info("POP差异明细Service --> add 传入验证参数为空");

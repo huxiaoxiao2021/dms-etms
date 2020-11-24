@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigMapper">
+<mapper namespace="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao">
 
     <resultMap id="mixedPackageConfigMap"
                type="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig">
@@ -123,21 +123,21 @@
         TS
     </sql>
 
-    <select id="queryConfings" parameterType="mixedPackageConfig" resultType="Integer">
+    <select id="queryConfigs" parameterType="mixedPackageConfig" resultType="Integer">
         SELECT count(1) FROM MIXED_PACKAGE_CONFIG
         <include refid="whereCondition"/>
 
     </select>
 
 
-    <select id="queryMixedPackageConfigCountByRequest" resultType="int"
+    <select id="queryMixedPackageConfigCountByRequest" resultType="Integer"
             parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
         SELECT
         count(1)
         FROM MIXED_PACKAGE_CONFIG
         <include refid="whereCondition"/>
     </select>
-    <select id="queryMixedPackageConfigCount" resultType="int"
+    <select id="queryMixedPackageConfigCount" resultType="Integer"
             parameterType="mixedPackageConfig">
         SELECT
         count(1)
@@ -157,6 +157,32 @@
         <if test="startIndex != null">
             LIMIT #{startIndex}, #{pageSize}
         </if>
+    </select>
+
+    <select id="queryMixedSite" resultMap="mixedPackageConfigMap"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
+        select
+        <include refid="querycolumn"/>
+        from MIXED_PACKAGE_CONFIG
+
+        where yn = 1
+
+        and CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+
+        <if test="receiveSiteCode!=null">
+            and RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        </if>
+        <if test="transportType!=null">
+            and TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        </if>
+        <if test="ruleType!=null">
+            and RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        </if>
+        <if test="mixedSiteCode!=null">
+            and MIXED_SITE_CODE = #{mixedSiteCode, jdbcType=BIGINT}
+        </if>
+        order by ts desc
+        limit 1
     </select>
 
 

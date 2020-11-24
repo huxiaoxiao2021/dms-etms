@@ -168,10 +168,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Qualifier("eclpItemManager")
     private EclpItemManager eclpItemManager;
 
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
-
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
      * 退货地址维护通知key
@@ -797,7 +793,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         String key = RETURN_ADDRESS_REDIS_KEY_PREFIX.concat(String.valueOf(businessId));
         boolean exists = false;
         try {
-            exists = jimdbCacheService.exists(key);
+            exists = cacheService.exists(key);
         }catch (Exception e){
             log.error("获取商家【{}】的站内信通知缓存异常!",businessId,e);
         }
@@ -820,7 +816,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if(jdResult != null && jdResult.isSucceed()){
             try {
                 // 记录缓存
-                jimdbCacheService.setEx(key,String.valueOf(true),Constants.CONSTANT_NUMBER_ONE, TimeUnit.DAYS);
+                cacheService.setEx(key,String.valueOf(true),Constants.CONSTANT_NUMBER_ONE, TimeUnit.DAYS);
             }catch (Exception e){
                log.error("记录商家【{}】的站内信通知缓存异常!",businessId,e);
             }
@@ -846,7 +842,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             // 事业部编码
             LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCode);
             String settleSubjectCode = claimInfoRespDTO == null ? null : claimInfoRespDTO.getSettleSubjectCode();
-            deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+            if(settleSubjectCode != null){
+                deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+            }
         }catch (Exception e){
             log.error("根据站点编码【{}】获取站点|根据运单号【{}】获取事业部编码异常!",e,dmsSiteCode,oldWaybillCode);
         }
@@ -880,7 +878,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         int returnAddressStatus = hasBackInfo ?
                 BusinessReturnAdressStatusEnum.YES.getStatusCode() : BusinessReturnAdressStatusEnum.NO.getStatusCode();
         if(businessReturnAddress != null){
-            // 更新退货次数
+            // 更新退货次数和事业部编码
+            businessReturnAddress.setDeptNo(commonAddress.getDeptNo());
             businessReturnAdressService.updateReturnQuantity(businessReturnAddress);
         }else {
             commonAddress.setReturnAdressStatus(returnAddressStatus);

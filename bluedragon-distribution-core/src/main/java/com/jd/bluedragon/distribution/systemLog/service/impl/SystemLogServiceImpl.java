@@ -56,7 +56,6 @@ public class SystemLogServiceImpl implements SystemLogService {
 	//cassandra开关
 	public static final String CASSANDRA_SWITCH = "CASSANDRA_SWITCH";
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(SystemLog systemLog) {
 
 	    if (!uccPropertyConfiguration.isSystemLogGlobalSwitch()) {

@@ -105,7 +105,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	private LogEngine logEngine;
 
 	@JProfiler(jKey= "DMSWORKER.SortingReturnService.doSortingReturnForTask",mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void doSortingReturn(Task task) throws Exception {
 			this.execReturns(task);	
 	}
@@ -350,7 +349,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		return waybillStatus;
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer doAddReturn(SortingReturn returns) {
 		/** 设置查询参数 */
 		SendDetail tSendDatail = new SendDetail();

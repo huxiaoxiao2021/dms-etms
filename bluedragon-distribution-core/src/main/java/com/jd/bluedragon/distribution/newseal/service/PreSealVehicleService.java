@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.newseal.service;
 
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.ql.dms.common.web.mvc.api.Service;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-
 /**
  *
  * @ClassName: PreSealVehicleService
@@ -110,7 +109,7 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      * @throws Exception
      */
-    boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime ) throws Exception;
+    List<PreSealVehicle> batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime ) throws Exception;
 
     /**
      * 根据运力编码获取预封车信息

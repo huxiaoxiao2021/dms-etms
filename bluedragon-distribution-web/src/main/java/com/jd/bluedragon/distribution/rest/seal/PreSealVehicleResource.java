@@ -379,7 +379,7 @@ public class PreSealVehicleResource {
     public NewSealVehicleResponse cancelPreSeal(CancelPreSealVehicleRequest request) {
         NewSealVehicleResponse<Boolean> newSealVehicleResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
         log.info("取消预封车任务失败！，参数：{}", JsonHelper.toJson(request));
-        if (request.getVehicleNumber() == null) {
+        if (StringUtils.isEmpty(request.getVehicleNumber())) {
             newSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
             newSealVehicleResponse.setMessage("车牌号不能为空！");
             return newSealVehicleResponse;
