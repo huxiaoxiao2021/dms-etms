@@ -90,10 +90,6 @@ public class RmaConsumerTest {
     private WaybillCommonService waybillCommonService;
 
     @Mock
-    @Qualifier("kyStorageProducer")
-    private DefaultJMQProducer kyStorageProducer;
-
-    @Mock
     private StoragePackageMService storagePackageMService;
 
     @Before
