@@ -98,6 +98,7 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
+            <AppenderRef ref="security.log"/>
         </AsyncRoot>
     </Loggers>
 
