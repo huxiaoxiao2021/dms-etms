@@ -80,17 +80,26 @@
     </jsf:consumer>
 
     <!-- 运力编码Vts系统 李胜涛  -->
-    <jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf"
+   <!-- <jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf"
                   alias="${vst.jsf.alias}" serialization="hessian" timeout="${vst.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <bean id="vtsQueryWSProxy" class="com.jd.etms.vts.proxy.impl.VtsQueryWSProxyImpl">
         <property name="vtsQueryWS" ref="vtsQueryWS"></property>
-    </bean>
+    </bean>-->
 
-    <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
-                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
+    <!--运力编码新接口 2020.11.18 徐章旺-->
+    <jsf:consumer id="basicSelectWS" interface="com.jd.tms.basic.ws.BasicSelectWS" protocol="jsf" alias="${basicSelectWs.jsf.alias}"
+                  timeout="${basicSelectWs.jsf.timeout}" retries="${jsf.retries}" serialization="hessian" >
     </jsf:consumer>
+
+    <!--<bean id="basicSelectWsManager" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl">
+        <property name="basicSelectWsManager" ref="basicSelectWS"></property>
+    </bean>-->
+
+   <!-- <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
+                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>-->
 
     <!-- 订单 协商再投 刘春和  -->
     <jsf:consumer id="abnormalOrderApi" interface="com.jd.ldop.business.api.AbnormalOrderApi" protocol="jsf"
@@ -143,21 +152,21 @@
     <!-- 运单系统接口 结束 -->
     <!-- 基础资料系统接口 开始 -->
     <!--获取站点，员工，机构等数据-->
-    <jsf:consumer id="basicPrimaryWS" interface="com.jd.ql.basic.ws.BasicPrimaryWS" protocol="jsf"
+   <!-- <jsf:consumer id="basicPrimaryWS" interface="com.jd.ql.basic.ws.BasicPrimaryWS" protocol="jsf"
                   alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
     </jsf:consumer>
 
-    <!--basicPrimaryWS接口代理类，内有 获取全量站点、员工 方法-->
+    &lt;!&ndash;basicPrimaryWS接口代理类，内有 获取全量站点、员工 方法&ndash;&gt;
     <bean id="basicPrimaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicPrimaryWSProxyImpl">
         <property name="basicPrimaryWS" ref="basicPrimaryWS"></property>
-    </bean>
+    </bean>-->
 
     <!--获取省市县地址、商家、门店等数据-->
-    <jsf:consumer id="basicSecondaryWS" interface="com.jd.ql.basic.ws.BasicSecondaryWS" protocol="jsf"
+    <!--<jsf:consumer id="basicSecondaryWS" interface="com.jd.ql.basic.ws.BasicSecondaryWS" protocol="jsf"
                   alias="${basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.token}" hide="true"/>
-    </jsf:consumer>
+    </jsf:consumer>-->
 
     <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" retries="${jsf.retries}">
@@ -168,9 +177,9 @@
     </jsf:consumer>
 
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
-    <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
+    <!--<bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
-    </bean>
+    </bean>-->
 
     <!--获取分拣路线、自提柜等数据-->
     <jsf:consumer id="basicMixedWS" interface="com.jd.ql.basic.ws.BasicMixedWS" protocol="jsf"
@@ -284,16 +293,16 @@
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 路由 谭杨-->
-    <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
+    <!--<bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
         <property name="jimClient" ref="redisClient"/>
-    </bean>
-    <bean id="routeComputeUtil" class="com.jd.etms.sdk.compute.RouteComputeUtil">
+    </bean>-->
+    <!--<bean id="routeComputeUtil" class="com.jd.etms.sdk.compute.RouteComputeUtil">
         <property name="routeComputeQueryAPI" ref="routeComputeQueryAPI"/>
         <property name="redisCache" ref="vrsRedisCacheSdk"/>
     </bean>
     <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="${jsf.router.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>
+    </jsf:consumer>-->
     <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
                   protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="${jsf.router.transferWaveMonitorAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>

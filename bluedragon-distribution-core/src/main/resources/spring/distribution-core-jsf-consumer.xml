@@ -84,6 +84,15 @@
         <property name="vtsQueryWS" ref="vtsQueryWS"></property>
     </bean>
 
+    <!--运力编码新接口 2020.11.18 徐章旺-->
+    <jsf:consumer id="basicSelectWS" interface="com.jd.tms.basic.ws.BasicSelectWS" protocol="jsf" alias="${basicSelectWs.jsf.alias}"
+                  timeout="${basicSelectWs.jsf.timeout}" retries="${jsf.retries}" serialization="hessian" >
+    </jsf:consumer>
+
+    <!--<bean id="basicSelectWsManager" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl">
+        <property name="basicSelectWS" ref="basicSelectWS"></property>
+    </bean>-->
+
     <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
                   alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
     </jsf:consumer>

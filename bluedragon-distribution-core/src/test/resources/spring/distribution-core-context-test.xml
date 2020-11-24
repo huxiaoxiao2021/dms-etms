@@ -63,4 +63,6 @@
     </bean>
     <bean id="keyGenerator" class="com.jd.bluedragon.utils.DmsArgsMatchCacheKeyGenerator"></bean>
 
+    <bean id="basicSelectWsManagerImpl" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl" ></bean>
+
 </beans>
