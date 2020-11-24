@@ -128,10 +128,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     private VrsRouteTransferRelationManager vrsRouteManager;
 
     @Autowired
-    @Qualifier("kyStorageProducer")
-    private DefaultJMQProducer kyStorageProducer;
-
-    @Autowired
     private SendDetailService sendDetailService;
 
 	@Override
@@ -308,8 +304,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             //存储暂存明细表
             saveStoragePackageDs( putawayDTO, isWaybillCode, dto);
 
-            // 全部上架对外MQ
-            sendKYStorageMQ(putawayDTO);
         }
 
         // 15500 暂存上架状态
@@ -390,8 +384,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             List<StoragePackageD> noExist = getNotExistStoragePackageD(putawayDTO,dto, waybillCode);
             if (noExist == null) return;
             storagePackageDDao.batchInsert(noExist);
-            // 对外MQ
-            sendKYStorageMQ(putawayDTO);
         }else {
             storagePackageMDao.updateKYStorageCode(storagePackageM);
             storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
@@ -442,32 +434,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             updateWaybillStatusOfKYZC(putawayDTO,true);
         }
         return noExist;
-    }
-
-
-    private void sendKYStorageMQ(PutawayDTO putawayDTO) {
-        String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
-        if(isAllPutAwayAll(waybillCode)) {
-
-            boolean qpcWaybill = StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource());
-            if (!qpcWaybill) {
-
-                sendPutAwayMQ(putawayDTO, waybillCode);
-            }
-        }
-    }
-
-    private void sendPutAwayMQ(PutawayDTO putawayDTO, String waybillCode) {
-        KYStorageMessage kYStorageMessage = new KYStorageMessage();
-        kYStorageMessage.setWaybillCode(waybillCode);
-        kYStorageMessage.setOperateSiteCode(putawayDTO.getCreateSiteCode());
-        kYStorageMessage.setOperateSiteName(putawayDTO.getCreateSiteName());
-        kYStorageMessage.setOperateTime(new Date(putawayDTO.getOperateTime()));
-        kYStorageMessage.setOperateErp(putawayDTO.getOperatorErp());
-        kYStorageMessage.setStorageStatus(StoragePutStatusEnum.STORAGE_PUT_AWAY.getCode());
-        this.log.info("运单暂存全部上架发送MQ【{}】,业务ID【{}】,消息体【{}】",
-                kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(kYStorageMessage));
-        kyStorageProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(kYStorageMessage));
     }
 
     /**
