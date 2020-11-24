@@ -22,6 +22,8 @@ import com.jd.bluedragon.distribution.api.request.TransPlanScheduleRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
@@ -33,9 +35,9 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
@@ -46,10 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author : xumigen
@@ -72,6 +71,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Autowired
     @Qualifier("deliveryService")
     private DeliveryService deliveryService;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -427,7 +429,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(StringUtils.isBlank(request.getSendCode())){
-            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, request.getCurrentOperate().getSiteCode());
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, request.getReceiveSiteCode());
+            request.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, StringUtils.EMPTY));
         }
 
         com.jd.bluedragon.distribution.api.request.DeliveryRequest deliveryRequest=new com.jd.bluedragon.distribution.api.request.DeliveryRequest();
@@ -535,7 +540,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(StringUtils.isBlank(request.getSendCode())){
-            request.setSendCode(SerialRuleUtil.generateSendCode(request.getCurrentOperate().getSiteCode(), request.getReceiveSiteCode(), new Date()));
+            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, request.getCurrentOperate().getSiteCode());
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, request.getReceiveSiteCode());
+            request.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, StringUtils.EMPTY));
         }
 
         SendM domain = new SendM();
