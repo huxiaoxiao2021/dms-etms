@@ -32,6 +32,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
     private BasicSelectWS basicSelectWs;
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource",jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError} )
     public List<TransportResourceDto> queryPageTransportResource(TransportResourceDto transportResourceDto) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource", false, true);
         //返回的结果

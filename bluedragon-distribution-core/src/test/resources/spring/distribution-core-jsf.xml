@@ -79,15 +79,6 @@
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
-    <!-- 运力编码Vts系统 李胜涛  -->
-   <!-- <jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf"
-                  alias="${vst.jsf.alias}" serialization="hessian" timeout="${vst.jsf.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>
-
-    <bean id="vtsQueryWSProxy" class="com.jd.etms.vts.proxy.impl.VtsQueryWSProxyImpl">
-        <property name="vtsQueryWS" ref="vtsQueryWS"></property>
-    </bean>-->
-
     <!--运力编码新接口 2020.11.18 徐章旺-->
     <jsf:consumer id="basicSelectWS" interface="com.jd.tms.basic.ws.BasicSelectWS" protocol="jsf" alias="${basicSelectWs.jsf.alias}"
                   timeout="${basicSelectWs.jsf.timeout}" retries="${jsf.retries}" serialization="hessian" >

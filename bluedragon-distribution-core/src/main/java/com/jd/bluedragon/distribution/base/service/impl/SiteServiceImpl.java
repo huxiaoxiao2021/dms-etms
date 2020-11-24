@@ -133,7 +133,7 @@ public class SiteServiceImpl implements SiteService {
                 transportResourceDto.setStartOrgCode(String.valueOf(request.getSorgid()));
             // 始发站
             if (request.getScode() != null)
-                transportResourceDto.setStartNodeCode(String.valueOf(request.getScode()));
+               transportResourceDto.setStartNodeCode(String.valueOf(request.getScode()));
             // 目的区域
             if (request.getRorgid() != null)
                 transportResourceDto.setEndOrgCode(String.valueOf(request.getRorgid()));
