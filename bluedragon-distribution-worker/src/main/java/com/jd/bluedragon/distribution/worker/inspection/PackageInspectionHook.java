@@ -36,7 +36,7 @@ public class PackageInspectionHook extends AbstractTaskHook {
 
         this.pushPackageInspectionMQ(context);
 
-        return 0;
+        return 1;
     }
 
     /**
@@ -63,11 +63,8 @@ public class PackageInspectionHook extends AbstractTaskHook {
             mq.setInspectionTime(inspection.getOperateTime());
             mq.setInspectionType(inspection.getInspectionType());
             mq.setOperateType(inspection.getOperateType());
-
-//            mq.setRecordCreateTime(inspection.getCreateTime());
-//            mq.setLength(inspection.getLength());
-//            mq.setWidth(inspection.getWidth());
-//            mq.setHigh(inspection.getHigh());
+            mq.setExceptionType(inspection.getExceptionType());
+            mq.setRecordCreateTime(inspection.getCreateTime());
 
             Message message = new Message();
             message.setBusinessId(mq.getPackageCode());

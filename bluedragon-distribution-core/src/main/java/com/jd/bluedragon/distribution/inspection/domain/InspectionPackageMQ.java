@@ -59,9 +59,16 @@ public class InspectionPackageMQ implements Serializable {
     private Integer operateType;
 
     /**
+     * 异常类型
+     */
+    private String exceptionType;
+
+    /**
      * 收货分拣中心
      */
     private Integer receiveSiteCode;
+
+    private Date recordCreateTime;
 
     public String getPackageCode() {
         return packageCode;
@@ -141,5 +148,21 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getExceptionType() {
+        return exceptionType;
+    }
+
+    public void setExceptionType(String exceptionType) {
+        this.exceptionType = exceptionType;
+    }
+
+    public Date getRecordCreateTime() {
+        return recordCreateTime;
+    }
+
+    public void setRecordCreateTime(Date recordCreateTime) {
+        this.recordCreateTime = recordCreateTime;
     }
 }

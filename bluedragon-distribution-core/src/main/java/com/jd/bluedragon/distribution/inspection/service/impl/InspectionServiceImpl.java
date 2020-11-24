@@ -900,9 +900,4 @@ public class InspectionServiceImpl implements InspectionService {
 
         return sites.contains(siteCode.toString());
     }
-
-    @Override
-    public Inspection queryUniqInspection(Inspection inspectionQuery) {
-        return inspectionDao.queryUniqInspection(inspectionQuery);
-    }
 }

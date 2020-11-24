@@ -77,15 +77,17 @@ public class InspectionTaskTest {
     public void inspectionPackageConsumerTest() throws Exception {
 
         String mqBody = "{\n" +
-                "    \"packageCode\": \"JDVA00119406626-1-5-\",\n" +
-                "    \"waybillCode\": \"JDVA00119406626\",\n" +
-                "    \"operateUserId\": 21181471,\n" +
-                "    \"operateUser\": \"梁丽娟\",\n" +
-                "    \"inspectionTime\": 1600682342265,\n" +
-                "    \"operateSiteCode\": 910,\n" +
-                "    \"inspectionType\": 10,\n" +
-                "    \"operateType\": 0,\n" +
-                "    \"receiveSiteCode\": 0\n" +
+                "  \"packageCode\" : \"JDVA00119406626-1-5-\",\n" +
+                "  \"waybillCode\" : \"JDVA00119406626\",\n" +
+                "  \"operateUserId\" : 21181471,\n" +
+                "  \"operateUser\" : \"梁丽娟\",\n" +
+                "  \"inspectionTime\" : 1600682342265,\n" +
+                "  \"operateSiteCode\" : 910,\n" +
+                "  \"inspectionType\" : 10,\n" +
+                "  \"operateType\" : 0,\n" +
+                "  \"exceptionType\" : \"\",\n" +
+                "  \"receiveSiteCode\" : 0,\n" +
+                "  \"recordCreateTime\" : 1606117113469\n" +
                 "}";
 
         Message message = new Message();

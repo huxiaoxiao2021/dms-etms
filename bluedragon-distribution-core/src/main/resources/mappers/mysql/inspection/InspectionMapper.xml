@@ -672,28 +672,4 @@
         AND CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
         AND YN = 1
     </select>
-
-    <select id="queryUniqInspection" resultMap="BaseResultMap" parameterType="Inspection">
-        SELECT
-            <include refid="Base_Column_List" />
-        FROM
-            inspection
-        WHERE
-        asdgasdgas
-            yn = 1
-        <if test="null!=boxCode and ''!=boxCode">
-            AND box_code = #{boxCode}
-        </if>
-        <if test="null!=operateType">
-            AND operate_type = #{operateType,jdbcType=INTEGER}
-        </if>
-        AND inspection_type = #{inspectionType,jdbcType=INTEGER}
-        <if test="null!=waybillCode">
-            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
-        </if>
-        AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
-        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
-        AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-        LIMIT 1
-    </select>
 </mapper>

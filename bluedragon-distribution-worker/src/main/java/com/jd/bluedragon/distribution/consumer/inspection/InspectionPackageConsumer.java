@@ -25,8 +25,6 @@ import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,11 +50,11 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
     private Set<Integer> storeIdSet;
 
     @Autowired
-    private BaseService baseService;
-
-    @Autowired
     @Qualifier("ccInAndOutBoundProducer")
     private DefaultJMQProducer ccInAndOutBoundProducer;
+
+    @Autowired
+    private BaseService baseService;
 
     @Autowired
     private InspectionService inspectionService;
@@ -97,6 +95,11 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
     }
 
+    /**
+     *
+     * @param packageMQ
+     * @return
+     */
     private boolean doPackageInspection(InspectionPackageMQ packageMQ) {
 
         if (!inspectionService.siteEnableInspectionAgg(packageMQ.getOperateSiteCode())) {
@@ -106,35 +109,22 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
         try {
 
-            Inspection record = inspectionService.queryUniqInspection(this.genUniqInspectionQ(packageMQ));
+            Inspection record = this.genUniqInspection(packageMQ);
 
-            if (null == record) {
-                if (LOGGER.isWarnEnabled()) {
-                    LOGGER.warn("查询验货记录为空. mq:{}", JsonHelper.toJson(packageMQ));
-                }
-            }
+            // 记录OP LOG
+            saveInspectionOpLog(record);
 
-            if (null != record) {
+            // 处理三方验货
+            thirdInspectionDiff(record);
 
-                // 记录OP LOG
-                saveInspectionOpLog(record);
+            // OEM推送WMS
+            doOmeToWms(record);
 
-                // 处理三方验货
-                thirdInspectionDiff(record);
-
-                // OEM推送WMS
-                doOmeToWms(record);
-
-                // TODO 透传字段
-                // 发送验货全流程跟踪
-                sendInspectionWaybillTrack(record);
-            }
-
-            // 龙门架验货称重
-//            doScannerFrameTask(packageMQ);
+            // 发送验货全流程跟踪
+            sendInspectionWaybillTrack(record);
 
             // 推送冷链验货消息
-            pushColdChainOperateMQ(packageMQ);
+            pushColdChainOperateMQ(record);
 
         }
         catch (Exception ex) {
@@ -146,20 +136,30 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 构建inspection唯一主键
+     * 构建inspection
+     * @see com.jd.bluedragon.distribution.inspection.domain.Inspection#toInspection  字段含义与此保持一致
      * @param packageMQ
      * @return
      */
-    private Inspection genUniqInspectionQ(InspectionPackageMQ packageMQ) {
-        Inspection inspectionQ = new Inspection();
-        inspectionQ.setWaybillCode(WaybillUtil.getWaybillCode(packageMQ.getPackageCode()));
-        inspectionQ.setPackageBarcode(packageMQ.getPackageCode());
-        inspectionQ.setCreateSiteCode(packageMQ.getOperateSiteCode());
-        inspectionQ.setReceiveSiteCode(packageMQ.getReceiveSiteCode());
-        inspectionQ.setInspectionType(packageMQ.getInspectionType());
-        inspectionQ.setOperateType(packageMQ.getOperateType());
-        inspectionQ.setBoxCode(packageMQ.getBoxCode());
-        return inspectionQ;
+    private Inspection genUniqInspection(InspectionPackageMQ packageMQ) {
+        Inspection inspection = new Inspection();
+        inspection.setWaybillCode(WaybillUtil.getWaybillCode(packageMQ.getPackageCode()));
+        inspection.setPackageBarcode(packageMQ.getPackageCode());
+        inspection.setBoxCode(packageMQ.getBoxCode());
+        inspection.setCreateSiteCode(packageMQ.getOperateSiteCode());
+        inspection.setReceiveSiteCode(packageMQ.getReceiveSiteCode());
+        inspection.setInspectionType(packageMQ.getInspectionType());
+        inspection.setOperateType(packageMQ.getOperateType());
+        inspection.setExceptionType(packageMQ.getExceptionType());
+
+        inspection.setCreateUser(packageMQ.getOperateUser());
+        inspection.setCreateUserCode(packageMQ.getOperateUserId());
+        inspection.setUpdateUser(packageMQ.getOperateUser());
+        inspection.setUpdateUserCode(packageMQ.getOperateUserId());
+        inspection.setOperateTime(packageMQ.getInspectionTime());
+        inspection.setUpdateTime(packageMQ.getInspectionTime());
+        inspection.setCreateTime(packageMQ.getRecordCreateTime());
+        return inspection;
     }
 
     /**
@@ -172,9 +172,14 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         CenConfirm cenConfirm = cenConfirmService.commonGenCenConfirmFromInspection(record);
 
         String message = cenConfirmService.getTipsMessage(cenConfirm);
+
+        BaseStaffSiteOrgDto targetDto = null;
+        if (record.getReceiveSiteCode() != null && record.getReceiveSiteCode() > 0) {
+            targetDto = baseService.getSiteBySiteID(record.getReceiveSiteCode());
+        }
         BaseStaffSiteOrgDto rDto = null;
         if (Constants.BUSSINESS_TYPE_FC != cenConfirm.getType().intValue()) {
-            rDto = baseService.getSiteBySiteID(record.getReceiveSiteCode());
+            rDto = targetDto;
         }
         if (bDto == null) {
             LOGGER.warn("[PackageBarcode={}]根据[siteCode={}]获取基础资料站点信息[getSiteBySiteID]返回null,不再插入{}",
@@ -196,10 +201,10 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
 
     /**
      * 推送冷链验货消息
-     * @param packageMQ
+     * @param record
      */
-    private void pushColdChainOperateMQ(InspectionPackageMQ packageMQ) {
-        Waybill waybill = waybillService.getWaybillByWayCode(packageMQ.getWaybillCode());
+    private void pushColdChainOperateMQ(Inspection record) {
+        Waybill waybill = waybillService.getWaybillByWayCode(record.getWaybillCode());
         if (waybill == null) {
             return;
         }
@@ -207,72 +212,29 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         if (!(BusinessUtil.isColdChainKBWaybill(waybillSign) || BusinessUtil.isColdChainCityDeliveryWaybill(waybillSign))) {
             return ;
         }
-        BaseStaffSiteOrgDto siteOrgDto = baseService.getSiteBySiteID(packageMQ.getOperateSiteCode());
+        BaseStaffSiteOrgDto siteOrgDto = baseService.getSiteBySiteID(record.getCreateSiteCode());
         CCInAndOutBoundMessage body = new CCInAndOutBoundMessage();
         body.setOrgId(String.valueOf(siteOrgDto.getOrgId()));
         body.setOrgName(siteOrgDto.getOrgName());
         body.setSiteId(String.valueOf(siteOrgDto.getSiteCode()));
         body.setSiteName(siteOrgDto.getSiteName());
         body.setOperateType(ColdChainOperateTypeEnum.INSPECTION.getType());
-        Integer userCode = packageMQ.getOperateUserId();
+        Integer userCode = record.getCreateUserCode();
         if (userCode != null) {
             BaseStaffSiteOrgDto dto = baseService.getBaseStaffByStaffId(userCode);
             if (dto != null) {
                 body.setOperateERP(dto.getErp());
             }
         }
-        body.setOperateTime(DateHelper.formatDateTime(packageMQ.getInspectionTime()));
-        body.setPackageNo(packageMQ.getPackageCode());
-        body.setWaybillNo(packageMQ.getWaybillCode());
+        body.setOperateTime(DateHelper.formatDateTime(record.getOperateTime()));
+        body.setPackageNo(record.getPackageBarcode());
+        body.setWaybillNo(record.getWaybillCode());
 
         ccInAndOutBoundProducer.sendOnFailPersistent(body.getPackageNo(), JsonHelper.toJson(body));
     }
 
     /**
-     * 龙门架验货上传称重
-     * @param packageMQ
-     */
-//    private void doScannerFrameTask(InspectionPackageMQ packageMQ) {
-//        if ((packageMQ.getLength() != null && packageMQ.getLength() > 0)
-//                || (packageMQ.getWidth() != null && packageMQ.getWidth() > 0)
-//                || (packageMQ.getHigh() != null && packageMQ.getHigh() > 0)) {
-//            OpeEntity opeEntity = new OpeEntity();
-//            opeEntity.setOpeType(1); //分拣中心称重
-//            opeEntity.setWaybillCode(packageMQ.getWaybillCode());
-//            opeEntity.setOpeDetails(new ArrayList<OpeObject>());
-//
-//            OpeObject obj = new OpeObject();
-//            obj.setOpeSiteId(packageMQ.getOperateSiteCode());
-//            BaseStaffSiteOrgDto siteOrgDto = baseService.getSiteBySiteID(packageMQ.getOperateSiteCode());
-//            obj.setOpeSiteName(null == siteOrgDto ? StringUtils.EMPTY : siteOrgDto.getSiteName());
-//            obj.setpWidth(packageMQ.getWidth());
-//            obj.setpLength(packageMQ.getLength());
-//            obj.setpHigh(packageMQ.getHigh());
-//            obj.setPackageCode(packageMQ.getPackageCode());
-//            obj.setOpeUserId(packageMQ.getOperateUserId());
-//            obj.setOpeUserName(packageMQ.getOperateUser());
-//            obj.setOpeTime(DateHelper.formatDateTime(packageMQ.getRecordCreateTime()));
-//
-//            opeEntity.getOpeDetails().add(obj);
-//            String body = "[" + JsonHelper.toJson(opeEntity) + "]";
-//            Task task = new Task();
-//            task.setBody(body);
-//            task.setType(Task.TASK_TYPE_WEIGHT);
-//            task.setTableName(Task.getTableName(Task.TASK_TYPE_WEIGHT));
-//            task.setCreateSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
-//            task.setKeyword1(String.valueOf(opeEntity.getOpeDetails().get(0).getOpeSiteId()));
-//            task.setKeyword2("上传长宽高");
-//            task.setBody(body);
-//            task.setBoxCode("");
-//            task.setSequenceName(Task.getSequenceName(task.getTableName()));
-//            task.setReceiveSiteCode(opeEntity.getOpeDetails().get(0).getOpeSiteId());
-//            task.setOwnSign(BusinessHelper.getOwnSign());
-//            taskService.add(task);
-//        }
-//    }
-
-    /**
-     *
+     * OEM推送WMS
      * @param inspection
      */
     private void doOmeToWms(Inspection inspection) {
@@ -287,12 +249,20 @@ public class InspectionPackageConsumer extends MessageBaseConsumer {
         }
     }
 
+    /**
+     * 三方验货差异
+     * @param inspection
+     */
     private void thirdInspectionDiff(Inspection inspection) {
         if (inspection.getInspectionType().equals(Inspection.BUSSINESS_TYPE_THIRD_PARTY)) {
             inspectionService.thirdPartyWorker(inspection);
         }
     }
 
+    /**
+     * 记录操作日志
+     * @param record
+     */
     private void saveInspectionOpLog(Inspection record) {
         OperationLog operationLog = new OperationLog();
         operationLog.setCreateSiteCode(record.getCreateSiteCode());
