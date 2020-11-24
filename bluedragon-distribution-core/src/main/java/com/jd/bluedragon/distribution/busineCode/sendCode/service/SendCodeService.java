@@ -1,8 +1,8 @@
-package com.jd.bluedragon.distribution.sendCode.service;
+package com.jd.bluedragon.distribution.busineCode.sendCode.service;
 
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.busineCode.sendCode.domain.SendCodeDto;
 
 import java.util.Date;
 import java.util.Map;
@@ -21,7 +21,7 @@ public interface SendCodeService {
      * @param fromSource 创建来源
      * @param attributeKeyMap 批次属性 必须包含始发地和目的地
      * @param createUser 创建人
-     * @see com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey.SendCodeAttributeKeyEnum 批次号属性
+     * @see BusinessCodeAttributeKey.SendCodeAttributeKeyEnum 批次号属性
      * @return 批次号（生成的批次号最多可以看到小时纬度）
      */
     String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser);

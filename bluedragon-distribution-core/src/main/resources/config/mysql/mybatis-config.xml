@@ -34,7 +34,8 @@
                 send_m=sendMId:send_m_id,
                 sorting=id:sorting_id,
                 dms_out_weight_volume=id:id,
-                business_code=id:id
+                business_code=id:id,
+                business_code_attribute=id:id
              "/>
             <property name="replaceNextValue" value="true"/>
             <property name="replaceExistsNewId" value="true"/>

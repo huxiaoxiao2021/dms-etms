@@ -16,14 +16,14 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.gantry.domain.GantryBatchSendResult;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineBatchSendResult;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupConfig;
 import com.jd.bluedragon.distribution.sendGroup.domain.SortMachineGroupRequest;
@@ -54,7 +54,6 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URLDecoder;
-import java.text.MessageFormat;
 import java.util.*;
 
 /**

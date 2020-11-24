@@ -1,15 +1,13 @@
-package com.jd.bluedragon.distribution.sendCode.service;
+package com.jd.bluedragon.distribution.busineCode.sendCode.service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeNodeTypeEnum;
-import com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao;
-import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo;
+import com.jd.bluedragon.distribution.busineCode.BusinessCodeManager;
+import com.jd.bluedragon.distribution.busineCode.sendCode.domain.SendCodeDto;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
-import com.jd.bluedragon.distribution.sendCode.domain.SendCodeDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -25,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>
@@ -41,11 +41,11 @@ public class SendCodeServiceImpl implements SendCodeService {
     private static final Logger logger = LoggerFactory.getLogger(SendCodeServiceImpl.class);
 
     @Autowired
-    private BusinessCodeDao businessCodeDao;
-
-    @Autowired
     @Qualifier("smartSendCodeSNGen")
     private SmartSNGen smartSendCodeSNGen;
+
+    @Autowired
+    private BusinessCodeManager businessCodeManager;
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -74,33 +74,14 @@ public class SendCodeServiceImpl implements SendCodeService {
                   ) ;
         }
 
-        /* 写入business_code表：1. 写入副表；*/
-        List<BusinessCodeAttributePo> businessCodeAttributePos = new ArrayList<>(attributeKeyMap.size());
-        for (Map.Entry<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeEntry : attributeKeyMap.entrySet()) {
-            BusinessCodeAttributePo businessCodeAttributePoItem = new BusinessCodeAttributePo();
-            businessCodeAttributePoItem.setCode(sendCode);
-            businessCodeAttributePoItem.setAttributeKey(attributeEntry.getKey().name());
-            businessCodeAttributePoItem.setAttributeValue(String.valueOf(attributeEntry.getValue()));
-            businessCodeAttributePoItem.setCreateUser(createUser);
-            businessCodeAttributePoItem.setUpdateUser(createUser);
-            businessCodeAttributePoItem.setFromSource(fromSource.name());
-            businessCodeAttributePos.add(businessCodeAttributePoItem);
+        /* 持久化业务单号表和业务单号属性表 */
+        Map<String,String> attributeParam = new HashMap<>(attributeKeyMap.size());
+        for (Map.Entry<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEntity : attributeKeyMap.entrySet()) {
+            attributeParam.put(attributeKeyEntity.getKey().name(), String.valueOf(attributeKeyEntity.getValue()));
         }
-        Integer insertNum = businessCodeDao.batchInsertBusinessCodeAttribute(businessCodeAttributePos);
-        if (insertNum <= 0) {
-            logger.warn("插入业务单号的属性值副表失败，创建批次号失败，批次属性值：{}", JsonHelper.toJson(attributeKeyMap));
-            return StringUtils.EMPTY;
-        }
-        /* 创建业务单号的主表 */
-        BusinessCodePo businessCodePo = new BusinessCodePo();
-        businessCodePo.setCode(sendCode);
-        businessCodePo.setNodeType(BusinessCodeNodeTypeEnum.send_code.name());
-        businessCodePo.setCreateUser(createUser);
-        businessCodePo.setUpdateUser(createUser);
-        businessCodePo.setFromSource(fromSource.name());
-        Integer businessCodeInsertNum = businessCodeDao.insertBusinessCode(businessCodePo);
-        if (businessCodeInsertNum <= 0) {
-            logger.warn("插入业务单号的主表失败，创建批次号失败，批次属性值：{}", JsonHelper.toJson(attributeKeyMap));
+        boolean isSuccess = businessCodeManager.saveBusinessCodeAndAttribute(sendCode,BusinessCodeNodeTypeEnum.send_code,attributeParam,createUser, fromSource);
+        if (!isSuccess) {
+            logger.error("插入业务单号主表副表失败，创建批次号失败，批次号:{},批次属性值:{}", sendCode, JsonHelper.toJson(attributeKeyMap));
             return StringUtils.EMPTY;
         }
 
@@ -124,7 +105,7 @@ public class SendCodeServiceImpl implements SendCodeService {
             return null;
         }
 
-        BusinessCodePo businessCodePo = businessCodeDao.findBusinessCodeByCode(code);
+        BusinessCodePo businessCodePo = businessCodeManager.queryBusinessCodeByCode(code,BusinessCodeNodeTypeEnum.send_code);
         if (null == businessCodePo || !BusinessCodeNodeTypeEnum.send_code.name().equals(businessCodePo.getNodeType())) {
             /* 如果查询到的批次号属性为空，则用正则进行解析，得到除了始发目的之外的其他属性 */
             Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(code);
@@ -140,25 +121,13 @@ public class SendCodeServiceImpl implements SendCodeService {
         }
 
         /* 如果有业务单号的主表的话，则查询业务单号副表，进行批次号的属性查询 */
-        List<BusinessCodeAttributePo> businessCodeAttributePos = businessCodeDao.findAllAttributesByCode(code);
-        if (businessCodeAttributePos == null || businessCodeAttributePos.size() == 0) {
-            logger.error("该批次号：{}存在业务单号的主表记录，但不存在业务单号的副表记录，查询失败", code);
-            return null;
-        }
-
+        Map<String,String> attributeMap = businessCodeManager.queryBusinessCodeAttributesByCode(code);
         SendCodeDto sendCodeDto = new SendCodeDto();
         sendCodeDto.setSendCode(code);
-        for (BusinessCodeAttributePo item : businessCodeAttributePos) {
-            if (BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code.name().equals(item.getAttributeKey())) {
-                sendCodeDto.setCreateSiteCode(Integer.valueOf(item.getAttributeValue()));
-            } else if (BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name().equals(item.getAttributeKey())) {
-                sendCodeDto.setReceiveSiteCode(Integer.valueOf(item.getAttributeValue()));
-            } else if (BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name().equals(item.getAttributeKey())) {
-                sendCodeDto.setFresh(Boolean.parseBoolean(item.getAttributeValue()));
-            } else {
-                logger.error("解析批次号属性失败，未知的属性值与解析关系,批次号:{},属性key:{},属性value:{}",code, item.getAttributeKey(), item.getAttributeValue());
-            }
-        }
+        sendCodeDto.setCreateSiteCode(Integer.valueOf(attributeMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code.name())));
+        sendCodeDto.setReceiveSiteCode(Integer.valueOf(attributeMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code.name())));
+        sendCodeDto.setFresh(Boolean.parseBoolean(attributeMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name())));
+
         return sendCodeDto;
     }
 
@@ -172,10 +141,7 @@ public class SendCodeServiceImpl implements SendCodeService {
             理论上是要先从主表中的nodeType字段判断是不是批次号，然后在去属性值表中判断是否具有该属性
             但是上面的工具类已经初步判断了批次号，故省略从主表中判断批次号的枚举这一步骤。
          */
-        BusinessCodeAttributePo condition = new BusinessCodeAttributePo();
-        condition.setCode(sendCode);
-        condition.setAttributeKey(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
-        BusinessCodeAttributePo businessCodeAttributePo = businessCodeDao.findAttributeByCodeAndKey(condition);
-        return businessCodeAttributePo != null && Boolean.parseBoolean(businessCodeAttributePo.getAttributeValue());
+        String attributeValue = businessCodeManager.queryBusinessCodeAttributeByCodeAndKey(sendCode, BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
+        return Boolean.parseBoolean(attributeValue);
     }
 }
