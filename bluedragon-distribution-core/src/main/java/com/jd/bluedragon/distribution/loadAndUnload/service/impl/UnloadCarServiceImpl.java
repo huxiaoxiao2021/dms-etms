@@ -21,6 +21,8 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
@@ -151,6 +153,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private LoadScanServiceImpl loadScanService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -542,6 +547,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     private void dealUnloadAndBoxToBoard(UnloadCarScanRequest request,boolean isSurplusPackage) throws LoadIllegalException {
         AddBoardBox addBoardBox = new AddBoardBox();
+        String boardCode="";
         try {
             addBoardBox.setBoardCode(request.getBoardCode());
             addBoardBox.setBoxCode(request.getBarCode());
@@ -575,7 +581,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              *  二期优化增加【组板转移】提示
              * */
             /****/
-            logger.info("组板转移请求参数={}", JSON.toJSONString(request));
             if(response.getCode() == 500){
                 if (null == request.getIsCombinationTransfer() || Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
                     //调用TC的板号转移接口
@@ -596,12 +601,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
                     return;
                 }else {
-                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,request.getBoardCode()));
+                    Board board = loadScanService.getBoardCodeByPackageCode(request.getOperateSiteCode().intValue(), request.getBarCode());
+                    boardCode=board.getCode();
+                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,boardCode));
                 }
             }
         }catch (Exception e){
             if (e instanceof UnloadPackageBoardException) {
-                throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, request.getBoardCode()));
+                throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,boardCode));
             }
             logger.error("推TC组板关系异常，入参【{}】",JsonHelper.toJson(addBoardBox),e);
         }

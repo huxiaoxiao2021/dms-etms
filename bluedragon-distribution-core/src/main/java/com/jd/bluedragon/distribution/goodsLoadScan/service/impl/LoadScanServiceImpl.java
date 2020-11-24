@@ -1607,7 +1607,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param packageCode 包裹号
      * @return 板信息
      */
-    private Board getBoardCodeByPackageCode(Integer siteCode, String packageCode) {
+    public Board getBoardCodeByPackageCode(Integer siteCode, String packageCode) {
 
         Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, packageCode);
 
