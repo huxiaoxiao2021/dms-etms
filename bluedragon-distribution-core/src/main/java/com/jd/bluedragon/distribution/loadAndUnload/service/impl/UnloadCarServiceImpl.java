@@ -193,6 +193,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     result.customMessage(invokeResult.getCode(),invokeResult.getMessage());
+
                     return result;
                 }
                 //拦截校验
@@ -659,7 +660,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(oldSealCarCode),-1);
                 }
                 request.setSealCarCode(oldSealCarCode);
-                request.setBarCode(oldBoardCode);
+                request.setBoardCode(oldBoardCode);
                 updatePackCount(request, scanCount, surplusCount);
             }
         }catch (Exception e){
