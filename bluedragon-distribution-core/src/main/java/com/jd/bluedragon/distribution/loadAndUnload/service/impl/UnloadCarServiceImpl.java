@@ -600,10 +600,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
                     boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
                     return;
-                }else {
+                } else {
                     Board board = loadScanService.getBoardCodeByPackageCode(request.getOperateSiteCode().intValue(), request.getBarCode());
-                    boardCode=board.getCode();
-                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,boardCode));
+                    if (null != board) {
+                        boardCode = board.getCode();
+                    }
+                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
                 }
             }
         }catch (Exception e){
