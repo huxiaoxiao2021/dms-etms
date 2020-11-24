@@ -599,6 +599,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 }
             }
         }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, request.getBoardCode()));
+            }
             logger.error("推TC组板关系异常，入参【{}】",JsonHelper.toJson(addBoardBox),e);
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
