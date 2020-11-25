@@ -58,9 +58,6 @@
         <!--安全日志-->
         <RollingFile name="security.log" fileName="${LOG_HOME}/security.log"
                      filePattern="${LOG_HOME}/security.%i.log">
-            <Filters>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
             <Policies>
                 <SizeBasedTriggeringPolicy size="1G"/>
             </Policies>
@@ -98,8 +95,10 @@
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
-            <AppenderRef ref="security.log"/>
         </AsyncRoot>
+        <AsyncLogger name="security.log" level="INFO" additivity="false">
+            <AppenderRef ref="security.log"/>
+        </AsyncLogger>
     </Loggers>
 
 </Configuration>
