@@ -214,7 +214,7 @@
         select
         <include refid="Base_Column_List"/>
         from  load_scan
-        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and unload_amount > 0 and force_amount = 0
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and unload_amount > 0 and force_amount = 0 and load_amount > 0
         and status IN
         <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
@@ -232,7 +232,7 @@
         select
         <include refid="Base_Column_List"/>
         from load_scan
-        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and load_amount > 0
         and (status = 4 or (status = 3 and unload_amount != 0 and force_amount = 0))
     </select>
 
