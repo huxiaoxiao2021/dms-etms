@@ -117,6 +117,7 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.eclp.bbp.co.constant.enumImpl.BizSourceEnum;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.vos.dto.CommonDto;
@@ -484,6 +485,44 @@ public class DeliveryServiceImpl implements DeliveryService {
         return sendResult;
     }
 
+    @Override
+    public SendResult packageSendByWaybill(SendM domain) {
+        SendResult result = new SendResult();
+        result.init(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        // 校验参数
+        checkSendByWaybillParam(domain, result);
+        if (!SendResult.CODE_OK.equals(result.getKey())) {
+            return result;
+        }
+        // 发货验证
+        result = this.beforeSendVerification(domain, true, false);
+
+        return result;
+    }
+
+    private void checkSendByWaybillParam(SendM domain, SendResult result) {
+        if (domain == null) {
+            result.init(SendResult.CODE_SENDED, "服务端未获取到任何参数!");
+            return;
+        }
+        if (StringUtils.isEmpty(domain.getSendCode())) {
+            result.init(SendResult.CODE_SENDED, "批次号不能为空!");
+            return;
+        }
+        if (StringUtils.isEmpty(domain.getBoxCode())) {
+            result.init(SendResult.CODE_SENDED, "包裹号不能为空!");
+            return;
+        }
+        if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
+            result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
+            return;
+        }
+        if (WaybillUtil.getPackNumByPackCode(domain.getBoardCode()) < 100) {
+            result.init(SendResult.CODE_SENDED, "此运单包裹总数小于100非大宗订单，请扫描包裹号此运单包裹总数小于100非大宗订单，请扫描包裹号");
+            return;
+        }
+    }
+
     /**
      * 执行取消上次发货逻辑
      *
@@ -793,6 +832,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortingCheck.setOperateUserCode(domain.getCreateUserCode());
         sortingCheck.setOperateUserName(domain.getCreateUser());
         sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
+        sortingCheck.setBizSourceType(domain.getBizSource());
         //// FIXME: 2018/3/26 待校验后做修改
         if (domain.getCreateSiteCode() != null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
             //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
@@ -976,6 +1016,35 @@ public class DeliveryServiceImpl implements DeliveryService {
             //更新SEND_D状态
             this.updateCancel(sendDetail);
         }
+        // 判断是否是中转发货
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
+    }
+
+    /**
+     * 按运单发货发货数据落库，写相关的异步任务
+     *
+     *  1.获取运单下的所有包裹号
+     *  2.补充按运单分拣
+     *  3.按包裹分页 调用一车一单发货逻辑，,移除补分拣逻辑
+     *  4.所有分页数据处理完释放按运单锁
+     *
+     * @param domain 发货对象
+     * @return 1：发货成功  2：发货失败
+     */
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public void packageSendByWaybill(SendBizSourceEnum sourceEnum, SendM domain) {
+        if (sourceEnum != null) {
+            // 设置发货来源
+            domain.setBizSource(sourceEnum.getCode());
+        }
+        // 插入SEND_M
+        this.sendMManager.insertSendM(domain);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(domain);
+        // 按包裹 补分拣任务 大件写TASK_SORTING
+        pushSorting(domain);
         // 判断是否是中转发货
         this.transitSend(domain);
         this.pushStatusTask(domain);

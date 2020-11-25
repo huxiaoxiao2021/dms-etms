@@ -50,6 +50,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.eclp.bbp.co.constant.enumImpl.BizSourceEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -201,6 +202,38 @@ public class DeliveryResource {
                 } else {
                     result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
                 }
+            }
+        } catch (Exception ex) {
+            Profiler.functionError(info);
+            result.error(ex);
+            log.error("一车一单发货{}",JsonHelper.toJson(request), ex);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJson(result));
+        }
+        return result;
+    }
+    @POST
+    @Path("/delivery/newPackageSendGoodsByWaybill")
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
+    public InvokeResult<SendResult> newPackageSendGoodsByWaybill(PackageSendRequest request) {
+        if (log.isInfoEnabled()) {
+            log.info(JsonHelper.toJson(request));
+        }
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSendGoodsByWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        SendM domain = this.toSendMDomain(request);
+        domain.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
+        InvokeResult<SendResult> result = new InvokeResult<SendResult>();
+        try {
+            SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
+            // 一车一单发货
+            domain.setBoxCode(request.getBoxCode());
+            if (request.getIsCancelLastSend() == null) {
+                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
+            } else {
+                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
             }
         } catch (Exception ex) {
             Profiler.functionError(info);

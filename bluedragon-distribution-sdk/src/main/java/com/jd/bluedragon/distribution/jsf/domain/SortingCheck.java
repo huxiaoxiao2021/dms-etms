@@ -51,6 +51,8 @@ public class SortingCheck {
          */
         Integer isLoss;
 
+        Integer bizSourceType;
+
         public Integer getOperateType() {
             return operateType;
         }
@@ -117,4 +119,12 @@ public class SortingCheck {
         public void setIsLoss(Integer isLoss) {
             this.isLoss = isLoss;
         }
+
+    public Integer getBizSourceType() {
+        return bizSourceType;
+    }
+
+    public void setBizSourceType(Integer bizSourceType) {
+        this.bizSourceType = bizSourceType;
+    }
 }
