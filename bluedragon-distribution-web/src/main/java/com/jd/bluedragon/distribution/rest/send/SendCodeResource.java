@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
@@ -29,10 +30,7 @@ import org.springframework.stereotype.Controller;
 import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -246,8 +244,13 @@ public class SendCodeResource {
             Integer receiveSiteCode = (int) request.getReceiveSiteCode();
             BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
             String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
-            String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
-                    "1".equals(request.getFreshProperty()),request.getTime(),businessCodeFromSourceEnum);
+
+            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "1".equals(request.getFreshProperty()));
+            String sendCode = sendCodeService.createSendCode(attributeKeyEnumObjectMap, businessCodeFromSourceEnum, userName);
+
             response.setCode(200);
             response.setSendCode(sendCode);
         } catch (Exception e) {
@@ -275,8 +278,13 @@ public class SendCodeResource {
 
             List<String> sendCodes = new ArrayList<String>(request.getQuantity());
             for (int i = 0; i < request.getQuantity(); i++) {
-                String sendCode = sendCodeService.createSendCode(createSiteCode, receiveSiteCode, userName,
-                        "1".equals(request.getFreshProperty()),DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10),businessCodeFromSourceEnum);
+
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "1".equals(request.getFreshProperty()));
+                String sendCode = sendCodeService.createSendCode(attributeKeyEnumObjectMap, businessCodeFromSourceEnum, userName);
+
                 sendCodes.add(sendCode);
             }
             response.setCode(200);

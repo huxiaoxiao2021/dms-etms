@@ -27,13 +27,6 @@ public interface SendCodeService {
     String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser);
 
     /**
-     * 创建批次号业务单号
-     * @return 返回sendCode
-     */
-    @Deprecated
-    String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource);
-
-    /**
      * 查询批次号的对象
      * @param code 批次号
      * @return

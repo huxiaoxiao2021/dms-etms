@@ -68,8 +68,8 @@ public class SendCodeServiceImpl implements SendCodeService {
             sendCode = smartSendCodeSNGen.gen(fromSource.name(), genContextItems);
         } else {
           sendCode = SerialRuleUtil.generateSendCode(
-                  (Long) attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code),
-                  (Long) attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code),
+                  Long.parseLong(String.valueOf(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code))),
+                  Long.parseLong(String.valueOf(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code))),
                   new Date()
                   ) ;
         }
@@ -86,17 +86,6 @@ public class SendCodeServiceImpl implements SendCodeService {
         }
 
         return sendCode;
-    }
-
-    @Override
-    public String createSendCode(Integer createSiteCode, Integer receiveSiteCode, String createUser, Boolean isFresh, Date date, BusinessCodeFromSourceEnum fromSource) {
-
-        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, isFresh);
-
-        return createSendCode(attributeKeyEnumObjectMap, fromSource, createUser);
     }
 
     @Override

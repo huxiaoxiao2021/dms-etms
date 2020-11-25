@@ -18,6 +18,8 @@ public class BusinessCodeDao {
 
     private static final String NAMESPACE = BusinessCodeDao.class.getName();
 
+    private static final String TABLE_NAME = "BUSINESS_CODE_ATTRIBUTE";
+
     private SqlSession sqlSession;
 
     private SequenceGenAdaptor sequenceGenAdaptor;
@@ -31,6 +33,9 @@ public class BusinessCodeDao {
     }
 
     public Integer batchInsertBusinessCodeAttribute(List<BusinessCodeAttributePo> businessCodeAttributePos) {
+        for (BusinessCodeAttributePo businessCodeAttributePo : businessCodeAttributePos) {
+            businessCodeAttributePo.setId(sequenceGenAdaptor.newId(TABLE_NAME));
+        }
         return sqlSession.insert(NAMESPACE + ".batchInsertBusinessCodeAttribute", businessCodeAttributePos);
     }
 
