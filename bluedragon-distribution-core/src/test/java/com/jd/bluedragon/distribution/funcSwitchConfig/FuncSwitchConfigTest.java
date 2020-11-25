@@ -4,8 +4,10 @@ import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -13,6 +15,7 @@ import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +23,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -195,6 +197,12 @@ public class FuncSwitchConfigTest {
 
         }
         return null;
+    }
+
+    @Test
+    public void test10(){
+       FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> func =  funcSwitchConfigService.getSiteFilterStatus(910);
+
     }
 }
     

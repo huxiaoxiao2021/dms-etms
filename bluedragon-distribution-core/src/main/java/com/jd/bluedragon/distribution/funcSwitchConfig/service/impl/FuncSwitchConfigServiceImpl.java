@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -546,11 +547,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
-    public JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode){
-        JdResponse<List<DmsFuncSwitchDto>> response =  new JdResponse<>();
+    public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode){
+        FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> response =  new FuncSwitchConfigResponse<>();
         response.setCode(JdResponse.CODE_SUCCESS);
         response.setMessage(JdResponse.MESSAGE_SUCCESS);
-
         try {
             //返回的数据集合
             List<DmsFuncSwitchDto> siteFilter = new ArrayList<>();

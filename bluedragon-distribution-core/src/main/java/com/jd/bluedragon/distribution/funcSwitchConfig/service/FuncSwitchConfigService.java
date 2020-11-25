@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -112,5 +113,5 @@ public interface FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
-    JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode);
+    FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode);
 }
