@@ -404,8 +404,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String sealCarCode = unloadCarScanResult.getSealCarCode();
         Integer scanCount = 0;
         Integer surplusCount = 0;
+        logger.info("卸车扫描11：unloadCarScanResult={}", JsonHelper.toJson(unloadCarScanResult));
         try {
             String scanCountStr = redisClientCache.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode));
+            logger.info("卸车扫描12：scanCountStr={}", scanCountStr);
             if(StringUtils.isNotEmpty(scanCountStr)){
                 scanCount = Integer.valueOf(scanCountStr);
             }
@@ -649,7 +651,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(sealCarCode),1);
             }else {
                 updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode),1);
+                logger.info("卸车扫描13：request={}", JsonHelper.toJson(request));
                 scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),1);
+                logger.info("卸车扫描15：scanCount={}", scanCount);
             }
             updatePackCount(request, scanCount, surplusCount);
 
@@ -666,7 +670,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(oldSealCarCode),-1);
                 }else {
                     updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(oldBoardCode),-1);
+                    logger.info("卸车扫描16：oldBoardCode={}", oldBoardCode);
                     scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(oldSealCarCode),-1);
+                    logger.info("卸车扫描17：oldBoardCode={},scanCount={}", oldBoardCode, scanCount);
                 }
                 request.setSealCarCode(oldSealCarCode);
                 request.setBoardCode(oldBoardCode);
@@ -692,6 +698,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             logger.error("更新【{}】缓存异常",cacheKey,e);
         }
+        logger.info("卸车扫描14：cacheKey={},addCount={},count={}", cacheKey, addCount, count);
         return count;
     }
 
