@@ -1166,9 +1166,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 			com.jd.etms.waybill.domain.Waybill waybill) {
         //根据始发道口号类型，判断打‘航’还是‘航填’
         //此处始发道口类型是根据waybillSign 或 sendPay判断的，道口类型也会影响获取基础资料大全表信息，请谨慎使用
-        if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType()) ||
-                BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_C) ||
-                BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_3)){
+        if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
         	target.setTransportTypeText(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.setTransportTypeText(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
