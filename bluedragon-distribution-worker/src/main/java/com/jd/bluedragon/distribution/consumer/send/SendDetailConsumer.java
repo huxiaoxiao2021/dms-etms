@@ -116,10 +116,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private DefaultJMQProducer ccInAndOutBoundProducer;
 
     @Autowired
-    @Qualifier("kyStorageProducer")
-    private DefaultJMQProducer kyStorageProducer;
-
-    @Autowired
     private StoragePackageMService storagePackageMService;
 
     @Autowired
@@ -587,12 +583,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         && storagePackageMService.packageIsAllSend(waybillCode,sendDetail.getCreateSiteCode())){
                     storagePackageMService.updateDownAwayTimeByWaybillCode(waybillCode);
 
-                    // 企配仓不发全部下架MQ
-                    if (!qpcWaybill) {
-
-                        sendOffShelfMQ(sendDetail, waybillCode);
-
-                    }
                 }
             }
         }catch (Exception e){
@@ -642,23 +632,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         } catch (JMQException e) {
             log.warn("pushWeightCheckMq exception: {}", e.getMessage(), e);
         }
-    }
-
-    /**
-     * 运单全部下架发送MQ
-     * @param sendDetail
-     * @param waybillCode
-     */
-    private void sendOffShelfMQ(SendDetailMessage sendDetail, String waybillCode) {
-        KYStorageMessage message = new KYStorageMessage();
-        message.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
-        message.setOperateErp(sendDetail.getCreateUser());
-        message.setOperateTime(new Date(sendDetail.getOperateTime() - 3000));
-        message.setOperateSiteCode(sendDetail.getCreateSiteCode());
-        message.setStorageStatus(StoragePutStatusEnum.STORAGE_DOWN_AWAY.getCode());
-        this.log.info("运单暂存全部下架发送MQ【{}】,业务ID【{}】,消息体【{}】",
-                kyStorageProducer.getTopic(),waybillCode,JsonHelper.toJson(message));
-        kyStorageProducer.sendOnFailPersistent(message.getWaybillCode(), JSON.toJSONString(message));
     }
 
     private void updateWaybillStatusOfKYZC(SendDetailMessage sendDetail, boolean qpcWaybill) {
