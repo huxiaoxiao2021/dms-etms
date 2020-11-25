@@ -695,7 +695,7 @@
             <artifactId>etms-vehicle-interface</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-		<dependency>
+		<!--<dependency>
 		    <groupId>com.jd.stock.iwms</groupId>
 		    <artifactId>iwms-app-export</artifactId>
 		    <version>0.2.0-SNAPSHOT</version>
@@ -709,7 +709,7 @@
 					<groupId>com.alibaba</groupId>
 				</exclusion>
 			</exclusions>
-		</dependency>
+		</dependency>-->
         <!-- 国际化-库存出管 -->
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>

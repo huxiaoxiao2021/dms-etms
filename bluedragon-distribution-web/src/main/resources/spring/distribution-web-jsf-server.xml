@@ -218,4 +218,12 @@
                   ref="dmsCollectionBagExceptionReportService" server="dmsjsf">
     </jsf:provider>
 
+    <!--提供给分拣机 用于拦截状态同步-->
+    <jsf:provider id="dmsFuncSwitchConfigApiJsfService"
+                  interface="com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService"
+                  alias="${dms.jsf.alias}"
+                  ref="funcSwitchConfigApiService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
