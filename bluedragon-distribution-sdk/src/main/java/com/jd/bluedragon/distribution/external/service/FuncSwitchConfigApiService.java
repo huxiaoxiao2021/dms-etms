@@ -18,6 +18,6 @@ public interface FuncSwitchConfigApiService {
      * @param siteCodeMap
      * @return
      */
-    FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Map<String,Integer> siteCodeMap);
+    FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Map<String,Object> siteCodeMap);
 }
     

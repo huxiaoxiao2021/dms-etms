@@ -29,16 +29,17 @@ public class FuncSwitchConfigApiServiceImpl implements FuncSwitchConfigApiServic
     private FuncSwitchConfigService funcSwitchConfigService;
 
     @Override
-    public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>>  getSiteFilterStatus(Map<String,Integer> siteCodeMap) {
+    public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>>  getSiteFilterStatus(Map<String,Object> siteCodeMap) {
         CallerInfo info = Profiler.registerInfo("DMS.WEB.FuncSwitchConfigApiServiceImpl.getSiteFilterStatus", false, true);
         FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> response = null;
         Integer siteCode = null;
         try {
-             siteCode  = siteCodeMap.get("siteCode");
-            if(siteCode== null){
+
+            if(siteCodeMap.get("siteCode")== null){
                 response.setCode(JdResponse.CODE_SUCCESS);
                 response.setMessage("参数siteCode不能为空");
             }
+            siteCode  = Integer.valueOf(String.valueOf(siteCodeMap.get("siteCode")));
             response  =  funcSwitchConfigService.getSiteFilterStatus(siteCode);
         }catch (Exception e){
             log.error("站点:{}分拣机拦截状态同步接口异常",siteCode,e);
