@@ -61,6 +61,10 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		encryptedInfo.add("consigneeCompany");//寄件人公司
 	}
 
+	private final static String SYSTEMNAME = "QLFJZXJT";
+	private final static String APPNAME = "dms.etms";
+
+
 	/**
 	 * json格式的指令集配置
 	 */
@@ -204,10 +208,10 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		SecurityLog.HeadLogSecurityInfo head = new SecurityLog.HeadLogSecurityInfo();
 		head.setOp(SecurityLog.OpTypeEnum.QUERY.ordinal());
 		head.setInterfaceName(JsonCommandServiceImpl.class.getName());
-		head.setTime(new Date().getTime());
+		head.setTime(new Date().getTime()/1000);
 		head.setServerIp(InetAddress.getLocalHost().getHostAddress());
-		head.setSystemName("QLFJZXJT");// TODO: 2020/11/24 看看有没有配置 替换配置
-		head.setAppName("dms.etms");// TODO: 2020/11/24
+		head.setSystemName(SYSTEMNAME);
+		head.setAppName(APPNAME);
 		head.setClientIp(SecurityLog.LOCALHOST);
 		head.setVersion("V1.0");
 		head.setAccountName(SecurityLog.ACCOUNTNAME);
@@ -216,8 +220,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		//请求信息
 		SecurityLog.ReqLogSecurityInfo reqInfo = new SecurityLog.ReqLogSecurityInfo();
 		reqInfo.setErpId(waybillPrintRequest.getUserERP());
-		reqInfo.setTimeFrom(new Date().getTime());
-		reqInfo.setTimeTo(new Date().getTime());
+		reqInfo.setTimeFrom(new Date().getTime()/1000);
+		reqInfo.setTimeTo(new Date().getTime()/1000);
 
 
 		//返回信息
