@@ -72,6 +72,11 @@ public class DmsScheduleInfo extends DbEntity {
 	 */
 	private Integer yn;
 
+	/**
+	 * 储位号
+	 */
+	private String storageCodes;
+
 	public Integer getRowNum() {
 		return rowNum;
 	}
@@ -256,5 +261,19 @@ public class DmsScheduleInfo extends DbEntity {
 		return this.yn;
 	}
 
+	/**
+	 *
+	 * @return storageCodes
+	 */
+	public String getStorageCodes() {
+		return storageCodes;
+	}
 
+	/**
+	 *
+	 * @param storageCodes
+	 */
+	public void setStorageCodes(String storageCodes) {
+		this.storageCodes = storageCodes;
+	}
 }
