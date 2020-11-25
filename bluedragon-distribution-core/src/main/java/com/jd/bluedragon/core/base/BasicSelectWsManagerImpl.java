@@ -10,6 +10,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,6 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
     private BasicSelectWS basicSelectWs;
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource",jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError} )
     public List<TransportResourceDto> queryPageTransportResource(TransportResourceDto transportResourceDto) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource", false, true);
         //返回的结果
@@ -46,11 +46,12 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                 logger.info("调用运输运力数据分页接口入参page:{},transportResourceDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(transportResourceDto));
             }
             CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResource(page,transportResourceDto);
-            if(commonDto ==null  || commonDto.getCode() != Constants.RESULT_SUCCESS || commonDto.getData()==null){
-                logger.warn("BasicSelectWS.queryPageTransportResource return error!");
+            if(commonDto == null  || commonDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS){
+                logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
+                return result;
             }else {
                 page = commonDto.getData();
-                if(page.getResult()!=null && page.getResult().size()>0){
+                if(!CollectionUtils.isEmpty(page.getResult())){
                     result.addAll(page.getResult());
                 }
                 if (page.getTotalPage() > 1) {
@@ -59,9 +60,9 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                         temp.setCurrentPage(i);
                         temp.setPageSize(1000);
                         CommonDto<PageDto<TransportResourceDto>> commonTempDto  = basicSelectWs.queryPageTransportResource(temp,transportResourceDto);
-                        if (commonTempDto == null || commonTempDto.getCode()!= Constants.RESULT_SUCCESS || commonTempDto.getData()==null) {
-                            logger.warn("BasicSelectWS.queryPageTransportResource return error!");
-                        } else if ( commonTempDto.getData().getResult()!=null && commonTempDto.getData().getResult().size() > 0) {
+                        if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
+                            logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
+                        } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
                             result.addAll(commonTempDto.getData().getResult());
                         }
                     }
