@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

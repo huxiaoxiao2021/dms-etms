@@ -116,10 +116,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Autowired
     private DefaultJMQProducer arSendReportMQ;
 
-    @Qualifier("railwaySendRegistCostFxmMQ")
-    @Autowired
-    private DefaultJMQProducer railwaySendRegistCostFxmMQ;
-
     @Autowired
     private EcpQueryWSManager ecpQueryWSManager;
 
@@ -302,45 +298,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             }
         }
         return waybillCodes;
-    }
-
-    /**
-     * 铁路应付计费要素 发送给fxm
-     * @param arSendRegister
-     */
-    private void sendCostInfoToFxm(ArSendRegister arSendRegister){
-
-        BasicRailTrainDto railTrainDto = ecpQueryWSManager.getRailTrainListByCondition(arSendRegister.getTransportName(),
-                arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
-        if(railTrainDto == null){
-            log.warn("获取列车车次信息为空orderCode[{}]trainNumber[{}]beginCityId[{}]endCityId[{}]",arSendRegister.getOrderCode(),
-                    arSendRegister.getTransportName(), arSendRegister.getStartCityId(),arSendRegister.getEndCityId());
-            return;
-        }
-        ConfNodeCarrierDto confNodeCarrierDto = basicQueryWSManager.getCarrierByNodeCode(railTrainDto.getBeginNodeCode());
-        if(confNodeCarrierDto == null){
-            log.warn("承运商为空orderCode[{}]beginNodeCode[{}]",arSendRegister.getOrderCode(),railTrainDto.getBeginNodeCode());
-            return;
-        }
-        RailwaySendRegistCostFxmDto costFxmDto = new RailwaySendRegistCostFxmDto();
-        costFxmDto.setSendDate(arSendRegister.getSendDate());
-        costFxmDto.setOrderCode(arSendRegister.getOrderCode());
-        costFxmDto.setTrainNumber(arSendRegister.getTransportName());
-        costFxmDto.setStartStationCode(railTrainDto.getBeginNodeCode());
-        costFxmDto.setStartStationCodeName(railTrainDto.getBeginNodeName());
-        costFxmDto.setEndStationCode(railTrainDto.getEndNodeCode());
-        costFxmDto.setEndStationCodeName(railTrainDto.getEndNodeName());
-        costFxmDto.setWeight(arSendRegister.getChargedWeight());
-        costFxmDto.setGoodsType(arSendRegister.getGoodsType());
-        costFxmDto.setGoodsTypeName(arSendRegister.getGoodsTypeName());
-        costFxmDto.setSendNum(arSendRegister.getSendNum());
-        costFxmDto.setCarrierCode(confNodeCarrierDto.getCarrierCode());
-        costFxmDto.setCarrierName(confNodeCarrierDto.getCarrierName());
-        try {
-            railwaySendRegistCostFxmMQ.send(costFxmDto.getOrderCode(),JsonHelper.toJson(costFxmDto));
-        } catch (JMQException e) {
-            log.error("发货登记-发送计费要素信息错误ordercode[{}]",costFxmDto.getOrderCode(),e);
-        }
     }
 
     private void sendMQToRouter(ArSendRegister arSendRegister, String[] sendCodes) {

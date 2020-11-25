@@ -1,11 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
-
-import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.MixedTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.YNEnum;

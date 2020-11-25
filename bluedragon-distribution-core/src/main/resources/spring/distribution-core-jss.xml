@@ -5,30 +5,11 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
-    <!-- 调用云存储 -->
-    <util:map id="jssMapb" map-class="java.util.HashMap">
-        <entry key="accessKey" value="${jss.accessKey}"/>
-        <entry key="secretKey" value="${jss.secretKey}"/>
-        <entry key="bucketName" value="${jss.bucket}"/>
-    </util:map>
-
-    <bean id="jssVersionService" class="com.jd.bluedragon.alpha.jss.JssVersionServiceImpl">
-        <property name="bucket" value="${jss.bucket}"/>
-        <property name="accesskey" value="${jss.accessKey}"/>
-        <property name="secretkey" value="${jss.secretKey}"/>
-        <property name="endpoint" value="${jss.endpoint}"/>
-        <!--<property name="domainEndpoint" value="${jss.domainEndpoint}"/>-->
-        <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
-        <property name="socketTimeout" value="${jss.socketTimeout}"/>
-        <property name="storeTime" value="${jss.storeTime}"/>
-    </bean>
-
     <bean id="jssStorageClient" class="com.jd.bluedragon.distribution.jss.utils.JssStorageClient" init-method="init">
         <property name="accessKey" value="${jss.web.accessKey}"/>
         <property name="secretKey" value="${jss.web.secretKey}"/>
         <property name="endpoint" value="${jss.endpoint}"/>
     </bean>
-
 
     <bean id="dmsWebJssCredential" class="com.jd.jss.Credential">
         <constructor-arg index="0" value="${jss.accessKey}"/>

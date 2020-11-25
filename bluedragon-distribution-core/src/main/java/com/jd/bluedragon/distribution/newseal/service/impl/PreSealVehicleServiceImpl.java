@@ -15,19 +15,17 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PreSealVehicleJobDto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
-
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.newseal.dao.PreSealVehicleDao;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.*;
 
 /**
@@ -178,7 +176,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     @JProfiler(jKey = "DMSWEB.PreSealVehicleServiceImpl.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
-    public boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
+    public List<PreSealVehicle> batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
+        //记录空批次封车数据或封车失败批次数据
+        List<PreSealVehicle> emptyOrFailedBatchCodeData = new ArrayList<>();
         List<PreSealVehicle> data = new ArrayList<>(preList.size());
         List<String> transportCodes = new ArrayList<>(preList.size());
         Set<String> vehicleNumberSet = new HashSet<>();
@@ -197,13 +197,42 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         List<SealVehicles> sealVehiclesList = convert2SealVehicles(data, updateUserErp, updateUserName, operateTime);
         sealVehiclesService.batchAdd(sealVehiclesList);
         try{
+            emptyOrFailedBatchCodeData.addAll(getEmptyBatchCodeData(data));
             addSealTask(data, updateUserCode, updateUserName,operateTime);
             addRedisCache(sealVehiclesList);
         }catch (Exception e){
             clearRedisCache(sealVehiclesList);
-            throw e;
+            emptyOrFailedBatchCodeData.addAll(preList);
         }
-        return true;
+
+        return emptyOrFailedBatchCodeData;
+    }
+
+    private List<PreSealVehicle> getEmptyBatchCodeData(List<PreSealVehicle> data){
+        List<PreSealVehicle> res = new ArrayList<>();
+        for(PreSealVehicle pre : data){
+            List<SealVehicles> sendCodes = pre.getSendCodes();
+            if(sendCodes == null || sendCodes.isEmpty()){
+                continue;
+            }
+
+            PreSealVehicle temp=new PreSealVehicle();
+            BeanUtils.copyProperties(pre,temp);
+
+            List<SealVehicles> tempSendCodes=new ArrayList<>();
+            for (SealVehicles sv: sendCodes) {
+                //如果批次内没有发货数据则进行记录并返回
+                if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(sv.getSealDataCode())){
+                    tempSendCodes.add(sv);
+                }
+            }
+            if(!tempSendCodes.isEmpty()){
+                temp.setSendCodes(tempSendCodes);
+                res.add(temp);
+            }
+        }
+
+        return res;
     }
 
     /**
@@ -324,6 +353,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                     log.warn("一键封车批次号已封车：{}" , vo.getSealDataCode());
                     continue;
                 }
+
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());

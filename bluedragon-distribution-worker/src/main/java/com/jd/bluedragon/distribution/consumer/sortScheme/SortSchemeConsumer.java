@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.consumer.sortScheme;
 import com.jd.bluedragon.common.domain.DmsSortSchemeRouter;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
@@ -21,9 +20,6 @@ public class SortSchemeConsumer extends MessageBaseConsumer{
     private static final Logger log = LoggerFactory.getLogger(SortSchemeConsumer.class);
 
     private List<String> stores ;
-
-    @Autowired
-    SortSchemeSyncService sortSchemeSyncService;
 
     @Autowired
     DtcDataReceiverManager dtcDataReceiverManager;
