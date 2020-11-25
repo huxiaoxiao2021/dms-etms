@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
-import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +18,6 @@ public interface FuncSwitchConfigApiService {
      * @param siteCodeMap
      * @return
      */
-    JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Map<String,Integer> siteCodeMap);
+    FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Map<String,Integer> siteCodeMap);
 }
     

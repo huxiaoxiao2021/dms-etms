@@ -1,14 +1,10 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -33,9 +29,9 @@ public class FuncSwitchConfigApiServiceImpl implements FuncSwitchConfigApiServic
     private FuncSwitchConfigService funcSwitchConfigService;
 
     @Override
-    public JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Map<String,Integer> siteCodeMap) {
+    public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>>  getSiteFilterStatus(Map<String,Integer> siteCodeMap) {
         CallerInfo info = Profiler.registerInfo("DMS.WEB.FuncSwitchConfigApiServiceImpl.getSiteFilterStatus", false, true);
-        JdResponse<List<DmsFuncSwitchDto>> response = null;
+        FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> response = null;
         Integer siteCode = null;
         try {
              siteCode  = siteCodeMap.get("siteCode");
