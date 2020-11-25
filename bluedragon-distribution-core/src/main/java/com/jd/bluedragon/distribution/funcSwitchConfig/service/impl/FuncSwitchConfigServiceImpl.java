@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
@@ -536,6 +537,63 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
        return weightValidateSwitchEnum;
     }
+
+    /**
+     * 获取站点拦截状态:
+     *     //1.先查询全国状态是否配置
+     *     //2.如果全国配置,当前站点不拦截
+     *     //3.如果全国没配置,直接查询当前站点的配置信息
+     * @param siteCode
+     * @return
+     */
+    public JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode){
+        JdResponse<List<DmsFuncSwitchDto>> response =  new JdResponse<>();
+        response.setCode(JdResponse.CODE_SUCCESS);
+        response.setMessage(JdResponse.MESSAGE_SUCCESS);
+
+        try {
+            //返回的数据集合
+            List<DmsFuncSwitchDto> siteFilter = new ArrayList<>();
+            //需要拦截的功能编码集合
+            List<Integer> filter =  FuncSwitchConfigEnum.getFilterList();
+
+            for (Integer menuCode : filter) {
+                FuncSwitchConfigCondition nationCondition = new FuncSwitchConfigCondition();
+                nationCondition.setDimensionCode(DimensionEnum.NATIONAL.getCode());//全国
+                nationCondition.setYn(YnEnum.YN_ON.getCode());//有效状态;
+                nationCondition.setMenuCode(menuCode);
+                //获取是否存在全国配置
+                List<FuncSwitchConfigDto> nationalList = funcSwitchConfigDao.queryByCondition(nationCondition);
+
+                //全国维度   当全国查询到直接用全国的状态
+                if (!CollectionUtils.isEmpty(nationalList)) {
+                     siteFilter.add(new DmsFuncSwitchDto(menuCode, siteCode, YnEnum.YN_ON.getCode()));
+                }else {
+                    //场地维度- 全国没查询到,查询场地维度
+                    FuncSwitchConfigCondition siteCondition = new FuncSwitchConfigCondition();
+                    siteCondition.setDimensionCode(DimensionEnum.SITE.getCode());//站点
+                    siteCondition.setYn(YnEnum.YN_ON.getCode());//有效状态;
+                    siteCondition.setSiteCode(siteCode);
+                    siteCondition.setMenuCode(menuCode);
+
+                    List<FuncSwitchConfigDto> siteList = funcSwitchConfigDao.queryByCondition(siteCondition);
+                    //当站点不存在有效的配置时,默认为拦截
+                    if (CollectionUtils.isEmpty(siteList)) {
+                        siteFilter.add(new DmsFuncSwitchDto(menuCode, siteCode, YnEnum.YN_OFF.getCode()));
+                    } else {
+                        siteFilter.add(new DmsFuncSwitchDto(menuCode, siteCode, YnEnum.YN_ON.getCode()));
+                    }
+                }
+            }
+            response.setData(siteFilter);
+        }catch (Exception e){
+            logger.error("封装站点:{}分拣机拦截状态异常",siteCode,e);
+            response.setCode(JdResponse.CODE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_ERROR);
+        }
+        return response;
+    }
+
 
     /**
      * 全国维度 从缓存或数据库中获取拦截标识

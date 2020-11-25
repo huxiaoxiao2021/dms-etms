@@ -87,4 +87,16 @@ public enum FuncSwitchConfigEnum {
     public void setName(String name) {
         this.name = name;
     }
+
+    /**
+     * 返回需要走拦截逻辑的功能编码集合
+     * @return
+     */
+    public static List<Integer> getFilterList(){
+        List<Integer> list = new ArrayList<Integer>();
+        for (FuncSwitchConfigEnum funcSwitchConfigEnum:filterList){
+            list.add(funcSwitchConfigEnum.getCode());
+        }
+        return list;
+    }
 }

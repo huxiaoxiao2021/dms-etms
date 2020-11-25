@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.service;
 
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -105,4 +106,11 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp);
+
+    /**
+     * 查询站点的功能拦截状态
+     * @param siteCode
+     * @return
+     */
+    JdResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode);
 }
