@@ -57,12 +57,6 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
      */
     List<StoragePackageM> queryExportByCondition(StoragePackageMCondition condition);
     /**
-     * 根据条件导出
-     * @param params
-     * @return
-     */
-    List<StoragePackageM> queryByWaybillCodeListAndSiteCode(Map<String,Object> params);
-    /**
      * 更新储位号
      *  只针对快运暂存
      * @param storagePackageM

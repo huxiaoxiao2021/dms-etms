@@ -1316,12 +1316,4 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         taskService.add(tTask);
     }
 
-	@Override
-	public List<StoragePackageM> queryByWaybillCodeListAndSiteCode(List<String> waybillCodeList, Long createSiteCode) {
-    	Map<String,Object> params=new HashMap<>();
-    	params.put("waybillCodeList",waybillCodeList);
-    	params.put("createSiteCode",createSiteCode);
-    	return storagePackageMDao.queryByWaybillCodeListAndSiteCode(params);
-	}
-
 }

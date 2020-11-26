@@ -69,10 +69,6 @@ public class StoragePackageMDaoImpl extends BaseDao<StoragePackageM> implements 
         return sqlSession.selectList(this.nameSpace+".queryExportByCondition", condition);
     }
 
-    @Override
-    public List<StoragePackageM> queryByWaybillCodeListAndSiteCode(Map<String, Object> params) {
-        return sqlSession.selectList(this.nameSpace+".queryByWaybillCodeListAndSiteCode", params);
-    }
 
     @Override
     public int updateKYStorageCode(StoragePackageM storagePackageM) {

@@ -163,14 +163,4 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * @param isPutAway 是否上架
      */
     void updateWaybillStatusOfKYZC(PutawayDTO putawayDTO,boolean isPutAway);
-
-
-    /**
-     * 更新运单状态
-     *
-     * @param waybillCodeList
-     * @param createSiteCode
-     */
-    List<StoragePackageM> queryByWaybillCodeListAndSiteCode(List<String> waybillCodeList,Long createSiteCode);
-
 }

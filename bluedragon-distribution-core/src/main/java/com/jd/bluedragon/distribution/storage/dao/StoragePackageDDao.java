@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -57,4 +58,12 @@ public interface StoragePackageDDao extends Dao<StoragePackageD> {
      * @return
      */
     int updateKYStorageCodeByWaybillCode(StoragePackageD storagePackageD);
+
+    /**
+     * 通过运单号和分拣中心号查询储位信息
+     * @param storagePackageD
+     * @return
+     */
+    List<String> findStorageCodeByWaybillCodeAndSiteCode(StoragePackageD storagePackageD);
+
 }

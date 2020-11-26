@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.schedule.service.impl;
 
 import java.util.*;
 
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
-import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.bluedragon.utils.ListUtil;
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import com.jd.ldop.utils.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,8 +78,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	private BusinessLogManager businessLogManager;
 
 	@Autowired
-	@Qualifier("storagePackageMService")
-	private StoragePackageMService storagePackageMService;
+	@Qualifier("storagePackageDService")
+	private StoragePackageDService storagePackageDService;
 
 	
 	@Override
@@ -161,39 +161,30 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		List<DmsScheduleInfo> dataList = dmsScheduleInfoDao.queryEdnDmsScheduleInfoList(scheduleBillCode);
 		//设置序号值
 		if(dataList != null && !dataList.isEmpty()){
-            List<String> waybillCodeList=new LinkedList<String>();
 			int rowNum = 1;
 			for(DmsScheduleInfo item : dataList){
 				item.setRowNum(rowNum ++);
-                waybillCodeList.add(item.getWaybillCode());
-			}
-            int size=waybillCodeList.size();
-			if(size<=1000){
-				this.addStorageCodes(waybillCodeList,dataList);
-			}else{
-				//超过1000条运单进行in查询时候，需要进行分割，每1000条，分割一次
-				List<List<String>> lists=ListUtil.splitList(waybillCodeList,1000);
-                for(List<String> strings:lists){
-					this.addStorageCodes(strings,dataList);
+
+                List<String> storageCodeList=storagePackageDService.queryStorageCodeByWaybillCodeAndSiteCode(item.getWaybillCode(),item.getDestDmsSiteCode().longValue());
+                //判断多条包裹信息下面，是否储位号都为空
+				if(!CollectionUtils.isEmpty(storageCodeList)) {
+					Set<String> stringSet=new HashSet<>();
+					//每条包裹下面的储位号，可能相同，需要去重
+					for(String storageCode:storageCodeList){
+						String[] strings=StringUtils.split(storageCode,",");
+						if(strings!=null&&strings.length>0){
+							List<String> stringList=Lists.newArrayList(strings);
+							stringSet.addAll(stringList);
+						}
+
+					}
+					item.setStorageCodes(StringUtils.join(stringSet,","));
 				}
 			}
-
 		}
 		return dataList;
 	}
 
-	private void addStorageCodes(List<String> waybillCodeList,List<DmsScheduleInfo> dataList){
-		List<StoragePackageM> storagePackageMList=storagePackageMService.queryByWaybillCodeListAndSiteCode(waybillCodeList,dataList.get(0).getDestDmsSiteCode().longValue());
-		if(storagePackageMList !=null && !storagePackageMList.isEmpty()){
-			for(DmsScheduleInfo item : dataList){
-				for(StoragePackageM storagePackageM:storagePackageMList){
-					if(StringUtils.equals(item.getWaybillCode(),storagePackageM.getWaybillCode())){
-						item.setStorageCodes(storagePackageM.getStorageCode());
-					}
-				}
-			}
-		}
-	}
 
 	@Override
 	public DmsEdnPickingVo queryDmsEdnPickingVoForView(String scheduleBillCode) {
