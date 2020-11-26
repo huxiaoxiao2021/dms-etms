@@ -2026,9 +2026,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                     }
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
-                    // 更新包裹装车记录表的扫描状态为取消扫描状态
-                    updateScanActionByBatchCode(tSendM);
                 }
+                // 更新包裹装车记录表的扫描状态为取消扫描状态
+                updateScanActionByBatchCode(tSendM);
                 //将板号的集合转换成String类型的列表
                 if(CollectionUtils.isNotEmpty(boardSet)){
                     List<String> boardList = new CollectionHelper<String>().toList(boardSet);
