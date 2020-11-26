@@ -11,6 +11,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
         import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
         import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
+        import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
+        import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
         import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
         import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
         import org.junit.Test;
@@ -44,6 +46,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private LoadScanCacheService loadScanCacheService;
+
+    @Resource
+    private LoadScanServiceImpl loadScanService;
 
 
 
@@ -261,6 +266,16 @@ public class GoodsLoadingScanningServiceImplTest {
 
         loadCarTaskGateWayService.loadCarTaskCreate(loadCarTaskCreateReq);
 
+    }
+
+    @Test
+    public void testUpdateTaskStatus() {
+        LoadCar loadCar = new LoadCar();
+        loadCar.setId(150L);
+        User user = new User();
+        user.setUserName("管理员");
+        user.setUserCode(100001);
+        loadScanService.updateTaskStatus(loadCar, user);
     }
 
 

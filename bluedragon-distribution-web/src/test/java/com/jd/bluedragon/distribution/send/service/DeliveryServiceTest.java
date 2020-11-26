@@ -97,7 +97,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateScanActionByPackageCodes() {
+    public void testUpdateScanActionByPackageCodes() {
         List<SendDetail> sendDetails = new ArrayList<>();
         SendDetail sendDetail1 = new SendDetail();
         sendDetail1.setPackageBarcode("JDV000488250208-1-5-");
@@ -116,7 +116,7 @@ public class DeliveryServiceTest {
     }
 
     @Test
-    public void updateScanActionByBoardCode() {
+    public void testUpdateScanActionByBoardCode() {
         SendM sendM = new SendM();
         sendM.setBoardCode("B20102400000016");
         sendM.setCreateSiteCode(910);

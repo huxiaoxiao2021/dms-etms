@@ -1543,16 +1543,13 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     /**
      * 修改任务状态
-     *
      * @param loadCar 任务
+     * @param user 操作人
      */
-    private void updateTaskStatus(LoadCar loadCar, User user) {
+    public void updateTaskStatus(LoadCar loadCar, User user) {
         // 扫描第一个包裹时，将任务状态改为已开始
-        List<String> waybillCodeList = goodsLoadScanDao.findWaybillCodesByTaskId(loadCar.getId());
-        if (CollectionUtils.isEmpty(waybillCodeList)) {
-            if (log.isDebugEnabled()) {
-                log.debug("常规包裹号后续校验--是第一个扫描包裹，开始修改任务状态：taskId={}", loadCar.getId());
-            }
+        LoadCar car = loadCarDao.findLoadCarByTaskId(loadCar.getId());
+        if (car != null && GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK.equals(car.getStatus())) {
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
             loadCar.setOperateUserErp(user.getUserErp());
             loadCar.setOperateUserName(user.getUserName());
