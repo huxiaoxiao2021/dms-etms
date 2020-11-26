@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.ky.services.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.EcpAirWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.ky.domain.KYPrintInfo;
@@ -40,8 +41,21 @@ public class KYPrintInfoServiceImpl implements KYPrintService {
                 LOGGER.info("获取航空签信息，参数{},返回值：{}", sendCode, JsonHelper.toJson(result));
             }
             AirTransportBillSignDto airTransportBillSignDto = result.getData();
+
+            String kyCode = airTransportBillSignDto.getShipperOrderCode();//KY单号
+            String kyPrintCode = kyCode;
+            Integer kyNum = airTransportBillSignDto.getCargoAmount() == null?
+                    0 : airTransportBillSignDto.getCargoAmount();//包裹数量
+            if (StringHelper.isNotEmpty(kyCode)) {
+                kyPrintCode = kyCode
+                        .concat(Constants.SEPARATOR_HYPHEN)
+                        .concat(String.format("%03d",kyNum))
+                        .concat(Constants.SEPARATOR_HYPHEN)
+                        .concat(Constants.KY_PRINT_CODE_SUFFIX);
+            }
+
             KYPrintInfo kyPrintInfo = new KYPrintInfo();
-            kyPrintInfo.setKyCode(airTransportBillSignDto.getShipperOrderCode());
+            kyPrintInfo.setKyCode(kyPrintCode);
             kyPrintInfo.setSendCode(airTransportBillSignDto.getBatchCode());
             kyPrintInfo.setReceiveAirPortName(airTransportBillSignDto.getEndNodeName());
             invokeResult.setData(kyPrintInfo);

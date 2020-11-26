@@ -1338,5 +1338,9 @@ public class Constants {
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
 
+    /**
+     * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
+     */
+    public static final String KY_PRINT_CODE_SUFFIX = "001";
 
 }
