@@ -324,7 +324,7 @@
 		ORDER by putaway_time
 	</select>
 
-	<select id="findStorageCodeByWaybillCodeAndSiteCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" resultMap="String">
+	<select id="findStorageCodeByWaybillCodeAndSiteCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" resultType="java.lang.String">
 		select
 		distinct(storage_code)
 		from

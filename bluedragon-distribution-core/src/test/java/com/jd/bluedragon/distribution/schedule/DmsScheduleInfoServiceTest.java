@@ -25,7 +25,7 @@ public class DmsScheduleInfoServiceTest extends AbstractDaoIntegrationTest{
         params.put("waybillCodeList",waybillCodeList);
         params.put("createSiteCode","23822");*/
         StoragePackageD storagePackageD=new StoragePackageD();
-        storagePackageD.setWaybillCode("JDV000465437205");
+        storagePackageD.setWaybillCode("JDVA00120133970");
         storagePackageD.setCreateSiteCode(23822L);
         List<String> storageCodeList=  storagePackageDDao.findStorageCodeByWaybillCodeAndSiteCode(storagePackageD);
         if(!CollectionUtils.isEmpty(storageCodeList)) {
