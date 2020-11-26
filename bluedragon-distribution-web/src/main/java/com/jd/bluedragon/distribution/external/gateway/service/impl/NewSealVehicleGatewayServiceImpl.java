@@ -4,13 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.PreSealMeasureInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarDto;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.*;
 import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
@@ -23,6 +17,8 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.PreSealVehicleResource;
@@ -502,5 +498,34 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             sealCarDtos.add(param);
         }
         return sealCarDtos;
+    }
+
+
+    /**
+     * 取消预封车
+     * @param request
+     * @return
+     */
+    @Override
+    public JdCResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request) {
+        JdCResponse<Boolean> result = new JdCResponse<Boolean>();
+        result.toSucceed("取消预封车成功！");
+        //取消封车逻辑
+        CancelPreSealVehicleRequest param = this.prepareParam(request);
+        NewSealVehicleResponse serviceResult = preSealVehicleResource.cancelPreSeal(param);
+        if (!JdResult.CODE_SUC.equals(serviceResult.getCode())){
+            result.toFail(serviceResult.getMessage());
+        }
+        return result;
+    }
+
+    private CancelPreSealVehicleRequest prepareParam(CancelPreBlockCarRequest request) {
+        CancelPreSealVehicleRequest param = new CancelPreSealVehicleRequest();
+        param.setOperateUserErp(request.getUser().getUserErp());
+        param.setOperateUserName(request.getUser().getUserName());
+        param.setSiteCode(request.getCurrentOperate().getSiteCode());
+        param.setSiteName(request.getCurrentOperate().getSiteName());
+        param.setVehicleNumber(request.getCarNum());
+        return param;
     }
 }

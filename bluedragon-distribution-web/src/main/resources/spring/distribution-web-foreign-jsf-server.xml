@@ -5,7 +5,7 @@
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
     <!-- 发布给外部系统特殊读接口 -->
-    <jsf:server id="dmsForeignJsf" protocol="jsf"/>
+    <jsf:server id="dmsForeignJsf" threads="50" protocol="jsf"/>
 
     <!--  面单集包地：京配调用  -->
     <jsf:provider id="dmsMixedPackageConfigJSFServiceApi"

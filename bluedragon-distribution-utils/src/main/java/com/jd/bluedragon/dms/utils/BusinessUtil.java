@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 
@@ -1785,7 +1786,7 @@ public class BusinessUtil {
     }
     /**
      * 隐藏地址：9位以上地址返回前9位+^_^，否则返回原值
-     * @param name 姓名
+     * @param address
      * @return
      */
     public static String getHideAddress(String address) {
@@ -1833,4 +1834,14 @@ public class BusinessUtil {
 		return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_4,
 				WaybillSignConstants.CHAR_4_1,WaybillSignConstants.CHAR_4_2,WaybillSignConstants.CHAR_4_3,WaybillSignConstants.CHAR_4_4,WaybillSignConstants.CHAR_4_9);
 	}
+
+    /**
+     * 验证车牌号合法性
+     */
+    public static boolean isMatchCarLicenseNo(String input){
+        if (StringUtils.isEmpty(input)){
+            return false;
+        }
+        return Pattern.compile(DmsConstants.NUMBERPLATE_CODE).matcher(input).matches();
+    }
 }
