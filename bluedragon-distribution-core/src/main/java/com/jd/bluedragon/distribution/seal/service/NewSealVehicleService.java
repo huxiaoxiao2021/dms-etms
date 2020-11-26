@@ -83,14 +83,6 @@ public interface NewSealVehicleService {
     public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
     /**
-     * 检查批次是否存在
-     *
-     * @param sendCode
-     * @return
-     */
-    public boolean checkSendIsExist(String sendCode);
-
-    /**
      * 校验批次的体积是否超标
      * @param sealCarDto
      * @return
@@ -195,11 +187,17 @@ public interface NewSealVehicleService {
     List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange);
 
     /**
-     * 判断批次号内是否有发货记录
+     * 封车判断批次号内是否有发货记录
      * @param batchCode
      * @return
      */
-    boolean checkBatchCodeIsSend(String batchCode);
+    boolean checkBatchCodeIsNewSealVehicle(String batchCode);
 
+    /**
+     * 一键封车判断批次号内是否有发货记录
+     * @param batchCode
+     * @return
+     */
+    boolean checkBatchCodeIsSendPreSealVehicle(String batchCode);
 
 }

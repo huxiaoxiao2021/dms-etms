@@ -208,16 +208,6 @@
         </property>
     </bean>
 
-    <!-- = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2") -->
-    <bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl" lazy-init="true">
-        <property name="stores">
-            <list>
-                <value>6,6,80</value>
-                <value>006,006,080</value>
-            </list>
-        </property>
-    </bean>
-
     <!-- ump monitor begin common-->
     <!-- aop动态代理 -->
     <aop:aspectj-autoproxy proxy-target-class="true"/>

@@ -49,12 +49,12 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 	protected boolean hasUniqueKey(E e){
 		return false;
 	}
-	@Transactional	
+
 	@Override
 	public boolean batchAdd(List<E> datas) {
 		return this.getDao().batchInsert(datas);
 	}
-	@Transactional
+
 	@Override
 	public boolean saveOrUpdate(E e) {
 		E oldData = this.find(e);
@@ -65,7 +65,7 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 			return this.getDao().insert(e);
 		}
 	}
-	@Transactional
+
 	@Override
 	public boolean deleteById(Long id) {
 		if(id != null){
@@ -73,12 +73,12 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 		}
 		return false;
 	}
-	@Transactional
+
 	@Override
 	public int deleteByIds(List<Long> ids){
 		return this.getDao().deleteByIds(ids);
 	}
-	@Transactional
+
 	@Override
 	public E findById(Long id) {
 		if(id != null){
@@ -86,7 +86,7 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 		}
 		return null;
 	}
-	@Transactional(propagation = Propagation.SUPPORTS)
+
 	@Override
 	public E find(E e) {
 		if(hasId(e)){
@@ -96,7 +96,7 @@ public abstract class BaseService<E extends Entity> implements Service<E> {
 		}
 		return null;
 	}
-	@Transactional(propagation = Propagation.SUPPORTS)
+
 	@Override
 	public PagerResult<E> queryByPagerCondition(PagerCondition pagerCondition) {
 		return this.getDao().queryByPagerCondition(pagerCondition);

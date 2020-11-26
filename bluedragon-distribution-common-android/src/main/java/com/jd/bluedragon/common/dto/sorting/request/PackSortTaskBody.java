@@ -63,6 +63,11 @@ public class PackSortTaskBody implements Serializable {
     private String operateTime;
 //    private String reverseType; C#pda端有上传后端没用发下使用
 
+    /**
+     * 分拣来源字段
+     */
+    private Integer bizSource;
+
     public Integer getReceiveSiteCode() {
         return receiveSiteCode;
     }
@@ -165,5 +170,13 @@ public class PackSortTaskBody implements Serializable {
 
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

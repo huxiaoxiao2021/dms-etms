@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false" />
+		<setting name="autoMappingBehavior" value="FULL"/>
+		<setting name="defaultStatementTimeout" value="30"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias type="com.jd.bluedragon.common.domain.WaybillCache" alias="waybillCache" />
+		<typeAlias type="com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting" alias="PackageWeighting" />
+	</typeAliases>
+
+	<typeHandlers>
+		<typeHandler handler="com.jd.security.aces.mybatis.handle.AcesIndexHandle" javaType="com.jd.security.aces.mybatis.type.AcesJavaType"/>
+		<typeHandler handler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle" javaType="com.jd.security.aces.mybatis.type.AcesJavaType"/>
+		<typeHandler handler="com.jd.security.aces.mybatis.handle.AcesPlainTextHandle" javaType="com.jd.security.aces.mybatis.type.AcesJavaType"/>
+	</typeHandlers>
+
+	<plugins>
+		<plugin interceptor="com.jd.bluedragon.common.utils.routingDao.RoutingPlugin" />
+	</plugins>
+
+	<mappers>
+		<mapper resource="mappers/mysql/waybill/WaybillCacheMapper.xml"/>
+		<mapper resource="mappers/mysql/packageWeighting/PackageWeightingMapper.xml"/>
+	</mappers>
+
+</configuration>

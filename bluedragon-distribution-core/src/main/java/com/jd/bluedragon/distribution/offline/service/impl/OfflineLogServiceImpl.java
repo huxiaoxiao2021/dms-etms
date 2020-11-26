@@ -51,7 +51,6 @@ public class OfflineLogServiceImpl implements OfflineLogService {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer addOfflineLog(OfflineLog offlineLog) {
         if (offlineLog.getBoxCode() != null && offlineLog.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
             log.warn("箱号超长，无法插入任务，参数：{}", JsonHelper.toJson(offlineLog));
@@ -154,7 +153,6 @@ public class OfflineLogServiceImpl implements OfflineLogService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(OfflineLog offlineLog) {
         return offlineDao.updateById(offlineLog);
     }

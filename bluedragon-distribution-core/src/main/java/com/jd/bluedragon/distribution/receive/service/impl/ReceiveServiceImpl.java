@@ -109,7 +109,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 * @param
 	 */
 	@JProfiler(jKey= "DMSWEB.receiveService.doReceiveing", mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Deprecated
 	public void doReceiveing(Receive receive) {
 		this.addReceive(receive);
@@ -398,7 +397,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 	 *
 	 * @param
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void turnoverBoxAdd(TurnoverBox turnoverBox) {
 		turnoverBoxDao.add(TurnoverBoxDao.namespace, turnoverBox);
 		//推送mq
@@ -569,7 +567,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 		pickWare.setOperateTime("2013-08-19 15:33:20");
 		System.out.println(JsonHelper.toJson(pickWare));
 	}
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public boolean addReceive(Receive receive) {
 		return receiveDao.add(ReceiveDao.namespace, receive)==1;

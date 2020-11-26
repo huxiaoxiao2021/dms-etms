@@ -103,11 +103,6 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="pop1MQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.20.90}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
     <bean id="turnoverBoxMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.monitor.turnover.report}"/>
         <property name="timeout" value="1000"/>
@@ -369,12 +364,6 @@
         <property name="topic" value="${jmq.topic.ar.transportModeChange}"/>
     </bean>
 
-    <!-- ECLP退备件库-->
-    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="10000"/>
-        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
-    </bean>
-
     <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
@@ -410,10 +399,6 @@
         <property name="topic" value="${jmq.topic.handOverWeight}"/>
     </bean>
 
-    <!-- 空铁项目 - 发货登记 推送计费信息给FXM -->
-    <bean id="railwaySendRegistCostFxmMQ" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.railway.sendRegist.Cost.fxm}"/>
-    </bean>
     <!-- 线上签 - 异步+重试处理推送线上签数据 -->
     <bean id="printOnlineProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.print.online}"/>
@@ -449,10 +434,6 @@
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
 
-    <!-- 快运暂存上架完成消息 -->
-    <bean id="kyStorageProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.ky.storage.putAway}"/>
-    </bean>
 
     <!-- 众邮箱号称重MQ -->
     <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
