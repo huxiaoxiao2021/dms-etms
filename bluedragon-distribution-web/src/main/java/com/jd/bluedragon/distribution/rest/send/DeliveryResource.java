@@ -227,14 +227,7 @@ public class DeliveryResource {
         domain.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
-            // 一车一单发货
-            domain.setBoxCode(request.getBoxCode());
-            if (request.getIsCancelLastSend() == null) {
-                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
-            } else {
-                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
-            }
+            result.setData(deliveryService.packageSendByWaybill(domain));
         } catch (Exception ex) {
             Profiler.functionError(info);
             result.error(ex);

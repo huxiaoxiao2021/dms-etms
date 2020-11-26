@@ -110,6 +110,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_BOARD_SEND_CANCEL = 1321;
 
+    /**
+     * 按运单发货
+     */
+    public static final Integer TASK_TYPE_WAYBILL_SEND = 1322;
+
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
 
     public static final Integer TASK_TYPE_SCANNER_FRAME=7779;//龙门架自动发货

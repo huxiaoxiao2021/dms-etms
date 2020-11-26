@@ -146,6 +146,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             try {
                 //初始化拦截链上下文
                 FilterContext filterContext = this.initContext(pdaOperateRequest);
+                // 按运单发货 和 按包裹发货 分别走不同的拦截器链路
                 DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } catch (IllegalWayBillCodeException e) {

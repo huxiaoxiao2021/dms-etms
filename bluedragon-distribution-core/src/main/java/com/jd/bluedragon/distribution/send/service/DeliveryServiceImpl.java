@@ -377,6 +377,20 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private VosManager vosManager;
+
+    /**
+     * 按运单发货 redis 前缀
+     */
+    private static final String SEND_BY_WAYBILL_REDIS_PREFIX = "SEND_BY_WAYBILL_REDIS_PREFIX_";
+    /**
+     * 按运单发货 缓存锁定时间 单位: 分钟
+     */
+    private static final long SEND_BY_WAYBILL_REDIS_LOCK_TIME = 60;
+    /**
+     * 按运单发货 最小包裹数量
+     */
+    private static final long SEND_BY_WAYBILL_MIN_PACKS_NUM = 100;
+
     /**
      * 自动过期时间 15分钟
      */
@@ -399,6 +413,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
 
     private final Integer BATCH_NUM_M = 99;
+
 
     /**
      * 组板发货任务的Redis缓存key的前缀
@@ -496,8 +511,82 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         // 发货验证
         result = this.beforeSendVerification(domain, true, false);
-
+        if (!SendResult.CODE_OK.equals(result.getKey())) {
+            return result;
+        }
+        // 锁定运单发货
+        String lockValue = System.nanoTime() + "";
+        if (!lockWaybillSend(domain, lockValue)) {
+            result.init(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+        }
+        try {
+            // 写入按运单发货任务
+            pushWaybillSendTask(domain, Task.TASK_TYPE_WAYBILL_SEND);
+        } catch (Throwable e) {
+            unlockWaybillSend(domain, lockValue);
+            log.error("写入按运单发货任务出错:waybill={}", domain.getBoxCode(), e);
+            result.init(SendResult.CODE_SERVICE_ERROR, "写入按运单发货任务出错:" + domain.getBoxCode());
+        }
         return result;
+    }
+    /**
+     * 按运单发货任务
+     * @param domain 发货数据
+     */
+    private void pushWaybillSendTask(SendM domain,Integer taskType) {
+        Task tTask = new Task();
+        tTask.setBoxCode(domain.getBoxCode());
+        tTask.setBody(JsonHelper.toJson(domain));
+        tTask.setCreateSiteCode(domain.getCreateSiteCode());
+        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
+
+        tTask.setKeyword1(domain.getBoardCode());
+        tTask.setKeyword2(String.valueOf(domain.getSendType()));
+
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
+        log.info("按运单发货任务推送成功：批次号={}，运单号={}" ,domain.getSendCode(), domain.getBoxCode());
+        tTaskService.add(tTask, true);
+    }
+
+    /**
+     *
+     * 锁定运单发货
+     * @param domain 发货数据
+     */
+    private boolean lockWaybillSend(SendM domain,String val) {
+        String redisKey = getSendByWaybillRedisLockKey(domain.getBoxCode(), domain.getCreateSiteCode());
+
+        // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
+        return redisClientCache.set(redisKey, val, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
+    }
+
+    /**
+     * 解锁运单发货
+     *
+     * @param domain 发货数据
+     */
+    private void unlockWaybillSend(SendM domain, String val) {
+        String redisKey = getSendByWaybillRedisLockKey(domain.getBoxCode(), domain.getCreateSiteCode());
+        if (val == null) {
+            redisClientCache.del(redisKey);
+        } else {
+            String redisVal = redisClientCache.get(redisKey);
+            if (val.equals(redisVal)) {
+                redisClientCache.del(redisKey);
+            }
+        }
+    }
+
+    private String getSendByWaybillRedisLockKey(String waybill, Integer operateSiteCode) {
+        if (WaybillUtil.isPackageCode(waybill)) {
+            waybill = WaybillUtil.getWaybillCode(waybill);
+        }
+        return SEND_BY_WAYBILL_REDIS_PREFIX + waybill + "_" + operateSiteCode;
     }
 
     private void checkSendByWaybillParam(SendM domain, SendResult result) {
@@ -517,8 +606,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
-        if (WaybillUtil.getPackNumByPackCode(domain.getBoardCode()) < 100) {
-            result.init(SendResult.CODE_SENDED, "此运单包裹总数小于100非大宗订单，请扫描包裹号此运单包裹总数小于100非大宗订单，请扫描包裹号");
+        if (WaybillUtil.getPackNumByPackCode(domain.getBoardCode()) < SEND_BY_WAYBILL_MIN_PACKS_NUM) {
+            result.init(SendResult.CODE_SENDED, "此运单包裹总数小于" + SEND_BY_WAYBILL_MIN_PACKS_NUM + "非大宗订单，请扫描包裹号");
             return;
         }
     }
