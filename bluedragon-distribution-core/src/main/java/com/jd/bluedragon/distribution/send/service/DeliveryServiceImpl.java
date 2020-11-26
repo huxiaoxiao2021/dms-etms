@@ -47,6 +47,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
@@ -376,6 +378,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private VosManager vosManager;
+
+    @Autowired
+    private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
     /**
      * 自动过期时间 15分钟
      */
@@ -1887,6 +1892,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         sendMessage(tlist, tSendM, needSendMQ);
                         //同步取消半退明细
                         reversePartDetailService.cancelPartSend(tSendM);
+                        // 更新包裹装车记录表的扫描状态为取消扫描状态
+                        updateScanActionByPackageCodes(tlist, tSendM);
                     }
 					return responsePack;
 				} else {
@@ -1946,6 +1953,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 List<String> boardList = new ArrayList<>();
                 boardList.add(tSendM.getBoardCode());
                 changeBoardStatus(tSendM,boardList);
+                // 更新包裹装车记录表的扫描状态为取消扫描状态
+                updateScanActionByBoardCode(tSendM);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
                 CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
@@ -1991,6 +2000,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
                         if (responsePack.getCode().equals(200)) {
                             reversePartDetailService.cancelPartSend(sendMItem);//同步取消半退明细
+                            // 更新包裹装车记录表的扫描状态为取消扫描状态
+                            updateScanActionByPackageCodes(tlist, tSendM);
                         } else {
                             continue;
                         }
@@ -2497,6 +2508,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         reverseDeliveryService.updateIsCancelByBox(tSendM);
         //写入运单回传状态
         reverseDeliveryService.updateIsCancelToWaybillByBox(tSendM, tlist);
+        // 更新包裹装车记录表的扫描状态为取消扫描状态
+        updateScanActionByPackageCodes(tlist, tSendM);
         return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
     }
 
@@ -5773,5 +5786,41 @@ public class DeliveryServiceImpl implements DeliveryService {
             log.error("查询批次号【{}】是否封车异常!",sendCode,e);
         }
         return false;
+    }
+
+    /**
+     * 根据包裹号列表批量更新取消发货的包裹为取消扫描状态
+     * @param list 发货包裹列表
+     */
+    public void updateScanActionByPackageCodes(List<SendDetail> list, SendM sendM) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+            List<String> packageCodes = new ArrayList<>();
+            for (SendDetail detail : list) {
+                packageCodes.add(detail.getPackageBarcode());
+            }
+            record.setCreateSiteCode(Long.valueOf(list.get(0).getCreateSiteCode()));
+            record.setPackageCodeList(packageCodes);
+            record.setUpdateTime(new Date());
+            record.setUpdateUserName(sendM.getUpdaterUser());
+            record.setUpdateUserCode(sendM.getUpdateUserCode());
+            goodsLoadScanRecordDao.updateScanActionByPackageCodes(record);
+        }
+    }
+
+    /**
+     * 根据包裹号列表批量更新取消发货的包裹为取消扫描状态
+     * @param sendM 发货数据
+     */
+    public void updateScanActionByBoardCode(SendM sendM) {
+        if (sendM != null) {
+            GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+            record.setBoardCode(sendM.getBoardCode());
+            record.setCreateSiteCode(Long.valueOf(sendM.getCreateSiteCode()));
+            record.setUpdateTime(new Date());
+            record.setUpdateUserName(sendM.getUpdaterUser());
+            record.setUpdateUserCode(sendM.getUpdateUserCode());
+            goodsLoadScanRecordDao.updateScanActionByBoardCode(record);
+        }
     }
 }

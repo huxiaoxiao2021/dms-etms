@@ -20,7 +20,7 @@ import java.util.List;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
+@ContextConfiguration( {"classpath:distribution-web-context.xml"})
 public class DeliveryServiceTest {
 
     @Autowired
@@ -94,5 +94,34 @@ public class DeliveryServiceTest {
         list.add("B19103000000034");
         deliveryService.changeBoardStatus(sendM,list);
         Assert.assertEquals(new Integer(1),groupBoardService.getBoardByCode("B19103000000034").getData().getStatus());
+    }
+
+    @Test
+    public void updateScanActionByPackageCodes() {
+        List<SendDetail> sendDetails = new ArrayList<>();
+        SendDetail sendDetail1 = new SendDetail();
+        sendDetail1.setPackageBarcode("JDV000488250208-1-5-");
+        sendDetail1.setCreateSiteCode(910);
+        sendDetails.add(sendDetail1);
+        SendDetail sendDetail2 = new SendDetail();
+        sendDetail2.setPackageBarcode("JDV000488250208-2-5-");
+        sendDetail2.setCreateSiteCode(910);
+        sendDetails.add(sendDetail2);
+
+        SendM sendM = new SendM();
+        sendM.setCreateSiteCode(910);
+        sendM.setUpdaterUser("管理员");
+        sendM.setUpdateUserCode(100001);
+        deliveryService.updateScanActionByPackageCodes(sendDetails, sendM);
+    }
+
+    @Test
+    public void updateScanActionByBoardCode() {
+        SendM sendM = new SendM();
+        sendM.setBoardCode("B20102400000016");
+        sendM.setCreateSiteCode(910);
+        sendM.setUpdaterUser("管理员");
+        sendM.setUpdateUserCode(100001);
+        deliveryService.updateScanActionByBoardCode(sendM);
     }
 }
