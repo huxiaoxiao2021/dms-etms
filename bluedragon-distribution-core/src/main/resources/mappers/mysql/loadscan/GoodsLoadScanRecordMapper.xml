@@ -228,7 +228,7 @@
             <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
             <if test="wayBillCode != null">waybill_code = #{wayBillCode,jdbcType=VARCHAR},</if>
             <if test="packageCode != null">package_code = #{packageCode,jdbcType=VARCHAR},</if>
-            <if test="boardCode != null">board_code = #{boardCode,jdbcType=INTEGER},</if>
+            <if test="boardCode != null">board_code = #{boardCode,jdbcType=VARCHAR},</if>
             <if test="scanAction != null">scan_action = #{scanAction,jdbcType=INTEGER},</if>
             <if test="transfer != null">transfer = #{transfer,jdbcType=INTEGER},</if>
             <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>
@@ -248,6 +248,31 @@
     <update id="updatePackageForceStatus" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
         update load_scan_record set force_status = 1
         where yn = 1 and task_id = #{taskId,jdbcType=BIGINT} and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateScanActionByPackageCodes" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+        update load_scan_record set scan_action = 0, update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=VARCHAR}
+        where yn = 1 and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        and package_code IN
+        <foreach collection="packageCodeList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <update id="updateScanActionByBoardCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+        update load_scan_record set scan_action = 0, update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=VARCHAR}
+        where yn = 1 and create_site_code = #{createSiteCode,jdbcType=BIGINT} and board_code = #{boardCode,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateScanActionByTaskIds" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+        update load_scan_record set scan_action = 0, update_time = #{updateTime,jdbcType=TIMESTAMP},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=VARCHAR}
+        where yn = 1 and task_id IN
+        <foreach collection="taskIdList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
     </update>
 
     <update id="deleteLoadScanRecordByTaskId" parameterType="java.lang.String">

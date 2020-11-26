@@ -762,6 +762,11 @@ public class LoadScanServiceImpl implements LoadScanService {
                     record.setUpdateUserCode(user.getUserCode());
                     record.setUpdateTime(new Date());
                     record.setBoardCode(boardCode);
+                    record.setTaskId(loadCar.getId());
+                    record.setCreateSiteCode(loadCar.getCreateSiteCode());
+                    record.setCreateSiteName(loadCar.getCreateSiteName());
+                    record.setEndSiteCode(loadCar.getEndSiteCode());
+                    record.setEndSiteName(loadCar.getEndSiteName());
                     record.setLicenseNumber(loadCar.getLicenseNumber());
                     updateRecords.add(record);
                 }
@@ -1167,6 +1172,11 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScanRecord.setUpdateUserCode(user.getUserCode());
                 loadScanRecord.setUpdateUserName(user.getUserName());
                 loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                loadScanRecord.setTaskId(loadCar.getId());
+                loadScanRecord.setCreateSiteCode(loadCar.getCreateSiteCode());
+                loadScanRecord.setCreateSiteName(loadCar.getCreateSiteName());
+                loadScanRecord.setEndSiteCode(loadCar.getEndSiteCode());
+                loadScanRecord.setEndSiteName(loadCar.getEndSiteName());
                 loadScanRecord.setLicenseNumber(loadCar.getLicenseNumber());
                 goodsLoadScanRecordDao.updateGoodsScanRecordById(loadScanRecord);
             } else {
@@ -1543,16 +1553,13 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     /**
      * 修改任务状态
-     *
      * @param loadCar 任务
+     * @param user 操作人
      */
-    private void updateTaskStatus(LoadCar loadCar, User user) {
+    public void updateTaskStatus(LoadCar loadCar, User user) {
         // 扫描第一个包裹时，将任务状态改为已开始
-        List<String> waybillCodeList = goodsLoadScanDao.findWaybillCodesByTaskId(loadCar.getId());
-        if (CollectionUtils.isEmpty(waybillCodeList)) {
-            if (log.isDebugEnabled()) {
-                log.debug("常规包裹号后续校验--是第一个扫描包裹，开始修改任务状态：taskId={}", loadCar.getId());
-            }
+        LoadCar car = loadCarDao.findLoadCarByTaskId(loadCar.getId());
+        if (car != null && GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK.equals(car.getStatus())) {
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
             loadCar.setOperateUserErp(user.getUserErp());
             loadCar.setOperateUserName(user.getUserName());

@@ -126,6 +126,10 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private String licenseNumber;
 
+    /**
+     * 任务ID列表
+     */
+    private List<Long> taskIdList;
 
     public Long getId() {
         return id;
@@ -309,5 +313,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public List<Long> getTaskIdList() {
+        return taskIdList;
+    }
+
+    public void setTaskIdList(List<Long> taskIdList) {
+        this.taskIdList = taskIdList;
     }
 }
