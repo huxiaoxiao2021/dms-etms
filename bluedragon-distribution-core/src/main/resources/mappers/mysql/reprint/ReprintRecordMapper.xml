@@ -108,10 +108,10 @@
             AND operator_code = #{operatorId}
         </if>
         <if test="operateTimeFrom != null">
-            AND operate_time >= #{operateTimeFrom}
+            AND ts >= #{operateTimeFrom}
         </if>
         <if test="operateTimeTo != null">
-            AND operate_time &lt; #{operateTimeTo}
+            AND ts &lt; #{operateTimeTo}
         </if>
         <if test="isDelete != null">
             AND is_delete = #{isDelete}
