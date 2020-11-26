@@ -191,11 +191,11 @@ public class ReprintRecordServiceImpl implements ReprintRecordService {
         result.setData(true);
         result.toSucceed();
 
-        if (query.getSiteCode() == null) {
+        /*if (query.getSiteCode() == null) {
             result.setData(false);
             result.toError("参数错误，siteCode不能为空");
             return result;
-        }
+        }*/
 
         query.setIsDelete(Constants.YN_NO);
         // 转换用户ID为用户erp
