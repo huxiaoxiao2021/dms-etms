@@ -5809,7 +5809,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 根据包裹号列表批量更新取消发货的包裹为取消扫描状态
+     * 根据板号列表批量更新取消发货的包裹为取消扫描状态
      * @param sendM 发货数据
      */
     public void updateScanActionByBoardCode(SendM sendM) {
