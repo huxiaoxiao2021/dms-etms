@@ -179,7 +179,6 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	/**
 	 * 写入安全日志
 	 * @param jsonCommand
-	 * @param responseJsonString
 	 */
 	private void writeSecurityLog(JdCommand<String> jsonCommand){
 		try{
@@ -196,7 +195,6 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	/**
 	 * 构建安全日志参数
 	 * @param jsonCommand
-	 * @param responseJsonString
 	 * @return
 	 */
 	private String makeParamForSecurityLog(JdCommand<String> jsonCommand) throws UnknownHostException {
@@ -236,15 +234,5 @@ public class JsonCommandServiceImpl implements JdCommandService{
 
 		return JsonHelper.toJson(securityLog);
 
-	}
-
-	/**
-	 * 判断是否是平台打印或站点打印，是返回true,否则返回false
-	 * @param operateType
-	 * @return
-	 */
-	private Boolean isPlatformOrSitePrint(Integer operateType){
-		return operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
-				|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType()) ? Boolean.TRUE:Boolean.FALSE;
 	}
 }
