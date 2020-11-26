@@ -75,6 +75,10 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().update(namespace + ".updateScanActionByBoardCode", record);
     }
 
+    public int updateScanActionByTaskIds(GoodsLoadScanRecord record) {
+        return this.getSqlSession().update(namespace + ".updateScanActionByTaskIds", record);
+    }
+
     public boolean deleteLoadScanRecordByTaskId(Long taskId) {
         return super.getSqlSession().update(namespace + ".deleteLoadScanRecordByTaskId", taskId) > 0;
     }

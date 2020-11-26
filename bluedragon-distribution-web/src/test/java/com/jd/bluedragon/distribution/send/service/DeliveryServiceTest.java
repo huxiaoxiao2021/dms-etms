@@ -124,4 +124,14 @@ public class DeliveryServiceTest {
         sendM.setUpdateUserCode(100001);
         deliveryService.updateScanActionByBoardCode(sendM);
     }
+
+    @Test
+    public void testUpdateScanActionByBatchCode() {
+        SendM sendM = new SendM();
+        sendM.setSendCode("910-364605-20201126223512345");
+        sendM.setCreateSiteCode(910);
+        sendM.setUpdaterUser("管理员");
+        sendM.setUpdateUserCode(100001);
+        deliveryService.updateScanActionByBatchCode(sendM);
+    }
 }

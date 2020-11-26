@@ -762,6 +762,11 @@ public class LoadScanServiceImpl implements LoadScanService {
                     record.setUpdateUserCode(user.getUserCode());
                     record.setUpdateTime(new Date());
                     record.setBoardCode(boardCode);
+                    record.setTaskId(loadCar.getId());
+                    record.setCreateSiteCode(loadCar.getCreateSiteCode());
+                    record.setCreateSiteName(loadCar.getCreateSiteName());
+                    record.setEndSiteCode(loadCar.getEndSiteCode());
+                    record.setEndSiteName(loadCar.getEndSiteName());
                     record.setLicenseNumber(loadCar.getLicenseNumber());
                     updateRecords.add(record);
                 }
@@ -1167,6 +1172,11 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScanRecord.setUpdateUserCode(user.getUserCode());
                 loadScanRecord.setUpdateUserName(user.getUserName());
                 loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+                loadScanRecord.setTaskId(loadCar.getId());
+                loadScanRecord.setCreateSiteCode(loadCar.getCreateSiteCode());
+                loadScanRecord.setCreateSiteName(loadCar.getCreateSiteName());
+                loadScanRecord.setEndSiteCode(loadCar.getEndSiteCode());
+                loadScanRecord.setEndSiteName(loadCar.getEndSiteName());
                 loadScanRecord.setLicenseNumber(loadCar.getLicenseNumber());
                 goodsLoadScanRecordDao.updateGoodsScanRecordById(loadScanRecord);
             } else {
