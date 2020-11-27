@@ -1312,27 +1312,27 @@
 			<artifactId>crossbow-api</artifactId>
 			<version>${crossbow.api.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>com.jd.lsb</groupId>
-			<artifactId>lsb-component</artifactId>
-			<version>${crossbow.component.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>fastjson</artifactId>
-					<groupId>com.alibaba</groupId>
-				</exclusion>
-                <exclusion>
-                    <artifactId>commons-beanutils</artifactId>
-                    <groupId>commons-beanutils</groupId>
-                </exclusion>
-            </exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.jd.lsb.component</groupId>
-			<artifactId>crossbow</artifactId>
-			<version>${crossbow.version}</version>
-		</dependency>
-
+<!--		<dependency>-->
+<!--			<groupId>com.jd.lsb</groupId>-->
+<!--			<artifactId>lsb-component</artifactId>-->
+<!--			<version>${crossbow.component.version}</version>-->
+<!--			<exclusions>-->
+<!--				<exclusion>-->
+<!--					<artifactId>fastjson</artifactId>-->
+<!--					<groupId>com.alibaba</groupId>-->
+<!--				</exclusion>-->
+<!--                <exclusion>-->
+<!--                    <artifactId>commons-beanutils</artifactId>-->
+<!--                    <groupId>commons-beanutils</groupId>-->
+<!--                </exclusion>-->
+<!--            </exclusions>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>com.jd.lsb.component</groupId>-->
+<!--			<artifactId>crossbow</artifactId>-->
+<!--			<version>${crossbow.version}</version>-->
+<!--		</dependency>-->
+<!--		&lt;!&ndash; LSB组件平台 &ndash;&gt;-->
 		<dependency>
 			<groupId>com.jd.intelligent.center</groupId>
 			<artifactId>icenter-api</artifactId>
