@@ -3,7 +3,15 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
 
-        <!--  拼多多面单打印信息获取接口  -->
+    <!-- 初始化crossBow的代理服务 -->
+    <bean id="dmsCrossbowClient" class="com.jd.bluedragon.core.crossbow.DMSCrossbowClient" init-method="initClient">
+        <constructor-arg name="serverUrl" value="${comp.lop.serverUrl}" />
+        <constructor-arg name="timeout" value="${comp.lop.timeout}" />
+        <constructor-arg name="partnerId" value="${comp.lop.partnerId}" />
+        <constructor-arg name="partnerSecret" value="${comp.lop.partnerSecret}" />
+    </bean>
+
+    <!--  拼多多面单打印信息获取接口  -->
     <bean id="pddWaybillQueryManager" class="com.jd.bluedragon.external.crossbow.pdd.manager.PDDBusinessManager">
             <property name="wpCode" value="${dms.external.pdd.wpCode}" />
             <property name="secret" value="${dms.external.pdd.secret}" />
