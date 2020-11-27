@@ -1346,4 +1346,9 @@ public class Constants {
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
+    /**
+     * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
+     */
+    public static final String KY_PRINT_CODE_SUFFIX = "001";
+
 }

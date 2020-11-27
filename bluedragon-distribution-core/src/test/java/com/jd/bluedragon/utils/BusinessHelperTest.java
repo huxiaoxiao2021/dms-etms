@@ -150,4 +150,14 @@ public class BusinessHelperTest {
 			}
 		}
 	}
+
+	@Test
+	public void test() {
+		System.out.println(String.format("%03d",-1));
+		System.out.println(String.format("%03d",0));
+		System.out.println(String.format("%03d",1));
+		System.out.println(String.format("%03d",100));
+		System.out.println(String.format("%03d",10));
+		System.out.println(String.format("%03d",10101));
+	}
 }
