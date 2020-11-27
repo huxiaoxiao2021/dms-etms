@@ -389,6 +389,10 @@
 			<if test="waybillCode!=null">
 				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			</if>
+            <if test="receiveSiteCode!=null">
+                and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+            </if>
+            and send_code != null
 		</where>
 		LIMIT 1
 	</select>
