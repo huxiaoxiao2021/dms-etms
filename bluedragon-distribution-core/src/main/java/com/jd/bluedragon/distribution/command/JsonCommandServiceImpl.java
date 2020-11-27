@@ -19,11 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +34,6 @@ import java.util.Set;
 @Service("jsonCommandService")
 public class JsonCommandServiceImpl implements JdCommandService{
 	private static final Logger log = LoggerFactory.getLogger(JsonCommandServiceImpl.class);
-	private static final Logger securityLog = LoggerFactory.getLogger("security.log");
 
 	private static Set<String> encryptedInfo = new HashSet<String>();
 	static {
@@ -59,8 +53,6 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		encryptedInfo.add("consigneeCompany");//寄件人公司
 	}
 
-	private final static String SYSTEMNAME = "QLFJZXJT";
-	private final static String APPNAME = "dms.etms";
 
 
 	/**
@@ -181,56 +173,12 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	private void writeSecurityLog(JdCommand<String> jsonCommand){
 		try{
 			//构建参数
-			String reportLog =this.makeParamForSecurityLog(jsonCommand);
-			if (StringUtils.isEmpty(reportLog))return;
+			WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
+			if (null == waybillPrintRequest) return;
 			//打印日志
-			securityLog.info(reportLog);
+			SecurityLog.reportSecurityLog(JsonCommandServiceImpl.class.getName(),waybillPrintRequest.getUserERP(),waybillPrintRequest.getBarCode());
 		}catch (Exception ex){
 			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
 		}
-	}
-
-	/**
-	 * 构建安全日志参数
-	 * @param jsonCommand
-	 * @return
-	 */
-	private String makeParamForSecurityLog(JdCommand<String> jsonCommand) throws UnknownHostException {
-		//请求数据
-		WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
-		if (null == waybillPrintRequest)return null;
-
-		//头部信息
-		SecurityLog.HeadLogSecurityInfo head = new SecurityLog.HeadLogSecurityInfo();
-		head.setOp(SecurityLog.OpTypeEnum.QUERY.ordinal());
-		head.setInterfaceName(JsonCommandServiceImpl.class.getName());
-		head.setTime(new Date().getTime()/1000);
-		head.setServerIp(InetAddress.getLocalHost().getHostAddress());
-		head.setSystemName(SYSTEMNAME);
-		head.setAppName(APPNAME);
-		head.setClientIp(SecurityLog.LOCALHOST);
-		head.setVersion("V1.0");
-		head.setAccountName(SecurityLog.ACCOUNTNAME);
-		head.setAccountType(SecurityLog.AccountTypeEnum.ERP.ordinal());
-
-		//请求信息
-		SecurityLog.ReqLogSecurityInfo reqInfo = new SecurityLog.ReqLogSecurityInfo();
-		reqInfo.setErpId(waybillPrintRequest.getUserERP());
-		reqInfo.setTimeFrom(new Date().getTime()/1000);
-		reqInfo.setTimeTo(new Date().getTime()/1000);
-
-
-		//返回信息
-		SecurityLog.RespLogSecurityInfo respInfo = new SecurityLog.RespLogSecurityInfo();
-		respInfo.setStatus(0);
-		respInfo.setRecordCnt(1L);
-		SecurityLog.RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new SecurityLog.RespLogSecurityInfo.UniqueIdentifier();
-		uniqueIdentifier.setCarryBillId(waybillPrintRequest.getBarCode());
-		respInfo.setUniqueIdentifier(Arrays.asList(uniqueIdentifier));
-
-		SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
-
-		return JsonHelper.toJson(securityLog);
-
 	}
 }

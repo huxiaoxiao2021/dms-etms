@@ -1,14 +1,27 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.commons.utils.JsonHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
  * 包括 head(头部)，reqInfo(请求部分)，respInfo(响应部分)
  */
 public class SecurityLog {
+
+    private static final Logger securityLog = LoggerFactory.getLogger("security.log");
+
     public static final String LOCALHOST = "127.0.0.1";
     public static final String ACCOUNTNAME = "pin";
+    private final static String SYSTEMNAME = "QLFJZXJT";
+    private final static String APPNAME = "dms.etms";
 
     private HeadLogSecurityInfo head;
     private ReqLogSecurityInfo reqInfo;
@@ -444,6 +457,60 @@ public class SecurityLog {
                 this.orderId = orderId;
             }
         }
+    }
+
+
+    /**
+     * 上报安全日志
+     * @param interfaceName
+     * @param erpOp
+     * @param carryBill
+     */
+    public static void reportSecurityLog(String interfaceName,String erpOp,String carryBill) throws UnknownHostException {
+        String log = makeParamForSecurityLog(interfaceName,erpOp,carryBill);
+        securityLog.info(log);
+    }
+
+    /**
+     * 构建日志信息
+     * @param interfaceName 接口信息
+     * @param erpOp 操作人ERP
+     * @param carryBill 运单号
+     * @return
+     * @throws UnknownHostException
+     */
+    public static String makeParamForSecurityLog(String interfaceName,String erpOp,String carryBill) throws UnknownHostException {
+        //头部信息
+        SecurityLog.HeadLogSecurityInfo head = new SecurityLog.HeadLogSecurityInfo();
+        head.setOp(SecurityLog.OpTypeEnum.QUERY.ordinal());
+        head.setInterfaceName(interfaceName);
+        head.setTime(new Date().getTime()/1000);
+        head.setServerIp(InetAddress.getLocalHost().getHostAddress());
+        head.setSystemName(SYSTEMNAME);
+        head.setAppName(APPNAME);
+        head.setClientIp(SecurityLog.LOCALHOST);
+        head.setVersion("V1.0");
+        head.setAccountName(SecurityLog.ACCOUNTNAME);
+        head.setAccountType(SecurityLog.AccountTypeEnum.ERP.ordinal());
+
+        //请求信息
+        SecurityLog.ReqLogSecurityInfo reqInfo = new SecurityLog.ReqLogSecurityInfo();
+        reqInfo.setErpId(erpOp);
+        reqInfo.setTimeFrom(new Date().getTime()/1000);
+        reqInfo.setTimeTo(new Date().getTime()/1000);
+
+
+        //返回信息
+        SecurityLog.RespLogSecurityInfo respInfo = new SecurityLog.RespLogSecurityInfo();
+        respInfo.setStatus(0);
+        respInfo.setRecordCnt(1L);
+        SecurityLog.RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new SecurityLog.RespLogSecurityInfo.UniqueIdentifier();
+        uniqueIdentifier.setCarryBillId(carryBill);
+        respInfo.setUniqueIdentifier(Arrays.asList(uniqueIdentifier));
+
+        SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
+
+        return JsonHelper.toJson(securityLog);
     }
 }
 
