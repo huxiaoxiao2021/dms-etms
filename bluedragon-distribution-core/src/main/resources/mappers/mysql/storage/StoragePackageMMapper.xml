@@ -404,20 +404,6 @@
 		<include refid="Base_Condition_Sql"/>
 	</select>
 
-	<select id="queryByWaybillCodeListAndSiteCode" parameterType="Map" resultMap="StoragePackageM" >
-		select
-		<include refid="Base_Column_List"/>
-		from
-		storage_package_m
-		where
-		waybill_code in
-		<foreach collection="waybillCodeList" item="item" index="index" open="(" close=")" separator=",">
-		  #{item}
-	    </foreach>
-		and create_site_code= #{createSiteCode,jdbcType=BIGINT}
-		<include refid="Base_Condition_Sql"/>
-	</select>
-
 	<select id="queryByPerformanceCode" parameterType="String" resultMap="StoragePackageM">
 		select
 		<include refid="Base_Column_List"/>

@@ -324,4 +324,13 @@
 		ORDER by putaway_time
 	</select>
 
+	<select id="findStorageCodeByWaybillCodeAndSiteCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" resultType="java.lang.String">
+		select
+		distinct(storage_code)
+		from
+		storage_package_d
+		where
+		waybill_code = #{waybillCode,jdbcType=VARCHAR} and create_site_code= #{createSiteCode,jdbcType=BIGINT}
+		<include refid="Base_Condition_Sql"/>
+	</select>
 </mapper>
