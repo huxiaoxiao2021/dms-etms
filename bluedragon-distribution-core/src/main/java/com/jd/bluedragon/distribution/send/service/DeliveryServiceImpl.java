@@ -146,6 +146,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.common.network.Send;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -515,15 +516,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
         // 锁定运单发货
-        String lockValue = System.nanoTime() + "";
-        if (!lockWaybillSend(domain, lockValue)) {
+        if (!lockWaybillSend(domain)) {
             result.init(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+            return result;
         }
         try {
             // 写入按运单发货任务
             pushWaybillSendTask(domain, Task.TASK_TYPE_WAYBILL_SEND);
         } catch (Throwable e) {
-            unlockWaybillSend(domain, lockValue);
+            unlockWaybillSend(domain);
             log.error("写入按运单发货任务出错:waybill={}", domain.getBoxCode(), e);
             result.init(SendResult.CODE_SERVICE_ERROR, "写入按运单发货任务出错:" + domain.getBoxCode());
         }
@@ -558,11 +559,11 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 锁定运单发货
      * @param domain 发货数据
      */
-    private boolean lockWaybillSend(SendM domain,String val) {
+    private boolean lockWaybillSend(SendM domain) {
         String redisKey = getSendByWaybillRedisLockKey(domain.getBoxCode(), domain.getCreateSiteCode());
 
         // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
-        return redisClientCache.set(redisKey, val, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
+        return redisClientCache.set(redisKey, "1", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
     }
 
     /**
@@ -570,16 +571,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param domain 发货数据
      */
-    private void unlockWaybillSend(SendM domain, String val) {
+    private void unlockWaybillSend(SendM domain) {
         String redisKey = getSendByWaybillRedisLockKey(domain.getBoxCode(), domain.getCreateSiteCode());
-        if (val == null) {
-            redisClientCache.del(redisKey);
-        } else {
-            String redisVal = redisClientCache.get(redisKey);
-            if (val.equals(redisVal)) {
-                redisClientCache.del(redisKey);
-            }
-        }
+        redisClientCache.del(redisKey);
     }
 
     private String getSendByWaybillRedisLockKey(String waybill, Integer operateSiteCode) {
@@ -1123,17 +1117,11 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public void packageSendByWaybill(SendBizSourceEnum sourceEnum, SendM domain) {
-        if (sourceEnum != null) {
-            // 设置发货来源
-            domain.setBizSource(sourceEnum.getCode());
-        }
+    public void doPackageSendByWaybill(SendM domain) {
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
         //发送发货业务通知MQ
         deliverGoodsNoticeMQ(domain);
-        // 按包裹 补分拣任务 大件写TASK_SORTING
-        pushSorting(domain);
         // 判断是否是中转发货
         this.transitSend(domain);
         this.pushStatusTask(domain);
@@ -5490,6 +5478,54 @@ public class DeliveryServiceImpl implements DeliveryService {
         redisManager.del(REDIS_PREFIX_BOARD_DELIVERY +domain.getBoardCode());
         return true;
 	}
+
+    /**
+     * 获取运单下的所有包裹号
+     * 补充按运单分拣
+     * 按包裹分页 调用一车一单发货逻辑(需移除补分拣逻辑)
+     * 所有分页数据处理完释放按运单锁
+     */
+    @Override
+    public boolean doWaybillSendDelivery(Task task) {
+        if(log.isInfoEnabled()){
+            log.info("按发货逐单发货开始：{}" ,JsonHelper.toJson(task));
+        }
+        SendM domain = JsonHelper.fromJson(task.getBody(),SendM.class);
+        if (domain == null) {
+            return false;
+        }
+        String waybillCode = domain.getBoxCode();
+        if (!(WaybillUtil.isPackageCode(waybillCode) || WaybillUtil.isWaybillCode(waybillCode))) {
+            log.warn("按运单发货domain.getBoxCode 非运单/包裹号:waybillCode={}", waybillCode);
+            return false;
+        }
+        if (WaybillUtil.isPackageCode(waybillCode)) {
+            waybillCode = WaybillUtil.getWaybillCode(waybillCode);
+        }
+        int pageNo = 1;
+        int pageSize = 1000;
+        BaseEntity<List<DeliveryPackageD>> waybillCodeOfPage = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        if (waybillCodeOfPage == null || CollectionUtils.isEmpty(waybillCodeOfPage.getData())) {
+            log.warn("按运单发货获取包裹数量为空:waybillCode={}", waybillCode);
+            return false;
+        }
+
+        // 按运单补分拣任务
+        pushSorting(domain);
+        // 按包裹分页 调用一车一单发货逻辑
+        while (waybillCodeOfPage != null && CollectionUtils.isNotEmpty(waybillCodeOfPage.getData())) {
+            for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
+                SendM packSendM = new SendM();
+                BeanUtils.copyProperties(domain, packSendM);
+                packSendM.setBoxCode(pack.getPackageBarcode());
+                // 一车一单发货逻辑,其中 补分拣逻辑已移除(while循环外已按运单补分拣逻辑)
+                doPackageSendByWaybill(domain);
+            }
+            pageNo++;
+            waybillCodeOfPage = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        }
+        return true;
+    }
 
     /**
      * 根据任务类型获取发货业务来源

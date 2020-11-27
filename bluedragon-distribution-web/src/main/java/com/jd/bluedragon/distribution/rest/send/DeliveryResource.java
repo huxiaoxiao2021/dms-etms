@@ -50,7 +50,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.eclp.bbp.co.constant.enumImpl.BizSourceEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -231,7 +230,7 @@ public class DeliveryResource {
         } catch (Exception ex) {
             Profiler.functionError(info);
             result.error(ex);
-            log.error("一车一单发货{}",JsonHelper.toJson(request), ex);
+            log.error("按运单发货{}",JsonHelper.toJson(request), ex);
         }finally {
             Profiler.registerInfoEnd(info);
         }

@@ -210,7 +210,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**
      * 整板发货任务表
      */
-    public static final String TABLE_NAME_BOARD_SEND="task_board_send";
+    public static final String TABLE_NAME_BOARD_SEND = "task_board_send";
+    /**
+     * 按运单发货任务表
+     */
+    public static final String TABLE_NAME_WAYBILL_SEND="task_waybill_send";
     /**
      * 整板取消发货任务表
      */
@@ -610,6 +614,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_BOARD_SEND_CANCEL;
         }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return Task.TABLE_NAME_CYCLE_BOX_STATUS;
+        }else if(Task.TASK_TYPE_WAYBILL_SEND.equals(type)){
+            return Task.TABLE_NAME_WAYBILL_SEND;
         }
         
         return Task.TABLE_NAME_SORTING;

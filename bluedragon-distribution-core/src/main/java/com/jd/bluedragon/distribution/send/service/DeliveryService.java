@@ -38,7 +38,7 @@ public interface DeliveryService {
     SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend);
 
     /**
-     * 按运单批量发货,运单下的包裹数量需大于 100
+     * 按运单批量发货,校验数据并写入异步任务:运单下的包裹数量需大于 100
      * @param domain 发货数据
      */
     SendResult packageSendByWaybill(SendM domain);
@@ -51,11 +51,9 @@ public interface DeliveryService {
     void packageSend(SendBizSourceEnum sourceEnum, SendM domain);
 
     /**
-     * 按运单发货
-     * @param sourceEnum
-     * @param domain
+     * 按运单发货异步任务处理
      */
-    void packageSendByWaybill(SendBizSourceEnum sourceEnum, SendM domain);
+    void doPackageSendByWaybill(SendM domain);
 
     /**
      * 推分拣任务
@@ -397,6 +395,11 @@ public interface DeliveryService {
      * @return
      */
     boolean doBoardDelivery(Task task);
+
+    /**
+     * 处理按运单发货任务
+     */
+    boolean doWaybillSendDelivery(Task task);
 
     /**
      * 按板取消发货任务
