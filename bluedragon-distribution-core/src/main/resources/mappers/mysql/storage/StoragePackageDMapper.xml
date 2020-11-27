@@ -330,7 +330,7 @@
 		from
 		storage_package_d
 		where
-		waybill_code = #{waybillCode} and create_site_code= #{createSiteCode,jdbcType=BIGINT}
+		waybill_code = #{waybillCode,jdbcType=VARCHAR} and create_site_code= #{createSiteCode,jdbcType=BIGINT}
 		<include refid="Base_Condition_Sql"/>
 	</select>
 </mapper>

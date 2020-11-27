@@ -164,21 +164,12 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			int rowNum = 1;
 			for(DmsScheduleInfo item : dataList){
 				item.setRowNum(rowNum ++);
-
-                List<String> storageCodeList=storagePackageDService.queryStorageCodeByWaybillCodeAndSiteCode(item.getWaybillCode(),item.getDestDmsSiteCode().longValue());
-                //判断多条包裹信息下面，是否储位号都为空
-				if(!CollectionUtils.isEmpty(storageCodeList)) {
-					Set<String> stringSet=new HashSet<>();
-					//每条包裹下面的储位号，可能相同，需要去重
-					for(String storageCode:storageCodeList){
-						String[] strings=StringUtils.split(storageCode,",");
-						if(strings!=null&&strings.length>0){
-							List<String> stringList=Lists.newArrayList(strings);
-							stringSet.addAll(stringList);
-						}
-
+				if(null!=item.getDestDmsSiteCode()){
+					List<String> storageCodeList=storagePackageDService.queryStorageCodeByWaybillCodeAndSiteCode(item.getWaybillCode(),item.getDestDmsSiteCode().longValue());
+					//判断多条包裹信息下面，是否储位号都为空
+					if(!CollectionUtils.isEmpty(storageCodeList)) {
+						item.setStorageCodes(StringUtils.join(storageCodeList,","));
 					}
-					item.setStorageCodes(StringUtils.join(stringSet,","));
 				}
 			}
 		}
