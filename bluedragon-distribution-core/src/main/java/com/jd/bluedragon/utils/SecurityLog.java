@@ -1,6 +1,5 @@
-package com.jd.bluedragon.dms.utils;
+package com.jd.bluedragon.utils;
 
-import com.commons.utils.JsonHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -481,8 +480,8 @@ public class SecurityLog {
      */
     public static String makeParamForSecurityLog(String interfaceName,String erpOp,String carryBill) throws UnknownHostException {
         //头部信息
-        SecurityLog.HeadLogSecurityInfo head = new SecurityLog.HeadLogSecurityInfo();
-        head.setOp(SecurityLog.OpTypeEnum.QUERY.ordinal());
+        HeadLogSecurityInfo head = new HeadLogSecurityInfo();
+        head.setOp(OpTypeEnum.QUERY.ordinal());
         head.setInterfaceName(interfaceName);
         head.setTime(new Date().getTime()/1000);
         head.setServerIp(InetAddress.getLocalHost().getHostAddress());
@@ -491,20 +490,20 @@ public class SecurityLog {
         head.setClientIp(SecurityLog.LOCALHOST);
         head.setVersion("V1.0");
         head.setAccountName(SecurityLog.ACCOUNTNAME);
-        head.setAccountType(SecurityLog.AccountTypeEnum.ERP.ordinal());
+        head.setAccountType(AccountTypeEnum.ERP.ordinal());
 
         //请求信息
-        SecurityLog.ReqLogSecurityInfo reqInfo = new SecurityLog.ReqLogSecurityInfo();
+        ReqLogSecurityInfo reqInfo = new ReqLogSecurityInfo();
         reqInfo.setErpId(erpOp);
         reqInfo.setTimeFrom(new Date().getTime()/1000);
         reqInfo.setTimeTo(new Date().getTime()/1000);
 
 
         //返回信息
-        SecurityLog.RespLogSecurityInfo respInfo = new SecurityLog.RespLogSecurityInfo();
+        RespLogSecurityInfo respInfo = new RespLogSecurityInfo();
         respInfo.setStatus(0);
         respInfo.setRecordCnt(1L);
-        SecurityLog.RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new SecurityLog.RespLogSecurityInfo.UniqueIdentifier();
+        RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new RespLogSecurityInfo.UniqueIdentifier();
         uniqueIdentifier.setCarryBillId(carryBill);
         respInfo.setUniqueIdentifier(Arrays.asList(uniqueIdentifier));
 
