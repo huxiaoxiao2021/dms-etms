@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseNumber;
+import static com.jd.bluedragon.enums.LicenseNumberAreaCodeEnum.transferLicenseNumber2;
 import static com.jd.bluedragon.utils.DateHelper.daysDiff;
 
 /**
@@ -189,14 +190,23 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             jdCResponse.setMessage("车牌号不合规,请检查后重试");
             return jdCResponse;
         }
+        boolean flag = false;
+        /**针对010A77777长度9**/
         if (licenseNumber.length() == 9) {
-            String temp = licenseNumber;//如果是数字，转化成功存在汉字，两者不相等，   如果相等就不正常
+            String temp = licenseNumber;
             licenseNumber = transferLicenseNumber(licenseNumber);
-            if(temp.equals(licenseNumber)) {
-                jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("车牌号不合规,请检查后重试");
-                return jdCResponse;
-            }
+            flag = temp.equals(licenseNumber);
+        }
+        /**针对0371A77777长度10**/
+        if (licenseNumber.length() == 10) {
+            String temp = licenseNumber;//如果是数字，转化成功存在汉字，两者不相等，如果相等就不正常
+            licenseNumber = transferLicenseNumber2(licenseNumber);
+            flag = temp.equals(licenseNumber);
+        }
+        if (flag) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("车牌号不合规,请检查后重试");
+            return jdCResponse;
         }
         jdCResponse.setData(licenseNumber);
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
@@ -294,6 +304,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             LoadCar loadCar = new LoadCar();
             loadCar.setCreateSiteCode(req.getCreateSiteCode());
             loadCar.setEndSiteCode(req.getEndSiteCode());
+            loadCar.setLicenseNumber(req.getLicenseNumber());
             List<LoadCar> taskList = loadService.selectByEndSiteCode(loadCar);
             Date now = new Date();
             //库中如果存在
@@ -301,7 +312,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 for (LoadCar taskInfo : taskList) {
                     if (daysDiff(taskInfo.getUpdateTime(), now) < 3) {
                         jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                        jdCResponse.setMessage("同一个转运中心，一个目的场地只能创建一个进行中任务！");
+                        jdCResponse.setMessage("相同流向相同车辆只能创建一个任务！");
                         return jdCResponse;
                     }
                     //判断是否有3天还没结束的任务,有的话直接删除任务

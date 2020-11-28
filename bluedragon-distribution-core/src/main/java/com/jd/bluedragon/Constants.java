@@ -1342,4 +1342,8 @@ public class Constants {
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
+    /**
+     * 组板转移标识
+     */
+    public static final Integer IS_COMBITION_TRANSFER = 1;
 }
