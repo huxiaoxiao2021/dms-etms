@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.schedule.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import com.jd.ldop.utils.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,7 +75,12 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	
 	@Autowired
 	@Qualifier("businessLogManager")
-	private BusinessLogManager businessLogManager;	
+	private BusinessLogManager businessLogManager;
+
+	@Autowired
+	@Qualifier("storagePackageDService")
+	private StoragePackageDService storagePackageDService;
+
 	
 	@Override
 	public Dao<DmsScheduleInfo> getDao() {
@@ -156,10 +164,18 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			int rowNum = 1;
 			for(DmsScheduleInfo item : dataList){
 				item.setRowNum(rowNum ++);
+				if(null!=item.getDestDmsSiteCode()){
+					List<String> storageCodeList=storagePackageDService.queryStorageCodeByWaybillCodeAndSiteCode(item.getWaybillCode(),item.getDestDmsSiteCode().longValue());
+					//判断多条包裹信息下面，是否储位号都为空
+					if(!CollectionUtils.isEmpty(storageCodeList)) {
+						item.setStorageCodes(StringUtils.join(storageCodeList,","));
+					}
+				}
 			}
 		}
 		return dataList;
 	}
+
 
 	@Override
 	public DmsEdnPickingVo queryDmsEdnPickingVoForView(String scheduleBillCode) {

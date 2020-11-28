@@ -43,5 +43,13 @@ public class StoragePackageDServiceImpl extends BaseService<StoragePackageD> imp
 		return storagePackageDDao.cancelPutaway(waybillCode);
 	}
 
+	@Override
+	public List<String> queryStorageCodeByWaybillCodeAndSiteCode(String waybillCode, Long destDmsSiteCode) {
+		StoragePackageD storagePackageD=new StoragePackageD();
+		storagePackageD.setWaybillCode(waybillCode);
+		storagePackageD.setCreateSiteCode(destDmsSiteCode);
+		return storagePackageDDao.findStorageCodeByWaybillCodeAndSiteCode(storagePackageD);
+	}
+
 
 }

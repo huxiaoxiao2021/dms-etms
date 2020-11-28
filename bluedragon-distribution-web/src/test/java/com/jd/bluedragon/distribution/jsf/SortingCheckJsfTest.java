@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jsf;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -18,6 +20,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class SortingCheckJsfTest {
     @Autowired
     private WaybillCancelService waybillCancelService;
+    @Autowired
+    private DmsScheduleInfoService dmsScheduleInfoService;
 
     @Test
     public void testWaybillCancel() {
@@ -29,5 +33,12 @@ public class SortingCheckJsfTest {
         Assert.assertFalse(waybillCancelService.isRefundWaybill("42747081239"));
         Assert.assertFalse(waybillCancelService.isRefundWaybill("42746445977"));
 
+    }
+
+    @Test
+    public void testPrintEdnPickingList(){
+        LoginUser user=new LoginUser();
+        user.setUserErp("cl");
+        dmsScheduleInfoService.printEdnPickingList("ZD20200507",user);
     }
 }
