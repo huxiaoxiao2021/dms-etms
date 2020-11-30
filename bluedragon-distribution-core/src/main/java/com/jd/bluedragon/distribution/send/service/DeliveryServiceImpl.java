@@ -605,7 +605,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
-        if (WaybillUtil.getPackNumByPackCode(domain.getBoardCode()) < SEND_BY_WAYBILL_MIN_PACKS_NUM) {
+        if (WaybillUtil.getPackNumByPackCode(domain.getBoxCode()) < SEND_BY_WAYBILL_MIN_PACKS_NUM) {
             result.init(SendResult.CODE_SENDED, "此运单包裹总数小于" + SEND_BY_WAYBILL_MIN_PACKS_NUM + "非大宗订单，请扫描包裹号");
             return;
         }
@@ -2016,8 +2016,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 // 判断 按运单发货在处理中，则稍后再试
                 if (isSendByWaybillProcessing(tSendM)) {
                     return new ThreeDeliveryResponse(
-                            DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                            DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+                            DeliveryResponse.CODE_DELIVERY_BY_WAYBILL_PROCESSING,
+                            DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING, null);
                 }
                 SendDetail mSendDetail = new SendDetail();
                 if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())) {
