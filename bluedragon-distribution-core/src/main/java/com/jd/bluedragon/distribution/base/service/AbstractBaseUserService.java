@@ -71,6 +71,8 @@ public abstract class AbstractBaseUserService implements LoginService {
      */
     protected static final String JSF_LOGIN_DEFAULT_VERSION_NAME = "Jsf_Login";
 
+    private static final String INSTALL_WARN = "应用版本过低，请自主安装，自主安装不成功联系运维重新安装！自主安装指引https://cf.jd.com/pages/viewpage.action?pageId=393150523";
+
     /**
      * 当前应用的环境（prod-全国 pre-华中 uat-UAT test-测试）
      */
@@ -291,7 +293,7 @@ public abstract class AbstractBaseUserService implements LoginService {
             if(StringHelper.isEmpty(request.getBaseVersionCode())
             		||(loginCheckConfig.getBaseVersionCodes() != null 
             			&&!loginCheckConfig.getBaseVersionCodes().contains(request.getBaseVersionCode()))){
-            	checkResult.toFail("应用版本过低，请联系运维重新安装！");
+            	checkResult.toFail(this.INSTALL_WARN);
             	return checkResult;
             }
             boolean needCheck = loginCheckConfig.getMasterSwitch();
@@ -329,11 +331,11 @@ public abstract class AbstractBaseUserService implements LoginService {
              */
             if(needCheck){
                 if(StringHelper.isEmpty(clientInfo.getVersionName())){
-                    checkResult.toFail("应用版本过低，请联系运维重新安装！");
+                    checkResult.toFail(this.INSTALL_WARN);
                 }else{
                     List<ClientConfig> clientConfigs = clientConfigService.getBySiteCode(clientInfo.getVersionName());
                     if(clientConfigs == null || clientConfigs.isEmpty()){
-                        checkResult.toFail("应用版本无效，请联系运维重新安装！");
+                        checkResult.toFail(this.INSTALL_WARN);
                     }else{
                         boolean versionIsMatch = false;
                         String versionOnline = "";
