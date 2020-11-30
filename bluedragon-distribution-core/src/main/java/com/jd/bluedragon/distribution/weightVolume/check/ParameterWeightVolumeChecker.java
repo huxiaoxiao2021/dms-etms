@@ -120,6 +120,11 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                 result.setData(Boolean.FALSE);
                 return result;
             }
+            if(!NumberHelper.gt0(entity.getWeight())){
+                result.parameterError("按箱操作需有效的重量数据");
+                result.setData(Boolean.FALSE);
+                return result;
+            }
         }
 
         result.success();
