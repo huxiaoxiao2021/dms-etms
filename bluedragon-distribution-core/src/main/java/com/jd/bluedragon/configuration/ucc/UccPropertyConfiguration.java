@@ -202,6 +202,11 @@ public class UccPropertyConfiguration {
      */
     private String preSealVehicleRemoveEmptyBatchCode;
 
+    /**
+     * 一键封车友情提示
+     */
+    private String quickSealTips;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -568,5 +573,13 @@ public class UccPropertyConfiguration {
 
     public void setInspectionAggEffectiveSites(String inspectionAggEffectiveSites) {
         this.inspectionAggEffectiveSites = inspectionAggEffectiveSites;
+    }
+
+    public String getQuickSealTips() {
+        return quickSealTips;
+    }
+
+    public void setQuickSealTips(String quickSealTips) {
+        this.quickSealTips = quickSealTips;
     }
 }
