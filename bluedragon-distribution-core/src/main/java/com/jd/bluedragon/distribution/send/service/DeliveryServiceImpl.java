@@ -743,6 +743,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
+        // 按运单发货正在处理中
+        if (isSendByWaybillProcessing(domain)) {
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING);
+            return result;
+        }
+
         // 判断是否使用多次发货取消上次发货
         if (isUseMultiSendVerify) {
             if (!isSkipMultiSendVerify) {
@@ -3056,7 +3062,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (sendM == null) {
             return false;
         }
-        return redisClientCache.exists(getSendByWaybillLockKey(sendM.getBoxCode(), sendM.getCreateSiteCode()));
+        return Boolean.TRUE.equals(redisClientCache.exists(getSendByWaybillLockKey(sendM.getBoxCode(), sendM.getCreateSiteCode())));
     }
     /**
      * 根据任务获取对应的SendTaskCategoryEnum
@@ -5565,7 +5571,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 按运单发货，将对应的包裹数据缓存，一边判断所有包裹始发均执行完成
+     * 按运单发货，将对应的包裹数据缓存，以便判断所有包裹始发均执行完成
      * @param waybillCode 运单号
      * @param createSiteCode 操作站点
      * @param packageDList 包裹号
