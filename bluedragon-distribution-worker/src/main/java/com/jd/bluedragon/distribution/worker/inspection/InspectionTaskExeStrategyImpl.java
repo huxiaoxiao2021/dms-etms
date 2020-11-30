@@ -49,7 +49,6 @@ public class InspectionTaskExeStrategyImpl implements InspectionTaskExeStrategy 
                 break;
 
             case PACKAGE_PAGE_MODE:
-
                 targetExecutor = splitWaybillTaskExecutor;
                 break;
 

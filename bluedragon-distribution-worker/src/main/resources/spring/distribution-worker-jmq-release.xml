@@ -274,5 +274,10 @@
     </jmq:consumer>-->
     <!-- ************************************** 正式环境 B网转运分组特殊消费处理 结束********************************  -->
 
+    <!--  包裹验货消息  -->
+    <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
+    </jmq:consumer>
+
 </beans>
 

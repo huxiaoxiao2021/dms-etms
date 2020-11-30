@@ -5,19 +5,22 @@ import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
  * 验货操作日志写入
  * Created by wangtingwei on 2017/1/17.
  */
-public class InspectionLogHook implements TaskHook<InspectionTaskExecuteContext> {
+public class InspectionLogHook extends AbstractTaskHook {
 
     @Autowired
     private OperationLogService operationLogService;
@@ -26,7 +29,7 @@ public class InspectionLogHook implements TaskHook<InspectionTaskExecuteContext>
     private Set<Integer> storeIdSet;
 
     @Override
-    @JProfiler( jKey = "dmsworker.InspectionLogHook.hook")
+    @JProfiler(jKey = "dmsworker.InspectionLogHook.hook", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public int hook(InspectionTaskExecuteContext context) {
         for (Inspection inspection:context.getInspectionList()) {
             OperationLog operationLog = new OperationLog();
@@ -49,5 +52,11 @@ public class InspectionLogHook implements TaskHook<InspectionTaskExecuteContext>
             operationLogService.add(operationLog);
         }
         return 0;
+    }
+
+    @Override
+    public boolean escape(InspectionTaskExecuteContext context) {
+
+        return siteEnableInspectionAgg(context);
     }
 }

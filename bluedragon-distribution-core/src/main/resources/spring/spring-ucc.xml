@@ -82,7 +82,8 @@
 		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
 		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
 		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
-
+        <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
+        <property name="quickSealTips" value="${quickSealTips:''}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -135,6 +136,8 @@
 				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
 				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
+                <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
+                <value>uccPropertyConfiguration.quickSealTips</value>
 			</list>
 		</property>
 	</bean>

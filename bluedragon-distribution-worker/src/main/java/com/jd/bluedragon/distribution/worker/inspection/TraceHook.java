@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * 验货全程跟踪推送
  * Created by wangtingwei on 2017/1/17.
  */
-public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
+public class TraceHook extends AbstractTaskHook {
 
     private static final Logger log= LoggerFactory.getLogger(TraceHook.class);
 
@@ -27,7 +28,7 @@ public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
     private TaskService taskService;
 
     @Override
-    @JProfiler( jKey = "dmsworker.TraceHook.hook")
+    @JProfiler(jKey = "dmsworker.TraceHook.hook", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public int hook(InspectionTaskExecuteContext context) {
         for (CenConfirm cenConfirm:context.getCenConfirmList()){
             BaseStaffSiteOrgDto bDto = context.getCreateSite();
@@ -53,5 +54,11 @@ public class TraceHook implements TaskHook<InspectionTaskExecuteContext> {
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean escape(InspectionTaskExecuteContext context) {
+
+        return siteEnableInspectionAgg(context);
     }
 }
