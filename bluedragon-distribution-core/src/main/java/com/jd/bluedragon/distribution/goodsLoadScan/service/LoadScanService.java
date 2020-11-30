@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 
+import java.util.List;
+
 public interface LoadScanService {
     //装车发货
     JdCResponse goodsLoadingDeliver(GoodsLoadingReq req);
@@ -65,5 +67,11 @@ public interface LoadScanService {
      * 根据任务ID删除装车扫描运单暂存记录和包裹扫描记录
      */
     void deleteLoadScanByTaskId(Long taskId);
+
+    /**
+     * 未装包裹明细列表查询
+     */
+    JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req, JdCResponse<List<String>> response);
+
 
 }

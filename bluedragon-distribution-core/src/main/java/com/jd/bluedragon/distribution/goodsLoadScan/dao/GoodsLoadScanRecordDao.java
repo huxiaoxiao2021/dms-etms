@@ -28,17 +28,22 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectListByCondition", record);
     }
 
-    public GoodsLoadScanRecord findRecordByWaybillCodeAndPackCode(GoodsLoadScanRecord record) {
-
+    public GoodsLoadScanRecord findRecordByWaybillCodeAndPackCode(String waybillCode, String packageCode, Long createSiteCode) {
+        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+        record.setWayBillCode(waybillCode);
+        record.setPackageCode(packageCode);
+        record.setYn(Constants.YN_YES);
+        record.setCreateSiteCode(createSiteCode);
         return this.getSqlSession().selectOne(namespace + ".selectRecordByWaybillCodeAndPackCode", record);
     }
 
-    public List<String> findPackageCodesByBoardCode(Long taskId, String boardCode) {
+    public List<String> selectPackageCodesByWaybillCode(Long taskId, String waybillCode) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setTaskId(taskId);
-        record.setBoardCode(boardCode);
+        record.setWayBillCode(waybillCode);
+        record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
         record.setYn(Constants.YN_YES);
-        return this.getSqlSession().selectList(namespace + ".selectPackageCodesByBoardCode", record);
+        return this.getSqlSession().selectList(namespace + ".selectPackageCodesByWaybillCode", record);
     }
 
     public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long createSiteCode,List<String> packageCodeList) {
@@ -60,6 +65,18 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public int updatePackageForceStatus(GoodsLoadScanRecord record) {
         return this.getSqlSession().update(namespace + ".updatePackageForceStatus",record);
+    }
+
+    public int updateScanActionByPackageCodes(GoodsLoadScanRecord record) {
+        return this.getSqlSession().update(namespace + ".updateScanActionByPackageCodes", record);
+    }
+
+    public int updateScanActionByBoardCode(GoodsLoadScanRecord record) {
+        return this.getSqlSession().update(namespace + ".updateScanActionByBoardCode", record);
+    }
+
+    public int updateScanActionByTaskIds(GoodsLoadScanRecord record) {
+        return this.getSqlSession().update(namespace + ".updateScanActionByTaskIds", record);
     }
 
     public boolean deleteLoadScanRecordByTaskId(Long taskId) {

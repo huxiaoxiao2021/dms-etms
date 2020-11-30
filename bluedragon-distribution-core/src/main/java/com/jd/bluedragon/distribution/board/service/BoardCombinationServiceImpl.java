@@ -890,7 +890,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         tWaybillStatus.setOperateType(operateType);
 
         if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
-            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode());
+            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
         } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
             tWaybillStatus.setRemark("已取消组板，板号" + request.getBoardCode());
         }

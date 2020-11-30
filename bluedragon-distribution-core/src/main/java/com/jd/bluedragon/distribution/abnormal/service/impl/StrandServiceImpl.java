@@ -121,13 +121,13 @@ public class StrandServiceImpl implements StrandService {
             List<Message> list = new ArrayList<>(bigWaybillDto.getPackageList().size());
             for(DeliveryPackageD packageD : bigWaybillDto.getPackageList()){
                 String packageCode = packageD.getPackageBarcode();
-                //全程跟踪
-                addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
                 //构建
                 StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
                 Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
                 list.add(message);
             }
+            //全程跟踪
+            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
             strandReportDetailProducer.batchSendOnFailPersistent(list);
             return result;
         }

@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.ecp.dto.AirDepartInfoDto;
+import com.jd.tms.ecp.dto.AirTransportBillSignDto;
 import com.jd.tms.ecp.dto.CommonDto;
 import com.jd.tms.ecp.ws.EcpAirWS;
 import com.jd.ump.annotation.JProEnum;
@@ -62,5 +63,22 @@ public class EcpAirWSManagerImpl implements EcpAirWSManager {
         return result;
     }
 
-
+    @Override
+    @JProfiler(jKey = "DMS.BASE.EcpAirWSManagerImpl.getAirTransportBillSign", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<AirTransportBillSignDto> getAirTransportBillSign(String sendCode) {
+        InvokeResult<AirTransportBillSignDto> result = new InvokeResult<>();
+        result.success();
+        CommonDto<AirTransportBillSignDto> commonDto = ecpAirWS.getAirTransportBillSign(sendCode);
+        logger.info("根据批次号获取KY航签单信息，参数：【{}】,返回值：【{}】",sendCode,JsonHelper.toJson(commonDto));
+        if(commonDto == null){
+            result.error("获取KY航签单失败！");
+            return result;
+        }
+        result.setData(commonDto.getData());
+        if(commonDto.getCode() != CommonDto.CODE_SUCCESS){
+            result.error(commonDto.getMessage());
+            return result;
+        }
+        return result;
+    }
 }
