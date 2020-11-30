@@ -44,7 +44,7 @@ public class SiteServiceImplTest {
        // transportResourceDto.setTransCode("R2011012697968");//运力编码
         //transportResourceDto.setCarrierCode()
 
-       List<TransportResourceDto> result =  basicSelectWsManager.queryPageTransportResource(transportResourceDto);
+       List<TransportResourceDto> result =  basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
 
         for(TransportResourceDto dto :result){
             Date transDisableTime = dto.getTransDisableTime();
