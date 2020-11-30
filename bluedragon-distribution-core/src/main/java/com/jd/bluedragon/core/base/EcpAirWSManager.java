@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.tms.ecp.dto.AirDepartInfoDto;
+import com.jd.tms.ecp.dto.AirTransportBillSignDto;
 
 /**
  * 运输航空相关
@@ -23,4 +24,9 @@ public interface EcpAirWSManager {
      * @return
      */
     InvokeResult<String> supplementSortAirDepartInfo(AirDepartInfoDto param) ;
+
+    /**
+     * 获取KY航签单信息
+     */
+    InvokeResult<AirTransportBillSignDto> getAirTransportBillSign(String sendCode);
 }
