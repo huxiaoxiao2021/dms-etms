@@ -133,13 +133,13 @@ public class SiteServiceImpl implements SiteService {
                 transportResourceDto.setStartOrgCode(String.valueOf(request.getSorgid()));
             // 始发站
             if (request.getScode() != null)
-               transportResourceDto.setStartNodeCode(String.valueOf(request.getScode()));
+               transportResourceDto.setStartNodeId(request.getScode());
             // 目的区域
             if (request.getRorgid() != null)
                 transportResourceDto.setEndOrgCode(String.valueOf(request.getRorgid()));
             // 目的站
             if (request.getRcode() != null)
-                transportResourceDto.setEndNodeCode(String.valueOf(request.getRcode()));
+                transportResourceDto.setEndNodeId(request.getRcode());
             // 线路类型
             if (request.getRouteType() != null)
                 transportResourceDto.setTransType(request.getRouteType());
@@ -163,7 +163,7 @@ public class SiteServiceImpl implements SiteService {
                 }
             }
 
-            List<TransportResourceDto>  result = basicSelectWsManager.queryPageTransportResource(transportResourceDto);
+            List<TransportResourceDto>  result = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
             if (CollectionUtils.isEmpty(result)) {
                 return response;
             }

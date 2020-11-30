@@ -32,7 +32,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
     private BasicSelectWS basicSelectWs;
 
     @Override
-    public List<TransportResourceDto> queryPageTransportResource(TransportResourceDto transportResourceDto) {
+    public List<TransportResourceDto> queryPageTransportResourceWithNodeId(TransportResourceDto transportResourceDto) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource", false, true);
         //返回的结果
         List<TransportResourceDto> result = new ArrayList<>();
@@ -45,7 +45,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
             if(logger.isInfoEnabled()){
                 logger.info("调用运输运力数据分页接口入参page:{},transportResourceDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(transportResourceDto));
             }
-            CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResource(page,transportResourceDto);
+            CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
             if(commonDto == null  || commonDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS){
                 logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
                 return result;
