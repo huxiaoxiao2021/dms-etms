@@ -115,10 +115,6 @@
     <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
             <jmq:listener topic="${jmq.topic.tms.cancel.sendcar}" listener="cancelScheduleFromTMSConsumer"/>
     </jmq:consumer>
-    <!--jmq.transbillMSyncConsumer 城配运单mq消费应用-->
-    <jmq:consumer id="jmq.transbillMSyncConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="${jmq.topic.bd.transbill.m}" listener="transbillMSyncConsumer"/>
-    </jmq:consumer>
 
     <bean id="sortSchemeConsumer" class="com.jd.bluedragon.distribution.consumer.sortScheme.SortSchemeConsumer">
         <property name="stores">

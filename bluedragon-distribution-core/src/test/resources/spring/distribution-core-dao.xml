@@ -357,14 +357,6 @@
     <bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-    <!--分拣机自动发货配置-发货组-->
-    <bean id="sortMachineSendGroupDao" class="com.jd.bluedragon.distribution.sendGroup.dao.SortMachineSendGroupDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-    <!--分拣机自动发货配置-发货组-关联滑槽配置-->
-    <bean id="sortMachineGroupConfigDao" class="com.jd.bluedragon.distribution.sendGroup.dao.SortMachineGroupConfigDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
     <!-- Worker start -->
     <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
         <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>

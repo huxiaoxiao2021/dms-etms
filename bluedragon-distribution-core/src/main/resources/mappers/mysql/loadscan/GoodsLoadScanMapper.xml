@@ -10,6 +10,8 @@
         <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="createUserCode"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
@@ -22,7 +24,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-		id,task_id,waybill_code,package_amount,load_amount,unload_amount,
+		id,task_id,waybill_code,package_amount,load_amount,unload_amount,weight,volume,
 		force_amount,status,create_user_code,create_user_name,update_user_code,update_user_name,
 		create_time,update_time,yn
 	</sql>
@@ -52,6 +54,12 @@
             </if>
             <if test="forceAmount != null">
                 force_amount,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="volume != null">
+                volume,
             </if>
             <if test="status != null">
                 status,
@@ -99,6 +107,12 @@
             <if test="forceAmount != null">
                 #{forceAmount,jdbcType=INTEGER},
             </if>
+            <if test="weight != null">
+                #{weight,jdbcType=DOUBLE},
+            </if>
+            <if test="volume != null">
+                #{volume,jdbcType=DOUBLE},
+            </if>
             <if test="status != null">
                 #{status,jdbcType=INTEGER},
             </if>
@@ -127,12 +141,12 @@
     </insert>
 
     <insert id="batchInsert" parameterType="goodsLoadScan">
-        insert into load_scan (task_id, waybill_code, package_amount,
+        insert into load_scan (task_id, waybill_code, package_amount,weight,volume,
         load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
         update_time, yn, ts)  VALUES
         <foreach collection="list" item="info" separator=",">
             (#{info.taskId,jdbcType=BIGINT}, #{info.wayBillCode,jdbcType=VARCHAR},
-            #{info.packageAmount,jdbcType=INTEGER},
+            #{info.packageAmount,jdbcType=INTEGER},#{info.weight,jdbcType=DOUBLE},#{info.volume,jdbcType=DOUBLE},
             #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
             #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
             #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
@@ -200,7 +214,7 @@
         select
         <include refid="Base_Column_List"/>
         from  load_scan
-        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and unload_amount > 0 and force_amount = 0
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and unload_amount > 0 and force_amount = 0 and load_amount > 0
         and status IN
         <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
@@ -218,7 +232,7 @@
         select
         <include refid="Base_Column_List"/>
         from load_scan
-        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and load_amount > 0
         and (status = 4 or (status = 3 and unload_amount != 0 and force_amount = 0))
     </select>
 

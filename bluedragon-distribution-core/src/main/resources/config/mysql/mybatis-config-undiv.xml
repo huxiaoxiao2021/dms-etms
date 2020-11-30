@@ -254,9 +254,6 @@
         <mapper resource="mappers/mysql/rollcontainer/RollContainerMapper.xml"/>
         <mapper resource="mappers/mysql/rollcontainer/ContainerRelationMapper.xml"/>
 
-        <!--jinjingcheng -->
-        <mapper resource="mappers/mysql/sendGroup/SortMachineSendGroupMapper.xml"/>
-        <mapper resource="mappers/mysql/sendGroup/SortMachineGroupConfigMapper.xml"/>
         <!-- 锟斤拷锟斤拷锟铰憋拷 -->
         <mapper resource="mappers/mysql/base/DmsBaseDictMapper.xml"/>
         <mapper resource="mappers/mysql/base/DmsStorageAreaMapper.xml"/>

@@ -325,6 +325,12 @@
         <if test="endTime != null">
             AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
         </if>
+        <if test="areaId !=null">
+            AND area_id = #{areaId,jdbcType=INTEGER}
+        </if>
+        <if test="dmsSiteCode !=null">
+            AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+        </if>
 			and is_delete=0 
 	</sql>
 
