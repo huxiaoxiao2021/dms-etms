@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.send.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.transboard.api.service.GroupBoardService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,7 +22,7 @@ import java.util.List;
  */
 @WebAppConfiguration
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
+@ContextConfiguration( {"classpath:distribution-web-context.xml"})
 public class DeliveryServiceTest {
 
     @Autowired
@@ -94,5 +96,12 @@ public class DeliveryServiceTest {
         list.add("B19103000000034");
         deliveryService.changeBoardStatus(sendM,list);
         Assert.assertEquals(new Integer(1),groupBoardService.getBoardByCode("B19103000000034").getData().getStatus());
+    }
+
+    @Test
+    public void packageSendByWaybillTest() {
+        SendM sendM = new SendM();
+        SendResult sendResult = deliveryService.packageSendByWaybill(sendM);
+        System.out.println(JsonHelper.toJson(sendResult));
     }
 }
