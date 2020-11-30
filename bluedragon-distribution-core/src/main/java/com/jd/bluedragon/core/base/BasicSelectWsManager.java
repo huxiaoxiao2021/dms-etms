@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface BasicSelectWsManager {
 
-     List<TransportResourceDto> queryPageTransportResource(TransportResourceDto transportResourceDto);
+     List<TransportResourceDto> queryPageTransportResourceWithNodeId(TransportResourceDto transportResourceDto);
 
 }
