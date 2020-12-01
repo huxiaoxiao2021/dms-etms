@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -108,6 +109,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -1008,6 +1012,75 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 板流向一致，则提示板上包裹数量
         msg = "该包裹所在板号共有" + result.getData().size() + "个包裹，请确认实物数量正确后，再点击【确认】，转为板号装车。";
+        msgBox.setMsg(msg);
+        response.addBox(msgBox);
+        return response;
+    }
+
+    @Override
+    public JdVerifyResponse<Void> checkWaybillCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
+        Long taskId = req.getTaskId();
+        String packageCode = req.getPackageCode();
+        // 根据任务号查询装车任务记录
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
+        if (loadCar == null) {
+            log.error("根据任务号找不到对应的装车任务，taskId={},packageCode={}", taskId, packageCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据任务号找不到对应的装车任务");
+            return response;
+        }
+        // 任务是否已经结束
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
+            log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该装车任务已经结束");
+            return response;
+        }
+
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+
+        // 查询运单下的所有包裹
+        List<String> packageCodes = waybillPackageManager.getWaybillPackageCodes(waybillCode);
+        if (CollectionUtils.isEmpty(packageCodes)) {
+            log.error("根据运单号查询包裹号列表返回空：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("根据运单号查询包裹号列表返回空！");
+            return response;
+        }
+
+        // 根据运单号查询库存是否有货
+        List<LoadScanDto> scanDtoList = new ArrayList<>();
+        LoadScanDto loadScan = new LoadScanDto();
+        loadScan.setWayBillCode(waybillCode);
+        scanDtoList.add(loadScan);
+        List<LoadScanDto> loadScanDtoList = getLoadScanListByWaybillCode(scanDtoList, loadCar.getCreateSiteCode().intValue());
+        if (CollectionUtils.isEmpty(loadScanDtoList)) {
+            log.error("运单号从分拣报表查询运单库存信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("该运单所有包裹未验货或已发货，请核实运单状态");
+            return response;
+        }
+
+        JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+        msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+        response.setCode(JdCResponse.CODE_CONFIRM);
+        String msg;
+
+        // 实时调用路由接口
+        Integer nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
+        log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
+
+        // 校验运单下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此运单流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
+        if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
+            log.warn("运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
+            msg = "大宗按单操作！此单共计" + packageCodes.size() + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+            msgBox.setMsg(msg);
+            response.addBox(msgBox);
+            return response;
+        }
+
+        // 运单流向一致，则提示运单上包裹数量
+        msg = "大宗按单操作！此单共计" + packageCodes.size() + "件，请确认包裹集齐！\n";
         msgBox.setMsg(msg);
         response.addBox(msgBox);
         return response;

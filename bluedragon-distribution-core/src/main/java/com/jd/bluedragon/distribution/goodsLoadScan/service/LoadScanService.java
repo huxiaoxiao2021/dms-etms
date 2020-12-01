@@ -59,6 +59,11 @@ public interface LoadScanService {
     JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
 
     /**
+     * 校验运单号
+     */
+    JdVerifyResponse<Void> checkWaybillCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response);
+
+    /**
      * 校验批次号
      */
     JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response);

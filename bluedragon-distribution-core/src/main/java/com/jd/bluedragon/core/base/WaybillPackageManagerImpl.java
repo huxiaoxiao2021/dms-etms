@@ -57,6 +57,21 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     }
 
     @Override
+    public List<String> getWaybillPackageCodes(String waybillCode) {
+        BaseEntity<List<String>> result = waybillPackageApi.getWaybillPackageCodes(waybillCode);
+        if (result == null || result.getResultCode() != 1) {
+            String alarmInfo = "调用运单接口getWaybillPackageCodes失败.waybillCode:" + waybillCode;
+            if (null != result) {
+                alarmInfo = alarmInfo + ",resultCode:" + result.getResultCode() + "-" + result.getMessage();
+            }
+            log.warn(alarmInfo);
+            Profiler.businessAlarm("调用运单接口getWaybillPackageCodes失败", alarmInfo);
+            return new ArrayList<>();
+        }
+        return result.getData();
+    }
+
+    @Override
     public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCodeOfPage(String waybillCode,int pageNo,int pageSize){
 
         BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();

@@ -48,4 +48,14 @@ public class GoodsLoadScanConstants {
     //删除任务同步删除包裹
     public static final String LOAD_TASK_DELETE = "LOAD_TASK_DELETE_";
 
+    /**
+     * 包裹号转板号标识
+     */
+    public static final Integer PACKAGE_TRANSFER_TO_BOARD = 1;
+
+    /**
+     * 包裹号转大宗标识
+     */
+    public static final Integer PACKAGE_TRANSFER_TO_BULK = 2;
+
 }

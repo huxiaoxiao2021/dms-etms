@@ -17,6 +17,13 @@ public interface WaybillPackageManager {
     BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCode(String waybillCode);
 
     /**
+     * 根据运单号获取包裹号列表
+     * @param waybillCode 运单号
+     * @return 包裹号列表
+     */
+    List<String> getWaybillPackageCodes(String waybillCode);
+
+    /**
      * 根据运单号获取包裹信息 分页
      * @param waybillCode
      * @return

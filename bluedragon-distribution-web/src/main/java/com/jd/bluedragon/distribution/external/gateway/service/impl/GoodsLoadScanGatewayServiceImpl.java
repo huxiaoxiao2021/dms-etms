@@ -463,17 +463,20 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
 
-        // 如果没勾选【包裹号转板号】
-        if (req.getTransfer() == null || req.getTransfer() != 1) {
-            log.info("根据任务ID和包裹号开始检验,常规包裹号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
-            // 校验包裹号
-            return loadScanService.checkPackageCode(req, response);
+        if (req.getTransfer() != null) {
+            // 勾选【包裹号转板号】
+            if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_BOARD.equals(req.getTransfer())) {
+                log.info("校验包裹--包裹号转板号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
+                return loadScanService.checkBoardCode(req, response);
+            }
+            // 勾选【包裹号转大宗】
+            if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_BULK.equals(req.getTransfer())) {
+                log.info("校验包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
+                return loadScanService.checkWaybillCode(req, response);
+            }
         }
-        log.info("根据任务ID和包裹号开始检验,包裹号转板号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
-
-        // 如果勾选【包裹号转板号】
-        // 校验板号
-        return loadScanService.checkBoardCode(req, response);
+        log.info("校验包裹--常规包裹号：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
+        return loadScanService.checkPackageCode(req, response);
     }
 
 
