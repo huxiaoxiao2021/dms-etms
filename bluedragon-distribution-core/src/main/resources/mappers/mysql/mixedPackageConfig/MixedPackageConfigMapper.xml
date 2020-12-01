@@ -159,32 +159,30 @@
         </if>
     </select>
 
-    <select id="queryMixedSite" resultMap="mixedPackageConfigMap"
-            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">
-        select
-        <include refid="querycolumn"/>
+    <select id="queryMixedSiteByReceiveCode" resultType="Integer"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig">
+        select receive_site_code
         from MIXED_PACKAGE_CONFIG
-
         where yn = 1
-
         and CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
-
-        <if test="receiveSiteCode!=null">
-            and RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
-        </if>
-        <if test="transportType!=null">
-            and TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
-        </if>
-        <if test="ruleType!=null">
-            and RULE_TYPE = #{ruleType, jdbcType=BIGINT}
-        </if>
-        <if test="mixedSiteCode!=null">
-            and MIXED_SITE_CODE = #{mixedSiteCode, jdbcType=BIGINT}
-        </if>
-        order by ts desc
+        and RECEIVE_SITE_CODE = #{receiveSiteCode, jdbcType=BIGINT}
+        and TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        and RULE_TYPE = #{ruleType, jdbcType=BIGINT}
         limit 1
     </select>
 
+    <select id="queryMixedSiteByMixedSiteCode" resultType="Integer"
+            parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig">
+        select receive_site_code
+        from MIXED_PACKAGE_CONFIG
+        where yn = 1
+        and CREATE_SITE_CODE = #{createSiteCode, jdbcType=BIGINT}
+        and MIXED_SITE_CODE = #{mixedSiteCode, jdbcType=BIGINT}
+        and TRANSPORT_TYPE = #{transportType, jdbcType=BIGINT}
+        and RULE_TYPE = #{ruleType, jdbcType=BIGINT}
+        order by ts desc
+        limit 1
+    </select>
 
     <select id="querySelectedConfigs" resultMap="mixedPackageConfigMap"
             parameterType="com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest">

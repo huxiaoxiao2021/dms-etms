@@ -117,32 +117,6 @@ public class ReverseTest {
 
     }
 
-    @Autowired
-    private InspectionTask inspectionTask;
-
-    @Qualifier("inspectionTaskExecute")
-    @Autowired()
-    private AbstractTaskExecute taskExecute;
-
-    @Test
-    public void testTask(){
-        String s = "{\"type\":1130,\"siteCode\":910,\"keyword1\":\"910\",\"keyword2\":\"\",\"body\":\"[{\\\"sealBoxCode\\\":\\\"\\\",\\\"boxCode\\\":\\\"\\\",\\\"packageBarOrWaybillCode\\\":\\\"JDVA00003531968\\\",\\\"exceptionType\\\":\\\"\\\",\\\"operateType\\\":0,\\\"receiveSiteCode\\\":0,\\\"id\\\":3,\\\"businessType\\\":10,\\\"userCode\\\":10053,\\\"userName\\\":\\\"邢松\\\",\\\"siteCode\\\":910,\\\"siteName\\\":\\\"北京马驹桥分拣中心\\\",\\\"operateTime\\\":\\\"2019-05-16 11:13:46.467\\\"}]\",\"boxCode\":\"\",\"receiveSiteCode\":910}";
-
-        Task task = JsonHelper.fromJsonUseGson(s,Task.class);
-
-
-        List<InspectionRequest> middleRequests=JsonHelper.fromJsonUseGson(task.getBody(),new TypeToken<List<InspectionRequest>>(){}.getType());
-
-        Task domain=new Task();
-
-        for (InspectionRequest request:middleRequests){
-            domain.setBody(JsonHelper.toJson(request));
-            taskExecute.execute(domain);
-        }
-
-    }
-
-
     @Test
     public void test1() {
 

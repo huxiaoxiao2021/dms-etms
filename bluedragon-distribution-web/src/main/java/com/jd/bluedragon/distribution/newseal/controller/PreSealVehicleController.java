@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -69,13 +71,18 @@ public class PreSealVehicleController extends DmsBaseController{
     private NewSealVehicleService newSealVehicleService;
 
     private static final Integer SEAL_LIMIT = 5;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	public String toIndex(Model model) {
+        model.addAttribute("quickSealTips", uccPropertyConfiguration.getQuickSealTips());
 		return "/newseal/preSealVehicle";
 	}
 	/**

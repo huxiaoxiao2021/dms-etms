@@ -21,15 +21,10 @@ import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionPackProgress;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -68,12 +63,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 验货Service
@@ -130,12 +120,6 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Autowired
     private AssertQueryManager assertQueryManager;
-
-	/**
-	 * 运单包裹关联信息
-	 */
-	@Autowired
-	private WaybillPackageBarcodeService waybillPackageBarcodeService;
 
 	@Autowired
 	private TaskPopRecieveCountService taskPopRecieveCountService;
@@ -874,11 +858,33 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
     private boolean siteEnableSplitWaybill(Integer siteCode) {
-        String configSite = uccConfig.getInspectionBigWaybillEffectiveSites();
+
+        return true;
+    }
+
+    /**
+     * 运单多包裹限制数量
+     */
+    private static final int BIG_WAYBILL_LIMIT_NUM = 100;
+
+    /**
+     * 取得运单多包裹数量触发上限
+     * @return
+     */
+    @Override
+    public int getInspectionTaskPackageSplitNum() {
+        return 0 == uccConfig.getWaybillSplitPageSize() ?
+                BIG_WAYBILL_LIMIT_NUM :
+                uccConfig.getWaybillSplitPageSize();
+    }
+
+    @Override
+    public boolean siteEnableInspectionAgg(Integer siteCode) {
+        String configSite = uccConfig.getInspectionAggEffectiveSites();
         if (StringUtils.isBlank(configSite)) {
             return false;
         }
-        // 验货拆分任务对全部分拣中心开启
+
         if (Constants.STR_ALL.equalsIgnoreCase(configSite)) {
             return true;
         }
@@ -896,21 +902,5 @@ public class InspectionServiceImpl implements InspectionService {
         }
 
         return sites.contains(siteCode.toString());
-    }
-
-    /**
-     * 运单多包裹限制数量
-     */
-    private static final int BIG_WAYBILL_LIMIT_NUM = 100;
-
-    /**
-     * 取得运单多包裹数量触发上限
-     * @return
-     */
-    @Override
-    public int getInspectionTaskPackageSplitNum() {
-        return 0 == uccConfig.getWaybillSplitPageSize() ?
-                BIG_WAYBILL_LIMIT_NUM :
-                uccConfig.getWaybillSplitPageSize();
     }
 }

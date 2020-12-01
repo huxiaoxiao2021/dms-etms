@@ -42,6 +42,10 @@ public abstract class AbstractInspectionTaskExecutor<T extends TaskExecuteContex
 
             if (CollectionUtils.isNotEmpty(hooks)) {
                 for (TaskHook<T> hook : hooks) {
+                    if (hook.escape(context)) {
+                        continue;
+                    }
+
                     hook.hook(context);
                 }
             }
