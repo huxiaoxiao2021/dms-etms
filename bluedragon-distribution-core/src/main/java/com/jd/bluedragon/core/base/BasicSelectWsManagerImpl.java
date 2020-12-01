@@ -45,11 +45,16 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
             if(logger.isInfoEnabled()){
                 logger.info("调用运输运力数据分页接口入参page:{},transportResourceDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(transportResourceDto));
             }
+            long  start = System.currentTimeMillis();
             CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
             if(commonDto == null  || commonDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS){
                 logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
                 return result;
             }else {
+                long firstEnd = System.currentTimeMillis();
+                if(logger.isInfoEnabled()) {
+                    logger.info("调用运输运力数据分页接口首次耗时:" + (firstEnd - start) / 1000 + "s");
+                }
                 page = commonDto.getData();
                 if(!CollectionUtils.isEmpty(page.getResult())){
                     result.addAll(page.getResult());
@@ -67,6 +72,10 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                         }
                     }
                 }
+            }
+            long end = System.currentTimeMillis();
+            if(logger.isInfoEnabled()) {
+                logger.info("调用运输运力数据分页接口总耗时:" + (end - start) / 1000 + "s");
             }
         }catch (Exception e){
             logger.error("运力编码分页接口请求异常,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto),e);
