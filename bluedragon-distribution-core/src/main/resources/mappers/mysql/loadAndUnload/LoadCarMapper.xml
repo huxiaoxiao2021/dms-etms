@@ -279,4 +279,10 @@
         from load_car
         where yn = 1 and batch_code = #{batchCode,jdbcType=VARCHAR} and status = 2
     </select>
+
+    <select id="findTaskByBatchCode" parameterType="java.lang.String"  resultType="java.lang.Long">
+        select id
+        from load_car
+        where yn = 1 and batch_code = #{batchCode,jdbcType=VARCHAR}
+    </select>
 </mapper>

@@ -1052,6 +1052,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         try {
+            List<Long> taskIds = loadCarDao.findTaskByBatchCode(batchCode);
+            if (CollectionUtils.isNotEmpty(taskIds)) {
+                log.warn("该批次号已被其他任务绑定，请更换！taskId={},batchCode={}", taskId, batchCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该批次号已被其他任务绑定，请更换！");
+                return response;
+            }
             if (log.isDebugEnabled()) {
                 log.debug("开始根据批次号查询网点信息！，taskId={},batchCode={}", taskId, batchCode);
             }

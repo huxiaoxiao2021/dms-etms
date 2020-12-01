@@ -48,6 +48,10 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().selectList(namespace + ".findLoadCarByBatchCode", batchCode);
     }
 
+    public List<Long> findTaskByBatchCode(String batchCode) {
+        return this.getSqlSession().selectList(namespace + ".findTaskByBatchCode", batchCode);
+    }
+
     public List<LoadCar> selectByEndSiteCode(LoadCar loadCar) {
         return this.getSqlSession().selectList(namespace + ".selectByEndSiteCode", loadCar);
     }
