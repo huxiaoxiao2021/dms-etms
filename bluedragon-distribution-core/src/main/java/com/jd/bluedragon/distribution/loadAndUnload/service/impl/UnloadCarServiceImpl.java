@@ -1295,17 +1295,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             Waybill waybillNoCache = baseEntity.getData().getWaybill();
             String waybillSign = waybillNoCache.getWaybillSign();
+            logger.info("B网快运发货规则校验1：waybillSign={},againWeight={}", waybillSign, waybillNoCache.getAgainWeight());
+            if (waybillNoCache.getAgainWeight() == null) {
+                logger.info("B网快运发货规则校验0：againWeight is null");
+            }
             if(StringUtils.isBlank(waybillSign)){
                 logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
                 return result;
             }
             //信任运单标识
             boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
+            logger.info("B网快运发货规则校验2：isTrust={}", isTrust);
+
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
+            logger.info("B网快运发货规则校验3：isB2BPure={}", isB2BPure);
+
             //无重量禁止发货判断
             if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() <= 0){
-                logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
+                logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
                 return result;
