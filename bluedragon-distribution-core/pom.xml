@@ -315,9 +315,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>commons-jexl</groupId>
-			<artifactId>commons-jexl</artifactId>
-			<version>1.1</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-jexl3</artifactId>
+			<version>3.1</version>
 		</dependency>
 		<!-- ws -->
 
@@ -664,6 +664,10 @@
 					<artifactId>spring-asm</artifactId>
 					<groupId>org.springframework</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>commons-jexl</artifactId>
+					<groupId>org.apache.commons</groupId>
+				</exclusion>
 			</exclusions>
         </dependency>
         <dependency>
@@ -850,6 +854,10 @@
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>commons-jexl</artifactId>
+					<groupId>org.apache.commons</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1000,7 +1008,7 @@
         <dependency>
             <groupId>sequence-gen</groupId>
             <artifactId>sequence-gen</artifactId>
-            <version>1.1.7</version>
+			<version>2.1.0</version>
         </dependency>
 
 		<!-- 台账接口 -->
