@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.send.service;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -57,4 +58,12 @@ public interface SendDetailService {
      * @return
      */
     List<String> queryPackageByWaybillCode(SendDetailDto params);
+
+    /**
+     * 检查批次是否存在发货记录
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendIsExist(String sendCode);
+
 }

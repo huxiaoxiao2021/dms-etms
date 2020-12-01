@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.mixedPackageConfig.service.impl;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.jsf.domain.MixedSite;
-import com.jd.bluedragon.distribution.jsf.domain.PrintQueryRequest;
-import com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigMapper;
+import com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest;
+import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedSite;
+import com.jd.bluedragon.distribution.mixedPackageConfig.domain.PrintQueryRequest;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +39,7 @@ public class MixedPackageConfigServiceImplTest {
     private BaseMajorManager baseMajorManager;
 
     @Mock
-    private MixedPackageConfigMapper mixedPackageConfigMapper;
+    private MixedPackageConfigDao mixedPackageConfigDao;
 
     private List<MixedPackageConfig> list;
 
@@ -86,7 +86,7 @@ public class MixedPackageConfigServiceImplTest {
     public void queryMixedSiteCodeForPrint() {
 
         try {
-            Mockito.when(mixedPackageConfigMapper.queryMixedPackageConfigs((MixedPackageConfigRequest) Mockito.any())).thenReturn(list);
+            Mockito.when(mixedPackageConfigDao.queryMixedPackageConfigs((MixedPackageConfigRequest) Mockito.any())).thenReturn(list);
 
             Mockito.when(baseMajorManager.getBaseSiteBySiteId(Mockito.anyInt())).thenReturn(baseDto);
 

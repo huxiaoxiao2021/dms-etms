@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.consumer.thirdboxweight;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
@@ -34,6 +36,9 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private BoxService boxService;
+
     @Override
     @JProfiler(jKey = "DMSWORKER.ThirdBoxWeightConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER , mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
@@ -59,7 +64,12 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
 
             //如果存在箱号的称重记录，不存在运单的称重记录，则补称重记录
             if (boxBool && !waybillBool) {
-                BaseStaffSiteOrgDto endSite = baseMajorManager.getBaseSiteByDmsCode(messageDto.getEndSiteCode());
+
+                Box box = boxService.findBoxByCode(boxCode);
+                if (null == box) {
+                    LOGGER.error("查询众邮箱号失败：{}", boxCode);
+                    return;
+                }
 
                 WeightVolumeEntity itemEntity = new WeightVolumeEntity();
                 itemEntity.setBarCode(waybillCode);
@@ -70,8 +80,8 @@ public class ThirdBoxWeightConsumer extends MessageBaseConsumer {
                 itemEntity.setLength(1D);
                 itemEntity.setWidth(1D);
                 itemEntity.setHeight(1D);
-                itemEntity.setOperateSiteCode(endSite.getSiteCode());
-                itemEntity.setOperateSiteName(endSite.getSiteName());
+                itemEntity.setOperateSiteCode(box.getReceiveSiteCode());
+                itemEntity.setOperateSiteName(box.getReceiveSiteName());
                 itemEntity.setOperatorId(-1);
                 itemEntity.operatorName(messageDto.getOperatorName());
                 itemEntity.setOperateTime(messageDto.getOperatorTime());

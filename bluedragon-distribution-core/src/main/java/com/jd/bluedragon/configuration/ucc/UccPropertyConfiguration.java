@@ -145,12 +145,14 @@ public class UccPropertyConfiguration {
     private String singleSendSwitchVerToWebSites;
 
     private String boardCombinationSwitchVerToWebSites;
-
     /**
      * 众邮称重拦截开关。true 拦截，false 不拦截
      */
     private boolean economicNetValidateWeightSwitch;
-
+    /**
+     * 任务redis开关，1-开启
+     */
+    private String redisSwitchOn;
     /**
      * 控制DTC积压 控制关闭 包裹号存在校验
      * true  校验包裹号
@@ -164,6 +166,70 @@ public class UccPropertyConfiguration {
      * false 不校验
      */
     private boolean   controlCheckRoute;
+
+    /**
+     * 取消发货校验封车业务开关。1：开启 0：关闭
+     */
+    private String dellCancelDeliveryCheckSealCar;
+
+    /**
+     * 封车空批次剔除开关 1：开启剔除 0：关闭
+     */
+    private String removeEmptyBatchCode;
+
+    /**
+     * 验货聚合逻辑生效的分拣中心
+     */
+    private String inspectionAggEffectiveSites;
+
+    /**
+     * 装车扫描每个任务下的运单数量上线
+     */
+    private int loadScanTaskWaybillSize;
+
+    /**
+     * 版号转包裹号最大包裹数限制
+     */
+    private int loadScanTaskPackageSize;
+
+    /**
+     * 最大包裹数限制
+     */
+    private int loadScanTaskPackageMaxSize;
+
+    /**
+     * 一键封车空批次剔除开关 1：开启剔除 0：关闭
+     */
+    private String preSealVehicleRemoveEmptyBatchCode;
+
+    /**
+     * 一键封车友情提示
+     */
+    private String quickSealTips;
+
+    public int getLoadScanTaskWaybillSize() {
+        return loadScanTaskWaybillSize;
+    }
+
+    public void setLoadScanTaskWaybillSize(int loadScanTaskWaybillSize) {
+        this.loadScanTaskWaybillSize = loadScanTaskWaybillSize;
+    }
+
+    public int getLoadScanTaskPackageSize() {
+        return loadScanTaskPackageSize;
+    }
+
+    public void setLoadScanTaskPackageSize(int loadScanTaskPackageSize) {
+        this.loadScanTaskPackageSize = loadScanTaskPackageSize;
+    }
+
+    public int getLoadScanTaskPackageMaxSize() {
+        return loadScanTaskPackageMaxSize;
+    }
+
+    public void setLoadScanTaskPackageMaxSize(int loadScanTaskPackageMaxSize) {
+        this.loadScanTaskPackageMaxSize = loadScanTaskPackageMaxSize;
+    }
 
     public boolean isLogToBusinessLogByKafka() {
         return logToBusinessLogByKafka;
@@ -467,5 +533,53 @@ public class UccPropertyConfiguration {
 
     public void setControlCheckRoute(boolean controlCheckRoute) {
         this.controlCheckRoute = controlCheckRoute;
+    }
+
+    public String getDellCancelDeliveryCheckSealCar() {
+        return dellCancelDeliveryCheckSealCar;
+    }
+
+    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
+        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
+    }
+
+	public String getRedisSwitchOn() {
+		return redisSwitchOn;
+	}
+
+	public void setRedisSwitchOn(String redisSwitchOn) {
+		this.redisSwitchOn = redisSwitchOn;
+	}
+
+    public String getRemoveEmptyBatchCode() {
+        return removeEmptyBatchCode;
+    }
+
+    public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
+        this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+
+    public String getPreSealVehicleRemoveEmptyBatchCode() {
+        return preSealVehicleRemoveEmptyBatchCode;
+    }
+
+    public void setPreSealVehicleRemoveEmptyBatchCode(String preSealVehicleRemoveEmptyBatchCode) {
+        this.preSealVehicleRemoveEmptyBatchCode = preSealVehicleRemoveEmptyBatchCode;
+    }
+
+    public String getInspectionAggEffectiveSites() {
+        return inspectionAggEffectiveSites;
+    }
+
+    public void setInspectionAggEffectiveSites(String inspectionAggEffectiveSites) {
+        this.inspectionAggEffectiveSites = inspectionAggEffectiveSites;
+    }
+
+    public String getQuickSealTips() {
+        return quickSealTips;
+    }
+
+    public void setQuickSealTips(String quickSealTips) {
+        this.quickSealTips = quickSealTips;
     }
 }

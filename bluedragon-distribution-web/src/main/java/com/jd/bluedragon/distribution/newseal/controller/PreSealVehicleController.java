@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -30,8 +32,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
@@ -67,13 +71,18 @@ public class PreSealVehicleController extends DmsBaseController{
     private NewSealVehicleService newSealVehicleService;
 
     private static final Integer SEAL_LIMIT = 5;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	public String toIndex(Model model) {
+        model.addAttribute("quickSealTips", uccPropertyConfiguration.getQuickSealTips());
 		return "/newseal/preSealVehicle";
 	}
 	/**
@@ -262,24 +271,52 @@ public class PreSealVehicleController extends DmsBaseController{
     /**
      * 查询全部的批次号
      * @param createSiteCode
-     * @param startDate
+     * @param date
      * @return
      */
+    @RequestMapping(value = "/getAllSendCodesStr")
+    @ResponseBody
+    public String getAllSendCodesStr(@RequestParam("createSiteCode") Integer createSiteCode,
+                                     @RequestParam("receiveSiteCode") Integer receiveSiteCode,
+                                     @RequestParam("date") String date){
+        List<SealVehicles> sealVehicles = getAllSendCodes( createSiteCode,  receiveSiteCode, DateHelper.parseDateTime(date));
+        return JsonHelper.toJson(sealVehicles);
+    }
+
     private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
         List<SealVehicles> result = null;
-        List<SendM> sendMS = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
-        if(sendMS != null && !sendMS.isEmpty()){
-            result = new ArrayList<>(sendMS.size());
-            for(SendM sendM : sendMS){
-                if(newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())){
+
+        List<SealVehicles> sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
+
+        if(sourceList != null && !sourceList.isEmpty()){
+            result = new ArrayList<>(sourceList.size());
+            for(SealVehicles itme : sourceList){
+                if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(itme.getSealDataCode())){
                     continue;
                 }
+
+                if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
+                    continue;
+                }
+
+                result.add(itme);
+            }
+        }
+        return result;
+    }
+
+    private List<SealVehicles> convertSealVehiclesBySendM(List<SendM> sendMList,Integer receiveSiteCode){
+        List<SealVehicles> result = null;
+        if(sendMList != null && !sendMList.isEmpty()){
+            result = new ArrayList<>();
+            for(SendM sendM : sendMList){
                 SealVehicles vehicles = new SealVehicles();
                 vehicles.setSealDataCode(sendM.getSendCode());
-                vehicles.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                vehicles.setReceiveSiteCode(receiveSiteCode);
                 result.add(vehicles);
             }
         }
+
         return result;
     }
 
@@ -291,7 +328,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
     @RequestMapping(value = "/batchSeal")
     @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
-    public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
+    public @ResponseBody JdResponse<List<PreSealVehicle>> batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if(log.isDebugEnabled()){
             log.debug("一键封车请求参数：{}", JsonHelper.toJson(data));
@@ -308,11 +345,12 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setMessage("登录已过期，请重新登录!");
             return rest;
         }
+
+        //去除的空批次封车数据或者失败的数据
+        List<PreSealVehicle> removeOrFailedList = new ArrayList<>();
         String userErp = user.getUserErp();
         String usetName = user.getUserName();
         Integer userCode = user.getStaffNo();
-        //小批量执行封车
-        List<PreSealVehicle> failedList = new ArrayList<>();
         //实操时间取服务器时间
         Date operateTime = new Date();
         int total = data.size();
@@ -331,16 +369,16 @@ public class PreSealVehicleController extends DmsBaseController{
             }
 
             try{
-                preSealVehicleService.batchSeal(partList, userCode, userErp, usetName, operateTime);
+                removeOrFailedList.addAll(preSealVehicleService.batchSeal(partList, userCode, userErp, usetName, operateTime));
             }catch (Exception e){
-                failedList.addAll(partList);
                 log.error("批量封车异常：{}", JsonHelper.toJson(partList), e);
             }
         }
-        if(!failedList.isEmpty()){
-            rest.setData(failedList);
+
+        if(!removeOrFailedList.isEmpty()){
+            rest.setData(removeOrFailedList);
             rest.setCode(JdResponse.CODE_PARTIAL_SUCCESS);
-            rest.setMessage("以下数据一键封车失败!");
+            rest.setMessage("以下数据一键封车失败,请确认封车批次内是否有发货数据后，重新查询待封车数据再封车。");
         }
 
         return rest;

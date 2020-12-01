@@ -68,6 +68,11 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".queryCountBySiteCodeAndSendCode", query);
     }
 
+    public SendDetail querySendBySiteCodeAndSendCode(SendDetail query) {
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".querySendBySiteCodeAndSendCode", query);
+    }
+
     public List<SendDetail> queryPageBySiteCodeAndSendCode(PagerCondition query) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryPageBySiteCodeAndSendCode", query);
@@ -85,6 +90,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
 
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".querySendDatailsBySelective", querySendDatail);
+    }
+
+    public String querySendCodeBySelective(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".querySendCodeBySelective", querySendDatail);
+    }
+
+    public Integer queryCountExclusion(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".queryCountExclusion", querySendDatail);
     }
 
     public boolean updateSendDatail(SendDetail SendDatail) {
@@ -290,6 +305,10 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".queryBoxCodeBySendCode", query);
     }
 
+    public List<String> queryBoxCodeSingleBySendCode(SendDetail sendDetail){
+        return	this.getSqlSession().selectList(SendDatailDao.namespace + ".queryBoxCodeSingleBySendCode", sendDetail);
+    }
+
     public List<SendDetail> queryWaybillsByDepartID(Long departureID) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryWaybillsByDepartID", departureID);
@@ -472,4 +491,5 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
     }
+
 }

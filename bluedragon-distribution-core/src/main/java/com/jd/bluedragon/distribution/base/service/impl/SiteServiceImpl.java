@@ -19,7 +19,7 @@ import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
-import com.jd.bluedragon.distribution.site.dao.SiteMapper;
+import com.jd.bluedragon.distribution.site.dao.SiteDao;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -29,12 +29,9 @@ import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +55,7 @@ public class SiteServiceImpl implements SiteService {
     @Autowired
     private SysConfigService sysConfigService;
     @Autowired
-    SiteMapper siteMapper;
+    private SiteDao siteDao;
 
     @Autowired
     private ReassignWaybillService reassignWaybillService;
@@ -456,7 +453,7 @@ public class SiteServiceImpl implements SiteService {
         if (siteCode == null) {
             return null;
         }
-        Site site = this.siteMapper.get(siteCode);
+        Site site = this.siteDao.get(siteCode);
         if (site == null) {
             site = getNoCache(siteCode);
         }

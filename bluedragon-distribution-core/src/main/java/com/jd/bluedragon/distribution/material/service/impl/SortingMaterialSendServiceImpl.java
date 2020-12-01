@@ -168,7 +168,6 @@ public class SortingMaterialSendServiceImpl extends AbstractMaterialSendServiceI
     }
 
     @Override
-    @Transactional
     @JProfiler(jKey = "DMS.WEB.SortingMaterialSendServiceImpl.cancelMaterialSendBySendCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> cancelMaterialSendBySendCode(MaterialBatchSendRequest request) {
         JdResult<Boolean> result = new JdResult<>();

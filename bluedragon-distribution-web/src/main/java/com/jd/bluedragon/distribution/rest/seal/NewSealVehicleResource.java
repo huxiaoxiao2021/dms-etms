@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -58,6 +59,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -636,12 +638,20 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData(),emptyBatchCode);
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
                     sealVehicleResponse.setData(returnCommonDto.getData());
+                    if(emptyBatchCode==null || emptyBatchCode.isEmpty()){
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+                    }else {
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode)); //NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN
+                    }
+
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
@@ -652,6 +662,18 @@ public class NewSealVehicleResource {
             this.log.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    private String getMsgByList(Map<String, String> emptyBatchCode){
+        StringBuilder msg= new StringBuilder("封车成功。已剔除无发货数据批次：\r\n");
+        for(Map.Entry<String, String> entry : emptyBatchCode.entrySet()){
+            String mapKey = entry.getKey();
+            String mapValue = entry.getValue();
+            msg.append(mapValue).append(":").append(mapKey).append("\r\n");
+
+        }
+
+        return msg.toString();
     }
 
     /**
@@ -670,7 +692,18 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
 
-            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData());
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+
+            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
+            if (sealVehicleResponse != null) {
+                if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+                    if(emptyBatchCode!=null && !emptyBatchCode.isEmpty()){
+                        //sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_SEAL_SUCCEED_BUT_WARN);
+                        sealVehicleResponse.setMessage(getMsgByList(emptyBatchCode));
+                    }
+                }
+            }
         } catch (Exception e) {
             this.log.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
         }
@@ -905,12 +938,10 @@ public class NewSealVehicleResource {
 
         //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
         // 批次号没有运单发货记录，也没有物资发货记录，判定为不存在
-        if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkSendIsExist(batchCode)) {//批次号不存在
-            if (!existMaterialSendRecord(batchCode)) {
+        if (JdResponse.CODE_OK.equals(sealVehicleResponse.getCode()) && !newsealVehicleService.checkBatchCodeIsNewSealVehicle(batchCode)) {
                 log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
                 sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                 sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
-            }
         }
     }
 

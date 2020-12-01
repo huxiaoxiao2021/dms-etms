@@ -477,11 +477,11 @@ public class Constants {
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
     /**
-     * String类型标识-true
+     * String类型标识-1-true
      */
     public static final String STRING_FLG_TRUE = "1";
     /**
-     * String类型标识-false
+     * String类型标识-0-false
      */
     public static final String STRING_FLG_FALSE = "0";
     /**
@@ -1332,4 +1332,23 @@ public class Constants {
     public static final String STR_ALL = "ALL";
 
     public static final String UNDER_LINE = "_";
+
+    /**
+     * 众邮称重拦截缓存-生效时间  5分钟的秒数
+     */
+    public static final int  ALL_MAIL_CACHE_SECONDS = 5;
+
+    /**
+     * 常量值：1
+     * */
+    public static final int  CONSTANT_NUMBER_ONE = 1;
+    /**
+     * 组板转移标识
+     */
+    public static final Integer IS_COMBITION_TRANSFER = 1;
+    /**
+     * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
+     */
+    public static final String KY_PRINT_CODE_SUFFIX = "001";
+
 }

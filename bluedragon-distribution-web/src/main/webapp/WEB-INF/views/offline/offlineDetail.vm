@@ -1,103 +1,105 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-            <title>分拣离线日志</title>
-            <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
-                <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
-                    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-                    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
-                    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <title>分拣离线日志</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
 </head>
 <script type="text/javascript">
-    $(document).ready(function() {
-	
-    
-	
-    // 提交申请页面
-    var options = {
-    success: function(data) {
-    if (data.success) {
-    alert(data.result);
-    location.href = '#springUrl("/offline/list")';
-    } else {
-    $("#submitPop").attr("disabled", false);
-    alert(data.result);
-    }}};
-	
-    $("#submitPop").click(function() {
-        if (confirm("是否确认提交？")) {
-        $("#submitPop").attr("disabled", true);
-        // 提交表单
-        $("#savePopAbnormal").ajaxSubmit(options);
-        }
-        return false;
+    $(document).ready(function () {
+
+
+        // 提交申请页面
+        var options = {
+            success: function (data) {
+                if (data.success) {
+                    alert(data.result);
+                    location.href = '#springUrl("/offline/list")';
+                } else {
+                    $("#submitPop").attr("disabled", false);
+                    alert(data.result);
+                }
+            }
+        };
+
+        $("#submitPop").click(function () {
+            if (confirm("是否确认提交？")) {
+                $("#submitPop").attr("disabled", true);
+                // 提交表单
+                $("#savePopAbnormal").ajaxSubmit(options);
+            }
+            return false;
         });
-		
-   });
- </script>
-                    <body>
-                        <div id="breadcrumb">
-                            <p>
-                                <a href="javascript:void(0)">分拣管理</a>
-                                &nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣离线日志</a>
-                            </p>
-                        </div>
-                        <div id="content">
-							<div id="opening" class="noborder">
-                            <div class="tbl-list">
-                                <div class="tbl-bg">
-									<table width="100%" border="0">
-			<tr>
-				<td width="55%" valign="top" style="vertical-align:top">
-                                    <form id="savePopAbnormal" name="savePopAbnormal" action="#springUrl('/offline/save')" method="POST">
-									   <input id="offlineLogId" name="offlineLogId" type="hidden"  value="$!offlineLog.offlineLogId"/>
-                                         <table id="savePopTable" width="100%" border="0" class="tb-x2">
-                                            <tbody>
-                                                <tr>
-                                                    <td align="right" class="tb_h1" >运单号：</td>
-                                                    <td>
-                                                        <input id="waybillCode" name="waybillCode" type="text" class="textField28" value="$!offlineLog.waybillCode"/>
-                                                    </td>
-                                                    <td align="right" class="tb_h1">箱号单号：</td>
-                                                    <td >
-                                                        <input id="boxCode" name="boxCode" type="text" class="textField28"  value="$!offlineLog.boxCode"/>
-                                                    </td>
-                                                    <td align="right" class="tb_h1">包裹号：</td>
-                                                    <td >
-                                                        <input id="packageCode" name="packageCode" type="text" class="textField28" value="$!offlineLog.packageCode"/>
-                                                    </td>
-                                                </tr>
-												 <tr>
-													 <td align="right" class="tb_h1">创建站点：</td>
-                                                    <td >
-                                                        <input id="createSiteName" name="createSiteName" type="text" class="textField28" value="$!offlineLog.createSiteName"/>
-                                                    </td>
-													<td align="right" class="tb_h1">周转箱号：</td>
-                                                    <td >
-                                                        <input id="turnoverBoxCode" name="turnoverBoxCode" type="text" class="textField28"  value="$!offlineLog.turnoverBoxCode"/>
-                                                    </td>
-                                                    <td align="right" class="tb_h1">目的站点：</td>
-                                                    <td >
-                                                        <input id="receiveSiteCode" name="receiveSiteCode" type="text" class="textField28"  value="$!offlineLog.receiveSiteCode"/>
-                                                    </td>
-                                                </tr>
-												    <tr>
-                                                    <th colspan="6" align="center">
-                                                        <input type="button" id="submitPop" value="提交申请" class="btn_c">
-                                                            <input type="reset" id="resetButton" value="重置" class="btn_c">
-                                                                <input type="button" id="goBack" onclick="javascript:history.go(-1);" value="返回" class="btn_c">
-</th>
-</tr>
-</tbody>
-</table>
-</form>
-</td>
-</tr>
-</table>
+
+    });
+</script>
+<body>
+<div id="breadcrumb">
+    <p>
+        <a href="javascript:void(0)">分拣管理</a>
+        &nbsp;&gt;&nbsp;<a href="javascript:void(0)">分拣离线日志</a>
+    </p>
 </div>
+<div id="content">
+    <div id="opening" class="noborder">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <table width="100%" border="0">
+                    <tr>
+                        <td width="55%" valign="top" style="vertical-align:top">
+                            <form id="savePopAbnormal" name="savePopAbnormal" action="#springUrl('/offline/save')" method="POST">
+                                <input id="offlineLogId" name="offlineLogId" type="hidden" value="$!offlineLog.offlineLogId"/>
+                                <table id="savePopTable" width="100%" border="0" class="tb-x2">
+                                    <tbody>
+                                    <tr>
+                                        <td align="right" class="tb_h1">运单号：</td>
+                                        <td>
+                                            <input id="waybillCode" name="waybillCode" type="text" class="textField28" value="$!offlineLog.waybillCode"/>
+                                        </td>
+                                        <td align="right" class="tb_h1">箱号单号：</td>
+                                        <td>
+                                            <input id="boxCode" name="boxCode" type="text" class="textField28" value="$!offlineLog.boxCode"/>
+                                        </td>
+                                        <td align="right" class="tb_h1">包裹号：</td>
+                                        <td>
+                                            <input id="packageCode" name="packageCode" type="text" class="textField28" value="$!offlineLog.packageCode"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="right" class="tb_h1">创建站点：</td>
+                                        <td>
+                                            <input id="createSiteName" name="createSiteName" type="text" class="textField28" value="$!offlineLog.createSiteName"/>
+                                        </td>
+                                        <td align="right" class="tb_h1">周转箱号：</td>
+                                        <td>
+                                            <input id="turnoverBoxCode" name="turnoverBoxCode" type="text" class="textField28" value="$!offlineLog.turnoverBoxCode"/>
+                                        </td>
+                                        <td align="right" class="tb_h1">目的站点：</td>
+                                        <td>
+                                            <input id="receiveSiteCode" name="receiveSiteCode" type="text" class="textField28" value="$!offlineLog.receiveSiteCode"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <th colspan="6" align="center">
+                                            <input type="button" id="submitPop" value="提交申请" class="btn_c">
+                                            <input type="reset" id="resetButton" value="重置" class="btn_c">
+                                            <input type="button" id="goBack" onclick="javascript:history.go(-1);" value="返回" class="btn_c">
+                                        </th>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </form>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
-</div>
-</div>
+#parse("system/security/watermark.vm")
 </body>
 </html>

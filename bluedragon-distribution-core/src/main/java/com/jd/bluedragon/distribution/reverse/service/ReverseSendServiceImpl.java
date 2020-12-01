@@ -142,10 +142,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     SpareService spareService;
 
     @Autowired
-    @Qualifier("reverseSendSpareEclpProducer")
-    private DefaultJMQProducer reverseSendSpareEclpProducer;
-
-    @Autowired
     @Qualifier("reverseSpareEclp")
     private ReverseSpareEclp reverseSpareEclp;
 
@@ -1992,6 +1988,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             } else {
                 log.warn("通过运单getWaybillState接口获取到的信息为空！");
             }
+            //eclp报文新增guestBackType字段
+            sendmodel.setGuestBackType(send.getGuestBackType());
             //end
 
             String jsonStr = JsonHelper.toJson(sendmodel);

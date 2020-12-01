@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao">
+
+	<resultMap id="goodsLoadScan" type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="wayBillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="create_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="createUserCode"/>
+        <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
+        <result column="update_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="updateUserCode"/>
+        <result column="update_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserName"/>
+        <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" javaType="java.lang.Integer" jdbcType="TINYINT" property="yn"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+		id,task_id,waybill_code,package_amount,load_amount,unload_amount,weight,volume,
+		force_amount,status,create_user_code,create_user_name,update_user_code,update_user_name,
+		create_time,update_time,yn
+	</sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn=1 order by status desc
+	</sql>
+
+    <insert id="add" parameterType="goodsLoadScan">
+        insert into load_scan
+        (
+        <trim suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="wayBillCode != null">
+                waybill_code,
+            </if>
+            <if test="packageAmount != null">
+                package_amount,
+            </if>
+            <if test="loadAmount != null">
+                load_amount,
+            </if>
+            <if test="unloadAmount != null">
+                unload_amount,
+            </if>
+            <if test="forceAmount != null">
+                force_amount,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="volume != null">
+                volume,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="createUserCode != null">
+                create_user_code,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserCode != null">
+                update_user_code,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            yn,
+            ts
+        </trim>
+        )
+        values
+        (
+        <trim suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=BIGINT},
+            </if>
+            <if test="wayBillCode != null">
+                #{wayBillCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packageAmount != null">
+                #{packageAmount,jdbcType=INTEGER},
+            </if>
+            <if test="loadAmount != null">
+                #{loadAmount,jdbcType=INTEGER},
+            </if>
+            <if test="unloadAmount != null">
+                #{unloadAmount,jdbcType=INTEGER},
+            </if>
+            <if test="forceAmount != null">
+                #{forceAmount,jdbcType=INTEGER},
+            </if>
+            <if test="weight != null">
+                #{weight,jdbcType=DOUBLE},
+            </if>
+            <if test="volume != null">
+                #{volume,jdbcType=DOUBLE},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=INTEGER},
+            </if>
+            <if test="createUserCode != null">
+                #{createUserCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserCode != null">
+                #{updateUserCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            1,
+            now(3)
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="goodsLoadScan">
+        insert into load_scan (task_id, waybill_code, package_amount,weight,volume,
+        load_amount, unload_amount, force_amount, status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+        update_time, yn, ts)  VALUES
+        <foreach collection="list" item="info" separator=",">
+            (#{info.taskId,jdbcType=BIGINT}, #{info.wayBillCode,jdbcType=VARCHAR},
+            #{info.packageAmount,jdbcType=INTEGER},#{info.weight,jdbcType=DOUBLE},#{info.volume,jdbcType=DOUBLE},
+            #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
+            #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
+            #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
+            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER}), now(3)
+        </foreach>
+    </insert>
+
+
+    <select id="selectLoadScanByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        load_scan
+        <where>
+            task_id = #{taskId,jdbcType=BIGINT} and status > 0
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <select id="selectWaybillCodesByTaskId" parameterType="java.lang.Long" resultType="java.lang.String">
+        select waybill_code
+        from
+        load_scan
+        <where>
+            task_id = #{taskId,jdbcType=BIGINT}
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <select id="selectWaybillCountByTaskId" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select
+          count(*)
+        from load_scan where yn = 1 and task_id = #{taskId,jdbcType=BIGINT}
+    </select>
+
+<!--    <select id="findLoadScanByTaskIdAndWaybillCode" parameterType="goodsLoadScan" resultMap="goodsLoadScan">-->
+<!--        select-->
+<!--        <include refid="Base_Column_List"/>-->
+<!--        from load_scan where yn = 1-->
+<!--                and task_id = #{taskId,jdbcType=BIGINT}-->
+<!--                and waybill_code = #{wayBillCode,jdbcType=VARCHAR}-->
+<!--    </select>-->
+
+    <update id="updateByPrimaryKey" parameterType="goodsLoadScan">
+        update load_scan
+        <set>
+            <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
+            <if test="wayBillCode != null">waybill_code = #{wayBillCode,jdbcType=VARCHAR},</if>
+            <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
+            <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
+            <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>
+            <if test="forceAmount != null">force_amount = #{forceAmount,jdbcType=INTEGER},</if>
+            <if test="status != null">status = #{status,jdbcType=INTEGER},</if>
+            <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>
+            <if test="createUserName != null">create_user_name = #{createUserName,jdbcType=VARCHAR},</if>
+            <if test="updateUserCode != null">update_user_code = #{updateUserCode,jdbcType=VARCHAR},</if>
+            <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>
+            <if test="createTime != null">create_time = #{createTime,jdbcType=TIMESTAMP},</if>
+            <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+        </set>
+        where id = #{id,jdbcType=BIGINT} and yn = 1
+    </update>
+
+    <select id="findException" parameterType="java.util.Map" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from  load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and unload_amount > 0 and force_amount = 0 and load_amount > 0
+        and status IN
+        <foreach collection="statusList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <update id="deleteLoadScanByTaskId" parameterType="java.lang.String">
+        update load_scan
+        set yn=0
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1
+    </update>
+
+    <!-- 根据id查询所有运单信息 20201025-->
+    <select id="findAllLoadScanExceptionByTaskId" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 and load_amount > 0
+        and (status = 4 or (status = 3 and unload_amount != 0 and force_amount = 0))
+    </select>
+
+    <!-- 根据任务号 运单号查询装车扫描运单信息 20201025 -->
+    <select id="findWaybillInfoByTaskIdAndWaybillCode" parameterType="goodsLoadScan" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan where yn = 1
+            and task_id = #{taskId,jdbcType=BIGINT}
+            and waybill_code = #{wayBillCode,jdbcType=VARCHAR} limit 1
+    </select>
+
+    <select id="loadScanRecordIsExist" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan
+        where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 limit 1
+    </select>
+
+</mapper>

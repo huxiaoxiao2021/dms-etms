@@ -76,5 +76,6 @@ $(document).ready(function() {
   </div>
   <!--opening end-->
 </div>
+#parse("system/security/watermark.vm")
 </body>
 </html>

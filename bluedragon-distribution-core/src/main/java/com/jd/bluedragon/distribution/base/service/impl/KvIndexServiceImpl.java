@@ -26,7 +26,6 @@ public class KvIndexServiceImpl implements KvIndexService {
 
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public List<Integer> queryCreateSiteCodesByKey(String keyword) {
 		return kvIndexDao.queryCreateSiteCodesByKey(keyword);
 	}

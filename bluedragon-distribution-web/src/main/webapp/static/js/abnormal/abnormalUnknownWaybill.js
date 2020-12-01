@@ -329,12 +329,20 @@ $(function () {
         $("#startTime").val(startTime);
         $("#endTime").val(endTime);
     }
+
     //初始化导出按钮
     function initExport(tableInit){
         $("#btn_export").on("click",function(e){
 
             var url = "/abnormal/abnormalUnknownWaybill/toExport";
             var params = tableInit.getSearchCondition();
+
+            var areaId = params["areaId"];
+            var dmsSiteCode = params["dmsSiteCode"];
+            if(areaId ==null|| dmsSiteCode==null){
+                alert('导出功能 "机构"和"分拣中心"必选');
+                return ;
+            }
 
             if (isEmptyObject(params)){
                 alert('禁止全量导出，请确定查询范围');
@@ -362,10 +370,12 @@ $(function () {
     }
 
     // initDateQuery();
-    initSelect();
+    initOrg("#areaId","#dmsSiteCode");
     pageInit().init();
     initExport(tableInit());
+    initSelect();
 });
+
 var waybillCodes = null;//多运单查询用
 //再次提报
 function do_submitAgain(waybillCode) {
@@ -389,6 +399,70 @@ function do_submitAgain(waybillCode) {
     });
 }
 
+//初始化区域、分拣中心
+function initOrg(orgSelect,siteSelect) {
+    var url = "/services/bases/allorgs";
+    var param = {};
+    $.ajax({
+        type : "get",
+        url : url,
+        data : param,
+        async : false,
+        success : function (data) {
+            var result = [];
+            for(var i in data){
+                if(data[i].orgId && data[i].orgId != ""){
+                    result.push({id:data[i].orgId,text:data[i].orgName});
+                }
+            }
+            $(orgSelect).select2({
+                width: '100%',
+                placeholder:'请选择机构',
+                allowClear:true,
+                data:result
+            });
+            $(orgSelect).val(null).trigger('change');
+            $(orgSelect)
+                .on("change", function(e) {
+                    var areaId = $(orgSelect).val();
+                    if(areaId){
+                        var siteListUrl = '/services/bases/dms/'+areaId;
+                        findSite(siteSelect,siteListUrl);
+                    }
+                });
+        }
+    });
+}
+
+//机构-分拣中心 级联选择
+function findSite(selectId,siteListUrl){
+    $(selectId).empty();
+    $.ajax({
+        type : "get",
+        url : siteListUrl,
+        data : {},
+        async : false,
+        success : function (data) {
+            var result = [];
+            if(data.length==1 && data[0].code!="200"){
+                result.push({id:"-999",text:data[0].message});
+            }else{
+                for(var i in data){
+                    if(data[i].siteCode && data[i].siteCode != ""){
+                        result.push({id:data[i].siteCode,text:data[i].siteName});
+                    }
+                }
+            }
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择分拣中心',
+                allowClear:true,
+                data:result
+            });
+        }
+    });
+}
+
 function initSelect() {
     $("#query-form #isReceiptSelect").select2({
         width: '100%',
@@ -396,6 +470,18 @@ function initSelect() {
         allowClear: true
 
     });
+    $("#areaId").select2({
+        width: '100%',
+        placeholder:'请选择机构',
+        allowClear:true
+    });
+    $("#dmsSiteCode").select2({
+        width: '100%',
+        placeholder:'请选择分拣中心',
+        allowClear:true
+    });
+
+
     $("#query-form #isReceiptSelect").val(null).trigger('change');
     //ID 冲突。。select2插件有问题
     $("#query-form #isReceiptSelect").on('change', function (e) {

@@ -100,7 +100,7 @@
 ##                <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>逻辑变更
 ##            </button>
             <button id="btn_delete" type="button" class="btn btn-default">
-                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>逻辑删除
+                <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
             </button>
             <button id="btn_import" type="button" class="btn btn-default">
                 <span class="glyphicon  glyphicon-import" aria-hidden="true"></span>导入
@@ -225,5 +225,6 @@
         s.parentNode.insertBefore(ja, s);
     })()
 </script>
+#parse("system/security/watermark.vm")
 </body>
 </html>

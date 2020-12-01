@@ -73,6 +73,29 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-xs-12" >
+                            <div class="col-xs-4">
+                                <div class="form-group col-xs-12">
+                                    <label class="control-label col-xs-4" for="box-code-input">机构 ：</label>
+                                    <div class="col-xs-6 ">
+                                        <select id="areaId" class="form-control search-param" name="areaId" value=""></select>
+                                    </div>
+                                    <font class="star" style = "color:red">*导出必填</font>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group col-xs-12">
+                                    <label class="control-label col-xs-4 " for="dmsCenter">分拣中心</label>
+                                    <div class=" col-xs-6">
+                                        <select id="dmsSiteCode" class="form-control search-param" name="dmsSiteCode" value=""></select>
+                                    </div>
+                                    <font class="star" style = "color:red">*导出必填</font>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </fieldset>
             </form>
         </div>
@@ -131,6 +154,7 @@
         </div>
         <hr />
 </div>
+#parse("system/security/watermark.vm")
 <script type="text/javascript">
     var jaq = jaq || [];
     jaq.push(['account', 'JA2016_112453']);

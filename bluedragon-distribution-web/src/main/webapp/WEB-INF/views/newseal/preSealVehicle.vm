@@ -55,7 +55,7 @@
             <input type="text" id="sel_num" class="form-control" style="width: 50px;" readonly="readonly" value="0"/>
         </div>
     </div>
-
+    $quickSealTips
     <!-- 主页面操作按钮 -->
     <div id="toolbar" style="text-align:right;" class="btn-group text-right">
         <button id="btn_query" type="button" class="btn btn-default">
@@ -83,5 +83,6 @@
         s.parentNode.insertBefore(ja, s);
     })()
 </script>
+#parse("system/security/watermark.vm")
 </body>
 </html>

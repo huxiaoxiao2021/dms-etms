@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
@@ -12,16 +13,16 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BoardCommonManager;
-import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
-import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
@@ -32,19 +33,28 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -66,15 +76,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 
@@ -140,6 +142,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     protected BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private LoadScanServiceImpl loadScanService;
+
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
@@ -160,6 +177,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         result.setData(convertToUnloadCarResult(request));
+        logger.info("卸车扫描1：参数request={}", JsonHelper.toJson(request));
         try {
             // 包裹是否扫描成功
             packageIsScanBoard(request);
@@ -180,11 +198,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     result.customMessage(invokeResult.getCode(),invokeResult.getMessage());
+
+                    return result;
+                }
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                     return result;
                 }
             }else {
                 surfacePackageCheck(request,result);
             }
+
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
@@ -194,15 +221,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(result.getCode() == CODE_SUCCESS_HIT){
                 isSurplusPackage = true;
             }
+
             // 卸车处理并回传TC组板关系
             dealUnloadAndBoxToBoard(request,isSurplusPackage);
             //设置包裹数
             setPackageCount(result.getData());
-
         }catch (LoadIllegalException e){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return result;
         }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                result.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return result;
+            }
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
@@ -217,6 +248,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String sealCarCode = request.getSealCarCode();
         String boardCode = request.getBoardCode();
         String packageCode = request.getBarCode();
+
+        //拦截的包裹不能重复扫描
+        try {
+            logger.info("packageIsScanBoard-校验拦截缓存【"+packageCode+"】【"+sealCarCode+"】");
+            String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + packageCode;
+            String isExistIntercept = redisClientCache.get(key);
+            if(StringUtils.isNotBlank(isExistIntercept)){
+                throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
+            }
+        }catch (LoadIllegalException e){
+            throw new LoadIllegalException(e.getMessage());
+        }
+
         int unScanPackageCount = 0;
         boolean isSurfacePackage = false;
         try {
@@ -360,8 +404,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String sealCarCode = unloadCarScanResult.getSealCarCode();
         Integer scanCount = 0;
         Integer surplusCount = 0;
+        logger.info("卸车扫描11：unloadCarScanResult={}", JsonHelper.toJson(unloadCarScanResult));
         try {
             String scanCountStr = redisClientCache.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode));
+            logger.info("卸车扫描12：scanCountStr={}", scanCountStr);
             if(StringUtils.isNotEmpty(scanCountStr)){
                 scanCount = Integer.valueOf(scanCountStr);
             }
@@ -503,6 +549,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     private void dealUnloadAndBoxToBoard(UnloadCarScanRequest request,boolean isSurplusPackage) throws LoadIllegalException {
         AddBoardBox addBoardBox = new AddBoardBox();
+        String boardCode="";
         try {
             addBoardBox.setBoardCode(request.getBoardCode());
             addBoardBox.setBoxCode(request.getBarCode());
@@ -532,30 +579,41 @@ public class UnloadCarServiceImpl implements UnloadCarService {
              * 组板失败
              *  500：失败-当前箱已经绑过板
              *  直接强制组板到新版上
+             *
+             *  二期优化增加【组板转移】提示
              * */
-            if (response.getCode() == 500) {
-                //调用TC的板号转移接口
-                InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
-                if(invokeResult == null){
-                    throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
+            /****/
+            if(response.getCode() == 500){
+                if (null == request.getIsCombinationTransfer() || Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
+                    //调用TC的板号转移接口
+                    InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
+                    if(invokeResult == null){
+                        throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
+                    }
+                    //重新组板失败
+                    if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
+                        logger.warn("组板转移成功.原板号【{}】新板号【{}】失败原因【{}】",
+                                invokeResult.getData(),request.getBoardCode(),response.getMesseage());
+                        throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+                    }
+                    //重新组板成功处理
+                    logger.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
+                            invokeResult.getData(),request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode());
+                    setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
+                    boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
+                    return;
+                } else {
+                    Board board = loadScanService.getBoardCodeByPackageCode(request.getOperateSiteCode().intValue(), request.getBarCode());
+                    if (null != board) {
+                        boardCode = board.getCode();
+                    }
+                    throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
                 }
-                //重新组板失败
-                if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
-                    logger.warn("组板转移成功.原板号【{}】新板号【{}】失败原因【{}】",
-                            invokeResult.getData(),request.getBoardCode(),response.getMesseage());
-                    throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
-                }
-                //重新组板成功处理
-                logger.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
-                        invokeResult.getData(),request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode());
-                setCacheOfBoardAndPack(request.getBoardCode(),request.getBarCode());
-                boxToBoardSuccessAfter(request,invokeResult.getData(),isSurplusPackage);
-                return;
             }
-            logger.warn("组板失败.板号【{}】包裹号【{}】站点【{}】.失败原因:【{}】",
-                    request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMesseage());
-
         }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND,boardCode));
+            }
             logger.error("推TC组板关系异常，入参【{}】",JsonHelper.toJson(addBoardBox),e);
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
@@ -593,13 +651,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(sealCarCode),1);
             }else {
                 updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(boardCode),1);
+                logger.info("卸车扫描13：request={}", JsonHelper.toJson(request));
                 scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),1);
+                logger.info("卸车扫描15：scanCount={}", scanCount);
             }
             updatePackCount(request, scanCount, surplusCount);
 
             // 老板包裹数变更
             if(StringUtils.isNotEmpty(oldBoardCode)){
-                UnloadCarTransBoard oldUnloadBoard = unloadCarTransBoardDao.searchBySealCode(oldBoardCode);
+                UnloadCarTransBoard oldUnloadBoard = unloadCarTransBoardDao.searchByBoardCode(oldBoardCode);
                 if(oldUnloadBoard == null || StringUtils.isEmpty(oldUnloadBoard.getSealCarCode())){
                     //老板未绑定封车编码则不更新
                     return;
@@ -610,10 +670,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT.concat(oldSealCarCode),-1);
                 }else {
                     updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(oldBoardCode),-1);
+                    logger.info("卸车扫描16：oldBoardCode={}", oldBoardCode);
                     scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(oldSealCarCode),-1);
+                    logger.info("卸车扫描17：oldBoardCode={},scanCount={}", oldBoardCode, scanCount);
                 }
                 request.setSealCarCode(oldSealCarCode);
-                request.setBarCode(oldBoardCode);
+                request.setBoardCode(oldBoardCode);
                 updatePackCount(request, scanCount, surplusCount);
             }
         }catch (Exception e){
@@ -636,6 +698,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             logger.error("更新【{}】缓存异常",cacheKey,e);
         }
+        logger.info("卸车扫描14：cacheKey={},addCount={},count={}", cacheKey, addCount, count);
         return count;
     }
 
@@ -655,7 +718,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCarTransBoard.setCreateTime(new Date());
         unloadCarTransBoard.setUpdateTime(new Date());
         unloadCarTransBoard.setYn(1);
-        UnloadCarTransBoard unloadCarBoard = unloadCarTransBoardDao.searchBySealCode(request.getSealCarCode());
+        UnloadCarTransBoard unloadCarBoard = unloadCarTransBoardDao.searchBySealCodeAndBoardCode(request.getSealCarCode(),
+                request.getBoardCode());
         if(unloadCarBoard != null){
             unloadCarTransBoardDao.updateCount(unloadCarTransBoard);
         }else {
@@ -1207,5 +1271,138 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
         }
         return sendCode;
+    }
+
+    @Override
+    public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        if(StringUtils.isBlank(barCode)){
+            return result;
+        }
+        try{
+            logger.info("interceptValidate卸车根据包裹号：{}",barCode);
+            String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+            if(baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null ){
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+                return result;
+            }
+            Waybill waybillNoCache = baseEntity.getData().getWaybill();
+            String waybillSign = waybillNoCache.getWaybillSign();
+            if(StringUtils.isBlank(waybillSign)){
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+                return result;
+            }
+            //信任运单标识
+            boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
+            //纯配快运零担
+            boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
+            //无重量禁止发货判断
+            if(!isTrust && isB2BPure && waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() <= 0){
+                logger.warn("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+                return result;
+            }
+            //B网营业厅
+            boolean isBnet = BusinessUtil.isBusinessHall(waybillSign);
+            //寄付
+            boolean isSendPay = BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
+            //B网营业厅（原单作废，逆向单不计费）
+            boolean isBnetCancel = BusinessUtil.isYDZF(waybillSign);
+            //B网营业厅（原单拒收因京东原因产生的逆向单，不计费）
+            boolean isBnetJDCancel = BusinessUtil.isJDJS(waybillSign);
+            //运费寄付无运费金额禁止发货
+            if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+                logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //是仓配零担
+            boolean isWarehouse = BusinessUtil.isCPLD(waybillSign);
+            //到付
+            boolean isArrivePay = BusinessUtil.isDF(waybillSign);
+            if((isB2BPure || isWarehouse) && isArrivePay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+                logger.warn("interceptValidate卸车运费到付无运费金额禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //寄付临欠
+            boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
+            if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                    || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
+                logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //有包装服务
+            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
+            if(isPackService && !waybillConsumableRecordService.isConfirmed(waybillCode)){
+                logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //金鹏订单
+            if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
+                logger.warn("interceptValidate卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            if(!businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
+                logger.warn("interceptValidate卸车B网营业厅寄付未揽收完成禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
+                return result;
+            }
+        }catch (Exception e){
+            logger.error("判断包裹拦截异常 {}",barCode,e);
+        }
+        return result;
+    }
+
+    /**
+     * B网营业厅增加寄付揽收完成校验
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private boolean businessHallFreightSendReceiveCheck(String waybillCode,String waybillSign) {
+        if(! BusinessUtil.isBusinessHallFreightSendAndForward(waybillSign)) {
+            return Boolean.TRUE;
+        }
+        Set<Integer> stateSet = new HashSet<>();
+        stateSet.add(Constants.WAYBILL_TRACE_STATE_RECEIVE);
+        List result = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, stateSet);
+        return com.jd.service.common.utils.CollectionUtils.isNotEmpty(result)? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    /**
+     *拦截设置缓存
+     * @param sealCarCode
+     * @param borCode
+     */
+    private void setCacheOfSealCarAndPackageIntercet(String sealCarCode, String borCode){
+        try {
+            String key = CacheKeyConstants.REDIS_PREFIX_SEAL_PACK_INTERCEPT + sealCarCode + Constants.SEPARATOR_HYPHEN + borCode;
+            redisClientCache.setEx(key, borCode,7,TimeUnit.DAYS);
+        }catch (Exception e){
+            logger.error("设置封车【{}】包裹【{}】拦截重复缓存异常",sealCarCode,borCode,e);
+        }
     }
 }

@@ -42,6 +42,7 @@
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
 		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
 		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
+		<property name="redisSwitchOn" value="${sys.config.task.redisSwitchOn:0}"/>
 		<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>
 		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
@@ -75,6 +76,14 @@
 		<property name="economicNetValidateWeightSwitch" value="${economicNetValidateWeightSwitch:true}"/>
 		<property name="controlCheckPackage" value="${controlCheckPackage:true}"/>
 		<property name="controlCheckRoute" value="${controlCheckRoute:true}"/>
+		<property name="dellCancelDeliveryCheckSealCar" value="${dellCancelDeliveryCheckSealCar}" />
+		<property name="removeEmptyBatchCode" value="${removeEmptyBatchCode}"/>
+		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
+		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
+		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
+		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
+        <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
+        <property name="quickSealTips" value="${quickSealTips:''}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -87,6 +96,7 @@
                 <value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
                 <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
                 <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
+                <value>uccPropertyConfiguration.redisSwitchOn</value>
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp</value>
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
@@ -120,6 +130,14 @@
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
+				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
+				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
+				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
+				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
+				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
+				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
+                <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
+                <value>uccPropertyConfiguration.quickSealTips</value>
 			</list>
 		</property>
 	</bean>

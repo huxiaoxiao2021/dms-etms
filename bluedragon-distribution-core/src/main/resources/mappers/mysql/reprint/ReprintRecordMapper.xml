@@ -16,8 +16,7 @@
   </resultMap>
 
   <sql id="Base_Column_List">
-    id, waybill_code, package_code, site_code, site_name, operator_code, operator_name, operate_time,
-    create_time, update_time, is_delete, ts
+      `id`, `bar_code`, `site_code`, `site_name`, `operator_code`, `operator_name`, `operate_time`, `create_time`, `update_time`, `is_delete`, `ts`
   </sql>
 
   <insert id="add" parameterType="com.jd.bluedragon.distribution.reprint.domain.ReprintRecord">
@@ -91,4 +90,46 @@
 		where is_delete = 0 and bar_code = #{barCode,jdbcType=VARCHAR}
 
 	</select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="barCode != null and barCode != ''">
+            AND bar_code = #{barCode}
+        </if>
+        <if test="operatorId != null">
+            AND operator_code = #{operatorId}
+        </if>
+        <if test="operateTimeFrom != null">
+            AND ts >= #{operateTimeFrom}
+        </if>
+        <if test="operateTimeTo != null">
+            AND ts &lt; #{operateTimeTo}
+        </if>
+        <if test="isDelete != null">
+            AND is_delete = #{isDelete}
+        </if>
+    </sql>
+
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.reprintRecord.dto.ReprintRecordQuery">
+        SELECT count(1) FROM `reprint_record`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.reprintRecord.dto.ReprintRecordQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `reprint_record`
+        <include refid="where"/>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
 </mapper>

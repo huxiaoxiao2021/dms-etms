@@ -357,14 +357,6 @@
     <bean id="containerRelationDao" class="com.jd.bluedragon.distribution.rollcontainer.dao.ContainerRelationDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-    <!--分拣机自动发货配置-发货组-->
-    <bean id="sortMachineSendGroupDao" class="com.jd.bluedragon.distribution.sendGroup.dao.SortMachineSendGroupDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-    <!--分拣机自动发货配置-发货组-关联滑槽配置-->
-    <bean id="sortMachineGroupConfigDao" class="com.jd.bluedragon.distribution.sendGroup.dao.SortMachineGroupConfigDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
     <!-- Worker start -->
     <bean id="tbTaskTypeDao" class="com.jd.bluedragon.distribution.worker.dao.TBTaskTypeDao">
         <property name="sqlSessionTemplate" ref="workerSessionTemplate"/>
@@ -580,6 +572,14 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <bean id="siteDao" class="com.jd.bluedragon.distribution.site.dao.SiteDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <bean id="mixedPackageConfigDao" class="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>
@@ -610,6 +610,26 @@
     <bean id="unloadCarTransBoardDao" class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!--装车任务-->
+    <bean id="loadCarDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao">
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+    <bean id="loadCarHelperDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarHelperDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="goodsLoadScanDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+    <bean id="goodsLoadScanRecordDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao">
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
     <!-- 集包异常举报 -->
     <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>

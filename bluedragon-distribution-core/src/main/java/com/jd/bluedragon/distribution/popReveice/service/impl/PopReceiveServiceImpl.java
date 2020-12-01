@@ -41,7 +41,6 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	private PopReceiveDao popReceiveDao;
 	
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int saveRecevie(Inspection inspection) {
 		this.log.info("补全订单收货信息，inspection:{}" , inspection);
 		return inspectionService.addInspectionPop(inspection);
@@ -73,7 +72,6 @@ public class PopReceiveServiceImpl implements PopReceiveService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int addReceive(PopReceive popReceive) {
 		this.log.info("addReceive --> popReceive:{}" , popReceive);
 		this.popReceiveDao.add(PopReceiveDao.namespace, popReceive);

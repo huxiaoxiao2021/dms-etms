@@ -93,7 +93,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		if(log.isInfoEnabled()){
 			log.info(JSON.toJSONString(parameterList));
 		}
-		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
+
+		CallerInfo info = Profiler.registerInfo("DMSWORKER.WaybillStatusService.batchUpdateWaybillByOperateCode",Constants.UMP_APP_NAME_DMSWORKER,false, true);
+
+		Map<Long, Result> results;
+		try{
+			results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
+		}catch (Exception e){
+			Profiler.functionError(info);
+			throw e;
+		}finally {
+			Profiler.registerInfoEnd(info);
+		}
 
 		if (results == null || results.isEmpty()) {
             if(log.isInfoEnabled()){
