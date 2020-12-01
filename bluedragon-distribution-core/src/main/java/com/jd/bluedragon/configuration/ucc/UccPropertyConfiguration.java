@@ -179,6 +179,11 @@ public class UccPropertyConfiguration {
     private String removeEmptyBatchCode;
 
     /**
+     * 验货聚合逻辑生效的分拣中心
+     */
+    private String inspectionAggEffectiveSites;
+
+    /**
      * 装车扫描每个任务下的运单数量上线
      */
     private int loadScanTaskWaybillSize;
@@ -197,6 +202,11 @@ public class UccPropertyConfiguration {
      * 一键封车空批次剔除开关 1：开启剔除 0：关闭
      */
     private String preSealVehicleRemoveEmptyBatchCode;
+
+    /**
+     * 一键封车友情提示
+     */
+    private String quickSealTips;
 
     /**
      * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
@@ -563,6 +573,22 @@ public class UccPropertyConfiguration {
 
     public void setPreSealVehicleRemoveEmptyBatchCode(String preSealVehicleRemoveEmptyBatchCode) {
         this.preSealVehicleRemoveEmptyBatchCode = preSealVehicleRemoveEmptyBatchCode;
+    }
+
+    public String getInspectionAggEffectiveSites() {
+        return inspectionAggEffectiveSites;
+    }
+
+    public void setInspectionAggEffectiveSites(String inspectionAggEffectiveSites) {
+        this.inspectionAggEffectiveSites = inspectionAggEffectiveSites;
+    }
+
+    public String getQuickSealTips() {
+        return quickSealTips;
+    }
+
+    public void setQuickSealTips(String quickSealTips) {
+        this.quickSealTips = quickSealTips;
     }
 
     public boolean isSendCodeGenSwitchOn() {

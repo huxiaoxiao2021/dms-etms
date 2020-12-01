@@ -201,4 +201,12 @@ public interface InspectionService {
      * @return
      */
     int getInspectionTaskPackageSplitNum();
+
+    /**
+     * 验货逻辑聚合开关
+     * @param siteCode
+     * @return
+     */
+    boolean siteEnableInspectionAgg(Integer siteCode);
+
 }

@@ -501,4 +501,30 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		 return	Task.TABLE_NAME_WAYBILL;
 		}	
 	}
+
+    @Override
+    public CenConfirm commonGenCenConfirmFromInspection(Inspection inspection) {
+        CenConfirm cenConfirm = this.createCenConfirmByInspection(inspection);
+
+        if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
+                || Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
+
+            if (WaybillUtil.isSurfaceCode(cenConfirm.getPackageBarcode())) {
+
+                cenConfirm = this.fillPickupCode(cenConfirm); // 根据取件单序列号获取取件单号和运单号
+                cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
+            }
+            else {
+                cenConfirm = this.fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
+            }
+        }
+        else if (Constants.BUSSINESS_TYPE_SITE == cenConfirm.getType()) {
+            cenConfirm.setOperateType(Constants.OPERATE_TYPE_PSY);
+        }
+        else if (Constants.BUSSINESS_TYPE_InFactory == cenConfirm.getType()) {
+            cenConfirm.setOperateType(Constants.OPERATE_TYPE_In);
+        }
+
+        return cenConfirm;
+    }
 }
