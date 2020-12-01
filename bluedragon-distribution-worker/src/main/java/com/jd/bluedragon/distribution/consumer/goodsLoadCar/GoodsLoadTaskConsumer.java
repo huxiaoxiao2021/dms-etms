@@ -56,7 +56,6 @@ public class GoodsLoadTaskConsumer extends MessageBaseConsumer {
         param.setReceiveSiteCode(context.getReceiveSiteCode());
         param.setCurrentOperate(context.getCurrentOperate());
         param.setSendCode(context.getSendCode());
-        param.setUser(context.getUser());
 
         int start = 0;
         int end = GoodsLoadScanConstants.PAGE_SIZE;
@@ -87,6 +86,11 @@ public class GoodsLoadTaskConsumer extends MessageBaseConsumer {
 
                 Message message = new Message();
                 message.setTopic(goodsLoadPackageProducer.getTopic());
+                // 发货时间使用包裹装车扫描时间
+                param.setUpdateTime(glc.getUpdateTime());
+                // 发货人使用包裹装车扫描记录人员
+                param.setUserName(glc.getUpdateUserName());
+                param.setUserCode(glc.getUpdateUserCode());
                 message.setText(JsonHelper.toJson(param));
                 message.setBusinessId(key);
 

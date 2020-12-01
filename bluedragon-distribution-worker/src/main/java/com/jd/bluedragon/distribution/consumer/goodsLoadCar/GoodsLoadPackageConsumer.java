@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
@@ -56,12 +55,12 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         domain.setCreateSiteCode(req.getCurrentOperate().getSiteCode());
         domain.setSendCode(req.getSendCode());
         domain.setBoxCode(req.getPackageCode());//包裹号
-        domain.setCreateUser(req.getUser().getUserName());
-        domain.setCreateUserCode(req.getUser().getUserCode());
+        domain.setCreateUser(req.getUserName());
+        domain.setCreateUserCode(req.getUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(GoodsLoadScanConstants.YN_Y);
         domain.setCreateTime(new Date());
-        domain.setOperateTime(new Date());
+        domain.setOperateTime(req.getUpdateTime());
 
         if(log.isDebugEnabled()) {
             log.debug("装车完成发货--begin--参数【{}】", JsonHelper.toJson(domain));
@@ -70,7 +69,7 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
             //调用一车一单发货接口
             deliveryService.packageSend(bizSource, domain);
         }catch (Exception e) {
-            log.error("装车发货完成失败----error[{}]", e);
+            log.error("装车发货完成失败----error", e);
             throw  new GoodsLoadScanException("装车发货完成失败");
         }
         if(log.isDebugEnabled()) {
