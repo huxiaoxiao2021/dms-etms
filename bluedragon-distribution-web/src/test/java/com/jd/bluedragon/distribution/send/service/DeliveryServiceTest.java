@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.transboard.api.service.GroupBoardService;
@@ -102,7 +103,7 @@ public class DeliveryServiceTest {
 
     @Test
     public void packageSendByWaybillTest() {
-        String boxCode = "JDVA00119929280-1-1-";
+        String boxCode = "JDVA00119929460-1-200-";
         String sendCode = "910-39-20200916155103192";
         SendM sendM = initSendM(sendCode, boxCode);
         SendResult sendResult = deliveryService.packageSendByWaybill(sendM);
@@ -165,7 +166,7 @@ public class DeliveryServiceTest {
         sendM.setTurnoverBoxCode("");
         sendM.setTransporttype(0);
         sendM.setBoardCode("");
-        sendM.setBizSource(0);
+        sendM.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
 
         return sendM;
     }

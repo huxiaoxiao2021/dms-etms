@@ -508,6 +508,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!SendResult.CODE_OK.equals(result.getKey())) {
             return result;
         }
+        // 按运单号校验
+        domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
         // 发货验证
         result = this.beforeSendVerification(domain, true, false);
         if (!SendResult.CODE_OK.equals(result.getKey())) {
