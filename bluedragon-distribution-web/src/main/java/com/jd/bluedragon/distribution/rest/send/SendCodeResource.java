@@ -245,10 +245,10 @@ public class SendCodeResource {
             BusinessCodeFromSourceEnum businessCodeFromSourceEnum = BusinessCodeFromSourceEnum.getFromName(request.getFromSource());
             String userName = StringHelper.isEmpty(request.getUserCode())? "" : request.getUserCode();
 
-            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
-            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
-            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "1".equals(request.getFreshProperty()));
+            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(createSiteCode));
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
+            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, String.valueOf("1".equals(request.getFreshProperty())));
             String sendCode = sendCodeService.createSendCode(attributeKeyEnumObjectMap, businessCodeFromSourceEnum, userName);
 
             response.setCode(200);
@@ -279,10 +279,10 @@ public class SendCodeResource {
             List<String> sendCodes = new ArrayList<String>(request.getQuantity());
             for (int i = 0; i < request.getQuantity(); i++) {
 
-                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "1".equals(request.getFreshProperty()));
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(createSiteCode));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, String.valueOf("1".equals(request.getFreshProperty())));
                 String sendCode = sendCodeService.createSendCode(attributeKeyEnumObjectMap, businessCodeFromSourceEnum, userName);
 
                 sendCodes.add(sendCode);

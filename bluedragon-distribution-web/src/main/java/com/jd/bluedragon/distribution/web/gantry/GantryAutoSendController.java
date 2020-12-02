@@ -365,9 +365,9 @@ public class GantryAutoSendController {
                 scannerFrameBatchSend.setUpdateTime(new Date());
                 scannerFrameBatchSend.setYn((byte) 1);
 
-                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, scannerFrameBatchSend.getCreateSiteCode());
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, scannerFrameBatchSend.getReceiveSiteCode());
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(scannerFrameBatchSend.getCreateSiteCode()));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(scannerFrameBatchSend.getReceiveSiteCode()));
                 scannerFrameBatchSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, scannerFrameBatchSend.getCreateUserName()));
 
                 boolean bool = scannerFrameBatchSendService.generateSend(scannerFrameBatchSend);
@@ -507,9 +507,9 @@ public class GantryAutoSendController {
                 itemtoEndSend.setUpdateTime(new Date());
                 itemtoEndSend.setYn((byte) 1);
 
-                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, itemtoEndSend.getCreateSiteCode());
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, itemtoEndSend.getReceiveSiteCode());
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(itemtoEndSend.getCreateSiteCode()));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(itemtoEndSend.getReceiveSiteCode()));
                 itemtoEndSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WEB_SYS, itemtoEndSend.getCreateUserName()));
 
                 boolean bool = scannerFrameBatchSendService.generateSend(itemtoEndSend);

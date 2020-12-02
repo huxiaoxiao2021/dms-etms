@@ -16,6 +16,8 @@ import com.jd.coo.sa.sn.GenContextItem;
 import com.jd.coo.sa.sn.SmartSNGen;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,7 @@ public class SendCodeServiceImpl implements SendCodeService {
 
     @Override
     @JProfiler(jKey = "DMS.CORE.SendCodeService.createSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser) {
+    public String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser) {
 
         if (attributeKeyMap == null || attributeKeyMap.isEmpty()) {
             logger.error("创建批次参数不正确：{}, 数据来源：{}", JsonHelper.toJson(attributeKeyMap), fromSource.name());
@@ -60,6 +62,7 @@ public class SendCodeServiceImpl implements SendCodeService {
         }
         String sendCode = "";
         /* 判断UCC的批次开关是否开启：开启则使用新的生成器生成，未开启则使用原来的工具类生成 */
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.CORE.SendCodeService.createSendCode.gen",Constants.UMP_APP_NAME_DMSWEB,false, true);
         if (uccPropertyConfiguration.isSendCodeGenSwitchOn()) {
             GenContextItem[] genContextItems = new GenContextItem[3];
             genContextItems[0] = GenContextItem.create("createSiteCode", attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code));
@@ -68,16 +71,17 @@ public class SendCodeServiceImpl implements SendCodeService {
             sendCode = smartSendCodeSNGen.gen(fromSource.name(), genContextItems);
         } else {
           sendCode = SerialRuleUtil.generateSendCode(
-                  Long.parseLong(String.valueOf(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code))),
-                  Long.parseLong(String.valueOf(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code))),
+                  Long.parseLong(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code)),
+                  Long.parseLong(attributeKeyMap.get(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code)),
                   new Date()
                   ) ;
         }
+        Profiler.registerInfoEnd(callerInfo);
 
         /* 持久化业务单号表和业务单号属性表 */
         Map<String,String> attributeParam = new HashMap<>(attributeKeyMap.size());
-        for (Map.Entry<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEntity : attributeKeyMap.entrySet()) {
-            attributeParam.put(attributeKeyEntity.getKey().name(), String.valueOf(attributeKeyEntity.getValue()));
+        for (Map.Entry<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEntity : attributeKeyMap.entrySet()) {
+            attributeParam.put(attributeKeyEntity.getKey().name(), attributeKeyEntity.getValue());
         }
         boolean isSuccess = businessCodeManager.saveBusinessCodeAndAttribute(sendCode,BusinessCodeNodeTypeEnum.send_code,attributeParam,createUser, fromSource);
         if (!isSuccess) {
