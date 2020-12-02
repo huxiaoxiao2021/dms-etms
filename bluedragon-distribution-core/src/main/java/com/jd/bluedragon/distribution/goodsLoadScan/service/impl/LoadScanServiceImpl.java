@@ -12,7 +12,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingSca
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -27,6 +26,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
@@ -39,7 +39,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.report.LoadScanPackageDetailService;
 import com.jd.ql.dms.report.domain.LoadScanDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -73,9 +72,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
-
-    @Resource
-    private LoadScanPackageDetailService loadScanPackageDetailService;
 
     @Autowired
     private GoodsLoadScanDao goodsLoadScanDao;
@@ -111,7 +107,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private WaybillPackageManager waybillPackageManager;
+    private DmsDisSendService dmsDisSendService;
+
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -271,7 +268,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScan.setWayBillCode(waybillCode);
         scanDtoList.add(loadScan);
         //ES拉取最新缓存数
-        List<LoadScanDto> loadScanDtoList= getLoadScanListByWaybillCode(scanDtoList, currentSiteCode);
+        List<LoadScanDto> loadScanDtoList= dmsDisSendService.getLoadScanListByWaybillCode(scanDtoList, currentSiteCode);
         if(CollectionUtils.isEmpty(loadScanDtoList)){
             log.error("取消发货拉取ES库存失败， 入参【运单信息{} | 当前网点{} 】",scanDtoList , currentSiteCode);
             throw new GoodsLoadScanException("取消发货拉取ES库存为空");
@@ -360,7 +357,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDtoList.add(loadScan);
         Integer createSiteId = currentSiteCode;
         //查ES拿最新库存
-        List<LoadScanDto> list=getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+        List<LoadScanDto> list=dmsDisSendService.getLoadScanListByWaybillCode(scanDtoList, createSiteId);
         if(CollectionUtils.isEmpty(list)){
             throw new GoodsLoadScanException("取消发货拉取ES库存为空");
         }
@@ -519,7 +516,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         List<LoadScanDto> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
-        reportList = getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
+        reportList = dmsDisSendService.getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
 
         log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
         // 转换数据
@@ -623,7 +620,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 根据运单号列表去分拣报表查找已验未发对应的库存数
             List<LoadScanDto> scanDtoList = new ArrayList<>();
             try {
-                scanDtoList = getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
+                scanDtoList = dmsDisSendService.getLoadScanListByWaybillCode(loadScanDtoList, loadCar.getCreateSiteCode().intValue());
             } catch (Exception e) {
                 log.error("根据运单去ES获取数据异常error=", e);
             }
@@ -733,9 +730,23 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-            // 根据运单号去ES查询库存包裹号 todo
-            List<String> packageList = new ArrayList<>();
-
+            // 根据运单号去ES查询库存包裹号集合
+            LoadScanDto loadScanDto = dmsDisSendService.getPackageCodesByWaybillCode(waybillCode, loadCar.getCreateSiteCode().intValue());
+            if (loadScanDto == null) {
+                log.error("根据运单号查询库存失败！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("根据运单号查询库存失败！");
+                return response;
+            }
+            List<String> packageList = loadScanDto.getPackageCodes();
+            // 如果该运单库存数小于总包裹数，则提示“必须集齐才能按单操作”
+            if (packageList.size() < loadScanDto.getPackageAmount()) {
+                log.warn("校验运单号--该运单尚未集齐所有包裹，taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                int exceptionSize = loadScanDto.getPackageAmount() - packageList.size();
+                response.setMessage("该单有" + exceptionSize + "个未验包裹，无法装车扫描，请先操作验货");
+                return response;
+            }
             // 运单上可以装车的有效包裹
             List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
             List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
@@ -778,7 +789,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW);
             }
             loadScan.setForceAmount(0);
-
             // 如果已存在就更新，不存在就插入
             saveOrUpdate(loadScan, packageList.size(), user, flowDisAccord);
         } catch (Exception e) {
@@ -786,12 +796,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         } finally {
             // 释放锁
             unLock(taskId, waybillCode, null);
-            if (log.isDebugEnabled()) {
-                log.debug("运单号暂存接口--锁释放：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
-                        packageCode, transfer, flowDisAccord);
-            }
         }
-
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
         return response;
@@ -945,7 +950,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         Integer goodsAmount = 0;
         try{
-            List<LoadScanDto> loadScanDto = getLoadScanListByWaybillCode(scanDtoList, createSiteId);
+            List<LoadScanDto> loadScanDto = dmsDisSendService.getLoadScanListByWaybillCode(scanDtoList, createSiteId);
             if (loadScanDto == null || loadScanDto.isEmpty()) {
                 log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
@@ -1004,7 +1009,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScan.setPackageCode(packageCode);
         loadScan.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
 
-        LoadScanDto loadScanDto = getLoadScanByWaybillAndPackageCode(loadScan);
+        LoadScanDto loadScanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(loadScan);
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -1126,40 +1131,31 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 根据任务号查询装车任务记录
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
-            log.error("根据任务号找不到对应的装车任务，taskId={},packageCode={}", taskId, packageCode);
+            log.error("校验运单号--根据任务号找不到对应的装车任务，taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据任务号找不到对应的装车任务");
             return response;
         }
         // 任务是否已经结束
         if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
-            log.error("该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
+            log.error("校验运单号--该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("该装车任务已经结束");
             return response;
         }
-
+        Integer createSiteId = loadCar.getCreateSiteCode().intValue();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
-        // 查询运单下的所有包裹
-        List<String> packageCodes = waybillPackageManager.getWaybillPackageCodes(waybillCode);
-        if (CollectionUtils.isEmpty(packageCodes)) {
-            log.error("根据运单号查询包裹号列表返回空：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+        // 根据运单号查询库存数量和包裹总数
+        LoadScanDto scanDto = new LoadScanDto();
+        scanDto.setWayBillCode(waybillCode);
+        scanDto.setPackageCode(packageCode);
+        scanDto.setCreateSiteId(createSiteId);
+        LoadScanDto loadScanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(scanDto);
+        if (loadScanDto == null) {
+            log.error("校验运单号--根据包裹号和运单号从ES查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("根据运单号查询包裹号列表返回空！");
-            return response;
-        }
-
-        // 根据运单号查询库存是否有货
-        List<LoadScanDto> scanDtoList = new ArrayList<>();
-        LoadScanDto loadScan = new LoadScanDto();
-        loadScan.setWayBillCode(waybillCode);
-        scanDtoList.add(loadScan);
-        List<LoadScanDto> loadScanDtoList = getLoadScanListByWaybillCode(scanDtoList, loadCar.getCreateSiteCode().intValue());
-        if (CollectionUtils.isEmpty(loadScanDtoList)) {
-            log.error("运单号从分拣报表查询运单库存信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该运单所有包裹未验货或已发货，请核实运单状态");
+            response.setMessage("该运单下的所有包裹未验货或已发货，请核实运单状态");
             return response;
         }
 
@@ -1170,19 +1166,19 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 实时调用路由接口
         Integer nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
-        log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
+        log.info("校验运单号--实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
 
         // 校验运单下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此运单流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
-            log.warn("运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
-            msg = "大宗按单操作！此单共计" + packageCodes.size() + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+            log.warn("校验运单号--运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
+            msg = "大宗按单操作！此单共计" + loadScanDto.getPackageAmount() + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
             msgBox.setMsg(msg);
             response.addBox(msgBox);
             return response;
         }
 
         // 运单流向一致，则提示运单上包裹数量
-        msg = "大宗按单操作！此单共计" + packageCodes.size() + "件，请确认包裹集齐！\n";
+        msg = "大宗按单操作！此单共计" + loadScanDto.getPackageAmount() + "件，请确认包裹集齐！\n";
         msgBox.setMsg(msg);
         response.addBox(msgBox);
         return response;
@@ -1453,127 +1449,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             status = GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
         }
         loadScan.setStatus(status);
-    }
-
-
-    /**
-     * 根据包裹号和运单号获取装车扫描运单明细
-     *
-     * @param scanDtoList   查询条件列表
-     * @param currentSiteId 当前网点id
-     * @return 运单
-     */
-    public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
-        if (log.isDebugEnabled()) {
-            log.debug("根据运单去ES获取数据,查询条件:currentSiteId={}开始", currentSiteId);
-        }
-        // 根据包裹号查找运单号
-        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity = loadScanPackageDetailService
-                .findLoadScanList(scanDtoList, currentSiteId);
-        if (baseEntity == null) {
-            log.warn("根据运单号和包裹号条件列表去分拣报表查询运单明细接口返回空currentSiteId={}", currentSiteId);
-            return new ArrayList<>();
-        }
-        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode())|| baseEntity.getData() == null) {
-            log.error("根据运单号和包裹号条件列表去分拣报表查询运单明细接口失败currentSiteId={}", currentSiteId);
-            return new ArrayList<>();
-        }
-        if (log.isDebugEnabled()) {
-            log.debug("根据运单去ES获取数据,查询条件:currentSiteId={}结束，返回包裹暂存接口逻辑继续.", currentSiteId);
-        }
-        return baseEntity.getData();
-    }
-
-    /**
-     * 根据运单号获取装车扫描列表
-     *
-     * @param waybillCodes  查询条件列表
-     * @param currentSiteId 当前网点id
-     * @return 运单
-     */
-    public List<LoadScanDto> getLoadScanByWaybillCodes(List<String> waybillCodes, Integer currentSiteId,
-                                                       Integer nextSiteId, Integer rows) {
-        com.jd.ql.dms.report.domain.BaseEntity<List<LoadScanDto>> baseEntity;
-        try {
-            baseEntity = loadScanPackageDetailService
-                    .findLoadScanPackageDetail(waybillCodes, currentSiteId, nextSiteId, rows);
-        } catch (Exception e) {
-            log.error("根据暂存表记录去分拣报表查询运单明细接口发生异常currentSiteId={},currentSiteId={}",
-                    currentSiteId, nextSiteId);
-            return new ArrayList<>();
-        }
-
-        if (baseEntity == null) {
-            log.warn("根据暂存表记录去分拣报表查询运单明细接口返回空currentSiteId={},nextSiteId={}", currentSiteId, nextSiteId);
-            return new ArrayList<>();
-        }
-        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode()) || baseEntity.getData() == null) {
-            log.error("根据暂存表记录去分拣报表查询运单明细接口失败currentSiteId={},currentSiteId={},code={}",
-                    currentSiteId, nextSiteId, baseEntity.getCode());
-            return new ArrayList<>();
-        }
-        return baseEntity.getData();
-    }
-
-    /**
-     * 根据运单号获取装车扫描
-     *
-     * @param loadScanDto 查询条件列表
-     * @return 运单
-     */
-    public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
-        com.jd.ql.dms.report.domain.BaseEntity<LoadScanDto> baseEntity;
-        try {
-            baseEntity = loadScanPackageDetailService.findLoadScan(loadScanDto);
-        } catch (Exception e) {
-            log.error("根据包裹号和运单号去分拣报表查询包裹流向发生异常packageCode={},waybillCode={}",
-                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
-            return null;
-        }
-
-        if (baseEntity == null) {
-            log.warn("根据运单号和包裹号去分拣报表查询流向返回空packageCode={},waybillCode={}",
-                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
-            return null;
-        }
-        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode()) || baseEntity.getData() == null) {
-            log.error("根据运单号和包裹号去分拣报表查询流向接口失败packageCode={},waybillCode={},code={}",
-                    loadScanDto.getPackageCode(), loadScanDto.getWayBillCode(), baseEntity.getCode());
-            return null;
-        }
-        return baseEntity.getData();
-    }
-
-    /**
-     * 根据运单号、当前网点、已装包裹号查询未装包裹号列表
-     *
-     * @param waybillCode 运单号
-     * @param createSiteId 当前网点ID
-     * @param packageCodes 已装包裹号列表
-     * @return 未装包裹号列表
-     */
-    public List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId,
-                                                           List<String> packageCodes) {
-        com.jd.ql.dms.report.domain.BaseEntity<List<String>> baseEntity;
-        try {
-            baseEntity = loadScanPackageDetailService.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
-        } catch (Exception e) {
-            log.error("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表发生异常waybillCode={},createSiteId={},e=",
-                    waybillCode, createSiteId, e);
-            return new ArrayList<>();
-        }
-
-        if (baseEntity == null) {
-            log.warn("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表发生异常waybillCode={},createSiteId={}",
-                    waybillCode, createSiteId);
-            return new ArrayList<>();
-        }
-        if (!Constants.SUCCESS_CODE.equals(baseEntity.getCode()) || baseEntity.getData() == null) {
-            log.error("根据已装包裹号列表和运单号去分拣报表查询未装包裹号列表失败waybillCode={},createSiteId={},code={}",
-                    waybillCode, createSiteId, baseEntity.getCode());
-            return new ArrayList<>();
-        }
-        return baseEntity.getData();
     }
 
 
@@ -1925,7 +1800,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 从包裹记录表查询该运单下所有已装车的包裹
             List<String> packageCodes = goodsLoadScanRecordDao.selectPackageCodesByWaybillCode(taskId, waybillCode);
             // 从ES中根据已装车包裹筛选出未装包裹列表
-            unloadPackages = getUnloadPackageCodesByWaybillCode(waybillCode,
+            unloadPackages = dmsDisSendService.getUnloadPackageCodesByWaybillCode(waybillCode,
                     loadCar.getCreateSiteCode().intValue(), packageCodes);
         } finally {
             // 释放锁
