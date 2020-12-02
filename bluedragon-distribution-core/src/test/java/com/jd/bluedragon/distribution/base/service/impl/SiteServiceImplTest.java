@@ -36,15 +36,15 @@ public class SiteServiceImplTest {
         transportResourceDto.setArriveCarMin(0);
 
        /* transportResourceDto.setEndOrgCode("6");*/
-        transportResourceDto.setEndNodeId(6);
-        transportResourceDto.setStartNodeId(364605);
+       /* transportResourceDto.setEndNodeId(6);
+        transportResourceDto.setStartNodeId(364605);*/
       /*  transportResourceDto.setTransType(1); //线路类型
         transportResourceDto.setCarrierType(0); //运力类型
         transportResourceDto.setTransWay(3);*/
        // transportResourceDto.setTransCode("R2011012697968");//运力编码
         //transportResourceDto.setCarrierCode()
 
-       List<TransportResourceDto> result =  basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
+       List<TransportResourceDto> result =  basicSelectWsManager.queryPageTransportResource(transportResourceDto);
 
         for(TransportResourceDto dto :result){
             Date transDisableTime = dto.getTransDisableTime();
