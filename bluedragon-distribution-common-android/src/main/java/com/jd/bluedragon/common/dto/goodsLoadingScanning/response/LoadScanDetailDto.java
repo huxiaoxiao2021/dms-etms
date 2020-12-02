@@ -17,6 +17,8 @@ public class LoadScanDetailDto implements Serializable {
 
     private List<GoodsDetailDto> goodsDetailDtoList;
 
+    private Integer waybillAuthority;
+
     public String getBatchCode() {
         return batchCode;
     }
@@ -55,5 +57,13 @@ public class LoadScanDetailDto implements Serializable {
 
     public void setTotalPackageNum(Integer totalPackageNum) {
         this.totalPackageNum = totalPackageNum;
+    }
+
+    public Integer getWaybillAuthority() {
+        return waybillAuthority;
+    }
+
+    public void setWaybillAuthority(Integer waybillAuthority) {
+        this.waybillAuthority = waybillAuthority;
     }
 }

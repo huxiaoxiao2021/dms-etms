@@ -20,6 +20,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -33,6 +36,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
@@ -108,6 +112,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private DmsDisSendService dmsDisSendService;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -465,9 +472,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务不存在");
             return response;
         }
-        if (log.isDebugEnabled()) {
-            log.debug("开始查找暂存表--判断任务是否已经结束：taskId={}", taskId);
-        }
+
         // 任务是否已经结束
         if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(loadCar.getStatus())) {
             log.error("该装车任务已经结束，taskId={}", taskId);
@@ -485,9 +490,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 根据任务号查找装车扫描明细暂存表
         List<GoodsLoadScan> tempList = goodsLoadScanDao.findLoadScanByTaskId(taskId);
 
-        if (log.isDebugEnabled()) {
-            log.debug("根据任务ID查找暂存表，taskId={}", req.getTaskId());
-        }
         List<LoadScanDto> reportList;
         List<GoodsDetailDto> goodsDetailDtoList = new ArrayList<>();
         // 暂存表运单号，运单号对应的暂存记录
@@ -496,6 +498,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 组装返回对象
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
+        // 如果场地配置了发货白名单
+        if (hasSendFunction(createSiteId)) {
+            // 开放大宗权限
+            scanDetailDto.setWaybillAuthority(1);
+        }
 
         if (CollectionUtils.isEmpty(tempList)) {
             scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
@@ -1756,6 +1763,22 @@ public class LoadScanServiceImpl implements LoadScanService {
             return goodsLoadScanDao.insert(e);
         }
     }
+
+    /**
+     * 【工具】-【功能开关配置】-【发货】名单，判断PDA登录ERP或登录ERP所属场地是否有配置发货白名单
+     */
+    private boolean hasSendFunction(Integer createSiteId) {
+        // 查询当前扫描人是否有按单操作权限
+        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
+        // 场地维度
+        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
+        // 指定站点
+        switchConfigDto.setSiteCode(createSiteId);
+        // 发货功能
+        switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_SEND.getCode());
+        return funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+    }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload")
