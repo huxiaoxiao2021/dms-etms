@@ -138,9 +138,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         batchSend.setYn(YN_DEFAULT);
         batchSend.setUpdateTime(batchSend.getCreateTime());
 
-        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, batchSend.getCreateSiteCode());
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, batchSend.getReceiveSiteCode());
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(batchSend.getCreateSiteCode()));
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(batchSend.getReceiveSiteCode()));
         batchSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WORKER_SYS, batchSend.getCreateUserName()));
         generateSend(batchSend);
         return batchSend;

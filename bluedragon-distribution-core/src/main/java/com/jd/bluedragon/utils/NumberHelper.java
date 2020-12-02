@@ -252,14 +252,11 @@ public class NumberHelper {
      * @param num 数字
      * @return
      */
-    public static int getFirstDigit(Integer num) {
-        if (num == null) {
-            return 0;
+    public static String getFirstDigit(String num) {
+        if (StringHelper.isEmpty(num) || !NumberHelper.isNumberUpZero(num)) {
+            return "0";
         }
-        while (num >= 10) {
-            num = num / 10;
-        }
-        return num;
+        return num.substring(0,1);
     }
 
     /**

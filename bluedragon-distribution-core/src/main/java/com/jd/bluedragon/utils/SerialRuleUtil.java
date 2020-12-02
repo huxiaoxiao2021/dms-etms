@@ -137,7 +137,7 @@ public class SerialRuleUtil {
      * @param sequence 序列号
      * @return
      */
-    public static String getSendCodeMod(Integer createSiteCode, Integer receiveSiteCode, String timeLong, Long sequence) {
+    public static String getSendCodeMod(String createSiteCode, String receiveSiteCode, String timeLong, Long sequence) {
         String sb = new StringBuilder()
                 .append(NumberHelper.getFirstDigit(createSiteCode))
                 .append(NumberHelper.getFirstDigit(receiveSiteCode))

@@ -24,7 +24,7 @@ public interface SendCodeService {
      * @see BusinessCodeAttributeKey.SendCodeAttributeKeyEnum 批次号属性
      * @return 批次号（生成的批次号最多可以看到小时纬度）
      */
-    String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser);
+    String createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyMap, BusinessCodeFromSourceEnum fromSource, String createUser);
 
     /**
      * 查询批次号的对象

@@ -263,9 +263,9 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
                 return coldChainSend.getSendCode();
             } else {
-                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, createSiteCode);
-                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, receiveSiteCode);
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(createSiteCode));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
                 return sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WORKER_SYS, StringUtils.EMPTY);
             }
         } catch (Exception e){
