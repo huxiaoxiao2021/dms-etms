@@ -44,6 +44,11 @@ public interface LoadScanService {
     JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
 
     /**
+     * 包裹号转运单号进行暂存
+     */
+    JdCResponse<Void> saveLoadScanByWaybillCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);
+
+    /**
      * 校验包裹号并暂存
      */
     JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar);

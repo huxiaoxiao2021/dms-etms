@@ -56,6 +56,6 @@ public class GoodsLoadScanConstants {
     /**
      * 包裹号转大宗标识
      */
-    public static final Integer PACKAGE_TRANSFER_TO_BULK = 2;
+    public static final Integer PACKAGE_TRANSFER_TO_WAYBILL = 2;
 
 }
