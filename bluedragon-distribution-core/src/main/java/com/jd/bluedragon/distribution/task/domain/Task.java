@@ -615,7 +615,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return Task.TABLE_NAME_CYCLE_BOX_STATUS;
         }else if(Task.TASK_TYPE_WAYBILL_SEND.equals(type)){
-            return Task.TABLE_NAME_WAYBILL_SEND;
+            return Task.TABLE_NAME_SEND;
         }
         
         return Task.TABLE_NAME_SORTING;

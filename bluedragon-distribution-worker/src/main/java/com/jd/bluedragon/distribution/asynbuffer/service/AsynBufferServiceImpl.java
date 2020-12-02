@@ -348,6 +348,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             } else if (keyword1.equals("7")) {
                 //组板任务处理
                 return deliveryService.doBoardDelivery(task);
+            } else if (keyword1.equals("10")) {
+                //按运单发货任务处理
+                return deliveryService.doWaybillSendDelivery(task);
             }else {
                 //没有找到对应的方法，提供报错信息
                 this.log.error("task id is {} can not find process method",task.getId());

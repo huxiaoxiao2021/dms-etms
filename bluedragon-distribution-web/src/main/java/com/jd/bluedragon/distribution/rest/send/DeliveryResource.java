@@ -187,7 +187,10 @@ public class DeliveryResource {
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+            if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
+                // 按运单发货
+                deliveryService.packageSendByWaybill(domain);
+            }else if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 log.warn("组板发货newpackagesend：{}" , JsonHelper.toJson(request));
@@ -206,31 +209,6 @@ public class DeliveryResource {
             Profiler.functionError(info);
             result.error(ex);
             log.error("一车一单发货{}",JsonHelper.toJson(request), ex);
-        }finally {
-            Profiler.registerInfoEnd(info);
-        }
-        if (log.isInfoEnabled()) {
-            log.info(JsonHelper.toJson(result));
-        }
-        return result;
-    }
-    @POST
-    @Path("/delivery/newPackageSendGoodsByWaybill")
-    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
-    public InvokeResult<SendResult> newPackageSendGoodsByWaybill(PackageSendRequest request) {
-        if (log.isInfoEnabled()) {
-            log.info(JsonHelper.toJson(request));
-        }
-        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSendGoodsByWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
-        SendM domain = this.toSendMDomain(request);
-        domain.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
-        InvokeResult<SendResult> result = new InvokeResult<SendResult>();
-        try {
-            result.setData(deliveryService.packageSendByWaybill(domain));
-        } catch (Exception ex) {
-            Profiler.functionError(info);
-            result.error(ex);
-            log.error("按运单发货{}",JsonHelper.toJson(request), ex);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -262,6 +240,8 @@ public class DeliveryResource {
         domain.setCreateUserCode(request.getUserCode());
         domain.setSendType(request.getBusinessType());
         domain.setTransporttype(request.getTransporttype());
+
+        domain.setBizSource(request.getBizSource());
 
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));

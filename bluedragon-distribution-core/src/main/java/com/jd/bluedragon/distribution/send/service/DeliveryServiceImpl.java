@@ -177,6 +177,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final int MAX_SHOW_NUM = 3;
 
+    public static int WAYBILL_SPLIT_NUM = 100;
+
     private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
     /**
@@ -541,15 +543,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setCreateSiteCode(domain.getCreateSiteCode());
         tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
 
-        tTask.setKeyword1(domain.getBoardCode());
-        tTask.setKeyword2(String.valueOf(domain.getSendType()));
+        //TODO "写一个跟别人不一样的值"
+        tTask.setKeyword1("10");
+        tTask.setKeyword2(domain.getBoxCode());
 
         tTask.setType(taskType);
         tTask.setTableName(Task.getTableName(taskType));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
 
-        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
+        // TB 调度防止重复
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + "_" + domain.getBoxCode()));
         log.info("按运单发货任务推送成功：批次号={}，运单号={}" ,domain.getSendCode(), domain.getBoxCode());
         tTaskService.add(tTask, true);
     }
@@ -607,6 +611,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
+        //TODO  包裹号规则-总数是0
         if (WaybillUtil.getPackNumByPackCode(domain.getBoxCode()) < SEND_BY_WAYBILL_MIN_PACKS_NUM) {
             result.init(SendResult.CODE_SENDED, "此运单包裹总数小于" + SEND_BY_WAYBILL_MIN_PACKS_NUM + "非大宗订单，请扫描包裹号");
             return;
@@ -745,7 +750,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
-        // 按运单发货正在处理中
+        // TODO SETNX 运单和包裹互斥 按运单发货正在处理中( 按运单/包裹 SETNX 互相校验)
         if (isSendByWaybillProcessing(domain)) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING);
             return result;
@@ -5537,15 +5542,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             return false;
         }
         String waybillCode = domain.getBoxCode();
-        if (!(WaybillUtil.isPackageCode(waybillCode) || WaybillUtil.isWaybillCode(waybillCode))) {
-            log.warn("按运单发货domain.getBoxCode 非运单/包裹号:waybillCode={}", waybillCode);
+        if (!WaybillUtil.isWaybillCode(waybillCode)) {
+            log.error("按运单发货domain.getBoxCode 非运单:waybillCode={}", waybillCode);
             return false;
         }
-        if (WaybillUtil.isPackageCode(waybillCode)) {
-            waybillCode = WaybillUtil.getWaybillCode(waybillCode);
-        }
         int pageNo = 1;
-        int pageSize = 1000;
+        int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+
         BaseEntity<List<DeliveryPackageD>> waybillCodeOfPage = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
         if (waybillCodeOfPage == null || CollectionUtils.isEmpty(waybillCodeOfPage.getData())) {
             log.warn("按运单发货获取包裹数量为空:waybillCode={}", waybillCode);
@@ -5556,6 +5559,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         pushSorting(domain);
         // 按包裹分页 调用一车一单发货逻辑
         while (waybillCodeOfPage != null && CollectionUtils.isNotEmpty(waybillCodeOfPage.getData())) {
+            // 新建 task - keyWord2 = 11  ==========  start ===========
             // 按包裹锁定
             lockWaybillByPack(waybillCode, domain.getCreateSiteCode(), waybillCodeOfPage.getData());
             // 循环调用按包裹发货逻辑
@@ -5566,6 +5570,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 // 一车一单发货逻辑,其中 补分拣逻辑已移除(while循环外已按运单补分拣逻辑)
                 doPackageSendByWaybill(domain);
             }
+
+            // 新建 task - keyWord2 = 11  ==========  end ===========
             pageNo++;
             waybillCodeOfPage = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
         }
