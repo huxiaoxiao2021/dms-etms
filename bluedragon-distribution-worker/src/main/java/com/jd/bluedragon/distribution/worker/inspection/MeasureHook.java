@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,7 @@ import java.util.ArrayList;
  * Created by wangtingwei on 2017/1/17.
  */
 @Service("measureHook")
-public class MeasureHook implements TaskHook<InspectionTaskExecuteContext> {
+public class MeasureHook extends AbstractTaskHook {
 
     private static final Logger log = LoggerFactory.getLogger(MeasureHook.class);
 
@@ -31,7 +33,7 @@ public class MeasureHook implements TaskHook<InspectionTaskExecuteContext> {
     private TaskService taskService;
 
     @Override
-    @JProfiler( jKey = "dmsworker.MeasureHook.hook")
+    @JProfiler(jKey = "dmsworker.MeasureHook.hook", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
     public int hook(InspectionTaskExecuteContext context) {
         for (Inspection inspection : context.getInspectionList()) {
                 if ((inspection.getLength() != null && inspection.getLength() > 0)

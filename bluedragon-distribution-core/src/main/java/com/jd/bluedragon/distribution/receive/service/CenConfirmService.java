@@ -28,4 +28,11 @@ public interface CenConfirmService {
 
     public WaybillStatus createWaybillStatus(CenConfirm cenConfirm,
                                              BaseStaffSiteOrgDto bDto, BaseStaffSiteOrgDto rDto);
+
+    /**
+     * 构建CenConfirm的通用方式
+     * @param inspection
+     * @return
+     */
+    CenConfirm commonGenCenConfirmFromInspection(Inspection inspection);
 }

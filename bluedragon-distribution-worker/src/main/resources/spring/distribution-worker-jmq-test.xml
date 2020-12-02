@@ -249,8 +249,12 @@
         <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
     </jmq:consumer>
     <!-- 称重抽检处理消息 -->
-    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWeb.transport">
+    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
+    </jmq:consumer>
+    <!-- 来自异常系统的可换单消息 -->
+    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
     </jmq:consumer>
 
     <!--  众邮箱号回传重量处理消息  -->
@@ -273,5 +277,9 @@
         <jmq:listener topic="${jmq.topic.goods.load.package.deal}" listener="goodsLoadPackageConsume"/>
     </jmq:consumer>
 
+    <!--  包裹验货消息  -->
+    <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
+    </jmq:consumer>
 </beans>
 

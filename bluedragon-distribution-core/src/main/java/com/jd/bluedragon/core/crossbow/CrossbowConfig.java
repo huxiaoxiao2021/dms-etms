@@ -6,8 +6,8 @@ import com.jd.bluedragon.core.crossbow.security.CrossbowSecurityEnum;
  * <p>
  *     crossBow组件调用外部三方接口需要用到的配置，详细流程请见下面链接
  *
- * @link http://lcp.jd.com/services/queryMethodByServiceNameDetail.do?serviceName=com.jd.lsb.component.service.CrossbowService 组件接口文档地址
- * @link http://lft.jd.com/docCenter?docId=2967 接入流程地址
+ * @link http://lcp.jd.com/services/queryMethodByServiceNameDetail.do?serviceName=com.jd.lsb.component.service.CrossbowService 组件接口文档地址 （组件接口已经弃用，直接使用SDK调用）
+ * @link http://lcp.jdwl.com/#/docSoftwareSystem/17/44780 接入流程地址
  * @author wuzuxiang
  * @since 2019/10/17
  **/

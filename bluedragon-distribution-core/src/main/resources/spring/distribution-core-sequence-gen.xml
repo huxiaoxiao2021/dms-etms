@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-lazy-init="false" default-autowire="byName">
+
+    <bean id="redisBoxSequenceGen"
+          class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" ref="redisClientCache"/>
+        <!-- %s 为ownerKey的占位符 -->
+        <constructor-arg index="1" value="seq-box-%s" />
+    </bean>
+
+    <bean id="redisSequenceGen"
+          class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" ref="redisClientCache"/>
+        <!-- %s 为ownerKey的占位符 -->
+        <constructor-arg index="1" value="seq-code-%s" />
+    </bean>
+
+    <!-- snowFlake 自动递增的序列号生成器 -->
+    <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor">
+        <constructor-arg index="0">
+            <bean class="com.jd.coo.sa.sequence.snowflake.impl.PropertiesFileSnowflakeSequenceGen">
+                <constructor-arg index="0" value="/configured/snowflake.properties"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <!-- 通过jimDB控制生成器生成的ID唯一性的策略:此处的redisClient采用的是1091名为ql.dms.worker的集群，该集群目前占用内存少。 -->
+    <!-- 细心的同学会发现，这个工程中有两个jimDB集群，咱也不敢说，咱也不敢问。就期待某位好心人，将dms.etms工程的redis整理一下 -->
+    <bean id="jimDBUniqueStrategy" class="com.jd.coo.sa.sn.unique.JimDBUniqueStrategy">
+        <constructor-arg index="0" name="jimClient" ref="redisClient"/>
+        <constructor-arg index="1" name="prefix" value="sequence-unique-"/>
+    </bean>
+
+    <bean id="JimdbSequenceGen1" class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" name="cluster" ref="redisClient" />
+        <constructor-arg index="1" name="keyFormat" value="send-code-gen-1-%s" />
+    </bean>
+
+    <bean id="JimdbSequenceGen2" class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" name="cluster" ref="redisClient" />
+        <constructor-arg index="1" name="keyFormat" value="send-code-gen-2-%s" />
+    </bean>
+
+    <bean id="bitwiseLoadBalanceSequenceGen" class="com.jd.coo.sa.sequence.ha.BitwiseLoadBalanceSequenceGen">
+        <constructor-arg index="0" name="partitionSequenceList">
+            <list>
+                <ref bean="JimdbSequenceGen1"/>
+                <ref bean="JimdbSequenceGen2"/>
+            </list>
+        </constructor-arg>
+        <property name="timeoutThresholdInMilliseconds" value="2000" />
+        <!--		<property name="onErrorRescueThresholdInSeconds" value="20000" />-->
+        <property name="timeoutEventCountThreshold" value="3" />
+    </bean>
+
+    <bean id="queuedSequenceGen" class="com.jd.coo.sa.sequence.QueuedSequenceGen">
+        <constructor-arg index="0" name="inner" ref="bitwiseLoadBalanceSequenceGen" />
+        <property name="memoryBitLength" value="4"/>
+    </bean>
+
+    <bean id="bitSpacePaddingSequenceGen" class="com.jd.coo.sa.sequence.BitSpacePaddingSequenceGen">
+        <constructor-arg index="0" name="innerSequenceGen" ref="queuedSequenceGen" />
+    </bean>
+
+    <bean id="dateTimeBasedSequenceGen" class="com.jd.coo.sa.sequence.DateTimeBasedSequenceGen">
+        <constructor-arg index="0" name="innerSequenceGen" ref="bitSpacePaddingSequenceGen" />
+        <constructor-arg index="1" name="dateTimeFormat" value="yyyyMMddHH" />
+        <constructor-arg index="2" name="innerSequenceWidth" value="7" />
+    </bean>
+
+    <!-- 循环小号生成器 -->
+    <bean id="loopCycleSequenceGen" class="com.jd.coo.sa.sequence.LoopCycleSequenceGen">
+        <constructor-arg index="0" name="innerSequence" ref="dateTimeBasedSequenceGen" />
+        <constructor-arg index="1" name="startValue" value="1" />
+        <constructor-arg index="2" name="endValue" value="999999" />
+    </bean>
+
+    <!-- 表达式解析器 -->
+    <bean id="jexlInterpreter" class="com.jd.coo.sa.sn.expression.jexl.JexlInterpreter">
+        <constructor-arg index="0" name="sequenceGen" ref="loopCycleSequenceGen" />
+        <constructor-arg index="1" name="namespaces">
+            <map>
+                <entry key="number" value="com.jd.bluedragon.utils.NumberHelper" />
+                <entry key="serial" value="com.jd.bluedragon.utils.SerialRuleUtil"/>
+            </map>
+        </constructor-arg>
+    </bean>
+    <!-- 带有表达式的序号生成器: "始发分拣" + "-" + "目的分拣" + "-" + "yyyyMMddHH" + "sequence(7位)" -->
+    <bean id="smartSendCodeSNGen" class="com.jd.coo.sa.sn.SmartSNGen">
+        <constructor-arg index="0" name="expressionArg" value="createSiteCode + '-' + receiveSiteCode + '-' + currentTimeLong + u:leftPad(sequence,6) + serial:getSendCodeMod(createSiteCode,receiveSiteCode,currentTimeLong,sequence)"/>
+        <constructor-arg index="1" name="uniqueStrategyArg" ref="jimDBUniqueStrategy"/>
+        <property name="interpreter" ref="jexlInterpreter" />
+    </bean>
+
+</beans>

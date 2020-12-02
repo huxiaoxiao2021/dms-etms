@@ -35,8 +35,7 @@
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
-	<import resource="classpath:spring/distribution-core-sequence-gen-redis.xml" />
-	<import resource="classpath*:cdf/crossbow.comp" />
+	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />
 	<import resource="distribution-beans.xml" />
 	<import resource="distribution-core-datasource-waybill.xml" />
 
@@ -50,7 +49,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.core.message.consumer.*" />
 	<context:component-scan base-package="com.jd.bluedragon.core.redis" />
 	<context:component-scan base-package="com.jd.bluedragon.core.base" />
-	<context:component-scan base-package="com.jd.lsb" />
+<!--	<context:component-scan base-package="com.jd.lsb" />-->
 
 	<bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
 	<bean id="cacheAspect" class="com.jd.etms.framework.utils.cache.spring.CacheAspect">

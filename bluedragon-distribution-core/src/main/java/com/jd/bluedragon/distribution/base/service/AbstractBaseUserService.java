@@ -70,7 +70,7 @@ public abstract class AbstractBaseUserService implements LoginService {
      */
     protected static final String JSF_LOGIN_DEFAULT_VERSION_NAME = "Jsf_Login";
 
-    private static final String INSTALL_WARN = "应用版本过低，请自主安装，自主安装不成功联系运维重新安装！自主安装指引https://cf.jd.com/pages/viewpage.action?pageId=393150523";
+    private static final String INSTALL_WARN = "应用版本过低，请重新安装，操作方法：海鸥->软件库->右上角搜索中输入青龙，按回车键->点[安装]";
 
     /**
      * 当前应用的环境（prod-全国 pre-华中 uat-UAT test-测试）

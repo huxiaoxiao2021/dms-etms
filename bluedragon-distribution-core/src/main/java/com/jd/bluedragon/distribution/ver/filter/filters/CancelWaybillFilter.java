@@ -59,6 +59,14 @@ public class CancelWaybillFilter implements Filter {
                 : this.waybillService.dealCancelWaybill(request.getWaybillCode());
 
         if (!jdCancelWaybillResponse.getCode().equals(JdResponse.CODE_OK)) {
+            if(jdCancelWaybillResponse.getCode().equals(SortingResponse.CODE_29318)){
+                if (null != request.getReceiveSite() && null != request.getReceiveSite().getType()) {
+                    // 理赔拦截消息拦截，分站点提示消息
+                    if(!BusinessUtil.isSortingSiteType(request.getReceiveSite().getType())){
+                        jdCancelWaybillResponse.setMessage(SortingResponse.MESSAGE_29318_SITE);
+                    }
+                }
+            }
             throw new SortingCheckException(jdCancelWaybillResponse.getCode(), jdCancelWaybillResponse.getMessage());
         }
 
