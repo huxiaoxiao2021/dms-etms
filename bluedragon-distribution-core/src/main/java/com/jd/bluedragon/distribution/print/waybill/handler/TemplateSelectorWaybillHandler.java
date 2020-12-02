@@ -135,7 +135,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
             basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
         }
         // 双十一1234项目使用四天后面删除此处代码
-        if(isInDubboElevenTime() &&
+        if(isInDubboElevenTime(context) &&
                 (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C_MAIN)){
             setMask(context);
         }
@@ -160,7 +160,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
      * @param context
      */
     private void setMask(WaybillPrintContext context) {
-        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        String currentDate = DateHelper.formatDate(context.getBigWaybillDto().getWaybill().getRequireTime(),DateHelper.DATE_FORMAT_YYYYMMDD);
         List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
         List<String> masks = Arrays.asList(this.maskDubboEleven.split(","));
         if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks)){
@@ -169,7 +169,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         int index = dubboElevenTimes.indexOf(currentDate);
         String mask = index < masks.size() ? masks.get(index) : null;
         if (!StringUtils.isEmpty(mask)){
-            context.getBasePrintWaybill().setTransportTypeText(mask);
+            context.getBasePrintWaybill().setTransportModeFlag(mask);
         }
     }
 
@@ -178,12 +178,19 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
      * 双十一期间的定义（开始时间 <= 当前时间 <=开始时间+持续天数）
      * 如果在双十一期间返回 true 否则返回 false
      * @return
+     * @param context
      */
-    private boolean isInDubboElevenTime() {
+    private boolean isInDubboElevenTime(WaybillPrintContext context) {
+        if (null == context || null == context.getBigWaybillDto() ||
+                null == context.getBigWaybillDto().getWaybill() ||
+                null == context.getBigWaybillDto().getWaybill().getRequireTime()){
+            return Boolean.FALSE;
+        }
+        Date requireTime = context.getBigWaybillDto().getWaybill().getRequireTime();
 	    if (StringUtils.isEmpty(timeDubboEleven) || StringUtils.isEmpty(maskDubboEleven)){
 	        return Boolean.FALSE;
         }
-        String currentDate = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDD);
+        String currentDate = DateHelper.formatDate(requireTime,DateHelper.DATE_FORMAT_YYYYMMDD);
         List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
         if (dubboElevenTimes.contains(currentDate)){
             return Boolean.TRUE;
