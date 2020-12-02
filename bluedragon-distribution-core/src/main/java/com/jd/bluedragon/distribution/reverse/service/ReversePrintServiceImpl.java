@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
@@ -57,7 +56,11 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.ldop.basic.dto.enums.signAreaEnums;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -172,8 +175,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private BaseMinorManager baseMinorManager;
 
     @Autowired
-    @Qualifier("eclpItemManager")
-    private EclpItemManager eclpItemManager;
+    private BasicTraderIntegrateOutAPI basicTraderIntegrateOutAPI;
 
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
@@ -833,7 +835,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 = businessReturnAdressService.queryBySiteAndBusinessId(dmsSiteCode,businessId);
         // 组装商家退货地址
         BusinessReturnAdress commonAddress
-                = createCommonAddress(oldWaybillCode,dmsSiteCode,businessId,businessCode,businessName);
+                = createCommonAddress(dmsSiteCode,businessId,businessCode,businessName);
         // 是否存在退货地址
         JdResult<List<BackAddressDTO>> jdResult
                 = lDOPManager.queryBackAddressByType(DmsConstants.RETURN_BACK_ADDRESS_TYPE_6, businessCode);
@@ -888,28 +890,29 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     /**
      * 构建商家退货数据
-     * @param oldWaybillCode
      * @param dmsSiteCode
      * @param businessId
      * @param businessCode
      * @param businessName
      * @return
      */
-    private BusinessReturnAdress createCommonAddress(String oldWaybillCode, Integer dmsSiteCode, Integer businessId,
+    private BusinessReturnAdress createCommonAddress(Integer dmsSiteCode, Integer businessId,
                                                      String businessCode, String businessName) {
         String dmsSiteName = null;
         String deptNo = null;
         try {
             BaseSiteInfoDto baseSite = baseMajorManager.getBaseSiteInfoBySiteId(dmsSiteCode);
             dmsSiteName = baseSite == null ? null : baseSite.getSiteName();
-            // 事业部编码
-            LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCode);
-            String settleSubjectCode = claimInfoRespDTO == null ? null : claimInfoRespDTO.getSettleSubjectCode();
-            if(settleSubjectCode != null){
-                deptNo = eclpItemManager.getDeptBySettlementOuId(settleSubjectCode);
+            // 签约区域
+            ResponseDTO<BasicTraderIntegrateDTO> responseDTO = basicTraderIntegrateOutAPI.queryByTraderCode(businessCode);
+            if(responseDTO != null && responseDTO.isSuccess()){
+                BasicTraderIntegrateDTO basicTraderIntegrateDTO = responseDTO.getResult();
+                if(basicTraderIntegrateDTO != null && basicTraderIntegrateDTO.getSignArea() != null){
+                    deptNo = signAreaEnums.getValueName(basicTraderIntegrateDTO.getSignArea());
+                }
             }
         }catch (Exception e){
-            log.error("根据站点编码【{}】获取站点|根据运单号【{}】获取事业部编码异常!",e,dmsSiteCode,oldWaybillCode);
+            log.error("根据站点编码【{}】获取站点|根据商家编码【{}】获取签约区域异常!",e,dmsSiteCode,businessCode);
         }
         BusinessReturnAdress commonAddress = new BusinessReturnAdress();
         commonAddress.setDmsSiteCode(dmsSiteCode);
@@ -941,7 +944,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         int returnAddressStatus = hasBackInfo ?
                 BusinessReturnAdressStatusEnum.YES.getStatusCode() : BusinessReturnAdressStatusEnum.NO.getStatusCode();
         if(businessReturnAddress != null){
-            // 更新退货次数和事业部编码
+            // 更新退货次数和签约区域
             businessReturnAddress.setDeptNo(commonAddress.getDeptNo());
             businessReturnAdressService.updateReturnQuantity(businessReturnAddress);
         }else {

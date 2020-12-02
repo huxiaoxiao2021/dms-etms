@@ -101,7 +101,7 @@ $(function() {
             align: 'center'
         },{
             field : 'deptNo',
-            title : '事业部编码',
+            title : '签约区域',
             align: 'center'
         },{
             field : 'returnAdressStatusDesc',
