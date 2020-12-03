@@ -189,6 +189,7 @@ public class DeliveryResource {
         try {
             if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
                 // 按运单发货
+                domain.setBoxCode(request.getBoxCode());
                 result.setData(deliveryService.packageSendByWaybill(domain));
             }else if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
