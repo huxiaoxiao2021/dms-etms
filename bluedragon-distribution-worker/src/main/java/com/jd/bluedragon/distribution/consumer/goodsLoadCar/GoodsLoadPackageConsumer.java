@@ -59,7 +59,7 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         domain.setCreateUserCode(req.getUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(GoodsLoadScanConstants.YN_Y);
-        domain.setCreateTime(new Date());
+        domain.setCreateTime(req.getUpdateTime());
         domain.setOperateTime(req.getUpdateTime());
 
         if(log.isDebugEnabled()) {
