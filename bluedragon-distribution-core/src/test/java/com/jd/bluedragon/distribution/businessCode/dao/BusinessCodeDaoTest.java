@@ -1,14 +1,12 @@
 package com.jd.bluedragon.distribution.businessCode.dao;
 
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeAttributeKey;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.businessCode.constans.BusinessCodeNodeTypeEnum;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationH2Test;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
-import com.jd.coo.sa.sequence.SequenceGen;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

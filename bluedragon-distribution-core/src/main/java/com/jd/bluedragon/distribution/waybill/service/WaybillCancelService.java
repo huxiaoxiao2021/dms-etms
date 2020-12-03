@@ -1,62 +1,40 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import java.util.Map;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 
-import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import java.util.List;
 
-import com.jd.bluedragon.utils.PropertiesHelper;
+/**
+ * Description: <br>
+ * Copyright: Copyright (c) 2020<br>
+ * Company: jd.com 京东物流JDL<br>
+ *
+ * @author fanggang7
+ * @time 2020-09-03 16:13:54 周四
+ */
+public interface WaybillCancelService {
 
-@Service
-public class WaybillCancelService {
-    private static final Log LOGGER = LogFactory.getLog(WaybillCancelService.class);
-	private static final String IS_RERUND_WAYBILL = "29303";
-	private static final String DMSVER_URI = "dmsver.uri";
-	
-	private final RestTemplate template = new RestTemplate();
+    Boolean isRefundWaybill(String waybillCode);
 
-    @Autowired
-    private JsfSortingResourceService jsfSortingResourceService;
+    /**
+     * 按运单号获取运单取消列表
+     * @param waybillCode 运单号
+     * @return 结果列表
+     * @author fanggang7
+     * @time 2020-09-09 11:27:10 周三
+     */
+    List<CancelWaybill> getByWaybillCode(String waybillCode);
 
-	@SuppressWarnings({ "rawtypes" })
-	public Boolean isRefundWaybill(String waybillCode) {
-//		String uri = PropertiesHelper.newInstance().getValue(DMSVER_URI) + waybillCode;
-//
-//		this.setTimeout();
-//
-//		ResponseEntity<Map> map = this.template.getForEntity(uri, Map.class);
-//		if (map != null && map.getBody() != null && map.getBody().get("code") != null
-//				&& map.getBody().get("code").toString().equals(IS_RERUND_WAYBILL)) {
-//			return Boolean.TRUE;
-//		}
-//
-//		return Boolean.FALSE;
+    /**
+     * 异常平台发出的可换单消息处理
+     * @param waybillSiteTrackMq 消息体
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2020-09-09 16:09:21 周三
+     */
+    InvokeResult<Boolean> handleWaybillSiteTrackMq(WaybillSiteTrackMq waybillSiteTrackMq);
 
-        try {
-            SortingJsfResponse jsfResponse = jsfSortingResourceService.isCancel(waybillCode);
-            LOGGER.error("调用VER接口获取订单退款100分状态 " + JsonHelper.toJson(jsfResponse));
-            return jsfResponse.getCode().equals(Integer.valueOf(IS_RERUND_WAYBILL));
-        } catch (Exception e) {
-            LOGGER.error("调用VER接口获取订单是否是退款100分失败", e);
-            return Boolean.FALSE;
-        }
-
-	}
-
-//	private void setTimeout() {
-//		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-//		factory.setConnectTimeout(500);
-//		factory.setReadTimeout(3000);
-//
-//		this.template.setRequestFactory(factory);
-//	}
-	
 }

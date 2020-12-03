@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.sendCode.domain;
+package com.jd.bluedragon.distribution.busineCode.sendCode.domain;
 
 /**
  * <p>

@@ -5,13 +5,13 @@ import java.util.Map;
 
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
@@ -34,6 +34,10 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
     @Autowired
     @Qualifier("cancelWaybillJsfManager")
     private CancelWaybillJsfManager cancelWaybillJsfManager;
+
+    @Autowired
+    private WaybillService waybillService;
+
 	/**
 	 * 存储需要拦截的编码、消息对应关系
 	 */
@@ -49,6 +53,8 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 		NEED_INTERCEPT_CODES_MAP.put(SortingResponse.CODE_29313, SortingResponse.MESSAGE_29313);
 		//白条
 		NEED_INTERCEPT_CODES_MAP.put(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
+		// 被动理赔拦截暂存
+		NEED_INTERCEPT_CODES_MAP.put(SortingResponse.CODE_29318, SortingResponse.MESSAGE_29318_SORTING);
 	}
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -57,9 +63,21 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
         // 验证运单号，是否锁定、删除等
 		WaybillCancelJsfResponse waybillCancelJsfResponse = null;
         try {
-        	JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(context.getResponse().getWaybillCode());
-            if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
-            	waybillCancelJsfResponse = waybillCancelResponse.getData();
+            // 换单打印时，拦截处理被动理赔拦截消息，仅有一条时提示；有两条代表又收到可换单消息，不再拦截
+            if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
+                JdCancelWaybillResponse jdCancelWaybillResponse = this.waybillService.dealCancelWaybillWithClaimDamaged(context.getResponse().getWaybillCode());
+                if(jdCancelWaybillResponse != null){
+                    waybillCancelJsfResponse = new WaybillCancelJsfResponse();
+                    waybillCancelJsfResponse.setCode(jdCancelWaybillResponse.getCode());
+                    waybillCancelJsfResponse.setMessage(jdCancelWaybillResponse.getMessage());
+                    waybillCancelJsfResponse.setFeatureType(jdCancelWaybillResponse.getFeatureType());
+                    waybillCancelJsfResponse.setInterceptType(jdCancelWaybillResponse.getInterceptType());
+                }
+            } else {
+                JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(context.getResponse().getWaybillCode());
+                if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
+                    waybillCancelJsfResponse = waybillCancelResponse.getData();
+                }
             }
         } catch (Exception e) {
             log.error("InterceptWaybillHandler --> cancelWaybillJsfManager.dealCancelWaybill Error:", e);

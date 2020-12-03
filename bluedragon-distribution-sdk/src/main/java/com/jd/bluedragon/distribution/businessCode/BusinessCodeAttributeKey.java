@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.businessCode.constans;
+package com.jd.bluedragon.distribution.businessCode;
 
 /**
  * <p>

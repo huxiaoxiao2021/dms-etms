@@ -9,10 +9,13 @@ import com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
@@ -20,7 +23,6 @@ import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultRespons
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.RestHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -62,6 +64,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
 
     @Autowired
     GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     @Override
     public ScannerFrameBatchSend getAndGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config) {
@@ -132,7 +137,11 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         batchSend.setCreateUserName(config.getOperateUserName());
         batchSend.setYn(YN_DEFAULT);
         batchSend.setUpdateTime(batchSend.getCreateTime());
-        batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
+
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, batchSend.getCreateSiteCode());
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, batchSend.getReceiveSiteCode());
+        batchSend.setSendCode(sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WORKER_SYS, batchSend.getCreateUserName()));
         generateSend(batchSend);
         return batchSend;
     }

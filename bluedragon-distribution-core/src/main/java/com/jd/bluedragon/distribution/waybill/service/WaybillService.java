@@ -112,6 +112,14 @@ public interface WaybillService {
 
     JdCancelWaybillResponse dealCancelWaybill(String waybillCode);
 
+    /**
+     * 理赔破损拦截专用拦截判断方法
+     * 1. 仅有破损拦截时，不允许换单
+     * 1. 收到可换单消息后，可以换单
+     * @param waybillCode 运单号
+     */
+    JdCancelWaybillResponse dealCancelWaybillWithClaimDamaged(String waybillCode);
+
     JdCancelWaybillResponse dealCancelWaybill(PdaOperateRequest pdaOperate);
 
     /**

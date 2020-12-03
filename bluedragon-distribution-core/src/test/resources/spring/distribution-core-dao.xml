@@ -572,6 +572,14 @@
         <property name="sqlSession" ref="sessionTemplateBase" />
     </bean>
 
+    <bean id="siteDao" class="com.jd.bluedragon.distribution.site.dao.SiteDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
+    <bean id="mixedPackageConfigDao" class="com.jd.bluedragon.distribution.mixedPackageConfig.dao.MixedPackageConfigDao">
+        <property name="sqlSession" ref="sessionTemplateBase" />
+    </bean>
+
     <!-- 三方装箱明细 -->
     <bean id="thirdBoxDetailDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.third.dao.impl.ThirdBoxDetailDaoImpl"/>

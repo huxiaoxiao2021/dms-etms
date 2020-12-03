@@ -1,6 +1,4 @@
-package com.jd.bluedragon.distribution.businessCode.constans;
-
-import com.jd.bluedragon.utils.StringHelper;
+package com.jd.bluedragon.distribution.businessCode;
 
 /**
  * <p>
@@ -47,9 +45,6 @@ public enum BusinessCodeFromSourceEnum {
      * @return
      */
     public static BusinessCodeFromSourceEnum getFromName(String name) {
-        if (StringHelper.isEmpty(name)) {
-            return UNKNOWN_SYS;
-        }
         for (BusinessCodeFromSourceEnum item : BusinessCodeFromSourceEnum.values()) {
             if (item.name().equals(name)) {
                 return item;

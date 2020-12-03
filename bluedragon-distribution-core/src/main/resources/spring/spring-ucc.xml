@@ -84,6 +84,8 @@
 		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
         <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
         <property name="quickSealTips" value="${quickSealTips:''}" />
+		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -138,6 +140,7 @@
 				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
                 <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
                 <value>uccPropertyConfiguration.quickSealTips</value>
+				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
 			</list>
 		</property>
 	</bean>

@@ -316,6 +316,12 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29310 = 29310;
     public static final String MESSAGE_29310 = "此单请先暂存，运单集齐后发货";
 
+    public static final Integer CODE_29318 = 29318;
+    // 分拣登录人提示
+    public static final String MESSAGE_29318_SORTING = "此单为暂存拦截运单请先暂存，分拣工作台收到可操作消息后直接操作换单打印";
+    // 站点登录人提示
+    public static final String MESSAGE_29318_SITE = "此单为京权破损需拦截派送，请滞留站点等待异常管理平台系统通知";
+
 
     public static final Integer CODE_29401 = 29401;
     public static final String MESSAGE_29401 = "此单的[预分拣站点]为空";

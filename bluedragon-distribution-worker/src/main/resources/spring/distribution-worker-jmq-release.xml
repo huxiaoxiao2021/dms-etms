@@ -279,5 +279,10 @@
         <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
     </jmq:consumer>
 
+
+    <!-- 来自异常系统的可换单消息 -->
+    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
+    </jmq:consumer>
 </beans>
 

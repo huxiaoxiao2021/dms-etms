@@ -246,4 +246,27 @@ public class NumberHelper {
 		}
 		return null;
 	}
+
+    /**
+     * 获取数字的最高位
+     * @param num 数字
+     * @return
+     */
+    public static int getFirstDigit(Integer num) {
+        if (num == null) {
+            return 0;
+        }
+        while (num >= 10) {
+            num = num / 10;
+        }
+        return num;
+    }
+
+    /**
+     * 取余保留位数
+     * @return 返回余数
+     */
+    public static int remainderByNum(int num, int mod) {
+        return num % mod;
+    }
 }
