@@ -165,7 +165,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			}
 		} catch (Exception e) {
 			Profiler.functionError(callerInfo);
-			log.error("调用云打印IDC服务失败！", e);
+			log.error("调用云打印IDC服务失败！req:{}",JsonHelper.toJson(jdCloudPrintRequest), e);
 			printResult.toError("调用云打印IDC服务失败！");
 		} finally {
 			Profiler.registerInfoEnd(callerInfo);

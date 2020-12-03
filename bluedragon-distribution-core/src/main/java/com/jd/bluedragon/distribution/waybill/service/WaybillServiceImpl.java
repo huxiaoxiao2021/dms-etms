@@ -782,6 +782,7 @@ public class WaybillServiceImpl implements WaybillService {
      *     <li>29312：此单为[拒收订单拦截],请退货</li>
      *     <li>29313：此单为[恶意订单拦截],请退货</li>
      *     <li>29316：此单为[白条强制拦截],请退货</li>
+     *     <li>29317：此单为[运营退货拦截],请退货</li>
      * </ul>
      * @param interceptType
      * @param interceptMode
@@ -815,7 +816,10 @@ public class WaybillServiceImpl implements WaybillService {
             result.customMessage(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
             return result;
         }
-
+        if (WaybillCancelInterceptTypeEnum.CANCEL_SYS_RETURN.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29317, SortingResponse.MESSAGE_29317);
+            return result;
+        }
         return result;
     }
 
