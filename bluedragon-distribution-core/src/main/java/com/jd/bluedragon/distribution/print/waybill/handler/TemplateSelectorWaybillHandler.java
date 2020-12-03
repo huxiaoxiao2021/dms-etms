@@ -134,11 +134,9 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                 .contains(context.getRequest().getDmsSiteCode())){
             basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
         }
-        // 双十一1234项目使用四天后面删除此处代码
-        if(isInDubboElevenTime(context) &&
-                (templateName == this.TEMPlATE_NAME_C1010_MAIN || templateName == this.TEMPlATE_NAME_C_MAIN)){
-            setMask(context);
-        }
+        // 先进先出打标
+        this.setMask(context,templateName);
+
         //得到业务模板
         //根据key查config
         if (needMatchTemplate) {
@@ -155,15 +153,21 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 	}
 
     /**
-     * 打标
-     * 双十一第一天是1，逐天加1
+     * 先进先出打标
      * @param context
      */
-    private void setMask(WaybillPrintContext context) {
+    private void setMask(WaybillPrintContext context,String templateName) {
+        if (! (TEMPlATE_NAME_C1010_MAIN.equals(templateName)  || TEMPlATE_NAME_C_MAIN.equals(templateName))){
+            return;
+        }
+        if (context == null || context.getBigWaybillDto() == null || context.getBigWaybillDto().getWaybill() == null ||
+                context.getBigWaybillDto().getWaybill().getRequireTime() == null){
+            return;
+        }
         String currentDate = DateHelper.formatDate(context.getBigWaybillDto().getWaybill().getRequireTime(),DateHelper.DATE_FORMAT_YYYYMMDD);
         List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
         List<String> masks = Arrays.asList(this.maskDubboEleven.split(","));
-        if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks)){
+        if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks) || !dubboElevenTimes.contains(currentDate)){
             return;
         }
         int index = dubboElevenTimes.indexOf(currentDate);
@@ -171,30 +175,5 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         if (!StringUtils.isEmpty(mask)){
             context.getBasePrintWaybill().setTransportModeFlag(mask);
         }
-    }
-
-    /**
-     * 判断是否在双十一期间
-     * 双十一期间的定义（开始时间 <= 当前时间 <=开始时间+持续天数）
-     * 如果在双十一期间返回 true 否则返回 false
-     * @return
-     * @param context
-     */
-    private boolean isInDubboElevenTime(WaybillPrintContext context) {
-        if (null == context || null == context.getBigWaybillDto() ||
-                null == context.getBigWaybillDto().getWaybill() ||
-                null == context.getBigWaybillDto().getWaybill().getRequireTime()){
-            return Boolean.FALSE;
-        }
-        Date requireTime = context.getBigWaybillDto().getWaybill().getRequireTime();
-	    if (StringUtils.isEmpty(timeDubboEleven) || StringUtils.isEmpty(maskDubboEleven)){
-	        return Boolean.FALSE;
-        }
-        String currentDate = DateHelper.formatDate(requireTime,DateHelper.DATE_FORMAT_YYYYMMDD);
-        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
-        if (dubboElevenTimes.contains(currentDate)){
-            return Boolean.TRUE;
-        };
-        return Boolean.FALSE;
     }
 }
