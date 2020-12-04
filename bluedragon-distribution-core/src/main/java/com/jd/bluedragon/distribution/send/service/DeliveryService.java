@@ -401,6 +401,8 @@ public interface DeliveryService {
      */
     boolean doWaybillSendDelivery(Task task);
 
+    boolean doSendByWaybillSplitTask(Task task);
+
     /**
      * 按板取消发货任务
      *

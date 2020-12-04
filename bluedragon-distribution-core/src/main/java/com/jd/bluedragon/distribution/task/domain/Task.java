@@ -114,6 +114,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 按运单发货
      */
     public static final Integer TASK_TYPE_WAYBILL_SEND = 1322;
+    /**
+     * 按运单发货分页拆分任务
+     */
+    public static final Integer TASK_TYPE_WAYBILL_SEND_SPLIT = 1323;
 
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
 
