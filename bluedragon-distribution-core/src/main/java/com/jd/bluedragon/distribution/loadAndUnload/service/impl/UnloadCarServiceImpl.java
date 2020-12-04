@@ -222,6 +222,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
                 List<String> packageList = getPackageCodesByWaybillCode(waybillCode);
                 if (CollectionUtils.isEmpty(packageList)) {
+                    logger.error("卸车扫描--根据运单号查询包裹集合返回空,sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("根据运单号查询包裹集合返回空");
                     return result;
@@ -312,6 +313,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+                logger.error("运单卸车扫描--B网快运发货规则校验错误:error={},sealCarCode={},packageCode={}", interceptResult.getMessage(), sealCarCode, packageCode);
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                 return result;
             }
@@ -319,6 +321,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 调用运单接口获取包裹集合
             List<String> packageList = getPackageCodesByWaybillCode(waybillCode);
             if (CollectionUtils.isEmpty(packageList)) {
+                logger.error("运单卸车扫描--根据运单号查询包裹集合返回空:sealCarCode={},packageCode={}", sealCarCode, packageCode);
                 result.setCode(JdCResponse.CODE_FAIL);
                 result.setMessage("根据运单号查询包裹集合返回空");
                 return result;
@@ -330,9 +333,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 设置包裹数
             setPackageCount(result.getData());
         } catch (LoadIllegalException e) {
+            logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
             return result;
         } catch (Exception e) {
+            logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
         }
@@ -431,6 +436,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String key = CacheKeyConstants.REDIS_PREFIX_SEAL_WAYBILL + sealCarCode + Constants.SEPARATOR_HYPHEN + waybillCode;
         String isExistIntercept = redisClientCache.get(key);
         if (StringUtils.isNotBlank(isExistIntercept)) {
+            logger.warn("运单卸车扫描--该运单已经扫描过，请勿重复扫:sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
             result.setCode(JdCResponse.CODE_FAIL);
             result.setMessage("该运单已经扫描过，请勿重复扫！");
             return true;
@@ -440,12 +446,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 获取未扫包裹
             unScanPackageCount = getUnScanPackageCount(sealCarCode);
         }catch (LoadIllegalException e){
+            logger.error("运单卸车扫描--发生错误:sealCarCode={},packageCode={},error=", request.getSealCarCode(), request.getBarCode(), e);
             result.setCode(JdCResponse.CODE_FAIL);
             result.setMessage(e.getMessage());
             return true;
         }
         // 校验封车任务下是否已经全部扫描完
         if (unScanPackageCount <= 0 ) {
+            logger.warn("运单卸车扫描--没有未扫包裹，请操作完成卸车任务,sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
             result.setCode(JdCResponse.CODE_FAIL);
             result.setMessage(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE, sealCarCode));
             return true;
@@ -887,25 +895,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             String waybillCode = request.getWaybillCode();
             String sealCarCode = request.getSealCarCode();
-            int surplusCount = 0;
-            int scanCount;
 
             // 如果有多货包裹
             if (CollectionUtils.isNotEmpty(surplusPackages)) {
-                surplusCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT
+                updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_SURPLUS_PACKAGE_COUNT
                         .concat(sealCarCode), surplusPackages.size());
                 // 已扫 = 总包裹数 - 多扫
-                scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),
+                updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),
                         totalPackageNum - surplusPackages.size());
             } else {
                 // 已扫 = 总包裹数
-                scanCount = updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),
+                updateCache(CacheKeyConstants.REDIS_PREFIX_UNLOAD_SEAL_PACKAGE_COUNT.concat(sealCarCode),
                         totalPackageNum);
             }
             // 设置运单扫描记录
             String key = CacheKeyConstants.REDIS_PREFIX_SEAL_WAYBILL + sealCarCode + Constants.SEPARATOR_HYPHEN + waybillCode;
             redisClientCache.setEx(key, StringUtils.EMPTY,7,TimeUnit.DAYS);
-        }catch (Exception e){
+        } catch (Exception e) {
             logger.error("按运单卸车扫描处理异常,参数【{}】", JsonHelper.toJson(request), e);
         }
     }
@@ -1074,7 +1080,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @return 多货的包裹集合
      */
     private List<String> getSurplusPackageCodes(List<String> totalPackages, String sealCarCode, String waybillCode) {
-        List<String> list = new ArrayList<>();
         // 查询封车任务下指定运单下的所有包裹
         List<String> allPackage = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
         if(CollectionUtils.isEmpty(allPackage)){
