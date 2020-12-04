@@ -163,24 +163,28 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
             return null;
         }
         try {
-            MixedPackageConfig mixedPackageConfig = queryMixedSiteCode(request);
-            if(mixedPackageConfig == null){
+            Integer mixedSiteCode = queryMixedSiteCode(request);
+            if(mixedSiteCode == null){
                 logger.warn("始发【{}】目的【{}】未维护集包地!",request.getOriginalDmsCode(),request.getDestinationDmsCode());
                 return null;
             }
-            MixedSite mixedSite = new MixedSite();
-            mixedSite.setMixedSiteCode(mixedPackageConfig.getReceiveSiteCode());
-            mixedSite.setMixedSiteName(mixedPackageConfig.getReceiveSiteName());
-            String mixedSiteName;
-            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseSiteBySiteId(mixedPackageConfig.getReceiveSiteCode());
-            if(baseDto == null || StringUtils.isEmpty(baseDto.getDmsShortName())){
-                mixedSiteName = mixedPackageConfig.getReceiveSiteName();
-            }else {
-                mixedSiteName = baseDto.getDmsShortName();
-                mixedSite.setMixedSiteShortName(mixedSiteName);
+            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseSiteBySiteId(mixedSiteCode);
+            if(baseDto == null){
+                logger.warn("根据站点【{}】查询站点信息为空!",mixedSiteCode);
+                return null;
             }
-            if(StringUtils.isNotEmpty(mixedSiteName)){
-                mixedSite.setCollectionAddress(Constants.MIXED_SITE_NAME_PREFIX + mixedSiteName);
+            MixedSite mixedSite = new MixedSite();
+            mixedSite.setMixedSiteCode(mixedSiteCode);
+            mixedSite.setMixedSiteName(baseDto.getSiteName());
+            String collectionAddress;
+            if(StringUtils.isEmpty(baseDto.getDmsShortName())){
+                collectionAddress = baseDto.getSiteName();
+            }else {
+                collectionAddress = baseDto.getDmsShortName();
+                mixedSite.setMixedSiteShortName(collectionAddress);
+            }
+            if(StringUtils.isNotEmpty(collectionAddress)){
+                mixedSite.setCollectionAddress(Constants.MIXED_SITE_NAME_PREFIX + collectionAddress);
             }
             return mixedSite;
         }catch (Exception e){
@@ -194,24 +198,24 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
      * @param printQueryRequest
      * @return
      */
-    private MixedPackageConfig queryMixedSiteCode(PrintQueryRequest printQueryRequest) {
+    private Integer queryMixedSiteCode(PrintQueryRequest printQueryRequest) {
         MixedPackageConfigRequest mixedPackageConfig = new MixedPackageConfigRequest();
         mixedPackageConfig.setRuleType(RuleTypeEnum.BUILD_PACKAGE.getCode());
         mixedPackageConfig.setCreateSiteCode(printQueryRequest.getOriginalDmsCode());
         mixedPackageConfig.setMixedSiteCode(printQueryRequest.getDestinationDmsCode());
-        Integer receiveSiteCode = printQueryRequest.getDestinationDmsCode();
+        mixedPackageConfig.setReceiveSiteCode(printQueryRequest.getDestinationDmsCode());
         if(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
             mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
-            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
+            return getMixedSiteCodeByCondition(mixedPackageConfig);
         }
         if(TransportTypeEnum.AIR_TRANSPORT.getCode().equals(printQueryRequest.getTransportType())){
             mixedPackageConfig.setTransportType(printQueryRequest.getTransportType());
-            MixedPackageConfig mixedResult = getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
-            if(mixedResult != null){
-                return mixedResult;
+            Integer mixedSiteCode = getMixedSiteCodeByCondition(mixedPackageConfig);
+            if(mixedSiteCode != null){
+                return mixedSiteCode;
             }
             mixedPackageConfig.setTransportType(TransportTypeEnum.HIGHWAY_TRANSPORT.getCode());
-            return getMixedPackageConfig(receiveSiteCode, mixedPackageConfig);
+            return getMixedSiteCodeByCondition(mixedPackageConfig);
         }
         return null;
     }
@@ -220,18 +224,15 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
      * 根据条件查询集包地
      *  1、根据始发、集包地查询
      *  2、未查询到则根据始发、目的查询
-     * @param receiveSiteCode
      * @param mixedPackageConfig
      * @return
      */
-    private MixedPackageConfig getMixedPackageConfig(Integer receiveSiteCode, MixedPackageConfigRequest mixedPackageConfig) {
-        MixedPackageConfig mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
-        if(mixedPack == null){
-            mixedPackageConfig.setMixedSiteCode(null);
-            mixedPackageConfig.setReceiveSiteCode(receiveSiteCode);
-            mixedPack = mixedPackageConfigDao.queryMixedSite(mixedPackageConfig);
+    private Integer getMixedSiteCodeByCondition(MixedPackageConfigRequest mixedPackageConfig) {
+        Integer mixedSiteCode = mixedPackageConfigDao.queryMixedSiteByMixedSiteCode(mixedPackageConfig);
+        if(mixedSiteCode == null){
+            mixedSiteCode = mixedPackageConfigDao.queryMixedSiteByReceiveCode(mixedPackageConfig);
         }
-        return mixedPack;
+        return mixedSiteCode;
     }
 
 

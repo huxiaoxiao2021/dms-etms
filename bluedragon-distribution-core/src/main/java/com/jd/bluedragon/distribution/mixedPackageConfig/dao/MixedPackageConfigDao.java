@@ -52,7 +52,11 @@ public class MixedPackageConfigDao extends BaseDao<MixedPackageConfig> {
         return this.getSqlSession().selectList(namespace + ".queryConfigsForPrint",mixedPackageConfig);
     }
 
-    public MixedPackageConfig queryMixedSite(MixedPackageConfigRequest mixedPackageConfig) {
-        return this.getSqlSession().selectOne(namespace + ".queryMixedSite",mixedPackageConfig);
+    public Integer queryMixedSiteByReceiveCode(MixedPackageConfigRequest mixedPackageConfig) {
+        return this.getSqlSession().selectOne(namespace + ".queryMixedSiteByReceiveCode",mixedPackageConfig);
+    }
+
+    public Integer queryMixedSiteByMixedSiteCode(MixedPackageConfigRequest mixedPackageConfig) {
+        return this.getSqlSession().selectOne(namespace + ".queryMixedSiteByMixedSiteCode",mixedPackageConfig);
     }
 }
