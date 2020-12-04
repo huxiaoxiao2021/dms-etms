@@ -57,6 +57,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillPackageApi.getWaybillPackageCodes",mState={JProEnum.TP,JProEnum.FunctionError})
     public List<String> getWaybillPackageCodes(String waybillCode) {
         BaseEntity<List<String>> result = waybillPackageApi.getWaybillPackageCodes(waybillCode);
         if (result == null || result.getResultCode() != 1) {
