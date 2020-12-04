@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -36,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -205,6 +208,10 @@ public class WeightVolumeFilter implements Filter {
 
         //4.如果是全国有效,直接返回不拦截
         if(!funcSwitchConfigService.getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
+            //ucc 配置为1 全国不拦截  配置站点编码:
+            if(isNeedCheckBlack(uccPropertyConfiguration.getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
+                return  true;
+            }
             return false;
         }
 
@@ -216,5 +223,18 @@ public class WeightVolumeFilter implements Filter {
         }
 
         return  true;
+    }
+
+    private boolean isNeedCheckBlack(String uccStr, Integer siteCode) {
+        if (siteCode == null) {
+            return true;
+        }
+        if(StringUtils.isEmpty(uccStr)){
+            return true;
+        } else if ("1".equals(uccStr)) {
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(uccStr.split(Constants.SEPARATOR_COMMA));
+        return siteCodes.contains(String.valueOf(siteCode));
     }
 }

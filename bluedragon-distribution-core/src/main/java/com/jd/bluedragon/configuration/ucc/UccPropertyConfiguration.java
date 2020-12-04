@@ -192,6 +192,11 @@ public class UccPropertyConfiguration {
      */
     private int loadScanTaskPackageMaxSize;
 
+    /**
+     * 纯配外单 0重量拦截 黑名单 (在名单的拦截)
+     */
+    private String allPureValidateWeightWebSite;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -542,5 +547,13 @@ public class UccPropertyConfiguration {
 
     public void setRemoveEmptyBatchCode(String removeEmptyBatchCode) {
         this.removeEmptyBatchCode = removeEmptyBatchCode;
+    }
+
+    public String getAllPureValidateWeightWebSite() {
+        return allPureValidateWeightWebSite;
+    }
+
+    public void setAllPureValidateWeightWebSite(String allPureValidateWeightWebSite) {
+        this.allPureValidateWeightWebSite = allPureValidateWeightWebSite;
     }
 }
