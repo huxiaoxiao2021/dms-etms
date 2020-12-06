@@ -882,7 +882,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	public Integer getMappingSite(Waybill waybill,BaseStaffSiteOrgDto perSite) {
 		Integer perSiteCode = waybill.getOldSiteId();
 		if(perSite == null){
-			baseMajorManager.getBaseSiteBySiteId(perSiteCode);
+			perSite = baseMajorManager.getBaseSiteBySiteId(perSiteCode);
 		}
 		if(perSite != null){
 			//根据三方-合作站点获取三方-合作站点所属自营站点
