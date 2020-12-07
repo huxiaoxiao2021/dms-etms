@@ -30,6 +30,6 @@ public interface DMSSendCodeJSFService {
      * @param createUser 创建人
      * @return 返回创建出来的批次
      */
-    InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum,Object> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser);
+    InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum,String> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser);
 
 }

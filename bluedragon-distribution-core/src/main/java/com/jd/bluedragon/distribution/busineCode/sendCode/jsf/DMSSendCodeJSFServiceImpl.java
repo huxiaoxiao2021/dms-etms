@@ -63,7 +63,7 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
     }
 
     @Override
-    public InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, Object> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser) {
+    public InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
 
