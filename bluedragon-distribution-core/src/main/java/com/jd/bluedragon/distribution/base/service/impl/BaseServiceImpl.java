@@ -889,7 +889,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			return getSiteSelfDBySiteCode(perSiteCode);
 		}
 		//根据三方-合作站点获取三方-合作站点所属自营站点
-		if(BusinessUtil.isMayBelongSiteExist(perSite.getSiteType(),perSite.getSubType())) {
+		if(perSite != null && BusinessUtil.isMayBelongSiteExist(perSite.getSiteType(),perSite.getSubType())) {
 			return baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 		}
 		return null;
