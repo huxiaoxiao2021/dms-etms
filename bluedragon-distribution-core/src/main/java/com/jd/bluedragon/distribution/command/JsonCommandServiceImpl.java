@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.command;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.annotation.JProEnum;
@@ -17,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,6 +52,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		encryptedInfo.add("senderCompany");//寄件人公司
 		encryptedInfo.add("consigneeCompany");//寄件人公司
 	}
+
+
 
 	/**
 	 * json格式的指令集配置
@@ -93,6 +96,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		String jsonResponse = JsonHelper.toJson(jdResult);
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
+		//写入安全日志
+		this.writeSecurityLog(jdCommand);
 
 		return jsonResponse;
 	}
@@ -159,5 +164,21 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			jsonObject.put(fieldName,null);
 		}
 		return jsonObject.toJSONString();
+	}
+
+	/**
+	 * 写入安全日志
+	 * @param jsonCommand
+	 */
+	private void writeSecurityLog(JdCommand<String> jsonCommand){
+		try{
+			//构建参数
+			WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
+			if (null == waybillPrintRequest) return;
+			//打印日志
+			SecurityLog.reportSecurityLog(JsonCommandServiceImpl.class.getName(),waybillPrintRequest.getUserERP(),waybillPrintRequest.getBarCode());
+		}catch (Exception ex){
+			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
+		}
 	}
 }
