@@ -255,7 +255,7 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         String key = String.format(keyTemplate, transPlanCode);
         boolean isExistHandling = redisClientCache.exists(key);
         if(isExistHandling){
-            throw new RuntimeException("操作太快，正在处理中");
+            throw new RuntimeException("获取或生成批次失败，操作太快，正在处理中");
         }
         try{
             redisClientCache.setEx(key, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS);
@@ -270,7 +270,7 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             }
         } catch (Exception e){
             log.error("getOrGenerateSendCode exception: ", e);
-            return null;
+            throw new RuntimeException("获取或生成批次失败");
         }finally {
             redisClientCache.del(key);
         }

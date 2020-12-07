@@ -52,7 +52,7 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 		EXCELL_HEADS.add("最新换单时间");
 		EXCELL_HEADS.add("商家ID");
 		EXCELL_HEADS.add("商家名称");
-		EXCELL_HEADS.add("事业部编码");
+		EXCELL_HEADS.add("签约区域");
 		EXCELL_HEADS.add("此时是否已维护退货信息");
 		EXCELL_HEADS.add("退货量");
 	}
