@@ -109,6 +109,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * */
     private static final Integer CODE_SUCCESS_HIT = 201;
 
+    public static final String UNLOAD_SCAN_LOCK_BEGIN = "UNLOAD_SCAN_LOCK_";
+
+    private final static int WAYBILL_LOCK_TIME = 120;
+
     @Value("${unload.board.bindings.count.max:50}")
     private Integer unloadBoardBindingsMaxCount;
 
@@ -304,6 +308,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         request.setWaybillCode(waybillCode);
 
         try {
+            // 获取锁
+            if (!lock(sealCarCode, waybillCode)) {
+                logger.warn("大宗批量卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", sealCarCode, packageCode);
+                result.setCode(JdCResponse.CODE_FAIL);
+                result.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
+                return result;
+            }
             // 运单是否扫描成功
             if (checkWaybillScanIsRepeat(request, result)) {
                 return result;
@@ -340,6 +351,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
+        } finally {
+            // 释放锁
+            unLock(sealCarCode, waybillCode);
         }
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         return result;
@@ -1703,5 +1717,29 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
         // 查询当前扫描人所在场地是否有验货权限
         return funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+    }
+
+    private boolean lock(String sealCarCode, String waybillCode) {
+        String lockKey = UNLOAD_SCAN_LOCK_BEGIN + sealCarCode + "_" + waybillCode;
+        logger.info("开始获取锁lockKey={}", lockKey);
+        try {
+            if (!jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, WAYBILL_LOCK_TIME, TimeUnit.SECONDS)) {
+                Thread.sleep(100);
+                return jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, WAYBILL_LOCK_TIME, TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            logger.error("卸车扫描unLock异常:sealCarCode={},waybillCode={},e=", sealCarCode, waybillCode, e);
+            jimdbCacheService.del(lockKey);
+        }
+        return true;
+    }
+
+    private void unLock(String sealCarCode, String waybillCode) {
+        try {
+            String lockKey = UNLOAD_SCAN_LOCK_BEGIN + sealCarCode + "_" + waybillCode;
+            jimdbCacheService.del(lockKey);
+        } catch (Exception e) {
+            logger.error("卸车扫描unLock异常:sealCarCode={},waybillCode={},e=", sealCarCode, waybillCode, e);
+        }
     }
 }
