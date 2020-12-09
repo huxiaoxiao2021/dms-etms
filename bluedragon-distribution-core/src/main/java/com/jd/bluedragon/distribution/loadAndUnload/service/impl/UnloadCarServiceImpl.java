@@ -206,7 +206,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         // 判断当前扫描人员是否有按单操作权限
         if (hasInspectFunction(request.getOperateSiteCode())) {
             logger.info("卸车扫描1：获取到了大宗权限request={}", JsonHelper.toJson(request));
-            unloadCarScanResult.setWaybillAuthority(1);
+            unloadCarScanResult.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
         }
         setPackageCount(unloadCarScanResult);
         result.setData(unloadCarScanResult);

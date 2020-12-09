@@ -503,7 +503,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (hasSendFunction(createSiteId)) {
             log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
             // 开放大宗权限
-            scanDetailDto.setWaybillAuthority(1);
+            scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
         }
 
         if (CollectionUtils.isEmpty(tempList)) {
