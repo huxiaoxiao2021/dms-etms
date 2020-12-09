@@ -237,8 +237,6 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 
 	private void sortScheduleInfoByStorageCodes(List<DmsScheduleInfo> dmsScheduleInfoList){
 		if(org.apache.commons.collections.CollectionUtils.isNotEmpty(dmsScheduleInfoList)){
-			//获取中文环境
-			Comparator comparator = Collator.getInstance(Locale.CHINA);
 			//进行排序
 			Collections.sort(dmsScheduleInfoList, new Comparator<DmsScheduleInfo>() {
 				@Override
