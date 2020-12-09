@@ -1773,8 +1773,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     private boolean hasSendFunction(Integer createSiteId, String userErp) {
         // 查询当前扫描人是否有按单操作权限
         FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
-        // 场地维度
-        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 指定站点
         switchConfigDto.setSiteCode(createSiteId);
         switchConfigDto.setOperateErp(userErp);

@@ -404,8 +404,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
     @Override
     public boolean checkIsConfiguredBySiteOrPerson(FuncSwitchConfigDto dto) {
-        if(dto == null || dto.getMenuCode() == null
-                || dto.getDimensionCode() == null || dto.getSiteCode() == null){
+        if(dto == null || dto.getMenuCode() == null || dto.getSiteCode() == null){
             return false;
         }
         return funcSwitchConfigDao.selectConfiguredCountBySiteOrPerson(dto) > 0;
