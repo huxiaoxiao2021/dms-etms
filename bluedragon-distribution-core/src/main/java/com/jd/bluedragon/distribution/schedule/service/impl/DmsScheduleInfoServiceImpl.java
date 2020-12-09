@@ -238,21 +238,36 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	private void SortScheduleInfoByStorageCodes(DmsEdnPickingVo dmsEdnPickingVo){
 		logger.info("DmsScheduleInfoServiceImpl.SortScheduleInfoByStorageCodes 排序前：{}"+JsonHelper.toJson(dmsEdnPickingVo));
 		List<DmsScheduleInfo> dmsScheduleInfoList = dmsEdnPickingVo.getDmsScheduleInfoList();
+		List<DmsScheduleInfo> newDmsScheduleInfoList = new ArrayList<>();
+		List<DmsScheduleInfo> notNullDmsScheduleInfoList = null;
+		List<DmsScheduleInfo> nullDmsScheduleInfoList = null;
+
 		if(org.apache.commons.collections.CollectionUtils.isNotEmpty(dmsScheduleInfoList)){
-			//获取中文环境
-			Comparator comparator = Collator.getInstance(Locale.CHINA);
-			//进行排序
-			Collections.sort(dmsScheduleInfoList, (p1, p2) -> {
-				if(StringUtils.isNotEmpty(p1.getStorageCodes()) && StringUtils.isNotEmpty(p2.getStorageCodes())){
-					return -(comparator.compare(p2.getStorageCodes(), p1.getStorageCodes()));
-				}
-				return  1;
-			});
-			int rowNum = 1;
+			notNullDmsScheduleInfoList = new ArrayList<>();
+			nullDmsScheduleInfoList = new ArrayList<>();
 			for(DmsScheduleInfo dmsScheduleInfo : dmsScheduleInfoList){
+				if(null != dmsScheduleInfo && StringUtils.isNotEmpty(dmsScheduleInfo.getStorageCodes())){
+					notNullDmsScheduleInfoList.add(dmsScheduleInfo);
+				}else {
+					nullDmsScheduleInfoList.add(dmsScheduleInfo);
+				}
+			}
+			if(org.apache.commons.collections.CollectionUtils.isNotEmpty(notNullDmsScheduleInfoList)){
+				//获取中文环境
+				Comparator comparator = Collator.getInstance(Locale.CHINA);
+				//进行排序
+				Collections.sort(notNullDmsScheduleInfoList, (p1, p2) -> {
+					return comparator.compare(p1.getStorageCodes(), p2.getStorageCodes());
+				});
+			}
+			newDmsScheduleInfoList.addAll(notNullDmsScheduleInfoList);
+			newDmsScheduleInfoList.addAll(nullDmsScheduleInfoList);
+			int rowNum = 1;
+			for(DmsScheduleInfo dmsScheduleInfo : newDmsScheduleInfoList){
 				dmsScheduleInfo.setRowNum(rowNum ++);;
 			}
 		}
+		dmsEdnPickingVo.setDmsScheduleInfoList(newDmsScheduleInfoList);
 		logger.info("DmsScheduleInfoServiceImpl.SortScheduleInfoByStorageCodes 排序后：{}"+JsonHelper.toJson(dmsEdnPickingVo));
 	}
 
