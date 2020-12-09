@@ -391,7 +391,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 // 预分拣站点
                 Integer siteCode = waybill.getOldSiteId();
                 if (siteCode != null && siteCode.intValue() != 0) {
-                    Integer selfSite = baseService.getMappingSite(waybill,null);
+                    Integer selfSite = baseService.getMappingSite(siteCode);
                     if(selfSite != null){
                         siteCode = selfSite;
                     }

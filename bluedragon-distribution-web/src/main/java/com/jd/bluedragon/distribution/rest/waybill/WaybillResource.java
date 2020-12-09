@@ -1534,7 +1534,7 @@ public class WaybillResource {
 		} else if (2 == request.getOperateType()) {
 			/* 按龙门架时需要先获取大小站逻辑 */
 			Integer receiveSite = siteCode;
-			Integer selfSite = baseService.getMappingSite(waybill,null);
+			Integer selfSite = baseService.getMappingSite(siteCode);
 			if(selfSite != null ){
 				receiveSite = selfSite;
 			}

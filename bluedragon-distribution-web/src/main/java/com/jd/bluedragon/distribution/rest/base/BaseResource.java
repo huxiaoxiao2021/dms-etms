@@ -970,7 +970,7 @@ public class BaseResource {
 				siteCodes.add(perSiteCode);
 				BaseStaffSiteOrgDto perSite = baseMajorManager.getBaseSiteBySiteId(perSiteCode);
 				if(perSite!=null){
-					Integer selfSite = baseService.getMappingSite(waybill,perSite);
+					Integer selfSite = baseService.getMappingSite(waybill.getOldSiteId());
 					if(selfSite!=null){
 						siteCodes.add(selfSite);
 					}

@@ -875,17 +875,14 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	 * <p>
 	 * 返回所属自营站点
 	 *
-	 * @param waybill
+	 * @param smallSiteCode
 	 * @return
 	 */
 	@Override
-	public Integer getMappingSite(Waybill waybill,BaseStaffSiteOrgDto perSite) {
-		Integer perSiteCode = waybill.getOldSiteId();
-		if(perSite == null){
-			perSite = baseMajorManager.getBaseSiteBySiteId(perSiteCode);
-		}
+	public Integer getMappingSite(Integer smallSiteCode) {
+		if (null == smallSiteCode)return null;
 		//自提柜所属站点
-		Integer resultSiteCode = baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
+		Integer resultSiteCode = baseMajorManager.getPartnerSiteBySiteId(smallSiteCode);
 		if (-1 != resultSiteCode){
 			return resultSiteCode;
 		}

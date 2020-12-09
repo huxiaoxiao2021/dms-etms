@@ -250,9 +250,9 @@ public interface BaseService{
 	 * 获取运单大小站逻辑
 	 *
 	 * 返回所属自营站点
-	 * @param waybill
+	 * @param smallSiteCode
 	 * @return
 	 */
-	Integer getMappingSite(Waybill waybill,BaseStaffSiteOrgDto perSite);
+	Integer getMappingSite(Integer smallSiteCode);
 
 }
