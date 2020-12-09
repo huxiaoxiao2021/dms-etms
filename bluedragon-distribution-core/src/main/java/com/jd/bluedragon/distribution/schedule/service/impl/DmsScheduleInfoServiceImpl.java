@@ -196,7 +196,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
 			//储位排序
-			SortScheduleInfoByStorageCodes(dmsEdnPickingVo.getDmsScheduleInfoList());
+			sortScheduleInfoByStorageCodes(dmsEdnPickingVo.getDmsScheduleInfoList());
 			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
 			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
@@ -235,20 +235,23 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		return printResult;
 	}
 
-	private void SortScheduleInfoByStorageCodes(List<DmsScheduleInfo> dmsScheduleInfoList){
+	private void sortScheduleInfoByStorageCodes(List<DmsScheduleInfo> dmsScheduleInfoList){
 		if(org.apache.commons.collections.CollectionUtils.isNotEmpty(dmsScheduleInfoList)){
 			//获取中文环境
 			Comparator comparator = Collator.getInstance(Locale.CHINA);
 			//进行排序
-			Collections.sort(dmsScheduleInfoList, (p1, p2) -> {
-				if(null == p1.getStorageCodes() && null ==  p2.getStorageCodes()){
-					return 0;
-				}else if(null == p1.getStorageCodes()){
-					return 1;
-				}else if(null == p2.getStorageCodes()){
-					return -1;
-				}else {
-					return comparator.compare(p1.getStorageCodes(), p2.getStorageCodes());
+			Collections.sort(dmsScheduleInfoList, new Comparator<DmsScheduleInfo>() {
+				@Override
+				public int compare(DmsScheduleInfo p1, DmsScheduleInfo p2) {
+					if(null == p1.getStorageCodes() && null ==  p2.getStorageCodes()){
+						return 0;
+					}else if(null == p1.getStorageCodes()){
+						return 1;
+					}else if(null == p2.getStorageCodes()){
+						return -1;
+					}else {
+						return comparator.compare(p1.getStorageCodes(), p2.getStorageCodes());
+					}
 				}
 			});
 		}
