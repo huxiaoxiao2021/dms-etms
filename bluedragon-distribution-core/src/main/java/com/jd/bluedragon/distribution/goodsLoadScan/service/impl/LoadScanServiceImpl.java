@@ -787,7 +787,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             loadScan.setTaskId(taskId);
             loadScan.setWayBillCode(waybillCode);
             // 计算已装、未装
-            loadScan.setLoadAmount(packageList.size());
+            loadScan.setLoadAmount(insertRecords.size() + updateRecords.size());
             // 按运单暂存，库存有多少就装多少，未装永远等于0
             loadScan.setUnloadAmount(0);
             // 按运单暂存，永远是装齐状态，运单颜色为绿色
