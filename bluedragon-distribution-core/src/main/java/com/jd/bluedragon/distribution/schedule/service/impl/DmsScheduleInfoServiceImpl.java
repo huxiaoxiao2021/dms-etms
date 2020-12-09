@@ -250,7 +250,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 					}else if(null == p2.getStorageCodes()){
 						return -1;
 					}else {
-						return comparator.compare(p1.getStorageCodes(), p2.getStorageCodes());
+						return p1.getStorageCodes().compareTo(p2.getStorageCodes());
 					}
 				}
 			});
