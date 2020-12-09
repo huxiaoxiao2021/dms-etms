@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.schedule.service.impl;
 
+import java.text.Collator;
 import java.util.*;
 
 import com.google.common.collect.Lists;
@@ -194,6 +195,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		DmsEdnPickingVo dmsEdnPickingVo = this.queryDmsEdnPickingVo(scheduleBillCode);
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
+			//储位排序
+			SortScheduleInfoByStorageCodes(dmsEdnPickingVo);
 			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
 			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
@@ -230,6 +233,27 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			printResult.toFail("调度单不存在！");
 		}
 		return printResult;
+	}
+
+	private void SortScheduleInfoByStorageCodes(DmsEdnPickingVo dmsEdnPickingVo){
+		logger.info("DmsScheduleInfoServiceImpl.SortScheduleInfoByStorageCodes 排序前：{}"+JsonHelper.toJson(dmsEdnPickingVo));
+		List<DmsScheduleInfo> dmsScheduleInfoList = dmsEdnPickingVo.getDmsScheduleInfoList();
+		if(org.apache.commons.collections.CollectionUtils.isNotEmpty(dmsScheduleInfoList)){
+			//获取中文环境
+			Comparator comparator = Collator.getInstance(Locale.CHINA);
+			//进行排序
+			Collections.sort(dmsScheduleInfoList, (p1, p2) -> {
+				if(StringUtils.isNotEmpty(p1.getStorageCodes()) && StringUtils.isNotEmpty(p2.getStorageCodes())){
+					return -(comparator.compare(p2.getStorageCodes(), p1.getStorageCodes()));
+				}
+				return  1;
+			});
+			int rowNum = 1;
+			for(DmsScheduleInfo dmsScheduleInfo : dmsScheduleInfoList){
+				dmsScheduleInfo.setRowNum(rowNum ++);;
+			}
+		}
+		logger.info("DmsScheduleInfoServiceImpl.SortScheduleInfoByStorageCodes 排序后：{}"+JsonHelper.toJson(dmsEdnPickingVo));
 	}
 
 	@Override
