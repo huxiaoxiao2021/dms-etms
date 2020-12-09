@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
-import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -21,7 +19,6 @@ import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -42,10 +39,13 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.tms.basic.dto.BasicDictDto;
+import com.jd.tms.basic.dto.CarrierDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,10 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	private UserVerifyManager userVerifyManager;
 
     @Autowired
-	private VtsQueryWS vtsQueryWS;
+	private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+	private BasicSelectWsManager basicSelectWsManager;
 
 	@Autowired
 	@Qualifier("thirdValidateService")
@@ -326,7 +329,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	}
 	
 	/**
-	 * vtsQueryWS.getDictList()接口，获取字典数据
+	 * basicQueryWSManager.getDictList()接口，获取字典数据
 	 * add by lhc
 	 * 2016.9.1
 	 */
@@ -336,15 +339,16 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		try {
 			ArrayList<DictDto> resultal = new ArrayList<DictDto>();
 			for (Integer typeGroup : typeGroups) {
-				log.info("调用vtsQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
+				log.info("调用basicQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
 				List<DictDto> dictDtoList = new ArrayList<DictDto>();
 				String typeGroupStr = String.valueOf(typeGroup);
-				CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(typeGroupStr, 2, typeGroupStr);
-				dictDtoList = commonDtoList.getData();
-				if (dictDtoList != null && dictDtoList.size() > 0) {
+				List<BasicDictDto> commonDtoList = basicQueryWSManager.getDictList(typeGroupStr, 2, typeGroupStr);
+				if (!CollectionUtils.isEmpty(commonDtoList)) {
 					resultal.addAll(dictDtoList);
 				}else{
-					log.info("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+					if(log.isInfoEnabled()){
+						log.info("请求basicQueryWS.getDictList()接口服务成功，获取字典数据为空！");
+					}
 				}
 			}
 			return resultal.toArray(new DictDto[0]);
@@ -357,7 +361,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			String stypeGroup = sb.toString();
 			stypeGroup = typeGroups.size() > 0 ? stypeGroup.substring(0, stypeGroup.length() - 1)
 			        : stypeGroup;
-			log.error("调用vtsQueryWS.getDictList()异常，待查询类型为：{}" , stypeGroup, e);
+			log.error("调用basicQueryWSManager.getDictList()异常，待查询类型为：{}" , stypeGroup, e);
 		}
 		return null;
 	}
@@ -367,17 +371,16 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	 * add by lhc
 	 * 2016.9.1
 	 */
-	public List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto){
+	public List<CarrierDto> getCarrierInfoList(CarrierDto carrierDto){
 		try{
-			CommonDto<List<CarrierInfo>> commonDtoList = vtsQueryWS.getCarrierInfoList(carrierParamDto);
-			List<CarrierInfo> carrierInfoList = commonDtoList.getData();
-			if (carrierInfoList != null && carrierInfoList.size() > 0) {
-				return carrierInfoList;
+			List<CarrierDto> commonDtoList = basicSelectWsManager.getCarrierInfoList(carrierDto);
+			if (!CollectionUtils.isEmpty(commonDtoList)) {
+				return commonDtoList;
 			}else{
-				log.warn("请求vtsQueryWS.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierParamDto));
+				log.warn("请求basicSelectWsManager.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierDto));
 			}
 		}catch(Exception e){
-			log.error("调用vtsQueryWS.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierParamDto), e);
+			log.error("调用basicSelectWsManager.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierDto), e);
 		}
 		return null;
 	}

@@ -2,12 +2,12 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vts.dto.CarrierParamDto;
+import com.jd.tms.basic.dto.CarrierDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.BasicSelectWS;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -79,6 +79,58 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
             }
         }catch (Exception e){
             logger.error("运力编码分页接口请求异常,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto),e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return result;
+    }
+
+
+    /**
+     * 根据条件获取已启用承运商(配送的已从Basic获取，仓储的仍从VTS获取)
+     * @param carrierDto
+     */
+    public List<CarrierDto> getCarrierInfoList(CarrierDto carrierDto){
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageCarrier", false, true);
+        // 返回承运商列表
+        List<CarrierDto>  result = new ArrayList<>();
+
+        //请求参数
+        PageDto<CarrierDto> page = new PageDto<>();
+        page.setCurrentPage(1);
+        page.setPageSize(1000);
+        try {
+            if(logger.isInfoEnabled()){
+                logger.info("调用运输运力数据分页接口入参page:{},carrierDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
+            }
+            CommonDto<PageDto<CarrierDto>>  commonDto = basicSelectWs.queryPageCarrier(page,carrierDto);
+            if(commonDto==null|| commonDto.getData()==null){
+                logger.error("调用运输 获取承运商信息接口 为空; 入参page:{},carrierDto",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
+                return null;
+            }
+            if(commonDto.getCode() != Constants.RESULT_SUCCESS){
+                logger.error("BasicSelectWS.queryPageCarrier return message{}, 入参page:{},carrierDto",commonDto.getMessage(),JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
+                return null;
+            }
+            page = commonDto.getData();
+            if(!CollectionUtils.isEmpty(page.getResult())){
+                result.addAll(page.getResult());
+            }
+            if (page.getTotalPage() > 1) {
+                for(int i = 2; i <= page.getTotalPage(); ++i) {
+                    PageDto<CarrierDto> temp = new PageDto();
+                    temp.setCurrentPage(i);
+                    temp.setPageSize(1000);
+                    CommonDto<PageDto<CarrierDto>> commonTempDto  = basicSelectWs.queryPageCarrier(temp,carrierDto);
+                    if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
+                        logger.warn("BasicSelectWS.queryPageCarrier return error! 入参carrierDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(carrierDto),JsonHelper.toJsonMs(commonDto));
+                    } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
+                        result.addAll(commonTempDto.getData().getResult());
+                    }
+                }
+            }
+        }catch (Exception e){
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);

@@ -7,6 +7,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -18,13 +19,9 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarResultDto;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
@@ -40,9 +37,8 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.fastjson.JSONObject;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -67,9 +63,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Autowired
 	private VosBusinessWS vosBusinessWS;
-
-	@Autowired
-	private VtsQueryWS vtsQueryWS;
 
 	@Autowired
 	private TfcQueryWS tfcQueryWS;
@@ -111,6 +104,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private SendDetailService sendDetailService;
+
+    @Autowired
+    private CarrierQueryWSManager carrierQueryWSManager;
 
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
@@ -627,8 +623,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
-		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
+	public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode) {
+		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
 
