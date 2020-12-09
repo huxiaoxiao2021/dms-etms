@@ -204,7 +204,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCarScanResult unloadCarScanResult = new UnloadCarScanResult();
         unloadCarScanResult.setSealCarCode(request.getSealCarCode());
         // 判断当前扫描人员是否有按单操作权限
-        if (hasInspectFunction(request.getOperateSiteCode())) {
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
             logger.info("卸车扫描1：获取到了大宗权限request={}", JsonHelper.toJson(request));
             unloadCarScanResult.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
         }
@@ -1708,18 +1708,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     /**
      * 【工具】-【功能开关配置】-【验货】名单，判断PDA登录ERP或登录ERP所属场地是否有配置验货白名单
      */
-    private boolean hasInspectFunction(Integer createSiteId) {
+    private boolean hasInspectFunction(Integer createSiteId, String userErp) {
         FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
-        // 场地维度
-        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 指定站点
         switchConfigDto.setSiteCode(createSiteId);
         // 验货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
+        // 操作人erp
+        switchConfigDto.setOperateErp(userErp);
         // 查询当前扫描人所在场地是否有验货权限
-        logger.info("获取到了大宗权限switchConfigDto={}", JsonHelper.toJson(switchConfigDto));
-        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
-        return flag;
+        return funcSwitchConfigService.checkIsConfiguredBySiteOrPerson(switchConfigDto);
     }
 
     private boolean lock(String sealCarCode, String waybillCode) {

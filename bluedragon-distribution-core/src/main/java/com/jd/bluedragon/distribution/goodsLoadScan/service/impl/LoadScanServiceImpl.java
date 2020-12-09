@@ -465,6 +465,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     public JdCResponse<LoadScanDetailDto> goodsLoadingScan(GoodsLoadingScanningReq req) {
         JdCResponse<LoadScanDetailDto> response = new JdCResponse<>();
         Long taskId = req.getTaskId();
+        User user = req.getUser();
         // 根据任务号查找当前任务所在网点和下一网点
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
         if (loadCar == null) {
@@ -500,7 +501,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
         // 如果场地配置了发货白名单
         log.info("开始获取大宗权限taskId={},createSiteId={}", taskId, createSiteId);
-        if (hasSendFunction(createSiteId)) {
+        if (hasSendFunction(createSiteId, user.getUserErp())) {
             log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
             // 开放大宗权限
             scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
@@ -1769,18 +1770,17 @@ public class LoadScanServiceImpl implements LoadScanService {
     /**
      * 【工具】-【功能开关配置】-【发货】名单，判断PDA登录ERP或登录ERP所属场地是否有配置发货白名单
      */
-    private boolean hasSendFunction(Integer createSiteId) {
+    private boolean hasSendFunction(Integer createSiteId, String userErp) {
         // 查询当前扫描人是否有按单操作权限
         FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
         // 场地维度
         switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 指定站点
         switchConfigDto.setSiteCode(createSiteId);
+        switchConfigDto.setOperateErp(userErp);
         // 发货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_SEND.getCode());
-        log.info("获取到了大宗权限switchConfigDto={}", JsonHelper.toJson(switchConfigDto));
-        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
-        return flag;
+        return funcSwitchConfigService.checkIsConfiguredBySiteOrPerson(switchConfigDto);
     }
 
 

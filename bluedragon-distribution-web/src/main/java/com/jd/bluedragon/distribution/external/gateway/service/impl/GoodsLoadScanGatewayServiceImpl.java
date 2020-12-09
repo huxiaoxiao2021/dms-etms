@@ -424,8 +424,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req) {
 
         JdCResponse<Void> response = new JdCResponse<>();
-        if (req == null || req.getTaskId() == null) {
-            log.warn("扫描批次号--任务ID为空");
+        if (req == null || req.getTaskId() == null || req.getUser() == null) {
+            log.warn("扫描批次号--参数为空");
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("参数为空");
             return response;

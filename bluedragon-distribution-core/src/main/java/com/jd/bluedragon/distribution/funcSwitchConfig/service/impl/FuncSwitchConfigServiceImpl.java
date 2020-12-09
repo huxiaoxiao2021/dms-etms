@@ -402,6 +402,15 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
     }
 
+    @Override
+    public boolean checkIsConfiguredBySiteOrPerson(FuncSwitchConfigDto dto) {
+        if(dto == null || dto.getMenuCode() == null
+                || dto.getDimensionCode() == null || dto.getSiteCode() == null){
+            return false;
+        }
+        return funcSwitchConfigDao.selectConfiguredCountBySiteOrPerson(dto) > 0;
+    }
+
     /**
      * 调用分拣机批量接口
      */
