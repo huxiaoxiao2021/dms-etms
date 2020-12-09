@@ -499,7 +499,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
         // 如果场地配置了发货白名单
+        log.info("开始获取大宗权限taskId={},createSiteId={}", taskId, createSiteId);
         if (hasSendFunction(createSiteId)) {
+            log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
             // 开放大宗权限
             scanDetailDto.setWaybillAuthority(1);
         }
@@ -1776,7 +1778,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         switchConfigDto.setSiteCode(createSiteId);
         // 发货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_SEND.getCode());
-        return funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        log.info("获取到了大宗权限switchConfigDto={}", JsonHelper.toJson(switchConfigDto));
+        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        return flag;
     }
 
 

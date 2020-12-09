@@ -205,6 +205,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCarScanResult.setSealCarCode(request.getSealCarCode());
         // 判断当前扫描人员是否有按单操作权限
         if (hasInspectFunction(request.getOperateSiteCode())) {
+            logger.info("卸车扫描1：获取到了大宗权限request={}", JsonHelper.toJson(request));
             unloadCarScanResult.setWaybillAuthority(1);
         }
         setPackageCount(unloadCarScanResult);
@@ -1716,7 +1717,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         // 验货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
         // 查询当前扫描人所在场地是否有验货权限
-        return funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        logger.info("获取到了大宗权限switchConfigDto={}", JsonHelper.toJson(switchConfigDto));
+        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        return flag;
     }
 
     private boolean lock(String sealCarCode, String waybillCode) {
