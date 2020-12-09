@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
@@ -26,14 +27,10 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import com.jd.etms.vts.proxy.VtsQueryWSProxy;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -52,15 +49,15 @@ public class SiteServiceImpl implements SiteService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private BaseMinorManager baseMinorManager;
-    @Autowired
-    private VtsQueryWS vtsQueryWS;
-    @Autowired
-    private VtsQueryWSProxy vtsQueryWSProxy;
+
     @Autowired
     private SysConfigService sysConfigService;
 
     @Autowired
     private BasicSelectWsManager basicSelectWsManager;
+
+    @Autowired
+    private CarrierQueryWSManager carrierQueryWSManager;
 
     @Autowired
     private SiteDao siteDao;
@@ -79,7 +76,7 @@ public class SiteServiceImpl implements SiteService {
     //车辆管理系统获取运力编码
     @Override
     public RouteTypeResponse getCapacityCodeInfo(String capacityCode) {
-        CommonDto<VtsTransportResourceDto> vtsDto = vtsQueryWS.getTransportResourceByTransCode(capacityCode);
+        CommonDto<TransportResourceDto> vtsDto = carrierQueryWSManager.getTransportResourceByTransCode(capacityCode);
         RouteTypeResponse base = new RouteTypeResponse();
         if (vtsDto == null) {    //JSF接口返回空
             base.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -87,14 +84,14 @@ public class SiteServiceImpl implements SiteService {
             return base;
         }
         if (Constants.RESULT_SUCCESS == vtsDto.getCode()) { //JSF接口调用成功
-            VtsTransportResourceDto vtrd = vtsDto.getData();
+            TransportResourceDto vtrd = vtsDto.getData();
             if (vtrd != null) {
                 base.setSiteCode(vtrd.getEndNodeId());
                 base.setSendUserType(vtrd.getTransType());
-                base.setDriverId(vtrd.getCarrierId());
-                base.setRouteType(vtrd.getRouteType()); // 增加运输类型返回值
+                base.setDriverId(Integer.valueOf(vtrd.getCarrierCode()));//承运商id
+                base.setRouteType(vtrd.getTransType()); // 增加运输类型返回值
                 base.setDriver(vtrd.getCarrierName());
-                base.setTransWay(vtrd.getTransMode());
+                base.setTransWay(vtrd.getTransWay());
                 base.setCarrierType(vtrd.getTransType());
                 base.setCode(JdResponse.CODE_OK);
                 base.setMessage(JdResponse.MESSAGE_OK);

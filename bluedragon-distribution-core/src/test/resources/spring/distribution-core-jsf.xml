@@ -70,27 +70,30 @@
                   interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
                   alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+
     <jsf:consumer id="cancelWaybillJsfService"
                   interface="com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService"
                   alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
-    <!--运力编码新接口 2020.11.18 徐章旺-->
+    <!--运力编码新接口start 2020.11.18 徐章旺,李胜涛  -->
     <jsf:consumer id="basicSelectWS" interface="com.jd.tms.basic.ws.BasicSelectWS" protocol="jsf" alias="${basicSelectWs.jsf.alias}"
                   timeout="${basicSelectWs.jsf.timeout}" retries="${jsf.retries}" serialization="hessian" >
     </jsf:consumer>
 
-    <!--<bean id="basicSelectWsManager" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl">
-        <property name="basicSelectWsManager" ref="basicSelectWS"></property>
-    </bean>-->
-
-   <!-- <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
+    <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
                   alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>-->
+    </jsf:consumer>
+
+    <jsf:consumer id="carrierQueryWS" interface="com.jd.tms.basic.ws.CarrierQueryWS" protocol="jsf"
+                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!--运输接口  end-->
 
     <!-- 订单 协商再投 刘春和  -->
     <jsf:consumer id="abnormalOrderApi" interface="com.jd.ldop.business.api.AbnormalOrderApi" protocol="jsf"

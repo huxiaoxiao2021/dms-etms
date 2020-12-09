@@ -14,6 +14,7 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.CarrierDto;
 
 import java.util.List;
 import java.util.Map;
@@ -72,10 +73,10 @@ public interface BaseService{
 	
 	/**
 	 * 承运商列表
-	 * @param carrierParamDto
+	 * @param carrierDto
 	 * @return
 	 */
-	List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto);
+	List<CarrierDto> getCarrierInfoList(CarrierDto carrierDto);
 
 	/**
 	 * 根据站点ID查询站点名称，如果没有匹配数据则返回空值(null)
