@@ -2,7 +2,6 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.tms.basic.dto.CarrierDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.PageDto;

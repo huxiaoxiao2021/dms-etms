@@ -31,7 +31,6 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
