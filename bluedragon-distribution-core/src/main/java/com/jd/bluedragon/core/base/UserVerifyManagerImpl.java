@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.user.sdk.export.UserPassportExportService;
 import com.jd.user.sdk.export.constant.Constants;
 import com.jd.user.sdk.export.domain.passport.LoginParam;
@@ -84,6 +86,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.UserVerifyManagerImpl.passportVerify", jAppName= com.jd.bluedragon.Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo, Byte loginVersion) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         try {
