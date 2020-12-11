@@ -638,8 +638,8 @@ public class BusinessHelper {
             isPop = true;
         }
 
-        //纯配外单且是信任商家
-        if(StringUtils.isEmpty(waybillCache.getWaybillSign())|| BusinessHelper.isAllPureOutWayBillAndIsTrust(waybillCache.getWaybillSign())){
+        //纯配外单且 非信任商家
+        if(StringUtils.isEmpty(waybillCache.getWaybillSign())|| BusinessHelper.isAllPureOutWayBillAndIsNotTrust(waybillCache.getWaybillSign())){
            return  true;
         }
 
@@ -870,11 +870,11 @@ public class BusinessHelper {
     }
 
     /**
-     * 是否是纯配外单且是信任商家
+     * 是否 是纯配外单 且 非信任商家
      * @return
      */
-    public static boolean isAllPureOutWayBillAndIsTrust(String waybillSign){
-        if(isAllPureOutWaybill(waybillSign) && isTrust(waybillSign)){
+    public static boolean isAllPureOutWayBillAndIsNotTrust(String waybillSign){
+        if(isAllPureOutWaybill(waybillSign) && !isTrust(waybillSign)){
             return  true;
         }
         return  false;

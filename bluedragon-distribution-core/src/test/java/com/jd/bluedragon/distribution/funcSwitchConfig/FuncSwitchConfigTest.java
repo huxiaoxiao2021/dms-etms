@@ -10,10 +10,15 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCo
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.util.UniformValidateUtil;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.collections.CollectionUtils;
@@ -203,6 +208,51 @@ public class FuncSwitchConfigTest {
     public void test10(){
        FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> func =  funcSwitchConfigService.getSiteFilterStatus(910);
 
+    }
+
+    @Test
+    public  void test11(){
+        String waybillSign = "20001000010900050000000000000000000000000002000000002000000000000000000000000010000100000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        String waybillCode = "JDVA04660574424";
+
+        //众邮不拦截
+        if(WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            System.out.println("false");
+        }
+
+        //1.是否是纯配外单-非纯配不拦截
+        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
+            System.out.println("false");
+        }
+
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            System.out.println("false");
+        }
+
+        //2.信任商家不拦截
+        if(BusinessHelper.isTrust(waybillSign)){
+            System.out.println("false");
+        }
+
+        Integer code = 1001;
+        if(code.equals(TraderMoldTypeEnum.inside_type.getCode())){
+            System.out.println("false");
+        }
+
+        System.out.println("true");
+       /* //3.内部商家不拦截
+        String customerCode = request.getWaybillCache().getCustomerCode();
+        if(org.apache.commons.lang.StringUtils.isEmpty(customerCode)){
+
+        }
+*/
+      /*  //不是全国-查询站点维度
+        if(request.getCreateSiteCode()!=null){
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode(),siteCode);
+        }*/
     }
 }
     
