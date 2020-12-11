@@ -198,7 +198,8 @@ public class WeightVolumeFilter implements Filter {
         //3.内部商家不拦截
         String customerCode = request.getWaybillCache().getCustomerCode();
         if(StringUtils.isEmpty(customerCode)){
-            return  false;
+            logger.warn("当前运单获取不到商家编码,需要拦截 waybillCode:{}",request.getWaybillCode());
+            return  true;
         }
         BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =  baseMinorManager.getBaseTraderNeccesaryInfo(customerCode);
         //traderMold  内部商家类型编码
