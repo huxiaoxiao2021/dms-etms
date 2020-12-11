@@ -42,6 +42,7 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
@@ -1097,7 +1098,7 @@ public class BaseResource {
 		this.log.debug("获取运力的线路类型、运力类型、运输方式 ");
 
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
-		BasicDictDto[] result = null;
+		List<BasicDictDto> result = null;
 		try {
 			//批量提交数据字典信息查询
 			result = baseService.getDictListByGroupType(vtsbaseSetConfig.getCapacityType());
@@ -1110,7 +1111,7 @@ public class BaseResource {
 			return responseList;
 		}
 
-		if (null == result || result.length == 0) {
+		if (CollectionUtils.isEmpty(result)) {
 			log.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
