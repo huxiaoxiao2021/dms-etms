@@ -16,10 +16,6 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.etms.vts.dto.CarrierInfo;
-import com.jd.etms.vts.dto.CarrierParamDto;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -336,24 +332,23 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	 * 2016.9.1
 	 */
 	@Override
-	public DictDto[] getDictListByGroupType(List<Integer> typeGroups) {
+	public List<BasicDictDto> getDictListByGroupType(List<Integer> typeGroups) {
 		/** 查询错误信息列表 */
 		try {
-			ArrayList<DictDto> resultal = new ArrayList<DictDto>();
+			List<BasicDictDto> resultal = new ArrayList<BasicDictDto>();
 			for (Integer typeGroup : typeGroups) {
 				log.info("调用basicQueryWS.getDictList({},2, {})接口",typeGroup,typeGroup);
-				List<DictDto> dictDtoList = new ArrayList<DictDto>();
 				String typeGroupStr = String.valueOf(typeGroup);
-				List<BasicDictDto> commonDtoList = basicQueryWSManager.getDictList(typeGroupStr, 2, typeGroupStr);
+				List<BasicDictDto>  commonDtoList = basicQueryWSManager.getDictList(typeGroupStr, 2, typeGroupStr);
 				if (!CollectionUtils.isEmpty(commonDtoList)) {
-					resultal.addAll(dictDtoList);
+					resultal.addAll(commonDtoList);
 				}else{
 					if(log.isInfoEnabled()){
 						log.info("请求basicQueryWS.getDictList()接口服务成功，获取字典数据为空！");
 					}
 				}
 			}
-			return resultal.toArray(new DictDto[0]);
+			return resultal;
 		} catch (Exception e) {
 			StringBuilder sb = new StringBuilder();
 			for (Integer typeGroup : typeGroups) {

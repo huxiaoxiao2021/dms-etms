@@ -64,7 +64,7 @@ public interface BaseService{
 	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
 	 * @return
 	 */
-	BasicDictDto[] getDictListByGroupType(List<Integer> typeGroups);
+	List<BasicDictDto> getDictListByGroupType(List<Integer> typeGroups);
 	
 	/**
 	 * 承运商列表
