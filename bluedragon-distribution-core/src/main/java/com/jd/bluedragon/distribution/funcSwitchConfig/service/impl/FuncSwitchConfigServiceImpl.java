@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.official.omdm.is.attendance.vo.Contants;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -394,6 +395,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     @Override
+    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfigured-{0.menuCode}-{0.dimensionCode}" +
+            "-{0.siteCode}-{0.operateErp}",cacheBean="redisCache", nullTimeout = 1000 * 60 * 5, timeout=1000 * 60 * 5)
     public boolean checkIsConfigured(FuncSwitchConfigDto dto) {
         if(dto == null || dto.getMenuCode() == null
                 || dto.getDimensionCode() == null || dto.getSiteCode() == null){
