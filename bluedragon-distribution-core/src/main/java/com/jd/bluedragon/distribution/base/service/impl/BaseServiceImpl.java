@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CarrierInfo;
@@ -25,6 +26,7 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -866,6 +868,25 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		return siteName.replace(Constants.SUFFIX_DMS_ONE,"")
 				.replace(Constants.SUFFIX_DMS_TWO,"")
 				.replace(Constants.SUFFIX_TRANSIT,"");
+	}
+
+	/**
+	 * 获取运单大小站逻辑
+	 * <p>
+	 * 返回所属自营站点
+	 *
+	 * @param smallSiteCode
+	 * @return
+	 */
+	@Override
+	public Integer getMappingSite(Integer smallSiteCode) {
+		if (null == smallSiteCode)return null;
+		//自提柜所属站点
+		Integer resultSiteCode = baseMajorManager.getPartnerSiteBySiteId(smallSiteCode);
+		if (-1 != resultSiteCode){
+			return resultSiteCode;
+		}
+		return null;
 	}
 
 
