@@ -21,7 +21,6 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -1703,22 +1702,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * 【工具】-【功能开关配置】-【验货】名单，判断PDA登录ERP或登录ERP所属场地是否有配置验货白名单
      */
     private boolean hasInspectFunction(Integer createSiteId, String userErp) {
-        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
-        // 指定站点
-        switchConfigDto.setSiteCode(createSiteId);
-        // 指定维度
-        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 验货功能
-        switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
+        Integer menuCode = FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode();
+        // 场地维度
+        int dimensionCode = DimensionEnum.SITE.getCode();
         // 查询当前扫描人所在场地是否有验货权限
-        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        boolean flag = funcSwitchConfigService.checkIsConfiguredWithCache(menuCode, createSiteId, dimensionCode, null);
         // 如果场地没有权限，则查询个人是否配置
         if (!flag) {
             // 个人维度
-            switchConfigDto.setDimensionCode(DimensionEnum.PERSON.getCode());
-            // 操作人erp
-            switchConfigDto.setOperateErp(userErp);
-            flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+            dimensionCode = DimensionEnum.PERSON.getCode();
+            flag = funcSwitchConfigService.checkIsConfiguredWithCache(menuCode, createSiteId, dimensionCode, userErp);
         }
         return flag;
     }
