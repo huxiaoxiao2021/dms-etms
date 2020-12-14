@@ -73,5 +73,4 @@
         </constructor-arg>
     </bean>
 
-	<bean id="basicSelectWsManagerImpl" class="com.jd.bluedragon.core.base.BasicSelectWsManagerImpl" ></bean>
 </beans>

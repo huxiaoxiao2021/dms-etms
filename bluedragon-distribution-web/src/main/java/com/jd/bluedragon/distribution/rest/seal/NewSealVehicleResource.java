@@ -191,13 +191,15 @@ public class NewSealVehicleResource {
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
-        response.setDriverId(Integer.valueOf(data.getCarrierCode()));
+        if(StringUtils.isNotEmpty(data.getCarrierCode())){
+            response.setDriverId(Integer.valueOf(data.getCarrierCode()));
+        }
         response.setSendUserType(data.getTransType());
         response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());
         response.setTransWay(data.getTransWay());
         response.setTransWayName(data.getTransWayName());
-        response.setCarrierType(data.getTransType());
+        response.setCarrierType(data.getCarrierType());
 
         //仅限于传摆封车
         if(data.getStartNodeId() != null
