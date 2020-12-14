@@ -332,5 +332,6 @@
 		where
 		waybill_code = #{waybillCode,jdbcType=VARCHAR} and create_site_code= #{createSiteCode,jdbcType=BIGINT}
 		<include refid="Base_Condition_Sql"/>
+		order by storage_code ASC
 	</select>
 </mapper>

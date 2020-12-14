@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.schedule.service.impl;
 
+import java.text.Collator;
 import java.util.*;
 
 import com.google.common.collect.Lists;
@@ -194,6 +195,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		DmsEdnPickingVo dmsEdnPickingVo = this.queryDmsEdnPickingVo(scheduleBillCode);
 		if(dmsEdnPickingVo != null){
 			dmsEdnPickingVo.setDmsScheduleInfoList(this.queryEdnDmsScheduleInfoList(scheduleBillCode));
+			//储位排序
+			sortScheduleInfoByStorageCodes(dmsEdnPickingVo.getDmsScheduleInfoList());
 			JdCloudPrintRequest<DmsEdnPickingVo> printRequest = jdCloudPrintService.getDefaultPdfRequest();
 			printRequest.setOrderNum(scheduleBillCode);
 			printRequest.setTemplate(DmsConstants.TEMPLATE_NAME_EDN_PICKING);
@@ -230,6 +233,30 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			printResult.toFail("调度单不存在！");
 		}
 		return printResult;
+	}
+
+	private void sortScheduleInfoByStorageCodes(List<DmsScheduleInfo> dmsScheduleInfoList){
+		if(org.apache.commons.collections.CollectionUtils.isNotEmpty(dmsScheduleInfoList)){
+			//进行排序
+			Collections.sort(dmsScheduleInfoList, new Comparator<DmsScheduleInfo>() {
+				@Override
+				public int compare(DmsScheduleInfo p1, DmsScheduleInfo p2) {
+					if(null == p1.getStorageCodes() && null ==  p2.getStorageCodes()){
+						return 0;
+					}else if(null == p1.getStorageCodes()){
+						return 1;
+					}else if(null == p2.getStorageCodes()){
+						return -1;
+					}else {
+						return p1.getStorageCodes().compareTo(p2.getStorageCodes());
+					}
+				}
+			});
+		}
+		int rowNum = 1;
+		for(DmsScheduleInfo dmsScheduleInfo : dmsScheduleInfoList){
+			dmsScheduleInfo.setRowNum(rowNum ++);;
+		}
 	}
 
 	@Override
