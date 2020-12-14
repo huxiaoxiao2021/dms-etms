@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
@@ -100,6 +101,8 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                         request.setOperateType(InspectionOperateTypeEnum.WAYBILL.getCode());
                     } else if (WaybillUtil.isPackageCode(request.getPackageBarOrWaybillCode())) {
                         request.setOperateType(InspectionOperateTypeEnum.PACK.getCode());
+                    } else if (BusinessUtil.isBoxcode(request.getPackageBarOrWaybillCode())) {
+                        request.setOperateType(InspectionOperateTypeEnum.BOX.getCode());
                     }
                 }
 
@@ -149,7 +152,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                 public void process() {
 
                     InspectionRequest request = JsonHelper.fromJsonUseGson(task.getBody(), InspectionRequest.class);
-
+                    request.setOperateType(InspectionOperateTypeEnum.WAYBILL.getCode());
                     inspectionTaskExeStrategy.decideExecutor(request).process(request);
 
                 }

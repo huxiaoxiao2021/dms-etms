@@ -57,6 +57,15 @@ public enum InspectionBizSourceEnum {
          */
         ANDROID_HANDOVER_INSPECTION(41, "安卓交接扫描"),
 
+        /**
+         * 集货补验货
+          */
+        COLLECT_GOODS_INSPECTION(42, "集货补验货"),
+        /**
+         * 卸车验货
+         */
+        UNLOAD_CAR_INSPECTION(43, "卸车验货"),
+
         ;
 
         /**
