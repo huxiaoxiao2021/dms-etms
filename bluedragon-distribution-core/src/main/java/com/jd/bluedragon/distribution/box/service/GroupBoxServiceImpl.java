@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.box.service;
 
-import com.jd.bluedragon.core.base.ContainerManager;
 import com.jd.bluedragon.distribution.box.dao.GroupBoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.utils.StringHelper;
@@ -29,9 +28,6 @@ public class GroupBoxServiceImpl implements GroupBoxService {
     @Autowired
     private GroupBoxDao groupBoxDao;
 
-    @Autowired
-    private ContainerManager containerManager;
-
     /**
      * 批量新增
      * @param groupList
@@ -42,7 +38,6 @@ public class GroupBoxServiceImpl implements GroupBoxService {
     public Integer batchAdd(List<Box> groupList) {
         Assert.notNull(groupList, "groupList must not be null");
         Integer result = this.groupBoxDao.batchAdd(groupList);
-        containerManager.updateContainerGroup(groupList);
         return result;
     }
 

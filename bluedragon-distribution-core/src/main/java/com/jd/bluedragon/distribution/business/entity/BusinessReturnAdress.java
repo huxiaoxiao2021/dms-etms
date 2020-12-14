@@ -42,7 +42,7 @@ public class BusinessReturnAdress extends DbEntity {
 	private String businessName;
 
     /**
-     * 事业部编码
+     * 签约区域
      * */
     private String deptNo;
 
