@@ -400,8 +400,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     }
 
     @Override
-    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfigured-{0}-{1}-{2}-{3}", cacheBean="redisCache",
-            nullTimeout = 1000 * 60 * 5, timeout=1000 * 60 * 5)
+    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfiguredWithCache-{0}-{1}-{2}-{3}", cacheBean="redisCache",
+            nullTimeout = 1000 * 60 * 5, timeout = 1000 * 60 * 5)
     public boolean checkIsConfiguredWithCache(Integer menuCode, Integer siteCode, Integer dimensionCode, String operateErp) {
         if(menuCode == null || dimensionCode == null || siteCode == null){
             return false;
