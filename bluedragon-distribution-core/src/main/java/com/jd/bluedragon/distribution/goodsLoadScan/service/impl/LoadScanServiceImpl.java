@@ -20,7 +20,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -1771,20 +1770,16 @@ public class LoadScanServiceImpl implements LoadScanService {
      * 【工具】-【功能开关配置】-【发货】名单，判断PDA登录ERP或登录ERP所属场地是否有配置发货白名单
      */
     private boolean hasSendFunction(Integer createSiteId, String userErp) {
-        // 查询当前扫描人是否有按单操作权限
-        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
-        // 指定站点
-        switchConfigDto.setSiteCode(createSiteId);
-        // 指定维度
-        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 发货功能
-        switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_SEND.getCode());
-        boolean flag =  funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        Integer menuCode = FuncSwitchConfigEnum.FUNCTION_SEND.getCode();
+        // 场地维度
+        int dimensionCode = DimensionEnum.SITE.getCode();
+        boolean flag =  funcSwitchConfigService.checkIsConfiguredWithCache(menuCode, createSiteId, dimensionCode, null);
         // 如果场地维度没有配置，则查询个人维度
         if (!flag) {
-            switchConfigDto.setDimensionCode(DimensionEnum.PERSON.getCode());
-            switchConfigDto.setOperateErp(userErp);
-            flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+            // 个人维度
+            dimensionCode = DimensionEnum.PERSON.getCode();
+            flag = funcSwitchConfigService.checkIsConfiguredWithCache(menuCode, createSiteId, dimensionCode, userErp);
         }
         return flag;
     }
