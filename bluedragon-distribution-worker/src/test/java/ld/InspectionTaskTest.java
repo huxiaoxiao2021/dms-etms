@@ -5,13 +5,15 @@ import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
 import com.jd.bluedragon.distribution.consumer.inspection.InspectionPackageConsumer;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.InspectionTask;
-import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitTask;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.lang.reflect.Method;
 
 /**
  * @ClassName InspectionTaskTest
@@ -28,6 +30,8 @@ public class InspectionTaskTest {
 
     @Autowired
     private InspectionPackageConsumer inspectionPackageConsumer;
+    @Autowired
+    private InspectionTask inspectionTask;
 
     @Test
     public void testSplitExecute() throws Exception {
@@ -94,5 +98,30 @@ public class InspectionTaskTest {
         message.setText(mqBody);
         message.setTopic("dms_inspection");
         inspectionPackageConsumer.consume(message);
+    }
+
+    @Test
+    public void executeSingleTaskTest() throws Exception{
+        String json = "{\n" +
+                "  \"shieldsCarCode\" : \"\",\n" +
+                "  \"carCode\" : \"\",\n" +
+                "  \"sealBoxCode\" : \"\",\n" +
+                "  \"packOrBox\" : \"BC1001201118100000000707\",\n" +
+                "  \"turnoverBoxCode\" : \"\",\n" +
+                "  \"queueNo\" : \"\",\n" +
+                "  \"departureCarId\" : \"\",\n" +
+                "  \"shieldsCarTime\" : \"\",\n" +
+                "  \"id\" : 4,\n" +
+                "  \"businessType\" : 10,\n" +
+                "  \"userCode\" : 10053,\n" +
+                "  \"userName\" : \"刑松\",\n" +
+                "  \"siteCode\" : 910,\n" +
+                "  \"siteName\" : \"北京马驹桥分拣中心\",\n" +
+                "  \"operateTime\" : \"2020-12-13 10:45:55.157\"\n" +
+                "}";
+        Task task = JsonHelper.fromJson(json, Task.class);
+        Method executeSingleTask = InspectionTask.class.getDeclaredMethod("executeSingleTask", Task.class, String.class);
+        executeSingleTask.setAccessible(true);
+        executeSingleTask.invoke(inspectionTask, task, "DMS");
     }
 }
