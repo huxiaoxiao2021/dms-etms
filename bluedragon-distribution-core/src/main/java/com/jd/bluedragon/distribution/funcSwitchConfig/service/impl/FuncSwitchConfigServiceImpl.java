@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
@@ -19,7 +20,6 @@ import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.annotation.CacheMethod;
-import com.jd.official.omdm.is.attendance.vo.Contants;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -419,14 +419,32 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @return
      */
     @Override
-    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfigured-{0.menuCode}-{0.dimensionCode}" +
-            "-{0.siteCode}-{0.operateErp}",cacheBean="redisCache", nullTimeout = 1000 * 60 * 5, timeout=1000 * 60 * 5)
     public boolean checkIsConfigured(FuncSwitchConfigDto dto) {
         if(dto == null || dto.getMenuCode() == null
                 || dto.getDimensionCode() == null || dto.getSiteCode() == null){
             return false;
         }
         return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
+    }
+
+    @Override
+    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfiguredWithCache-{0}-{1}-{2}-{3}", cacheBean="redisCache",
+            nullTimeout = 1000 * 60 * 5, timeout = 1000 * 60 * 5)
+    public boolean checkIsConfiguredWithCache(Integer menuCode, Integer siteCode, Integer dimensionCode, String operateErp) {
+        if(menuCode == null || dimensionCode == null || siteCode == null){
+            return false;
+        }
+        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
+        switchConfigDto.setSiteCode(siteCode);
+        switchConfigDto.setMenuCode(menuCode);
+        switchConfigDto.setDimensionCode(dimensionCode);
+        if (DimensionEnum.PERSON.getCode() == dimensionCode) {
+            if (StringUtils.isBlank(operateErp)) {
+                return false;
+            }
+            switchConfigDto.setOperateErp(operateErp);
+        }
+        return funcSwitchConfigDao.selectConfiguredCount(switchConfigDto) > 0;
     }
 
     /**
