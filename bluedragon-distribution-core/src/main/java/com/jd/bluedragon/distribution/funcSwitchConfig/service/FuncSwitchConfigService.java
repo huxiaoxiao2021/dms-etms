@@ -84,13 +84,6 @@ public interface FuncSwitchConfigService {
     boolean checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 
     /**
-     * 校验场地或个人是否配置了功能
-     * @param funcSwitchConfigDto
-     * @return
-     */
-    boolean checkIsConfiguredBySiteOrPerson(FuncSwitchConfigDto funcSwitchConfigDto);
-
-    /**
      * 从缓存或数据库中查询拦截的状态
      * @param menuCode   功能编码
      * @return

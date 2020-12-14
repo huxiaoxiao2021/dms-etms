@@ -1775,10 +1775,18 @@ public class LoadScanServiceImpl implements LoadScanService {
         FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
         // 指定站点
         switchConfigDto.setSiteCode(createSiteId);
-        switchConfigDto.setOperateErp(userErp);
+        // 指定维度
+        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 发货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_SEND.getCode());
-        return funcSwitchConfigService.checkIsConfiguredBySiteOrPerson(switchConfigDto);
+        boolean flag =  funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        // 如果场地维度没有配置，则查询个人维度
+        if (!flag) {
+            switchConfigDto.setDimensionCode(DimensionEnum.PERSON.getCode());
+            switchConfigDto.setOperateErp(userErp);
+            flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        }
+        return flag;
     }
 
 

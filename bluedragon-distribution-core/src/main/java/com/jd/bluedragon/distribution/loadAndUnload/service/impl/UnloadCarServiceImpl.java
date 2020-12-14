@@ -224,16 +224,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 如果勾选【包裹号转大宗】
             if (request.getTransfer() != null
                     && GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(request.getTransfer())) {
-                String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-                List<String> packageList = getPackageCodesByWaybillCode(waybillCode);
-                if (CollectionUtils.isEmpty(packageList)) {
-                    logger.error("卸车扫描--根据运单号查询包裹集合返回空,sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
-                    result.setCode(JdCResponse.CODE_FAIL);
-                    result.setMessage("根据运单号查询包裹集合返回空");
-                    return result;
-                }
+                int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
+                logger.info("卸车扫描--勾选【包裹号转大宗】,sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
                 result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                result.getData().setPackageSize(packageList.size());
+                result.getData().setPackageSize(packageNum);
                 return result;
             }
             // 包裹是否扫描成功
@@ -1712,12 +1706,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
         // 指定站点
         switchConfigDto.setSiteCode(createSiteId);
+        // 指定维度
+        switchConfigDto.setDimensionCode(DimensionEnum.SITE.getCode());
         // 验货功能
         switchConfigDto.setMenuCode(FuncSwitchConfigEnum.FUNCTION_INSPECTION.getCode());
-        // 操作人erp
-        switchConfigDto.setOperateErp(userErp);
         // 查询当前扫描人所在场地是否有验货权限
-        return funcSwitchConfigService.checkIsConfiguredBySiteOrPerson(switchConfigDto);
+        boolean flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        // 如果场地没有权限，则查询个人是否配置
+        if (!flag) {
+            // 个人维度
+            switchConfigDto.setDimensionCode(DimensionEnum.PERSON.getCode());
+            // 操作人erp
+            switchConfigDto.setOperateErp(userErp);
+            flag = funcSwitchConfigService.checkIsConfigured(switchConfigDto);
+        }
+        return flag;
     }
 
     private boolean lock(String sealCarCode, String waybillCode) {
@@ -1736,11 +1739,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     private void unLock(String sealCarCode, String waybillCode) {
+        String lockKey = UNLOAD_SCAN_LOCK_BEGIN + sealCarCode + "_" + waybillCode;
         try {
-            String lockKey = UNLOAD_SCAN_LOCK_BEGIN + sealCarCode + "_" + waybillCode;
             jimdbCacheService.del(lockKey);
         } catch (Exception e) {
             logger.error("卸车扫描unLock异常:sealCarCode={},waybillCode={},e=", sealCarCode, waybillCode, e);
+        } finally {
+            jimdbCacheService.del(lockKey);
         }
     }
 }
