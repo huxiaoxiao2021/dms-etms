@@ -33,6 +33,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,11 +89,13 @@ public class SiteServiceImpl implements SiteService {
             if (vtrd != null) {
                 base.setSiteCode(vtrd.getEndNodeId());
                 base.setSendUserType(vtrd.getTransType());
-                base.setDriverId(Integer.valueOf(vtrd.getCarrierCode()));//承运商id
+                if(StringUtils.isNotEmpty(vtrd.getCarrierCode())){
+                    base.setDriverId(Integer.valueOf(vtrd.getCarrierCode()));//承运商id
+                }
                 base.setRouteType(vtrd.getTransType()); // 增加运输类型返回值
                 base.setDriver(vtrd.getCarrierName());
                 base.setTransWay(vtrd.getTransWay());
-                base.setCarrierType(vtrd.getTransType());
+                base.setCarrierType(vtrd.getCarrierType());
                 base.setCode(JdResponse.CODE_OK);
                 base.setMessage(JdResponse.MESSAGE_OK);
             } else {
