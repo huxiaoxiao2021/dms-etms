@@ -284,6 +284,9 @@
         <if test="dimensionCode != null">
             and dimension_code = #{dimensionCode,jdbcType=BIGINT}
         </if>
+        <if test="operateErp != null">
+            and operate_erp = #{operateErp,jdbcType=VARCHAR}
+        </if>
     </select>
 
 

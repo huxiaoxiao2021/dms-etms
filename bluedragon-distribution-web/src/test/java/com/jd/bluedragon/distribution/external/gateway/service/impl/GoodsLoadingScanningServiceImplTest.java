@@ -10,11 +10,14 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
         import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+        import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
         import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
         import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
         import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
         import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
         import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+        import com.jd.bluedragon.utils.JsonHelper;
+        import com.jd.ql.dms.report.domain.LoadScanDto;
         import org.junit.Test;
         import org.junit.runner.RunWith;
         import org.springframework.test.context.ContextConfiguration;
@@ -49,6 +52,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private LoadScanServiceImpl loadScanService;
+
+    @Resource
+    private DmsDisSendService dmsDisSendService;
 
 
 
@@ -278,6 +284,15 @@ public class GoodsLoadingScanningServiceImplTest {
         loadScanService.updateTaskStatus(loadCar, user);
     }
 
+    @Test
+    public void testGetLoadScanByWaybillAndPackageCode() {
+        LoadScanDto loadScanDto = new LoadScanDto();
+        loadScanDto.setWayBillCode("JDV000488510739");
+        loadScanDto.setPackageCode("JDV000488510739-4-5-");
+        loadScanDto.setCreateSiteId(364605);
+        LoadScanDto scanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(loadScanDto);
+        System.out.println(JsonHelper.toJson(scanDto));
+    }
 
 
 }
