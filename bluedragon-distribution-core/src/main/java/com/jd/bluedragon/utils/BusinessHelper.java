@@ -9,6 +9,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -834,5 +835,20 @@ public class BusinessHelper {
      */
     public static boolean isNeedCollectingWaybill(String waybillSign){
         return BusinessUtil.isSignChar(waybillSign, 45, '2');
+    }
+
+    /**
+     * 封装称重   对于B或C网 参数赋值
+     * 40位 0:C网  非0:B网
+     * @param waybillSign
+     * @param weightVolumeCollectDto
+     */
+    public static void setSpotCheckTypeBorC(String waybillSign,WeightVolumeCollectDto weightVolumeCollectDto){
+        //0:C网    1:B网
+        if(BusinessUtil.isCInternet(waybillSign)){
+            weightVolumeCollectDto.setSpotCheckType(0);//C网
+        }else {
+            weightVolumeCollectDto.setSpotCheckType(1);//B网
+        }
     }
 }
