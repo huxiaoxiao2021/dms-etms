@@ -204,11 +204,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
             //备注拼接服务单号-逆向打印调用 (自营售后取件快递业务 124 位等于4)
             if (BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 124, '4')) {
-                BaseEntity<List<WaybillServiceRelationDto>> serviceCodeInfoByWaybillCode = waybillQueryManager.getServiceCodeInfoByWaybillCode(waybillCode);
-                if(serviceCodeInfoByWaybillCode!=null && CollectionUtils.isNotEmpty(serviceCodeInfoByWaybillCode.getData())){
-                    //抛弃一对多关系--只打印第一服务单号
-                    commonWaybill.setServiceCode(serviceCodeInfoByWaybillCode.getData().get(0).getServiceCode());
-                }
+                    commonWaybill.appendRemark("运单号:"+tmsWaybill.getWaybillCode());
             }
 
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
