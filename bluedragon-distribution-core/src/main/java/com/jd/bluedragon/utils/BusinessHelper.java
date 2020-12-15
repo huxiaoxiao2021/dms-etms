@@ -879,4 +879,19 @@ public class BusinessHelper {
         }
         return  false;
     }
+
+    /**
+     * 封装称重   对于B或C网 参数赋值
+     * 40位 0:C网  非0:B网
+     * @param waybillSign
+     * @param weightVolumeCollectDto
+     */
+    public static void setSpotCheckTypeBorC(String waybillSign,WeightVolumeCollectDto weightVolumeCollectDto){
+        //0:C网    1:B网
+        if(BusinessUtil.isCInternet(waybillSign)){
+            weightVolumeCollectDto.setSpotCheckType(0);//C网
+        }else {
+            weightVolumeCollectDto.setSpotCheckType(1);//B网
+        }
+    }
 }

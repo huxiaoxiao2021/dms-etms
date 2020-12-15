@@ -1278,7 +1278,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
         weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
-        weightVolumeCollectDto.setSpotCheckType(0);//C网
         weightVolumeCollectDto.setReviewDate(new Date());
         weightVolumeCollectDto.setReviewLWH(packWeightVO.getLength()+"*"+packWeightVO.getWidth()+"*"+packWeightVO.getHigh());
         weightVolumeCollectDto.setReviewWeight(packWeightVO.getWeight());
@@ -1288,6 +1287,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
             weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
             weightVolumeCollectDto.setMerchantCode(baseEntity.getData().getWaybill().getBusiOrderCode());
+            BusinessHelper.setSpotCheckTypeBorC(baseEntity.getData().getWaybill().getWaybillSign(),weightVolumeCollectDto);
+
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家
                 weightVolumeCollectDto.setIsTrustBusi(1);
