@@ -104,16 +104,19 @@ public class WeightVolumeFilter implements Filter {
         if(logger.isInfoEnabled()){
             logger.info("运单{}无重量判断标识 isEconomicNetNeedWeight:{},isAllPureNeedWeight:{},isNeedWeight:{}",waybillCode,isEconomicNetNeedWeight,isAllPureNeedWeight,isNeedWeight);
         }
-
+        if(logger.isInfoEnabled()) {
+            logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+        }
         if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
-        }
-        else if ( isNeedWeight || isAllPureNeedWeight) {
-            if(logger.isInfoEnabled()) {
-                logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+        }else if(isAllPureNeedWeight){
+            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
+                throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
             }
+        }
+        else if (isNeedWeight) {
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {

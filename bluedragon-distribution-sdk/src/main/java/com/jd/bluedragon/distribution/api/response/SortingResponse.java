@@ -369,6 +369,9 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29418 = 29418;
     public static final String MESSAGE_29418 = "此单已拒收或妥投，请扫描正确面单或退商家打印正确面单或操作异常处理!";
 
+    public static final Integer CODE_29419 = 29419;
+    public static final String  MESSAGE_29419= "此单无称重重量,请称重后再操作";
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
