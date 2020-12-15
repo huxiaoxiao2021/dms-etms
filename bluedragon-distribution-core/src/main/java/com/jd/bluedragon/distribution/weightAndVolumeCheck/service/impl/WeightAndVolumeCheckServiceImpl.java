@@ -1287,7 +1287,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setBusiCode(baseEntity.getData().getWaybill().getBusiId());
             weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
             weightVolumeCollectDto.setMerchantCode(baseEntity.getData().getWaybill().getBusiOrderCode());
-            BusinessHelper.setSpotCheckTypeBorC(baseEntity.getData().getWaybill().getWaybillSign(),weightVolumeCollectDto);
+            weightVolumeCollectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(baseEntity.getData().getWaybill().getWaybillSign()));
 
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
                 //信任商家

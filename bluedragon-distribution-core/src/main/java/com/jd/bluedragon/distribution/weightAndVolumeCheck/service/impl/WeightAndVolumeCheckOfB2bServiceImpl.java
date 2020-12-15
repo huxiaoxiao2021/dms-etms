@@ -361,7 +361,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         collectDto.setIsWaybillSpotCheck(spotCheckData.getIsWaybillSpotCheck());
         collectDto.setIsExcess(spotCheckData.getIsExcess());
         collectDto.setIsHasPicture(spotCheckData.getIsExcess());
-        BusinessHelper.setSpotCheckTypeBorC(waybill.getWaybillSign(),collectDto);
+        collectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
 
         if(spotCheckData.getIsWaybillSpotCheck() == 1){
             //运单维度
