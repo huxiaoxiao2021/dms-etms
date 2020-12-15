@@ -745,7 +745,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
         SortingJsfResponse response = null;
         try {
-            if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
+            if (true || sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
                 response = sortingCheckService.singleSendCheck(sortingCheck);
             } else {
                 response = jsfSortingResourceService.check(sortingCheck);

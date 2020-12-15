@@ -14,12 +14,15 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
+import com.jd.bluedragon.distribution.businessIntercept.domain.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -198,6 +201,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
 	@Value("${beans.ReversePrintServiceImpl.noticeHandleLink}")
     private String noticeHandleLink;
+
+    /**
+     * 拦截报表服务
+     */
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
+    // 换单打印节点
+    @Value("${businessIntercept.dispose.node.exchangeWaybill}")
+    private Integer disposeNodeExchangeWaybill;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -347,6 +361,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             }else{
                 targetResult.customMessage(-1,"没有获取到新的取件单");
             }
+            this.sendDisposeAfterInterceptMsg(oldWaybillCode);
             return targetResult;
         }
         else{
@@ -356,6 +371,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 targetResult.setMessage(result.getMessage());
                 if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                     targetResult.setData(result.getData().getWaybillCode());
+                    this.sendDisposeAfterInterceptMsg(oldWaybillCode);
                     return targetResult;
                 }else{
                 	log.warn("获取新单号失败！waybillCommonService.getReverseWaybill。单号{}，返回结果：{}",oldWaybillCode,JsonHelper.toJson(result));
@@ -369,6 +385,31 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
 
+    }
+
+    /**
+     * 发送消息
+     * @param oldWaybillCode 原始单号
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsg(String oldWaybillCode){
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            long currentTimeMillis = System.currentTimeMillis();
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            saveDisposeAfterInterceptMsgDto.setBarCode(oldWaybillCode);
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeExchangeWaybill);
+            saveDisposeAfterInterceptMsgDto.setOperateTime(currentTimeMillis);
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("sendDisposeAfterInterceptMsg exception, oldWaybillCode: [{}]" , oldWaybillCode, e);
+            result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
     }
 
     @Override
