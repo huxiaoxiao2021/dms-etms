@@ -107,16 +107,17 @@ public class WeightVolumeFilter implements Filter {
         if(logger.isInfoEnabled()) {
             logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
         }
+        //众邮无重量拦截
         if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
+         //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
-            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
+            if(!packageWeightingService.weightVolumeValidateCP(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
             }
-        }
-        else if (isNeedWeight) {
+        }else if (isNeedWeight) {
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                 packageWeightings = findWeightVolume(waybillCode, packageCode,
                         Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.TOTAL.getCode()));
             } else {
-                packageWeightings = findWeightVolume(waybillCode, packageCode, BusinessTypeEnum.getAllCode());
+                packageWeightings = findWeightVolume(waybillCode, packageCode, BusinessTypeEnum.getBeforeCode());
             }
         } catch (Exception e) {
             logger.error("PackageWeightingServiceImpl-->weightVolumeValidate查询称重量方失败：waybillCode=" + waybillCode + ",packageCode=" + packageCode, e);
@@ -97,7 +98,19 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
             }
             return hasWVflag;//有称重量方
         }
-
-
     }
+
+    /**
+     * 纯配外单重量判断逻辑
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    @Override
+    public boolean weightVolumeValidateCP(String waybillCode, String packageCode) {
+
+        return false;
+    }
+
+
 }
