@@ -36,6 +36,8 @@
 		<crossbow.component.version>0.0.4-SNAPSHOT</crossbow.component.version>
 		<eclp.notice.api.version>0.0.1-SNAPSHOT</eclp.notice.api.version>
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
+		<!--jim redis-->
+		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 	</properties>
 
 	<dependencies>
@@ -581,28 +583,27 @@
             <artifactId>profiler</artifactId>
             <version>6.2.9</version>
         </dependency>
-
-        <dependency>
-            <groupId>com.jd.jim.cli</groupId>
-            <artifactId>jim-cli-jedis</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.jd.jim.cli</groupId>
-            <artifactId>jim-cli-api</artifactId>
-            <version>1.5.0-SNAPSHOT</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>fastjson</artifactId>
-                    <groupId>com.alibaba</groupId>
-                </exclusion>
+		<!-- JIM Redis -->
+		<dependency>
+			<groupId>com.jd.jmiss</groupId>
+			<artifactId>jim-cli-jedis</artifactId>
+			<version>${jimdb.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.jmiss</groupId>
+			<artifactId>jim-cli-api</artifactId>
+			<version>${jimdb.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
                 </exclusion>
-            </exclusions>
-        </dependency>
-
+			</exclusions>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.etms</groupId>
             <artifactId>tbschedule-redis</artifactId>
@@ -615,6 +616,14 @@
 				<exclusion>
 					<groupId>com.taobao.pamirs.schedule</groupId>
 					<artifactId>taobao-pamirs-schedule</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-jedis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -668,7 +677,15 @@
 					<artifactId>commons-jexl</artifactId>
 					<groupId>org.apache.commons</groupId>
 				</exclusion>
-			</exclusions>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-jedis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-api</artifactId>
+				</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
@@ -827,6 +844,14 @@
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-api</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- cassandra -->
@@ -880,6 +905,14 @@
 				<exclusion>
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-jedis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.jim.cli</groupId>
+					<artifactId>jim-cli-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -956,6 +989,14 @@
                 <exclusion>
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-api</artifactId>
                 </exclusion>
             </exclusions>
 		</dependency>
@@ -1226,6 +1267,12 @@
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-goods-api</artifactId>
 			<version>0.0.2-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--预分拣-->
@@ -1295,7 +1342,15 @@
                     <artifactId>eclp-co-api</artifactId>
                     <groupId>com.jd.eclp</groupId>
                 </exclusion>
-            </exclusions>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-api</artifactId>
+                </exclusion>
+			</exclusions>
 		</dependency>
 
         <dependency>
@@ -1314,6 +1369,12 @@
 			<groupId>com.jd.lop</groupId>
 			<artifactId>crossbow-sdk</artifactId>
 			<version>${crossbow.sdk.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lop</groupId>
@@ -1411,7 +1472,15 @@
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
-            </exclusions>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-api</artifactId>
+                </exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
