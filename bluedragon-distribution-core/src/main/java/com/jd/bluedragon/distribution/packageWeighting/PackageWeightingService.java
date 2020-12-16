@@ -30,4 +30,13 @@ public interface PackageWeightingService {
      * 校验包裹或订单是否有称重量方
      */
     boolean weightVolumeValidate(String waybillCode, String packageCode);
+
+
+    /**
+     * 校验包裹或订单是否有重量 (不校验体积)
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    boolean  weightVolumeValidateCP(String waybillCode,String packageCode);
 }
