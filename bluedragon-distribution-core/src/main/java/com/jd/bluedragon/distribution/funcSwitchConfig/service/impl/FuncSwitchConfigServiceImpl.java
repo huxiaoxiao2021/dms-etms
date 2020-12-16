@@ -4,22 +4,37 @@ import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.annotation.CacheMethod;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -33,7 +48,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -65,9 +82,6 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Autowired
     private RuleDao ruleDao;
 
-//    @Autowired
-//    private HrmPrivilegeHelper hrmPrivilegeHelper;
-
     @Autowired
     private BaseMajorManager baseMajorManager;
 
@@ -77,6 +91,15 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    PackageWeightingService packageWeightingService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
     /**
      * 根据条件分页查询
@@ -758,4 +781,106 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     public String getErpOneCacheKey(String cachePre,Integer menuCode,String operateErp){
         return cachePre+menuCode+"_"+operateErp;
     }
+
+
+    /**
+     * 纯配称重流水校验
+     * @param waybillCache
+     * @param waybillCode
+     * @param packageCode
+     * @throws SortingCheckException
+     * 返回0: 有重量    非0:无重量
+     */
+    @Override
+    public JdCResponse<Void>  checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
+        if (waybillCache == null) {
+            return new JdCResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
+        }
+        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
+        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
+            return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+        }
+
+        logger.warn("运单缓存未查询重量,查询运单库,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+        //从本地库里查询-重量
+        if(!packageWeightingService.weightValidateFlow(waybillCode, packageCode,waybillCache.getQuantity())){
+            if(logger.isInfoEnabled()) {
+                logger.info("本地库未查到纯配外单重量,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+            }
+            return  new JdCResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
+        }
+        return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+    }
+
+    /**
+     * 纯配运单拦截 (除信任商家、内部商家、众邮以外的纯配外单)
+     * @param request
+     * @return  true:拦截   false:不拦截
+     */
+    public boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto request){
+        String waybillSign = request.getWaybillSign();
+        //众邮不拦截
+        if(WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(UniformValidateUtil.getSpecificWaybillCodePattern(request.getWaybillCode()))){
+            return false;
+        }
+
+        //1.是否是纯配外单-非纯配不拦截
+        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
+            return  false;
+        }
+
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            return false;
+        }
+
+        //2.信任商家不拦截
+        if(BusinessHelper.isTrust(waybillSign)){
+            return false;
+        }
+
+        //3.内部商家不拦截
+        String customerCode = request.getCustomerCode();
+        if(StringUtils.isEmpty(customerCode)){
+            logger.warn("当前运单获取不到商家编码,需要拦截 waybillCode:{}",request.getWaybillCode());
+            return  true;
+        }
+        BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO =  baseMinorManager.getBaseTraderNeccesaryInfo(customerCode);
+        //traderMold  内部商家类型编码
+        if(basicTraderNeccesaryInfoDTO == null || basicTraderNeccesaryInfoDTO.getTraderMold()==null || basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
+            return false;
+        }
+
+        //4.如果是全国有效,直接返回不拦截
+        if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode())){
+            //ucc 配置为1 全国不拦截  配置站点编码:
+            if(isNeedCheckBlack(uccPropertyConfiguration.getAllPureValidateWeightWebSite(),request.getCreateSiteCode())){
+                return  true;
+            }
+            return false;
+        }
+
+        //不是全国-查询站点维度
+        if(request.getCreateSiteCode()!=null){
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            return getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode(),siteCode);
+        }
+
+        return  true;
+    }
+
+    private boolean isNeedCheckBlack(String uccStr, Integer siteCode) {
+        if (siteCode == null) {
+            return true;
+        }
+        if(StringUtils.isEmpty(uccStr)){
+            return true;
+        } else if ("1".equals(uccStr)) {
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(uccStr.split(Constants.SEPARATOR_COMMA));
+        return siteCodes.contains(String.valueOf(siteCode));
+    }
+
 }
