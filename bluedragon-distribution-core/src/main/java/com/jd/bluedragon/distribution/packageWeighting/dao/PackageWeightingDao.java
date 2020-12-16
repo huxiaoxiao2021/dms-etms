@@ -48,4 +48,22 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
         paramMap.put("tableName", tableName);
         return paramMap;
     }
+
+    /**
+     * 纯配外单-重量校验逻辑
+     * @param waybillCode
+     * @param packageCode
+     * @param businessTypes
+     * @return
+     */
+    public List<PackageWeighting> findWeightVolumeCp(String waybillCode, String packageCode, List<Integer> businessTypes) {
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        //扫的运单号分拣的话 sql里判断不一样，库里packagecode
+        if (WaybillUtil.isPackageCode(packageCode)) {
+            parameters.put("packageCode", packageCode);
+        }
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findWeightVolumeCp", parameters);
+    }
 }

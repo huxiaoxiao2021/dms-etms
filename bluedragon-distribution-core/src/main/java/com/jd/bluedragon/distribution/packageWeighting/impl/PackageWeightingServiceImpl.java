@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
 import com.jd.bluedragon.distribution.packageWeighting.domain.BusinessTypeEnum;
 import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,12 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
         packageWeighting.setTableName(CacheTablePartition.getPackageWeightingTableName(packageWeighting.getWaybillCode()));
         return packageWeightingDao.add(packageWeighting);
     }
+
+    @Override
+    public List<PackageWeighting> findWeightVolumeCp(String waybillCode, String packageCode, List<Integer> businessTypes) {
+        return packageWeightingDao.findWeightVolumeCp(waybillCode, packageCode, businessTypes);
+    }
+
 
     @Override
     public boolean weightVolumeValidate(String waybillCode, String packageCode) {
@@ -108,9 +115,48 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
      */
     @Override
     public boolean weightVolumeValidateCP(String waybillCode, String packageCode) {
-
-        return false;
+        List<PackageWeighting> packageWeightings;
+        try {
+              packageWeightings = findWeightVolumeCp(waybillCode, packageCode, BusinessTypeEnum.getAllCode());
+        } catch (Exception e) {
+            logger.error("PackageWeightingServiceImpl-->weightVolumeValidateCP查询称重失败：waybillCode=" + waybillCode + ",packageCode=" + packageCode, e);
+            return false;//没有称重
+        }
+        if (CollectionUtils.isEmpty(packageWeightings)) {
+            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidateCP没查到重量数据：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+            return false;//没有称重
+        } else {
+            boolean hasWeightCheck = true;//是否称重标志
+            int total = 0;//运单应有的包裹总数量，做漏称检查
+            int packageCount = 0;//计数器，当前检查的包裹数量
+            for (PackageWeighting packageWeighting : packageWeightings) {
+                if (WaybillUtil.isPackageCode(packageWeighting.getPackageCode())) {
+                    if (total == 0) {
+                        //从包裹号中取得包裹数量
+                        total = WaybillUtil.getPackNumByPackCode(packageWeighting.getPackageCode());
+                    }
+                    if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0) {
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidateCP包裹重量没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        hasWeightCheck = false;
+                    }
+                    packageCount++;
+                } else {
+                    if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0) {
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidateCP运单重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+            if (WaybillUtil.isWaybillCode(packageCode)) {
+                //扫运单号分拣的话，判断称重的包裹齐不齐
+                if (packageCount < total) {
+                    logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹不全：waybillCode=" + waybillCode + ",packageCode=" + packageCode + ",packageCount=" + packageCount + ",total=" + total);
+                    hasWeightCheck = false;
+                }
+            }
+            return  hasWeightCheck;
+        }
     }
-
-
 }
