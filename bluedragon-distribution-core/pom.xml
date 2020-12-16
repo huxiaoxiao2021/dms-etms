@@ -37,7 +37,7 @@
 		<eclp.notice.api.version>0.0.1-SNAPSHOT</eclp.notice.api.version>
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 		<!--jim redis-->
-		<jimdb.version>3.1.0-SNAPSHOT</jimdb.version>
+		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 	</properties>
 
 	<dependencies>
