@@ -5,7 +5,7 @@
 
     <bean id="vtabroot" class="com.jd.jddl.interact.rule.VirtualTableRoot" init-method="init">
         <property name="dbType" value="MYSQL"/>
-        <property name="defaultDbIndex" value="bd_dms_spl0"/>
+        <property name="defaultDbIndex" value="cloud_bd_dms_spl0"/>
         <property name="tableRules">
             <map>
                 <entry key="kv_index" value-ref="kv_index_bean"/>
@@ -24,7 +24,7 @@
 
     <bean id="kv_index_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#keyword, 1_string,1024#));
@@ -41,7 +41,7 @@
 
     <bean id="box_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#box_code, 1_string,1024#));
@@ -58,7 +58,7 @@
 
     <bean id="dms_out_weight_volume_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code,1,1024#).longValue());
@@ -75,7 +75,7 @@
 
     <bean id="send_d_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code, 1, 1024#).longValue());
@@ -92,7 +92,7 @@
 
     <bean id="send_m_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code, 1, 1024#).longValue());
@@ -109,7 +109,7 @@
 
     <bean id="inspection_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code, 1, 1024#).longValue());
@@ -126,7 +126,7 @@
 
     <bean id="cen_confirm_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code, 1, 1024#).longValue());
@@ -143,7 +143,7 @@
 
     <bean id="sorting_bean" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#create_site_code, 1, 1024#).longValue());
@@ -160,7 +160,7 @@
 
     <bean id="business_code" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#code, 1_string,1024#));
@@ -177,7 +177,7 @@
 
     <bean id="business_code_attribute" class="com.jd.jddl.interact.rule.TableRule">
         <property name="extraPackages" value="com.jd.bluedragon.utils.jddl.*"/>
-        <property name="dbNamePattern" value="bd_dms_spl{0}"/>
+        <property name="dbNamePattern" value="cloud_bd_dms_spl{0}"/>
         <property name="dbRuleArray">
             <value>
                 return DmsJddlUtils.getDbInstanceIndex((#code, 1_string,1024#));
