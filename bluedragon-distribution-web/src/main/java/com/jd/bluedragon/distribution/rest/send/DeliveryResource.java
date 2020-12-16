@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -46,6 +49,7 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -159,6 +163,9 @@ public class DeliveryResource {
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -1592,8 +1599,26 @@ public class DeliveryResource {
         		deliveryRequest.setHasSendPackageNum(sendDetailService.querySendDCountBySendCode(deliveryRequest.getSendCode()));
         	}
 
-        	//调用分拣无重量拦截链
-
+        	//调用分拣无重量拦截链---
+            String packageCode = deliveryRequest.getBoxCode();
+            if(WaybillUtil.isPackageCode(packageCode)){
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                WaybillCache waybillCache = waybillCacheService.getFromCache(waybillCode);
+                FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
+                funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
+                funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
+                funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
+                funcSwitchConfigAllPureDto.setCreateSiteCode(deliveryRequest.getSiteCode());
+                boolean isAllPureNeedWeight  =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
+                if(isAllPureNeedWeight){
+                    JdCResponse<Void> response = funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
+                   if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
+                       result.setCode(response.getCode());
+                       result.setMessage(response.getMessage());
+                       return result;
+                   }
+                }
+            }
 
         	//调用ver校验链
         	JdResult<CheckBeforeSendResponse> verCheckResult = jsfSortingResourceService.checkBeforeSend(deliveryRequest);
@@ -1616,6 +1641,7 @@ public class DeliveryResource {
             }
             return result;
         }catch (Exception e){
+
             log.error("调用ver接口进行老发货验证异常:{}" ,JSON.toJSONString(deliveryRequest),e);
             result.toError("调用ver接口进行老发货验证异常.");
         }
