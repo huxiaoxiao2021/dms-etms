@@ -73,4 +73,17 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
         parameters.put("waybillCode", waybillCode);
         return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findWaybillWeightFlow", parameters);
     }
+
+
+    /**
+     * 查询所有称重流水
+     * @param waybillCode
+     * @param businessTypes
+     */
+    public List<PackageWeighting> findAllPackageWeightFlow(String waybillCode, List<Integer> businessTypes) {
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findAllPackageWeightFlow", parameters);
+    }
 }

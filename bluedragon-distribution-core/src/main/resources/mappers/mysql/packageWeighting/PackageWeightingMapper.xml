@@ -117,23 +117,45 @@
     <select id="findWaybillWeightFlow" resultMap="packageWeighting" parameterType="java.util.Map">
         SELECT
         weight,
-        package_code
+        package_code,
+        waybill_code
         FROM ${tableName}
         WHERE is_delete = 0
         AND waybill_code=#{waybillCode, jdbcType=VARCHAR}
-        AND package_code like  CONCAT(#{waybillCode, jdbcType=VARCHAR},'%')
+        AND package_code=#{waybillCode, jdbcType=VARCHAR}
         AND business_type in
         <foreach item="item" index="index" collection="list" open="("
                  separator="," close=")">
             #{item}
         </foreach>
+        AND weight > 0
+        limit 1
+    </select>
+
+    <!--根据运单查询-所有称重流水-->
+    <select id="findAllPackageWeightFlow" resultMap="packageWeighting" parameterType="java.util.Map">
+        SELECT
+        weight,
+        package_code,
+        waybill_code
+        FROM ${tableName}
+        WHERE is_delete = 0
+        AND waybill_code=#{waybillCode, jdbcType=VARCHAR}
+        AND business_type in
+        <foreach item="item" index="index" collection="list" open="("
+                 separator="," close=")">
+            #{item}
+        </foreach>
+        AND weight > 0
+        limit 50000
     </select>
 
     <!--包裹维度-称重流水-->
     <select id="findPackageWeightFlow" resultMap="packageWeighting" parameterType="java.util.Map">
         SELECT
         weight,
-        package_code
+        package_code,
+        waybill_code
         FROM ${tableName}
         WHERE is_delete = 0
         AND waybill_code=#{waybillCode, jdbcType=VARCHAR}
