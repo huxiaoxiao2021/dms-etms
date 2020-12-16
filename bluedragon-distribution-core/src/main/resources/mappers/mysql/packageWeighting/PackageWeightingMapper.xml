@@ -159,7 +159,7 @@
         FROM ${tableName}
         WHERE is_delete = 0
         AND waybill_code=#{waybillCode, jdbcType=VARCHAR}
-        AND package_code=#{package_code,jdbcType=VARCHAR})
+        AND package_code=#{package_code,jdbcType=VARCHAR}
         AND business_type in
         <foreach item="item" index="index" collection="list" open="("
                  separator="," close=")">
