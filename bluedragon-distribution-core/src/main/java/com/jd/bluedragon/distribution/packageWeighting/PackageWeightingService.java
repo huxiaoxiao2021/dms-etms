@@ -39,4 +39,13 @@ public interface PackageWeightingService {
      * @return
      */
     boolean  weightVolumeValidateCP(String waybillCode,String packageCode);
+
+    /**
+     * 纯配外单-查询重量 大于0 的称重流水
+     * @param waybillCode
+     * @param packageCode
+     * @param businessTypes
+     * @return
+     */
+    List<PackageWeighting> findWeightVolumeCp(String waybillCode, String packageCode, List<Integer> businessTypes);
 }
