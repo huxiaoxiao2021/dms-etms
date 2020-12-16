@@ -114,20 +114,21 @@ public class WeightVolumeFilter implements Filter {
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
-            if(!packageWeightingService.weightVolumeValidateCP(waybillCode, packageCode)){
+            //从运单接口查
+            WaybillCache waybillNoCache = request.getWaybillCache();
+            if (waybillNoCache == null) {
+                throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+            }
+            //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
+            if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0) {
+                logger.warn("未查询到纯配外单重量信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
+            }
+            if(!packageWeightingService.weightValidateFlow(waybillCode, packageCode)){
                 if(logger.isInfoEnabled()) {
                     logger.info("本地库未查到纯配外单重量，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
                 }
-                //从运单接口查
-                WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
-                if (waybillNoCache == null) {
-                    throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
-                }
-                //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
-                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0) {
-                    logger.warn("未查询到纯配外单重量信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
-                    throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
-                }
+                throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
             }
         }else if (isNeedWeight) {
             //查询重量体积信息
