@@ -136,18 +136,26 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PackageWeighting.PackageWeightingServiceImpl.weightValidateFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean weightValidateFlow(String waybillCode, String packageCode, Integer quantity) {
         try {
+
               //1.是包裹维度判断
               if(WaybillUtil.isPackageCode(packageCode)) {
+                  if(logger.isInfoEnabled()){
+                      logger.info("包裹维度查询重量流水,waybillCode:{},packageCode:{}",waybillCode,packageCode);
+                  }
                   List<PackageWeighting> packageWeightings = findPackageWeightFlow(waybillCode, packageCode, BusinessTypeEnum.getAllCode());
                   if(CollectionUtils.isNotEmpty(packageWeightings)){
                      return true;
                   }
+                  logger.warn("包裹维度查询包裹称重流水为空,看运单是否称重,waybillCode:{},packageCode:{}",waybillCode,packageCode);
                   //包裹没称过重，看运单的
                   List<PackageWeighting> waybillWeightings = findWaybillWeightFlow(waybillCode, BusinessTypeEnum.getAllCode());
                   if(CollectionUtils.isNotEmpty(waybillWeightings)){
                       return true;
                   }
               }else {
+                  if(logger.isInfoEnabled()){
+                      logger.info("运单维度查询重量流水,waybillCode:{},packageCode:{}",waybillCode,packageCode);
+                  }
                   //2.运单维度判断
                   List<PackageWeighting> waybillWeightings = findWaybillWeightFlow(waybillCode, BusinessTypeEnum.getAllCode());
                   if(CollectionUtils.isNotEmpty(waybillWeightings)){
@@ -155,8 +163,10 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                   }
                   // 运单没有包裹需要判断是否称重
                   if(quantity == null || quantity <= 0){
-                      return true;
+                      logger.warn("当前运单没有包裹数量waybillCode:{},packageCode:{}",waybillCode,packageCode);
+                      return false;
                   }
+                  logger.warn("运单维度查询运单称重流水为空,看全部包裹是否称重,waybillCode:{},packageCode:{}",waybillCode,packageCode);
                   List<PackageWeighting> waybillAllPackageWeightings = findAllPackageWeightFlow(waybillCode, BusinessTypeEnum.getAllCode());
                   if(CollectionUtils.isEmpty(waybillAllPackageWeightings)){
                       logger.warn("PackageWeightingServiceImpl-->weightValidateFlow 运单包裹均没有称重：waybillCode=" + waybillCode + ",packageCode=" + packageCode);

@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
@@ -155,6 +156,9 @@ public class DeliveryResource {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -1587,6 +1591,10 @@ public class DeliveryResource {
         	if(BusinessHelper.isSendCode(deliveryRequest.getSendCode())){
         		deliveryRequest.setHasSendPackageNum(sendDetailService.querySendDCountBySendCode(deliveryRequest.getSendCode()));
         	}
+
+        	//调用分拣无重量拦截链
+
+
         	//调用ver校验链
         	JdResult<CheckBeforeSendResponse> verCheckResult = jsfSortingResourceService.checkBeforeSend(deliveryRequest);
             if(!verCheckResult.isSucceed()){
