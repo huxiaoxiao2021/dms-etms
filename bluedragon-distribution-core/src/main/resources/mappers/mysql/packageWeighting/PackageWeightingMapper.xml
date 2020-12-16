@@ -127,7 +127,6 @@
                  separator="," close=")">
             #{item}
         </foreach>
-        AND weight > 0
     </select>
 
     <!--包裹维度-称重流水-->
@@ -147,6 +146,4 @@
         AND weight > 0
         limit 1
     </select>
-
-
 </mapper>
