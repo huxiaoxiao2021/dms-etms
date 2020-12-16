@@ -57,7 +57,9 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                 packageWeightings = findWeightVolume(waybillCode, packageCode,
                         Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.TOTAL.getCode()));
             } else {
-                packageWeightings = findWeightVolume(waybillCode, packageCode, BusinessTypeEnum.getBeforeCode());
+                packageWeightings = findWeightVolume(waybillCode, packageCode,
+                        Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.PICKER.getCode(),BusinessTypeEnum.PICK_RESIDENT.getCode(),BusinessTypeEnum.PICK.getCode(),
+                                BusinessTypeEnum.CAR_TEAM.getCode(),BusinessTypeEnum.TOTAL.getCode()));
             }
         } catch (Exception e) {
             logger.error("PackageWeightingServiceImpl-->weightVolumeValidate查询称重量方失败：waybillCode=" + waybillCode + ",packageCode=" + packageCode, e);

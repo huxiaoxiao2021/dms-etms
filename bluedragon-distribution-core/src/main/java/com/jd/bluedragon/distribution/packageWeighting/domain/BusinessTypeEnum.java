@@ -37,19 +37,6 @@ public enum BusinessTypeEnum {
         return codes;
     }
 
-    // 运单包裹称重类型 原有编码 2020.12.16之前的 取前6位
-    public static List<Integer> getBeforeCode(){
-        BusinessTypeEnum[] list = BusinessTypeEnum.values();
-        List<Integer> codes = new ArrayList<Integer>(list.length);
-        for(BusinessTypeEnum businessType : list){
-            if(businessType.code<=6){
-                codes.add(businessType.code);
-            }
-        }
-        return codes;
-    }
-
-
     BusinessTypeEnum(int code, String name) {
         this.code = code;
         this.name = name;
