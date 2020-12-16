@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.packageWeighting.impl;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.router.CacheTablePartition;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
@@ -132,7 +133,7 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
      * @return true 有重量流水，false 无重量流水
      */
     @Override
-    @JProfiler(jKey = "DMS.PackageWeighting.PackageWeightingServiceImpl.weightValidateFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PackageWeighting.PackageWeightingServiceImpl.weightValidateFlow", mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean weightValidateFlow(String waybillCode, String packageCode, Integer quantity) {
         try {
               //1.是包裹维度判断
