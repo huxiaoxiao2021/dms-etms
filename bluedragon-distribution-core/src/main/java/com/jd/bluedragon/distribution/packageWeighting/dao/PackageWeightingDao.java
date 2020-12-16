@@ -39,7 +39,6 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
         String tableName = null;
         paramMap.put("waybillCode", waybillCode);
 
-
         //查询前重新计算分配的db和tableName
         String db = CacheTablePartition.getDmsCacheDb(waybillCode);
         tableName = CacheTablePartition.getDmsPackageWeightingCacheTableName(waybillCode);
@@ -50,20 +49,28 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
     }
 
     /**
-     * 纯配外单-重量校验逻辑
+     * 包裹维度-查询称重流水
      * @param waybillCode
      * @param packageCode
      * @param businessTypes
-     * @return
      */
-    public List<PackageWeighting> findWeightVolumeCp(String waybillCode, String packageCode, List<Integer> businessTypes) {
+    public List<PackageWeighting> findPackageWeightFlow(String waybillCode, String packageCode, List<Integer> businessTypes){
         Map<String, Object> parameters = generateParamMap(waybillCode);
         parameters.put("list", businessTypes);
         parameters.put("waybillCode", waybillCode);
-        //扫的运单号分拣的话 sql里判断不一样，库里packagecode
-        if (WaybillUtil.isPackageCode(packageCode)) {
-            parameters.put("packageCode", packageCode);
-        }
-        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findWeightVolumeCp", parameters);
+        parameters.put("packageCode", packageCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findPackageWeightFlow", parameters);
+    }
+
+    /**
+     * 运单维度-查询称重流水
+     * @param waybillCode
+     * @param businessTypes
+     */
+    public List<PackageWeighting> findWaybillWeightFlow(String waybillCode, List<Integer> businessTypes) {
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findWaybillWeightFlow", parameters);
     }
 }

@@ -38,14 +38,22 @@ public interface PackageWeightingService {
      * @param packageCode
      * @return
      */
-    boolean  weightVolumeValidateCP(String waybillCode,String packageCode);
+    boolean  weightValidateFlow(String waybillCode,String packageCode);
 
     /**
-     * 纯配外单-查询重量 大于0 的称重流水
+     * 查询包裹重量 称重流水
      * @param waybillCode
      * @param packageCode
      * @param businessTypes
      * @return
      */
-    List<PackageWeighting> findWeightVolumeCp(String waybillCode, String packageCode, List<Integer> businessTypes);
+    List<PackageWeighting> findPackageWeightFlow(String waybillCode, String packageCode, List<Integer> businessTypes);
+
+    /**
+     * 查询运单重量 称重流水
+     * @param waybillCode
+     * @param businessTypes
+     * @return
+     */
+    List<PackageWeighting>  findWaybillWeightFlow(String waybillCode,List<Integer> businessTypes);
 }
