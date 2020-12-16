@@ -114,22 +114,7 @@ public class WeightVolumeFilter implements Filter {
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
-            //从运单接口查
-            WaybillCache waybillNoCache = request.getWaybillCache();
-            if (waybillNoCache == null) {
-                throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
-            }
-            //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
-            if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0) {
-                logger.warn("未查询到纯配外单重量信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
-                throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
-            }
-            if(!packageWeightingService.weightValidateFlow(waybillCode, packageCode)){
-                if(logger.isInfoEnabled()) {
-                    logger.info("本地库未查到纯配外单重量，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
-                }
-                throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
-            }
+            checkAllPureWeight(request, waybillCode, packageCode);
         }else if (isNeedWeight) {
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
@@ -156,6 +141,25 @@ public class WeightVolumeFilter implements Filter {
             }
         }
         chain.doFilter(request, chain);
+    }
+
+    private void checkAllPureWeight(FilterContext request, String waybillCode, String packageCode) throws SortingCheckException {
+        //从运单接口查
+        WaybillCache waybillNoCache = request.getWaybillCache();
+        if (waybillNoCache == null) {
+            throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+        }
+        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
+        if (waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() > 0) {
+            return;
+        }
+        //从本地库里查询-重量
+        if(!packageWeightingService.weightValidateFlow(waybillCode, packageCode,request.getWaybillCache().getQuantity())){
+            if(logger.isInfoEnabled()) {
+                logger.info("本地库未查到纯配外单重量，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+            }
+            throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
+        }
     }
 
     /**
