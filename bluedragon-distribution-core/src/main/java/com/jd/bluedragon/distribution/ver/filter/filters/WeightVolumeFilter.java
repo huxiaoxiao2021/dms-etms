@@ -153,10 +153,12 @@ public class WeightVolumeFilter implements Filter {
         if (waybillNoCache.getAgainWeight() != null && waybillNoCache.getAgainWeight() > 0) {
             return;
         }
+
+        logger.warn("运单缓存未查询重量,查询运单库,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
         //从本地库里查询-重量
         if(!packageWeightingService.weightValidateFlow(waybillCode, packageCode,request.getWaybillCache().getQuantity())){
             if(logger.isInfoEnabled()) {
-                logger.info("本地库未查到纯配外单重量，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+                logger.info("本地库未查到纯配外单重量,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
             }
             throw new SortingCheckException(SortingResponse.CODE_29419, SortingResponse.MESSAGE_29419);
         }
