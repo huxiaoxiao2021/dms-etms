@@ -15,9 +15,13 @@ import java.util.List;
  */
 public interface LoadAndUnloadCarGatewayService {
 
-    JdCResponse<UnloadCarScanResult> getUnloadCar(UnloadCarScanRequest unloadCarScanRequest);
+    JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode);
 
-    JdVerifyResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest);
+    JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest);
 
     JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest);
 

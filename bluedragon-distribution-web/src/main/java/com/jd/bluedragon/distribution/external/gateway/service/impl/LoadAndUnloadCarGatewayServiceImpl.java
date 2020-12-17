@@ -27,7 +27,20 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
 
     @Override
-    public JdCResponse<UnloadCarScanResult> getUnloadCar(UnloadCarScanRequest unloadCarScanRequest) {
+    public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
+        JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
+
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadCar(sealCarCode);
+
+        jdCResponse.setCode(invokeResult.getCode());
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
         if (unloadCarScanRequest == null) {
             jdCResponse.toError("参数不能为空");
@@ -43,7 +56,20 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     }
 
     @Override
-    public JdVerifyResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+    public JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
+
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.barCodeScan(unloadCarScanRequest);
+
+        jdCResponse.setCode(invokeResult.getCode());
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
+    public JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
 
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.barCodeScan(unloadCarScanRequest);
