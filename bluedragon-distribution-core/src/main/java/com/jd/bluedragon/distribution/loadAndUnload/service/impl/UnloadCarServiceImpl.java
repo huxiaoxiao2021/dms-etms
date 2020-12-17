@@ -25,11 +25,8 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
-import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
+import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
@@ -1151,6 +1148,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         } else {
             inspection.setPackageBarOrWaybillCode(request.getBarCode());
         }
+        inspection.setPackageBarOrWaybillCode(request.getBarCode());
+        inspection.setBizSource(InspectionBizSourceEnum.UNLOAD_CAR_INSPECTION.getCode());
+
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         taskRequest.setKeyword1(String.valueOf(request.getOperateUserCode()));

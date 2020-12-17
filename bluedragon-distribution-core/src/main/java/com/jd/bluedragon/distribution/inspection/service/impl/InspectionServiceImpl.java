@@ -535,6 +535,7 @@ public class InspectionServiceImpl implements InspectionService {
 		inspAS.setSiteName(uPackage.getSortCenterName());
 		inspAS.setUserCode(uPackage.getOperatorID());
 		inspAS.setUserName(uPackage.getOperatorName());
+		inspAS.setBizSource(uPackage.getBizSource());
 		inspASs.add(inspAS);
 		return inspASs;
 	}
