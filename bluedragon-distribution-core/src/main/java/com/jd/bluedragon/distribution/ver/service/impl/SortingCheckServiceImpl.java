@@ -164,7 +164,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         if(filterContext == null || checkException == null){
             return true;
         }
-        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}, operateNode: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
+        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
 
         try {
             Long currentTimeMillis = System.currentTimeMillis();
@@ -332,6 +332,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         pdaOperateRequest.setOperateUserName(sortingCheck.getOperateUserName());
         pdaOperateRequest.setOperateTime(sortingCheck.getOperateTime());
         pdaOperateRequest.setOperateType(sortingCheck.getOperateType());
+        pdaOperateRequest.setOperateNode(sortingCheck.getOperateNode());
         if(sortingCheck.getIsLoss() == null){
             pdaOperateRequest.setIsLoss(0);
         }else{
