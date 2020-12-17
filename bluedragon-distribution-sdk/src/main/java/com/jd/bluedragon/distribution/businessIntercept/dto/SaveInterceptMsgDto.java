@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.businessIntercept.domain;
+package com.jd.bluedragon.distribution.businessIntercept.dto;
 
 import java.io.Serializable;
 
@@ -177,9 +177,9 @@ public class SaveInterceptMsgDto implements Serializable {
                 ", siteName='" + siteName + '\'' +
                 ", deviceType=" + deviceType +
                 ", deviceCode='" + deviceCode + '\'' +
-                ", operatorUserCode=" + operateUserCode +
-                ", operatorUserErp='" + operateUserErp + '\'' +
-                ", operatorUserName='" + operateUserName + '\'' +
+                ", operateUserCode=" + operateUserCode +
+                ", operateUserErp='" + operateUserErp + '\'' +
+                ", operateUserName='" + operateUserName + '\'' +
                 ", operateTime=" + operateTime +
                 ", interceptCode=" + interceptCode +
                 ", interceptMessage='" + interceptMessage + '\'' +

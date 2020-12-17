@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
  * @author fanggang7
  * @time 2020-12-11 17:35:34 周五
  */
-public interface IBusinessInterceptReportService {
+public interface IBusinessInterceptReportJsfService {
 
     /**
      * 发送拦截消息

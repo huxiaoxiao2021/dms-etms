@@ -1,6 +1,4 @@
-package com.jd.bluedragon.distribution.businessIntercept.domain;
-
-import lombok.Data;
+package com.jd.bluedragon.distribution.businessIntercept.dto;
 
 import java.io.Serializable;
 
@@ -10,7 +8,6 @@ import java.io.Serializable;
  * @author fanggang7
  * @time 2020-12-11 17:26:14 周五
  */
-@Data
 public class SaveDisposeAfterInterceptMsgDto implements Serializable {
 
     private static final long serialVersionUID = 5587512028695038563L;
@@ -126,9 +123,9 @@ public class SaveDisposeAfterInterceptMsgDto implements Serializable {
                 ", disposeNode=" + disposeNode +
                 ", siteCode=" + siteCode +
                 ", siteName='" + siteName + '\'' +
-                ", operatorUserErp='" + operateUserErp + '\'' +
-                ", operatorUserCode=" + operateUserCode +
-                ", operatorUserName='" + operateUserName + '\'' +
+                ", operateUserErp='" + operateUserErp + '\'' +
+                ", operateUserCode=" + operateUserCode +
+                ", operateUserName='" + operateUserName + '\'' +
                 ", operateTime=" + operateTime +
                 '}';
     }

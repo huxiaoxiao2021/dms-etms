@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndMeasure.service;
 
-import com.jd.bluedragon.distribution.businessIntercept.domain.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolumeDao;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;

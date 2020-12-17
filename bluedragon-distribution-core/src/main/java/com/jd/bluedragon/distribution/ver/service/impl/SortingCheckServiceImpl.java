@@ -26,7 +26,7 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.filter.chains.*;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.businessIntercept.domain.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -160,26 +160,33 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         if(filterContext == null || checkException == null){
             return true;
         }
-        Long currentTimeMillis = System.currentTimeMillis();
-        SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-        saveInterceptMsgDto.setInterceptCode(checkException.getCode());
-        saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
-        saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
-        saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
-        saveInterceptMsgDto.setOperateTime(currentTimeMillis);
-        saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-        saveInterceptMsgDto.setDeviceCode("人工手持设备");
-        saveInterceptMsgDto.setOperateNode(operateNode);
-        PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
-        saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
-        saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
-        saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
+        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}, operateNode: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException), operateNode);
 
-        String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
         try {
-            businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            Long currentTimeMillis = System.currentTimeMillis();
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(checkException.getCode());
+            saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
+            saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
+            saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
+            saveInterceptMsgDto.setOperateTime(currentTimeMillis);
+            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
+            saveInterceptMsgDto.setDeviceCode("人工手持设备");
+            saveInterceptMsgDto.setOperateNode(operateNode);
+            PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
+            saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
+            saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
+            saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
+
+            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                logger.error("SortingCheckServiceImpl call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+            }
         } catch (Exception e) {
-            logger.error("sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+            logger.error("SortingCheckServiceImpl sendInterceptMsg exception [{}]" , e.getMessage(), e);
+            return false;
         }
         return true;
     }

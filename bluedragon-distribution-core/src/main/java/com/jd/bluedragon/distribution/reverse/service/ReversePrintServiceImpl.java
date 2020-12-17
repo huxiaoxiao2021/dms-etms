@@ -21,7 +21,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
-import com.jd.bluedragon.distribution.businessIntercept.domain.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
