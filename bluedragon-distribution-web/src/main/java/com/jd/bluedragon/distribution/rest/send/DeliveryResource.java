@@ -1605,25 +1605,12 @@ public class DeliveryResource {
         		deliveryRequest.setHasSendPackageNum(sendDetailService.querySendDCountBySendCode(deliveryRequest.getSendCode()));
         	}
 
-        	//调用分拣无重量拦截链---
-            String packageCode = deliveryRequest.getBoxCode();
-            if(WaybillUtil.isPackageCode(packageCode)){
-                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-                WaybillCache waybillCache = waybillCacheService.getFromCache(waybillCode);
-                FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
-                funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
-                funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
-                funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
-                funcSwitchConfigAllPureDto.setCreateSiteCode(deliveryRequest.getSiteCode());
-                boolean isAllPureNeedWeight  =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
-                if(isAllPureNeedWeight){
-                    JdCResponse<Void> response = funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
-                   if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
-                       result.setCode(response.getCode());
-                       result.setMessage(response.getMessage());
-                       return result;
-                   }
-                }
+        	//调用分拣无重量拦截链---2020.12.17 目前主要针对满足纯配外单的0 重量
+            JdCResponse<Void>  response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
+            if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
+                result.setCode(response.getCode());
+                result.setMessage(response.getMessage());
+                return result;
             }
 
         	//调用ver校验链
@@ -1652,5 +1639,34 @@ public class DeliveryResource {
             result.toError("调用ver接口进行老发货验证异常.");
         }
         return result;
+    }
+
+    /**
+     * 老发货无重量拦截校验-提炼于拦截链
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    private  JdCResponse<Void>  allPureValidateWeight(String packageCode,Integer siteCode){
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.setCode(Constants.SUCCESS_NO_CODE);
+        if(WaybillUtil.isPackageCode(packageCode)){
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            WaybillCache waybillCache = waybillCacheService.getNoCache(waybillCode);
+            FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
+            funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
+            funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
+            funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
+            funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
+            // 是否满足无重量拦截条件
+            boolean isAllPureNeedWeight  =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
+            if(log.isInfoEnabled()){
+                log.info("运单waybillCode:{},当前isAllPureNeedWeight标识为:{}",waybillCode,isAllPureNeedWeight);
+            }
+            if(isAllPureNeedWeight){
+                return  funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
+            }
+        }
+        return  response;
     }
 }
