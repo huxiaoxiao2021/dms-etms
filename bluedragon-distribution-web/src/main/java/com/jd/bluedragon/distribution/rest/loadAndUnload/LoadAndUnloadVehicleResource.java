@@ -104,7 +104,7 @@ public class LoadAndUnloadVehicleResource {
             result.parameterError(remindMessage);
             return result;
         }
-        return unloadCarService.barCodeScan(unloadCarScanRequest);
+        return unloadCarService.packageCodeScan(unloadCarScanRequest);
     }
 
     /**
