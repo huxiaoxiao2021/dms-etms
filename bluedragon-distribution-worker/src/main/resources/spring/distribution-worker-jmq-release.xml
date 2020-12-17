@@ -288,5 +288,10 @@
     <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
     </jmq:consumer>
+
+    <!--快运暂存发货信息-->
+    <jmq:consumer id="jmq.kyStorageSendConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.kyStorageSend}" listener="kyStorageSendConsumer"/>
+    </jmq:consumer>
 </beans>
 
