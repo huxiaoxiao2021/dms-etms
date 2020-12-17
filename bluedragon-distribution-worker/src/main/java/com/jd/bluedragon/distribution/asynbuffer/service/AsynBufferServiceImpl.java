@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.inspection.InspectionOperateTypeEnum;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -29,6 +30,8 @@ import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrategy;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
@@ -92,6 +95,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                 return true;
             }
             for (InspectionRequest request : middleRequests) {
+                // 添加 操作类型: 按运单验货/按包裹验货
+                if (!StringUtils.isEmpty(request.getPackageBarOrWaybillCode())) {
+                    if (WaybillUtil.isWaybillCode(request.getPackageBarOrWaybillCode())) {
+                        request.setOperateType(InspectionOperateTypeEnum.WAYBILL.getCode());
+                    } else if (WaybillUtil.isPackageCode(request.getPackageBarOrWaybillCode())) {
+                        request.setOperateType(InspectionOperateTypeEnum.PACK.getCode());
+                    } else if (BusinessUtil.isBoxcode(request.getPackageBarOrWaybillCode())) {
+                        request.setOperateType(InspectionOperateTypeEnum.BOX.getCode());
+                    }
+                }
 
                 inspectionTaskExeStrategy.decideExecutor(request).process(request);
             }
@@ -139,7 +152,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
                 public void process() {
 
                     InspectionRequest request = JsonHelper.fromJsonUseGson(task.getBody(), InspectionRequest.class);
-
+                    request.setOperateType(InspectionOperateTypeEnum.WAYBILL.getCode());
                     inspectionTaskExeStrategy.decideExecutor(request).process(request);
 
                 }
@@ -348,6 +361,12 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             } else if (keyword1.equals("7")) {
                 //组板任务处理
                 return deliveryService.doBoardDelivery(task);
+            } else if (keyword1.equals("10")) {
+                //按运单发货分页任务处理
+                return deliveryService.doWaybillSendDelivery(task);
+            } else if (keyword1.equals("11")) {
+                //按运单发货拆分任务处理
+                return deliveryService.doSendByWaybillSplitTask(task);
             }else {
                 //没有找到对应的方法，提供报错信息
                 this.log.error("task id is {} can not find process method",task.getId());
