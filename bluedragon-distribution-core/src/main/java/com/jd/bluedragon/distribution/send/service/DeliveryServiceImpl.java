@@ -540,6 +540,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!SendResult.CODE_OK.equals(result.getKey())) {
             return result;
         }
+        // 防止拦截器链路修改boxCode
+        domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
         // 锁定运单发货
         if (!lockWaybillSend(domain)) {
             result.init(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
@@ -560,8 +562,11 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain 发货数据
      */
     private void pushWaybillSendTask(SendM domain,Integer taskType) {
+        if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+            domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        }
         Task tTask = new Task();
-        tTask.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        tTask.setBoxCode(domain.getBoxCode());
         tTask.setBody(JsonHelper.toJson(domain));
         tTask.setCreateSiteCode(domain.getCreateSiteCode());
         tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
