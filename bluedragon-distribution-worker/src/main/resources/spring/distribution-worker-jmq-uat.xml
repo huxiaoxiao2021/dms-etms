@@ -194,5 +194,10 @@
     <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
     </jmq:consumer>
+
+    <!--快运暂存发货信息-->
+    <jmq:consumer id="jmq.kyStorageSendConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.kyStorageSend}" listener="kyStorageSendConsumer"/>
+    </jmq:consumer>
 </beans>
 

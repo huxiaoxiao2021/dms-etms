@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -66,4 +65,17 @@ public interface StoragePackageDDao extends Dao<StoragePackageD> {
      */
     List<String> findStorageCodeByWaybillCodeAndSiteCode(StoragePackageD storagePackageD);
 
+    /**
+     * 查询未发货包裹暂存明细
+     * @param waybillCode
+     * @return
+     */
+    List<StoragePackageD> queryUnSendByWaybill(String waybillCode);
+
+    /**
+     * 更新包裹发货时间
+     * @param packageCode
+     * @return
+     */
+    int updateSendTimeByPackageCode(String packageCode);
 }
