@@ -22,7 +22,6 @@ import com.jd.bluedragon.distribution.material.service.SortingMaterialSendServic
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.wss.dto.SealCarResultDto;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
