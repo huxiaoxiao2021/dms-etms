@@ -65,6 +65,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -1536,6 +1537,7 @@ public class SortingServiceImpl implements SortingService {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
+            pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
 			//调用web分拣验证校验链
 			sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {

@@ -40,6 +40,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONObject;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -92,14 +93,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
     // 拦截报表操作节点分拣类型
-    @Value("${businessIntercept.business.node.sorting}")
-    private Integer interceptBusinessNodeSorting;
+    @Value("${businessIntercept.operate.node.sorting}")
+    private Integer interceptOperateNodeSorting;
     // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.business.node.send}")
-    private Integer interceptBusinessNodeSend;
+    @Value("${businessIntercept.operate.node.send}")
+    private Integer interceptOperateNodeSend;
     // 拦截报表操作节点组板类型
-    @Value("${businessIntercept.business.node.boardCombination}")
-    private Integer interceptBusinessNodeBoardCombination;
+    @Value("${businessIntercept.operate.node.boardCombination}")
+    private Integer interceptOperateNodeBoardCombination;
     // 拦截报表操作节点设备类型
     @Value("${businessIntercept.device.type.pda}")
     private Integer interceptOperateDeviceTypePda;
@@ -142,7 +143,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 response.setCode(checkException.getCode());
                 response.setMessage(checkException.getMessage());
                 // 发出拦截报表mq
-                this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeSorting);
+                this.sendInterceptMsg(filterContext, checkException);
             } else {
                 logger.error("分拣验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -159,11 +160,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      * @author fanggang7
      * @time 2020-12-10 11:21:39 周四
      */
-    private boolean sendInterceptMsg(FilterContext filterContext, SortingCheckException checkException, Integer operateNode){
+    private boolean sendInterceptMsg(FilterContext filterContext, SortingCheckException checkException){
         if(filterContext == null || checkException == null){
             return true;
         }
-        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}, operateNode: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException), operateNode);
+        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}, operateNode: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
 
         try {
             Long currentTimeMillis = System.currentTimeMillis();
@@ -175,8 +176,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setOperateTime(currentTimeMillis);
             saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
             saveInterceptMsgDto.setDeviceCode("人工手持设备");
-            saveInterceptMsgDto.setOperateNode(operateNode);
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
+            saveInterceptMsgDto.setOperateNode(this.getOperateNode(pdaOperateRequest));
             saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
             saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
@@ -192,6 +193,26 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             return false;
         }
         return true;
+    }
+
+    /**
+     * 根据操作节点获取拦截报表对应操作节点
+     * @param pdaOperateRequest pda请求参数
+     * @return 节点
+     * @author fanggang7
+     * @time 2020-12-17 20:48:27 周四
+     */
+    private int getOperateNode(PdaOperateRequest pdaOperateRequest){
+        int operateNode = 0;
+        if(pdaOperateRequest.getOperateNode() != null){
+            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SEND){
+                operateNode = interceptOperateNodeSend;
+            }
+            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SORTING){
+                operateNode = interceptOperateNodeSorting;
+            }
+        }
+        return operateNode;
     }
 
     @Override
@@ -222,7 +243,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     response.setCode(checkException.getCode());
                     response.setMessage(checkException.getMessage());
                     // 发出拦截报表mq
-                    this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeSend);
+                    this.sendInterceptMsg(filterContext, checkException);
                 } else {
                     logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                     response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -265,7 +286,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             if (ex instanceof SortingCheckException) {
                 SortingCheckException checkException = (SortingCheckException) ex;
                 // 发出拦截报表mq
-                this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeBoardCombination);
+                this.sendInterceptMsg(filterContext, checkException);
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);

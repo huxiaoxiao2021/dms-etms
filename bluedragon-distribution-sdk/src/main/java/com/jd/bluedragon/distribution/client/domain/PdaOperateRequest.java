@@ -66,6 +66,11 @@ public class PdaOperateRequest {
 	 * 是否校验验货集齐
 	 */
 	Integer isGather;
+
+    /**
+     * 业务操作节点
+     */
+    Integer operateNode;
 	
 	public Integer getOperateType() {
 		return operateType;
@@ -151,4 +156,12 @@ public class PdaOperateRequest {
 	public void setIsGather(Integer isGather) {
 		this.isGather = isGather;
 	}
+
+    public Integer getOperateNode() {
+        return operateNode;
+    }
+
+    public void setOperateNode(Integer operateNode) {
+        this.operateNode = operateNode;
+    }
 }
