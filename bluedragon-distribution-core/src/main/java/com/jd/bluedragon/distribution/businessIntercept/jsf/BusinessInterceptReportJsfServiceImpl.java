@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @author fanggang7
  * @time 2020-12-16 21:34:40 周三
  */
-@Service
+@Service("businessInterceptReportJsfService")
 public class BusinessInterceptReportJsfServiceImpl implements IBusinessInterceptReportJsfService {
 
     @Autowired
