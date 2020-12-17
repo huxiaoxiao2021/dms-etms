@@ -808,7 +808,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
 
         //逆向不拦截
-        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+        if (!BusinessUtil.isForeignForwardAndWaybillMarkForward(waybillSign)) {
             return false;
         }
 
