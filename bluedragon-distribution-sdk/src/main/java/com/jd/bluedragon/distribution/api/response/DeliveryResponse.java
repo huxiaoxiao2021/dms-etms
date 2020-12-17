@@ -148,6 +148,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CANCELDELIVERYCHECK_NOSEAL = 40018;
     public static final String MESSAGE_CANCELDELIVERYCHECK_NOSEAL = "该批次还没有封车，可取消发货";
 
+    public static final Integer CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = 40019;
+    public static final String MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = "该批次还没有封车，可取消发货";
+
     /**取消发货校验提示语 End*/
 
 

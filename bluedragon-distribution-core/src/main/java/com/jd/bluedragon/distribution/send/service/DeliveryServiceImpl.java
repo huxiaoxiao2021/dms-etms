@@ -61,6 +61,9 @@ import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
+import com.jd.bluedragon.distribution.packageWeighting.domain.BusinessTypeEnum;
+import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
@@ -105,18 +108,11 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolumeDao;
+import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -136,6 +132,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.quality.enums.SiteTypeEnum;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -384,6 +381,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private LoadCarDao loadCarDao;
+
+    @Autowired
+    private PackageWeightingDao packageWeightingDao;
 
     /**
      * 自动过期时间 15分钟
@@ -727,6 +727,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryResponse response = checkRouterForCBox(domain);
             if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), null);
+                return false;
+            }
+            // 校验箱的重量和体积
+            DeliveryResponse weightAndVolumeCheck = zeroWeightAndVolumeCheck(domain);
+            if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
+                result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), null);
                 return false;
             }
         }
@@ -1752,6 +1758,36 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
+        }
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = zeroWeightAndVolumeCheck(tSendM);
+        }
+        return response;
+    }
+
+    /**
+     * 0重量和体积校验
+     * 目前指针对一下单子拦截：众邮
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse zeroWeightAndVolumeCheck(SendM tSendM) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        //限定范围
+        //实发网点类型为经济网 10000 为众邮箱号
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+        if (!SiteHelper.isEconomicNet(yrDto)){
+            return response;
+        }
+        //查询箱重量和体积
+        List<PackageWeighting> packageWeightings = packageWeightingDao.findWeightVolume(tSendM.getBoxCode(),tSendM.getBoxCode(),Arrays.asList(BusinessTypeEnum.DMS.getCode()));
+
+        //判断
+        if (CollectionUtils.isEmpty(packageWeightings) ||
+                packageWeightings.get(0).getWeight().compareTo(0.0) <= 0 ||
+                packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
+            response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+            response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
         }
         return response;
     }
