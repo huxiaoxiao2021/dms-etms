@@ -31,8 +31,8 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
     private BasicSelectWS basicSelectWs;
 
     @Override
-    public List<TransportResourceDto> queryPageTransportResource(TransportResourceDto transportResourceDto) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResource", false, true);
+    public List<TransportResourceDto> queryPageTransportResourceWithNodeId(TransportResourceDto transportResourceDto) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageTransportResourceWithNodeId", false, true);
         //返回的结果
         List<TransportResourceDto> result = new ArrayList<>();
 
@@ -45,9 +45,9 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                 logger.info("调用运输运力数据分页接口入参page:{},transportResourceDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(transportResourceDto));
             }
             long  start = System.currentTimeMillis();
-            CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResource(page,transportResourceDto);
+            CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
             if(commonDto == null  || commonDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS){
-                logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
+                logger.warn("BasicSelectWS.queryPageTransportResourceWithNodeId return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
                 return result;
             }else {
                 long firstEnd = System.currentTimeMillis();
@@ -65,7 +65,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                         temp.setPageSize(1000);
                         CommonDto<PageDto<TransportResourceDto>> commonTempDto  = basicSelectWs.queryPageTransportResource(temp,transportResourceDto);
                         if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
-                            logger.warn("BasicSelectWS.queryPageTransportResource return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
+                            logger.warn("BasicSelectWS.queryPageTransportResourceWithNodeId return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
                         } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
                             result.addAll(commonTempDto.getData().getResult());
                         }
