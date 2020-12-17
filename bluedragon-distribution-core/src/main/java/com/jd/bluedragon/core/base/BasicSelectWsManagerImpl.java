@@ -63,7 +63,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                         PageDto<TransportResourceDto> temp = new PageDto();
                         temp.setCurrentPage(i);
                         temp.setPageSize(1000);
-                        CommonDto<PageDto<TransportResourceDto>> commonTempDto  = basicSelectWs.queryPageTransportResource(temp,transportResourceDto);
+                        CommonDto<PageDto<TransportResourceDto>> commonTempDto  = basicSelectWs.queryPageTransportResourceWithNodeId(temp,transportResourceDto);
                         if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
                             logger.warn("BasicSelectWS.queryPageTransportResourceWithNodeId return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
                         } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
