@@ -92,11 +92,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
     // 拦截报表操作节点分拣类型
-    @Value("${businessIntercept.operate.node.sorting}")
-    private Integer interceptOperateNodeSorting;
+    @Value("${businessIntercept.business.node.sorting}")
+    private Integer interceptBusinessNodeSorting;
     // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.operate.node.send}")
-    private Integer interceptOperateNodeSend;
+    @Value("${businessIntercept.business.node.send}")
+    private Integer interceptBusinessNodeSend;
+    // 拦截报表操作节点组板类型
+    @Value("${businessIntercept.business.node.boardCombination}")
+    private Integer interceptBusinessNodeBoardCombination;
     // 拦截报表操作节点设备类型
     @Value("${businessIntercept.device.type.pda}")
     private Integer interceptOperateDeviceTypePda;
@@ -139,7 +142,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 response.setCode(checkException.getCode());
                 response.setMessage(checkException.getMessage());
                 // 发出拦截报表mq
-                this.sendInterceptMsg(filterContext, checkException, interceptOperateNodeSorting);
+                this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeSorting);
             } else {
                 logger.error("分拣验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -219,7 +222,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     response.setCode(checkException.getCode());
                     response.setMessage(checkException.getMessage());
                     // 发出拦截报表mq
-                    this.sendInterceptMsg(filterContext, checkException, interceptOperateNodeSorting);
+                    this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeSend);
                 } else {
                     logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                     response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -243,10 +246,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
         }
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        FilterContext filterContext = null;
         try {
             if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
-                FilterContext filterContext = this.initFilterParam(boardCombinationRequest);
+                filterContext = this.initFilterParam(boardCombinationRequest);
                 //获取校验链
                 FilterChain boardCombinationChain = getBoardCombinationFilterChain();
                 //校验过程
@@ -260,6 +264,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         } catch (Exception ex) {
             if (ex instanceof SortingCheckException) {
                 SortingCheckException checkException = (SortingCheckException) ex;
+                // 发出拦截报表mq
+                this.sendInterceptMsg(filterContext, checkException, interceptBusinessNodeBoardCombination);
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);
