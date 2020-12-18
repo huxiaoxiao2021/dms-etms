@@ -1772,7 +1772,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         //限定范围
         //实发网点类型为经济网 10000 为众邮箱号
-        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+        if (null == tSendM || StringUtils.isEmpty(tSendM.getBoxCode())){
+            return response;
+        }
+        Box box = boxService.findBoxByCode(tSendM.getBoxCode());
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
         if (!SiteHelper.isEconomicNet(yrDto)){
             return response;
         }
