@@ -486,11 +486,11 @@
     </bean>
 
     <!-- 业务操作拦截消息发送给拦截报表 -->
-    <bean id="businessOperateInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="businessOperateInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
     </bean>
     <!-- 拦截后处理数据发送给拦截报表 -->
-    <bean id="disposeAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="disposeAfterInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
 
