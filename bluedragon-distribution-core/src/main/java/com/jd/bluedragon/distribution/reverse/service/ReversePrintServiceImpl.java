@@ -404,6 +404,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             saveDisposeAfterInterceptMsgDto.setBarCode(oldWaybillCode);
             saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeExchangeWaybill);
             saveDisposeAfterInterceptMsgDto.setOperateTime(currentTimeMillis);
+            log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
             log.error("sendDisposeAfterInterceptMsg exception, oldWaybillCode: [{}]" , oldWaybillCode, e);

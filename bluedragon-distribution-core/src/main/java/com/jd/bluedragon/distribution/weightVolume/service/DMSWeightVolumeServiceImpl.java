@@ -95,6 +95,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
         String saveInterceptMqMsg = JSON.toJSONString(saveDisposeAfterInterceptMsgDto);
         try {
+            logger.info("PackageSendHandler sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JSON.toJSONString(saveInterceptMqMsg));
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
             logger.error("sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);

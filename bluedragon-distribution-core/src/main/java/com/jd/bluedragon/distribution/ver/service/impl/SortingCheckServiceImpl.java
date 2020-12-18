@@ -40,6 +40,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONObject;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -167,16 +168,16 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
 
         try {
-            Long currentTimeMillis = System.currentTimeMillis();
             SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
             saveInterceptMsgDto.setInterceptCode(checkException.getCode());
             saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
             saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
             saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
-            saveInterceptMsgDto.setOperateTime(currentTimeMillis);
             saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
             saveInterceptMsgDto.setDeviceCode("人工手持设备");
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
+            long operateTimeMillis = DateUtil.parse(pdaOperateRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
             saveInterceptMsgDto.setOperateNode(this.getOperateNode(pdaOperateRequest));
             saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
             saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
