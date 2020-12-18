@@ -92,6 +92,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeWeightAndVolume);
         saveDisposeAfterInterceptMsgDto.setOperateUserErp(weightVolumeEntity.getOperatorCode());
         saveDisposeAfterInterceptMsgDto.setOperateUserName(weightVolumeEntity.getOperatorName());
+        saveDisposeAfterInterceptMsgDto.setSiteCode(weightVolumeEntity.getOperateSiteCode());
+        saveDisposeAfterInterceptMsgDto.setSiteName(weightVolumeEntity.getOperateSiteName());
 
         String saveInterceptMqMsg = JSON.toJSONString(saveDisposeAfterInterceptMsgDto);
         try {
