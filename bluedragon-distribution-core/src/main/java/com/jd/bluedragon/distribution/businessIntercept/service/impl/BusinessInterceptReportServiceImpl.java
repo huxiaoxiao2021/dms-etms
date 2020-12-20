@@ -28,13 +28,13 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Qualifier("businessOperateInterceptSendProducer")
+    @Qualifier("businessOperateInterceptActionSendProducer")
     @Autowired
-    private DefaultJMQProducer businessOperateInterceptSendProducer;
+    private DefaultJMQProducer businessOperateInterceptActionSendProducer;
 
-    @Qualifier("disposeAfterInterceptSendProducer")
+    @Qualifier("disposeActionAfterInterceptSendProducer")
     @Autowired
-    private DefaultJMQProducer disposeAfterInterceptSendProducer;
+    private DefaultJMQProducer disposeActionAfterInterceptSendProducer;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -60,7 +60,7 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
                     msgDto.setOperateUserErp(baseStaff.getErp());
                 }
             }
-            businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
+            businessOperateInterceptActionSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
             log.info("BusinessInterceptReportServiceImpl sendInterceptMsg full param: {}", JSON.toJSONString(msgDto));
         } catch (Exception e) {
             log.error("BusinessInterceptReportServiceImpl sendInterceptMsg exception {}", e.getMessage(), e);
@@ -90,7 +90,7 @@ public class BusinessInterceptReportServiceImpl implements IBusinessInterceptRep
                     msgDto.setOperateUserErp(baseStaff.getErp());
                 }
             }
-            disposeAfterInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
+            disposeActionAfterInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
             log.info("BusinessInterceptReportServiceImpl sendDisposeAfterInterceptMsg full param: {}", JSON.toJSONString(msgDto));
         } catch (Exception e) {
             log.error("BusinessInterceptReportServiceImpl sendDisposeAfterInterceptMsg exception {}", e.getMessage(), e);

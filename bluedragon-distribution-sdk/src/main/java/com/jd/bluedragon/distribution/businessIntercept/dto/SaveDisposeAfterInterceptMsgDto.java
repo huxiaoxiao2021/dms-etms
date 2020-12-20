@@ -18,6 +18,16 @@ public class SaveDisposeAfterInterceptMsgDto implements Serializable {
     private String barCode;
 
     /**
+     * 包裹号
+     */
+    private String packageCode;
+
+    /**
+     * 运单号
+     */
+    private String waybillCode;
+
+    /**
      * 应对操作
      */
     private Integer disposeNode;
@@ -58,6 +68,22 @@ public class SaveDisposeAfterInterceptMsgDto implements Serializable {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 
     public Integer getDisposeNode() {
