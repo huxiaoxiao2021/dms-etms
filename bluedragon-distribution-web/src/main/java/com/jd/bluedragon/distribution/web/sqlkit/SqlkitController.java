@@ -117,20 +117,27 @@ public class SqlkitController {
 			int i = 0;
 			for(String querySql : querySqls){
 				String result = "第"+(i+1)+"个库 ";
-				try {
-					String queryResult = connection.prepareStatement(querySql).executeQuery().getMetaData().getColumnName(0);
-					result += "查询成功，返回内容"+queryResult+" ";
 
-				}catch (Exception e){
-					log.error(querySql,e);
-					result += "查询失败 ";
-				}
 				try {
 					int updateResult = connection.prepareStatement(updateSqls.get(i)).executeUpdate();
 					result += updateResult == 1 ?"更新成功 ":"更新失败"+updateResult+"行 ";
 				}catch (Exception e){
 					log.error(updateSqls.get(i),e);
 					result += "更新失败 ";
+				}
+				try {
+					resultSet = connection.prepareStatement(querySql).executeQuery();
+					ResultSetMetaData rsmd = resultSet.getMetaData();
+					int columnCount = rsmd.getColumnCount();// 获得列数
+					List<String> columnList = setColumnList(rsmd, columnCount);
+					List<Map<String, Object>> rowList = setRows(resultSet, rsmd, columnCount);
+					int rowCount = rowList.size();
+
+					result += "查询成功，返回内容"+rowCount+"条"+columnList.get(0)+"值为"+rowList.get(0).get(columnList.get(0)) ;
+
+				}catch (Exception e){
+					log.error(querySql,e);
+					result += "查询失败 ";
 				}
 				results.add(result);
 				i++;
