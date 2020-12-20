@@ -173,6 +173,86 @@ public class SqlkitController {
 		return results;
 	}
 
+	@RequestMapping(value = "/checkJddlUpdateNum",method = RequestMethod.GET)
+	@ResponseBody
+	public List<String> checkJddlUpdateNum() {
+		PreparedStatement pstmt = null;
+		ResultSet resultSet = null;
+		Connection connection = null;
+
+		List<String> querySqls = new ArrayList<>();
+		List<String> results = new ArrayList<>();
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '761856' and send_d_id = '1339834213315338240'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '706644' and send_d_id = '1339836724780679168'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '680084' and send_d_id = '1339837260254814208'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '654778' and send_d_id = '1339843347829866496'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '682272' and send_d_id = '1339833533510844416'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '865620' and send_d_id = '1339838654080765952'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '1358228' and send_d_id = '1339846563946631168'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '1367532' and send_d_id = '1339508010704297984'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '729610' and send_d_id = '1339847272125554689'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '1345128' and send_d_id = '1339847660912361472'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '1345176' and send_d_id = '1339830811315286016'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '847566' and send_d_id = '1339847716461760512'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '847638' and send_d_id = '1339842736744972288'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '681840' and send_d_id = '1339849032105840640'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '700318' and send_d_id = '1339849695896391680'");
+		querySqls.add("select EXCUTE_COUNT from send_d where create_site_code = '877566' and send_d_id = '1339590626442493952'");
+
+		try{
+			connection = ((DataSource)SpringHelper.getBean("jddlShardingDataSource")).getConnection();
+			int i = 0;
+			for(String querySql : querySqls){
+				String result = "第"+(i+1)+"个库 ";
+
+				try {
+					resultSet = connection.prepareStatement(querySql).executeQuery();
+					ResultSetMetaData rsmd = resultSet.getMetaData();
+					int columnCount = rsmd.getColumnCount();// 获得列数
+					List<String> columnList = setColumnList(rsmd, columnCount);
+					List<Map<String, Object>> rowList = setRows(resultSet, rsmd, columnCount);
+					int rowCount = rowList.size();
+
+					result += "查询成功，返回内容"+rowCount+"条"+columnList.get(0)+"值为"+rowList.get(0).get(columnList.get(0)) ;
+
+				}catch (Exception e){
+					log.error(querySql,e);
+					result += "查询失败 ";
+				}
+				results.add(result);
+				i++;
+			}
+
+		}catch (Exception e){
+			log.error(e.getMessage(),e);
+		}finally {
+			try {
+				if (resultSet != null) {
+					resultSet.close();
+				}
+			} catch (SQLException se) {
+				this.log.error("关闭文件流发生异常！", se);
+			}
+			try {
+				if (pstmt != null) {
+					pstmt.close();
+				}
+			} catch (SQLException se) {
+				this.log.error("关闭PreparedStatement发生异常！", se);
+			}
+			try {
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException se) {
+				this.log.error("关闭文件流发生异常！", se);
+			}
+		}
+
+
+		return results;
+	}
+
 
 	private void setDataSourceNames(Model model) {
 		List<String> dataSourceNames = Arrays.asList(PropertiesHelper.newInstance()
