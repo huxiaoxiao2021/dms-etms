@@ -729,7 +729,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             // 校验箱的重量和体积
             DeliveryResponse weightAndVolumeCheck = zeroWeightAndVolumeCheck(domain);
             if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
-                result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), null);
+                result.init(SendResult.CODE_SERVICE_ERROR, response.getMessage(), response.getCode(), null);
                 return false;
             }
         }
