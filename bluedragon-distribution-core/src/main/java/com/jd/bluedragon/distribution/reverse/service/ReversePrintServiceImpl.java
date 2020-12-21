@@ -59,6 +59,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
@@ -307,6 +308,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //换单打印判断是否发起分拣中心退货任务
         qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
 
+        // 发送拦截报表
+        this.sendDisposeAfterInterceptMsg(domain);
+
         return true;
     }
 
@@ -361,7 +365,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             }else{
                 targetResult.customMessage(-1,"没有获取到新的取件单");
             }
-            this.sendDisposeAfterInterceptMsg(oldWaybillCode);
             return targetResult;
         }
         else{
@@ -371,7 +374,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 targetResult.setMessage(result.getMessage());
                 if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                     targetResult.setData(result.getData().getWaybillCode());
-                    this.sendDisposeAfterInterceptMsg(oldWaybillCode);
                     return targetResult;
                 }else{
                 	log.warn("获取新单号失败！waybillCommonService.getReverseWaybill。单号{}，返回结果：{}",oldWaybillCode,JsonHelper.toJson(result));
@@ -389,25 +391,30 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     /**
      * 发送消息
-     * @param oldWaybillCode 原始单号
+     * @param reversePrintRequest 换单请求参数
      * @return 发送结果
      * @author fanggang7
      * @time 2020-12-14 14:11:58 周一
      */
-    private Response<Boolean> sendDisposeAfterInterceptMsg(String oldWaybillCode){
+    private Response<Boolean> sendDisposeAfterInterceptMsg(ReversePrintRequest reversePrintRequest){
+        log.info("sendDisposeAfterInterceptMsg. sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 
         try {
-            long currentTimeMillis = System.currentTimeMillis();
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
-            saveDisposeAfterInterceptMsgDto.setBarCode(oldWaybillCode);
+            saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
             saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeExchangeWaybill);
-            saveDisposeAfterInterceptMsgDto.setOperateTime(currentTimeMillis);
+            saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(reversePrintRequest.getStaffId());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(reversePrintRequest.getStaffRealName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(reversePrintRequest.getSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(reversePrintRequest.getSiteName());
             log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
-            log.error("sendDisposeAfterInterceptMsg exception, oldWaybillCode: [{}]" , oldWaybillCode, e);
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JSON.toJSONString(reversePrintRequest), e);
             result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;
