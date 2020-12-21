@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ public class WaybillParamFilter implements Filter {
         //运单的校验
         WaybillCache waybillCache = this.waybillCacheService.getFromCache(request.getWaybillCode());
         request.setWaybillCache(waybillCache);
+
         if (waybillCache == null) {
             throw new SortingCheckException(SortingResponse.CODE_39002,
                     SortingResponse.MESSAGE_39002);

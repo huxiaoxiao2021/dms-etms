@@ -203,7 +203,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.5.3-SNAPSHOT</version>
+			<version>1.5.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -501,7 +501,6 @@
             <version>1.0.2.RELEASE</version>
         </dependency>
 
-
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
@@ -737,25 +736,6 @@
             <artifactId>etms-vehicle-interface</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-		<dependency>
-		    <groupId>com.jd.stock.iwms</groupId>
-		    <artifactId>iwms-app-export</artifactId>
-		    <version>0.2.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>jsf</artifactId>
-					<groupId>com.jd</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>fastjson</artifactId>
-					<groupId>com.alibaba</groupId>
-				</exclusion>
-                <exclusion>
-                    <artifactId>commons-beanutils</artifactId>
-                    <groupId>commons-beanutils</groupId>
-                </exclusion>
-            </exclusions>
-		</dependency>
         <!-- 国际化-库存出管 -->
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
@@ -1154,7 +1134,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.1.7-SNAPSHOT</version>
+			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1504,7 +1484,6 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
 		</dependency>
-
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1562,6 +1541,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
         <!-- 方法注解缓存插件 -->
         <dependency>
             <groupId>com.jd.etms</groupId>
