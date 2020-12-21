@@ -1776,6 +1776,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
         Box box = boxService.findBoxByCode(tSendM.getBoxCode());
+        if(null == box){
+            return response;
+        }
         BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
         if (!SiteHelper.isEconomicNet(yrDto)){
             return response;
