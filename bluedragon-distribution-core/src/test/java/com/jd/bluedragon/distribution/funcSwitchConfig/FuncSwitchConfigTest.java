@@ -4,20 +4,30 @@ import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.util.UniformValidateUtil;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.dms.common.domain.JdResponse;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,13 +66,13 @@ public class FuncSwitchConfigTest {
         if(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode()==funcSwitchConfigDto.getMenuCode()){
             BaseDmsAutoJsfResponse<Long> longBaseDmsAutoJsfResponse = null;
             if(funcSwitchConfigDto.getDimensionCode()== DimensionEnum.NATIONAL.getCode()){
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF? WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainWeightSwitch(funcSwitchConfigDto.getYn()==YN_OFF? WeightValidateSwitchEnum.ZY_OFF:WeightValidateSwitchEnum.ZY_ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     System.out.println("众邮分拣机开关调用失败,全国");
                 }
             }else {
                 Integer[] siteCodes = {funcSwitchConfigDto.getSiteCode()};
-                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.OFF:WeightValidateSwitchEnum.ON);
+                longBaseDmsAutoJsfResponse = deviceConfigInfoJsfService.maintainSiteWeightSwitch(siteCodes,funcSwitchConfigDto.getYn()==YN_OFF?WeightValidateSwitchEnum.ZY_OFF:WeightValidateSwitchEnum.ZY_ON);
                 if(longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
                     System.out.println("众邮分拣机开关调用失败,站点:"+siteCodes);
                 }
@@ -153,5 +163,96 @@ public class FuncSwitchConfigTest {
         System.out.println(isAllMailFilter);
     }
 
+    @Test
+    public void test07() throws Exception {
+        List<Integer>  zySiteCodesOffList = null;
+        //纯配外单-调用分拣机list
+       // List<Integer>  cpSiteCodesOffList = null;
+        FuncSwitchConfigDto dto = new FuncSwitchConfigDto();
+        dto.setSiteCode(11111);
+        dto.setDimensionCode(2);
+        zySiteCodesOffList  =  checkDimensionGetList(dto,zySiteCodesOffList);
+        System.out.println(zySiteCodesOffList.toString());
+    }
+
+    public List<Integer> checkDimensionGetList  (FuncSwitchConfigDto dto, List<Integer> siteCodesOffList) throws Exception {
+        if(dto.getDimensionCode()==DimensionEnum.SITE.getCode()){
+            if(CollectionUtils.isEmpty(siteCodesOffList)){
+                siteCodesOffList = new ArrayList<>();
+            }
+            //调用不拦截
+            siteCodesOffList.add(dto.getSiteCode());
+        }else if(dto.getDimensionCode()==DimensionEnum.NATIONAL.getCode()){
+            throw  new Exception("批量导入不支持全国数据,请手动添加");
+        }
+        return siteCodesOffList;
+    }
+
+    @Test
+    public  void test08(){
+        BaseEntity<Waybill>  waybillBaseEntity =    test09();
+        System.out.println(waybillBaseEntity);
+    }
+
+    public BaseEntity<Waybill> test09(){
+        BaseEntity<Waybill> waybillBaseEntity = null;
+        try {
+            int i = 10/0;
+        }catch (Exception e){
+
+        }
+        return null;
+    }
+
+    @Test
+    public void test10(){
+       FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> func =  funcSwitchConfigService.getSiteFilterStatus(910);
+
+    }
+
+    @Test
+    public  void test11(){
+        String waybillSign = "20001000010900050000000000000000000000000002000000002000000000000000000000000010000100000000100000000000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
+        String waybillCode = "JDVA04660574424";
+
+        //众邮不拦截
+        if(WaybillCodePattern.ENOCOMIC_WAYBILL_CODE.equals(UniformValidateUtil.getSpecificWaybillCodePattern(waybillCode))){
+            System.out.println("false");
+        }
+
+        //1.是否是纯配外单-非纯配不拦截
+        if(!BusinessHelper.isAllPureOutWaybill(waybillSign)){
+            System.out.println("false");
+        }
+
+        //逆向不拦截
+        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+            System.out.println("false");
+        }
+
+        //2.信任商家不拦截
+        if(BusinessHelper.isTrust(waybillSign)){
+            System.out.println("false");
+        }
+
+        Integer code = 1001;
+        if(code.equals(TraderMoldTypeEnum.inside_type.getCode())){
+            System.out.println("false");
+        }
+
+        System.out.println("true");
+       /* //3.内部商家不拦截
+        String customerCode = request.getWaybillCache().getCustomerCode();
+        if(org.apache.commons.lang.StringUtils.isEmpty(customerCode)){
+
+        }
+*/
+      /*  //不是全国-查询站点维度
+        if(request.getCreateSiteCode()!=null){
+            Integer  siteCode = request.getCreateSiteCode();
+            //当缓存中存在时
+            return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_COMPLETE_DELIVERY.getCode(),siteCode);
+        }*/
+    }
 }
     

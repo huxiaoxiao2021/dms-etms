@@ -639,6 +639,11 @@ public class BusinessHelper {
             isPop = true;
         }
 
+        //纯配外单且 非信任商家
+        if(StringUtils.isEmpty(waybillCache.getWaybillSign())|| BusinessHelper.isAllPureOutWayBillAndIsNotTrust(waybillCache.getWaybillSign())){
+           return  true;
+        }
+
         Integer orgId = waybillCache.getOrgId();
         Integer siteCode = waybillCache.getSiteCode();
         Integer paymentType = waybillCache.getPaymentType();
@@ -835,6 +840,45 @@ public class BusinessHelper {
      */
     public static boolean isNeedCollectingWaybill(String waybillSign){
         return BusinessUtil.isSignChar(waybillSign, 45, '2');
+    }
+
+    /**
+     * 判断是否是纯配外单
+     * waybill_sign第53位等于0或2 表示纯配
+     * 且waybill_sign第1位等于2或3或6或9或K或Y 表示外单
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllPureOutWaybill(String waybillSign){
+        boolean isPureWaybill = BusinessUtil.isSignChar(waybillSign,53,'0')||BusinessUtil.isSignChar(waybillSign,53,'2');
+        boolean isOutWaybill =  BusinessUtil.isSignChar(waybillSign,1,'2')||
+                                BusinessUtil.isSignChar(waybillSign,1,'3')||
+                                BusinessUtil.isSignChar(waybillSign,1,'6')||
+                                BusinessUtil.isSignChar(waybillSign,1,'9')||
+                                BusinessUtil.isSignChar(waybillSign,1,'K')||
+                                BusinessUtil.isSignChar(waybillSign,1,'Y');
+
+        return isPureWaybill && isOutWaybill;
+    }
+
+    /**
+     * 是否是信任商家
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTrust(String waybillSign){
+        return  BusinessUtil.isSignChar(waybillSign,56,'1');
+    }
+
+    /**
+     * 是否 是纯配外单 且 非信任商家
+     * @return
+     */
+    public static boolean isAllPureOutWayBillAndIsNotTrust(String waybillSign){
+        if(isAllPureOutWaybill(waybillSign) && !isTrust(waybillSign)){
+            return  true;
+        }
+        return  false;
     }
 
     /**
