@@ -200,7 +200,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
             // 2. 如果是运单
             if (operateDimensionType == BusinessInterceptOperateDimensionTypeEnum.WAYBILL.getCode()) {
                 String waybillCode = WaybillUtil.getWaybillCode(barCode);
-                Waybill waybillAndPack = waybillCommonService.findWaybillAndPack(waybillCode, false, false, false, true);
+                Waybill waybillAndPack = waybillCommonService.findWaybillAndPack(waybillCode, true, false, true, true);
                 if(waybillAndPack != null && CollectionUtils.isNotEmpty(waybillAndPack.getPackList())){
                     List<Pack> packList = waybillAndPack.getPackList();
                     for (Pack pack : packList) {
