@@ -120,10 +120,10 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
             // 3. 如果是箱号
             if (operateDimensionType == BusinessInterceptOperateDimensionTypeEnum.BOX.getCode()) {
                 // 查询箱号下所有包裹号 fixme 可能存在箱号中包裹数量过大问题
-                Sorting sortinParam = new Sorting();
-                sortinParam.setCreateSiteCode(msgDto.getSiteCode());
-                sortinParam.setBoxCode(barCode);
-                List<Sorting> sortingList = sortingService.findByBoxCode(sortinParam);
+                Sorting sortingParam = new Sorting();
+                sortingParam.setCreateSiteCode(msgDto.getSiteCode());
+                sortingParam.setBoxCode(barCode);
+                List<Sorting> sortingList = sortingService.findByBoxCode(sortingParam);
                 if (sortingList.size() > 0) {
                     for (Sorting sorting : sortingList) {
                         SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();

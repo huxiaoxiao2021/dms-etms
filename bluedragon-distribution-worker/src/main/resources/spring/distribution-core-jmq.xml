@@ -486,7 +486,7 @@
     </bean>
 
     <!-- 业务操作拦截原始动作记录 -->
-    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.intercept.action.send}"/>
     </bean>
     <!-- 业务操作拦截消息发送给拦截报表 -->
@@ -494,7 +494,7 @@
         <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
     </bean>
     <!-- 拦截后处理原始动作数据发出消息 -->
-    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeActionAfterIntercept.send}"/>
     </bean>
     <!-- 拦截后处理数据发送给拦截报表 -->
