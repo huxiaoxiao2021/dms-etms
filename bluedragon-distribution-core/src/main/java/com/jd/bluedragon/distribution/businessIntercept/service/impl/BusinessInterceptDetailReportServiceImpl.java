@@ -80,6 +80,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
         log.info("BusinessInterceptDetailReportServiceImpl sendInterceptMsg param: {}", JSON.toJSONString(msgDto));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
+        result.setData(true);
 
         try {
             if(StringUtils.isBlank(msgDto.getOperateUserErp()) && msgDto.getOperateUserCode() != null){
@@ -97,6 +98,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                 BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                 saveInterceptMsgDto.setPackageCode(barCode);
                 saveInterceptMsgDto.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
+                log.info("BusinessInterceptDetailReportServiceImpl sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
                 businessOperateInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
             }
             // 2. 如果是运单
@@ -110,6 +112,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                         BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                         saveInterceptMsgDto.setPackageCode(pack.getPackageCode());
                         saveInterceptMsgDto.setWaybillCode(waybillCode);
+                        log.info("BusinessInterceptDetailReportServiceImpl sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
                         businessOperateInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
                     }
                 }
@@ -127,6 +130,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                         BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                         saveInterceptMsgDto.setPackageCode(sorting.getPackageCode());
                         saveInterceptMsgDto.setWaybillCode(sorting.getWaybillCode());
+                        log.info("BusinessInterceptDetailReportServiceImpl sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
                         businessOperateInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
                     }
                 }
@@ -173,6 +177,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
         log.info("BusinessInterceptDetailReportServiceImpl sendDisposeAfterInterceptMsg param: {}", JSON.toJSONString(msgDto));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
+        result.setData(true);
 
         try {
             if(StringUtils.isBlank(msgDto.getOperateUserErp()) && msgDto.getOperateUserCode() != null){
@@ -189,6 +194,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                 BeanUtils.copyProperties(msgDto, saveDisposeAfterInterceptMsgDto);
                 saveDisposeAfterInterceptMsgDto.setPackageCode(barCode);
                 saveDisposeAfterInterceptMsgDto.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
+                log.info("BusinessInterceptDetailReportServiceImpl sendDisposeAfterInterceptMsg disposeAfterInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
                 disposeAfterInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
             }
             // 2. 如果是运单
@@ -202,7 +208,8 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                         BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                         saveInterceptMsgDto.setPackageCode(pack.getPackageCode());
                         saveInterceptMsgDto.setWaybillCode(waybillCode);
-                        businessOperateInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
+                        log.info("BusinessInterceptDetailReportServiceImpl sendDisposeAfterInterceptMsg disposeAfterInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
+                        disposeAfterInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
                     }
                 }
             }
@@ -219,7 +226,8 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                         BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                         saveInterceptMsgDto.setPackageCode(sorting.getPackageCode());
                         saveInterceptMsgDto.setWaybillCode(sorting.getWaybillCode());
-                        businessOperateInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
+                        log.info("BusinessInterceptDetailReportServiceImpl sendDisposeAfterInterceptMsg disposeAfterInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
+                        disposeAfterInterceptSendProducer.send(barCode, JSON.toJSONString(saveInterceptMsgDto));
                     }
                 }
             }
