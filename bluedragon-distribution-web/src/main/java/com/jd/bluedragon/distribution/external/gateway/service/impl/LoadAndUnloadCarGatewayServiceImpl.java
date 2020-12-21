@@ -27,13 +27,10 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
 
     @Override
-    public JdCResponse<UnloadCarScanResult> getUnloadCar(UnloadCarScanRequest unloadCarScanRequest) {
+    public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
-        if (unloadCarScanRequest == null) {
-            jdCResponse.toError("参数不能为空");
-            return jdCResponse;
-        }
-        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadScan(unloadCarScanRequest);
+
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadCar(sealCarCode);
 
         jdCResponse.setCode(invokeResult.getCode());
         jdCResponse.setMessage(invokeResult.getMessage());
@@ -43,10 +40,39 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     }
 
     @Override
-    public JdVerifyResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
-        JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
+    public JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
+        if (unloadCarScanRequest == null) {
+            jdCResponse.toError("参数不能为空");
+            return jdCResponse;
+        }
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadScan(unloadCarScanRequest);
+
+        jdCResponse.setCode(convertCode(invokeResult.getCode()));
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
 
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.barCodeScan(unloadCarScanRequest);
+
+        jdCResponse.setCode(invokeResult.getCode());
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
+    public JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
+
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.packageCodeScan(unloadCarScanRequest);
         // 包裹号转大宗标识
         Integer transfer = unloadCarScanRequest.getTransfer();
         if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(transfer)) {
@@ -61,7 +87,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
                 return response;
             }
         }
-        response.setCode(invokeResult.getCode());
+        response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
         response.setData(invokeResult.getData());
 
@@ -72,7 +98,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     public JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> response = new JdCResponse<>();
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.waybillScan(unloadCarScanRequest);
-        response.setCode(invokeResult.getCode());
+        response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
         response.setData(invokeResult.getData());
         return response;
@@ -167,6 +193,22 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         jdCResponse.toSucceed(result.getMessage());
         jdCResponse.setData(result.getData());
         return jdCResponse;
+    }
+
+    private int convertCode(int invokeResultCode) {
+        int code;
+        if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_SUCCESS;
+        } else if (InvokeResult.RESULT_PARAMETER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_FAIL;
+        } else if (InvokeResult.SERVER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_ERROR;
+        } else if (InvokeResult.RESULT_MULTI_ERROR == invokeResultCode) {
+            code = JdCResponse.CODE_PARTIAL_SUCCESS;
+        } else {
+            code = invokeResultCode;
+        }
+        return code;
     }
 
 }

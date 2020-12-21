@@ -38,8 +38,10 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ListUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.LoadScanDto;
@@ -708,7 +710,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     public JdCResponse<Void> saveLoadScanByWaybillCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
-        // 包裹号转板号标识
+        // 包裹号运单号标识
         Integer transfer = req.getTransfer();
         // 多扫标识
         Integer flowDisAccord = req.getFlowDisaccord();
@@ -756,28 +758,35 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("该单有" + exceptionSize + "个未验包裹，无法装车扫描，请先操作验货");
                 return response;
             }
+
             // 运单上可以装车的有效包裹
-            List<GoodsLoadScanRecord> insertRecords = new ArrayList<>();
-            List<GoodsLoadScanRecord> updateRecords = new ArrayList<>();
+            List<String> insertPackageCodes = new ArrayList<>();
+            List<Long> updateRecordIds = new ArrayList<>();
+
             // 校验运单号是否属于重复扫
-            handlePackagesOfBulk(packageList, loadCar, null, req, insertRecords, updateRecords);
-            // 如果可以装车的包裹为空，则属于重复扫
-            if (insertRecords.isEmpty() && updateRecords.isEmpty()) {
+            handlePackagesOfWaybill(waybillCode, loadCar, packageList, insertPackageCodes, updateRecordIds);
+            if (insertPackageCodes.isEmpty() && updateRecordIds.isEmpty()) {
                 log.error("该运单号属于重复扫！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该运单号属于重复扫！");
                 return response;
             }
-
+            GoodsLoadScanRecord record = createGoodsLoadScanRecord(taskId, waybillCode, null, null, transfer,
+                    flowDisAccord, user, loadCar);
             // 更新之前取消的为已装
-            if (!updateRecords.isEmpty()) {
-                for (GoodsLoadScanRecord record : updateRecords) {
-                    goodsLoadScanRecordDao.updateGoodsScanRecordById(record);
-                }
+            if (!updateRecordIds.isEmpty()) {
+                record.setIdList(updateRecordIds);
+                goodsLoadScanRecordDao.batchUpdateGoodsScanRecordByIds(record);
             }
-            if (!insertRecords.isEmpty()) {
-                // 批量暂存运单上的包裹
-                goodsLoadScanRecordDao.batchInsert(insertRecords);
+            // 批量暂存运单上的包裹
+            if (!insertPackageCodes.isEmpty()) {
+                // 分割insertPackageCodes，每段1000个
+                List<List<String>> subPackageCodes = ListUtils.partition(insertPackageCodes, 1000);
+                // 分批批量插入，每次1000个
+                for (List<String> packageCodes : subPackageCodes) {
+                    record.setPackageCodeList(packageCodes);
+                    goodsLoadScanRecordDao.batchInsertByWaybill(record);
+                }
             }
 
             // 扫描第一个包裹时，修改任务状态为已开始
@@ -787,7 +796,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             loadScan.setTaskId(taskId);
             loadScan.setWayBillCode(waybillCode);
             // 计算已装、未装
-            loadScan.setLoadAmount(insertRecords.size() + updateRecords.size());
+            loadScan.setLoadAmount(insertPackageCodes.size() + updateRecordIds.size());
             // 按运单暂存，库存有多少就装多少，未装永远等于0
             loadScan.setUnloadAmount(0);
             // 按运单暂存，永远是装齐状态，运单颜色为绿色
@@ -924,6 +933,44 @@ public class LoadScanServiceImpl implements LoadScanService {
                         boardCode, transfer, flowDisAccord, user, loadCar);
                 insertRecords.add(goodsLoadScanRecord);
             }
+        }
+    }
+
+    /**
+     * 对包裹号集合进行处理，梳理出新增的和要修改的，从而判断是否重复扫
+     * @param packages 包裹号集合
+     * @param waybillCode 运单号
+     * @param insertPackageCodes 新增的包裹号集合
+     * @param updateRecordIds 修改的包裹ID集合
+     */
+    private void handlePackagesOfWaybill(String waybillCode, LoadCar loadCar, List<String> packages,
+                                         List<String> insertPackageCodes, List<Long> updateRecordIds) {
+
+        // 根据即将要装的包裹号列表来查询当前中心是否扫描过。
+        Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByWaybillCode(loadCar.getCreateSiteCode(), waybillCode);
+        // 如果这些包裹有之前扫过的，需要过滤
+        if (packageMap != null && !packageMap.isEmpty()) {
+            // 循环处理每一个包裹
+            for (String packCode : packages) {
+                if (!WaybillUtil.isPackageCode(packCode)) {
+                    continue;
+                }
+                GoodsLoadScanRecord record = packageMap.get(packCode);
+                // 重复扫的包裹忽略
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
+                    continue;
+                }
+                // 扫描过但被取消的包裹可以再装
+                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                    updateRecordIds.add(record.getId());
+                }
+                // 没扫描过的包裹正常装
+                if (record == null) {
+                    insertPackageCodes.add(packCode);
+                }
+            }
+        } else {
+            insertPackageCodes.addAll(packages);
         }
     }
 

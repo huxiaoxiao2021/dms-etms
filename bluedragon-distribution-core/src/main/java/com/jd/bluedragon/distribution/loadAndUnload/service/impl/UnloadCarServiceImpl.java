@@ -217,6 +217,75 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setData(convertToUnloadCarResult(request));
         logger.info("卸车扫描1：参数request={}", JsonHelper.toJson(request));
         try {
+            // 包裹是否扫描成功
+            packageIsScanBoard(request);
+            if(!request.getIsForceCombination()){
+                // 验货校验
+                inspectionIntercept(request);
+                // 路由校验、生成板号
+                routerCheck(request,result);
+                BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
+                BeanUtils.copyProperties(request,boardCommonRequest);
+                // 是否发货校验
+                boardCommonManager.isSendCheck(boardCommonRequest);
+                // 包裹数限制
+                boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
+                // 是否多货包裹校验
+                surfacePackageCheck(request,result);
+                // ver组板拦截
+                InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
+                if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+                    result.customMessage(invokeResult.getCode(),invokeResult.getMessage());
+
+                    return result;
+                }
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                    return result;
+                }
+            }else {
+                surfacePackageCheck(request,result);
+            }
+
+            if(StringUtils.isEmpty(request.getBoardCode())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
+                return result;
+            }
+            // 多货包裹标识
+            boolean isSurplusPackage = false;
+            if(result.getCode() == CODE_SUCCESS_HIT){
+                isSurplusPackage = true;
+            }
+
+            // 卸车处理并回传TC组板关系
+            dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            //设置包裹数
+            setPackageCount(result.getData());
+        }catch (LoadIllegalException e){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
+            return result;
+        }catch (Exception e){
+            if (e instanceof UnloadPackageBoardException) {
+                result.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return result;
+            }
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+
+    @JProfiler(jKey = "dmsWeb.loadAndUnload.UnloadCarServiceImpl.packageCodeScan",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
+        result.setData(convertToUnloadCarResult(request));
+        logger.info("卸车扫描1：参数request={}", JsonHelper.toJson(request));
+        try {
             // 如果勾选【包裹号转大宗】
             if (request.getTransfer() != null
                     && GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(request.getTransfer())) {

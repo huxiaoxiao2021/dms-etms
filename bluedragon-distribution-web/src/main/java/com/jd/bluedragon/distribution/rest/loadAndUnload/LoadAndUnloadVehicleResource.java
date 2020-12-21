@@ -79,7 +79,6 @@ public class LoadAndUnloadVehicleResource {
      */
     @POST
     @Path("/unload/barCodeScan")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
     public InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         String remindMessage = unloadParamsCheck(unloadCarScanRequest);
@@ -88,6 +87,24 @@ public class LoadAndUnloadVehicleResource {
             return result;
         }
         return unloadCarService.barCodeScan(unloadCarScanRequest);
+    }
+
+    /**
+     * 卸车扫描(新版)
+     * @param unloadCarScanRequest
+     * @return
+     */
+    @POST
+    @Path("/unload/packageCodeScan")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
+    public InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.packageCodeScan(unloadCarScanRequest);
     }
 
     /**

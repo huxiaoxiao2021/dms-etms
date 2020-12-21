@@ -46,6 +46,14 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request);
 
     /**
+     * 卸车扫描(新版)
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request);
+
+    /**
      * 卸车扫描
      *
      * @param request
