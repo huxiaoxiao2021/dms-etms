@@ -48,7 +48,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         }
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadScan(unloadCarScanRequest);
 
-        jdCResponse.setCode(invokeResult.getCode());
+        jdCResponse.setCode(convertCode(invokeResult.getCode()));
         jdCResponse.setMessage(invokeResult.getMessage());
         jdCResponse.setData(invokeResult.getData());
 
@@ -87,7 +87,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
                 return response;
             }
         }
-        response.setCode(invokeResult.getCode());
+        response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
         response.setData(invokeResult.getData());
 
@@ -98,7 +98,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     public JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> response = new JdCResponse<>();
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.waybillScan(unloadCarScanRequest);
-        response.setCode(invokeResult.getCode());
+        response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
         response.setData(invokeResult.getData());
         return response;
@@ -193,6 +193,22 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         jdCResponse.toSucceed(result.getMessage());
         jdCResponse.setData(result.getData());
         return jdCResponse;
+    }
+
+    private int convertCode(int invokeResultCode) {
+        int code;
+        if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_SUCCESS;
+        } else if (InvokeResult.RESULT_PARAMETER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_FAIL;
+        } else if (InvokeResult.SERVER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_ERROR;
+        } else if (InvokeResult.RESULT_MULTI_ERROR == invokeResultCode) {
+            code = JdCResponse.CODE_PARTIAL_SUCCESS;
+        } else {
+            code = invokeResultCode;
+        }
+        return code;
     }
 
 }
