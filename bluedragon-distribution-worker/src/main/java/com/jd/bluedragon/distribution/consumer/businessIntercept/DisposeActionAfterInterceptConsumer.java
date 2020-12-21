@@ -2,12 +2,8 @@ package com.jd.bluedragon.distribution.consumer.businessIntercept;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
-import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptDetailReportService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
