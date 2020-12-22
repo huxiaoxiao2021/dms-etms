@@ -39,7 +39,6 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
         String tableName = null;
         paramMap.put("waybillCode", waybillCode);
 
-
         //查询前重新计算分配的db和tableName
         String db = CacheTablePartition.getDmsCacheDb(waybillCode);
         tableName = CacheTablePartition.getDmsPackageWeightingCacheTableName(waybillCode);
@@ -47,5 +46,44 @@ public class PackageWeightingDao extends BaseDao<PackageWeighting> {
 
         paramMap.put("tableName", tableName);
         return paramMap;
+    }
+
+    /**
+     * 包裹维度-查询称重流水
+     * @param waybillCode
+     * @param packageCode
+     * @param businessTypes
+     */
+    public List<PackageWeighting> findPackageWeightFlow(String waybillCode, String packageCode, List<Integer> businessTypes){
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        parameters.put("packageCode", packageCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findPackageWeightFlow", parameters);
+    }
+
+    /**
+     * 运单维度-查询称重流水
+     * @param waybillCode
+     * @param businessTypes
+     */
+    public List<PackageWeighting> findWaybillWeightFlow(String waybillCode, List<Integer> businessTypes) {
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findWaybillWeightFlow", parameters);
+    }
+
+
+    /**
+     * 查询所有称重流水
+     * @param waybillCode
+     * @param businessTypes
+     */
+    public List<PackageWeighting> findAllPackageWeightFlow(String waybillCode, List<Integer> businessTypes) {
+        Map<String, Object> parameters = generateParamMap(waybillCode);
+        parameters.put("list", businessTypes);
+        parameters.put("waybillCode", waybillCode);
+        return super.getSqlSession().selectList(PackageWeightingDao.namespace + ".findAllPackageWeightFlow", parameters);
     }
 }

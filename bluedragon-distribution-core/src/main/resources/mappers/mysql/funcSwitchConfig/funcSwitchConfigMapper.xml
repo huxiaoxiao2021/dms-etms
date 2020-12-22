@@ -244,7 +244,7 @@
         <if test="siteCode != null">
             and site_code = #{siteCode,jdbcType=BIGINT}
         </if>
-        <if test="operateErp != null">
+        <if test="operateErp != null and operateErp!=''">
             and operate_erp = #{operateErp,jdbcType=VARCHAR}
         </if>
     </select>
