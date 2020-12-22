@@ -27,7 +27,6 @@ import java.util.List;
  * <p>
  *   1、下架全程跟踪时间点比发货时间早3-5秒
  *   2、更新全部下架时间
- *   3、运单下所有包裹下架则对外发MQ
  * </p>
  *
  * @author: hujiping

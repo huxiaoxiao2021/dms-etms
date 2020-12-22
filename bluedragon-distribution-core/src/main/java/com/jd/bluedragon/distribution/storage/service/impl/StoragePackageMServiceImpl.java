@@ -60,8 +60,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -406,10 +408,11 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             if (noExist == null) return;
             storagePackageDDao.batchInsert(noExist);
         }else {
+            // 明细表储位变更
+            storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
             // 主表储位号变更
             storagePackageM.setStorageCode(setNewStorageCode(putawayDTO));
             storagePackageMDao.updateKYStorageCode(storagePackageM);
-            storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
         }
     }
 
@@ -419,19 +422,21 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
      * @return
      */
     private String setNewStorageCode(PutawayDTO putawayDTO) {
-        String packageCode = putawayDTO.getBarCode();
-        StoragePackageD storagePackageD = storagePackageDDao.findLastStoragePackageDByPackageCode(packageCode);
         String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
-        StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(waybillCode);
-        if(storagePackageM == null || StringUtils.isEmpty(storagePackageM.getStorageCode())){
-            return putawayDTO.getStorageCode();
+        Integer createSiteCode = putawayDTO.getCreateSiteCode();
+        StoragePackageD StoragePackageD = new StoragePackageD();
+        StoragePackageD.setWaybillCode(waybillCode);
+        StoragePackageD.setCreateSiteCode(createSiteCode.longValue());
+        List<String> storagePackageDS = storagePackageDDao.findStorageCodeByWaybillCodeAndSiteCode(StoragePackageD);
+        StringBuilder storageCodeM = new StringBuilder(Constants.EMPTY_FILL);
+        if(CollectionUtils.isEmpty(storagePackageDS)){
+            return storageCodeM.toString();
         }
-        String storageCodeM = storagePackageM.getStorageCode();
-        if(storagePackageD == null || StringUtils.isEmpty(storagePackageD.getStorageCode())){
-            return storageCodeM + Constants.EMPTY_FILL + putawayDTO.getStorageCode();
+        Set<String> storageList = new HashSet<>(storagePackageDS);
+        for (String storageCodeD : storageList){
+            storageCodeM.append(Constants.SEPARATOR_COMMA).append(storageCodeD);
         }
-        String storageCodeD = storagePackageD.getStorageCode();
-        return storageCodeM.replaceAll(storageCodeD,putawayDTO.getStorageCode());
+        return storageCodeM.toString();
     }
 
     /**
