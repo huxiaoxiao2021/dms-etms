@@ -8,6 +8,7 @@
 
 	<!--统一引入JMQTask TBtask RedisTask 配置-->
 	<import resource="classpath:spring/worker/db/distribution-worker-task-conf.xml" />
+	<import resource="classpath:spring/worker/db/distribution-worker-task-important.xml" />
 	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-conf.xml" />
 	<import resource="classpath:spring/worker/redis/distribution-worker-task-redis-conf.xml" />
 

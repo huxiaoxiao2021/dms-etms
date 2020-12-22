@@ -1,18 +1,15 @@
 package com.jd.bluedragon.distribution.rest.storage;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.DmsLocalServerManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -46,10 +43,6 @@ public class StorageResource {
 
     private static Logger log = LoggerFactory.getLogger(StorageResource.class);
 
-
-    @Autowired
-    private BaseService baseService;
-
     @Autowired
     @Qualifier("storagePackageMService")
     private StoragePackageMService storagePackageMService;
@@ -58,9 +51,6 @@ public class StorageResource {
     @Qualifier("dmsLocalServerManager")
     private DmsLocalServerManager dmsLocalServerManager;
 
-    @Autowired
-    @Qualifier("waybillCommonService")
-    private WaybillCommonService waybillCommonService;
     /**
      * 根据所属分拣中心 获取储位号
      *
@@ -149,19 +139,6 @@ public class StorageResource {
         CallerInfo info = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.StorageResource.putaway",false, true);
-
-            //初始化 基础数据
-            BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(putawayDTO.getCreateSiteCode().toString());
-            if(site == null || site.getsId() == null){
-                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                result.setMessage("未获取到对应站点信息");
-                return result;
-            }
-            putawayDTO.setCreateSiteName(site.getSiteName());
-            putawayDTO.setCreateSiteType(site.getSiteType());
-            putawayDTO.setOrgId(site.getOrgId());
-            putawayDTO.setOrgName(site.getOrgName());
-
             //上架
             storagePackageMService.putaway(putawayDTO);
         }catch (StorageException e){

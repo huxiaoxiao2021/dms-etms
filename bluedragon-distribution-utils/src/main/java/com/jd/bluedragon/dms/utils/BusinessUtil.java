@@ -1835,4 +1835,15 @@ public class BusinessUtil {
         }
         return Pattern.compile(DmsConstants.NUMBERPLATE_CODE).matcher(input).matches();
     }
+
+    /**
+     *  判断是否为C 网
+     *  40 位为0:C网,   非0:B网
+     */
+    public static  boolean isCInternet(String waybillSign){
+        if(BusinessUtil.isSignChar(waybillSign, 40, '0')){
+            return true;
+        }
+        return  false;
+    }
 }

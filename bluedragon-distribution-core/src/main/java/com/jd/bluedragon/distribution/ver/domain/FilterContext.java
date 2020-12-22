@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -251,4 +253,5 @@ public class FilterContext {
 	public void setHasSortingPackageNum(Integer hasSortingPackageNum) {
 		this.hasSortingPackageNum = hasSortingPackageNum;
 	}
+
 }
