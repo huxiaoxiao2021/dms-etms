@@ -22,6 +22,8 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -57,6 +59,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -78,14 +81,9 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+
+import static com.jd.bluedragon.Constants.KY_DELIVERY;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -119,11 +117,6 @@ public class DeliveryResource {
     @Autowired
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
 
-    /**
-     * 快运发货标识
-     */
-    private static final Integer KY_DELIVERY = 1;
-
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     
     @Autowired
@@ -155,6 +148,9 @@ public class DeliveryResource {
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private BoxRelationService boxRelationService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -362,6 +358,15 @@ public class DeliveryResource {
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request), true);
+
+            // BC箱号取消成功后，同步取消WJ箱号的发货
+            if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
+                List<SendM> relationSendList = this.createBoxRelationSendM(Collections.singletonList(request));
+                for (SendM sendM : relationSendList) {
+                    tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendM, true);
+                }
+            }
+
         } catch (Exception e) {
             this.log.error("写入取消发货信息失败：{}",JsonHelper.toJson(request), e);
         }
@@ -457,7 +462,7 @@ public class DeliveryResource {
     }
 
     /**
-     * 老发货接口
+     * 老发货接口，批量发货按目的地循环发货
      *
      * @param request
      * @return
@@ -500,6 +505,13 @@ public class DeliveryResource {
                     } else {
                         // 正向老发货
                         tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+
+                        if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
+                            List<SendM> relationSendList = this.createBoxRelationSendM(request);
+                            if (CollectionUtils.isNotEmpty(relationSendList)) {
+                                tDeliveryResponse = deliveryService.dealWJSending(SendBizSourceEnum.OLD_PACKAGE_SEND, relationSendList);
+                            }
+                        }
                     }
 
                     if (! JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
@@ -792,6 +804,11 @@ public class DeliveryResource {
     }
     /**
      * 老发货、快运发货扫描箱号校验
+     * <ul>
+     *     <li>批量发货</li>
+     *     <li>三方发货</li>
+     *     <li>离线发货</li>
+     * </ul>
      * @param boxCode
      * @param siteCode
      * @param receiveSiteCode
@@ -800,6 +817,7 @@ public class DeliveryResource {
      */
     @GET
     @Path("/delivery/check")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkDeliveryInfo", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
@@ -807,7 +825,7 @@ public class DeliveryResource {
         if (boxCode == null || siteCode == null || businessType == null || receiveSiteCode == null) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
-        return doCheckDeliveryInfo(boxCode,Integer.parseInt(siteCode),Integer.parseInt(receiveSiteCode),Integer.parseInt(businessType));
+        return doCheckDeliveryInfo(boxCode,Integer.parseInt(siteCode),Integer.parseInt(receiveSiteCode),Integer.parseInt(businessType), null);
     }
     /**
      * 老发货、快运发货扫描箱号校验
@@ -820,7 +838,8 @@ public class DeliveryResource {
     private DeliveryResponse doCheckDeliveryInfo(String boxCode,
                 Integer siteCode,
                 Integer receiveSiteCode,
-                Integer businessType) {
+                Integer businessType,
+                Integer opType) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
@@ -830,7 +849,7 @@ public class DeliveryResource {
 
         try {
             boolean isTransferSend = deliveryService.isTransferSend(tSendM);
-            DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
+            DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend, opType);
             this.log.debug("结束验证箱号信息");
             if (tDeliveryResponse != null) {
                 //设置运单类型
@@ -1002,6 +1021,39 @@ public class DeliveryResource {
                 }
             }
         }
+        return sendMList;
+    }
+
+    /**
+     * BC箱号关联了WJ箱号，同步处理WJ的发货
+     * @param requests
+     * @return
+     */
+    private List<SendM> createBoxRelationSendM(List<DeliveryRequest> requests) {
+        List<SendM> sendMList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(requests)) {
+
+            for (DeliveryRequest request : requests) {
+                if (!BusinessUtil.isBoxcode(request.getBoxCode()) || null == request.getSiteCode()) {
+                    continue;
+                }
+                BoxRelation query = new BoxRelation(request.getBoxCode(), Long.valueOf(request.getSiteCode()));
+                InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
+                if (!sr.codeSuccess() || CollectionUtils.isEmpty(sr.getData())) {
+                    continue;
+                }
+
+                for (BoxRelation relation : sr.getData()) {
+                    if (StringUtils.isBlank(relation.getRelationBoxCode())) {
+                        continue;
+                    }
+                    SendM sendM = deliveryRequest2SendM(request);
+                    sendM.setBoxCode(relation.getRelationBoxCode());
+                    sendMList.add(sendM);
+                }
+            }
+        }
+
         return sendMList;
     }
 
@@ -1520,12 +1572,13 @@ public class DeliveryResource {
 
 
     /**
-     * 老发货校验
+     * 老发货校验，PDA无调用
      * @param deliveryRequest
      * @return
      */
     @POST
     @Path("/delivery/packageSend/check")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.packageSendCheck", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public DeliveryResponse packageSendCheck(DeliveryRequest deliveryRequest) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
@@ -1548,11 +1601,17 @@ public class DeliveryResource {
     /**
      * 2个接口合并，/delivery/packageSend/check 和 /delivery/check
      * 老发货扫描箱号或包裹号校验
+     *
+     * <ul>
+     *     <li>老发货</li>
+     *     <li>快运发货</li>
+     * </ul>
      * @param deliveryRequest
      * @return
      */
     @POST
     @Path("/delivery/packageSend/checkBeforeSend")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkBeforeSend", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResult<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest deliveryRequest) {
     	JdResult<CheckBeforeSendResponse> result = new JdResult<CheckBeforeSendResponse>();
     	CheckBeforeSendResponse checkResponse = new CheckBeforeSendResponse();
@@ -1565,7 +1624,8 @@ public class DeliveryResource {
         		DeliveryResponse boxCheckResponse = this.doCheckDeliveryInfo(deliveryRequest.getBoxCode(), 
         				deliveryRequest.getSiteCode(), 
         				deliveryRequest.getReceiveSiteCode(), 
-        				deliveryRequest.getBusinessType());
+        				deliveryRequest.getBusinessType(),
+                        deliveryRequest.getOpType());
         		if(boxCheckResponse == null){
         			result.toFail("箱号验证失败！");
         			return result;

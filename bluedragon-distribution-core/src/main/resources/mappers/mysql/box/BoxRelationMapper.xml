@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.box.dao.BoxRelationDao" >
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.box.domain.BoxRelation" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="box_code" property="boxCode" jdbcType="VARCHAR" />
+    <result column="relation_box_code" property="relationBoxCode" jdbcType="VARCHAR" />
+    <result column="create_site_code" property="createSiteCode" jdbcType="BIGINT" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, box_code, relation_box_code, create_site_code, create_user_erp, create_user_name, 
+    update_user_erp, update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+    <sql id="uniqQueryKey">
+        AND box_code = #{boxCode,jdbcType=VARCHAR}
+        AND relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </sql>
+
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.box.domain.BoxRelation" >
+    INSERT INTO dms_box_relation
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="boxCode != null" >
+        box_code,
+      </if>
+      <if test="relationBoxCode != null" >
+        relation_box_code,
+      </if>
+      <if test="createSiteCode != null" >
+        create_site_code,
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="boxCode != null" >
+        #{boxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="relationBoxCode != null" >
+        #{relationBoxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createSiteCode != null" >
+        #{createSiteCode,jdbcType=BIGINT},
+      </if>
+      <if test="createUserErp != null" >
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null" >
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByUniqKey" parameterType="com.jd.bluedragon.distribution.box.domain.BoxRelation" >
+    update
+      dms_box_relation
+    <set >
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+    </set>
+    WHERE
+        yn = 0
+    <include refid="uniqQueryKey"/>
+
+  </update>
+
+    <select id="queryBoxRelation" parameterType="com.jd.bluedragon.distribution.box.domain.BoxRelation" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_box_relation
+        WHERE
+            yn = 0
+        <if test="boxCode != null and boxCode != '' ">
+            box_code = #{boxCode,jdbcType=VARCHAR}
+        </if>
+        <if test="relationBoxCode != null and boxCode != '' ">
+            relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
+        </if>
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        </if>
+    </select>
+
+</mapper>

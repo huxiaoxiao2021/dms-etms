@@ -134,4 +134,10 @@ public interface WaybillService {
 
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
 
+    /**
+     * 判断包裹是文件类型
+     * @param waybillSign
+     * @return
+     */
+    boolean checkIsFilePack(String waybillSign);
 }
