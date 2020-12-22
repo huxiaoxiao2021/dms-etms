@@ -1,8 +1,15 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.service;
 
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
+import com.jd.bluedragon.distribution.ver.domain.FilterContext;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -105,4 +112,29 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp);
+
+    /**
+     * 查询站点的功能拦截状态
+     * @param siteCode
+     * @return
+     */
+    FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode);
+
+
+    /**
+     * 纯配重量判断
+     * @param waybillCache
+     * @param waybillCode
+     * @param packageCode
+     * @throws SortingCheckException
+     */
+   JdCResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode) ;
+
+    /**
+     * 判断是否满足 纯配外单拦截标识
+     * @param funcSwitchConfigAllPureDto
+     * true 需要判断重量   false 不需要判断重量
+     * @return
+     */
+    boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto);
 }

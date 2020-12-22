@@ -147,6 +147,7 @@
 					<table class="table table-bordered table-striped">
 						<thead>
 							<tr>
+								<th>序号</th>
 								<th>企配仓批次号</th>
 								<th>操作</th>
 							</tr>
