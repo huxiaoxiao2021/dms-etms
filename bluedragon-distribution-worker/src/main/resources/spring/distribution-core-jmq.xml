@@ -501,5 +501,9 @@
     <bean id="disposeAfterInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <bean id="dmsBusinessOperateOfflineTaskSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.offline.task.send}"/>
+    </bean>
 
 </beans>

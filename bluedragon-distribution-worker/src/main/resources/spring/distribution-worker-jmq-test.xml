@@ -290,5 +290,10 @@
     <jmq:consumer id="jmq.disposeActionAfterInterceptConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.business.operate.disposeActionAfterIntercept.send}" listener="disposeActionAfterInterceptConsumer"/>
     </jmq:consumer>
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <jmq:consumer id="jmq.offlineTaskCheckBusinessInterceptConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.business.operate.offline.task.send}" listener="offlineTaskCheckBusinessInterceptConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

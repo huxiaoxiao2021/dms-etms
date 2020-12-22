@@ -397,7 +397,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * @time 2020-12-14 14:11:58 周一
      */
     private Response<Boolean> sendDisposeAfterInterceptMsg(ReversePrintRequest reversePrintRequest){
-        log.info("sendDisposeAfterInterceptMsg. sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
         Response<Boolean> result = new Response<>();
         result.toSucceed();
 

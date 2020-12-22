@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.worker.offline;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -18,18 +19,17 @@ import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 
@@ -76,7 +76,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
      * 复合任务多个任务同时插入时，延迟的秒数，默认30s
      */
     private int delaySeconds = 30;
-    
+
+    @Qualifier("dmsBusinessOperateOfflineTaskSendProducer")
+    @Autowired
+    private DefaultJMQProducer dmsBusinessOperateOfflineTaskSendProducer;
+
 	@Override
 	public Task parse(Task task, String ownSign) {
 		return task;
@@ -89,7 +93,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 			return result;
 		}
 		try {
-            Integer taskType = JSONObject.parseArray(body).getJSONObject(0).getInteger("taskType");
+            JSONArray taskList = JSONObject.parseArray(body);
+            Integer taskType = taskList.getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
                 result = offlineSeal(body);
             }else if (Task.TASK_TYPE_FERRY_SEAL_OFFLINE
@@ -100,11 +105,34 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             }else{
                 result = offlineCore(body);
             }
+            // 离线任务处理发出mq
+            this.batchSendOfflineTask2Mq(taskContext);
 		} catch (Exception e) {
 			this.log.error("OfflineCoreTask execute--> 转换body异常body【{}】：",body, e);
 		}
 		return result;
 	}
+
+	private void batchSendOfflineTask2Mq(TaskContext<Task> taskContext){
+        String body = taskContext.getTask().getBody();
+        JSONArray taskList = JSONObject.parseArray(body);
+        // 发出离线任务mq，后续消费此消息进行后续处理
+        try {
+            Task task = taskContext.getTask();
+            String businessId = String.format("%s_%s_%s", task.getType(), task.getCreateSiteCode(), task.getReceiveSiteCode());
+            List<Message> messageList = new ArrayList<>();
+            for (Object taskItem : taskList) {
+                Message message = new Message();
+                message.setBusinessId(businessId);
+                message.setText(JsonHelper.toJson(taskItem));
+                message.setTopic(dmsBusinessOperateOfflineTaskSendProducer.getTopic());
+                messageList.add(message);
+            }
+            dmsBusinessOperateOfflineTaskSendProducer.batchSend(messageList);
+        } catch (JMQException e) {
+            log.error("offlineCoreTaskExecutor batchSendOfflineTask2Mq exception :{}", e.getMessage(), e);
+        }
+    }
 
     /**
      * 离线封车

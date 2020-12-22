@@ -71,6 +71,8 @@ public class PdaOperateRequest {
      * 业务操作节点
      */
     Integer operateNode;
+
+    Integer onlineStatus;
 	
 	public Integer getOperateType() {
 		return operateType;
@@ -163,5 +165,13 @@ public class PdaOperateRequest {
 
     public void setOperateNode(Integer operateNode) {
         this.operateNode = operateNode;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 }
