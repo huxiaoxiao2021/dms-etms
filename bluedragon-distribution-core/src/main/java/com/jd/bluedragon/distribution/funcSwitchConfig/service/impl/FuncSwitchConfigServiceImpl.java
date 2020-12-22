@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
-import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -25,7 +24,6 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
-import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -47,8 +45,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -830,7 +826,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
 
         //逆向不拦截
-        if (!BusinessUtil.isSignChar(waybillSign, 61, '0')) {
+        if (!BusinessUtil.isForeignForwardAndWaybillMarkForward(waybillSign)) {
             return false;
         }
 

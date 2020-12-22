@@ -1534,6 +1534,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
         <!-- 方法注解缓存插件 -->
         <dependency>
             <groupId>com.jd.etms</groupId>

@@ -142,6 +142,7 @@
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
                 <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
                 <value>uccPropertyConfiguration.quickSealTips</value>
+				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 			</list>
 		</property>
