@@ -79,12 +79,15 @@ $(function() {
                 title : '来源',
                 align: 'center',
                 formatter : function(value,row,index){
-                    return value=="1"?"金鹏暂存":value=="2"?"快运暂存":"";
+                    return value=="1"?"金鹏暂存":value=="2"?"快运暂存":value=="3"?"企配仓暂存":"";
                 }
             }, {
 				field : 'performanceCode',
 				title : '履约单号',
-                align: 'center'
+                align: 'center',
+                formatter : function(value,row,index){
+                    return row.source == 1 ? value : "-";
+                }
 			}, {
 				field : 'waybillCode',
 				title : '运单号',
@@ -130,6 +133,14 @@ $(function() {
 				title : '上架人erp',
                 align: 'center'
 			}, {
+                field : 'downAwayTime',
+                title : '下架时间',
+                align: 'center',
+                formatter : function(value,row,index){
+                    var downAwayTime = $.dateHelper.formateDateTimeOfTs(value);
+                    return downAwayTime == "" ? "-" : downAwayTime;
+                }
+            }, {
 				field : 'createSiteName',
 				title : '所属分拣中心',
                 align: 'center'
@@ -138,14 +149,16 @@ $(function() {
                 title : '全部上架完成时间',
                 align: 'center',
                 formatter : function(value,row,index){
-                    return $.dateHelper.formateDateTimeOfTs(value);
+                    var putAwayCompleteTime = $.dateHelper.formateDateTimeOfTs(value);
+                    return putAwayCompleteTime == "" ? "-" : putAwayCompleteTime;
                 }
             }, {
                 field : 'downAwayCompleteTime',
                 title : '全部下架完成时间',
                 align: 'center',
                 formatter : function(value,row,index){
-                    return $.dateHelper.formateDateTimeOfTs(value);
+                    var downAwayCompleteTime = $.dateHelper.formateDateTimeOfTs(value);
+                    return downAwayCompleteTime == "" ? "-" : downAwayCompleteTime;
                 }
             }];
 		oTableInit.refresh = function() {

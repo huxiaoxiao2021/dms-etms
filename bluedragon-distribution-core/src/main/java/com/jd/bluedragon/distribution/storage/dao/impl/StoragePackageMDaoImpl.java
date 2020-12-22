@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -78,5 +77,10 @@ public class StoragePackageMDaoImpl extends BaseDao<StoragePackageM> implements 
     @Override
     public int updateDownAwayTimeByWaybillCode(String waybillCode) {
         return sqlSession.update(this.nameSpace+".updateDownAwayTimeByWaybillCode", waybillCode);
+    }
+
+    @Override
+    public int updateDownAwayCompleteTimeAndStatusByWaybillCode(String waybillCode) {
+        return sqlSession.update(this.nameSpace+".updateDownAwayCompleteTimeAndStatusByWaybillCode", waybillCode);
     }
 }

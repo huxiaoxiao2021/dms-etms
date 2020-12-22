@@ -8,6 +8,7 @@ import java.util.Map;
  * <p>
  *     1、金鹏暂存
  *     2、快运暂存
+ *     3、企配仓暂存
  * </p>
  *
  * @author: hujiping

@@ -8,20 +8,15 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
-import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
-import com.jd.bluedragon.distribution.storage.domain.KYStorageMessage;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
-import com.jd.bluedragon.distribution.storage.domain.StoragePutStatusEnum;
 import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -65,8 +60,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,7 +125,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     private VrsRouteTransferRelationManager vrsRouteManager;
 
     @Autowired
-    private SendDetailService sendDetailService;
+    private com.jd.bluedragon.distribution.base.service.BaseService baseService;
 
 	@Override
 	public Dao<StoragePackageM> getDao() {
@@ -249,47 +246,78 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public boolean putaway(PutawayDTO putawayDTO) {
-		//获取运单数据
-		boolean isWaybillCode = WaybillUtil.isWaybillCode(putawayDTO.getBarCode());
-		String waybillCode =  "";
-		if(isWaybillCode){
-			waybillCode = putawayDTO.getBarCode();
-		}else{
-			waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
-		}
-		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true,true, true, true);
 
-		if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
-			throw new StorageException("无运单信息");
-		}
+		// 获取运单数据
+        BigWaybillDto bigWaybillDto = checkAndGetBigWaybillDto(putawayDTO.getBarCode());
 
-		if(baseEntity.getData().getPackageList() == null || baseEntity.getData().getPackageList().size() == 0){
-			throw new StorageException("无包裹信息");
-		}
-		if(!isWaybillCode){
-			boolean packageNotExist = true;
-			for(DeliveryPackageD deliveryPackageD :baseEntity.getData().getPackageList()){
-				if(putawayDTO.getBarCode().equals(deliveryPackageD.getPackageBarcode())){
-					packageNotExist = false;
-					break;
-				}
-			}
-			if(packageNotExist){
-				throw new StorageException("包裹不存在，请检查!");
-			}
-		}
+        // 组装基础数据
+        initBasicData(putawayDTO);
 
-		if(putawayDTO.getStorageSource() == null
-                || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
-            return dealWithJPZC(putawayDTO, isWaybillCode, baseEntity.getData());
-        }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())
-                || StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
-            return dealWithKYZC(putawayDTO, isWaybillCode, baseEntity.getData());
+        // 暂存逻辑处理
+        boolean isWaybillCode = WaybillUtil.isWaybillCode(putawayDTO.getBarCode());
+        Integer storageSource = putawayDTO.getStorageSource();
+        if(StorageSourceEnum.JP_STORAGE.getCode().equals(storageSource)){
+            // 金鹏暂存
+            return dealWithJPZC(putawayDTO, isWaybillCode, bigWaybillDto);
+        }else if(StorageSourceEnum.KY_STORAGE.getCode().equals(storageSource)
+                || StorageSourceEnum.QPC_STORAGE.getCode().equals(storageSource)){
+            // 快运、企配仓暂存
+            return dealWithKYZC(putawayDTO, isWaybillCode, bigWaybillDto);
         }else {
-            throw new StorageException("目前只支持金鹏暂存、快运暂存订单");
+            throw new StorageException("非法暂存类型，禁止上架!");
         }
 
 	}
+
+    /**
+     * 校验并获取运单信息
+     * @param barCode
+     * @return
+     */
+    private BigWaybillDto checkAndGetBigWaybillDto(String barCode) {
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        if(StringUtils.isEmpty(waybillCode)){
+            throw new StorageException("单号不能为空!");
+        }
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
+        if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+            throw new StorageException("无运单信息");
+        }
+        BigWaybillDto bigWaybillDto = baseEntity.getData();
+        if(bigWaybillDto.getPackageList() == null || bigWaybillDto.getPackageList().size() == 0){
+            throw new StorageException("无包裹信息");
+        }
+        if(!WaybillUtil.isWaybillCode(barCode)){
+            boolean packageNotExist = true;
+            for(DeliveryPackageD deliveryPackageD :bigWaybillDto.getPackageList()){
+                if(barCode.equals(deliveryPackageD.getPackageBarcode())){
+                    packageNotExist = false;
+                    break;
+                }
+            }
+            if(packageNotExist){
+                throw new StorageException("包裹不存在，请检查!");
+            }
+        }
+        return bigWaybillDto;
+    }
+
+    /**
+     * 初始化基础数据
+     * @param putawayDTO
+     */
+    private void initBasicData(PutawayDTO putawayDTO) {
+        //初始化 基础数据
+        BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(putawayDTO.getCreateSiteCode().toString());
+        if(site == null || site.getsId() == null){
+            throw new StorageException("未获取到对应站点信息");
+        }
+        putawayDTO.setCreateSiteName(site.getSiteName());
+        putawayDTO.setCreateSiteType(site.getSiteType());
+        putawayDTO.setOrgId(site.getOrgId());
+        putawayDTO.setOrgName(site.getOrgName());
+
+    }
 
     private boolean dealWithKYZC(PutawayDTO putawayDTO, boolean isWaybillCode, BigWaybillDto dto) {
 
@@ -298,6 +326,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             // 更新暂存主表及明细表
             updateStorageCode(putawayDTO,dto);
         }else {
+            if(WaybillUtil.isPackageCode(putawayDTO.getBarCode()) && checkPackageIsPutAway(putawayDTO.getBarCode())){
+                // 已上架包裹不处理
+                return true;
+            }
             //存储暂存主表
             saveStoragePackageM( putawayDTO, isWaybillCode, dto);
 
@@ -313,33 +345,20 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         return true;
     }
 
+    /**
+     * 校验包裹是否上架
+     * @param packageCode
+     * @return
+     */
+    private boolean checkPackageIsPutAway(String packageCode) {
+        StoragePackageD storagePackageD = storagePackageDDao.findLastStoragePackageDByPackageCode(packageCode);
+        if(storagePackageD != null){
+            return true;
+        }
+        return false;
+    }
+
     private boolean dealWithJPZC(PutawayDTO putawayDTO, boolean isWaybillCode, BigWaybillDto dto) {
-        if(StringUtils.isBlank(dto.getWaybill().getParentOrderId())){
-            throw new StorageException("履约单号为空");
-        }
-
-        //检查是否已经上架过
-        StoragePackageD lastStoragePackageD = checkExistStorage(putawayDTO.getBarCode());
-        if(lastStoragePackageD != null){
-            throw new StorageException("已上架，储位号："+lastStoragePackageD.getStorageCode());
-        }
-
-        //检查是否在其他分拣中心上架过
-		/*StoragePackageM otherStoragePackageM = checkExistStorageOfOtherSite(putawayDTO,baseEntity.getData().getWaybill().getParentOrderId());
-		if(otherStoragePackageM != null){
-			throw new StorageException("履约单已在【"+otherStoragePackageM.getCreateSiteName()+"】上架");
-		}*/
-
-        //末级分拣中心
-        Integer destinationDmsId = null;
-        BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(dto.getWaybill().getOldSiteId());
-        if(bDto != null && bDto.getDmsId() != null){
-            //末级分拣中心
-            destinationDmsId = bDto.getDmsId();
-        }
-        if( destinationDmsId==null || !destinationDmsId.equals(putawayDTO.getCreateSiteCode())){
-            throw new StorageException("只允许在末级分拣中心上架");
-        }
 
         //存储暂存主表
         saveStoragePackageM( putawayDTO, isWaybillCode, dto);
@@ -359,13 +378,14 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     /**
      * <p>
      *      更新暂存主表及明细表
+     *          1、不支持按运单维度强制上架
+     *          2、包裹维度强制上架
      * </p>
      */
     private void updateStorageCode(PutawayDTO putawayDTO,BigWaybillDto dto) {
 	    String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
         // 更新暂存主表储位号
         StoragePackageM storagePackageM = new StoragePackageM();
-        storagePackageM.setStorageCode(putawayDTO.getStorageCode());
         storagePackageM.setWaybillCode(waybillCode);
         storagePackageM.setPutawayTime(new Date(putawayDTO.getOperateTime()));
         storagePackageM.setUpdateUser(putawayDTO.getOperatorErp());
@@ -377,6 +397,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         storagePackageD.setPutawayTime(new Date(putawayDTO.getOperateTime()));
         storagePackageD.setUpdateUser(putawayDTO.getOperatorErp());
         if(WaybillUtil.isWaybillCode(putawayDTO.getBarCode())){
+            // 运单维度强制上架不处理（现阶段只支持包裹维度强制上架）
+            storagePackageM.setStorageCode(putawayDTO.getStorageCode());
+            storagePackageM.setPerformanceCode(waybillCode);
             storagePackageM.setPutawayPackageSum(Long.valueOf(dto.getPackageList().size()));
             storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
             storagePackageMDao.updateKYStorageCode(storagePackageM);
@@ -385,9 +408,35 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             if (noExist == null) return;
             storagePackageDDao.batchInsert(noExist);
         }else {
-            storagePackageMDao.updateKYStorageCode(storagePackageM);
+            // 明细表储位变更
             storagePackageDDao.updateKYStorageCodeByPackageCode(storagePackageD);
+            // 主表储位号变更
+            storagePackageM.setStorageCode(setNewStorageCode(putawayDTO));
+            storagePackageMDao.updateKYStorageCode(storagePackageM);
         }
+    }
+
+    /**
+     * 设置主表储位号
+     * @param putawayDTO
+     * @return
+     */
+    private String setNewStorageCode(PutawayDTO putawayDTO) {
+        String waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
+        Integer createSiteCode = putawayDTO.getCreateSiteCode();
+        StoragePackageD StoragePackageD = new StoragePackageD();
+        StoragePackageD.setWaybillCode(waybillCode);
+        StoragePackageD.setCreateSiteCode(createSiteCode.longValue());
+        List<String> storagePackageDS = storagePackageDDao.findStorageCodeByWaybillCodeAndSiteCode(StoragePackageD);
+        StringBuilder storageCodeM = new StringBuilder(Constants.EMPTY_FILL);
+        if(CollectionUtils.isEmpty(storagePackageDS)){
+            return storageCodeM.toString();
+        }
+        Set<String> storageList = new HashSet<>(storagePackageDS);
+        for (String storageCodeD : storageList){
+            storageCodeM.append(Constants.SEPARATOR_COMMA).append(storageCodeD);
+        }
+        return storageCodeM.toString();
     }
 
     /**
@@ -572,10 +621,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 				storagePackageMDao.updateStoragePackageMStatusForBeSendOfPWaybill(realWaybillCode);
 
 			}
-            //快运暂存订单
-            if(waybillCommonService.isStorageWaybill(realWaybillCode) && isAllPutAwayAll(realWaybillCode)){
-                storagePackageMDao.updateStoragePackageMStatusForBeSendOfPWaybill(realWaybillCode);
-            }
 
 		}
 
@@ -652,24 +697,19 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 			if(StringUtils.isNotBlank(perStoragePackageM.getStorageCode())){
 				storagePackageM.setStorageCode(perStoragePackageM.getStorageCode());
-
-				if(putawayDTO.getStorageSource() == null
-                        || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
-                    List<String> storageCodeList =  Arrays.asList(perStoragePackageM.getStorageCode().split(Constants.SEPARATOR_COMMA))  ;
-                    if(!storageCodeList.contains(putawayDTO.getStorageCode())){
-                        //新储位号，  追加
-                        storagePackageM.setStorageCode(perStoragePackageM.getStorageCode()+Constants.SEPARATOR_COMMA+putawayDTO.getStorageCode());
-                    }
-                }else {
-				    // 快运暂存，主表直接存储最新储位号，保持主表储位只有一个
-                    storagePackageM.setStorageCode(putawayDTO.getStorageCode());
-                    // 设置全部上架时间
-                    if(perStoragePackageM.getPackageSum() - perStoragePackageM.getPutawayPackageSum() == 1){
-                        storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
-                    }
+                List<String> storageCodeList =  Arrays.asList(perStoragePackageM.getStorageCode().split(Constants.SEPARATOR_COMMA))  ;
+                if(!storageCodeList.contains(putawayDTO.getStorageCode())){
+                    //新储位号，  追加
+                    storagePackageM.setStorageCode(perStoragePackageM.getStorageCode()+Constants.SEPARATOR_COMMA+putawayDTO.getStorageCode());
                 }
-
 			}
+            if(StorageSourceEnum.KY_STORAGE.getCode().equals(putawayDTO.getStorageSource())
+                    || StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+                // 设置全部上架时间
+                if(perStoragePackageM.getPackageSum() - perStoragePackageM.getPutawayPackageSum() == 1){
+                    storagePackageM.setPutAwayCompleteTime(new Date(putawayDTO.getOperateTime()));
+                }
+            }
 			storagePackageM.setPerformanceCode(perStoragePackageM.getPerformanceCode());
 			storagePackageM.setWaybillCode(perStoragePackageM.getWaybillCode());
 			storagePackageM.setUpdateUser(putawayDTO.getOperatorErp());
@@ -688,8 +728,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}else{
 				storagePackageM.setPutawayPackageSum(1L);
 			}
-			if(putawayDTO.getStorageSource() == null
-                    || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+			if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
                 storagePackageM.setSource(StorageSourceEnum.JP_STORAGE.getCode());
                 storagePackageM.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
             }else {
@@ -712,7 +751,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	}
 
     /**
-     * 快运暂存额外属性
+     * 快运|企配仓暂存额外属性
      * <p>
      *      来源、全部上架时间、履约单号（以运单号代替）
      * </p>
@@ -724,6 +763,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     private void appendExtraAttr(StoragePackageM storagePackageM, PutawayDTO putawayDTO, boolean isWaybillCode,BigWaybillDto bigWaybillDto) {
 
         storagePackageM.setSource(StorageSourceEnum.KY_STORAGE.getCode());
+        if(StorageSourceEnum.QPC_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+            storagePackageM.setSource(StorageSourceEnum.QPC_STORAGE.getCode());
+        }
+        // 非金鹏订单无履约单，因该字段非空则用运单号代替
         storagePackageM.setPerformanceCode(WaybillUtil.getWaybillCode(putawayDTO.getBarCode()));
         // 是运单或是一单一件
         if(isWaybillCode || bigWaybillDto.getPackageList().size() == 1){
@@ -750,8 +793,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 		StoragePackageD storagePackageD = new StoragePackageD();
 		storagePackageD.setWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
-		if(putawayDTO.getStorageSource() == null
-                || StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
+		if(StorageSourceEnum.JP_STORAGE.getCode().equals(putawayDTO.getStorageSource())){
             storagePackageD.setPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
         }else {
 		    // 非金鹏订单无履约单号，用运单号代替
@@ -901,9 +943,17 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         InvokeResult<StorageCheckDto> result = new InvokeResult<>();
         StorageCheckDto storageCheckDto = new StorageCheckDto();
         result.setData(storageCheckDto);
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if(waybill == null){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"运单信息不存在!");
+            return result;
+        }
+        if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
+            return result;
+        }
         try {
-            String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
             storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
             boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
             if(waybillCommonService.isStorageWaybill(waybillCode)
@@ -912,20 +962,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 if (qpcWaybill) {
                     storageCheckDto.setStorageSource(StorageSourceEnum.QPC_STORAGE.getCode());
                 }
-                if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
-                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级B网场地，禁止上架");
+                // 校验单号上架状态
+                checkKyOrderPutAwayStatus(barCode,result);
+                if(result.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     return result;
-                }
-                StoragePackageD storagePackageD = checkExistStorage(barCode);
-                if(storagePackageD != null){
-                    storageCheckDto.setStorageCode(storagePackageD.getStorageCode());
-                    if(!StringUtils.isEmpty(storagePackageD.getStorageCode())){
-                        result.customMessage(JdCResponse.CODE_CONFIRM,"包裹号已上架请核实");
-                        return result;
-                    }
-                }else {
-                    StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
-                    storageCheckDto.setStorageCode(storagePackageM==null?null:storagePackageM.getStorageCode());
                 }
                 if(!qpcWaybill && !timeCheck(waybill,barCode,siteCode)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"货物距离预计送达时间较近，正常发运");
@@ -933,6 +973,16 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 }
             }else if(waybillCommonService.isPerformanceWaybill(waybillCode)){
                 storageCheckDto.setStorageSource(StorageSourceEnum.JP_STORAGE.getCode());
+                if(StringUtils.isBlank(waybill.getParentOrderId())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"履约单号为空");
+                    return result;
+                }
+                //检查是否已经上架过（强制拦截）
+                StoragePackageD lastStoragePackageD = checkExistStorage(barCode);
+                if(lastStoragePackageD != null){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"已上架，储位号："+lastStoragePackageD.getStorageCode());
+                    return result;
+                }
             }else {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"非暂存运单，无需上架");
             }
@@ -944,29 +994,41 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     }
 
     /**
-     * 判断登录人所在机构与运单末级分拣中心一致
-     *
-     * @param waybillCode
-     * @param siteCode
-     * @return
+     * 校验快运单号上架状态
+     *  1、运单号：
+     *      1）、运单全部上架，则提示拦截
+     *      2）、运单下包裹部分上架，则提示按包裹上架
+     *  2、包裹号：
+     *      1）、包裹号已上架（可强制上架到其他储位）
+     *      2）、未上架，则提示运单下其他包裹储位号
+     * @param barCode
+     * @param result
      */
-    private boolean loginSiteIsLast(Waybill waybill,String waybillCode,Integer siteCode){
-        try {
-            if(waybill == null){
-                waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-                if (waybill == null) {
-                    return false;
-                }
+    private void checkKyOrderPutAwayStatus(String barCode,InvokeResult<StorageCheckDto> result) {
+        if(WaybillUtil.isWaybillCode(barCode)){
+            StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(barCode);
+            if(storagePackageM == null){
+                return;
             }
-            BaseStaffSiteOrgDto oldSite = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
-            if (oldSite == null) {
-                return false;
+            if(storagePackageM.getPackageSum().equals(storagePackageM.getPutawayPackageSum())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此运单已上架!");
+                return;
+            }else {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此运单已部分上架，请按包裹上架!");
+                return;
             }
-            return siteCode.equals(oldSite.getDmsId());
-        }catch (Exception e){
-            log.error("服务异常,异常信息:【{}】",e.getMessage(),e);
+        }else {
+            StoragePackageD storagePackageD = storagePackageDDao.findLastStoragePackageDByPackageCode(barCode);
+            if(storagePackageD != null){
+                result.getData().setStorageCode(storagePackageD.getStorageCode());
+                result.customMessage(JdCResponse.CODE_CONFIRM,"包裹号已上架请核实!");
+                return;
+            }
+            storagePackageD = storagePackageDDao.findLastStoragePackageDByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+            if(storagePackageD != null){
+                result.getData().setStorageCode(storagePackageD.getStorageCode());
+            }
         }
-        return false;
     }
 
     /**
@@ -998,6 +1060,37 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 /(MS_TRANSFER_S * Constants.TIME_SECONDS_ONE_HOUR);
         if(betweenHours >= DIFF_HOURS){
             return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断登录人所在机构与运单末级分拣中心一致
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    private boolean loginSiteIsLast(Waybill waybill,String waybillCode,Integer siteCode){
+        try {
+            if(waybill == null){
+                waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+                if (waybill == null) {
+                    return false;
+                }
+            }
+            BaseStaffSiteOrgDto oldSite = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+            if (oldSite == null) {
+                return false;
+            }
+            // 预分拣站点所属分拣中心
+            Integer oldDmsCode = oldSite.getDmsId();
+            if(oldDmsCode == null){
+                oldDmsCode = oldSite.getSiteCode();
+            }
+            return siteCode.equals(oldDmsCode);
+        }catch (Exception e){
+            log.error("服务异常,异常信息:【{}】",e.getMessage(),e);
         }
         return false;
     }
@@ -1050,6 +1143,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         heads.add("预计送达时间");
         heads.add("上架时间");
         heads.add("上架人erp");
+        heads.add("下架时间");
         heads.add("所属分拣中心");
         heads.add("全部上架完成时间");
         heads.add("全部下架完成时间");
@@ -1069,6 +1163,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 body.add(detail.getPlanDeliveryTime() == null ? null : DateHelper.formatDate(detail.getPlanDeliveryTime(), Constants.DATE_TIME_FORMAT));
                 body.add(detail.getPutawayTime() == null ? null : DateHelper.formatDate(detail.getPutawayTime(), Constants.DATE_TIME_FORMAT));
                 body.add(detail.getCreateUser());
+                body.add(detail.getDownAwayTime() == null ? null : DateHelper.formatDate(detail.getDownAwayTime(), Constants.DATE_TIME_FORMAT));
                 body.add(detail.getCreateSiteName());
                 body.add(detail.getPutAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getPutAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
                 body.add(detail.getDownAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getDownAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
@@ -1133,54 +1228,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     }
 
     /**
-     * 是否全部上架
-     *
-     * @param waybillCode
-     * @return
-     */
-    @Override
-    public boolean isAllPutAwayAll(String waybillCode) {
-        try {
-            StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(waybillCode);
-            return storagePackageM != null && storagePackageM.getPackageSum() == storagePackageM.getPutawayPackageSum();
-        }catch (Exception e){
-            log.error("服务异常");
-        }
-        return false;
-    }
-
-    /**
-     * 运单下包裹是否已全部发货
-     *
-     * @param waybillCode
-     * @param siteCode
-     * @return
-     */
-    @Override
-    public boolean packageIsAllSend(String waybillCode,Integer siteCode) {
-        try {
-            if(StringUtils.isEmpty(waybillCode) || siteCode == null){
-                return false;
-            }
-            SendDetailDto sendDto = new SendDetailDto();
-            sendDto.setCreateSiteCode(siteCode);
-            sendDto.setWaybillCode(waybillCode);
-            sendDto.setStatus(1);
-            sendDto.setIsCancel(0);
-            List<String> sendPackageList = sendDetailService.queryPackageByWaybillCode(sendDto);
-            if(CollectionUtils.isEmpty(sendPackageList)){
-                return false;
-            }
-            StoragePackageM storagePackageM = storagePackageMDao.queryByWaybillCode(waybillCode);
-            return storagePackageM != null && storagePackageM.getPackageSum() == sendPackageList.size();
-        }catch (Exception e){
-            log.error("服务异常");
-        }
-        return false;
-    }
-
-    /**
-     * 更新全部下架时间
+     * 更新下架时间
      *
      * @param waybillCode
      * @return
@@ -1191,6 +1239,20 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             return 0;
         }
         return storagePackageMDao.updateDownAwayTimeByWaybillCode(waybillCode);
+    }
+
+    /**
+     * 更新全部下架时间和状态
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public int updateDownAwayCompleteTimeAndStatusByWaybillCode(String waybillCode) {
+        if(StringUtils.isEmpty(waybillCode)){
+            return 0;
+        }
+        return storagePackageMDao.updateDownAwayCompleteTimeAndStatusByWaybillCode(waybillCode);
     }
 
 
@@ -1280,6 +1342,14 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         status.setCreateSiteCode(putawayDTO.getCreateSiteCode());
         tTask.setBody(JsonHelper.toJson(status));
         taskService.add(tTask);
+    }
+
+    @Override
+    public StoragePackageM getStoragePackageM(String waybillCode) {
+        if(StringUtils.isEmpty(waybillCode)){
+            return null;
+        }
+        return storagePackageMDao.queryByWaybillCode(waybillCode);
     }
 
 }

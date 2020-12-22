@@ -333,4 +333,23 @@
 		waybill_code = #{waybillCode,jdbcType=VARCHAR} and create_site_code= #{createSiteCode,jdbcType=BIGINT}
 		<include refid="Base_Condition_Sql"/>
 	</select>
+
+    <select id="queryUnSendByWaybill" parameterType="String" resultMap="StoragePackageD">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        storage_package_d
+        where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        and send_time is null
+        and is_delete = 0
+    </select>
+
+    <update id="updateSendTimeByPackageCode" parameterType="String">
+		update storage_package_d
+		set
+            send_time = now(),
+            update_time = now()
+		where package_code = #{packageCode,jdbcType=VARCHAR}
+		and is_delete = 0
+	</update>
 </mapper>
