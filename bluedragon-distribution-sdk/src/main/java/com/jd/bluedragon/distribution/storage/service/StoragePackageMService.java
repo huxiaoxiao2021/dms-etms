@@ -132,29 +132,20 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
     boolean updateStorageStatusBySiteCode(Integer siteCode, Integer isEnough,String operateErp);
 
     /**
-     * 是否全部上架
-     *
-     * @param waybillCode
-     * @return
-     */
-    boolean isAllPutAwayAll(String waybillCode);
-
-    /**
-     * 是否全部发货
-     *
-     * @param waybillCode
-     * @param siteCode
-     * @return
-     */
-    boolean packageIsAllSend(String waybillCode,Integer siteCode);
-
-    /**
-     * 更新全部下架时间
+     * 更新下架时间
      *
      * @param waybillCode
      * @return
      */
     int updateDownAwayTimeByWaybillCode(String waybillCode);
+
+    /**
+     * 更新全部下架时间和状态
+     *
+     * @param waybillCode
+     * @return
+     */
+    int updateDownAwayCompleteTimeAndStatusByWaybillCode(String waybillCode);
 
     /**
      * 更新运单状态
@@ -163,4 +154,11 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * @param isPutAway 是否上架
      */
     void updateWaybillStatusOfKYZC(PutawayDTO putawayDTO,boolean isPutAway);
+
+    /**
+     * 根据运单号获取暂存记录
+     * @param waybillCode
+     * @return
+     */
+    StoragePackageM getStoragePackageM(String waybillCode);
 }
