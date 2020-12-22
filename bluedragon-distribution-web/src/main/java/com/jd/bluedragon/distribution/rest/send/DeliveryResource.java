@@ -24,6 +24,9 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -56,6 +59,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -167,6 +171,9 @@ public class DeliveryResource {
     @Autowired
     private WaybillCacheService waybillCacheService;
 
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
     /**
      * 原包发货【一车一件项目，发货专用】
      *
@@ -187,6 +194,7 @@ public class DeliveryResource {
         return result;
     }
 
+    // todo 新发货
     @POST
     @Path("/delivery/newpackagesend")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
@@ -468,7 +476,7 @@ public class DeliveryResource {
     }
 
     /**
-     * 老发货接口
+     * todo 老发货接口
      *
      * @param request
      * @return
@@ -1557,6 +1565,7 @@ public class DeliveryResource {
         return response;
     }
     /**
+     * todo 老发货校验接口
      * 2个接口合并，/delivery/packageSend/check 和 /delivery/check
      * 老发货扫描箱号或包裹号校验
      * @param deliveryRequest
@@ -1604,6 +1613,8 @@ public class DeliveryResource {
             if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
+                // 发送拦截消息
+                this.sendBusinessInterceptMsg(deliveryRequest, response);
                 return result;
             }
 
@@ -1633,6 +1644,46 @@ public class DeliveryResource {
             result.toError("调用ver接口进行老发货验证异常.");
         }
         return result;
+    }
+
+    // 拦截报表操作节点发货类型
+    @Value("${businessIntercept.operate.node.send}")
+    private Integer interceptOperateNodeSend;
+    // 拦截报表操作节点设备类型
+    @Value("${businessIntercept.device.type.pda}")
+    private Integer interceptOperateDeviceTypePda;
+
+    /**
+     * 发送拦截消息
+     * @param deliveryRequest 请求参数
+     * @param response 校验结果
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2020-12-22 18:18:15 周二
+     */
+    private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, JdCResponse<Void> response){
+        SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+        saveInterceptMsgDto.setInterceptCode(response.getCode());
+        saveInterceptMsgDto.setInterceptMessage(response.getMessage());
+        saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
+        saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
+        saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
+        saveInterceptMsgDto.setDeviceCode("人工手持设备");
+        long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+        saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+        saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
+        saveInterceptMsgDto.setSiteName(deliveryRequest.getSiteName());
+        saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
+        saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
+
+        String saveInterceptMqMsg = com.jd.fastjson.JSON.toJSONString(saveInterceptMsgDto);
+        try {
+            businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("DeliveryResource.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+            return false;
+        }
+        return true;
     }
 
     /**
