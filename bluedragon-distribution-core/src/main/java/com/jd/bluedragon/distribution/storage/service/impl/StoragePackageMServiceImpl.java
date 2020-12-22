@@ -433,8 +433,14 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             return storageCodeM.toString();
         }
         Set<String> storageList = new HashSet<>(storagePackageDS);
+        int count = 0;
         for (String storageCodeD : storageList){
-            storageCodeM.append(Constants.SEPARATOR_COMMA).append(storageCodeD);
+            count ++;
+            if(count < storageList.size()){
+                storageCodeM.append(storageCodeD).append(Constants.SEPARATOR_COMMA);
+            }else {
+                storageCodeM.append(storageCodeD);
+            }
         }
         return storageCodeM.toString();
     }
