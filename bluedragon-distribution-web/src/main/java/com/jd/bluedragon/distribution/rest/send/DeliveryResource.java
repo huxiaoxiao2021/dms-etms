@@ -1665,26 +1665,31 @@ public class DeliveryResource {
      * @time 2020-12-22 18:18:15 周二
      */
     private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, com.jd.ql.dms.common.domain.JdResponse<Void> response){
-        SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-        saveInterceptMsgDto.setInterceptCode(response.getCode());
-        saveInterceptMsgDto.setInterceptMessage(response.getMessage());
-        saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
-        saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
-        saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-        saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
-        long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
-        saveInterceptMsgDto.setOperateTime(operateTimeMillis);
-        saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
-        saveInterceptMsgDto.setSiteName(deliveryRequest.getSiteName());
-        saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
-        saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
-
-        String saveInterceptMqMsg = com.jd.fastjson.JSON.toJSONString(saveInterceptMsgDto);
+        log.info("DeliveryResource sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(response));
         try {
-            businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(response.getCode());
+            saveInterceptMsgDto.setInterceptMessage(response.getMessage());
+            saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
+            saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
+            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
+            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+            saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
+            saveInterceptMsgDto.setSiteName(deliveryRequest.getSiteName());
+            saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
+            saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
+
+            String saveInterceptMqMsg = com.jd.fastjson.JSON.toJSONString(saveInterceptMsgDto);
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                log.error("DeliveryResource.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+                return false;
+            }
         } catch (Exception e) {
-            log.error("DeliveryResource.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
-            return false;
+            log.error("DeliveryResource.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , e.getMessage(), e);
         }
         return true;
     }
