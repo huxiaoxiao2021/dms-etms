@@ -41,6 +41,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
     public Response<Boolean> handleOfflineTask(OfflineLogRequest offlineLogRequest) {
         log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask param: {}", JSON.toJSONString(offlineLogRequest));
         Response<Boolean> result = new Response<>();
+        result.setData(true);
         result.toSucceed();
         try {
             // 判断是否需要处理，目前只记录分拣、发货动作的数据

@@ -39,7 +39,7 @@ public class BusinessOperateInterceptActionConsumer extends MessageBaseConsumer 
         }
         SaveInterceptMsgDto msgDto = JsonHelper.fromJsonUseGson(message.getText(), SaveInterceptMsgDto.class);
         Response<Boolean> handleResult = businessInterceptDetailReportService.sendInterceptMsg(msgDto);
-        if(!handleResult.getData()){
+        if(!handleResult.isSucceed() || !handleResult.getData()){
             log.error("BusinessOperateInterceptActionConsumer fail " + JSON.toJSONString(handleResult));
             throw new RuntimeException("BusinessOperateInterceptActionConsumer 处理失败 " + handleResult.getMessage());
         }

@@ -39,9 +39,14 @@ public class OfflineTaskCheckBusinessInterceptConsumer extends MessageBaseConsum
         }
         OfflineLogRequest msgDto = JSON.parseObject(message.getText(), OfflineLogRequest.class);
         Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(msgDto);
-        if(!handleResult.getData()){
+        if(!handleResult.isSucceed() || !handleResult.getData()){
             log.error("OfflineTaskCheckBusinessInterceptConsumer fail " + JSON.toJSONString(handleResult));
             throw new RuntimeException("OfflineTaskCheckBusinessInterceptConsumer 处理失败 " + handleResult.getMessage());
         }
+    }
+
+    public static void main(String[] args) {
+        OfflineLogRequest msgDto = JSON.parseObject("{\"demo\":\"\",\"weight\":\"0\",\"operateTime\":\"2020-12-23 20:12:16.425\",\"batchCode\":\"\",\"taskType\":1200,\"shieldsCarCode\":\"\",\"boxCode\":\"BC010F002010Y10000122032\",\"waybillCode\":\"JDV000503488925\",\"packageCode\":\"JDV000503488925-1-1-\",\"id\":3,\"sendUser\":\"\",\"railwayNo\":\"\",\"userName\":\"刑松\",\"receiveSiteCode\":0,\"siteName\":\"北京马驹桥分拣中心\",\"goodsType\":\"\",\"transName\":\"\",\"sealBoxCode\":\"\",\"exceptionType\":\"\",\"turnoverBoxCode\":\"\",\"operateType\":0,\"userCode\":10053,\"carCode\":\"\",\"businessType\":10,\"sendUserCode\":\"\",\"bizSource\":67,\"siteCode\":910,\"airNo\":\"\",\"num\":0,\"volume\":\"0\"}\n", OfflineLogRequest.class);
+        System.out.println(JSON.toJSONString(msgDto));
     }
 }

@@ -39,7 +39,7 @@ public class DisposeActionAfterInterceptConsumer extends MessageBaseConsumer {
         }
         SaveDisposeAfterInterceptMsgDto msgDto = JsonHelper.fromJsonUseGson(message.getText(), SaveDisposeAfterInterceptMsgDto.class);
         Response<Boolean> handleResult = businessInterceptDetailReportService.sendDisposeAfterInterceptMsg(msgDto);
-        if(!handleResult.getData()){
+        if(!handleResult.isSucceed() || !handleResult.getData()){
             log.error("DisposeActionAfterInterceptConsumer fail " + JSON.toJSONString(handleResult));
             throw new RuntimeException("DisposeActionAfterInterceptConsumer 处理失败 " + handleResult.getMessage());
         }
