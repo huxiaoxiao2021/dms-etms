@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.consumer.businessIntercept;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
-import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
-import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptDetailReportService;
 import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
@@ -39,7 +37,7 @@ public class OfflineTaskCheckBusinessInterceptConsumer extends MessageBaseConsum
             Profiler.businessAlarm(profilerKey, MessageFormat.format("分拣离线任务处理校验是否拦截动作消息MQ-消息体非JSON格式，businessId为【{0}】", message.getBusinessId()));
             return;
         }
-        OfflineLogRequest msgDto = JsonHelper.fromJsonUseGson(message.getText(), OfflineLogRequest.class);
+        OfflineLogRequest msgDto = JSON.parseObject(message.getText(), OfflineLogRequest.class);
         Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(msgDto);
         if(!handleResult.getData()){
             log.error("OfflineTaskCheckBusinessInterceptConsumer fail " + JSON.toJSONString(handleResult));
