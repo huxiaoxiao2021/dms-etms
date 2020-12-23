@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
+import com.jd.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.lang.StringUtils;
@@ -124,7 +125,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             for (Object taskItem : taskList) {
                 Message message = new Message();
                 message.setBusinessId(businessId);
-                message.setText(JsonHelper.toJson(taskItem));
+                message.setText(JSON.toJSONString(taskItem));
+                log.info("batchSendOfflineTask2Mq text: {}", message.getText());
                 message.setTopic(dmsBusinessOperateOfflineTaskSendProducer.getTopic());
                 messageList.add(message);
             }
