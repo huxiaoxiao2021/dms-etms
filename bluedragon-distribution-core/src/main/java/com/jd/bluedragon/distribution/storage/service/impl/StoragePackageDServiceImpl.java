@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.storage.service.impl;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -50,6 +51,22 @@ public class StoragePackageDServiceImpl extends BaseService<StoragePackageD> imp
 		storagePackageD.setCreateSiteCode(destDmsSiteCode);
 		return storagePackageDDao.findStorageCodeByWaybillCodeAndSiteCode(storagePackageD);
 	}
+
+    @Override
+    public List<StoragePackageD> queryUnSendByWaybill(String waybillCode) {
+        if(StringUtils.isEmpty(waybillCode)){
+            return null;
+        }
+        return storagePackageDDao.queryUnSendByWaybill(waybillCode);
+    }
+
+    @Override
+    public int updateSendTimeByPackageCode(String packageCode) {
+        if(StringUtils.isEmpty(packageCode)){
+            return 0;
+        }
+        return storagePackageDDao.updateSendTimeByPackageCode(packageCode);
+    }
 
 
 }

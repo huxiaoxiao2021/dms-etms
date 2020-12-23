@@ -33,12 +33,8 @@ public class DmsSortingServiceImpl implements ISortingService {
     @JProfiler(jKey = "DMSWORKER.DmsSortingServiceImpl.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
     @Override
     public boolean doSorting(Task sortingTask) {
-        if (dmsSortingService.useNewSorting(sortingTask.getCreateSiteCode())) {
-            SortingVO sortingVO = new SortingVO(sortingTask);
-            return sortingFactory.bulid(sortingVO).execute(sortingVO);
-        }
-
-        return dmsSortingService.processTaskData(sortingTask);
+        SortingVO sortingVO = new SortingVO(sortingTask);
+        return sortingFactory.bulid(sortingVO).execute(sortingVO);
     }
 
     @Override

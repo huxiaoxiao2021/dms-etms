@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -65,9 +64,16 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
     int updateKYStorageCode(StoragePackageM storagePackageM);
 
     /**
-     * 更新全部下架时间
+     * 更新下架时间
      * @param waybillCode
      * @return
      */
     int updateDownAwayTimeByWaybillCode(String waybillCode);
+
+    /**
+     * 更新全部下架时间和状态
+     * @param waybillCode
+     * @return
+     */
+    int updateDownAwayCompleteTimeAndStatusByWaybillCode(String waybillCode);
 }

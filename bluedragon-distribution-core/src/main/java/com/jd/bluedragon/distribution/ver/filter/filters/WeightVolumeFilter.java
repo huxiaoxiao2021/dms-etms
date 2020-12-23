@@ -2,11 +2,15 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
@@ -16,20 +20,20 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.ql.dms.common.cache.CacheService;
-import org.apache.commons.collections.CollectionUtils;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
-import java.util.concurrent.TimeUnit;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 漏称重量方校验
@@ -52,6 +56,9 @@ public class WeightVolumeFilter implements Filter {
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
     private static final String RULE_WEIGHT_VOLUMN_SWITCH = "1123";
     private static final String SWITCH_OFF = "1";
@@ -82,17 +89,38 @@ public class WeightVolumeFilter implements Filter {
         //判断waybillSign是否满足条件 判断 是否是经济网单号 20200824增加无需拦截经济网逆向运单
         boolean isEconomicNetNeedWeight = isEconomicNetValidateWeight(waybillCode, waybillSign,request);
 
+        //判断纯配外单是否需要无重量拦截
+        FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = packFuncSwitchConfigAllPureDto(request);
+        boolean isAllPureNeedWeight =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
+
         boolean isNeedWeight = StringUtils.isNotBlank(waybillSign) && BusinessHelper.isValidateWeightVolume(waybillSign,switchOn)
                 && !WaybillUtil.isReturnCode(waybillCode);
-        if( isEconomicNetNeedWeight ){
+
+        if(logger.isInfoEnabled()){
+            logger.info("运单{}无重量判断标识 isEconomicNetNeedWeight:{},isAllPureNeedWeight:{},isNeedWeight:{}",waybillCode,isEconomicNetNeedWeight,isAllPureNeedWeight,isNeedWeight);
+        }
+        if(logger.isInfoEnabled()) {
+            logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+        }
+        //众邮无重量拦截
+        if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
-        }else if ( isNeedWeight ) {
-            logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+         //纯配外单无重量拦截-不校验体积
+        }else if(isAllPureNeedWeight){
+            JdCResponse<Void>  jdCResponse =  funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+            if(jdCResponse.getCode().equals(SortingResponse.CODE_39002)){
+                throw  new SortingCheckException(jdCResponse.getCode() ,SortingResponse.MESSAGE_39002);
+            }else if(jdCResponse.getCode().equals(SortingResponse.CODE_29419)){
+                throw  new SortingCheckException(jdCResponse.getCode() ,SortingResponse.MESSAGE_29419);
+            }
+        }else if (isNeedWeight) {
             //查询重量体积信息
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
-                logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+                if(logger.isInfoEnabled()) {
+                    logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
+                }
                 //从运单接口查  数据没有下放的极端情况下 一般不会走
                 WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
                 if (waybillNoCache == null) {
@@ -114,6 +142,8 @@ public class WeightVolumeFilter implements Filter {
         }
         chain.doFilter(request, chain);
     }
+
+
 
     /**
      * 众邮运单是否拦截 -
@@ -140,5 +170,16 @@ public class WeightVolumeFilter implements Filter {
             return funcSwitchConfigService.getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_ALL_MAIL.getCode(),siteCode);
         }
         return true;
+    }
+
+
+    //封装参数
+    private  FuncSwitchConfigAllPureDto packFuncSwitchConfigAllPureDto(FilterContext context){
+        FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
+        funcSwitchConfigAllPureDto.setWaybillSign(context.getWaybillCache().getWaybillSign());
+        funcSwitchConfigAllPureDto.setCreateSiteCode(context.getCreateSiteCode());
+        funcSwitchConfigAllPureDto.setCustomerCode(context.getWaybillCache().getCustomerCode());
+        funcSwitchConfigAllPureDto.setWaybillCode(context.getWaybillCode());
+        return  funcSwitchConfigAllPureDto;
     }
 }
