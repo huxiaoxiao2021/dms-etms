@@ -84,7 +84,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
             }
 
             Response<Boolean> handleResult = businessInterceptRecordHandlerStrategy.handle(msgDto);
-            if(handleResult.isSucceed()){
+            if(!handleResult.isSucceed()){
                 result.setData(false);
                 result.setMessage(handleResult.getMessage());
             }
@@ -118,7 +118,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                 }
             }
             Response<Boolean> handleResult = businessInterceptDisposeRecordHandlerStrategy.handle(msgDto);
-            if(handleResult.isSucceed()){
+            if(!handleResult.isSucceed()){
                 result.setData(false);
                 result.setMessage(handleResult.getMessage());
             }

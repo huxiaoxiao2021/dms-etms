@@ -41,12 +41,12 @@ public class BusinessInterceptRecordWaybillHandler extends BusinessInterceptReco
                     BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                     saveInterceptMsgDto.setPackageCode(pack.getPackageCode());
                     saveInterceptMsgDto.setWaybillCode(msgDto.getBarCode());
-                    log.info("businessInterceptRecordWaybillHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
+                    log.info("BusinessInterceptRecordWaybillHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
                     businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
                 }
             }
         } catch (JMQException e) {
-            log.error("businessInterceptRecordWaybillHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto));
+            log.error("BusinessInterceptRecordWaybillHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto));
             result.toError("运单维度处理拦截消息提交异常");
         }
         return result;
