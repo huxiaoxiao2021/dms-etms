@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -194,7 +195,7 @@ public class DeliveryResource {
         return result;
     }
 
-    // todo 新发货
+    // 新发货
     @POST
     @Path("/delivery/newpackagesend")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
@@ -476,7 +477,7 @@ public class DeliveryResource {
     }
 
     /**
-     * todo 老发货接口
+     * 老发货接口
      *
      * @param request
      * @return
@@ -1565,7 +1566,7 @@ public class DeliveryResource {
         return response;
     }
     /**
-     * todo 老发货校验接口
+     * 老发货校验接口
      * 2个接口合并，/delivery/packageSend/check 和 /delivery/check
      * 老发货扫描箱号或包裹号校验
      * @param deliveryRequest
@@ -1609,7 +1610,7 @@ public class DeliveryResource {
         	}
 
         	//调用分拣无重量拦截链---2020.12.17 目前主要针对满足纯配外单的0 重量
-            JdCResponse<Void>  response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
+            com.jd.ql.dms.common.domain.JdResponse<Void> response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
             if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
@@ -1631,6 +1632,8 @@ public class DeliveryResource {
             	}
             	if(verCheckResult.isWarn() && verCheckResult.getData().getTipMessages() != null){
             		checkResponse.getTipMessages().addAll(verCheckResult.getData().getTipMessages());
+                    // 发送拦截消息
+                    this.sendBusinessInterceptMsg(deliveryRequest, response);
             	}
             	checkResponse.setPackageNum(verCheckResult.getData().getPackageNum());
             }
@@ -1661,14 +1664,14 @@ public class DeliveryResource {
      * @author fanggang7
      * @time 2020-12-22 18:18:15 周二
      */
-    private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, JdCResponse<Void> response){
+    private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, com.jd.ql.dms.common.domain.JdResponse<Void> response){
         SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
         saveInterceptMsgDto.setInterceptCode(response.getCode());
         saveInterceptMsgDto.setInterceptMessage(response.getMessage());
         saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
         saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
         saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-        saveInterceptMsgDto.setDeviceCode("人工手持设备");
+        saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
         long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
         saveInterceptMsgDto.setOperateTime(operateTimeMillis);
         saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
@@ -1692,8 +1695,8 @@ public class DeliveryResource {
      * @param siteCode
      * @return
      */
-    private  JdCResponse<Void>  allPureValidateWeight(String packageCode,Integer siteCode){
-        JdCResponse<Void> response = new JdCResponse<>();
+    private com.jd.ql.dms.common.domain.JdResponse <Void> allPureValidateWeight(String packageCode,Integer siteCode){
+        com.jd.ql.dms.common.domain.JdResponse <Void> response = new com.jd.ql.dms.common.domain.JdResponse <Void>();
         response.setCode(Constants.SUCCESS_NO_CODE);
         if(WaybillUtil.isPackageCode(packageCode)){
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -1704,12 +1707,12 @@ public class DeliveryResource {
             funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
             funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
             // 是否满足无重量拦截条件
-            boolean isAllPureNeedWeight  =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
+            boolean isAllPureNeedWeight = funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
             if(log.isInfoEnabled()){
                 log.info("运单waybillCode:{},当前isAllPureNeedWeight标识为:{}",waybillCode,isAllPureNeedWeight);
             }
             if(isAllPureNeedWeight){
-                return  funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
+                return funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
             }
         }
         return  response;

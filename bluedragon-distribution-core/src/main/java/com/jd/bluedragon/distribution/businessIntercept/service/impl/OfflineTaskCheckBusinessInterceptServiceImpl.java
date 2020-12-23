@@ -69,7 +69,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
 
             try {
                 // 走一遍校验链，得到拦截结果
-                sortingCheckService.sortingCheck(pdaOperateRequest);
+                sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
             } catch (Exception e) {
                 log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask sortingCheck result throw exception {}", e.getMessage(), e);
             }

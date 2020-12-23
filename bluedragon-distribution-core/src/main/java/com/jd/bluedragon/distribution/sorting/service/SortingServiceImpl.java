@@ -1533,13 +1533,14 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@JProfiler(jKey = "DMSWEB.SortingServiceImpl.check", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
 	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
 		SortingJsfResponse sortingJsfResponse = new SortingJsfResponse();
 
 		try{
             pdaOperateRequest.setOperateNode(OperateNodeConstants.SORTING);
 			//调用web分拣验证校验链
-			sortingJsfResponse = sortingCheckService.sortingCheck(pdaOperateRequest);
+			sortingJsfResponse = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
 			if (sortingJsfResponse.getCode() != 200) {
 				return sortingJsfResponse;
 			}

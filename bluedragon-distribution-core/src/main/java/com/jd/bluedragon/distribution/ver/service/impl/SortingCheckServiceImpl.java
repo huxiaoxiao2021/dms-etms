@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -109,6 +110,18 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
+        return this.sortingCheck(pdaOperateRequest, false);
+    }
+
+    /**
+     * 拦截校验
+     * @param pdaOperateRequest 请求参数
+     * @param reportIntercept 是否提交拦截
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2020-12-23 15:13:20 周三
+     */
+    private SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest, boolean reportIntercept) {
         if (pdaOperateRequest == null) {
             return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
         }
@@ -143,8 +156,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 SortingCheckException checkException = (SortingCheckException) ex;
                 response.setCode(checkException.getCode());
                 response.setMessage(checkException.getMessage());
-                // 发出拦截报表mq
-                this.sendInterceptMsg(filterContext, checkException);
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
             } else {
                 logger.error("分拣验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -153,6 +168,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         }
         this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
         return response;
+    }
+
+    /**
+     * 分拣校验
+     */
+    @Override
+    public SortingJsfResponse sortingCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest){
+        return this.sortingCheck(pdaOperateRequest, true);
     }
 
     /**
@@ -174,7 +197,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
             saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
             saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-            saveInterceptMsgDto.setDeviceCode("人工手持设备");
+            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
             long operateTimeMillis = DateUtil.parse(pdaOperateRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
             saveInterceptMsgDto.setOperateTime(operateTimeMillis);
@@ -219,6 +242,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse singleSendCheck(SortingCheck sortingCheck) {
+        return this.singleSendCheck(sortingCheck, false);
+    }
+
+    private SortingJsfResponse singleSendCheck(SortingCheck sortingCheck, boolean reportIntercept) {
 
         if (sortingCheck == null) {
             return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
@@ -243,8 +270,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     SortingCheckException checkException = (SortingCheckException) ex;
                     response.setCode(checkException.getCode());
                     response.setMessage(checkException.getMessage());
-                    // 发出拦截报表mq
-                    this.sendInterceptMsg(filterContext, checkException);
+                    if(reportIntercept){
+                        // 发出拦截报表mq
+                        this.sendInterceptMsg(filterContext, checkException);
+                    }
                 } else {
                     logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                     response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -253,7 +282,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             }
         } else {
             //调用装箱的分拣验证
-            return this.sortingCheck(pdaOperateRequest);
+            return this.sortingCheck(pdaOperateRequest, reportIntercept);
         }
 
         this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
@@ -261,8 +290,24 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck) {
+        return this.singleSendCheck(sortingCheck, true);
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest) {
+        return this.boardCombinationCheck(boardCombinationRequest, false);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest) {
+        return this.boardCombinationCheck(boardCombinationRequest, true);
+    }
+
+    private BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest, boolean reportIntercept) {
 
         if (boardCombinationRequest == null) {
             return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
@@ -286,8 +331,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         } catch (Exception ex) {
             if (ex instanceof SortingCheckException) {
                 SortingCheckException checkException = (SortingCheckException) ex;
-                // 发出拦截报表mq
-                this.sendInterceptMsg(filterContext, checkException);
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);

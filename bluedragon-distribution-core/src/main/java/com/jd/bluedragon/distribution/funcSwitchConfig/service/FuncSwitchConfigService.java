@@ -128,7 +128,7 @@ public interface FuncSwitchConfigService {
      * @param packageCode
      * @throws SortingCheckException
      */
-   JdCResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode) ;
+    JdResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode) ;
 
     /**
      * 判断是否满足 纯配外单拦截标识
