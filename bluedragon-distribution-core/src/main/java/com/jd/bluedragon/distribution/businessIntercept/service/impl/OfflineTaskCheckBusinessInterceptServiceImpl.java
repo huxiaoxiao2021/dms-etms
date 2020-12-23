@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.fastjson.JSON;
@@ -70,7 +71,8 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
 
             try {
                 // 走一遍校验链，得到拦截结果
-                sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
+                SortingJsfResponse checkResult = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
+                log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask checkResult: {}", JSON.toJSONString(checkResult));
             } catch (Exception e) {
                 log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask sortingCheck result throw exception {}", e.getMessage(), e);
             }
