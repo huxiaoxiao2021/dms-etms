@@ -461,6 +461,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return sendResult;
             }
         }
+        //众邮0重量拦截
+        //不能强制发货，因此放在外面
+        DeliveryResponse weightAndVolumeCheck = zeroWeightAndVolumeCheck(domain);
+        if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
+            SendResult sendResult = new SendResult();
+            sendResult.init(SendResult.CODE_SENDED,weightAndVolumeCheck.getMessage());
+            return  sendResult;
+        }
         if (isCancelLastSend) {
             this.doCancelLastSend(domain);
         }
@@ -725,12 +733,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryResponse response = checkRouterForCBox(domain);
             if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), null);
-                return false;
-            }
-            // 校验箱的重量和体积
-            DeliveryResponse weightAndVolumeCheck = zeroWeightAndVolumeCheck(domain);
-            if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
-                result.init(SendResult.CODE_SENDED, weightAndVolumeCheck.getMessage(), weightAndVolumeCheck.getCode(), null);
                 return false;
             }
         }
