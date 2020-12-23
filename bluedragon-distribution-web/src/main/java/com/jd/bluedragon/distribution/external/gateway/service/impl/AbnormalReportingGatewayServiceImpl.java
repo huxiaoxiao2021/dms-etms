@@ -30,6 +30,7 @@ import com.jd.ql.dms.report.domain.SiteQueryCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
 import org.apache.commons.lang3.StringUtils;
@@ -52,7 +53,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Value("${non.qc.abnormal.reason.type:920002313}")
     private int nonQcAbnormalReasonType;
 
-    private Map<String, AbnormalReasonDto> abnormalReasonDtoMap;
+    private Map<String, ExceptionReason> abnormalReasonDtoMap;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -93,7 +94,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("请联系权限接口人配置质控系统异常上报权限");
+            jdCResponse.setMessage("没有查询到异常原因数据。请联质控系统接口人配置异常上报权限");
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);
@@ -351,7 +352,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
             if (source.equals(AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM)) {
                 String key = level + "-" + baseDataDict.getTypeCode();
-                AbnormalReasonDto abnormalReasonDto = abnormalReasonDtoMap.get(key);
+                ExceptionReason abnormalReasonDto = abnormalReasonDtoMap.get(key);
                 if (abnormalReasonDto == null) {
                     log.warn("编号：【{}】的原因不存在于质控系统中", baseDataDict.getTypeCode());
                     continue;
@@ -390,11 +391,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     /**
      * 从质控获取到的原因转化为通用原因
      */
-    private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(AbnormalReasonDto abnormalReasonDto) {
+    private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(ExceptionReason abnormalReasonDto) {
         DmsAbnormalReasonDto dmsAbnormalReasonDto = new DmsAbnormalReasonDto();
         dmsAbnormalReasonDto.setLevel(Integer.parseInt(abnormalReasonDto.getAbnormalLevel()));
         dmsAbnormalReasonDto.setReasonName(abnormalReasonDto.getAbnormalName());
-        dmsAbnormalReasonDto.setIsOutCallType(abnormalReasonDto.getOutCall() == null ? 0 : Integer.parseInt(abnormalReasonDto.getOutCall()));
+        dmsAbnormalReasonDto.setIsOutCallType(0);
         dmsAbnormalReasonDto.setIsUploadImgType(abnormalReasonDto.getUploadImg() == null ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
         dmsAbnormalReasonDto.setIsDeviceCodeType(abnormalReasonDto.getDeviceCode() == null ? 0 : Integer.parseInt(abnormalReasonDto.getDeviceCode()));
         dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark());
