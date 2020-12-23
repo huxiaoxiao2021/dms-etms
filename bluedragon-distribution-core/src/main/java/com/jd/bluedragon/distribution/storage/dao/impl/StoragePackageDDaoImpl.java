@@ -57,4 +57,14 @@ public class StoragePackageDDaoImpl extends BaseDao<StoragePackageD> implements 
     public List<String> findStorageCodeByWaybillCodeAndSiteCode(StoragePackageD storagePackageD) {
         return sqlSession.selectList(this.nameSpace+".findStorageCodeByWaybillCodeAndSiteCode", storagePackageD);
     }
+
+    @Override
+    public List<StoragePackageD> queryUnSendByWaybill(String waybillCode) {
+        return sqlSession.selectList(this.nameSpace+".queryUnSendByWaybill", waybillCode);
+    }
+
+    @Override
+    public int updateSendTimeByPackageCode(String packageCode) {
+        return sqlSession.update(this.nameSpace+".updateSendTimeByPackageCode", packageCode);
+    }
 }

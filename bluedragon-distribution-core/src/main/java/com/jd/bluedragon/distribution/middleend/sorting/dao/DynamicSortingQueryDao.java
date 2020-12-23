@@ -22,11 +22,6 @@ public class DynamicSortingQueryDao implements ISortingDao{
     @Autowired
     private SortingDao sortingDao;
 
-    @Autowired
-    private MiddleEndSortingDao middleEndSortingDao;
-
-    @Autowired
-    private FailoverSortingDao failoverSortingDao;
 
     @Autowired
     private SiteService siteService;
@@ -46,27 +41,6 @@ public class DynamicSortingQueryDao implements ISortingDao{
      * @return
      */
     public ISortingDao selectDao(Integer createSiteCode) {
-        String sortingQueryMode = uccPropertyConfiguration.getSortingQueryMode();
-        log.info("sortingQueryMode:{}" , sortingQueryMode);
-        if(SORTING_QUERY_MODE_DMS.equals(sortingQueryMode)){
-            log.info("站点:{}使用sortingDao进行查询",createSiteCode);
-            return sortingDao;
-        }else if(SORTING_QUERY_MODE_MIDDLEEND.equals(sortingQueryMode)){
-            log.info("站点:{}使用middleEndSortingDao进行查询",createSiteCode);
-            return middleEndSortingDao;
-        }else if(SORTING_QUERY_MODE_FAILOVER.equals(sortingQueryMode)){
-            //配置列表里有
-            Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_CLOSE);
-            //配置为空代表开启全国不用使用中台模式
-            if(CollectionUtils.isNotEmpty(siteCodeSet) && !siteCodeSet.contains(createSiteCode)){
-                log.info("站点:{}使用failoverSortingDao进行查询",createSiteCode);
-                return failoverSortingDao;
-            }else{
-                log.info("站点:{}使用sortingDao进行查询",createSiteCode);
-                return sortingDao;
-            }
-        }
-        log.info("站点:{}使用sortingDao进行查询",createSiteCode);
         return  sortingDao;
     }
 
@@ -201,20 +175,6 @@ public class DynamicSortingQueryDao implements ISortingDao{
         this.sortingDao = sortingDao;
     }
 
-    public MiddleEndSortingDao getMiddleEndSortingDao() {
-        return middleEndSortingDao;
-    }
 
-    public void setMiddleEndSortingDao(MiddleEndSortingDao middleEndSortingDao) {
-        this.middleEndSortingDao = middleEndSortingDao;
-    }
-
-    public FailoverSortingDao getFailoverSortingDao() {
-        return failoverSortingDao;
-    }
-
-    public void setFailoverSortingDao(FailoverSortingDao failoverSortingDao) {
-        this.failoverSortingDao = failoverSortingDao;
-    }
 }
 

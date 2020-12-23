@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,6 +29,8 @@ import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
@@ -47,6 +51,7 @@ import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -151,6 +156,12 @@ public class DeliveryResource {
 
     @Autowired
     private BoxRelationService boxRelationService;
+
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -1647,6 +1658,15 @@ public class DeliveryResource {
         	if(BusinessHelper.isSendCode(deliveryRequest.getSendCode())){
         		deliveryRequest.setHasSendPackageNum(sendDetailService.querySendDCountBySendCode(deliveryRequest.getSendCode()));
         	}
+
+        	//调用分拣无重量拦截链---2020.12.17 目前主要针对满足纯配外单的0 重量
+            JdCResponse<Void>  response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
+            if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
+                result.setCode(response.getCode());
+                result.setMessage(response.getMessage());
+                return result;
+            }
+
         	//调用ver校验链
         	JdResult<CheckBeforeSendResponse> verCheckResult = jsfSortingResourceService.checkBeforeSend(deliveryRequest);
             if(!verCheckResult.isSucceed()){
@@ -1668,9 +1688,39 @@ public class DeliveryResource {
             }
             return result;
         }catch (Exception e){
+
             log.error("调用ver接口进行老发货验证异常:{}" ,JSON.toJSONString(deliveryRequest),e);
             result.toError("调用ver接口进行老发货验证异常.");
         }
         return result;
+    }
+
+    /**
+     * 老发货无重量拦截校验-提炼于拦截链
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    private  JdCResponse<Void>  allPureValidateWeight(String packageCode,Integer siteCode){
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.setCode(Constants.SUCCESS_NO_CODE);
+        if(WaybillUtil.isPackageCode(packageCode)){
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            WaybillCache waybillCache = waybillCacheService.getNoCache(waybillCode);
+            FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
+            funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
+            funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
+            funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
+            funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
+            // 是否满足无重量拦截条件
+            boolean isAllPureNeedWeight  =  funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
+            if(log.isInfoEnabled()){
+                log.info("运单waybillCode:{},当前isAllPureNeedWeight标识为:{}",waybillCode,isAllPureNeedWeight);
+            }
+            if(isAllPureNeedWeight){
+                return  funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
+            }
+        }
+        return  response;
     }
 }

@@ -229,6 +229,11 @@ public class UccPropertyConfiguration {
      */
     private boolean enableFilePackageWaybillSign;
 
+    /**
+     * 纯配外单 0重量拦截 黑名单 (在名单的拦截)
+     */
+    private String allPureValidateWeightWebSite;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -635,5 +640,13 @@ public class UccPropertyConfiguration {
 
     public void setEnableFilePackageWaybillSign(boolean enableFilePackageWaybillSign) {
         this.enableFilePackageWaybillSign = enableFilePackageWaybillSign;
+    }
+
+    public String getAllPureValidateWeightWebSite() {
+        return allPureValidateWeightWebSite;
+    }
+
+    public void setAllPureValidateWeightWebSite(String allPureValidateWeightWebSite) {
+        this.allPureValidateWeightWebSite = allPureValidateWeightWebSite;
     }
 }

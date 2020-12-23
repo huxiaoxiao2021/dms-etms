@@ -333,7 +333,7 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_29402 = "此[分拣中心]的[分拣规则]没有配置";
 
     public static final Integer CODE_29403 = 29403;
-    public static final String MESSAGE_29403 = "该订单没有重量或体积信息,不能装箱";
+    public static final String MESSAGE_29403 = "该订单没有重量或体积信息,不能装箱。请到【青龙分拣中心系统】称重量方";
 
     public static final Integer CODE_29404 = 29404;
     public static final String MESSAGE_29404 = "请扫描板号/箱号/包裹号进行发货";
@@ -377,6 +377,9 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_29418 = 29418;
     public static final String MESSAGE_29418 = "此单已拒收或妥投，请扫描正确面单或退商家打印正确面单或操作异常处理!";
+
+    public static final Integer CODE_29419 = 29419;
+    public static final String  MESSAGE_29419= "此单无称重重量,请称重后再操作";
 
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";

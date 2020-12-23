@@ -274,7 +274,10 @@ function checkQueryParams(){
 	}	
 	return true;
 }
-function printPdf(pdfUrl){
+function printPdf(pdfUrl, event){
+	if (event && event.currentTarget) {
+		$(event.currentTarget).css('color', 'red');
+	}
 	window.open(pdfUrl);
 }
 function printEdnPickingList(scheduleBillCode,event){
@@ -308,7 +311,8 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
             }
             for(var i = 0 ; i<data.data.length ; i++ ){
                 var pojo = data.data[i];
-                tableBodyHtml += "<tr><td width=\"25%\">"+pojo.ednBatchNum+"</td>";
+				tableBodyHtml += "<tr><td width=\"25%\">"+(i+1)+"</td>";
+				tableBodyHtml += "<td width=\"25%\">"+pojo.ednBatchNum+"</td>";
                 tableBodyHtml += "<td width=\"25%\">"+'<a href="#" class="show-storage-view" onclick="printPdf(\''+pojo.deliveryReceiptUrl+'\',event)">'+'打印</a>'+"</td>";
                 tableBodyHtml += "</tr>";
 

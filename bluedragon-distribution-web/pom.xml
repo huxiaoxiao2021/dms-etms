@@ -309,6 +309,14 @@
                 	<artifactId>slf4j-log4j12</artifactId>
                 	<groupId>org.slf4j</groupId>
                 </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-jedis</artifactId>
+                </exclusion>
+                <exclusion>
+                	<groupId>com.jd.jim.cli</groupId>
+                	<artifactId>jim-cli-api</artifactId>
+                </exclusion>
             </exclusions>
 		</dependency>
 		<dependency>

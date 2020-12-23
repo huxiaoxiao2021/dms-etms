@@ -67,6 +67,9 @@ public class StoragePackageM extends DbEntity {
     /** 全部下架完成时间 */
     private Date downAwayCompleteTime;
 
+    /** 下架时间 */
+    private Date downAwayTime;
+
 	/**
 	 * The set method for performanceCode.
 	 * @param performanceCode
@@ -297,5 +300,13 @@ public class StoragePackageM extends DbEntity {
 
     public void setDownAwayCompleteTime(Date downAwayCompleteTime) {
         this.downAwayCompleteTime = downAwayCompleteTime;
+    }
+
+    public Date getDownAwayTime() {
+        return downAwayTime;
+    }
+
+    public void setDownAwayTime(Date downAwayTime) {
+        this.downAwayTime = downAwayTime;
     }
 }

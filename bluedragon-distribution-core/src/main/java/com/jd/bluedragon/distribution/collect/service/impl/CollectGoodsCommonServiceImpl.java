@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.collect.service.CollectGoodsAreaService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsCommonService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -456,6 +457,8 @@ public class CollectGoodsCommonServiceImpl implements CollectGoodsCommonService{
         inspection.setOperateTime(DateHelper.formatDateTime(new Date(req.getOperateTime())));
         inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         inspection.setPackageBarOrWaybillCode(req.getPackageCode());
+        inspection.setBizSource(InspectionBizSourceEnum.COLLECT_GOODS_INSPECTION.getCode());
+
         request.setKeyword2(req.getPackageCode());
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(req.getOperateUserErp());

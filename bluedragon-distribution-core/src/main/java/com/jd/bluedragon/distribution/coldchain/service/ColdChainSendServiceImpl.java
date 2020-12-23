@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
+import com.jd.bluedragon.KeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.ScheduleCargoSimpleDto;
 import com.jd.tms.tfc.dto.TransPlanScheduleCargoDto;
@@ -19,9 +21,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author lixin39
@@ -48,6 +52,10 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
 
     @Autowired
     private SendCodeService sendCodeService;
+
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
 
     @Override
     public boolean add(ColdChainSend coldChainSend) {
@@ -242,14 +250,29 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
 
     @Override
     public String getOrGenerateSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode) {
-        ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
-        if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
-            return coldChainSend.getSendCode();
-        } else {
-            Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
-            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(createSiteCode));
-            attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
-            return sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WORKER_SYS, StringUtils.EMPTY);
+        // 同一运输计划编号加锁，解决并发问题
+        String keyTemplate = KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING;
+        String key = String.format(keyTemplate, transPlanCode);
+        boolean isExistHandling = redisClientCache.exists(key);
+        if(isExistHandling){
+            throw new RuntimeException("获取或生成批次失败，操作太快，正在处理中");
+        }
+        try{
+            redisClientCache.setEx(key, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS);
+            ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
+            if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
+                return coldChainSend.getSendCode();
+            } else {
+                Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(createSiteCode));
+                attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
+                return sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.DMS_WORKER_SYS, StringUtils.EMPTY);
+            }
+        } catch (Exception e){
+            log.error("getOrGenerateSendCode exception: ", e);
+            throw new RuntimeException("获取或生成批次失败");
+        }finally {
+            redisClientCache.del(key);
         }
     }
 
