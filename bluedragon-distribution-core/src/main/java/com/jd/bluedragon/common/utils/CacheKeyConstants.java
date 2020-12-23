@@ -1,6 +1,8 @@
 package com.jd.bluedragon.common.utils;
 
 public class CacheKeyConstants {
+
+    private static final String DMS_CACHE_PREFIX = "dms.etms.";
 	
 	public static final String POP_PRINT_BACKUP_KEY = "popprint.backup.list";
 
@@ -76,4 +78,9 @@ public class CacheKeyConstants {
 	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
 	 */
 	public static final String REDIS_PREFIX_SEAL_PACK_INTERCEPT = "unload.seal.package.intercept-";
+
+    /**
+     * 文件箱号绑定锁
+     */
+	public static final String BOX_BIND_NX_KEY = DMS_CACHE_PREFIX + "fileBox.bind:";
 }

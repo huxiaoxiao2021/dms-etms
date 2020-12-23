@@ -645,6 +645,11 @@
         <property name="sqlSession" ref="sessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
+
+    <!--  分拣箱号关联  -->
+    <bean id="boxRelationDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
+
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>

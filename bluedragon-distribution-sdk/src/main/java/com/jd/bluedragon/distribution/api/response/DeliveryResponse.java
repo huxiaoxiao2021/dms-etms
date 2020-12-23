@@ -150,6 +150,9 @@ public class DeliveryResponse extends JdResponse {
 
     /**取消发货校验提示语 End*/
 
+    public static final Integer CODE_40100 = 40100;
+    public static final String MESSAGE_40100 = "文件包裹未集包禁止发货";
+
 
     /**
      * 单纯的提示语

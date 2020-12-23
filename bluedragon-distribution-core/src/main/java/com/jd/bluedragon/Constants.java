@@ -1351,4 +1351,9 @@ public class Constants {
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
 
+    /**
+     * 快运发货标识
+     */
+    public static final Integer KY_DELIVERY = 1;
+
 }

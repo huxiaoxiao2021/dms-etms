@@ -214,6 +214,21 @@ public class UccPropertyConfiguration {
      */
     private boolean sendCodeGenSwitchOn;
 
+    /**
+     * BC箱号绑定WJ数量限制
+     */
+    private int BCContainWJNumberLimit;
+
+    /**
+     * WJ装箱包裹数限制
+     */
+    private int WJPackageNumberLimit;
+
+    /**
+     * 开启文件类型包裹验证 true:开启 false：关闭
+     */
+    private boolean enableFilePackageWaybillSign;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -596,5 +611,29 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeGenSwitchOn(boolean sendCodeGenSwitchOn) {
         this.sendCodeGenSwitchOn = sendCodeGenSwitchOn;
+    }
+
+    public int getBCContainWJNumberLimit() {
+        return BCContainWJNumberLimit;
+    }
+
+    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
+        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
+    }
+
+    public int getWJPackageNumberLimit() {
+        return WJPackageNumberLimit;
+    }
+
+    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
+        this.WJPackageNumberLimit = WJPackageNumberLimit;
+    }
+
+    public boolean getEnableFilePackageWaybillSign() {
+        return enableFilePackageWaybillSign;
+    }
+
+    public void setEnableFilePackageWaybillSign(boolean enableFilePackageWaybillSign) {
+        this.enableFilePackageWaybillSign = enableFilePackageWaybillSign;
     }
 }
