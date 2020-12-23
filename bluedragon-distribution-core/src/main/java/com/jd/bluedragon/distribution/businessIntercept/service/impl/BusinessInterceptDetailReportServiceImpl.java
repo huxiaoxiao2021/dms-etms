@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInte
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.handler.dispose.BusinessInterceptDisposeRecordHandlerStrategy;
 import com.jd.bluedragon.distribution.businessIntercept.handler.intercept.BusinessInterceptRecordAbstractHandler;
+import com.jd.bluedragon.distribution.businessIntercept.handler.intercept.BusinessInterceptRecordHandlerStrategy;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptDetailReportService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.fastjson.JSON;
@@ -42,7 +43,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
     private DefaultJMQProducer disposeAfterInterceptSendProducer;
 
     @Autowired
-    private BusinessInterceptRecordAbstractHandler businessInterceptRecordAbstractHandler;
+    private BusinessInterceptRecordHandlerStrategy businessInterceptRecordHandlerStrategy;
 
     @Autowired
     private BusinessInterceptDisposeRecordHandlerStrategy businessInterceptDisposeRecordHandlerStrategy;
@@ -82,7 +83,7 @@ public class BusinessInterceptDetailReportServiceImpl implements IBusinessInterc
                 }
             }
 
-            Response<Boolean> handleResult = businessInterceptRecordAbstractHandler.handle(msgDto);
+            Response<Boolean> handleResult = businessInterceptRecordHandlerStrategy.handle(msgDto);
             if(handleResult.isSucceed()){
                 result.setData(false);
                 result.setMessage(handleResult.getMessage());
