@@ -11,7 +11,9 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -38,7 +40,6 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ListUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.collections4.ListUtils;
@@ -116,6 +117,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -501,7 +505,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
         // 如果场地配置了发货白名单
-        log.info("开始获取大宗权限taskId={},createSiteId={}", taskId, createSiteId);
         if (hasSendFunction(createSiteId, user.getUserErp())) {
             log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
             // 开放大宗权限
@@ -521,10 +524,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 如果暂存表不为空，则去分拣报表拉取最新的库存数据
         // 记录属于多扫状态的运单
         Map<String, LoadScanDto> flowDisAccordMap = new HashMap<>(16);
-
-        if (log.isDebugEnabled()) {
-            log.debug("根据任务ID查找暂存表不为空，taskId={},size={}", req.getTaskId(), tempList.size());
-        }
 
         List<LoadScanDto> waybillCodeList = getWaybillCodes(tempList, map, flowDisAccordMap);
         reportList = dmsDisSendService.getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
@@ -741,20 +740,23 @@ public class LoadScanServiceImpl implements LoadScanService {
                 return response;
             }
 
-            // 根据运单号去ES查询库存包裹号集合
-            LoadScanDto loadScanDto = dmsDisSendService.getPackageCodesByWaybillCode(waybillCode, loadCar.getCreateSiteCode().intValue());
+            // 根据运单号去ES查询库存包裹数
+            LoadScanDto scanDto = new LoadScanDto();
+            scanDto.setWayBillCode(waybillCode);
+            scanDto.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
+            LoadScanDto loadScanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(scanDto);
             if (loadScanDto == null) {
                 log.error("根据运单号查询库存失败！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据运单号查询库存失败！");
                 return response;
             }
-            List<String> packageList = loadScanDto.getPackageCodes();
+
             // 如果该运单库存数小于总包裹数，则提示“必须集齐才能按单操作”
-            if (packageList.size() < loadScanDto.getPackageAmount()) {
+            if (loadScanDto.getGoodsAmount() < loadScanDto.getPackageAmount()) {
                 log.warn("校验运单号--该运单尚未集齐所有包裹，taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
-                int exceptionSize = loadScanDto.getPackageAmount() - packageList.size();
+                int exceptionSize = loadScanDto.getPackageAmount() - loadScanDto.getGoodsAmount();
                 response.setMessage("该单有" + exceptionSize + "个未验包裹，无法装车扫描，请先操作验货");
                 return response;
             }
@@ -763,6 +765,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             List<String> insertPackageCodes = new ArrayList<>();
             List<Long> updateRecordIds = new ArrayList<>();
 
+            // 调用运单接口--根据运单号获取包裹号列表
+            List<String> packageList = getPackageCodesByWaybillCode(waybillCode);
             // 校验运单号是否属于重复扫
             handlePackagesOfWaybill(waybillCode, loadCar, packageList, insertPackageCodes, updateRecordIds);
             if (insertPackageCodes.isEmpty() && updateRecordIds.isEmpty()) {
@@ -1199,21 +1203,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-        Integer createSiteId = loadCar.getCreateSiteCode().intValue();
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
-        // 根据运单号查询库存数量和包裹总数
-        LoadScanDto scanDto = new LoadScanDto();
-        scanDto.setWayBillCode(waybillCode);
-        scanDto.setPackageCode(packageCode);
-        scanDto.setCreateSiteId(createSiteId);
-        LoadScanDto loadScanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(scanDto);
-        if (loadScanDto == null) {
-            log.error("校验运单号--根据包裹号和运单号从ES查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-            response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("该运单下的所有包裹未验货或已发货，请核实运单状态");
-            return response;
-        }
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
         msgBox.setType(MsgBoxTypeEnum.CONFIRM);
@@ -1227,14 +1219,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 校验运单下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此运单流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
             log.warn("校验运单号--运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
-            msg = "大宗按单操作！此单共计" + loadScanDto.getPackageAmount() + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+            msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
             msgBox.setMsg(msg);
             response.addBox(msgBox);
             return response;
         }
 
         // 运单流向一致，则提示运单上包裹数量
-        msg = "大宗按单操作！此单共计" + loadScanDto.getPackageAmount() + "件，请确认包裹集齐！\n";
+        msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n";
         msgBox.setMsg(msg);
         response.addBox(msgBox);
         return response;
@@ -1831,6 +1823,21 @@ public class LoadScanServiceImpl implements LoadScanService {
         return flag;
     }
 
+
+    private List<String> getPackageCodesByWaybillCode(String waybillCode) {
+        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_PACKAGE_CODES + waybillCode;
+        List<String> packageCodes = jimdbCacheService.getList(key, String.class);
+        // 如果缓存为空，从远程获取
+        if (CollectionUtils.isEmpty(packageCodes)) {
+            packageCodes = waybillPackageManager.getWaybillPackageCodes(waybillCode);
+            // 如果不为空，缓存7天
+            if (CollectionUtils.isNotEmpty(packageCodes)) {
+                jimdbCacheService.setEx(key, packageCodes, 7, TimeUnit.DAYS);
+                return packageCodes;
+            }
+        }
+        return packageCodes;
+    }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload")
