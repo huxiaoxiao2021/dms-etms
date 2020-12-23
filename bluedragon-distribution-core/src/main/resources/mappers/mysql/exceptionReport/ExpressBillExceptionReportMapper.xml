@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.jd.bluedragon.distribution.billExcepiton.dao.ExpressBillExceptionReportDao">
+<mapper namespace="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
     <!-- table映射实体对象 -->
-    <resultMap id="RM_ExpressBillExceptionReport" type="com.jd.bluedragon.distribution.billException.domain.ExpressBillExceptionReport">
+    <resultMap id="RM_ExpressBillExceptionReport" type="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport">
         <result property="id" column="id"/>
         <result property="packageCode" column="package_code"/>
         <result property="orgCode" column="org_code"/>
@@ -37,7 +37,7 @@
     </select>
 
     <!--分页查询-->
-    <select id="queryList" parameterType="com.jd.bluedragon.distribution.billException.request.ExpressBillExceptionReportQuery" resultType="RM_ExpressBillExceptionReport">
+    <select id="queryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="RM_ExpressBillExceptionReport">
      select
      <include refid="Base_Column_List"/>
      from express_bill_exception_report
@@ -50,7 +50,7 @@
     </select>
 
     <!--查询举报总记录数-->
-    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.billException.request.ExpressBillExceptionReportQuery" resultType="java.lang.Integer">
+    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="java.lang.Integer">
      select count(*)
      from express_bill_exception_report
      where yn=1
@@ -58,7 +58,7 @@
     </select>
 
     <!--新增sql-->
-    <insert id="insertReport" keyProperty="id" parameterType="com.jd.bluedragon.distribution.billException.domain.ExpressBillExceptionReport">
+    <insert id="insertReport" keyProperty="id" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport">
      insert into express_bill_exception_report
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="packageCode != null and packageCode != ''">

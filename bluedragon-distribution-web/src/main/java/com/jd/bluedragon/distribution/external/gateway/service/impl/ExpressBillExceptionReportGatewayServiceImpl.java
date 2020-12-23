@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportPdaService;
 import com.jd.bluedragon.external.gateway.service.ExpressBillExceptionReportGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -15,11 +16,13 @@ import java.util.List;
  * @Description:  面单异常举报提供给安卓的后台接口
  * @Date: create in 2020/12/21 14:48
  */
+@Service
 public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBillExceptionReportGatewayService {
 
     @Autowired
     private ExpressBillExceptionReportPdaService expressBillExceptionReportPdaService;
 
+    @Override
     public JdCResponse<CurrentOperate> getFirstSiteByPackageCode(String packageCode){
         return expressBillExceptionReportPdaService.getFirstSiteByPackageCode(packageCode);
     }
