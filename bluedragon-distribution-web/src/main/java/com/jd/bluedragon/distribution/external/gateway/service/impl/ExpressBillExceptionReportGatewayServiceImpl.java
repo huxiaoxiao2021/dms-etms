@@ -16,7 +16,6 @@ import java.util.List;
  * @Description:  面单异常举报提供给安卓的后台接口
  * @Date: create in 2020/12/21 14:48
  */
-@Service
 public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBillExceptionReportGatewayService {
 
     @Autowired
