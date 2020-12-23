@@ -233,4 +233,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--面单异常举报  提供给分拣工作台-->
+    <jsf:provider id="dmsExpressBillExceptionReportJsfService"
+                  interface="com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService"
+                  alias="${jsf.dmsExpressBillExceptionReportService.alias}"
+                  ref="dmsExpressBillExceptionReportService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
