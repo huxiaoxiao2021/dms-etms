@@ -1754,13 +1754,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
         if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = zeroWeightAndVolumeCheck(tSendM);
+        }
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = deliveryCheckTransit(tSendM, isTransferSend);
         }
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
-        }
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            response = zeroWeightAndVolumeCheck(tSendM);
         }
         return response;
     }
