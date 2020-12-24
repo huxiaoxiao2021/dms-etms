@@ -150,10 +150,10 @@
             AND report_type = #{reportType}
         </if>
         <if test="queryStartTime != null">
-            AND create_time >= #{queryStartTime}
+            AND report_time >= #{queryStartTime}
         </if>
         <if test="queryEndTime != null">
-            AND create_time &lt; #{queryEndTime}
+            AND report_time <![CDATA[<]]> #{queryEndTime}
         </if>
     </sql>
 
