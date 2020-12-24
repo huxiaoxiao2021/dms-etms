@@ -188,7 +188,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         if(filterContext == null || checkException == null){
             return true;
         }
-        logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
+        // logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
 
         try {
             SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();

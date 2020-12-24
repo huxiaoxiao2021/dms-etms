@@ -108,7 +108,6 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Override
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity) {
         /* 同步处理 */
-        this.sendDisposeAfterInterceptMsg(entity);
         return this.dealWeightAndVolume(entity,true);
     }
 }
