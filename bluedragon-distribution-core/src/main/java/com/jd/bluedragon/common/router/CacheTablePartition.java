@@ -168,10 +168,6 @@ public class CacheTablePartition {
 			throw new IllegalArgumentException("[CacheTablePartition.getDmsCacheDb]waybillCode无效,waybillCode:"+waybillCode);
 		}
 		try{
-			//如果字符串长度>= 19 切割字符串
-			if (waybillCodeForTrans.length() >= 19){
-				waybillCodeForTrans = waybillCodeForTrans.substring(waybillCodeForTrans.length()-18,waybillCodeForTrans.length());
-			}
 
 			long waybillNum = Long.parseLong(waybillCodeForTrans);
 			//分表总数
@@ -179,7 +175,17 @@ public class CacheTablePartition {
 
 			//获取逻辑表编号
 			return waybillNum%totalTableCount;
-		}catch (NumberFormatException e){
+		}catch (NumberFormatException numberFormatException){
+			//如果字符串长度>= 19 切割字符串
+			if (waybillCodeForTrans.length() > 19){
+				waybillCodeForTrans = waybillCodeForTrans.substring(waybillCodeForTrans.length()-18,waybillCodeForTrans.length());
+			}
+			long waybillNum = Long.parseLong(waybillCodeForTrans);
+			//分表总数
+			int totalTableCount = dbCount*tableCount;
+			//获取逻辑表编号
+			return waybillNum%totalTableCount;
+		}catch (Exception e){
 			logger.warn("运单号非法:" + waybillCode+",异常原因：" + e.getMessage());
 			throw new IllegalWayBillCodeException(JdResponse.MESSAGE_BILLCODE_EXCEPTION);
 		}
