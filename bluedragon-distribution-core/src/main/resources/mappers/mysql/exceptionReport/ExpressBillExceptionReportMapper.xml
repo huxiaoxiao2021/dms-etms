@@ -140,10 +140,7 @@
 
     <!-- 判断空值 -->
     <sql id="where_sql">
-        <if test="packageCode != null and packageCode != ''">
-            AND package_code = #{packageCode}
-        </if>
-        <if test="orgCode != null and orgCode != ''">
+        <if test="orgCode != null">
             AND org_code = #{orgCode}
         </if>
         <if test="siteCode != null">
