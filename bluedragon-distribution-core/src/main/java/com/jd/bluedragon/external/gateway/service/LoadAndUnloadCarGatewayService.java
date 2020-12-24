@@ -37,4 +37,11 @@ public interface LoadAndUnloadCarGatewayService {
 
     JdCResponse<List<UnloadCarTaskDto>> getUnloadCarTaskScan(TaskHelpersReq taskHelpersReq);
 
+    JdCResponse<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq);
+
+    JdCResponse<UnloadScanDetailDto>  unloadScan(UnloadCarScanRequest  req);
+
+    JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest  req);
+
+
 }

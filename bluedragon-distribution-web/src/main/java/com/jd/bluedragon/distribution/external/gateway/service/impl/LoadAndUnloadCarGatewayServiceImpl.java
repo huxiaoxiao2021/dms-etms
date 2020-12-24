@@ -195,6 +195,21 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @Override
+    public JdCResponse<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest req) {
+        return null;
+    }
+
+    @Override
+    public JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest req) {
+        return null;
+    }
+
     private int convertCode(int invokeResultCode) {
         int code;
         if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {

@@ -54,9 +54,14 @@ public class UnloadScanDetailDto implements Serializable {
     private String boardCode;
 
     /**
-     * 下一流向
+     * 下一流向名称
      */
-    private String nextSiteName;
+    private String receiveSiteName;
+
+    /**
+     * 下一流向编码
+     */
+    private String receiveSiteCode;
 
     /**
      * 未卸件数
@@ -64,6 +69,91 @@ public class UnloadScanDetailDto implements Serializable {
     private List<UnloadScanDto> unloadScanDtoList;
 
 
+    public Integer getTotalWaybillNum() {
+        return totalWaybillNum;
+    }
 
+    public void setTotalWaybillNum(Integer totalWaybillNum) {
+        this.totalWaybillNum = totalWaybillNum;
+    }
 
+    public Integer getTotalPackageNum() {
+        return totalPackageNum;
+    }
+
+    public void setTotalPackageNum(Integer totalPackageNum) {
+        this.totalPackageNum = totalPackageNum;
+    }
+
+    public Integer getLoadWaybillAmount() {
+        return loadWaybillAmount;
+    }
+
+    public void setLoadWaybillAmount(Integer loadWaybillAmount) {
+        this.loadWaybillAmount = loadWaybillAmount;
+    }
+
+    public Integer getLoadPackageAmount() {
+        return loadPackageAmount;
+    }
+
+    public void setLoadPackageAmount(Integer loadPackageAmount) {
+        this.loadPackageAmount = loadPackageAmount;
+    }
+
+    public Integer getUnloadWaybillAmount() {
+        return unloadWaybillAmount;
+    }
+
+    public void setUnloadWaybillAmount(Integer unloadWaybillAmount) {
+        this.unloadWaybillAmount = unloadWaybillAmount;
+    }
+
+    public Integer getUnloadPackageAmount() {
+        return unloadPackageAmount;
+    }
+
+    public void setUnloadPackageAmount(Integer unloadPackageAmount) {
+        this.unloadPackageAmount = unloadPackageAmount;
+    }
+
+    public Integer getWaybillAuthority() {
+        return waybillAuthority;
+    }
+
+    public void setWaybillAuthority(Integer waybillAuthority) {
+        this.waybillAuthority = waybillAuthority;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    public String getReceiveSiteName() {
+        return receiveSiteName;
+    }
+
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
+    }
+
+    public String getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(String receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public List<UnloadScanDto> getUnloadScanDtoList() {
+        return unloadScanDtoList;
+    }
+
+    public void setUnloadScanDtoList(List<UnloadScanDto> unloadScanDtoList) {
+        this.unloadScanDtoList = unloadScanDtoList;
+    }
 }
