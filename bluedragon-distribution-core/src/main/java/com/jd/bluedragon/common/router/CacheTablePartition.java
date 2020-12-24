@@ -170,7 +170,7 @@ public class CacheTablePartition {
 		try{
 			//如果字符串长度>= 19 切割字符串
 			if (waybillCodeForTrans.length() >= 19){
-				waybillCodeForTrans = waybillCodeForTrans.substring(0,18);
+				waybillCodeForTrans = waybillCodeForTrans.substring(waybillCodeForTrans.length()-18,waybillCodeForTrans.length());
 			}
 
 			long waybillNum = Long.parseLong(waybillCodeForTrans);
