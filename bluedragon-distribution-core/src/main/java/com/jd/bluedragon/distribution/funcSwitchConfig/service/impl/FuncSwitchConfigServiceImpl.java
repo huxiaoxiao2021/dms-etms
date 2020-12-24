@@ -588,6 +588,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
+    @Override
     public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode){
         FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> response =  new FuncSwitchConfigResponse<>();
         response.setCode(JdResponse.CODE_SUCCESS);
@@ -642,6 +643,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param menuCode
      * @return
      */
+    @Override
     public boolean getAllCountryFromCacheOrDb(Integer menuCode){
         boolean isAllMailFilter = true;
         String cacheKey = getAllCountTyCacheKey(DimensionEnum.NATIONAL.getCachePreKey(),menuCode);
@@ -678,6 +680,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
+    @Override
     public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
         boolean isAllMailFilter = true;
         String cacheKey = getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),menuCode,siteCode);
@@ -715,6 +718,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param operateErp
      * @return
      */
+    @Override
     public boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp){
         boolean isAllMailFilter = true;
         String  cacheKey = getErpOneCacheKey(DimensionEnum.PERSON.getCachePreKey(),menuCode,operateErp);
@@ -788,13 +792,13 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * 返回0: 有重量    非0:无重量
      */
     @Override
-    public JdCResponse<Void>  checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
+    public JdResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
         if (waybillCache == null) {
-            return new JdCResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
+            return new JdResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
         }
         //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
         if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
-            return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+            return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
         }
 
         logger.warn("运单缓存未查询重量,查询运单库,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
@@ -803,9 +807,9 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             if(logger.isInfoEnabled()) {
                 logger.info("本地库未查到纯配外单重量,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
             }
-            return  new JdCResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
+            return  new JdResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
         }
-        return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+        return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
     }
 
     /**
@@ -813,6 +817,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param request
      * @return  true:拦截   false:不拦截
      */
+    @Override
     public boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto request){
         String waybillSign = request.getWaybillSign();
         //众邮不拦截

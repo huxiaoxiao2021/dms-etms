@@ -429,6 +429,7 @@
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
     </bean>
+
     <!-- 滞留上报明细消息 -->
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
@@ -488,6 +489,27 @@
     <!-- 快运暂存发货消息 -->
     <bean id="kyStorageSendMQProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.kyStorageSend}"/>
+    </bean>
+
+    <!-- 业务操作拦截原始动作记录 -->
+    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.action.send}"/>
+    </bean>
+    <!-- 业务操作拦截消息发送给拦截报表 -->
+    <bean id="businessOperateInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
+    </bean>
+    <!-- 拦截后处理原始动作数据发出消息 -->
+    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeActionAfterIntercept.send}"/>
+    </bean>
+    <!-- 拦截后处理数据发送给拦截报表 -->
+    <bean id="disposeAfterInterceptSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
+    </bean>
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <bean id="dmsBusinessOperateOfflineTaskSendProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.offline.task.send}"/>
     </bean>
 
 </beans>
