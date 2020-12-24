@@ -149,11 +149,11 @@
         <if test="reportType != null">
             AND report_type = #{reportType}
         </if>
-        <if test="reportStartTime != null">
-            AND create_time >= #{reportStartTime}
+        <if test="queryStartTime != null">
+            AND create_time >= #{queryStartTime}
         </if>
-        <if test="reportEndTime != null">
-            AND create_time &lt; #{reportEndTime}
+        <if test="queryEndTime != null">
+            AND create_time &lt; #{queryEndTime}
         </if>
     </sql>
 
