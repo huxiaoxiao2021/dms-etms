@@ -30,17 +30,17 @@ public class ExpressBillExceptionReportQuery extends BasePagerCondition implemen
     /**
      * 举报区域
      */
-    private Integer reportOrgCode;
+    private Integer orgCode;
 
     /**
      * 举报分拣中心
      */
-    private Integer reportSiteCode;
+    private Integer siteCode;
 
     /**
      * 举报类型编码
      */
-    private Integer  reportTypeCode;
+    private Integer  reportType;
 
     private Integer yn;
 
@@ -52,30 +52,6 @@ public class ExpressBillExceptionReportQuery extends BasePagerCondition implemen
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
-    }
-
-    public Integer getReportOrgCode() {
-        return reportOrgCode;
-    }
-
-    public void setReportOrgCode(Integer reportOrgCode) {
-        this.reportOrgCode = reportOrgCode;
-    }
-
-    public Integer getReportSiteCode() {
-        return reportSiteCode;
-    }
-
-    public void setReportSiteCode(Integer reportSiteCode) {
-        this.reportSiteCode = reportSiteCode;
-    }
-
-    public Integer getReportTypeCode() {
-        return reportTypeCode;
-    }
-
-    public void setReportTypeCode(Integer reportTypeCode) {
-        this.reportTypeCode = reportTypeCode;
     }
 
     public Integer getYn() {
@@ -116,6 +92,30 @@ public class ExpressBillExceptionReportQuery extends BasePagerCondition implemen
 
     public void setQueryEndTime(Date queryEndTime) {
         this.queryEndTime = queryEndTime;
+    }
+
+    public Integer getOrgCode() {
+        return orgCode;
+    }
+
+    public void setOrgCode(Integer orgCode) {
+        this.orgCode = orgCode;
+    }
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public Integer getReportType() {
+        return reportType;
+    }
+
+    public void setReportType(Integer reportType) {
+        this.reportType = reportType;
     }
 }
     
