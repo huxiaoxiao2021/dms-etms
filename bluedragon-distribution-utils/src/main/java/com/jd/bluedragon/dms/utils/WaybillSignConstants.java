@@ -287,6 +287,7 @@ public interface WaybillSignConstants {
 	char CHAR_1_Y = 'Y';
 	int POSITION_28 = 28;
 	char CHAR_28_0 = '0';
+	char CHAR_28_1 = '1';
 	/**
 	 * 是否是月结订单
 	 * */

@@ -31,12 +31,15 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -70,6 +73,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
@@ -198,6 +202,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
 	@Value("${beans.ReversePrintServiceImpl.noticeHandleLink}")
     private String noticeHandleLink;
+
+    /**
+     * 拦截报表服务
+     */
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
+    // 换单打印节点
+    @Value("${businessIntercept.dispose.node.exchangeWaybill}")
+    private Integer disposeNodeExchangeWaybill;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -293,6 +308,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         //换单打印判断是否发起分拣中心退货任务
         qualityControlService.generateSortingReturnTask(domain.getSiteCode(), domain.getOldCode(), domain.getNewPackageCode(), new Date(domain.getOperateUnixTime()));
 
+        // 发送拦截报表
+        this.sendDisposeAfterInterceptMsg(domain);
+
         return true;
     }
 
@@ -369,6 +387,37 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
 
+    }
+
+    /**
+     * 发送消息
+     * @param reversePrintRequest 换单请求参数
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsg(ReversePrintRequest reversePrintRequest){
+        log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JSON.toJSONString(reversePrintRequest));
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeExchangeWaybill);
+            saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(reversePrintRequest.getStaffId());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(reversePrintRequest.getStaffRealName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(reversePrintRequest.getSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(reversePrintRequest.getSiteName());
+            log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JSON.toJSONString(reversePrintRequest), e);
+            result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
     }
 
     @Override

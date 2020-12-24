@@ -284,14 +284,22 @@
         <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
     </jmq:consumer>
 
-    <!-- 来自异常系统的可换单消息 -->
-    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
-    </jmq:consumer>
-
     <!--快运暂存发货信息-->
     <jmq:consumer id="jmq.kyStorageSendConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.kyStorageSend}" listener="kyStorageSendConsumer"/>
+    </jmq:consumer>
+
+    <!-- 业务操作拦截原始动作记录 -->
+    <jmq:consumer id="jmq.businessOperateInterceptActionConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.business.operate.intercept.action.send}" listener="businessOperateInterceptActionConsumer"/>
+    </jmq:consumer>
+    <!-- 拦截后处理原始动作数据消息 -->
+    <jmq:consumer id="jmq.disposeActionAfterInterceptConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.business.operate.disposeActionAfterIntercept.send}" listener="disposeActionAfterInterceptConsumer"/>
+    </jmq:consumer>
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <jmq:consumer id="jmq.offlineTaskCheckBusinessInterceptConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.business.operate.offline.task.send}" listener="offlineTaskCheckBusinessInterceptConsumer"/>
     </jmq:consumer>
 </beans>
 
