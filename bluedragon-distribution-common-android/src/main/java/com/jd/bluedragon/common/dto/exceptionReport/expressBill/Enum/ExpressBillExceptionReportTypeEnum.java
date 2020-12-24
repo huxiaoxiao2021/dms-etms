@@ -1,9 +1,10 @@
 package com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum ExpressBillExceptionReportTypeEnum {
+public enum ExpressBillExceptionReportTypeEnum implements Serializable {
 
     EXPRESS_REPORT_MAX_SPACE(1,"面单未贴箱体最大面"),
     EXPRESS_REPORT_FOLD(2,"面单褶皱"),
@@ -52,5 +53,10 @@ public enum ExpressBillExceptionReportTypeEnum {
 
     public void setReportName(String reportName) {
         this.reportName = reportName;
+    }
+
+    @Override
+    public String toString() {
+        return  reportName;
     }
 }
