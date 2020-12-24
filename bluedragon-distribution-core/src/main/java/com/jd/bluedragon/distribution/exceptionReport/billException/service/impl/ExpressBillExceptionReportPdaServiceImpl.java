@@ -28,6 +28,7 @@ import java.util.List;
  * @Description: 面单异常举报
  * @Date: create in 2020/12/21 14:44
  */
+@Service("expressBillExceptionReportPdaService")
 public class ExpressBillExceptionReportPdaServiceImpl implements ExpressBillExceptionReportPdaService {
     private static final Logger log  =  LoggerFactory.getLogger(ExpressBillExceptionReportPdaServiceImpl.class);
 
