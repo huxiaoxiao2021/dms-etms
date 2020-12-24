@@ -50,7 +50,7 @@
     </select>
 
     <!--查询举报总记录数-->
-    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="java.lang.Integer">
+    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="java.lang.Long">
      select count(*)
      from express_bill_exception_report
      where yn=1
