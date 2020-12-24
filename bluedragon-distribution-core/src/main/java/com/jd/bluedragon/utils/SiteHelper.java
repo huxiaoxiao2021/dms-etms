@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.Arrays;
 
@@ -192,6 +193,21 @@ public class SiteHelper {
                 || SiteHelper.isAllianceBusiSite(site)
                 || SiteHelper.isRuralSite(site)
                 || SiteHelper.isSalesDeptSite(site);
+    }
+
+    /**
+     * 判断是否是经济网
+     * @param site
+     * @return
+     */
+    public static  Boolean isEconomicNet(BaseStaffSiteOrgDto site){
+        if (site == null || site.getSiteType() == null || site.getSubType() == null) {
+            return Boolean.FALSE;
+        }
+        if (site.getSiteType().equals(10000)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
 
     public static Boolean isForward(String ruleSiteType, String receiveSiteType) {

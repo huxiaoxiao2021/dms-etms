@@ -6,6 +6,8 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.log4j.Logger;
 
+import java.math.BigDecimal;
+
 /**
  * @author zhaohc
  *
@@ -166,6 +168,11 @@ public class CacheTablePartition {
 			throw new IllegalArgumentException("[CacheTablePartition.getDmsCacheDb]waybillCode无效,waybillCode:"+waybillCode);
 		}
 		try{
+			//如果字符串长度>= 19 切割字符串
+			if (waybillCodeForTrans.length() >= 19){
+				waybillCodeForTrans = waybillCodeForTrans.substring(waybillCodeForTrans.length()-18,waybillCodeForTrans.length());
+			}
+
 			long waybillNum = Long.parseLong(waybillCodeForTrans);
 			//分表总数
 			int totalTableCount = dbCount*tableCount;
