@@ -197,7 +197,19 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
 
     @Override
     public JdCResponse<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
-        return null;
+        JdCResponse<Void> jdcResponse = new JdCResponse<>();
+        if (unloadCarTaskReq == null) {
+            jdcResponse.toError("参数错误");
+            return jdcResponse;
+        }
+        InvokeResult<Void> result = loadAndUnloadVehicleResource.startUnloadTask(unloadCarTaskReq);
+        if (!Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+            jdcResponse.toError(result.getMessage());
+            return jdcResponse;
+        }
+        jdcResponse.toSucceed(result.getMessage());
+        jdcResponse.setData(result.getData());
+        return jdcResponse;
     }
 
     @Override

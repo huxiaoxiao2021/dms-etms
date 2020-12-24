@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.loadAndUnload;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
@@ -203,6 +204,26 @@ public class LoadAndUnloadVehicleResource {
         }
 
         return unloadCarService.updateUnloadCarTaskStatus(unloadCarTaskReq);
+    }
+
+    /**
+     * 开始任务
+     * @param unloadCarTaskReq 修改卸车任务状态请求信息
+     * @return
+     */
+    @POST
+    @Path("/unload/startUnloadTask")
+    public InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null || unloadCarTaskReq.getTaskStatus() == null
+                || unloadCarTaskReq.getUser() == null || unloadCarTaskReq.getUser().getUserErp() == null
+                || unloadCarTaskReq.getCurrentOperate().getSiteCode() <=0
+                || unloadCarTaskReq.getOperateTime() == null) {
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+
+        return unloadCarService.startUnloadTask(unloadCarTaskReq);
     }
 
     /**

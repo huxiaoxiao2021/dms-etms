@@ -110,6 +110,14 @@ public interface UnloadCarService {
     InvokeResult<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
 
     /**
+     * 开始任务
+     *
+     * @param unloadCarTaskReq
+     * @return
+     */
+    InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq);
+
+    /**
      * 获取任务协助人列表
      *
      * @param sealCarCode 任务编码(封车编码)

@@ -1433,6 +1433,30 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     @Override
+    public InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
+        unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
+        unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
+        unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
+        Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
+        unloadCar.setUpdateTime(updateTime);
+        int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
+        if (count < 1) {
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            logger.error("修改任务状态失败，请求信息：{}",JsonHelper.toJson(unloadCarTaskReq));
+            return result;
+        }
+        return result;
+    }
+
+    @Override
     public InvokeResult<List<HelperDto>> getUnloadCarTaskHelpers(String sealCarCode) {
         InvokeResult<List<HelperDto>> result = new InvokeResult<>();
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
