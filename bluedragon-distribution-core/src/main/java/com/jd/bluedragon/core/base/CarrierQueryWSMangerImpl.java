@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.Constants;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.CarrierQueryWS;
