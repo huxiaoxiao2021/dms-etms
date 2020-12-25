@@ -3,14 +3,13 @@ package com.jd.bluedragon.distribution.loadAndUnload;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 卸车扫描运单暂存表
  * @author lvyuan21
  * @date 2020-12-25 16:19
  */
-public class UnloadScan<list> implements Serializable {
+public class UnloadScan implements Serializable {
 
     private static final long serialVersionUID = -7623509285189482980L;
 
