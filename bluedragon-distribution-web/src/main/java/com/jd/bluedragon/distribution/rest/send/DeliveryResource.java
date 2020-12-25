@@ -1676,7 +1676,7 @@ public class DeliveryResource {
         log.info("DeliveryResource sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(result));
         try {
             SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-            saveInterceptMsgDto.setInterceptCode(result.getCode());
+            saveInterceptMsgDto.setInterceptCode(result.getMessageCode());
             saveInterceptMsgDto.setInterceptMessage(result.getMessage());
             saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
             saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
