@@ -1621,7 +1621,7 @@ public class DeliveryResource {
                 result.setCode(response.getCode());
                 result.setMessage(response.getMessage());
                 // 发送拦截消息
-                this.sendBusinessInterceptMsg(deliveryRequest, response);
+                this.sendBusinessInterceptMsg(deliveryRequest, result);
                 return result;
             }
 
@@ -1629,7 +1629,7 @@ public class DeliveryResource {
         	JdResult<CheckBeforeSendResponse> verCheckResult = jsfSortingResourceService.checkBeforeSend(deliveryRequest);
             if(!verCheckResult.isSucceed()){
                 // 发送拦截消息
-                this.sendBusinessInterceptMsg(deliveryRequest, response);
+                this.sendBusinessInterceptMsg(deliveryRequest, verCheckResult);
             	return verCheckResult;
             }else{
             	//前面校验
@@ -1641,7 +1641,7 @@ public class DeliveryResource {
             	if(verCheckResult.isWarn() && verCheckResult.getData().getTipMessages() != null){
             		checkResponse.getTipMessages().addAll(verCheckResult.getData().getTipMessages());
                     // 发送拦截消息
-                    this.sendBusinessInterceptMsg(deliveryRequest, response);
+                    this.sendBusinessInterceptMsg(deliveryRequest, verCheckResult);
             	}
             	checkResponse.setPackageNum(verCheckResult.getData().getPackageNum());
             }
@@ -1667,17 +1667,17 @@ public class DeliveryResource {
     /**
      * 发送拦截消息
      * @param deliveryRequest 请求参数
-     * @param response 校验结果
+     * @param result 校验结果
      * @return 处理结果
      * @author fanggang7
      * @time 2020-12-22 18:18:15 周二
      */
-    private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, com.jd.ql.dms.common.domain.JdResponse<Void> response){
-        log.info("DeliveryResource sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(response));
+    private boolean sendBusinessInterceptMsg(DeliveryRequest deliveryRequest, JdResult<CheckBeforeSendResponse> result){
+        log.info("DeliveryResource sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(result));
         try {
             SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-            saveInterceptMsgDto.setInterceptCode(response.getCode());
-            saveInterceptMsgDto.setInterceptMessage(response.getMessage());
+            saveInterceptMsgDto.setInterceptCode(result.getCode());
+            saveInterceptMsgDto.setInterceptMessage(result.getMessage());
             saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
             saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
             saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
