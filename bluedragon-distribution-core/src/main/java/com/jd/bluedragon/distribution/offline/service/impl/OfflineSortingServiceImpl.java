@@ -270,6 +270,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		map.put("userCode", request.getUserCode());
 		map.put("siteCode", request.getSiteCode());
 		map.put("operateTime", request.getOperateTime());
+		map.put("bizSource", request.getBizSource());
 
 		System.out.println("request.getSiteCode()------------------##"+request.getSiteCode()+"##");
 		BaseStaffSiteOrgDto site = baseService.getSiteBySiteID(request
