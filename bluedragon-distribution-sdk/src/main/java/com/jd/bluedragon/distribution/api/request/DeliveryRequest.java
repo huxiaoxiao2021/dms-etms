@@ -6,12 +6,6 @@ public class DeliveryRequest extends JdRequest {
     
     private static final long serialVersionUID = 8464241462768408318L;
 
-    private Integer siteCode;
-
-    private Integer userCode;
-    private String userName;
-    private String operateTime;
-
     /** 收货单位编号 */
     private Integer receiveSiteCode;
     
@@ -38,45 +32,12 @@ public class DeliveryRequest extends JdRequest {
      */
     private Integer scannedPackageNum;
 
-    @Override
-    public Integer getSiteCode() {
-        return siteCode;
-    }
+    private Integer siteCode;
 
-    @Override
-    public void setSiteCode(Integer siteCode) {
-        this.siteCode = siteCode;
-    }
+    private Integer userCode;
+    private String userName;
+    private String operateTime;
 
-    @Override
-    public Integer getUserCode() {
-        return userCode;
-    }
-
-    @Override
-    public void setUserCode(Integer userCode) {
-        this.userCode = userCode;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    @Override
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    @Override
-    public String getOperateTime() {
-        return operateTime;
-    }
-
-    @Override
-    public void setOperateTime(String operateTime) {
-        this.operateTime = operateTime;
-    }
 
     public Integer getTransporttype() {
 		return transporttype;
@@ -124,6 +85,46 @@ public class DeliveryRequest extends JdRequest {
 
     public void setOpType(Integer opType) {
         this.opType = opType;
+    }
+
+    @Override
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    @Override
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    @Override
+    public Integer getUserCode() {
+        return userCode;
+    }
+
+    @Override
+    public void setUserCode(Integer userCode) {
+        this.userCode = userCode;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    @Override
+    public String getOperateTime() {
+        return operateTime;
+    }
+
+    @Override
+    public void setOperateTime(String operateTime) {
+        this.operateTime = operateTime;
     }
 
     @Override
