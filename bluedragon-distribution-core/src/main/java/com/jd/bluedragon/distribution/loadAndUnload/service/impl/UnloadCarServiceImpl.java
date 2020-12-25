@@ -2,16 +2,7 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -209,6 +200,29 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         setPackageCount(unloadCarScanResult);
         result.setData(unloadCarScanResult);
+        return result;
+    }
+
+    @Override
+    public InvokeResult<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest request) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<>();
+        if (StringUtils.isEmpty(request.getSealCarCode())) {
+            result.parameterError("封车编码不存在!");
+            return result;
+        }
+        if (request.getOperateSiteCode() == null) {
+            result.parameterError("操作场地站点ID不存在!");
+            return result;
+        }
+        UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            logger.info("卸车扫描：获取到了大宗权限request={}", JsonHelper.toJson(request));
+            unloadScanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
+        // 获取卸车详细指标
+
+        result.setData(unloadScanDetailDto);
         return result;
     }
 

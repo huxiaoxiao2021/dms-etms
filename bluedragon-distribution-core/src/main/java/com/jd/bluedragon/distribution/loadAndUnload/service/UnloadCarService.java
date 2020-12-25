@@ -1,12 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
@@ -36,6 +30,11 @@ public interface UnloadCarService {
      * 获取卸车扫描列表
      */
     InvokeResult<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    /**
+     * 获取卸车扫描列表(最新版)
+     */
+    InvokeResult<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest unloadCarScanRequest);
 
     /**
      * 卸车扫描
