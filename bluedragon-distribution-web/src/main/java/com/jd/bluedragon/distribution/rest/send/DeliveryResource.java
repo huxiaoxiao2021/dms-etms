@@ -1622,6 +1622,8 @@ public class DeliveryResource {
         	//调用ver校验链
         	JdResult<CheckBeforeSendResponse> verCheckResult = jsfSortingResourceService.checkBeforeSend(deliveryRequest);
             if(!verCheckResult.isSucceed()){
+                // 发送拦截消息
+                this.sendBusinessInterceptMsg(deliveryRequest, response);
             	return verCheckResult;
             }else{
             	//前面校验
