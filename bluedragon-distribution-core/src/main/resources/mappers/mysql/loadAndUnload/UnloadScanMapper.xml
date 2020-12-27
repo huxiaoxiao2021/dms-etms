@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao">
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao">
 
 	<resultMap id="unloadScan" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
@@ -28,7 +28,7 @@
 	</sql>
 
     <sql id="Base_Condition_Sql" >
-			and yn=1 order by status desc
+			and yn=1
 	</sql>
 
     <insert id="add" parameterType="unloadScan">
@@ -139,6 +139,15 @@
         </where>
     </select>
 
+    <select id="selectUnloadByBySealAndWaybillCode" parameterType="unloadScan" resultMap="unloadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_scan
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and waybill_code = #{waybillCode,jdbcType=VARCHAR} and yn = 1 limit 1
+        </where>
+    </select>
 
 
     <update id="updateByPrimaryKey" parameterType="unloadScan">

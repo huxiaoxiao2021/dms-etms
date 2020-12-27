@@ -24,6 +24,11 @@ public class UnloadScan implements Serializable {
     private String sealCarCode;
 
     /**
+     * 封车任务下总包裹数量
+     */
+    private Integer taskPackageAmount;
+
+    /**
      * 运单号
      */
     private String waybillCode;
@@ -109,6 +114,14 @@ public class UnloadScan implements Serializable {
 
     public void setSealCarCode(String sealCarCode) {
         this.sealCarCode = sealCarCode;
+    }
+
+    public Integer getTaskPackageAmount() {
+        return taskPackageAmount;
+    }
+
+    public void setTaskPackageAmount(Integer taskPackageAmount) {
+        this.taskPackageAmount = taskPackageAmount;
     }
 
     public String getWaybillCode() {

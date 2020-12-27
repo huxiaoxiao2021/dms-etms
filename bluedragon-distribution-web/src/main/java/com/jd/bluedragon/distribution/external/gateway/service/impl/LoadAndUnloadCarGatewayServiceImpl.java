@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -230,7 +231,31 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
 
     @Override
     public JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest req) {
-        return null;
+        JdVerifyResponse<UnloadScanDetailDto> response = new JdVerifyResponse<>();
+        // 包裹号转大宗标识
+        Integer transfer = req.getTransfer();
+        if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(transfer)) {
+            if(!WaybillUtil.isPackageCode(req.getBarCode())){
+                response.setCode(JdVerifyResponse.CODE_FAIL);
+                response.setMessage("包裹号不符合规则!");
+                return response;
+            }
+            // 大宗操作提示
+            int packageNum = WaybillUtil.getPackNumByPackCode(req.getBarCode());
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("大宗订单按单操作！此单共计" + packageNum + "件，请确认包裹集齐！");
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            response.addBox(msgBox);
+            return response;
+
+        }
+        InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.packageCodeScanNew(req);
+        response.setCode(convertCode(invokeResult.getCode()));
+        response.setMessage(invokeResult.getMessage());
+        response.setData(invokeResult.getData());
+
+        return response;
     }
 
     private int convertCode(int invokeResultCode) {

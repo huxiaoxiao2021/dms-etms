@@ -53,6 +53,11 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request);
 
     /**
+     * 卸车扫描(空任务卸车最新版)
+     */
+    InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request);
+
+    /**
      * 卸车扫描
      *
      * @param request

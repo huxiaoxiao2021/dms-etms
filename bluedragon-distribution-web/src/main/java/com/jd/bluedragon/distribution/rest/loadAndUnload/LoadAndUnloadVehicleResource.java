@@ -120,6 +120,24 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
+     * 卸车扫描(空任务卸车最新版)
+     * @param unloadCarScanRequest
+     * @return
+     */
+    @POST
+    @Path("/unload/packageCodeScanNew")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
+    public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.packageCodeScanNew(unloadCarScanRequest);
+    }
+
+    /**
      * 卸车扫描
      * @param unloadCarScanRequest
      * @return

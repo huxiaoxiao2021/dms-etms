@@ -622,6 +622,15 @@
         <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 
+    <bean id="unloadScanDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+    <bean id="unloadScanRecordDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao">
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
     <!-- 集包异常举报 -->
     <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
