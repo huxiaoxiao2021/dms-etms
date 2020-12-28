@@ -237,7 +237,7 @@
     <jsf:provider id="dmsExpressBillExceptionReportJsfService"
                   interface="com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService"
                   alias="${jsf.dmsExpressBillExceptionReportService.alias}"
-                  ref="dmsExpressBillExceptionReportService"
+                  ref="expressBillExceptionReportService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>
