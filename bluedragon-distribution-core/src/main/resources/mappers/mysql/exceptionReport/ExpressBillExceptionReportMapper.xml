@@ -98,7 +98,7 @@
             report_img_urls,
             </if>
             <if test="yn != null">
-            ys,
+            yn,
             </if>
             <if test="ts != null">
             ts,
