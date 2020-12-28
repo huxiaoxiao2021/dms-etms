@@ -369,4 +369,17 @@
         YN = 1
         <include refid="whereCondition"/>
     </select>
+
+    <select id="selectTaskByLicenseNumberAndSiteCode" parameterType="unloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        and status in (0,1)
+        <include refid="Base_Condition_Sql"/>
+        order by update_time desc
+    </select>
 </mapper>

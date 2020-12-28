@@ -1351,4 +1351,8 @@ public class Constants {
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
 
+    /**
+     * PDA无封车号任务前缀
+     */
+    public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
 }
