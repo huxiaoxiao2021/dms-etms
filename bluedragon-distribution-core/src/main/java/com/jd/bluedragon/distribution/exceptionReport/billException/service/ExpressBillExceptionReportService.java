@@ -4,10 +4,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
-import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
-import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.List;
 
@@ -44,11 +40,5 @@ public interface ExpressBillExceptionReportService {
      */
     boolean selectPackageIsReport(String packageCode);
 
-    /**
-     * 面单异常分页查询
-     * @param reportRequest
-     * @return
-     */
-    Response<PageDto<ExpressBillExceptionReportVo>> queryPageList(ExpressBillExceptionReportQuery reportRequest);
 }
     

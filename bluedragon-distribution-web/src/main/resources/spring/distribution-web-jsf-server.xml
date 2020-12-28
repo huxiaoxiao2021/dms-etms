@@ -235,9 +235,9 @@
 
     <!--面单异常举报  提供给分拣工作台-->
     <jsf:provider id="dmsExpressBillExceptionReportJsfService"
-                  interface="com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService"
+                  interface="com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportCenterService"
                   alias="${jsf.dmsExpressBillExceptionReportService.alias}"
-                  ref="expressBillExceptionReportService"
+                  ref="expressBillExceptionReportCenterService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>
