@@ -33,9 +33,7 @@
         express_bill_exception_report
         where
         yn = 1
-        <if test="packageCode != null and packageCode != ''">
-            AND package_code = #{packageCode,jdbcType=VARCHAR}
-        </if>
+        AND package_code = #{packageCode}
     </select>
 
     <!--分页查询-->
