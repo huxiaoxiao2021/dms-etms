@@ -37,7 +37,7 @@
     </select>
 
     <!--分页查询-->
-    <select id="queryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="RM_ExpressBillExceptionReport">
+    <select id="queryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
      select
      <include refid="Base_Column_List"/>
      from express_bill_exception_report
