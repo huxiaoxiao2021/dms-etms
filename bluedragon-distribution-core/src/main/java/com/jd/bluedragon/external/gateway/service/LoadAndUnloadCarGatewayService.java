@@ -43,5 +43,5 @@ public interface LoadAndUnloadCarGatewayService {
 
     JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest  req);
 
-
+    JdCResponse<Long> createUnloadTask(CreateUnloadTaskReq req);
 }

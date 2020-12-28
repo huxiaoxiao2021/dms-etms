@@ -1,17 +1,24 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bk.common.util.string.StringUtils;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,6 +33,9 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
 
     @Autowired
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
+
+    @Autowired
+    private UnloadCarDao unloadCarDao;
 
     @Override
     public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
@@ -274,4 +284,46 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return code;
     }
 
+    @Override
+    public JdCResponse<Long> createUnloadTask(CreateUnloadTaskReq req) {
+        JdCResponse<Long> jdCResponse = new JdCResponse<>();
+        if (null == req) {
+            jdCResponse.toFail("请求参数不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getVehicleNumber())) {
+            jdCResponse.toFail("车牌号不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getOperateUserName())) {
+            jdCResponse.toFail("操作人姓名不能为空！");
+            return jdCResponse;
+        }
+        if (null == req.getCreateSiteCode()) {
+            jdCResponse.toFail("操作站点不能为空！");
+            return jdCResponse;
+        }
+        UnloadCar unload = new UnloadCar();
+        unload.setUnloadUserErp(req.getOperateUserErp());
+        unload.setEndSiteCode(req.getCreateSiteCode().intValue());
+        List<UnloadCar> unloadCars = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unload);
+        if (CollectionUtils.isNotEmpty(unloadCars)) {
+            jdCResponse.toConfirm("当前站点存在进行中或未开始的同车牌任务！");
+            return jdCResponse;
+        }
+        UnloadCar unloadCar = new UnloadCar();
+        BeanUtils.copyProperties(req, unloadCar);
+        unloadCar.setSealCarCode(Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis());
+        unloadCar.setStartSiteCode(0);
+        unloadCar.setEndSiteCode(0);
+        unloadCar.setWaybillNum(0);
+        unloadCar.setPackageNum(0);
+        unloadCar.setStatus(0);
+        unloadCar.setYn(1);
+        unloadCar.setTs(new Date());
+        unloadCarDao.add(unloadCar);
+        jdCResponse.toSucceed("操作成功");
+        jdCResponse.setData(unloadCar.getId());
+        return jdCResponse;
+    }
 }
