@@ -101,7 +101,7 @@
             ys,
             </if>
             <if test="ts != null">
-            ts,
+            ts
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -146,7 +146,7 @@
                 #{yn},
             </if>
             <if test="ts != null">
-                #{ts},
+                #{ts}
             </if>
         </trim>
     </insert>
