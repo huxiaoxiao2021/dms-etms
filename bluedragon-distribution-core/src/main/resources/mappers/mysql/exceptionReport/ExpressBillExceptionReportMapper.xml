@@ -34,7 +34,7 @@
         where
         yn = 1
         <if test="packageCode != null and packageCode != ''">
-            AND package_code = #{packageCode}
+            AND package_code = #{packageCode,jdbcType=VARCHAR}
         </if>
     </select>
 
@@ -108,41 +108,41 @@
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="packageCode != null and packageCode != ''">
-                #{packageCode},
+                #{packageCode,jdbcType=VARCHAR},
             </if>
             <if test="orgCode != null">
-                #{orgCode},
+                #{orgCode,jdbcType=INTEGER},
             </if>
             <if test="orgName != null and orgName != ''">
-                #{orgName},
+                #{orgName,jdbcType=VARCHAR},
             </if>
             <if test="siteCode != null">
-                #{siteCode},
+                #{siteCode,,jdbcType=INTEGER},
             </if>
             <if test="siteName != null and siteName !=''">
-                #{siteName},
+                #{siteName,jdbcType=VARCHAR},
             </if>
             <if test="firstSiteCode != null">
-                #{firstSiteCode},
+                #{firstSiteCode,jdbcType=INTEGER},
             </if>
             <if test="firstSiteName != null and firstSiteName !=''">
-                #{firstSiteName},
+                #{firstSiteName,jdbcType=VARCHAR},
             </if>
 
             <if test="reportTypeName != null and reportTypeName != ''">
-                #{reportTypeName},
+                #{reportTypeName,jdbcType=VARCHAR},
             </if>
             <if test="reportType != null">
-                #{reportType},
+                #{reportType,jdbcType=INTEGER},
             </if>
             <if test="reportUserErp != null and reportUserErp != ''">
-                #{reportUserErp},
+                #{reportUserErp,jdbcType=VARCHAR},
             </if>
             <if test="reportTime != null">
-                #{reportTime},
+                #{reportTime,jdbcType=TIMESTAMP},
             </if>
             <if test="reportImgUrls != null and reportImgUrls != ''">
-                #{reportImgUrls},
+                #{reportImgUrls,jdbcType=VARCHAR},
             </if>
             <if test="yn != null">
                 #{yn},
@@ -156,19 +156,19 @@
     <!-- 判断空值 -->
     <sql id="where_sql">
         <if test="orgCode != null">
-            AND org_code = #{orgCode}
+            AND org_code = #{orgCode,jdbcType=INTEGER}
         </if>
         <if test="siteCode != null">
-            AND site_code = #{siteCode}
+            AND site_code = #{siteCode,jdbcType=INTEGER}
         </if>
         <if test="reportType != null">
-            AND report_type = #{reportType}
+            AND report_type = #{reportType,jdbcType=INTEGER}
         </if>
         <if test="queryStartTime != null">
-            AND report_time >= #{queryStartTime}
+            AND report_time >= #{queryStartTime,jdbcType=TIMESTAMP}
         </if>
         <if test="queryEndTime != null">
-            AND report_time <![CDATA[<]]> #{queryEndTime}
+            AND report_time <![CDATA[<]]> #{queryEndTime,jdbcType=TIMESTAMP}
         </if>
     </sql>
 
