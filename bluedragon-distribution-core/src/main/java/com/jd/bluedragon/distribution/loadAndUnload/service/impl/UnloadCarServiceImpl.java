@@ -704,8 +704,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadScanRecord.setEndSiteCode((long) request.getReceiveSiteCode());
             unloadScanRecord.setEndSiteName(request.getReceiveSiteName());
         } else {
-            unloadScanRecord.setEndSiteCode((long) nextSiteCode);
-            // todo 调用青龙基础资料接口将网点编码转成网点名称
+            if (nextSiteCode != null) {
+                unloadScanRecord.setEndSiteCode((long) nextSiteCode);
+                // todo 调用青龙基础资料接口将网点编码转成网点名称
+            }
         }
         if (!sealCarCode.startsWith("PDA")) {
             unloadScanRecord.setBatchCode(batchCode);
