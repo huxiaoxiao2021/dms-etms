@@ -66,6 +66,14 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> waybillScan(UnloadCarScanRequest request);
 
     /**
+     * 大宗按运单卸车扫描
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest request);
+
+    /**
      * 卸车扫描明细
      *
      * @param sealCarCode

@@ -155,6 +155,23 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
+     * 卸车按运单扫描（空任务卸车最新版）
+     * @param unloadCarScanRequest
+     * @return
+     */
+    @POST
+    @Path("/unload/waybillScanNew")
+    public InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<UnloadScanDetailDto>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.waybillScanNew(unloadCarScanRequest);
+    }
+
+    /**
      * 卸车扫描参数校验
      * @param request
      * @return
