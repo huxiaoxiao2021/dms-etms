@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.loadAndUnload;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 卸车扫描运单暂存表
@@ -97,6 +98,8 @@ public class UnloadScan implements Serializable {
      * 数据库时间
      */
     private Date ts;
+
+    private List<WaybillPackageNumInfo> waybillPackageNumInfoList;
 
 
 
@@ -234,5 +237,13 @@ public class UnloadScan implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public List<WaybillPackageNumInfo> getWaybillPackageNumInfoList() {
+        return waybillPackageNumInfoList;
+    }
+
+    public void setWaybillPackageNumInfoList(List<WaybillPackageNumInfo> waybillPackageNumInfoList) {
+        this.waybillPackageNumInfoList = waybillPackageNumInfoList;
     }
 }

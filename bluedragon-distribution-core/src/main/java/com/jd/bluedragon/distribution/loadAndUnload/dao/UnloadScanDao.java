@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadScan;
+
 import java.util.List;
 
 
@@ -23,6 +24,10 @@ public class UnloadScanDao extends BaseDao<UnloadScan> {
 
     public boolean insert(UnloadScan unloadScan) {
         return super.getSqlSession().insert(NAMESPACE + ".add", unloadScan) > 0;
+    }
+
+    public boolean batchInsert(UnloadScan records) {
+        return super.getSqlSession().insert(NAMESPACE + ".batchInsert", records) > 0;
     }
 
     public boolean updateByPrimaryKey(UnloadScan unloadScan) {

@@ -502,4 +502,13 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
     }
 
+    /**
+     * 根据批次号列表查询每个运单下包裹数
+     * @param params
+     * @return
+     */
+    public Map<String, WaybillNoCollectionInfo> queryPackageNumByWaybillCode (Map<String,Object> params) {
+        return this.getSqlSession().selectMap(namespace + ".queryPackageNumByWaybillCode", params, "waybillCode");
+    }
+
 }

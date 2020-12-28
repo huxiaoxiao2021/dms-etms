@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
@@ -1589,6 +1590,24 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
             unloadCar.setWaybillNum(waybillNum);
             unloadCar.setPackageNum(packageNum);
+            // 初始化运单暂存表
+            Map<String, WaybillNoCollectionInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
+            if (map != null && !map.isEmpty()) {
+                // todo userCode, 总包裹数
+                UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), packageNum, 0,
+                        tmsSealCar.getOperateUserName(), 0, false);
+                unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+                List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>();
+                WaybillPackageNumInfo waybillPackageNumInfo;
+                for (WaybillNoCollectionInfo waybillNoCollectionInfo : map.values()) {
+                    waybillPackageNumInfo = new WaybillPackageNumInfo();
+                    waybillPackageNumInfo.setWaybillCode(waybillNoCollectionInfo.getWaybillCode());
+                    waybillPackageNumInfo.setPackageNum(waybillPackageNumInfo.getPackageNum());
+                    waybillPackageNumInfoList.add(waybillPackageNumInfo);
+                }
+                unloadScan.setWaybillPackageNumInfoList(waybillPackageNumInfoList);
+                unloadScanDao.batchInsert(unloadScan);
+            }
         } catch (Exception e) {
             logger.error("查询运单数或者包裹数失败!",e);
             return false;

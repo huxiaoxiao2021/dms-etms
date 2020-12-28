@@ -170,7 +170,28 @@
         where id = #{id,jdbcType=BIGINT} and yn = 1
     </update>
 
-
+    <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan">
+        insert into unload_scan (id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
+        status,create_user_code,create_user_name,update_user_code,update_user_name,
+        create_time,update_time,yn)  VALUES
+        <foreach collection="waybillPackageNumInfoList" item="item" separator=",">
+            (#{sealCarCode,jdbcType=VARCHAR},
+             #{item.waybillCode,jdbcType=VARCHAR},
+             #{packageAmount,jdbcType=INTEGER},
+             #{item.packageNum,jdbcType=INTEGER},
+             #{loadAmount,jdbcType=INTEGER},
+             #{unloadAmount,jdbcType=INTEGER},
+             #{status,jdbcType=INTEGER},
+             #{createUserCode,jdbcType=VARCHAR},
+             #{createUserName,jdbcType=VARCHAR},
+             #{updateUserCode,jdbcType=VARCHAR},
+             #{updateUserName,jdbcType=VARCHAR},
+             #{createTime,jdbcType=TIMESTAMP},
+             #{updateTime,jdbcType=TIMESTAMP},
+              1,
+             now(3))
+        </foreach>
+    </insert>
 
 
 </mapper>

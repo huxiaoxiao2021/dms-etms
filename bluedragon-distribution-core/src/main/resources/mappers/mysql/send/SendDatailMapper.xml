@@ -38,6 +38,7 @@
 		<result column="scan_count"  property="scanCount" />
 	</resultMap>
 
+
   	<insert id="add" parameterType="SendDetail" >
   		<!--<selectKey resultType="long"  keyProperty="sendDId" order="BEFORE" statementType="PREPARED">      
 			<![CDATA[select dms_core_send_d.nextval]]>
@@ -1138,5 +1139,19 @@
             and is_cancel = 0
         ) t
     </select>
+
+	<select id="queryPackageNumByWaybillCode" parameterType="java.util.Map" resultMap="WaybillNoCollectionInfo">
+		select
+		wabill_code, count(package_barcode) as package_num
+		from send_d
+		where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and send_code in
+		<foreach collection="sendCodes" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+		and yn = 1
+		and is_cancel = 0
+		group by waybill_code
+	</select>
 
 </mapper>
