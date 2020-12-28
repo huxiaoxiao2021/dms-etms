@@ -495,37 +495,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
                 return dtoInvokeResult;
             }
-            SendDetail sendDetail = new SendDetail();
-            sendDetail.setWaybillCode(waybillCode);
-            sendDetail.setCreateSiteCode(request.getOperateSiteCode());
-            String sendCode = null;
-            SendDetail detail = sendDatailDao.findOneByWaybillCode(sendDetail);
-            if (detail != null) {
-                sendCode = detail.getSendCode();
-            }
-            // 包裹暂存
-            UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                    request.getTransfer(), null, isSurplusPackage, sendCode, request, unloadCar.getVehicleNumber());
-            unloadScanRecordDao.insert(newUnloadRecord);
-
-            // 运单暂存
-            if (isSurplusPackage) {
-                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(),
-                        1, request.getOperateUserName(), request.getOperateUserCode(), true);
-                unloadScanDao.insert(newUnload);
-            } else {
-                UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
-                if (unloadScan != null) {
-                    unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
-                    unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
-                    // 设置状态 todo
-                    unloadScan.setUpdateTime(new Date());
-                    unloadScan.setUpdateUserName(request.getOperateUserName());
-                    unloadScan.setUpdateUserCode(request.getOperateUserCode());
-                    unloadScanDao.updateByPrimaryKey(unloadScan);
-                }
-            }
-
+            // 查询包裹所在批次号
+            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+            // 保存包裹卸车记录和运单暂存
+            saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar.getVehicleNumber());
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
             setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
@@ -540,6 +513,44 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             dtoInvokeResult.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return dtoInvokeResult;
+    }
+
+    private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, String sendCode, String licenseNumber) {
+        // 包裹暂存
+        UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
+                request.getTransfer(), null, isSurplusPackage, sendCode, request, licenseNumber);
+        unloadScanRecordDao.insert(newUnloadRecord);
+
+        // 运单暂存
+        if (isSurplusPackage) {
+            UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(),
+                    1, request.getOperateUserName(), request.getOperateUserCode(), true);
+            unloadScanDao.insert(newUnload);
+        } else {
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+            UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            if (unloadScan != null) {
+                unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
+                unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
+                // 设置状态 todo
+                unloadScan.setUpdateTime(new Date());
+                unloadScan.setUpdateUserName(request.getOperateUserName());
+                unloadScan.setUpdateUserCode(request.getOperateUserCode());
+                unloadScanDao.updateByPrimaryKey(unloadScan);
+            }
+        }
+    }
+
+    private String getBatchCode(String waybillCode, Integer createSiteCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setWaybillCode(waybillCode);
+        sendDetail.setCreateSiteCode(createSiteCode);
+        String sendCode = null;
+        SendDetail detail = sendDatailDao.findOneByWaybillCode(sendDetail);
+        if (detail != null) {
+            sendCode = detail.getSendCode();
+        }
+        return sendCode;
     }
 
     private UnloadScan createUnloadScan(String packageCode, String sealCarCode, Integer loadAmount, String userName,
