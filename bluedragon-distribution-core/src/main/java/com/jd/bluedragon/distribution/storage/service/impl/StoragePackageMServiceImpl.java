@@ -84,6 +84,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
      * */
     public static final String IS_NEED_STORAGE_LOCK_BEGIN = "IS_NEED_STORAGE_LOCK_";
     /**
+     * 运单上架缓存前缀
+     * */
+    public static final String STORAGE_PUT_AWAY_LOCK = "STORAGE_PUT_AWAY_LOCK_";
+    /**
      * 运单是否需要暂存提示
      * */
     public static final Integer HINT_CODE = 201;
@@ -246,7 +250,10 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public boolean putaway(PutawayDTO putawayDTO) {
-
+	    // 加锁防止并发导致多条相同数据
+        if(checkIsLock(putawayDTO)){
+            return true;
+        }
 		// 获取运单数据
         BigWaybillDto bigWaybillDto = checkAndGetBigWaybillDto(putawayDTO.getBarCode());
 
@@ -268,6 +275,25 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
         }
 
 	}
+
+    /**
+     * 设置缓存防止并发导致多条数据
+     * @param putawayDTO
+     * @return
+     */
+    private boolean checkIsLock(PutawayDTO putawayDTO) {
+        try {
+            String lockKey = STORAGE_PUT_AWAY_LOCK + putawayDTO.getBarCode() + Constants.UNDERLINE_FILL
+                    + putawayDTO.getCreateSiteCode();
+            if(cacheService.setNx(lockKey,StringUtils.EMPTY,Constants.TIME_SECONDS_ONE_MINUTE, TimeUnit.SECONDS)){
+                return false;
+            }
+            log.warn("已有相同单号【{}】操作上架",putawayDTO.getBarCode());
+        }catch (Exception e){
+            log.error("根据单号【{}】、站点【{}】设置上架缓存异常!",putawayDTO.getBarCode(),putawayDTO.getCreateSiteCode(),e);
+        }
+        return true;
+    }
 
     /**
      * 校验并获取运单信息
