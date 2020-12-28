@@ -62,14 +62,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         try {
             //1.先校验参数
             if(!WaybillUtil.isPackageCode(reportRequest.getPackageCode())){
-                result.toFail("包裹号格式不正确");
+                result.toFail("举报失败,包裹号格式不正确");
                 result.setData(false);
                 return result;
             }
 
             //2.校验该包裹是否已经举报过
             if(this.selectPackageIsReport(reportRequest.getPackageCode())){
-                result.toFail("该包裹已被举报过");
+                result.toFail("举报失败,该包裹已被举报过");
                 result.setData(false);
                 return result;
             }
@@ -82,7 +82,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.setData(true);
         }catch (Exception e){
             log.error("面单举报异常 reportRequest:{}",JSON.toJSONString(reportRequest),e);
-            result.toFail("面单举报异常");
+            result.toFail("举报失败,面单举报服务异常");
             result.setData(false);
         }
         return result;
