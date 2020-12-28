@@ -212,6 +212,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setReportType(reportRequest.getReportType());
         report.setReportTypeName(reportRequest.getReportTypeName());
         report.setReportUserErp(reportRequest.getUser().getUserErp());
+        report.setCreateTime(new Date());
+        report.setUpdateTime(new Date());
         report.setYn(1);
         report.setTs(new Date());
         return report;
