@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -446,6 +448,26 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             return false;
         }
         return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
+    }
+
+    @Override
+    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfiguredWithCache-{0}-{1}-{2}-{3}", cacheBean="redisCache",
+            nullTimeout = 1000 * 60 * 5, timeout = 1000 * 60 * 5)
+    public boolean checkIsConfiguredWithCache(Integer menuCode, Integer siteCode, Integer dimensionCode, String operateErp) {
+        if(menuCode == null || dimensionCode == null || siteCode == null){
+            return false;
+        }
+        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
+        switchConfigDto.setSiteCode(siteCode);
+        switchConfigDto.setMenuCode(menuCode);
+        switchConfigDto.setDimensionCode(dimensionCode);
+        if (DimensionEnum.PERSON.getCode() == dimensionCode) {
+            if (StringUtils.isBlank(operateErp)) {
+                return false;
+            }
+            switchConfigDto.setOperateErp(operateErp);
+        }
+        return funcSwitchConfigDao.selectConfiguredCount(switchConfigDto) > 0;
     }
 
     /**

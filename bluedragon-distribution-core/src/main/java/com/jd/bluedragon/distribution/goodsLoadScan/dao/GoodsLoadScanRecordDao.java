@@ -23,6 +23,11 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().update(namespace + ".updateGoodsScanRecordById", record);
     }
 
+    public int batchUpdateGoodsScanRecordByIds(GoodsLoadScanRecord record) {
+
+        return this.getSqlSession().update(namespace + ".batchUpdateGoodsScanRecordByIds", record);
+    }
+
     public List<GoodsLoadScanRecord> selectListByCondition(GoodsLoadScanRecord record) {
         record.setYn(GoodsLoadScanConstants.YN_Y);
         return this.getSqlSession().selectList(namespace + ".selectListByCondition", record);
@@ -46,12 +51,20 @@ public class GoodsLoadScanRecordDao extends BaseDao {
         return this.getSqlSession().selectList(namespace + ".selectPackageCodesByWaybillCode", record);
     }
 
-    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long createSiteCode,List<String> packageCodeList) {
+    public Map<String, GoodsLoadScanRecord> findRecordsByBoardCode(Long createSiteCode, List<String> packageCodeList) {
         GoodsLoadScanRecord record = new GoodsLoadScanRecord();
         record.setCreateSiteCode(createSiteCode);
         record.setYn(Constants.YN_YES);
         record.setPackageCodeList(packageCodeList);
         return this.getSqlSession().selectMap(namespace + ".selectRecordsByBoardCode", record, "packageCode");
+    }
+
+    public Map<String, GoodsLoadScanRecord> findRecordsByWaybillCode(Long createSiteCode, String waybillCode) {
+        GoodsLoadScanRecord record = new GoodsLoadScanRecord();
+        record.setCreateSiteCode(createSiteCode);
+        record.setYn(Constants.YN_YES);
+        record.setWayBillCode(waybillCode);
+        return this.getSqlSession().selectMap(namespace + ".selectRecordsByWaybillCode", record, "packageCode");
     }
 
     public int insert(GoodsLoadScanRecord record) {
@@ -61,6 +74,10 @@ public class GoodsLoadScanRecordDao extends BaseDao {
 
     public boolean batchInsert(List<GoodsLoadScanRecord> records) {
         return super.getSqlSession().insert(namespace + ".batchInsert", records) > 0;
+    }
+
+    public boolean batchInsertByWaybill(GoodsLoadScanRecord records) {
+        return super.getSqlSession().insert(namespace + ".batchInsertByWaybill", records) > 0;
     }
 
     public int updatePackageForceStatus(GoodsLoadScanRecord record) {

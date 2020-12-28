@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 
 import java.util.List;
@@ -16,7 +17,13 @@ public interface LoadAndUnloadCarGatewayService {
 
     JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode);
 
+    JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest);
+
     JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest);
 
     JdCResponse<List<UnloadCarDetailScanResult>> getUnloadCarDetail(String sealCarCode);
 
