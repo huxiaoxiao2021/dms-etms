@@ -360,6 +360,11 @@ public class Constants {
     public static final int POLLING_INTERVAL_TIME = 1500;// 秒
 
     /**
+     * 时间：一分钟的秒数
+     */
+    public static final int TIME_SECONDS_ONE_MINUTE = 60;
+
+    /**
      * 时间：一小时的秒数
      */
     public static final int TIME_SECONDS_ONE_HOUR = 3600;
