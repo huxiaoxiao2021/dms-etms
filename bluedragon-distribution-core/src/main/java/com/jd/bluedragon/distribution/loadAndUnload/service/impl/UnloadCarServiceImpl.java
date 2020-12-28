@@ -236,7 +236,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanByBySealCarCode(sealCarCode);
         if (CollectionUtils.isNotEmpty(unloadScans)) {
             unloadScanDetailDto.setTotalWaybillNum(unloadScans.size());
-            unloadScanDetailDto.setTotalPackageNum(unloadScans.get(0).getTaskPackageAmount());
             // 已卸运单数
             int loadWaybillNum = 0;
             // 已卸包裹数
@@ -245,8 +244,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             int scanWaybillNum = 0;
             // 已扫包裹数
             int scanPackageNum = 0;
+            // 封车任务下总包裹数
+            int totalPackageNum = 0;
             List<UnloadScanDto> unloadScanDtoList = new ArrayList<>();
             for (UnloadScan unloadScan : unloadScans) {
+                // 所有应卸加起来就是总包裹数
+                totalPackageNum = totalPackageNum + unloadScan.getForceAmount();
                 // 统计已扫数据
                 if (unloadScan.getLoadAmount() > 0) {
                     scanWaybillNum = scanWaybillNum + 1;
@@ -260,6 +263,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 转换数据
                 unloadScanDtoList.add(convertData(unloadScan));
             }
+            unloadScanDetailDto.setTotalPackageNum(totalPackageNum);
             unloadScanDetailDto.setUnloadWaybillAmount(unloadScans.size() - scanWaybillNum);
             unloadScanDetailDto.setUnloadPackageAmount(unloadScanDetailDto.getTotalPackageNum() - scanPackageNum);
             // 按照指定次序排列
@@ -506,7 +510,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             // 运单暂存
             if (isSurplusPackage) {
-                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), unloadCar.getPackageNum(),
+                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(),
                         1, request.getOperateUserName(), request.getOperateUserCode(), true);
                 unloadScanDao.insert(newUnload);
             } else {
@@ -538,14 +542,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return dtoInvokeResult;
     }
 
-    private UnloadScan createUnloadScan(String packageCode, String sealCarCode, Integer taskPackageAmount,
-                                        Integer loadAmount, String userName, int userCode, boolean flowDisAccord) {
+    private UnloadScan createUnloadScan(String packageCode, String sealCarCode, Integer loadAmount, String userName,
+                                        int userCode, boolean flowDisAccord) {
         UnloadScan unloadScan = new UnloadScan();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         int packageAmount = WaybillUtil.getPackNumByPackCode(packageCode);
         unloadScan.setWaybillCode(waybillCode);
         unloadScan.setSealCarCode(sealCarCode);
-        unloadScan.setTaskPackageAmount(taskPackageAmount);
         unloadScan.setPackageAmount(packageAmount);
         unloadScan.setForceAmount(0);
         unloadScan.setLoadAmount(loadAmount);
@@ -1593,8 +1596,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 初始化运单暂存表
             Map<String, WaybillNoCollectionInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
             if (map != null && !map.isEmpty()) {
-                // todo userCode, 总包裹数
-                UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), packageNum, 0,
+                // todo userCode
+                UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(),  0,
                         tmsSealCar.getOperateUserName(), 0, false);
                 unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
                 List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>();
