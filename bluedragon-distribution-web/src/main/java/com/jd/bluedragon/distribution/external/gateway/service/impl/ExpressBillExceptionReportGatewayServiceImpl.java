@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
-import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportPdaService;
+import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.external.gateway.service.ExpressBillExceptionReportGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -19,16 +19,16 @@ import java.util.List;
 public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBillExceptionReportGatewayService {
 
     @Autowired
-    private ExpressBillExceptionReportPdaService expressBillExceptionReportPdaService;
+    private ExpressBillExceptionReportService expressBillExceptionReportService;
 
     @Override
-    public JdCResponse<CurrentOperate> getFirstSiteByPackageCode(String packageCode){
-        return expressBillExceptionReportPdaService.getFirstSiteByPackageCode(packageCode);
+    public JdCResponse<FirstSiteVo> getFirstSiteByPackageCode(String packageCode){
+        return expressBillExceptionReportService.getFirstSiteByPackageCode(packageCode);
     }
 
     @Override
     public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType() {
-        return expressBillExceptionReportPdaService.getAllExceptionReportType();
+        return expressBillExceptionReportService.getAllExceptionReportType();
     }
 
     /**
@@ -38,7 +38,7 @@ public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBill
      */
     @Override
     public JdCResponse<Boolean> reportExpressBillException(ExpressBillExceptionReportRequest reportRequest) {
-        return expressBillExceptionReportPdaService.reportExpressBillException(reportRequest);
+        return expressBillExceptionReportService.reportExpressBillException(reportRequest);
     }
 }
     
