@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -485,10 +486,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             dealUnloadAndBoxToBoard(request,isSurplusPackage);
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
-            String batchCodes = unloadCar.getBatchCode();
+            if (unloadCar == null) {
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return dtoInvokeResult;
+            }
+            SendDetail sendDetail = new SendDetail();
+            sendDetail.setWaybillCode(waybillCode);
+            sendDetail.setCreateSiteCode(request.getOperateSiteCode());
+            String sendCode = null;
+            SendDetail detail = sendDatailDao.findOneByWaybillCode(sendDetail);
+            if (detail != null) {
+                sendCode = detail.getSendCode();
+            }
             // 包裹暂存
             UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                    request.getTransfer(), null, isSurplusPackage, "", request, unloadCar.getVehicleNumber());
+                    request.getTransfer(), null, isSurplusPackage, sendCode, request, unloadCar.getVehicleNumber());
             unloadScanRecordDao.insert(newUnloadRecord);
 
             // 运单暂存
