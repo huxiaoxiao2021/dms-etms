@@ -44,6 +44,16 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
 
     /**
+     * 始发站点编码
+     */
+    private Integer firstSiteCode;
+
+    /**
+     * 始发站点名称
+     */
+    private String firstSiteName;
+
+    /**
      * 举报类型名称
      */
     private String reportTypeName;
@@ -193,6 +203,22 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public void setReportUserErp(String reportUserErp) {
         this.reportUserErp = reportUserErp;
+    }
+
+    public Integer getFirstSiteCode() {
+        return firstSiteCode;
+    }
+
+    public void setFirstSiteCode(Integer firstSiteCode) {
+        this.firstSiteCode = firstSiteCode;
+    }
+
+    public String getFirstSiteName() {
+        return firstSiteName;
+    }
+
+    public void setFirstSiteName(String firstSiteName) {
+        this.firstSiteName = firstSiteName;
     }
 }
     

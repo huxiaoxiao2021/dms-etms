@@ -46,6 +46,16 @@ public class ExpressBillExceptionReportRequest {
      */
     private String reportPictureUrls;
 
+    /**
+     * 始发站点编码
+     */
+    private Integer firstSiteCode;
+
+    /**
+     * 始发站点名称
+     */
+    private String firstSiteName;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -102,5 +112,20 @@ public class ExpressBillExceptionReportRequest {
         this.reportPictureUrls = reportPictureUrls;
     }
 
+    public Integer getFirstSiteCode() {
+        return firstSiteCode;
+    }
+
+    public void setFirstSiteCode(Integer firstSiteCode) {
+        this.firstSiteCode = firstSiteCode;
+    }
+
+    public String getFirstSiteName() {
+        return firstSiteName;
+    }
+
+    public void setFirstSiteName(String firstSiteName) {
+        this.firstSiteName = firstSiteName;
+    }
 }
     

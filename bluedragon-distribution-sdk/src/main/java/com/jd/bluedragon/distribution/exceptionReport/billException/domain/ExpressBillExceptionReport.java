@@ -41,6 +41,18 @@ public class ExpressBillExceptionReport {
 
 
     /**
+     * 包裹始发站点编码
+     */
+    private Integer firstSiteCode;
+
+
+    /**
+     * 包裹始发站点名称
+     */
+    private String firstSiteName;
+
+
+    /**
      * 举报类型名称
      */
     private String reportTypeName;
@@ -177,6 +189,22 @@ public class ExpressBillExceptionReport {
 
     public void setReportUserErp(String reportUserErp) {
         this.reportUserErp = reportUserErp;
+    }
+
+    public Integer getFirstSiteCode() {
+        return firstSiteCode;
+    }
+
+    public void setFirstSiteCode(Integer firstSiteCode) {
+        this.firstSiteCode = firstSiteCode;
+    }
+
+    public String getFirstSiteName() {
+        return firstSiteName;
+    }
+
+    public void setFirstSiteName(String firstSiteName) {
+        this.firstSiteName = firstSiteName;
     }
 }
     

@@ -9,6 +9,8 @@
         <result property="orgName" column="org_name"/>
         <result property="siteCode" column="site_code"/>
         <result property="siteName" column="site_name"/>
+        <result property="firstSiteCode" column="first_site_code"/>
+        <result property="firstSiteName" column="first_site_name"/>
         <result property="reportTypeName" column="report_type_name"/>
         <result property="reportType" column="report_type"/>
         <result property="reportUserErp" column="report_user_erp"/>
@@ -20,7 +22,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`, `report_type_name`, `report_type`, `report_user_erp`, `report_time`, `report_img_urls`,`yn`, `ts`
+        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`,`first_site_code`,`first_site_name`, `report_type_name`, `report_type`, `report_user_erp`, `report_time`, `report_img_urls`,`yn`, `ts`
     </sql>
 
 
@@ -76,6 +78,12 @@
             <if test="siteName != null and siteName !=''">
             site_name,
             </if>
+            <if test="firstSiteCode != null">
+            first_site_code,
+            </if>
+            <if test="firstSiteName !=null and firstSiteName !=''" >
+            first_site_name,
+            </if>
             <if test="reportTypeName != null and reportTypeName != ''">
             report_type_name,
             </if>
@@ -114,6 +122,13 @@
             <if test="siteName != null and siteName !=''">
                 #{siteName},
             </if>
+            <if test="firstSiteCode != null">
+                #{firstSiteCode},
+            </if>
+            <if test="firstSiteName != null and firstSiteName !=''">
+                #{firstSiteName},
+            </if>
+
             <if test="reportTypeName != null and reportTypeName != ''">
                 #{reportTypeName},
             </if>

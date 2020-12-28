@@ -159,6 +159,8 @@ public class ExpressBillExceptionReportPdaServiceImpl implements ExpressBillExce
         report.setOrgName(reportRequest.getCurrentOperate().getOrgName());
         report.setSiteCode(reportRequest.getCurrentOperate().getSiteCode());
         report.setSiteName(reportRequest.getCurrentOperate().getSiteName());
+        report.setFirstSiteCode(report.getFirstSiteCode());
+        report.setFirstSiteName(report.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());
         report.setReportTime(reportRequest.getReportTime());
         report.setReportType(reportRequest.getReportType());
