@@ -89,9 +89,6 @@ public class SiteServiceImpl implements SiteService {
             if (vtrd != null) {
                 base.setSiteCode(vtrd.getEndNodeId());
                 base.setSendUserType(vtrd.getTransType());
-                if(StringUtils.isNotEmpty(vtrd.getCarrierCode())){
-                    base.setDriverId(Integer.valueOf(vtrd.getCarrierCode()));//承运商id
-                }
                 base.setRouteType(vtrd.getTransType()); // 增加运输类型返回值
                 base.setDriver(vtrd.getCarrierName());
                 base.setTransWay(vtrd.getTransWay());

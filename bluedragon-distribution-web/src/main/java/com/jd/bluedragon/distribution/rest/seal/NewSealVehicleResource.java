@@ -190,9 +190,6 @@ public class NewSealVehicleResource {
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
-        if(StringUtils.isNotEmpty(data.getCarrierCode())){
-            response.setDriverId(Integer.valueOf(data.getCarrierCode()));
-        }
         response.setSendUserType(data.getTransType());
         response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());
