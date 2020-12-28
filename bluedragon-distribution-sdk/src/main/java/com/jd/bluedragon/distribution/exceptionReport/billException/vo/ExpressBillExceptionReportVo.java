@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -7,8 +8,10 @@ import java.util.List;
  * @Author: liming522
  * @Description:
  * @Date: create in 2020/12/22 15:36
+ * @date 2020-12-28 14:09
+ * @author liming522
  */
-public class ExpressBillExceptionReportVo {
+public class ExpressBillExceptionReportVo implements Serializable {
     /**
      * 序号
      */
