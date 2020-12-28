@@ -27,7 +27,7 @@
 
 
     <!--查询包裹是否已举报-->
-    <select id="selectPackageReportNum" resultType="java.lang.Integer" parameterType="java.lang.String">
+    <select id="selectPackageIsReport" resultType="java.lang.Integer" parameterType="java.lang.String">
         select count(1)
         from
         express_bill_exception_report

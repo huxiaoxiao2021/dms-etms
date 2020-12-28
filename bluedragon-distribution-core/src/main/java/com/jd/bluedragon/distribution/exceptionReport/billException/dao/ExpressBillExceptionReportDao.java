@@ -22,8 +22,8 @@ public class ExpressBillExceptionReportDao extends BaseDao<ExpressBillExceptionR
      * @param packageCode
      * @return
      */
-    public int selectPackageIsReport(String packageCode) {
-        return this.getSqlSession().insert(ExpressBillExceptionReportDao.namespace + ".selectPackageReportNum", packageCode);
+    public Integer selectPackageIsReport(String packageCode) {
+        return this.getSqlSession().selectOne(ExpressBillExceptionReportDao.namespace + ".selectPackageIsReport", packageCode);
     }
 
     /**
@@ -31,7 +31,7 @@ public class ExpressBillExceptionReportDao extends BaseDao<ExpressBillExceptionR
      * @param record
      * @return
      */
-    public int insertSelective(ExpressBillExceptionReport record) {
+    public Integer insertReport(ExpressBillExceptionReport record) {
         return this.getSqlSession().insert(ExpressBillExceptionReportDao.namespace + ".insertReport", record);
     }
 

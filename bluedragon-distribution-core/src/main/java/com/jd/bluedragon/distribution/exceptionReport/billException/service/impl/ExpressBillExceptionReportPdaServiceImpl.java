@@ -69,7 +69,7 @@ public class ExpressBillExceptionReportPdaServiceImpl implements ExpressBillExce
             //封装记录
             ExpressBillExceptionReport record = this.assembleRecord(reportRequest);
             //3.数据增加
-            expressBillExceptionReportDao.insertSelective(record);
+            expressBillExceptionReportDao.insertReport(record);
             result.toSucceed("举报成功");
             result.setData(true);
         }catch (Exception e){
