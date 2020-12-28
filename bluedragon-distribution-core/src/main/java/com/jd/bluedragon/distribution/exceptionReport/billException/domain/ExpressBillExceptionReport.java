@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
  * @Description:
  * @Date: create in 2020/12/21 18:38
  */
-public class ExpressBillExceptionReport {
+public class ExpressBillExceptionReport implements Serializable {
 
     /**
      * 序号
@@ -86,6 +87,16 @@ public class ExpressBillExceptionReport {
      * 是否逻辑删除：0-已删除，1-已存在  db_column: yn
      */
     private Integer yn;
+
+    /**
+     * 创建时间
+     */
+    private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     public Integer getYn() {
         return yn;
@@ -205,6 +216,22 @@ public class ExpressBillExceptionReport {
 
     public void setFirstSiteName(String firstSiteName) {
         this.firstSiteName = firstSiteName;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 }
     

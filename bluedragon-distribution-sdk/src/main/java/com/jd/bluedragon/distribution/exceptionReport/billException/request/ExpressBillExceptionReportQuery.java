@@ -10,7 +10,7 @@ import java.util.Date;
  * @Description:
  * @Date: create in 2020/12/21 18:39
  */
-public class ExpressBillExceptionReportQuery extends BasePagerCondition implements Serializable {
+public class ExpressBillExceptionReportQuery  implements Serializable {
 
     private static final long serialVersionUID = -2424172770599768238L;
     /**
@@ -45,6 +45,8 @@ public class ExpressBillExceptionReportQuery extends BasePagerCondition implemen
     private Integer yn;
 
     private Integer pageSize;
+
+    private BasePagerCondition basePagerCondition;
 
     public Integer getPageSize() {
         return pageSize;
@@ -116,6 +118,14 @@ public class ExpressBillExceptionReportQuery extends BasePagerCondition implemen
 
     public void setReportType(Integer reportType) {
         this.reportType = reportType;
+    }
+
+    public BasePagerCondition getBasePagerCondition() {
+        return basePagerCondition;
+    }
+
+    public void setBasePagerCondition(BasePagerCondition basePagerCondition) {
+        this.basePagerCondition = basePagerCondition;
     }
 }
     

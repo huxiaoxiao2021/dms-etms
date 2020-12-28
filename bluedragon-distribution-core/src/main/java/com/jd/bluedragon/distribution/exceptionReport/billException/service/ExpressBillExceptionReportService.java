@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service;
 
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
+import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.List;
 
@@ -12,7 +16,7 @@ import java.util.List;
  * @Description:
  * @Date: create in 2020/12/21 14:43
  */
-public interface ExpressBillExceptionReportPdaService {
+public interface ExpressBillExceptionReportService {
     /**
      * 面单异常举报提交
      * @param reportRequest
@@ -25,7 +29,7 @@ public interface ExpressBillExceptionReportPdaService {
      * @param packageCode
      * @return
      */
-    JdCResponse<CurrentOperate> getFirstSiteByPackageCode(String packageCode);
+    JdCResponse<FirstSiteVo> getFirstSiteByPackageCode(String packageCode);
 
     /**
      * 获取所有面单举报类型
@@ -39,5 +43,12 @@ public interface ExpressBillExceptionReportPdaService {
      * @return
      */
     boolean selectPackageIsReport(String packageCode);
+
+    /**
+     * 面单异常分页查询
+     * @param reportRequest
+     * @return
+     */
+    Response<PageDto<ExpressBillExceptionReportVo>> queryPageList(ExpressBillExceptionReportQuery reportRequest);
 }
     

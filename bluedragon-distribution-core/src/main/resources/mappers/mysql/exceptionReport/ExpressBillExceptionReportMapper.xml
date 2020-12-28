@@ -22,7 +22,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`,`first_site_code`,`first_site_name`, `report_type_name`, `report_type`, `report_user_erp`, `report_time`, `report_img_urls`,`yn`,`ts`
+        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,create_time,update_time,yn,ts
     </sql>
 
 
@@ -44,8 +44,8 @@
      where yn=1
      <include refid="where_sql"/>
     order by id desc
-    <if test="pageNumber > 0">
-        limit #{offset}, #{limit}
+    <if test="basePagerCondition.pageNumber > 0">
+        limit #{basePagerCondition.offset}, #{basePagerCondition.limit}
     </if>
     </select>
 
