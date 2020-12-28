@@ -30,7 +30,7 @@ public class ExpressBillExceptionReportVo implements Serializable {
     /**
      * 区域编码
      */
-    private Integer orgId;
+    private Integer orgCode;
 
     /**
      * 举报地编码-分拣中心
@@ -123,12 +123,12 @@ public class ExpressBillExceptionReportVo implements Serializable {
         this.orgName = orgName;
     }
 
-    public Integer getOrgId() {
-        return orgId;
+    public Integer getOrgCode() {
+        return orgCode;
     }
 
-    public void setOrgId(Integer orgId) {
-        this.orgId = orgId;
+    public void setOrgCode(Integer orgCode) {
+        this.orgCode = orgCode;
     }
 
     public Integer getSiteCode() {
