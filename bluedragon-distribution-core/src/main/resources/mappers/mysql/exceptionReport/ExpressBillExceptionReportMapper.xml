@@ -22,7 +22,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`,`first_site_code`,`first_site_name`, `report_type_name`, `report_type`, `report_user_erp`, `report_time`, `report_img_urls`,`yn`, `ts`
+        `id`, `package_code`, `org_code`, `org_name`, `site_code`, `site_name`,`first_site_code`,`first_site_name`, `report_type_name`, `report_type`, `report_user_erp`, `report_time`, `report_img_urls`,`yn`,`ts`
     </sql>
 
 
@@ -89,7 +89,7 @@
             report_type,
             </if>
             <if test="reportUserErp != null and reportUserErp != ''">
-            report_user_erp
+            report_user_erp,
             </if>
             <if test="reportTime != null">
             report_time,
@@ -101,7 +101,7 @@
             ys,
             </if>
             <if test="ts != null">
-            ts
+            ts,
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -115,7 +115,7 @@
                 #{orgName,jdbcType=VARCHAR},
             </if>
             <if test="siteCode != null">
-                #{siteCode,,jdbcType=INTEGER},
+                #{siteCode,jdbcType=INTEGER},
             </if>
             <if test="siteName != null and siteName !=''">
                 #{siteName,jdbcType=VARCHAR},
@@ -126,7 +126,6 @@
             <if test="firstSiteName != null and firstSiteName !=''">
                 #{firstSiteName,jdbcType=VARCHAR},
             </if>
-
             <if test="reportTypeName != null and reportTypeName != ''">
                 #{reportTypeName,jdbcType=VARCHAR},
             </if>
@@ -146,7 +145,7 @@
                 #{yn},
             </if>
             <if test="ts != null">
-                #{ts}
+                #{ts},
             </if>
         </trim>
     </insert>
