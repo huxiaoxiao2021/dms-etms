@@ -533,6 +533,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 request.getTransfer(), null, isSurplusPackage, sendCode, request, licenseNumber);
         unloadScanRecordDao.insert(newUnloadRecord);
 
+        boolean flowDisAccord = false;
+        if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            flowDisAccord = true;
+        }
         // 运单暂存
         if (isSurplusPackage) {
             UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), 0,
@@ -540,11 +544,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadScanDao.insert(newUnload);
         } else {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+            int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
             UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
             if (unloadScan != null) {
                 unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
                 unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
-                // 设置状态 todo
+                unloadScan.setPackageAmount(packageNum);
+                // 设置状态
+                int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
+                unloadScan.setStatus(status);
                 unloadScan.setUpdateTime(new Date());
                 unloadScan.setUpdateUserName(request.getOperateUserName());
                 unloadScan.setUpdateUserCode(request.getOperateUserCode());
@@ -577,15 +585,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
         }
         // 保存运单暂存记录
+        boolean flowDisAccord = false;
+        if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            flowDisAccord = true;
+        }
         UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
         if (unloadScan == null) {
             unloadScan = createUnloadScan(request.getBarCode(), request.getSealCarCode(), normalPackages.size(),
-                    packageList.size(), request.getOperateUserName(), request.getOperateUserCode(), false);
+                    packageList.size(), request.getOperateUserName(), request.getOperateUserCode(), flowDisAccord);
             unloadScanDao.insert(unloadScan);
         } else {
             unloadScan.setLoadAmount(packageList.size());
             unloadScan.setUnloadAmount(0);
-            // todo 设置状态
+            int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
+            unloadScan.setPackageAmount(packageNum);
+            // 设置状态 todo 运单既有应卸，也有多货，怎么显示状态
+            int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
+            unloadScan.setStatus(status);
             unloadScanDao.updateByPrimaryKey(unloadScan);
         }
     }
@@ -602,6 +618,43 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return sendCode;
     }
 
+    /**
+     * 获取运单状态
+     * @param forceAmount  应卸
+     * @param loadAmount   已卸
+     * @param packageAmount 总包裹
+     * @param flowDisAccord  是否多扫
+     * @return 状态
+     */
+    private Integer getWaybillStatus(Integer forceAmount, Integer loadAmount, Integer packageAmount, boolean flowDisAccord) {
+        if (forceAmount == null) {
+            forceAmount = 0;
+        }
+        if (loadAmount == null) {
+            loadAmount = 0;
+        }
+        // 如果是多扫
+        if (flowDisAccord) {
+            // 已卸=总包裹数
+            if (packageAmount.equals(loadAmount)) {
+                return GoodsLoadScanConstants.GOODS_SCAN_LOAD_YELLOW;
+            } else {
+                return GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE;
+            }
+        } else {
+            int unloadAmount = forceAmount - loadAmount;
+            // 已卸和未卸都大于0  -- 没扫齐 -- 红色
+            if (loadAmount > 0 && unloadAmount > 0) {
+                return GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED;
+            }
+            // 应卸=已卸，并且未卸=0
+            if (forceAmount.equals(loadAmount) && unloadAmount == 0) {
+                return GoodsLoadScanConstants.GOODS_SCAN_LOAD_GREEN;
+            }
+        }
+        return GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK;
+    }
+
     private UnloadScan createUnloadScan(String packageCode, String sealCarCode, Integer forceAmount, Integer loadAmount,
                                         String userName, int userCode, boolean flowDisAccord) {
         UnloadScan unloadScan = new UnloadScan();
@@ -615,13 +668,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (forceAmount != null && forceAmount != 0) {
             unloadScan.setUnloadAmount(forceAmount > loadAmount ? forceAmount - loadAmount : 0);
         }
-        // 设置状态
+        // 多扫的应卸=0
         if (flowDisAccord) {
             unloadScan.setForceAmount(0);
-            unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_ORANGE);
-        } else {
-            unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_RED);
         }
+
+        // 空任务的应卸和未卸都是0
+        if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            unloadScan.setForceAmount(0);
+            unloadScan.setUnloadAmount(0);
+            flowDisAccord = true;
+        }
+        // 设置状态
+        int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageAmount, flowDisAccord);
+        unloadScan.setStatus(status);
         unloadScan.setYn(Constants.YN_YES);
         unloadScan.setCreateTime(new Date());
         unloadScan.setUpdateTime(new Date());
