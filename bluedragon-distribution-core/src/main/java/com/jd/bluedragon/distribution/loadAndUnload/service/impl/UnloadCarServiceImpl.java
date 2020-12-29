@@ -700,19 +700,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScanRecord.setWaybillCode(waybillCode);
         unloadScanRecord.setPackageCode(packageCode);
         if (request.getReceiveSiteCode() != null) {
-            unloadScanRecord.setEndSiteCode((long) request.getReceiveSiteCode());
+            unloadScanRecord.setEndSiteCode(request.getReceiveSiteCode());
             unloadScanRecord.setEndSiteName(request.getReceiveSiteName());
         } else {
             if (nextSiteCode != null) {
-                unloadScanRecord.setEndSiteCode((long) nextSiteCode);
+                unloadScanRecord.setEndSiteCode(nextSiteCode);
                 // todo 调用青龙基础资料接口将网点编码转成网点名称
             }
         }
         if (!sealCarCode.startsWith("PDA")) {
             unloadScanRecord.setBatchCode(batchCode);
         }
-        // todo 网点编码直接存int
-        unloadScanRecord.setCreateSiteCode((long) request.getOperateSiteCode());
+
+        unloadScanRecord.setCreateSiteCode(request.getOperateSiteCode());
         unloadScanRecord.setCreateSiteName(request.getOperateSiteName());
         unloadScanRecord.setTransfer(transfer == null ? 0 : transfer);
         if (flowDisAccord) {
