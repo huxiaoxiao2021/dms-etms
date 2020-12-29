@@ -74,6 +74,11 @@ public class ExpressBillExceptionReportVo implements Serializable {
     private Date reportTime;
 
     /**
+     * 举报时间格式化
+     */
+    private String reportTimeFormat;
+
+    /**
      * 举报照片地址(多个)
      */
     private String reportImgUrls;
@@ -219,6 +224,14 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public void setFirstSiteName(String firstSiteName) {
         this.firstSiteName = firstSiteName;
+    }
+
+    public String getReportTimeFormat() {
+        return reportTimeFormat;
+    }
+
+    public void setReportTimeFormat(String reportTimeFormat) {
+        this.reportTimeFormat = reportTimeFormat;
     }
 }
     
