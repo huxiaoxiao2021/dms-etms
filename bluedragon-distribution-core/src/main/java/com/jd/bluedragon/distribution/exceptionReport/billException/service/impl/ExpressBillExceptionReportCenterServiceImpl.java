@@ -78,6 +78,7 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
     private ExpressBillExceptionReportVo generateExpressBillExceptionReportVo(ExpressBillExceptionReport expressBillExceptionReport) {
         ExpressBillExceptionReportVo vo = new ExpressBillExceptionReportVo();
         BeanUtils.copyProperties(expressBillExceptionReport,vo);
+        vo.setReportTimeFormat(DateUtil.format(expressBillExceptionReport.getReportTime(), DateUtil.FORMAT_DATE_TIME));
         List<String> imgUrlList = new ArrayList<>();
         if(StringUtils.isNotBlank(vo.getReportImgUrls())){
             imgUrlList = JSON.parseArray(vo.getReportImgUrls(), String.class);
