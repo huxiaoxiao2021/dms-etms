@@ -68,6 +68,11 @@ public class UnloadScanDetailDto implements Serializable {
      */
     private List<UnloadScanDto> unloadScanDtoList;
 
+    /**
+     * 封车编码
+     */
+    private String sealCarCode;
+
 
     public Integer getTotalWaybillNum() {
         return totalWaybillNum;
@@ -155,5 +160,13 @@ public class UnloadScanDetailDto implements Serializable {
 
     public void setUnloadScanDtoList(List<UnloadScanDto> unloadScanDtoList) {
         this.unloadScanDtoList = unloadScanDtoList;
+    }
+
+    public String getSealCarCode() {
+        return sealCarCode;
+    }
+
+    public void setSealCarCode(String sealCarCode) {
+        this.sealCarCode = sealCarCode;
     }
 }
