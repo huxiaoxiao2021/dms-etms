@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.dao;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.StringHelper;
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
@@ -13,13 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by dudong on 2014/11/28.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:spring/distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 public class SendDetailDaoTest {
 
     private Log log  = LogFactory.getLog(this.getClass());
@@ -182,5 +186,16 @@ public class SendDetailDaoTest {
             }
             log.info(StringHelper.join(sendDetails,"getWaybillCode",","));
         }
+    }
+
+    @Test
+    public void testWaybillPackageNumTest() {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("createSiteCode", 364605);
+        List<String> sendCodes = new ArrayList<>();
+        sendCodes.add("364605-910-20201022164019725");
+        params.put("sendCodes", sendCodes);
+        Map<String, WaybillNoCollectionInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
+        System.out.println(map);
     }
 }

@@ -33,5 +33,9 @@
         <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />
         <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />
 
+        <!-- Ð¶³µÉ¨ÃèÒµÎñ -->
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadScanMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadScanRecordMapper.xml" />
+
     </mappers>
 </configuration>
