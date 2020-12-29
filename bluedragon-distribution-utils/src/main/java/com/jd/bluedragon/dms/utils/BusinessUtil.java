@@ -1372,6 +1372,16 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否是B2C 28位等于0，且29位不等于8
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isB2C(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0)
+                && !isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8);
+    }
+
+    /**
      * 是否是月结运单
      * @param waybillSign
      * @return true 是，false 不是

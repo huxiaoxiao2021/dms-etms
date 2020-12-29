@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.api.JdRequest;
 public class DeliveryRequest extends JdRequest {
     
     private static final long serialVersionUID = 8464241462768408318L;
-    
+
     /** 收货单位编号 */
     private Integer receiveSiteCode;
     
@@ -31,7 +31,14 @@ public class DeliveryRequest extends JdRequest {
      * 已扫描的包裹数,老发货\快运需要先扫描后一起发货
      */
     private Integer scannedPackageNum;
-    
+
+    private Integer siteCode;
+
+    private Integer userCode;
+    private String userName;
+    private String operateTime;
+
+
     public Integer getTransporttype() {
 		return transporttype;
 	}
@@ -78,6 +85,46 @@ public class DeliveryRequest extends JdRequest {
 
     public void setOpType(Integer opType) {
         this.opType = opType;
+    }
+
+    @Override
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    @Override
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    @Override
+    public Integer getUserCode() {
+        return userCode;
+    }
+
+    @Override
+    public void setUserCode(Integer userCode) {
+        this.userCode = userCode;
+    }
+
+    @Override
+    public String getUserName() {
+        return userName;
+    }
+
+    @Override
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    @Override
+    public String getOperateTime() {
+        return operateTime;
+    }
+
+    @Override
+    public void setOperateTime(String operateTime) {
+        this.operateTime = operateTime;
     }
 
     @Override

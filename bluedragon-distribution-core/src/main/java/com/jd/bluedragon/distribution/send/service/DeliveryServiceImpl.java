@@ -137,6 +137,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -151,8 +152,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -795,6 +794,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SortingCheck getSortingCheck(SendM domain) {
         //大件分拣拦截验证
         SortingCheck sortingCheck = new SortingCheck();
+        sortingCheck.setOperateNode(OperateNodeConstants.SEND);
         sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
         sortingCheck.setBoxCode(domain.getBoxCode());

@@ -30,9 +30,10 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSendQueryCondition;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -46,9 +47,10 @@ import java.util.*;
  * @author fanggang7
  * @time 2020-09-27 17:03:50 周日
  */
-@Slf4j
 @Service
 public class CollectionBagExceptionReport4PdaServiceImpl implements CollectionBagExceptionReport4PdaService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private CollectionBagExceptionReportDao collectionBagExceptionReportDao;
