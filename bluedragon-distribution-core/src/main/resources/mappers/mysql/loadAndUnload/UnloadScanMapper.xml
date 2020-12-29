@@ -11,9 +11,9 @@
         <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
-        <result column="create_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="createUserCode"/>
+        <result column="create_user_erp" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserErp"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
-        <result column="update_user_code" javaType="java.lang.Integer" jdbcType="INTEGER" property="updateUserCode"/>
+        <result column="update_user_erp" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserErp"/>
         <result column="update_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserName"/>
         <result column="create_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" javaType="java.util.Date" jdbcType="TIMESTAMP" property="updateTime"/>
@@ -23,7 +23,7 @@
 
     <sql id="Base_Column_List" >
 		id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
-		status,create_user_code,create_user_name,update_user_code,update_user_name,
+		status,create_user_erp,create_user_name,update_user_erp,update_user_name,
 		create_time,update_time,yn
 	</sql>
 
@@ -56,14 +56,14 @@
             <if test="status != null">
                 status,
             </if>
-            <if test="createUserCode != null">
-                create_user_code,
+            <if test="createUserErp != null">
+                create_user_erp,
             </if>
             <if test="createUserName != null">
                 create_user_name,
             </if>
-            <if test="updateUserCode != null">
-                update_user_code,
+            <if test="updateUserErp != null">
+                update_user_erp,
             </if>
             <if test="updateUserName != null">
                 update_user_name,
@@ -102,14 +102,14 @@
             <if test="status != null">
                 #{status,jdbcType=INTEGER},
             </if>
-            <if test="createUserCode != null">
-                #{createUserCode,jdbcType=VARCHAR},
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
             </if>
             <if test="createUserName != null">
                 #{createUserName,jdbcType=VARCHAR},
             </if>
-            <if test="updateUserCode != null">
-                #{updateUserCode,jdbcType=VARCHAR},
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
             </if>
             <if test="updateUserName != null">
                 #{updateUserName,jdbcType=VARCHAR},
@@ -160,9 +160,9 @@
             <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
             <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>
             <if test="status != null">status = #{status,jdbcType=INTEGER},</if>
-            <if test="createUserCode != null">create_user_code = #{createUserCode,jdbcType=VARCHAR},</if>
+            <if test="createUserErp != null">create_user_erp = #{createUserErp,jdbcType=VARCHAR},</if>
             <if test="createUserName != null">create_user_name = #{createUserName,jdbcType=VARCHAR},</if>
-            <if test="updateUserCode != null">update_user_code = #{updateUserCode,jdbcType=VARCHAR},</if>
+            <if test="updateUserErp != null">update_user_erp = #{updateUserErp,jdbcType=VARCHAR},</if>
             <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>
             <if test="createTime != null">create_time = #{createTime,jdbcType=TIMESTAMP},</if>
             <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
@@ -172,7 +172,7 @@
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan">
         insert into unload_scan (id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
-        status,create_user_code,create_user_name,update_user_code,update_user_name,
+        status,create_user_erp,create_user_name,update_user_erp,update_user_name,
         create_time,update_time,yn)  VALUES
         <foreach collection="waybillPackageNumInfoList" item="item" separator=",">
             (#{sealCarCode,jdbcType=VARCHAR},
@@ -182,9 +182,9 @@
              #{loadAmount,jdbcType=INTEGER},
              #{unloadAmount,jdbcType=INTEGER},
              #{status,jdbcType=INTEGER},
-             #{createUserCode,jdbcType=VARCHAR},
+             #{createUserErp,jdbcType=VARCHAR},
              #{createUserName,jdbcType=VARCHAR},
-             #{updateUserCode,jdbcType=VARCHAR},
+             #{updateUserErp,jdbcType=VARCHAR},
              #{updateUserName,jdbcType=VARCHAR},
              #{createTime,jdbcType=TIMESTAMP},
              #{updateTime,jdbcType=TIMESTAMP},
