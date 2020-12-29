@@ -680,5 +680,8 @@
         <property name="sqlSession" ref = "sessionTemplate_waybill"/>
     </bean>
     <!--################################## bd_dms_business 相关DAO End ############################################ -->
-
-    </beans>
+    <!--面单异常举报-->
+    <bean id="expressBillExceptionReportDao" class="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+</beans>

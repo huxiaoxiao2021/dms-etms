@@ -331,4 +331,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--面单异常举报，给pda 安卓用-->
+    <bean id="expressBillExceptionReportGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ExpressBillExceptionReportGatewayServiceImpl" />
+    <jsf:provider id="jsfExpressBillExceptionReportGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ExpressBillExceptionReportGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="expressBillExceptionReportGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

@@ -42,6 +42,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -504,11 +506,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 组装返回对象
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
-        // 如果场地配置了发货白名单
-        if (hasSendFunction(createSiteId, user.getUserErp())) {
-            log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
-            // 开放大宗权限
-            scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+
+        if (user != null && StringUtils.isNotBlank(user.getUserErp())) {
+            // 如果场地配置了发货白名单
+            if (hasSendFunction(createSiteId, user.getUserErp())) {
+                log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
+                // 开放大宗权限
+                scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+            }
         }
 
         if (CollectionUtils.isEmpty(tempList)) {
@@ -553,6 +558,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.saveLoadScanByBoardCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -706,6 +713,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.saveLoadScanByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> saveLoadScanByWaybillCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -1104,6 +1113,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      * 校验板号
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.checkBoardCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
 
         Long taskId = req.getTaskId();
@@ -1185,6 +1196,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.checkWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdVerifyResponse<Void> checkWaybillCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();

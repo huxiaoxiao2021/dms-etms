@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.domain;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -49,6 +50,11 @@ public class GoodsLoadDto implements Serializable {
      * 操作人姓名
      */
     private String userName;
+
+    /**
+     * 当前用户信息
+     */
+    private User user;
 
     public Long getTaskId() {
         return taskId;
@@ -112,5 +118,13 @@ public class GoodsLoadDto implements Serializable {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
