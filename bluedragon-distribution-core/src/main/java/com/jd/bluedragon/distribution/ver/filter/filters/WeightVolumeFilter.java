@@ -1,17 +1,11 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.YnEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
-import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -23,9 +17,6 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.waybill.constant.WaybillCodePattern;
-import com.jd.etms.waybill.util.UniformValidateUtil;
-import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -33,8 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * 漏称重量方校验
