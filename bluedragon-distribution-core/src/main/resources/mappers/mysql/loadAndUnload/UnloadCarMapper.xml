@@ -140,6 +140,12 @@
             <if test="updateTime != null">
                 update_time,
             </if>
+            <if test="operateUserErp != null and operateUserErp!=''">
+                operate_user_erp,
+            </if>
+            <if test="operateUserName != null and operateUserName!=''">
+                operate_user_name,
+            </if>
             yn
         </trim>
         )
@@ -211,6 +217,12 @@
             </if>
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operateUserErp != null and operateUserErp!=''">
+                #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName != null and operateUserName!=''">
+                #{operateUserName,jdbcType=VARCHAR},
             </if>
             1
         </trim>
@@ -376,8 +388,9 @@
         from
         unload_car
         where
-        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+        vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        and yn=1
         and status in (0,1)
         <include refid="Base_Condition_Sql"/>
         order by update_time desc

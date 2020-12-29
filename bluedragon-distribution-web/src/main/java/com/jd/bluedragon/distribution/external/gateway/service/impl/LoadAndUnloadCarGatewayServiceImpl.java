@@ -314,13 +314,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             return jdCResponse;
         }
         UnloadCar unload = new UnloadCar();
-        unload.setUnloadUserErp(req.getOperateUserErp());
+        unload.setOperateUserErp(req.getOperateUserErp());
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
-        List<UnloadCar> unloadCars = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unload);
-        if (CollectionUtils.isNotEmpty(unloadCars)) {
-            jdCResponse.toConfirm("当前站点存在进行中或未开始的同车牌任务！");
-            return jdCResponse;
-        }
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
         unloadCar.setSealCarCode(Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis());
