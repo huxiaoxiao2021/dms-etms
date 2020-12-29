@@ -20,6 +20,10 @@
         <!-- 装车发货扫描 -->
         <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>
         <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" alias="goodsLoadScanRecord"/>
+
+        <!-- 卸车扫描 -->
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan" alias="unloadScan"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" alias="unloadScanRecord"/>
     </typeAliases>
 
 

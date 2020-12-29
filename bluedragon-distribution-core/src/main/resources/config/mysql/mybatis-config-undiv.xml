@@ -119,9 +119,6 @@
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
 
-        <!-- 卸车扫描 -->
-        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan" alias="unloadScan"/>
-        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" alias="unloadScanRecord"/>
 
 <!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>-->
 <!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>-->
@@ -366,9 +363,6 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardMapper.xml" />
         <mapper resource="mappers/mysql/bagException/CollectionBagExceptionReportMapper.xml" />
 
-        <!--卸车扫描-->
-        <mapper resource="mappers/mysql/loadAndUnload/UnloadScanMapper.xml" />
-        <mapper resource="mappers/mysql/loadAndUnload/UnloadScanRecordMapper.xml" />
 
         <!-- 功能开关配置 -->
         <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
