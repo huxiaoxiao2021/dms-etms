@@ -46,7 +46,7 @@ public class UnloadScanRecord implements Serializable {
     /**
      * 创建人所属转运中心Id
      */
-    private Long createSiteCode;
+    private Integer createSiteCode;
 
     /**
      * 创建人所属转运中心名称
@@ -56,7 +56,7 @@ public class UnloadScanRecord implements Serializable {
     /**
      * 目的场地Id
      */
-    private Long endSiteCode;
+    private Integer endSiteCode;
 
     /**
      * 目的场地名称
@@ -265,11 +265,11 @@ public class UnloadScanRecord implements Serializable {
         this.ts = ts;
     }
 
-    public Long getCreateSiteCode() {
+    public Integer getCreateSiteCode() {
         return createSiteCode;
     }
 
-    public void setCreateSiteCode(Long createSiteCode) {
+    public void setCreateSiteCode(Integer createSiteCode) {
         this.createSiteCode = createSiteCode;
     }
 
@@ -281,11 +281,11 @@ public class UnloadScanRecord implements Serializable {
         this.createSiteName = createSiteName;
     }
 
-    public Long getEndSiteCode() {
+    public Integer getEndSiteCode() {
         return endSiteCode;
     }
 
-    public void setEndSiteCode(Long endSiteCode) {
+    public void setEndSiteCode(Integer endSiteCode) {
         this.endSiteCode = endSiteCode;
     }
 
