@@ -100,6 +100,7 @@ public class BaseResource {
 	@Autowired
 	private UserService userService;
 
+
 	@Autowired
 	@Qualifier("baseUserService")
 	protected LoginService baseUserService;

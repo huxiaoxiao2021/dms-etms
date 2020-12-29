@@ -83,6 +83,14 @@ public interface NewSealVehicleService {
     public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
     /**
+     * 检查批次是否存在
+     *
+     * @param sendCode
+     * @return
+     */
+    public boolean checkSendIsExist(String sendCode);
+
+    /**
      * 校验批次的体积是否超标
      * @param sealCarDto
      * @return
