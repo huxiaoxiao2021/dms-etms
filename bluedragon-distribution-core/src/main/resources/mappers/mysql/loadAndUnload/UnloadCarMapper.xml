@@ -70,7 +70,8 @@
 			and yn=1
 	</sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar">
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" useGeneratedKeys="true"
+            keyProperty="unloadCarId">
         insert into unload_car
         (
         <trim suffixOverrides=",">
