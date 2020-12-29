@@ -224,6 +224,12 @@
                   alias="${jsf.dmsReprintRecordJsfService.alias}"
                   ref="dmsReprintRecordService" server="dmsjsf">
     </jsf:provider>
+    <!-- 拦截报表 提交拦截记录 -->
+    <jsf:provider id="dmsBusinessInterceptReportJsfService"
+                  interface="com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportJsfService"
+                  alias="${jsf.dmsBusinessInterceptReportJsfService.alias}"
+                  ref="businessInterceptReportJsfService" server="dmsjsf">
+    </jsf:provider>
 
     <!--提供给分拣机 用于拦截状态同步-->
     <jsf:provider id="dmsFuncSwitchConfigApiJsfService"

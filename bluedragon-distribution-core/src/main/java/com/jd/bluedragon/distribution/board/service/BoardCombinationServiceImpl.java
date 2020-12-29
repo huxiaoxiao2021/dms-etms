@@ -317,7 +317,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
             try {
-                response = sortingCheckService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheckAndReportIntercept(checkParam);
                 logInfo = "组板校验,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",IsForceCombination:" + request.getIsForceCombination() +
                         ",站点：" + request.getSiteCode() + ".校验结果:" + response.getMessage();
@@ -475,7 +475,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
             try {
-                response = sortingCheckService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheckAndReportIntercept(checkParam);
                 logInfo = "组板校验,板号：" + boardCode + ",运单号：" + waybillCode +
                         ",IsForceCombination:" + request.getIsForceCombination() +
                         ",站点：" + request.getSiteCode() + ".校验结果:" + response.getMessage();

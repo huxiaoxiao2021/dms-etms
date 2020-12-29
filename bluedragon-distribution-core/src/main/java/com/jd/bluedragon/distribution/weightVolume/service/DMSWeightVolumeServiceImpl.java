@@ -1,17 +1,20 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
-import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,6 +35,14 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Autowired
     private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
 
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
+    // 称重量方节点
+    @Value("${businessIntercept.dispose.node.weightAndVolume}")
+    private Integer disposeNodeWeightAndVolume;
+
+
     @Override
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -45,7 +56,9 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         if (isSync) {
             //同步处理
-            return weightVolumeHandlerStrategy.doHandler(entity);
+            result = weightVolumeHandlerStrategy.doHandler(entity);
+            this.sendDisposeAfterInterceptMsg(entity);
+            return result;
         } else {
             //异步处理
             Task weightVolumeTask = new Task();
@@ -63,6 +76,33 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             taskService.add(weightVolumeTask);
             return result;
         }
+    }
+
+    /**
+     * 发送拦截后处理动作消息
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-10 11:21:39 周四
+     */
+    private boolean sendDisposeAfterInterceptMsg(WeightVolumeEntity weightVolumeEntity){
+        long currentTimeMillis = System.currentTimeMillis();
+        SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+        saveDisposeAfterInterceptMsgDto.setBarCode(weightVolumeEntity.getBarCode());
+        saveDisposeAfterInterceptMsgDto.setOperateTime(currentTimeMillis);
+        saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeWeightAndVolume);
+        saveDisposeAfterInterceptMsgDto.setOperateUserErp(weightVolumeEntity.getOperatorCode());
+        saveDisposeAfterInterceptMsgDto.setOperateUserName(weightVolumeEntity.getOperatorName());
+        saveDisposeAfterInterceptMsgDto.setSiteCode(weightVolumeEntity.getOperateSiteCode());
+        saveDisposeAfterInterceptMsgDto.setSiteName(weightVolumeEntity.getOperateSiteName());
+
+        String saveInterceptMqMsg = JSON.toJSONString(saveDisposeAfterInterceptMsgDto);
+        try {
+            logger.info("PackageSendHandler sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JSON.toJSONString(saveInterceptMqMsg));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            logger.error("sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+        }
+        return true;
     }
 
     @Override
