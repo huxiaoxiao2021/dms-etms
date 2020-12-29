@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
@@ -1804,25 +1803,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createSiteCode",tmsSealCar.getOperateSiteId());
             params.put("sendCodes",requiredBatchCodes);
-            Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
-            Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
-            unloadCar.setWaybillNum(waybillNum);
-            unloadCar.setPackageNum(packageNum);
             // 初始化运单暂存表
-            Map<String, WaybillNoCollectionInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
+            Map<String, WaybillPackageNumInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
             if (map != null && !map.isEmpty()) {
                 // todo userCode
                 UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(),  0, 0,
                         tmsSealCar.getOperateUserName(), 0, false);
                 unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
                 List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>();
-                WaybillPackageNumInfo waybillPackageNumInfo;
-                for (WaybillNoCollectionInfo waybillNoCollectionInfo : map.values()) {
-                    waybillPackageNumInfo = new WaybillPackageNumInfo();
-                    waybillPackageNumInfo.setWaybillCode(waybillNoCollectionInfo.getWaybillCode());
-                    waybillPackageNumInfo.setPackageNum(waybillPackageNumInfo.getPackageNum());
+                // 封车任务下总包裹数
+                int totalPackageNum = 0;
+                for (WaybillPackageNumInfo waybillPackageNumInfo : map.values()) {
+                    // 从包裹号上截取包裹数
+                    int packageNum = WaybillUtil.getPackNumByPackCode(waybillPackageNumInfo.getPackageCode());
+                    waybillPackageNumInfo.setPackageAmount(packageNum);
                     waybillPackageNumInfoList.add(waybillPackageNumInfo);
+                    totalPackageNum = totalPackageNum + waybillPackageNumInfo.getForceAmount();
                 }
+                unloadCar.setWaybillNum(map.size());
+                unloadCar.setPackageNum(totalPackageNum);
                 unloadScan.setWaybillPackageNumInfoList(waybillPackageNumInfoList);
                 unloadScanDao.batchInsert(unloadScan);
             }

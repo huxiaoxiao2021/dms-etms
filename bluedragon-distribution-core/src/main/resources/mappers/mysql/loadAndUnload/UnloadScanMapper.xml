@@ -177,8 +177,8 @@
         <foreach collection="waybillPackageNumInfoList" item="item" separator=",">
             (#{sealCarCode,jdbcType=VARCHAR},
              #{item.waybillCode,jdbcType=VARCHAR},
-             #{packageAmount,jdbcType=INTEGER},
-             #{item.packageNum,jdbcType=INTEGER},
+             #{item.packageAmount,jdbcType=INTEGER},
+             #{item.forceAmount,jdbcType=INTEGER},
              #{loadAmount,jdbcType=INTEGER},
              #{unloadAmount,jdbcType=INTEGER},
              #{status,jdbcType=INTEGER},

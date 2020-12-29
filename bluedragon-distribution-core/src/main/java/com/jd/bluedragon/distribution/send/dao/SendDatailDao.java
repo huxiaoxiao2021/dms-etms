@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.loadAndUnload.WaybillPackageNumInfo;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -507,7 +508,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      * @param params
      * @return
      */
-    public Map<String, WaybillNoCollectionInfo> queryPackageNumByWaybillCode (Map<String,Object> params) {
+    public Map<String, WaybillPackageNumInfo> queryPackageNumByWaybillCode (Map<String,Object> params) {
         return this.getSqlSession().selectMap(namespace + ".queryPackageNumByWaybillCode", params, "waybillCode");
     }
 
