@@ -56,13 +56,29 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
+     * 获取卸车扫描列表
+     * @param unloadCarScanRequest 请求参数对象
+     */
+    public InvokeResult<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
+        if(StringUtils.isEmpty(unloadCarScanRequest.getSealCarCode())){
+            result.parameterError("封车编码不存在!");
+            return result;
+        }
+        if(unloadCarScanRequest.getOperateSiteCode() == null){
+            result.parameterError("操作场地站点ID不存在!");
+            return result;
+        }
+        return unloadCarService.getUnloadScan(unloadCarScanRequest);
+    }
+
+    /**
      * 卸车扫描
      * @param unloadCarScanRequest
      * @return
      */
     @POST
     @Path("/unload/barCodeScan")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
     public InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         String remindMessage = unloadParamsCheck(unloadCarScanRequest);
@@ -71,6 +87,41 @@ public class LoadAndUnloadVehicleResource {
             return result;
         }
         return unloadCarService.barCodeScan(unloadCarScanRequest);
+    }
+
+    /**
+     * 卸车扫描(新版)
+     * @param unloadCarScanRequest
+     * @return
+     */
+    @POST
+    @Path("/unload/packageCodeScan")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
+    public InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.packageCodeScan(unloadCarScanRequest);
+    }
+
+    /**
+     * 卸车扫描
+     * @param unloadCarScanRequest
+     * @return
+     */
+    @POST
+    @Path("/unload/waybillScan")
+    public InvokeResult<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.waybillScan(unloadCarScanRequest);
     }
 
     /**

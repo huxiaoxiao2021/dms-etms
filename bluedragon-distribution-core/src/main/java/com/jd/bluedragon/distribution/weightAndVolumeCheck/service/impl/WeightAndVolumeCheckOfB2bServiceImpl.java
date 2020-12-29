@@ -361,7 +361,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         collectDto.setIsWaybillSpotCheck(spotCheckData.getIsWaybillSpotCheck());
         collectDto.setIsExcess(spotCheckData.getIsExcess());
         collectDto.setIsHasPicture(spotCheckData.getIsExcess());
-        collectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
 
         if(spotCheckData.getIsWaybillSpotCheck() == 1){
             //运单维度
@@ -375,6 +374,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         collectDto.setPictureAddress(StringHelper.getStringValue(excessPictureUrl));
 
         if(waybill != null){
+            collectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
             collectDto.setBusiCode(waybill.getBusiId());
             collectDto.setBusiName(waybill.getBusiName());
             collectDto.setMerchantCode(waybill.getBusiOrderCode());
@@ -385,6 +385,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 //普通商家
                 collectDto.setIsTrustBusi(0);
             }
+        }else {
+            collectDto.setSpotCheckType(1);//B网
         }
 
         String reviewErp = spotCheckData.getLoginErp();
