@@ -196,7 +196,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 logger.error("调用组板验证服务失败：{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(checkParam), e);
             }
 
-            if (!response.getCode().equals(200)) {
+            if (response != null && !response.getCode().equals(200)) {
                 if (response.getCode() >= 39000) {
                     result.customMessage(com.jd.ql.dms.common.domain.JdResponse.CODE_CONFIRM, response.getMessage());
                 } else {
