@@ -21,8 +21,8 @@ public class UnloadScanRecordDao extends BaseDao<UnloadScanRecord> {
         return super.getSqlSession().insert(NAMESPACE + ".batchInsertByWaybill", records) > 0;
     }
 
-    public List<UnloadScanRecord> findUnloadScanBySealCarCode(String sealCarCode) {
-        return this.getSqlSession().selectList(NAMESPACE + ".selectUnloadScanBySealCarCode", sealCarCode);
+    public List<UnloadScanRecord> findRecordBySealCarCode(String sealCarCode) {
+        return this.getSqlSession().selectList(NAMESPACE + ".selectRecordBySealCarCode", sealCarCode);
     }
 
 

@@ -60,9 +60,9 @@ public class UnloadScan implements Serializable {
     private Integer status;
 
     /**
-     * 创建人账号
+     * 创建人erp
      */
-    private Integer createUserCode;
+    private String createUserErp;
 
     /**
      * 创建人姓名
@@ -70,9 +70,9 @@ public class UnloadScan implements Serializable {
     private String createUserName;
 
     /**
-     * 更新人账号
+     * 更新人erp
      */
-    private Integer updateUserCode;
+    private String updateUserErp;
 
     /**
      * 更新人名称
@@ -175,12 +175,12 @@ public class UnloadScan implements Serializable {
         this.status = status;
     }
 
-    public Integer getCreateUserCode() {
-        return createUserCode;
+    public String getCreateUserErp() {
+        return createUserErp;
     }
 
-    public void setCreateUserCode(Integer createUserCode) {
-        this.createUserCode = createUserCode;
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
     }
 
     public String getCreateUserName() {
@@ -191,12 +191,12 @@ public class UnloadScan implements Serializable {
         this.createUserName = createUserName;
     }
 
-    public Integer getUpdateUserCode() {
-        return updateUserCode;
+    public String getUpdateUserErp() {
+        return updateUserErp;
     }
 
-    public void setUpdateUserCode(Integer updateUserCode) {
-        this.updateUserCode = updateUserCode;
+    public void setUpdateUserErp(String updateUserErp) {
+        this.updateUserErp = updateUserErp;
     }
 
     public String getUpdateUserName() {

@@ -38,6 +38,12 @@
 		<result column="scan_count"  property="scanCount" />
 	</resultMap>
 
+	<resultMap id="WaybillPackageNumInfo" type="com.jd.bluedragon.distribution.loadAndUnload.WaybillPackageNumInfo">
+		<result column="waybill_code"  property="waybillCode" />
+		<result column="package_code"  property="packageCode" />
+		<result column="package_num"  property="packageNum" />
+	</resultMap>
+
 
   	<insert id="add" parameterType="SendDetail" >
   		<!--<selectKey resultType="long"  keyProperty="sendDId" order="BEFORE" statementType="PREPARED">      
@@ -1140,9 +1146,9 @@
         ) t
     </select>
 
-	<select id="queryPackageNumByWaybillCode" parameterType="java.util.Map" resultMap="WaybillNoCollectionInfo">
+	<select id="queryPackageNumByWaybillCode" parameterType="java.util.Map" resultMap="WaybillPackageNumInfo">
 		select
-		waybill_code, count(package_barcode) as package_num
+		waybill_code, package_barcode as packageCode, count(package_barcode) as forceAmount
 		from send_d
 		where create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		and send_code in

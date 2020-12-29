@@ -10,9 +10,9 @@
         <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="transfer" property="transfer" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="flow_disaccord" property="flowDisaccord" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -120,10 +120,10 @@
                 #{createSiteName,jdbcType=VARCHAR},
             </if>
             <if test="createSiteCode != null">
-                #{createSiteCode,jdbcType=BIGINT},
+                #{createSiteCode,jdbcType=INTEGER},
             </if>
             <if test="endSiteCode != null">
-                #{endSiteCode,jdbcType=BIGINT},
+                #{endSiteCode,jdbcType=INTEGER},
             </if>
             <if test="endSiteName != null">
                 #{endSiteName,jdbcType=VARCHAR},
@@ -176,8 +176,8 @@
              #{waybillCode,jdbcType=VARCHAR},
              #{item,jdbcType=VARCHAR},
              #{createSiteName,jdbcType=VARCHAR},
-             #{createSiteCode,jdbcType=BIGINT},
-             #{endSiteCode,jdbcType=BIGINT},
+             #{createSiteCode,jdbcType=INTEGER},
+             #{endSiteCode,jdbcType=INTEGER},
              #{endSiteName,jdbcType=VARCHAR},
              #{transfer,jdbcType=INTEGER},
              #{flowDisaccord,jdbcType=INTEGER},

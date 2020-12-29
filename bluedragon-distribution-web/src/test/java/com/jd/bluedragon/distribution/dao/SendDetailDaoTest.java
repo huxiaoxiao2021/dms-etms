@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.dao;
 
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.loadAndUnload.WaybillPackageNumInfo;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.StringHelper;
 import junit.framework.Assert;
 import org.apache.commons.logging.Log;
@@ -191,11 +191,11 @@ public class SendDetailDaoTest {
     @Test
     public void testWaybillPackageNumTest() {
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("createSiteCode", 364605);
+        params.put("createSiteCode", 910);
         List<String> sendCodes = new ArrayList<>();
-        sendCodes.add("364605-910-20201022164019725");
+        sendCodes.add("910-39-20201014144353060");
         params.put("sendCodes", sendCodes);
-        Map<String, WaybillNoCollectionInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
+        Map<String, WaybillPackageNumInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
         System.out.println(map);
     }
 }
