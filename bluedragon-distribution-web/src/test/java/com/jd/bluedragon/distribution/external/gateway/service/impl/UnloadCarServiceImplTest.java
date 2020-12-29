@@ -41,7 +41,7 @@ public class UnloadCarServiceImplTest {
     @Test
     public void testStartUnloadTask() {
         UnloadCarTaskReq req = new UnloadCarTaskReq();
-        req.setTaskCode("PDA1609229739263");
+        req.setTaskCode("PDA1609235524228");
         req.setTaskStatus(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
         User user = new User();
         user.setUserName("邢松");

@@ -1909,10 +1909,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
         unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
-        unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        if (!unloadCarTaskReq.getTaskCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+            unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
+        }
         unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
-        unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
@@ -1933,10 +1935,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
         unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
-        unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        if (!unloadCarTaskReq.getTaskCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+            unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
+        }
         unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
-        unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
