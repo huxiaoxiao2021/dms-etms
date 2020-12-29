@@ -270,6 +270,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Collections.sort(unloadScanDtoList, new Comparator<UnloadScanDto>() {
                 @Override
                 public int compare(UnloadScanDto o1, UnloadScanDto o2) {
+                    // todo jian
                     return o2.getStatus().compareTo(o1.getStatus());
                 }
             });
@@ -444,7 +445,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
-    @JProfiler(jKey = "dmsWeb.loadAndUnload.UnloadCarServiceImpl.packageCodeScan",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+    @JProfiler(jKey = "dmsWeb.loadAndUnload.UnloadCarServiceImpl.packageCodeScanNew",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
@@ -538,6 +539,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 运单暂存
         if (isSurplusPackage) {
+            // todo 运单上既有多扫、正常应卸
+            // todo 包裹重复扫校验，尤其是不组板的情况下
             UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), 0,
                     1, request.getOperateUserName(), request.getOperateUserErp(), true);
             unloadScanDao.insert(newUnload);
@@ -562,12 +565,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     private void batchSaveUnloadDetail(List<String> packageList, List<String> surplusPackages, UnloadCarScanRequest request,
                                        String sendCode, String licenseNumber, String waybillCode) {
-        // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合
+        // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合 //todo 异步
         List<String> normalPackages = ListUtils.subtract(packageList, surplusPackages);
         UnloadScanRecord unloadScanRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
                 request.getTransfer(), null, false, sendCode, request, licenseNumber);
         // 先保存正常的包裹集合
         if (CollectionUtils.isNotEmpty(normalPackages)) {
+            // todo 200
             List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 1000);
             for (List<String> packList : packageCodeList) {
                 unloadScanRecord.setPackageCodeList(packList);
@@ -576,6 +580,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 再保存多货包裹记录
         if (CollectionUtils.isNotEmpty(surplusPackages)) {
+            // todo 200
             List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 1000);
             for (List<String> packList : packageCodeList) {
                 unloadScanRecord.setFlowDisaccord(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y);
@@ -1803,7 +1808,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Map<String, Object> params = new HashMap<String, Object>();
             params.put("createSiteCode",tmsSealCar.getOperateSiteId());
             params.put("sendCodes",requiredBatchCodes);
-            // 初始化运单暂存表
+            // 初始化运单暂存表 todo 性能、 数据量、索引
             Map<String, WaybillPackageNumInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
             if (map == null || map.isEmpty()) {
                 return false;
@@ -1824,11 +1829,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 设置封车任务下总运单数
             unloadCar.setWaybillNum(map.size());
-            //
             unloadCar.setPackageNum(totalPackageNum);
-            unloadScan.setWaybillPackageNumInfoList(waybillPackageNumInfoList);
-            unloadScanDao.batchInsert(unloadScan);
-
+            // 分批保存
+            List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
+            for (List<WaybillPackageNumInfo> list : partitionList) {
+                unloadScan.setWaybillPackageNumInfoList(list);
+                unloadScanDao.batchInsert(unloadScan);
+            }
         } catch (Exception e) {
             logger.error("查询运单数或者包裹数失败!",e);
             return false;

@@ -12,8 +12,8 @@ public class UnloadScanRecordDao extends BaseDao<UnloadScanRecord> {
     private static final String NAMESPACE = UnloadScanRecordDao.class.getName();
 
 
-    public int insert(UnloadScanRecord record) {
-        return this.getSqlSession().update(NAMESPACE + ".add", record);
+    public boolean insert(UnloadScanRecord record) {
+        return this.getSqlSession().update(NAMESPACE + ".add", record) > 0;
     }
 
 

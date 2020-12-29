@@ -41,15 +41,15 @@ public class UnloadCarServiceImplTest {
     @Test
     public void testStartUnloadTask() {
         UnloadCarTaskReq req = new UnloadCarTaskReq();
-        req.setTaskCode("SC20050800003129");
+        req.setTaskCode("PDA1609229739263");
         req.setTaskStatus(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
         User user = new User();
-        user.setUserName("吴有德");
-        user.setUserErp("wuyoude");
+        user.setUserName("邢松");
+        user.setUserErp("bjxings");
         req.setUser(user);
         req.setOperateTime("2020-12-29");
         CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(364605);
+        currentOperate.setSiteCode(910);
         req.setCurrentOperate(currentOperate);
         InvokeResult<Void> result = unloadCarService.startUnloadTask(req);
         System.out.println(result);
@@ -63,9 +63,44 @@ public class UnloadCarServiceImplTest {
     }
 
     @Test
+    public void testCreateUnloadScan() {
+        UnloadScan unloadScan = new UnloadScan();
+        unloadScan.setSealCarCode("PDA20050800003129");
+        unloadScan.setWaybillCode("JD0003334775397");
+        unloadScan.setYn(1);
+        boolean result = unloadScanDao.insert(unloadScan);
+        System.out.println(result);
+    }
+
+    @Test
+    public void testUpdateUnloadScan() {
+        UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode("SC20050800003129", "JD0003334775397");
+        if (unloadScan != null) {
+            boolean result = unloadScanDao.updateByPrimaryKey(unloadScan);
+            System.out.println(result);
+        }
+        System.out.println(unloadScan);
+    }
+
+    @Test
     public void testFindUnloadScanRecord() {
         List<UnloadScanRecord> unloadScan = unloadScanRecordDao.findRecordBySealCarCode("SC20050800003129");
         System.out.println(unloadScan);
     }
+
+    @Test
+    public void testCreateUnloadScanRecord() {
+        UnloadScanRecord unloadScanRecord = new UnloadScanRecord();
+        unloadScanRecord.setSealCarCode("PDA20050800003129");
+        unloadScanRecord.setWaybillCode("JD0003334775397");
+        unloadScanRecord.setWaybillCode("JD0003334775397-1-1-");
+        unloadScanRecord.setYn(1);
+        boolean result = unloadScanRecordDao.insert(unloadScanRecord);
+        List<UnloadScanRecord> unloadRecordList = unloadScanRecordDao.findRecordBySealCarCode("PDA20050800003129");
+        System.out.println(unloadRecordList);
+        System.out.println(result);
+    }
+
+
 
 }

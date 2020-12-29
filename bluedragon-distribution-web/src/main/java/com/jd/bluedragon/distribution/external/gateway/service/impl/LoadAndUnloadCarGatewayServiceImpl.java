@@ -242,6 +242,14 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest req) {
         JdVerifyResponse<UnloadScanDetailDto> response = new JdVerifyResponse<>();
+        if (req == null) {
+            response.toError("参数不能为空");
+            return response;
+        }
+        if (StringUtils.isBlank(req.getBarCode())) {
+            response.toError("包裹号不能为空");
+            return response;
+        }
         // 包裹号转大宗标识
         Integer transfer = req.getTransfer();
         if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(transfer)) {
