@@ -328,7 +328,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setTs(new Date());
         unloadCarDao.add(unloadCar);
         jdCResponse.toSucceed("操作成功");
-        jdCResponse.setData(unloadCar.getId());
+        jdCResponse.setData(unloadCar.getUnloadCarId());
         return jdCResponse;
     }
 }
