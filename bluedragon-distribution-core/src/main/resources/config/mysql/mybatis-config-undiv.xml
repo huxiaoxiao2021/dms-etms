@@ -119,6 +119,10 @@
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
 
+        <!-- 卸车扫描 -->
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan" alias="unloadScan"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" alias="unloadScanRecord"/>
+
 <!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" alias="loadCar"/>-->
 <!--        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper" alias="loadHelper"/>-->
 
