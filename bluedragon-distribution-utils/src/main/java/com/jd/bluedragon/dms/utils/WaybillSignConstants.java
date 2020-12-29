@@ -101,6 +101,10 @@ public interface WaybillSignConstants {
 	 * 城配
 	 */
 	char CHAR_80_6 = '6';
+	/*
+	* 航空重货
+	* */
+	char CHAR_80_C = 'C';
 
 	int POSITION_118 = 118;
 	/**
