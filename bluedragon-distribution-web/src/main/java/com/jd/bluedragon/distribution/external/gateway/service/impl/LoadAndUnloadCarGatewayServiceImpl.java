@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,22 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     }
 
     @Override
+    public JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
+        if (unloadCarScanRequest == null) {
+            jdCResponse.toError("参数不能为空");
+            return jdCResponse;
+        }
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadScan(unloadCarScanRequest);
+
+        jdCResponse.setCode(convertCode(invokeResult.getCode()));
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
     public JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
 
@@ -47,6 +66,42 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         jdCResponse.setData(invokeResult.getData());
 
         return jdCResponse;
+    }
+
+    @Override
+    public JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
+
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.packageCodeScan(unloadCarScanRequest);
+        // 包裹号转大宗标识
+        Integer transfer = unloadCarScanRequest.getTransfer();
+        if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(transfer)) {
+            // 如果没有发生异常
+            if (InvokeResult.RESULT_SUCCESS_CODE == invokeResult.getCode()) {
+                Integer packageSize = invokeResult.getData().getPackageSize();
+                response.setCode(JdCResponse.CODE_CONFIRM);
+                JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+                msgBox.setMsg("大宗订单按单操作！此单共计" + packageSize + "件，请确认包裹集齐！");
+                msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+                response.addBox(msgBox);
+                return response;
+            }
+        }
+        response.setCode(convertCode(invokeResult.getCode()));
+        response.setMessage(invokeResult.getMessage());
+        response.setData(invokeResult.getData());
+
+        return response;
+    }
+
+    @Override
+    public JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadCarScanResult> response = new JdCResponse<>();
+        InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.waybillScan(unloadCarScanRequest);
+        response.setCode(convertCode(invokeResult.getCode()));
+        response.setMessage(invokeResult.getMessage());
+        response.setData(invokeResult.getData());
+        return response;
     }
 
     @Override
@@ -138,6 +193,22 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         jdCResponse.toSucceed(result.getMessage());
         jdCResponse.setData(result.getData());
         return jdCResponse;
+    }
+
+    private int convertCode(int invokeResultCode) {
+        int code;
+        if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_SUCCESS;
+        } else if (InvokeResult.RESULT_PARAMETER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_FAIL;
+        } else if (InvokeResult.SERVER_ERROR_CODE == invokeResultCode) {
+            code = JdCResponse.CODE_ERROR;
+        } else if (InvokeResult.RESULT_MULTI_ERROR == invokeResultCode) {
+            code = JdCResponse.CODE_PARTIAL_SUCCESS;
+        } else {
+            code = invokeResultCode;
+        }
+        return code;
     }
 
 }

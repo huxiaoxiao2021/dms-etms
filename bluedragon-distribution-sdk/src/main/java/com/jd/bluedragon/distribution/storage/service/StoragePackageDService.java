@@ -22,4 +22,18 @@ public interface StoragePackageDService extends Service<StoragePackageD> {
     int cancelPutaway(String waybillCode);
 
     List<String> queryStorageCodeByWaybillCodeAndSiteCode(String waybillCode,Long destDmsSiteCode);
+
+    /**
+     * 查询未发货包裹暂存明细
+     * @param waybillCode
+     * @return
+     */
+    List<StoragePackageD> queryUnSendByWaybill(String waybillCode);
+
+    /**
+     * 更新包裹发货时间
+     * @param packageCode
+     * @return
+     */
+    int updateSendTimeByPackageCode(String packageCode);
 }

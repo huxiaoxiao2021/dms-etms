@@ -137,7 +137,7 @@
         <jmq:listener topic="${jmq.topic.print.online}" listener="printOnlineConsumer"/>
     </jmq:consumer>
     <!--分拣滞留-->
-    <jmq:consumer id="jmq.strandConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.strandConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.strand.report}" listener="strandConsumer"/>
     </jmq:consumer>
     <!--调度信息数据-->
@@ -153,7 +153,7 @@
         <jmq:listener topic="${jmq.topic.dms.wb.seal.vehicle}" listener="sealVehicleFromWorkbenchConsumer"/>
     </jmq:consumer>
     <!--银行单号异步导出-->
-    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
     </jmq:consumer>
     <!--封车及解封车状态变化数据-->
@@ -165,17 +165,17 @@
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
     </jmq:consumer>
     <!-- 来自异常系统的可换单消息 -->
-    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
     </jmq:consumer>
 
     <!--  众邮箱号回传重量处理消息  -->
-    <jmq:consumer id="jmq.thirdBoxWeightConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.thirdBoxWeightConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.third.box.weight.deal}" listener="ThirdBoxWeightConsumer"/>
     </jmq:consumer>
 
     <!--龙门架驻厂扫描消息-->
-    <jmq:consumer id="jmq.gantryResidentScanConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.gantryResidentScanConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.gantryResidentScan}" listener="gantryResidentScanConsumer" />
     </jmq:consumer>
 
@@ -190,8 +190,13 @@
     </jmq:consumer>
 
     <!--  包裹验货消息  -->
-    <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
+    </jmq:consumer>
+
+    <!--快运暂存发货信息-->
+    <jmq:consumer id="jmq.kyStorageSendConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.kyStorageSend}" listener="kyStorageSendConsumer"/>
     </jmq:consumer>
 </beans>
 

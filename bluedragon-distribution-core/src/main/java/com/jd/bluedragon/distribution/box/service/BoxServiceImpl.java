@@ -5,7 +5,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.ContainerManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -38,8 +37,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -91,8 +88,6 @@ public class BoxServiceImpl implements BoxService {
     @Autowired
     private SiteService siteService;
 
-	@Autowired
-	private ContainerManager containerManager;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -148,32 +143,7 @@ public class BoxServiceImpl implements BoxService {
 	 */
 	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public List<Box> batchAddNew(Box param,BoxSystemTypeEnum systemType) {
-		List<Box> boxes = null;
-
-		if(isCreateBoxFromSSC()){
-            CallerInfo callerInfoFromSSC = Profiler.registerInfo("DMSWEB.BoxService.batchAddNewFromSSC", Constants.UMP_APP_NAME_DMSWEB,false,true);
-            try{
-                Set<Integer> siteSet = siteService.getBoxFromDMSAllowedList();
-                //未配置站点列表时默认全部不使用中台模式，否则取配置的列表中的数据不使用中台
-                if(!siteSet.isEmpty() && !siteSet.contains(param.getCreateSiteCode())){
-                    //通过中台生产箱号
-                    boxes = batchAddNewFromSSC(param, systemType);
-                }
-            }catch (Exception e){
-                Profiler.functionError(callerInfoFromSSC);
-                log.error("通过中台创建箱号失败{}" , JsonHelper.toJson(param), e);
-            }finally {
-                Profiler.registerInfoEnd(callerInfoFromSSC);
-            }
-        }
-		//原有分拣逻辑生产箱号作为兜底方案，当箱号集合为空时，有该逻辑重新生成
-        if(boxes == null || boxes.isEmpty()){
-            //通过原有分拣逻辑生产箱号
-            CallerInfo callerInfoFromDMS = Profiler.registerInfo("DMSWEB.BoxService.batchAddNewFromDMS", Constants.UMP_APP_NAME_DMSWEB,false,true);
-            boxes = batchAddNewFromDMS(param, systemType);
-            Profiler.registerInfoEnd(callerInfoFromDMS);
-        }
-		return boxes;
+		return batchAddNewFromDMS(param, systemType);
 	}
 
     /**
@@ -258,31 +228,6 @@ public class BoxServiceImpl implements BoxService {
 		return boxes;
 	}
 
-    /**
-     * 使用中台生产箱号
-     * @param param 参数
-     * @param systemType 类型
-     * @return 箱号集合
-     */
-    private List<Box> batchAddNewFromSSC(Box param,BoxSystemTypeEnum systemType) {
-        List<Box> boxes = Lists.newArrayList();
-        try{
-            boxes = containerManager.createContainers(param, systemType);
-            for(Box box : boxes){
-                this.add(box);
-                try {
-                    //写入箱号之后添加缓存,key为箱号
-                    redisManager.setex(box.getCode(), timeout, JsonHelper.toJson(box));
-                } catch (Exception e) {
-                    this.log.error("打印箱号写入缓存失败",e);
-                }
-            }
-        }catch (Exception e){
-            log.error("通过中台生产箱号失败：{}" , JsonHelper.toJson(param), e);
-        }
-
-        return boxes;
-    }
 
 	/**
 	 * 新箱号开头规则
@@ -408,24 +353,7 @@ public class BoxServiceImpl implements BoxService {
 	@JProfiler(jKey = "DMSWEB.BoxService.findBoxByCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
-
-		Box box = null;
-
-		//通过中台查询箱号
-        if(isFindBoxFromSSC()){
-            try{
-                box = containerManager.findBoxByCode(code);
-            }catch (Exception e){
-                log.error("通过中台查询箱号失败：{}" , code, e);
-            }
-        }
-
-        //当箱号为空时，从本系统再查一遍
-        if(box == null || StringUtils.isEmpty(box.getCode())){
-            box = findBoxByCodeFromDMS(code);
-        }
-
-		return box;
+		return findBoxByCodeFromDMS(code);
 	}
 
 	private Box findBoxByCodeFromDMS(String code) {
@@ -543,44 +471,10 @@ public class BoxServiceImpl implements BoxService {
 				Profiler.registerInfoEnd(info);
 			}
 
-			if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode() || boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
-                updateBoxStatusSSC(boxCode, operateSiteCode, boxStatus, userErp);
-            }
 		}
 		return result;
 	}
 
-    /**
-     * 更新容器状态
-     * @param boxCode 容器号
-     * @param operateSiteCode 操作场地ID
-     * @param boxStatus 状态
-     * @param userErp 更新人erp
-     */
-	private void updateBoxStatusSSC(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp){
-	    try{
-            if(isCreateBoxFromSSC()) {
-                Set<Integer> siteSet = siteService.getBoxFromDMSAllowedList();
-                //未配置站点列表时默认全部关闭，否则取配置的列表不存在的使用中台模式
-                if (!siteSet.isEmpty() && !siteSet.contains(operateSiteCode)) {
-                    if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode()){
-                        containerManager.updateBoxSend(boxCode,userErp,userErp,operateSiteCode);
-                    }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
-						containerManager.updateBoxCancelSend(boxCode, userErp, userErp, operateSiteCode);
-                    }
-                }
-            }
-        }catch (Exception e){
-            String msg = "";
-	        if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode()){
-	            msg = "发货";
-            }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
-                msg = "取消发货";
-            }
-            log.error("更新中台容器状态为{}异常：{}" ,msg, boxCode, e);
-        }
-
-    }
 
 	@Override
 	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {

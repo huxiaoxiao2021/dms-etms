@@ -21,6 +21,7 @@
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="source" property="source" javaType="java.lang.Integer" jdbcType="TIMESTAMP" />
+        <result column="downaway_time" property="downAwayTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="putaway_complete_time" property="putAwayCompleteTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="downaway_complete_time" property="downAwayCompleteTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -30,7 +31,7 @@
 	<sql id="Base_Column_List" >
 		id,performance_code,storage_code,waybill_code,package_sum,putaway_package_sum,
 		status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,send_time,putaway_time,
-		create_user,create_time,update_user,update_time,source,putaway_complete_time,downaway_complete_time,is_delete,
+		create_user,create_time,update_user,update_time,source,downaway_time,putaway_complete_time,downaway_complete_time,is_delete,
 		ts
 	</sql>
 
@@ -71,6 +72,9 @@
 				</if>
 				<if test="putawayTime != null">
 					putaway_time,
+				</if>
+				<if test="downAwayTime != null">
+                    downaway_time,
 				</if>
 				<if test="sendTime != null">
 					send_time,
@@ -136,6 +140,9 @@
 				<if test="putawayTime != null">
 					#{putawayTime,jdbcType=TIMESTAMP},
 				</if>
+                <if test="downAwayTime != null">
+                    #{downAwayTime,jdbcType=TIMESTAMP},
+                </if>
 				<if test="sendTime != null">
 					#{sendTime,jdbcType=TIMESTAMP},
 				</if>
@@ -167,7 +174,7 @@
 			(
 				performance_code,storage_code,waybill_code,package_sum,
 				putaway_package_sum,status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,putaway_time,
-				send_time,create_user,create_time,update_user,update_time,source,putaway_complete_time,downaway_complete_time,
+				send_time,create_user,create_time,update_user,update_time,source,downaway_time,putaway_complete_time,downaway_complete_time,
 				is_delete,ts
 			)
 			values
@@ -190,6 +197,7 @@
 					#{item.updateUser,jdbcType=VARCHAR},
 					#{item.updateTime,jdbcType=TIMESTAMP},
                     #{item.source,jdbcType=INTEGER},
+                    #{item.downAwayTime,jdbcType=TIMESTAMP},
                     #{item.putAwayCompleteTime,jdbcType=TIMESTAMP},
                     #{item.downAwayCompleteTime,jdbcType=TIMESTAMP},
 					#{item.isDelete,jdbcType=TINYINT},
@@ -233,6 +241,9 @@
 				</if>
 				<if test="putawayTime != null">
 					putaway_time = #{putawayTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="downAwayTime != null">
+                    downaway_time = #{downAwayTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="sendTime != null">
 					send_time = #{sendTime,jdbcType=TIMESTAMP},
@@ -431,6 +442,9 @@
     <update id="updateKYStorageCode" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
         UPDATE storage_package_m
         SET storage_code = #{storageCode},
+        <if test="performanceCode != null">
+            performance_code = #{performanceCode,jdbcType=VARCHAR},
+        </if>
         <if test="putawayPackageSum != null">
             putaway_package_sum = #{putawayPackageSum},
         </if>
@@ -446,7 +460,15 @@
 
     <update id="updateDownAwayTimeByWaybillCode" parameterType="String">
         UPDATE storage_package_m
-        SET downaway_complete_time = now()
+        SET downaway_time = now()
+        WHERE  waybill_code = #{waybillCode}
+        <include refid="Base_Condition_Sql"/>
+    </update>
+
+    <update id="updateDownAwayCompleteTimeAndStatusByWaybillCode" parameterType="String">
+        UPDATE storage_package_m
+        SET downaway_complete_time = now(),
+        status = 4
         WHERE  waybill_code = #{waybillCode}
         <include refid="Base_Condition_Sql"/>
     </update>
