@@ -295,8 +295,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     }
 
     @Override
-    public JdCResponse<Long> createUnloadTask(CreateUnloadTaskReq req) {
-        JdCResponse<Long> jdCResponse = new JdCResponse<>();
+    public JdCResponse<CreateUnloadTaskResponse> createUnloadTask(CreateUnloadTaskReq req) {
+        JdCResponse<CreateUnloadTaskResponse> jdCResponse = new JdCResponse<>();
         if (null == req) {
             jdCResponse.toFail("请求参数不能为空！");
             return jdCResponse;
@@ -318,7 +318,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
-        unloadCar.setSealCarCode(Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis());
+        String sealCarCode=Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
+        unloadCar.setSealCarCode(sealCarCode);
         unloadCar.setStartSiteCode(0);
         unloadCar.setEndSiteCode(0);
         unloadCar.setWaybillNum(0);
@@ -327,8 +328,11 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setYn(1);
         unloadCar.setTs(new Date());
         unloadCarDao.add(unloadCar);
+        CreateUnloadTaskResponse response=new CreateUnloadTaskResponse();
+        response.setUnloadCarId(unloadCar.getUnloadCarId());
+        response.setSealCarCode(sealCarCode);
         jdCResponse.toSucceed("操作成功");
-        jdCResponse.setData(unloadCar.getUnloadCarId());
+        jdCResponse.setData(response);
         return jdCResponse;
     }
 }
