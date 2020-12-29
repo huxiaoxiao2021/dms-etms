@@ -1142,7 +1142,7 @@
 
 	<select id="queryPackageNumByWaybillCode" parameterType="java.util.Map" resultMap="WaybillNoCollectionInfo">
 		select
-		wabill_code, count(package_barcode) as package_num
+		waybill_code, count(package_barcode) as package_num
 		from send_d
 		where create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		and send_code in
