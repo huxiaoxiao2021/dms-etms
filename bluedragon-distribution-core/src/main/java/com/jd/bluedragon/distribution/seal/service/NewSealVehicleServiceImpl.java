@@ -790,7 +790,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return vosManager.verifyVehicleJobByVehicleNumber(dto);
     }
 
-    private boolean checkSendIsExist(String sendCode) {
+    public boolean checkSendIsExist(String sendCode) {
         return sendDetailService.checkSendIsExist(sendCode);
 	}
 
