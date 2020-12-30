@@ -108,11 +108,6 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="pickwarePushMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.pickware.push}"/>
-        <property name="timeout" value="1000"/>
-        <!--未找到-->
-    </bean>
     <bean id="bdExceptionToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.exception.to.qc}"/>
         <property name="timeout" value="1000"/>
@@ -194,13 +189,6 @@
         <property name="topic" value="${jmq.topic.dmsWeightSendMQ}"/>
         <property name="timeout" value="1000"/>
         <!---->
-    </bean>
-
-    <!-- 空铁项目 - 发货登记 推送路由MQ -->
-    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
     </bean>
 
     <!-- 空铁项目 - 发货登记 推送报表MQ -->
@@ -289,9 +277,16 @@
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
     </bean>
 
+
     <!--封车mq-->
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
+    </bean>
+
+    <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
+    <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_sortscheme_send_DTC"/>
+        <property name="timeout" value="1000"/>
     </bean>
 
     <!--解封车mq-->

@@ -108,10 +108,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Autowired
     private SendDatailDao sendDetailDao;
 
-    @Qualifier("arSendRegisterMQ")
-    @Autowired
-    private DefaultJMQProducer arSendRegisterMQ;
-
     @Qualifier("arSendReportMQ")
     @Autowired
     private DefaultJMQProducer arSendReportMQ;
@@ -322,9 +318,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 } else {
                     log.warn("[空铁项目]根据批次号表的sendRegisterId：{} 查询不到对应的发货登记记录",arSendCode.getSendRegisterId());
                 }
-            } else {
-                //新增之前没有该批次号，向路由发MQ
-                this.mqToRouter(arSendRegister, new String[]{sendCode});
             }
         }
     }
@@ -391,41 +384,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     /**
-     * 向路由推MQ
-     *
-     * @param arSendRegister
-     * @param sendCodes
-     */
-    private void mqToRouter(ArSendRegister arSendRegister, String[] sendCodes) {
-        try {
-            if (sendCodes != null) {
-                for (String arSendCode : sendCodes) {
-                    List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(arSendCode);
-                    if (null != sendDetailList && sendDetailList.size() > 0) {
-                        for (SendDetail sendDetail : sendDetailList) {
-                            /* 运单号 */
-                            arSendRegister.setWaybillCode(sendDetail.getWaybillCode());
-                            /* 包裹号 */
-                            arSendRegister.setPackageCode(sendDetail.getPackageBarcode());
-                            /* 批次号 */
-                            arSendRegister.setSendCode(arSendCode);
-                            // 发送MQ
-                            arSendRegisterMQ.send(arSendRegister.getWaybillCode(), JsonHelper.toJson(arSendRegister));
-                            log.info("[空铁项目]新增或修改发货登记推送路由MQ消息成功，消息体：{}" , JsonHelper.toJson(arSendRegister));
-                        }
-                    } else {
-                        log.warn("空铁推路由MQ---根据批次号获取发货明细为空，批次号：{}" , arSendCode);
-                    }
-                }
-            } else {
-                log.warn("空铁推路由MQ---获取批次号列表为空");
-            }
-        } catch (Exception e) {
-            log.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班/车次号:{}，单号:{}" ,arSendRegister.getTransportName(), arSendRegister.getOrderCode(), e);
-        }
-    }
-
-    /**
      * 向路由推送MQ方法实现
      *
      * @param resource
@@ -451,7 +409,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 //如果没有发过MQ，说明飞机还未起飞
                 arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_BEFOREFLY.getCode());
             }
-            this.mqToRouter(arSendRegister, sendCodes);
             //再次更新发货登记表，把operateType字段落进去
             this.getDao().update(arSendRegister);
         } else {

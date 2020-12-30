@@ -79,14 +79,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private SealVehiclesService sealVehiclesService;
 
     @Autowired
-    @Qualifier("sealCarProducer")
-    private DefaultJMQProducer sealCarProducer;
-
-    @Autowired
-    @Qualifier("unsealCarProducer")
-    private DefaultJMQProducer unsealCarProducer;
-
-    @Autowired
     private RedisManager redisManager;
 
     @Autowired
@@ -154,7 +146,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
-                sealCarMQ(doSealCarDtos);
                 addRedisCache(doSealCarDtos);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
@@ -392,7 +383,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         //封车成功的，写数据库，发送封车mq消息
         if (successSealCarList.size() > 0) {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
-            sealCarMQ(successSealCarList);
             addRedisCache(successSealCarList);
         }
 
@@ -480,7 +470,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
-                sealCarMQ(doSealCarDtos);
                 addRedisCache(doSealCarDtos);
                 saveNXSealData(doSealCarDtos);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
@@ -677,8 +666,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = "解封车JSF接口返回为空";
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
                 msg = MESSAGE_UNSEAL_SUCCESS;
-                //解封车成功，发送封车mq消息
-                deSealCarMQ(paramList);
                 saveDeSealData(paramList);
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -976,121 +963,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
             goddessService.save(goddess);
             correctValue++;
-        }
-    }
-
-    /**
-     * 封车成功后发送封车MQ
-     * @param sealCars
-     */
-    private void sealCarMQ(List<SealCarDto> sealCars){
-        long startTime=new Date().getTime();
-
-        if(sealCars!=null){
-            for(SealCarDto sealCarDto:sealCars){
-                SealCarMqDto sealCarMqDto = new SealCarMqDto();
-                sealCarMqDto.setDmsSiteId(sealCarDto.getSealSiteId());
-                sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
-                sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
-                sealCarMqDto.setOperUserCode(sealCarDto.getSealUserCode());
-                sealCarMqDto.setOperUserName(sealCarDto.getSealUserName());
-                sealCarMqDto.setOperTime(sealCarDto.getSealCarTime());
-                sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
-                sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
-                sealCarMqDto.setItemSimpleCode(sealCarDto.getItemSimpleCode());
-                sealCarMqDto.setSealCarType(sealCarDto.getSealCarType());
-                sealCarMqDto.setWeight(sealCarDto.getWeight());
-                sealCarMqDto.setVolume(sealCarDto.getVolume());
-                String key = sealCarDto.getTransportCode();
-                if(StringUtils.isEmpty(key)){//运力编码为空时，取任务简码
-                    key = sealCarDto.getItemSimpleCode();
-                }
-                try {
-                    sealCarProducer.send(key, JsonHelper.toJsonUseGson(sealCarMqDto));
-                }catch (Exception e){
-                    long endTime = new Date().getTime();
-
-                    JSONObject operateRequest=new JSONObject();
-                    operateRequest.put("siteCode",sealCarDto.getSealSiteId());
-                    operateRequest.put("siteName",sealCarDto.getSealSiteName());
-
-                    JSONObject response=new JSONObject();
-                    response.put("keyword1", key);
-                    response.put("keyword2", sealCarDto.getSealUserCode());
-                    response.put("keyword3", sealCarProducer.getTopic());
-                    response.put("keyword4", sealCarDto.getSealSiteId().longValue());
-                    response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
-
-                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_SEAL)
-                            .operateResponse(response)
-                            .operateRequest(operateRequest)
-                            .methodName("NewSealVehicleServiceImpl#sealCarMQ")
-                            .processTime(endTime,startTime)
-                            .build();
-
-                    logEngine.addLog(businessLogProfiler);
-
-                    SystemLogUtil.log(key, sealCarDto.getSealUserCode(), sealCarProducer.getTopic(),
-                            sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_SEAL_MQ);
-
-                    log.error("发送封车mq消息失败:key={}",key,e);
-                }
-            }
-        }
-    }
-
-    /**
-     * 解封车成功后发送封车MQ
-     * @param sealCars
-     */
-    private void deSealCarMQ(List<SealCarDto> sealCars){
-        long startTime=new Date().getTime();
-
-
-        //解封车成功，发送解封车mq消息dms_unseal_car
-        if(sealCars!=null){
-            for(SealCarDto sealCarDto:sealCars){
-                SealCarMqDto sealCarMqDto = new SealCarMqDto();
-                sealCarMqDto.setDmsSiteId(sealCarDto.getDesealSiteId());
-                sealCarMqDto.setTransportCode(sealCarDto.getTransportCode());
-                sealCarMqDto.setVehicleNumber(sealCarDto.getVehicleNumber());
-                sealCarMqDto.setOperUserCode(sealCarDto.getDesealUserCode());
-                sealCarMqDto.setOperUserName(sealCarDto.getDesealUserName());
-                sealCarMqDto.setOperTime(sealCarDto.getDesealCarTime());
-                sealCarMqDto.setSealCodes(sealCarDto.getSealCodes());
-                sealCarMqDto.setSendCodeList(sealCarDto.getBatchCodes());
-                sealCarMqDto.setSealCarCode(sealCarDto.getSealCarCode());
-                try {
-                    unsealCarProducer.send(sealCarDto.getTransportCode(), JsonHelper.toJsonUseGson(sealCarMqDto));
-                }catch (Exception e){
-
-                    long endTime = new Date().getTime();
-                    JSONObject operateRequest = new JSONObject();
-                    operateRequest.put("sealSiteId", sealCarDto.getSealSiteId());
-                    operateRequest.put("sealSiteName", sealCarDto.getSealSiteName());
-
-                    JSONObject response=new JSONObject();
-                    response.put("keyword1", sealCarDto.getTransportCode());
-                    response.put("keyword2", sealCarDto.getSealUserCode());
-                    response.put("keyword3", unsealCarProducer.getTopic());
-                    response.put("keyword4", sealCarDto.getSealSiteId().longValue());
-                    response.put("content", JsonHelper.toJsonUseGson(sealCarMqDto));
-
-                    BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                            .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.DE_SEAL_DE_SEAL)
-                            .processTime(endTime,startTime)
-                            .methodName("NewSealVehicleServiceImpl#deSealCarMQ")
-                            .build();
-
-                    logEngine.addLog(businessLogProfiler);
-
-
-                    SystemLogUtil.log(sealCarDto.getTransportCode(), sealCarDto.getSealUserCode(), unsealCarProducer.getTopic(),
-                            sealCarDto.getSealSiteId().longValue(), JsonHelper.toJsonUseGson(sealCarMqDto), SystemLogContants.TYPE_UNSEAL_MQ);
-                    log.error("发送解封车mq消息失败:{}",sealCarDto.getTransportCode(),e);
-                }
-            }
         }
     }
 
