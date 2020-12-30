@@ -1617,12 +1617,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         List<String> allPackage = searchAllPackage(sealCarCode);
-        if(CollectionUtils.isEmpty(allPackage)){
-            throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE,sealCarCode));
-        }
-        if(!allPackage.contains(packageCode)){
-            // 不包含则是多货包裹
+        // 空任务都是多扫
+        if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             exist = true;
+        } else {
+            if (CollectionUtils.isEmpty(allPackage)) {
+                throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
+            }
+            if (!allPackage.contains(packageCode)) {
+                // 不包含则是多货包裹
+                exist = true;
+            }
         }
         try {
             redisClientCache.setEx(key,String.valueOf(exist),7,TimeUnit.DAYS);
