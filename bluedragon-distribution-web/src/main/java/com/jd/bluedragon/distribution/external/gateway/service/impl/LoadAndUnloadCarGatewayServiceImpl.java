@@ -321,12 +321,6 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toFail("操作站点不能为空！");
             return jdCResponse;
         }
-        UnloadCar unload = new UnloadCar();
-        unload.setOperateUserErp(req.getOperateUserErp());
-        unload.setOperateUserName(req.getOperateUserName());
-        unload.setUnloadUserErp(req.getOperateUserErp());
-        unload.setUnloadUserName(req.getOperateUserName());
-        unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
         String sealCarCode = Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
@@ -338,6 +332,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         }
         unloadCar.setSealCarCode(sealCarCode);
         unloadCar.setStartSiteCode(0);
+        unloadCar.setUnloadUserErp(req.getOperateUserErp());
+        unloadCar.setUnloadUserName(req.getOperateUserName());
         unloadCar.setUnloadUserErp(req.getOperateUserErp());
         unloadCar.setUnloadUserName(req.getOperateUserName());
         unloadCar.setWaybillNum(0);
