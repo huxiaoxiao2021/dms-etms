@@ -514,6 +514,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
             setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
+            dtoInvokeResult.setData(unloadScanDetailDto);
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -892,6 +893,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
             setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
+            invokeResult.setData(unloadScanDetailDto);
         } catch (LoadIllegalException e) {
             logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
