@@ -241,6 +241,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             int loadPackageNum = 0;
             // 封车任务下总包裹数
             int totalPackageNum = 0;
+            // 封车任务下多货包裹数
+            int surplusPackageNum = 0;
             List<UnloadScanDto> unloadScanDtoList = new ArrayList<>();
             for (UnloadScan unloadScan : unloadScans) {
                 // 所有应卸加起来就是总包裹数
@@ -249,14 +251,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 if (unloadScan.getLoadAmount() > 0) {
                     loadPackageNum = loadPackageNum + unloadScan.getLoadAmount();
                     // 如果是空任务或者正常任务中的多扫运单
-                    if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX) || unloadScan.getForceAmount() == 0) {
+                    if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
                         // 运单总包裹数 = 已卸数，则已卸单+1
                         if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount())) {
                             loadWaybillNum = loadWaybillNum + 1;
                         }
                     } else {
-                        // 正常任务也没有多扫，应卸=已卸，已卸单+1
-                        if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
+                        // 正常任务有多扫
+                        if (unloadScan.getForceAmount() == 0) {
+                            // 运单总包裹数 = 已卸数，则已卸单+1
+                            if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount())) {
+                                loadWaybillNum = loadWaybillNum + 1;
+                            }
+                            // 统计正常任务下多扫的包裹数
+                            surplusPackageNum = surplusPackageNum + unloadScan.getLoadAmount();
+                            // 正常任务也没有多扫，应卸=已卸，已卸单+1
+                        } else if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
                             loadWaybillNum = loadWaybillNum + 1;
                         }
                     }
@@ -264,9 +274,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 转换数据
                 unloadScanDtoList.add(convertData(unloadScan));
             }
-            unloadScanDetailDto.setTotalPackageNum(totalPackageNum);
-            unloadScanDetailDto.setUnloadWaybillAmount(unloadScans.size() - loadWaybillNum);
-            unloadScanDetailDto.setUnloadPackageAmount(unloadScanDetailDto.getTotalPackageNum() - loadPackageNum);
+            if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+                unloadScanDetailDto.setTotalPackageNum(loadPackageNum);
+                unloadScanDetailDto.setUnloadWaybillAmount(0);
+                unloadScanDetailDto.setUnloadPackageAmount(0);
+            } else {
+                unloadScanDetailDto.setTotalPackageNum(totalPackageNum + surplusPackageNum);
+                unloadScanDetailDto.setUnloadWaybillAmount(unloadScans.size() - loadWaybillNum);
+                unloadScanDetailDto.setUnloadPackageAmount(unloadScanDetailDto.getTotalPackageNum() - loadPackageNum);
+            }
             unloadScanDetailDto.setLoadWaybillAmount(loadWaybillNum);
             unloadScanDetailDto.setLoadPackageAmount(loadPackageNum);
             // 按照指定次序排列
@@ -517,6 +533,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar.getVehicleNumber());
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
+            BeanUtils.copyProperties(result.getData(), unloadScanDetailDto);
             setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
             dtoInvokeResult.setData(unloadScanDetailDto);
         }catch (LoadIllegalException e){
@@ -899,6 +916,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar.getVehicleNumber(), waybillCode);
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
+            BeanUtils.copyProperties(result.getData(), unloadScanDetailDto);
             setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
             invokeResult.setData(unloadScanDetailDto);
         } catch (LoadIllegalException e) {
