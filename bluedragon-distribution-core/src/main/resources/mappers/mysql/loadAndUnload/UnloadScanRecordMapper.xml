@@ -69,9 +69,6 @@
             <if test="flowDisaccord != null">
                 flow_disaccord,
             </if>
-            <if test="licenseNumber != null">
-                license_number,
-            </if>
             <if test="createUserCode != null">
                 create_user_code,
             </if>
