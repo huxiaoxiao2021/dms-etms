@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.consumer.storage;
 
-import com.jd.bluedragon.dms.receive.jos.OrderInfoJosService;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,8 +25,6 @@ public class KyStorageSendConsumerTest {
 
     @Autowired
     private KyStorageSendConsumer kyStorageSendConsumer;
-    @Autowired
-    private OrderInfoJosService orderInfoJosService;
 
     @Before
     public void setUp() throws Exception {
@@ -39,13 +36,13 @@ public class KyStorageSendConsumerTest {
             Message message = new Message();
             String text = "{\n" +
                     "\t\"bizSource\": 2,\n" +
-                    "\t\"boxCode\": \"JDVA00120166352-1-1-\",\n" +
+                    "\t\"boxCode\": \"JDV000503367182-1-3-\",\n" +
                     "\t\"createSiteCode\": 23822,\n" +
                     "\t\"createTime\": 1607434920957,\n" +
                     "\t\"createUser\": \"刘爱慧\",\n" +
                     "\t\"createUserCode\": 16698,\n" +
                     "\t\"operateTime\": 1607434925154,\n" +
-                    "\t\"packageBarcode\": \"JDVA00120166352-1-1-\",\n" +
+                    "\t\"packageBarcode\": \"JDVA00120166352-1-3-\",\n" +
                     "\t\"receiveSiteCode\": 39,\n" +
                     "\t\"sendCode\": \"23822-39-20201214210953032\",\n" +
                     "\t\"source\": \"DMS\"\n" +
