@@ -350,6 +350,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 result.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
                 return result;
             }
+            logger.error("barCodeScan接口发生异常：e=", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
@@ -438,6 +439,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 result.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
                 return result;
             }
+            logger.error("packageCodeScan接口发生异常：e=", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
@@ -520,6 +522,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
                 return dtoInvokeResult;
             }
+            logger.error("packageCodeScanNew接口发生异常：e=", e);
             dtoInvokeResult.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return dtoInvokeResult;
