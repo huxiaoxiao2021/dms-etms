@@ -401,4 +401,18 @@
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
+
+    <select id="selectTaskByLicenseNumberAndUserErp" parameterType="unloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+        and operate_user_erp = #{operateUserErp,jdbcType=VARCHAR}
+        and yn=1
+        and status in (0,1,2)
+        <include refid="Base_Condition_Sql"/>
+        order by update_time desc
+    </select>
 </mapper>

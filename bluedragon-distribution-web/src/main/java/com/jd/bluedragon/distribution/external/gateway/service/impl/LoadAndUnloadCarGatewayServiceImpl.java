@@ -324,6 +324,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unload.setOperateUserErp(req.getOperateUserErp());
         unload.setOperateUserName(req.getOperateUserName());
         unload.setUnloadUserErp(req.getOperateUserErp());
+        System.out.println("createUnloadTask=设置卸车负责人");
         unload.setUnloadUserName(req.getOperateUserName());
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
@@ -337,6 +338,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setStatus(0);
         unloadCar.setYn(1);
         unloadCar.setTs(new Date());
+        // todo 重复创建校验
         unloadCarDao.add(unloadCar);
         jdCResponse.toSucceed("操作成功");
         jdCResponse.setData(sealCarCode);

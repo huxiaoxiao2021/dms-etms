@@ -1949,7 +1949,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
-        unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
+        unloadCar.setStatus(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType());
         if (!unloadCarTaskReq.getTaskCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
             unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());

@@ -249,7 +249,7 @@ public class LoadAndUnloadVehicleResource {
      */
     public InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
         InvokeResult<Void> result = new InvokeResult<>();
-        if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null || unloadCarTaskReq.getTaskStatus() == null
+        if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null
                 || unloadCarTaskReq.getUser() == null || unloadCarTaskReq.getUser().getUserErp() == null
                 || unloadCarTaskReq.getCurrentOperate().getSiteCode() <=0
                 || unloadCarTaskReq.getOperateTime() == null) {
