@@ -225,9 +225,9 @@ public class UccPropertyConfiguration {
     private int WJPackageNumberLimit;
 
     /**
-     * 开启文件类型包裹验证 true:开启 false：关闭
+     * 开启文件类型包裹验证的分拣中心
      */
-    private boolean enableFilePackageWaybillSign;
+    private String siteEnableFilePackageCheck;
 
     /**
      * 纯配外单 0重量拦截 黑名单 (在名单的拦截)
@@ -634,12 +634,12 @@ public class UccPropertyConfiguration {
         this.WJPackageNumberLimit = WJPackageNumberLimit;
     }
 
-    public boolean getEnableFilePackageWaybillSign() {
-        return enableFilePackageWaybillSign;
+    public String getSiteEnableFilePackageCheck() {
+        return siteEnableFilePackageCheck;
     }
 
-    public void setEnableFilePackageWaybillSign(boolean enableFilePackageWaybillSign) {
-        this.enableFilePackageWaybillSign = enableFilePackageWaybillSign;
+    public void setSiteEnableFilePackageCheck(String siteEnableFilePackageCheck) {
+        this.siteEnableFilePackageCheck = siteEnableFilePackageCheck;
     }
 
     public String getAllPureValidateWeightWebSite() {

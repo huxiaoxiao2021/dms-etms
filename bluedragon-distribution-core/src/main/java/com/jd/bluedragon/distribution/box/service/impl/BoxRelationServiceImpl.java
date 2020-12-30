@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.ws.rs.HEAD;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -89,7 +88,7 @@ public class BoxRelationServiceImpl implements BoxRelationService {
             return result;
         }
 
-        String nxKey = CacheKeyConstants.BOX_BIND_NX_KEY + relation.getRelationBoxCode();
+        String nxKey = CacheKeyConstants.BOX_BIND_NX_KEY + relation.getCreateSiteCode() + Constants.SEPARATOR_COLON + relation.getRelationBoxCode();
         boolean setKeySuccess = cacheService.setNx(nxKey, "lock", EXPIRE_TIME_TEN_SECOND, TimeUnit.SECONDS);
         if (!setKeySuccess) {
             if (LOGGER.isWarnEnabled()) {
@@ -107,18 +106,28 @@ public class BoxRelationServiceImpl implements BoxRelationService {
                 return chkRet;
             }
 
-            BoxRelation upRecord = new BoxRelation(relation.getBoxCode(), relation.getCreateSiteCode(), relation.getRelationBoxCode());
+            boolean saveNewRelations = false;
+            BoxRelation upRecord = new BoxRelation(relation.getCreateSiteCode(), relation.getRelationBoxCode());
             List<BoxRelation> existRelations = boxRelationDao.queryBoxRelation(upRecord);
-            if (CollectionUtils.isEmpty(existRelations)) {
-                upRecord.setYn(Constants.YN_NO);
-                upRecord.setUpdateUserErp(relation.getUpdateUserErp());
-                upRecord.setUpdateUserName(relation.getUpdateUserName());
-                upRecord.setUpdateTime(new Date());
-                // 逻辑删除之前的绑定记录
-                boxRelationDao.updateByUniqKey(upRecord);
-                boxRelationDao.insert(relation);
+            if (CollectionUtils.isNotEmpty(existRelations)) {
+                BoxRelation oneRecord = existRelations.get(0);
+                // 绑定的箱号不同时，逻辑删除之前的绑定记录
+                if (!ObjectUtils.equals(oneRecord.getBoxCode(), relation.getBoxCode())) {
+                    saveNewRelations = true;
+                    upRecord.setYn(Constants.YN_NO);
+                    upRecord.setUpdateUserErp(relation.getUpdateUserErp());
+                    upRecord.setUpdateUserName(relation.getUpdateUserName());
+                    upRecord.setUpdateTime(new Date());
+                    boxRelationDao.updateByUniqKey(upRecord);
+                }
+            }
+            else {
+                saveNewRelations = true;
             }
 
+            if (saveNewRelations) {
+                boxRelationDao.insert(relation);
+            }
         }
         catch (Exception ex) {
             LOGGER.error("保存箱号绑定记录异常. body:{}", JsonHelper.toJson(relation), ex);

@@ -732,8 +732,7 @@ public class WaybillServiceImpl implements WaybillService {
     @Override
     public boolean checkIsFilePack(String waybillSign) {
 
-        return uccPropertyConfiguration.getEnableFilePackageWaybillSign()
-                && BusinessHelper.fileTypePackage(waybillSign);
+        return BusinessHelper.fileTypePackage(waybillSign);
     }
 
     /**

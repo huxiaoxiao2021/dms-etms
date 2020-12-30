@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -22,6 +23,8 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.sorting.dto.FilePackSortingDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ucc.UccConfigService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -125,6 +128,12 @@ public abstract class SortingCommonSerivce {
     @Autowired
     @Qualifier("filePackageSortingProducer")
     private DefaultJMQProducer filePackageSortingMQ;
+
+    @Autowired
+    private UccConfigService uccConfigService;
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
 
     public abstract boolean doSorting(SortingVO sorting);
 
@@ -250,14 +259,26 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      */
     private void pushFilePackageSortingMessage(SortingVO sorting) {
-        FilePackSortingDto mqDto = new FilePackSortingDto();
-        mqDto.setPackageCode(sorting.getPackageCode());
-        mqDto.setBoxCode(sorting.getBoxCode());
-        mqDto.setSiteCode(sorting.getCreateSiteCode());
-        // TODO 确认消息字段
+        if (!uccConfigService.siteEnableFilePackageCheck(sorting.getCreateSiteCode())) {
+            return;
+        }
 
-        filePackageSortingMQ.sendOnFailPersistent(mqDto.getPackageCode(), JsonHelper.toJson(mqDto));
+        WaybillCache waybillCache = waybillCacheService.getFromCache(sorting.getWaybillCode());
 
+        if (null != waybillCache) {
+
+            // 判断运单是否是文件
+            if (waybillService.checkIsFilePack(waybillCache.getWaybillSign())) {
+
+                FilePackSortingDto mqDto = new FilePackSortingDto();
+                mqDto.setPackageCode(sorting.getPackageCode());
+                mqDto.setBoxCode(sorting.getBoxCode());
+                mqDto.setSiteCode(sorting.getCreateSiteCode());
+                // TODO 确认消息字段
+
+                filePackageSortingMQ.sendOnFailPersistent(mqDto.getPackageCode(), JsonHelper.toJson(mqDto));
+            }
+        }
     }
 
     private void pushCycleMaterialMessage(SortingVO sorting) {

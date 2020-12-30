@@ -9,12 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
-import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
-import com.jd.bluedragon.distribution.api.request.DifferentialQueryRequest;
-import com.jd.bluedragon.distribution.api.request.PackageCodeRequest;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
@@ -40,12 +35,7 @@ import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDifference;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -76,13 +66,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
@@ -372,7 +356,7 @@ public class DeliveryResource {
 
             // BC箱号取消成功后，同步取消WJ箱号的发货
             if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
-                List<SendM> relationSendList = this.createBoxRelationSendM(Collections.singletonList(request));
+                List<SendM> relationSendList = new DeliveryCancelSendMGen().createBoxRelationSendM(Collections.singletonList(request));
                 for (SendM sendM : relationSendList) {
                     tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendM, true);
                 }
@@ -518,7 +502,7 @@ public class DeliveryResource {
                         tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
 
                         if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
-                            List<SendM> relationSendList = this.createBoxRelationSendM(request);
+                            List<SendM> relationSendList = new DeliverySendMGen().createBoxRelationSendM(request);
                             if (CollectionUtils.isNotEmpty(relationSendList)) {
                                 tDeliveryResponse = deliveryService.dealWJSending(SendBizSourceEnum.OLD_PACKAGE_SEND, relationSendList);
                             }
@@ -1035,38 +1019,57 @@ public class DeliveryResource {
         return sendMList;
     }
 
-    /**
-     * BC箱号关联了WJ箱号，同步处理WJ的发货
-     * @param requests
-     * @return
-     */
-    private List<SendM> createBoxRelationSendM(List<DeliveryRequest> requests) {
-        List<SendM> sendMList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(requests)) {
+    public abstract class AbstractSendMGen {
 
-            for (DeliveryRequest request : requests) {
-                if (!BusinessUtil.isBoxcode(request.getBoxCode()) || null == request.getSiteCode()) {
-                    continue;
-                }
-                BoxRelation query = new BoxRelation(request.getBoxCode(), Long.valueOf(request.getSiteCode()));
-                InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
-                if (!sr.codeSuccess() || CollectionUtils.isEmpty(sr.getData())) {
-                    continue;
-                }
+        protected abstract SendM makeSendMFromRequest(BoxRelation relation, DeliveryRequest request);
 
-                for (BoxRelation relation : sr.getData()) {
-                    if (StringUtils.isBlank(relation.getRelationBoxCode())) {
+        List<SendM> createBoxRelationSendM(List<DeliveryRequest> requests) {
+            List<SendM> sendMList = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(requests)) {
+
+                for (DeliveryRequest request : requests) {
+                    if (!BusinessUtil.isBoxcode(request.getBoxCode()) || null == request.getSiteCode()) {
                         continue;
                     }
-                    SendM sendM = deliveryRequest2SendM(request);
-                    sendM.setBoxCode(relation.getRelationBoxCode());
-                    sendMList.add(sendM);
+                    BoxRelation query = new BoxRelation(request.getBoxCode(), Long.valueOf(request.getSiteCode()));
+                    InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
+                    if (!sr.codeSuccess() || CollectionUtils.isEmpty(sr.getData())) {
+                        continue;
+                    }
+
+                    for (BoxRelation relation : sr.getData()) {
+                        if (StringUtils.isBlank(relation.getRelationBoxCode())) {
+                            continue;
+                        }
+                        sendMList.add(makeSendMFromRequest(relation, request));
+                    }
                 }
             }
-        }
 
-        return sendMList;
+            return sendMList;
+        }
     }
+
+    protected class DeliverySendMGen extends AbstractSendMGen {
+
+        @Override
+        protected SendM makeSendMFromRequest(BoxRelation relation, DeliveryRequest request) {
+            SendM sendM = deliveryRequest2SendM(request);
+            sendM.setBoxCode(relation.getRelationBoxCode());
+            return sendM;
+        }
+    }
+
+    protected class DeliveryCancelSendMGen extends AbstractSendMGen {
+
+        @Override
+        protected SendM makeSendMFromRequest(BoxRelation relation, DeliveryRequest request) {
+            SendM sendM = toSendM(request);
+            sendM.setBoxCode(relation.getRelationBoxCode());
+            return sendM;
+        }
+    }
+
 
     /**
      * toSendDetailList(java.util.List) 的优化方法，主要优化isValidWaybillCode()的循环调用问题

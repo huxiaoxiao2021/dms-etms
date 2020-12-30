@@ -84,6 +84,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
+import com.jd.bluedragon.distribution.ucc.UccConfigService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -352,6 +353,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BoxRelationService boxRelationService;
+
+    @Autowired
+    private UccConfigService uccConfigService;
 
     /**
      * 自动过期时间 15分钟
@@ -1747,28 +1751,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         }
 
-        取消发货在发货状态位回执
-        List<String> deliveredList = batchQuerySendMList(sendMList);
-
-        this.cancelStatusReceipt(sendMList, deliveredList);
-
-        for (SendM domain : needSendBox) {
-            if (source != null) {
-                // 设置发货来源
-                domain.setBizSource(source.getCode());
-            }
-            // 插入SEND_M
-            sendMManager.insertSendM(domain);
-
-            // 插入中转任务
-            this.transitSend(domain);
-
-            // 写入任务
-            addTaskSend(domain);
-
-            //发送发货业务通知MQ
-            deliverGoodsNoticeMQ(domain);
-        }
+        // 老发货逻辑
+        this.dellCreateSendM(source, needSendBox);
 
         Profiler.registerInfoEnd(callerInfo);
 
@@ -1896,9 +1880,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         // 文件包裹必须装箱才能发货
-        // 不校验快运发货
         if (JdResponse.CODE_OK.equals(response.getCode())) {
-
+            // 不校验快运发货
             if (!ObjectUtils.equals(Constants.KY_DELIVERY, opType)) {
 
                 response = this.filePackSendByBox(tSendM);
@@ -1915,6 +1898,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private DeliveryResponse filePackSendByBox(SendM tSendM) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        if (!uccConfigService.siteEnableFilePackageCheck(tSendM.getCreateSiteCode())) {
+            return response;
+        }
 
         String waybillCode = null;
         if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {

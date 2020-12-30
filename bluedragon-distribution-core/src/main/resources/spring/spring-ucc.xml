@@ -88,7 +88,7 @@
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite}"/>
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
-        <property name="enableFilePackageWaybillSign" value="${enableFilePackageWaybillSign:false}" />
+        <property name="siteEnableFilePackageCheck" value="${siteEnableFilePackageCheck:false}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -147,7 +147,7 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
-                <value>uccPropertyConfiguration.enableFilePackageWaybillSign</value>
+                <value>uccPropertyConfiguration.siteEnableFilePackageCheck</value>
 			</list>
 		</property>
 	</bean>

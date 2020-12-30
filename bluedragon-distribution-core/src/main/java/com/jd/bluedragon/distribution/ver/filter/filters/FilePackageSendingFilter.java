@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.ucc.UccConfigService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -28,15 +29,21 @@ public class FilePackageSendingFilter implements Filter {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private UccConfigService uccConfigService;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
+        if (uccConfigService.siteEnableFilePackageCheck(request.getCreateSiteCode())) {
 
-            // 文件标识的不能按运单或者包裹发货
-            if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
+            if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
 
-                throw new SortingCheckException(DeliveryResponse.CODE_40100, DeliveryResponse.MESSAGE_40100);
+                // 文件标识的不能按运单或者包裹发货
+                if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
+
+                    throw new SortingCheckException(DeliveryResponse.CODE_40100, DeliveryResponse.MESSAGE_40100);
+                }
             }
         }
 

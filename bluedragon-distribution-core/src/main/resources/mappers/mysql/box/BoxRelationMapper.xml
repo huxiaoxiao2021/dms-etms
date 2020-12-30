@@ -21,7 +21,6 @@
   </sql>
 
     <sql id="uniqQueryKey">
-        AND box_code = #{boxCode,jdbcType=VARCHAR}
         AND relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
     </sql>
@@ -130,13 +129,13 @@
             dms_box_relation
         WHERE
             yn = 1
+        AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
         <if test="boxCode != null and boxCode != '' ">
-            box_code = #{boxCode,jdbcType=VARCHAR}
+           AND box_code = #{boxCode,jdbcType=VARCHAR}
         </if>
         <if test="relationBoxCode != null and boxCode != '' ">
-            relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
+           AND relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
         </if>
-        create_site_code = #{createSiteCode,jdbcType=BIGINT}
     </select>
 
     <select id="countByBoxCode" parameterType="com.jd.bluedragon.distribution.box.domain.BoxRelation" resultType="java.lang.Integer">
@@ -148,6 +147,46 @@
             yn = 1
         AND box_code = #{boxCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=BIGINT}
+    </select>
+
+    <sql id="page_where_condition">
+        <where>
+            create_time >= #{startTime, jdbcType=TIMESTAMP}
+            AND create_time  <![CDATA[ <= ]]> #{endTime, jdbcType=TIMESTAMP}
+            <if test="siteCode != null">
+                AND create_site_code = #{siteCode,jdbcType=BIGINT}
+            </if>
+            <if test="userErp != null and userErp !='' ">
+                AND create_user_erp = #{userErp, jdbcType=VARCHAR}
+            </if>
+            <if test="boxCodes != null and boxCodes.size() > 0">
+                AND box_code IN
+                <foreach collection="boxCodes" item="item" index="index" open="(" separator="," close=")">
+                    #{item,jdbcType=VARCHAR}
+                </foreach>
+            </if>
+            <if test="relationBoxCode != null and relationBoxCode !='' ">
+                AND relation_box_code = #{relationBoxCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </sql>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_box_relation
+        <include refid="page_where_condition"/>
+        ORDER BY relation_box_code, create_time DESC
+        LIMIT #{offset,jdbcType=INTEGER}, #{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        SELECT
+            COUNT(1)
+        FROM
+            dms_box_relation
+        <include refid="page_where_condition"/>
     </select>
 
 </mapper>

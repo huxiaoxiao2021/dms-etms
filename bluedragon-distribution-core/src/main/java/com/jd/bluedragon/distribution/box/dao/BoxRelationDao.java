@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.box.dao;
 
 import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.domain.BoxRelationQ;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface BoxRelationDao extends Dao<BoxRelation> {
     int updateByUniqKey(BoxRelation relation);
 
     int countByBoxCode(BoxRelation relation);
+
+    int countByQuery(BoxRelationQ query);
 }

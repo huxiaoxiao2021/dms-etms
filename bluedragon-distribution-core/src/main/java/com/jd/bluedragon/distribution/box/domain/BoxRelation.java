@@ -124,8 +124,7 @@ public class BoxRelation extends DbEntity implements Serializable {
         this.createSiteCode = createSiteCode;
     }
 
-    public BoxRelation(String boxCode, Long createSiteCode, String relationBoxCode) {
-        this.boxCode = boxCode;
+    public BoxRelation(Long createSiteCode, String relationBoxCode) {
         this.createSiteCode = createSiteCode;
         this.relationBoxCode = relationBoxCode;
     }
@@ -142,8 +141,7 @@ public class BoxRelation extends DbEntity implements Serializable {
         relation.setYn(Constants.YN_YES);
 
         Date operateTime = StringUtils.isBlank(request.getOperateTime()) ? new Date(): DateHelper.getSeverTime(request.getOperateTime());
-        Date createTime = new Date();
-        relation.setCreateTime(createTime);
+        relation.setCreateTime(operateTime);
         relation.setUpdateTime(operateTime);
 
         return relation;

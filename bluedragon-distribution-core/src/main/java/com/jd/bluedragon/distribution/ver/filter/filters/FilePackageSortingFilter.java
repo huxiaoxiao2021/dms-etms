@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.ucc.UccConfigService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -29,15 +30,21 @@ public class FilePackageSortingFilter implements Filter {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private UccConfigService uccConfigService;
+
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
+        if (uccConfigService.siteEnableFilePackageCheck(request.getCreateSiteCode())) {
 
-            if (BusinessHelper.isBoxcode(request.getBoxCode())
-                    && !(request.getBoxCode().startsWith(Box.TYPE_WJ) || request.getBoxCode().startsWith(Box.TYPE_TC))) {
+            if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
 
-                throw new SortingCheckException(SortingResponse.CODE_29601, SortingResponse.MESSAGE_29601);
+                if (BusinessHelper.isBoxcode(request.getBoxCode())
+                        && !(request.getBoxCode().startsWith(Box.TYPE_WJ) || request.getBoxCode().startsWith(Box.TYPE_TC))) {
+
+                    throw new SortingCheckException(SortingResponse.CODE_29601, SortingResponse.MESSAGE_29601);
+                }
             }
         }
 
