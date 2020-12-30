@@ -11,6 +11,8 @@
         <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
         <result column="create_user_erp" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserErp"/>
         <result column="create_user_name" javaType="java.lang.String" jdbcType="VARCHAR" property="createUserName"/>
         <result column="update_user_erp" javaType="java.lang.String" jdbcType="VARCHAR" property="updateUserErp"/>
@@ -23,7 +25,7 @@
 
     <sql id="Base_Column_List" >
 		id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
-		status,create_user_erp,create_user_name,update_user_erp,update_user_name
+		status,weight,volume,create_user_erp,create_user_name,update_user_erp,update_user_name
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -54,6 +56,12 @@
             </if>
             <if test="status != null">
                 status,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="volume != null">
+                volume,
             </if>
             <if test="createUserErp != null">
                 create_user_erp,
@@ -100,6 +108,12 @@
             </if>
             <if test="status != null">
                 #{status,jdbcType=INTEGER},
+            </if>
+            <if test="weight != null">
+                #{weight,jdbcType=DOUBLE},
+            </if>
+            <if test="volume != null">
+                #{volume,jdbcType=DOUBLE},
             </if>
             <if test="createUserErp != null">
                 #{createUserErp,jdbcType=VARCHAR},
@@ -171,7 +185,7 @@
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan">
         insert into unload_scan (id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
-        status,create_user_erp,create_user_name,update_user_erp,update_user_name,
+        status,weight,volume,create_user_erp,create_user_name,update_user_erp,update_user_name,
         create_time,update_time,yn)  VALUES
         <foreach collection="waybillPackageNumInfoList" item="item" separator=",">
             (#{sealCarCode,jdbcType=VARCHAR},
@@ -181,6 +195,8 @@
              #{loadAmount,jdbcType=INTEGER},
              #{unloadAmount,jdbcType=INTEGER},
              #{status,jdbcType=INTEGER},
+             #{item.weight,jdbcType=DOUBLE},
+             #{item.volume,jdbcType=DOUBLE},
              #{createUserErp,jdbcType=VARCHAR},
              #{createUserName,jdbcType=VARCHAR},
              #{updateUserErp,jdbcType=VARCHAR},

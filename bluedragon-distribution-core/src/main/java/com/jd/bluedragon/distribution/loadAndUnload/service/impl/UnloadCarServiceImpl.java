@@ -584,6 +584,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
             }
             unloadScan.setStatus(status);
+            if (unloadScan.getWeight() <= 0) {
+                // 设置运单重量和体积
+                setWeightAndVolume(unloadScan);
+            }
             unloadScanDao.updateByPrimaryKey(unloadScan);
         } else {
             // 运单之前没有操作过
@@ -650,6 +654,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 设置状态
             int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
             unloadScan.setStatus(status);
+            if (unloadScan.getWeight() <= 0) {
+                // 设置运单重量和体积
+                setWeightAndVolume(unloadScan);
+            }
             unloadScanDao.updateByPrimaryKey(unloadScan);
         }
     }
@@ -729,6 +737,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 设置状态
         int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageAmount, flowDisAccord);
+        // 设置运单重量和体积
+        setWeightAndVolume(unloadScan);
         unloadScan.setStatus(status);
         unloadScan.setYn(Constants.YN_YES);
         unloadScan.setCreateTime(new Date());
@@ -1030,6 +1040,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.setCode(JdCResponse.CODE_FAIL);
             result.setMessage("该运单已经扫描过，请勿重复扫！");
             return true;
+        }
+        // 空任务不判断未扫
+        if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            return false;
         }
         int unScanPackageCount;
         try {
@@ -2379,6 +2393,28 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("卸车扫描unLock异常:sealCarCode={},waybillCode={},e=", sealCarCode, waybillCode, e);
         } finally {
             jimdbCacheService.del(lockKey);
+        }
+    }
+
+    /**
+     * 设置运单重量和体积
+     * @param unloadScan 运单暂存对象
+     */
+    private void setWeightAndVolume(UnloadScan unloadScan) {
+        // 查询运单详情
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(unloadScan.getWaybillCode());
+        if (waybill != null) {
+            Double weight = waybill.getAgainWeight();
+            String volume = waybill.getSpareColumn2();
+            logger.info("卸车-设置运单重量和体积:sealCarCode={},waybillCode={},复重={},复量方={}|原重={},原量方={}", unloadScan.getSealCarCode(),
+                    unloadScan.getWaybillCode(), weight, volume, waybill.getGoodWeight(), waybill.getGoodVolume());
+            // 复重：againWeight 无值则取重量：goodWeight
+            unloadScan.setWeight(weight == null ? waybill.getGoodWeight() : weight);
+            // 复量方：spareColumn2 无值则取体积：goodVolume
+            unloadScan.setVolume(StringUtils.isBlank(volume) ? waybill.getGoodVolume() : Double.parseDouble(volume));
+        } else {
+            logger.error("卸车-设置运单重量和体积--查询运单接口返回空:sealCarCode={},waybillCode={}", unloadScan.getSealCarCode(),
+                    unloadScan.getWaybillCode());
         }
     }
 }

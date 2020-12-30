@@ -60,6 +60,16 @@ public class UnloadScan implements Serializable {
     private Integer status;
 
     /**
+     * 运单重量
+     */
+    private Double weight;
+
+    /**
+     * 运单体积
+     */
+    private Double volume;
+
+    /**
      * 创建人erp
      */
     private String createUserErp;
@@ -173,6 +183,22 @@ public class UnloadScan implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 
     public String getCreateUserErp() {
