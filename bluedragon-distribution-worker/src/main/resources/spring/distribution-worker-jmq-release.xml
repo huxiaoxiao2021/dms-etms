@@ -258,11 +258,6 @@
         <jmq:listener topic="${jmq.topic.third.box.weight.deal}" listener="ThirdBoxWeightConsumer"/>
     </jmq:consumer>
 
-    <!-- 来自异常系统的可换单消息 -->
-    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
-    </jmq:consumer>
-
     <!--龙门架驻厂扫描消息-->
     <jmq:consumer id="jmq.gantryResidentScanConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.gantryResidentScan}" listener="gantryResidentScanConsumer" />
@@ -282,6 +277,11 @@
     <!--  包裹验货消息  -->
     <jmq:consumer id="jmq.inspectionPackageConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.package.inspection}" listener="inspectionPackageConsumer" />
+    </jmq:consumer>
+
+    <!-- 来自异常系统的可换单消息 -->
+    <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>
     </jmq:consumer>
 
     <!--快运暂存发货信息-->

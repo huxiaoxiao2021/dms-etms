@@ -557,7 +557,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
             longBaseDmsAutoJsfResponse = deviceConfigInfoJsfServiceManager.maintainSiteWeightSwitch(siteCodes,weightValidateSwitchEnum);
             if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                throw  new RuntimeException("分拣机开关调用失败,站点:"+siteCodes);
+                throw  new RuntimeException("分拣机开关调用失败,站点:"+ Arrays.asList(siteCodes).toString());
             }
         }
     }

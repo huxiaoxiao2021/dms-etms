@@ -204,7 +204,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
             saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
-            long operateTimeMillis = DateUtil.parse(pdaOperateRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            long operateTimeMillis = System.currentTimeMillis();
+            if(pdaOperateRequest.getOperateTime() != null){
+                operateTimeMillis = DateUtil.parse(pdaOperateRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            }
             saveInterceptMsgDto.setOperateTime(operateTimeMillis);
             saveInterceptMsgDto.setOperateNode(this.getOperateNode(pdaOperateRequest));
             saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
