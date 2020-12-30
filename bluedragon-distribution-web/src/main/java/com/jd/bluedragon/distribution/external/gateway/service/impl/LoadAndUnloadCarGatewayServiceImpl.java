@@ -325,7 +325,6 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unload.setOperateUserErp(req.getOperateUserErp());
         unload.setOperateUserName(req.getOperateUserName());
         unload.setUnloadUserErp(req.getOperateUserErp());
-        System.out.println("createUnloadTask=设置卸车负责人");
         unload.setUnloadUserName(req.getOperateUserName());
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
