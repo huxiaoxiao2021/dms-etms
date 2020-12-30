@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -329,16 +330,21 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
-        String sealCarCode=Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
+        String sealCarCode = Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
+        unloadCar.setEndSiteCode(req.getCreateSiteCode().intValue());
+        List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCar);
+        if (CollectionUtils.isNotEmpty(list)) {
+            jdCResponse.toConfirm("当前场地存在未结束的同车牌任务，创建人erp:" + list.get(0).getOperateUserErp());
+            return jdCResponse;
+        }
         unloadCar.setSealCarCode(sealCarCode);
         unloadCar.setStartSiteCode(0);
-        unloadCar.setEndSiteCode(0);
         unloadCar.setWaybillNum(0);
         unloadCar.setPackageNum(0);
         unloadCar.setStatus(0);
         unloadCar.setYn(1);
         unloadCar.setTs(new Date());
-        // todo 重复创建校验
+        unloadCar.setCreateTime(new Date());
         unloadCarDao.add(unloadCar);
         jdCResponse.toSucceed("操作成功");
         jdCResponse.setData(sealCarCode);
