@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.rest.loadAndUnload;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
@@ -121,11 +120,7 @@ public class LoadAndUnloadVehicleResource {
 
     /**
      * 卸车扫描(空任务卸车最新版)
-     * @param unloadCarScanRequest
-     * @return
      */
-    @POST
-    @Path("/unload/packageCodeScanNew")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest unloadCarScanRequest) {
         InvokeResult<UnloadScanDetailDto> result = new InvokeResult<>();
@@ -156,11 +151,7 @@ public class LoadAndUnloadVehicleResource {
 
     /**
      * 卸车按运单扫描（空任务卸车最新版）
-     * @param unloadCarScanRequest
-     * @return
      */
-    @POST
-    @Path("/unload/waybillScanNew")
     public InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
         InvokeResult<UnloadScanDetailDto> result = new InvokeResult<UnloadScanDetailDto>();
         String remindMessage = unloadParamsCheck(unloadCarScanRequest);
@@ -253,12 +244,9 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
-     * 开始任务 todo 是否需要restful注解   参数校验放一起
+     * 开始任务
      * @param unloadCarTaskReq 修改卸车任务状态请求信息
-     * @return
      */
-    @POST
-    @Path("/unload/startUnloadTask")
     public InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
         InvokeResult<Void> result = new InvokeResult<>();
         if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null || unloadCarTaskReq.getTaskStatus() == null

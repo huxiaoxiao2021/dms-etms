@@ -270,8 +270,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Collections.sort(unloadScanDtoList, new Comparator<UnloadScanDto>() {
                 @Override
                 public int compare(UnloadScanDto o1, UnloadScanDto o2) {
-                    // todo jian
-                    return o2.getStatus().compareTo(o1.getStatus());
+                    return o2.getStatus() - o1.getStatus();
                 }
             });
             unloadScanDetailDto.setUnloadScanDtoList(unloadScanDtoList);
@@ -571,8 +570,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 request.getTransfer(), null, false, sendCode, request, licenseNumber);
         // 先保存正常的包裹集合
         if (CollectionUtils.isNotEmpty(normalPackages)) {
-            // todo 200
-            List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 1000);
+            // 每一批次200条
+            List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 200);
             for (List<String> packList : packageCodeList) {
                 unloadScanRecord.setPackageCodeList(packList);
                 unloadScanRecordDao.batchInsertByWaybill(unloadScanRecord);
@@ -580,8 +579,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 再保存多货包裹记录
         if (CollectionUtils.isNotEmpty(surplusPackages)) {
-            // todo 200
-            List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 1000);
+            // 每一批次200条
+            List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 200);
             for (List<String> packList : packageCodeList) {
                 unloadScanRecord.setFlowDisaccord(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y);
                 unloadScanRecord.setPackageCodeList(packList);
