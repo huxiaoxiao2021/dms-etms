@@ -322,6 +322,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         }
         UnloadCar unload = new UnloadCar();
         unload.setOperateUserErp(req.getOperateUserErp());
+        unload.setUnloadUserErp(req.getOperateUserErp());
         unload.setEndSiteCode(req.getCreateSiteCode().intValue());
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
