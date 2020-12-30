@@ -239,10 +239,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             int loadWaybillNum = 0;
             // 已卸包裹数
             int loadPackageNum = 0;
-            // 已扫运单数
-            int scanWaybillNum = 0;
-            // 已扫包裹数
-            int scanPackageNum = 0;
             // 封车任务下总包裹数
             int totalPackageNum = 0;
             List<UnloadScanDto> unloadScanDtoList = new ArrayList<>();
@@ -251,20 +247,28 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 totalPackageNum = totalPackageNum + unloadScan.getForceAmount();
                 // 统计已扫数据
                 if (unloadScan.getLoadAmount() > 0) {
-                    scanWaybillNum = scanWaybillNum + 1;
-                    scanPackageNum = scanPackageNum + unloadScan.getLoadAmount();
-                    // 统计已卸数据，应卸=已卸
-                    if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
-                        loadWaybillNum = loadWaybillNum + 1;
-                        loadPackageNum = loadPackageNum + unloadScan.getLoadAmount();
+                    loadPackageNum = loadPackageNum + unloadScan.getLoadAmount();
+                    // 如果是空任务或者正常任务中的多扫运单
+                    if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX) || unloadScan.getForceAmount() == 0) {
+                        // 运单总包裹数 = 已卸数，则已卸单+1
+                        if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount())) {
+                            loadWaybillNum = loadWaybillNum + 1;
+                        }
+                    } else {
+                        // 正常任务也没有多扫，应卸=已卸，已卸单+1
+                        if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
+                            loadWaybillNum = loadWaybillNum + 1;
+                        }
                     }
                 }
                 // 转换数据
                 unloadScanDtoList.add(convertData(unloadScan));
             }
             unloadScanDetailDto.setTotalPackageNum(totalPackageNum);
-            unloadScanDetailDto.setUnloadWaybillAmount(unloadScans.size() - scanWaybillNum);
-            unloadScanDetailDto.setUnloadPackageAmount(unloadScanDetailDto.getTotalPackageNum() - scanPackageNum);
+            unloadScanDetailDto.setUnloadWaybillAmount(unloadScans.size() - loadWaybillNum);
+            unloadScanDetailDto.setUnloadPackageAmount(unloadScanDetailDto.getTotalPackageNum() - loadPackageNum);
+            unloadScanDetailDto.setLoadWaybillAmount(loadWaybillNum);
+            unloadScanDetailDto.setLoadPackageAmount(loadPackageNum);
             // 按照指定次序排列
             Collections.sort(unloadScanDtoList, new Comparator<UnloadScanDto>() {
                 @Override
