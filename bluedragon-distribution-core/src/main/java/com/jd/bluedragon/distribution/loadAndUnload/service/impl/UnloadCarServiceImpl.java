@@ -546,7 +546,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         // 运单之前操作过 todo 单个包裹是否有不组板的
         if (unloadScan != null) {
             unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
-            unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
+            // 有应卸才有未卸
+            if (unloadScan.getForceAmount() > 0) {
+                unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
+            }
             unloadScan.setPackageAmount(packageNum);
             unloadScan.setUpdateTime(new Date());
             unloadScan.setUpdateUserName(request.getOperateUserName());
