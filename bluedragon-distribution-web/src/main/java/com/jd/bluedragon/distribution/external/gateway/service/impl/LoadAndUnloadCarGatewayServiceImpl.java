@@ -303,8 +303,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     }
 
     @Override
-    public JdCResponse<CreateUnloadTaskResponse> createUnloadTask(CreateUnloadTaskReq req) {
-        JdCResponse<CreateUnloadTaskResponse> jdCResponse = new JdCResponse<>();
+    public JdCResponse<String> createUnloadTask(CreateUnloadTaskReq req) {
+        JdCResponse<String> jdCResponse = new JdCResponse<>();
         if (null == req) {
             jdCResponse.toFail("请求参数不能为空！");
             return jdCResponse;
@@ -336,11 +336,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setYn(1);
         unloadCar.setTs(new Date());
         unloadCarDao.add(unloadCar);
-        CreateUnloadTaskResponse response=new CreateUnloadTaskResponse();
-        response.setUnloadCarId(unloadCar.getUnloadCarId());
-        response.setSealCarCode(sealCarCode);
         jdCResponse.toSucceed("操作成功");
-        jdCResponse.setData(response);
+        jdCResponse.setData(sealCarCode);
         return jdCResponse;
     }
 }

@@ -46,5 +46,5 @@ public interface LoadAndUnloadCarGatewayService {
     JdCResponse<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest);
 
 
-    JdCResponse<CreateUnloadTaskResponse> createUnloadTask(CreateUnloadTaskReq req);
+    JdCResponse<String> createUnloadTask(CreateUnloadTaskReq req);
 }
