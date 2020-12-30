@@ -7,7 +7,7 @@ import java.util.List;
 public enum ExpressBillExceptionReportTypeEnum implements Serializable {
 
     EXPRESS_REPORT_MAX_SPACE(1,"面单未贴箱体最大面"),
-    EXPRESS_REPORT_FOLD(2,"面单褶皱"),
+    EXPRESS_REPORT_FOLD(2,"双面单"),
     EXPRESS_REPORT_CREVICE(3,"面单骑缝"),
     EXPRESS_REPORT_OTHER(4,"其他");
 
