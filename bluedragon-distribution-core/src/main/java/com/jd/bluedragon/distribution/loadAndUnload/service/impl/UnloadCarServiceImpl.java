@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -45,6 +44,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -168,8 +168,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private UnloadScanRecordDao unloadScanRecordDao;
 
-    @Autowired
-    private WaybillService waybillService;
+
 
 
     @Override
@@ -529,7 +528,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, String sendCode, String licenseNumber) {
         // 包裹暂存
         UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                request.getTransfer(), null, isSurplusPackage, sendCode, request, licenseNumber);
+                request.getTransfer(), null, null, isSurplusPackage, sendCode, request, licenseNumber);
         unloadScanRecordDao.insert(newUnloadRecord);
 
         boolean flowDisAccord = false;
@@ -537,37 +536,52 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             flowDisAccord = true;
         }
         // 运单暂存
-        if (isSurplusPackage) {
-            // todo 运单上既有多扫、正常应卸
-            // todo 包裹重复扫校验，尤其是不组板的情况下
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
+        UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+        // 运单之前操作过 todo 单个包裹是否有不组板的
+        if (unloadScan != null) {
+            unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
+            unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
+            unloadScan.setPackageAmount(packageNum);
+            unloadScan.setUpdateTime(new Date());
+            unloadScan.setUpdateUserName(request.getOperateUserName());
+            unloadScan.setUpdateUserErp(request.getOperateUserErp());
+            int status;
+            // 多货
+            if (isSurplusPackage) {
+                status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, true);
+            } else {
+                // 非多货
+                status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
+            }
+            unloadScan.setStatus(status);
+            unloadScanDao.updateByPrimaryKey(unloadScan);
+        } else {
+            // 运单之前没有操作过
             UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), 0,
                     1, request.getOperateUserName(), request.getOperateUserErp(), true);
             unloadScanDao.insert(newUnload);
-        } else {
-            String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-            int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
-            if (unloadScan != null) {
-                unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
-                unloadScan.setUnloadAmount(unloadScan.getForceAmount() - unloadScan.getLoadAmount());
-                unloadScan.setPackageAmount(packageNum);
-                // 设置状态
-                int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
-                unloadScan.setStatus(status);
-                unloadScan.setUpdateTime(new Date());
-                unloadScan.setUpdateUserName(request.getOperateUserName());
-                unloadScan.setUpdateUserErp(request.getOperateUserErp());
-                unloadScanDao.updateByPrimaryKey(unloadScan);
-            }
         }
     }
 
     private void batchSaveUnloadDetail(List<String> packageList, List<String> surplusPackages, UnloadCarScanRequest request,
                                        String sendCode, String licenseNumber, String waybillCode) {
+        boolean flowDisAccord = false;
+        // 获取运单下一路由
+        Integer nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode,request.getOperateSiteCode());
+        // 根据站点ID获取站点名称
+        String nextSiteName = null;
+        if (nextSiteCode != null) {
+            BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(nextSiteCode);
+            if (baseSiteInfoDto != null) {
+                nextSiteName = baseSiteInfoDto.getSiteName();
+            }
+        }
         // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合 //todo 异步
         List<String> normalPackages = ListUtils.subtract(packageList, surplusPackages);
         UnloadScanRecord unloadScanRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                request.getTransfer(), null, false, sendCode, request, licenseNumber);
+                request.getTransfer(), nextSiteCode, nextSiteName, false, sendCode, request, licenseNumber);
         // 先保存正常的包裹集合
         if (CollectionUtils.isNotEmpty(normalPackages)) {
             // 每一批次200条
@@ -579,19 +593,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 再保存多货包裹记录
         if (CollectionUtils.isNotEmpty(surplusPackages)) {
+            // 只要此运单上有多货包裹，就是多扫状态
+            flowDisAccord = true;
+            unloadScanRecord.setFlowDisaccord(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y);
             // 每一批次200条
             List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 200);
             for (List<String> packList : packageCodeList) {
-                unloadScanRecord.setFlowDisaccord(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y);
                 unloadScanRecord.setPackageCodeList(packList);
                 unloadScanRecordDao.batchInsertByWaybill(unloadScanRecord);
             }
         }
-        // 保存运单暂存记录
-        boolean flowDisAccord = false;
+
+        // 空任务下都算多扫
         if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             flowDisAccord = true;
         }
+        // 保存运单暂存记录
         UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
         if (unloadScan == null) {
             unloadScan = createUnloadScan(request.getBarCode(), request.getSealCarCode(), normalPackages.size(),
@@ -602,7 +619,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadScan.setUnloadAmount(0);
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
             unloadScan.setPackageAmount(packageNum);
-            // 设置状态 todo 运单既有应卸，也有多货，怎么显示状态
+            // 设置状态
             int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
             unloadScan.setStatus(status);
             unloadScanDao.updateByPrimaryKey(unloadScan);
@@ -696,29 +713,28 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     private UnloadScanRecord createUnloadScanRecord(String packageCode, String sealCarCode, Integer transfer, Integer nextSiteCode,
-                                        boolean flowDisAccord, String batchCode, UnloadCarScanRequest request, String licenseNumber) {
+                                       String nextSiteName, boolean flowDisAccord, String batchCode, UnloadCarScanRequest request, String licenseNumber) {
         UnloadScanRecord unloadScanRecord = new UnloadScanRecord();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         unloadScanRecord.setSealCarCode(sealCarCode);
         unloadScanRecord.setLicenseNumber(licenseNumber);
         unloadScanRecord.setWaybillCode(waybillCode);
         unloadScanRecord.setPackageCode(packageCode);
-        if (request.getReceiveSiteCode() != null) {
+        // 不组板的情况下使用此下一网点参数
+        if (nextSiteCode != null) {
+            unloadScanRecord.setEndSiteCode(nextSiteCode);
+            unloadScanRecord.setEndSiteName(nextSiteName);
+        } else {
+            // 组板的情况下使用此下一网点参数
             unloadScanRecord.setEndSiteCode(request.getReceiveSiteCode());
             unloadScanRecord.setEndSiteName(request.getReceiveSiteName());
-        } else {
-            if (nextSiteCode != null) {
-                unloadScanRecord.setEndSiteCode(nextSiteCode);
-                // todo 调用青龙基础资料接口将网点编码转成网点名称
-            }
         }
-        if (!sealCarCode.startsWith("PDA")) {
-            unloadScanRecord.setBatchCode(batchCode);
-        }
-
+        unloadScanRecord.setBatchCode(batchCode);
         unloadScanRecord.setCreateSiteCode(request.getOperateSiteCode());
         unloadScanRecord.setCreateSiteName(request.getOperateSiteName());
+        // 大宗标识
         unloadScanRecord.setTransfer(transfer == null ? 0 : transfer);
+        // 多扫标识
         if (flowDisAccord) {
             unloadScanRecord.setFlowDisaccord(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y);
         } else {

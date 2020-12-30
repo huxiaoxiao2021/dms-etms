@@ -174,7 +174,7 @@
              #{licenseNumber,jdbcType=VARCHAR},
              #{batchCode,jdbcType=VARCHAR},
              #{waybillCode,jdbcType=VARCHAR},
-             #{item,jdbcType=VARCHAR},
+             #{item.packageCode,jdbcType=VARCHAR},
              #{createSiteName,jdbcType=VARCHAR},
              #{createSiteCode,jdbcType=INTEGER},
              #{endSiteCode,jdbcType=INTEGER},
