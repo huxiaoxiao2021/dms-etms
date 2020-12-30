@@ -19,6 +19,11 @@ public class UnloadScanRecord implements Serializable {
     private Long id;
 
     /**
+     * 任务ID
+     */
+    private Long taskId;
+
+    /**
      * 封车编码
      */
     private String sealCarCode;
@@ -135,6 +140,14 @@ public class UnloadScanRecord implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 
     public String getSealCarCode() {

@@ -4,6 +4,7 @@
 
 	<resultMap id="unloadScanRecord" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
         <result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="license_number" property="licenseNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -28,7 +29,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-		id,seal_car_code,license_number,batch_code,waybill_code,package_code,create_site_name,create_site_code,
+		id,task_id,seal_car_code,license_number,batch_code,waybill_code,package_code,create_site_name,create_site_code,
         end_site_name,end_site_code,transfer,flow_disaccord,create_user_code,create_user_name,create_user_erp,
         update_user_code,update_user_name,update_user_erp,create_time,update_time,yn
 	</sql>
@@ -36,6 +37,9 @@
     <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord">
         insert into unload_scan_record
         <trim  prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
             <if test="sealCarCode != null">
                 seal_car_code,
             </if>
@@ -98,6 +102,9 @@
         </trim>
 
         <trim prefix="values (" suffix=")"  suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=BIGINT},
+            </if>
             <if test="sealCarCode != null">
                 #{sealCarCode,jdbcType=VARCHAR},
             </if>
@@ -163,15 +170,16 @@
 
 
     <insert id="batchInsertByWaybill" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord">
-        insert into unload_scan_record (seal_car_code, license_number, batch_code, waybill_code, package_code, create_site_name, create_site_code,
+        insert into unload_scan_record (task_id, seal_car_code, license_number, batch_code, waybill_code, package_code, create_site_name, create_site_code,
         end_site_code, end_site_name, transfer, flow_disaccord, create_user_name, create_user_erp, create_user_code, update_user_name,
         update_user_erp, update_user_code,  create_time, update_time, yn, ts)  VALUES
         <foreach collection="packageCodeList" item="item" separator=",">
-            (#{sealCarCode,jdbcType=VARCHAR},
+            (#{taskId,jdbcType=BIGINT},
+             #{sealCarCode,jdbcType=VARCHAR},
              #{licenseNumber,jdbcType=VARCHAR},
              #{batchCode,jdbcType=VARCHAR},
              #{waybillCode,jdbcType=VARCHAR},
-             #{item.packageCode,jdbcType=VARCHAR},
+             #{item,jdbcType=VARCHAR},
              #{createSiteName,jdbcType=VARCHAR},
              #{createSiteCode,jdbcType=INTEGER},
              #{endSiteCode,jdbcType=INTEGER},
