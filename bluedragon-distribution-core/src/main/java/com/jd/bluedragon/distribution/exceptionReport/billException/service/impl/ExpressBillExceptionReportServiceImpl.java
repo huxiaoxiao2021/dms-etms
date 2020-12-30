@@ -102,11 +102,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             List<PackageStateDto>   stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             if(CollectionUtils.isEmpty(stateList)){
+                log.error("当前包裹{}没揽收完成，无法获取始发地",packageCode);
                 result.toFail("当前包裹没揽收完成，无法获取始发地");
                 return result;
             }
             result.toSucceed();
             PackageStateDto packageState = stateList.get(0);
+
             FirstSiteVo firstSiteVo = new FirstSiteVo();
             firstSiteVo.setFirstSiteName(packageState.getOperatorSite());
             firstSiteVo.setFirstSiteCode(packageState.getOperatorSiteId());
@@ -159,8 +161,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setOrgName(reportRequest.getCurrentOperate().getOrgName());
         report.setSiteCode(reportRequest.getCurrentOperate().getSiteCode());
         report.setSiteName(reportRequest.getCurrentOperate().getSiteName());
-        report.setFirstSiteCode(report.getFirstSiteCode());
-        report.setFirstSiteName(report.getFirstSiteName());
+        report.setFirstSiteCode(reportRequest.getFirstSiteCode());
+        report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());
         report.setReportTime(reportRequest.getReportTime());
         report.setReportType(reportRequest.getReportType());
