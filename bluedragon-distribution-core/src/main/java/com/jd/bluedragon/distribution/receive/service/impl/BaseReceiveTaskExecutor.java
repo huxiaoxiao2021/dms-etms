@@ -74,10 +74,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	protected DefaultJMQProducer turnoverBoxMQ;
 
 	@Autowired
-	@Qualifier("pickwarePushMQ")
-	protected DefaultJMQProducer pickwarePushMQ;
-
-	@Autowired
 	protected TurnoverBoxDao turnoverBoxDao;
 
 	@Autowired
@@ -280,32 +276,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		}
 	}
 
-	protected void pushPickware(T receive, String packageCode,
-			String pickwareCode) {
-		log.debug("面单号：[{}]取件单号：[{}]",packageCode, pickwareCode);
-		PickWare pickWare = new PickWare();
-		pickWare.setBoxCode(receive.getBoxCode());
-		pickWare.setPackageCode(packageCode);
-		if (StringHelper.isEmpty(pickwareCode)) {
-			pickWare.setPickwareCode("");
-		} else {
-			pickWare.setPickwareCode(pickwareCode);
-		}
-		pickWare.setOperator(receive.getCreateUser() + "|"
-				+ receive.getCreateUserCode());
-		pickWare.setOperateTime(DateHelper.formatDateTime(receive
-				.getCreateTime()));
-		try {
-			String json = JsonHelper.toJson(pickWare);
-			log.info("分拣中心收货推送MQ[备件库-取件单]json:[{}]",json);
-			// messageClient.sendMessage("pickware_push",json,
-			// receive.getBoxCode());
-			pickwarePushMQ.send(receive.getBoxCode(), json);
-		} catch (Exception e) {
-			log.error("分拣中心收货推送MQ[备件库-取件单]信息失败[{}]",receive.getBoxCode(), e);
-		}
-	}
-
 	/**
 	 * 插入pda操作日志表
 	 * 
@@ -393,21 +363,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 		}
 		sendTrack(taskContext,cenConfirm);
-
-		// 取件单推送mq
-		if (WaybillUtil.isSurfaceCode(receive.getBoxCode())) {
-			BaseEntity<PickupTask> pickup = null;
-			try {
-				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive
-						.getBoxCode());
-			} catch (Exception e) {
-				log.error("分拣中心收货[备件库-取件单]:调用取件单号信息ws接口异常[{}]",receive.getBoxCode(), e);
-			}
-			if (pickup != null && pickup.getData() != null) {
-				pushPickware(receive, receive.getBoxCode(), pickup.getData()
-						.getPickupCode());
-			}
-		}
 		return cenConfirmList;
 	}
 
@@ -437,12 +392,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				sendTrack(taskContext,cenConfirm);
 
 				cenConfirmList.add(cenConfirm);
-
-				// 取件单推送mq
-				if (WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())) {
-					pushPickware(receive, sendDetail.getPackageBarcode(),
-							sendDetail.getPickupCode());
-				}
 			}
 		}
 
