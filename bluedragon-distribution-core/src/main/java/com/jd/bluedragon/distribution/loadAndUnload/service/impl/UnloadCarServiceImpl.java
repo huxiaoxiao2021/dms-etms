@@ -861,7 +861,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setData(convertToUnloadCarResult(request));
 
         InvokeResult<UnloadScanDetailDto> invokeResult = new InvokeResult<>();
-        BeanUtils.copyProperties(result, invokeResult);
 
         String packageCode = request.getBarCode();
         String sealCarCode = request.getSealCarCode();
