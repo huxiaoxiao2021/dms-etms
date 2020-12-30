@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_ExpressBillExceptionReport" type="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport">
+        <result property="id" column="id"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="orgName" column="org_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="firstSiteCode" column="first_site_code"/>
+        <result property="firstSiteName" column="first_site_name"/>
+        <result property="reportTypeName" column="report_type_name"/>
+        <result property="reportType" column="report_type"/>
+        <result property="reportUserErp" column="report_user_erp"/>
+        <result property="reportTime" column="report_time"/>
+        <result property="reportImgUrls" column="report_img_urls"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,create_time,update_time,yn,ts
+    </sql>
+
+
+    <!--查询包裹是否已举报-->
+    <select id="selectPackageIsReport" resultType="java.lang.Integer" parameterType="java.lang.String">
+        select count(1)
+        from
+        express_bill_exception_report
+        where
+        yn = 1
+        AND package_code = #{packageCode}
+    </select>
+
+    <!--分页查询-->
+    <select id="queryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
+     select
+     <include refid="Base_Column_List"/>
+     from express_bill_exception_report
+     where yn=1
+     <include refid="where_sql"/>
+    order by id desc
+    <if test="basePagerCondition.pageNumber > 0">
+        limit #{basePagerCondition.offset}, #{basePagerCondition.limit}
+    </if>
+    </select>
+
+    <!--查询举报总记录数-->
+    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="long">
+     select count(*)
+     from express_bill_exception_report
+     where yn=1
+     <include refid="where_sql"/>
+    </select>
+
+    <!--新增sql-->
+    <insert id="insertReport" keyProperty="id" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport">
+     insert into express_bill_exception_report
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="packageCode != null and packageCode != ''">
+            package_code,
+            </if>
+            <if test="orgCode != null">
+            org_code,
+            </if>
+            <if test="orgName != null and orgName != ''">
+            org_name,
+            </if>
+            <if test="siteCode != null">
+            site_code,
+            </if>
+            <if test="siteName != null and siteName !=''">
+            site_name,
+            </if>
+            <if test="firstSiteCode != null">
+            first_site_code,
+            </if>
+            <if test="firstSiteName !=null and firstSiteName !=''" >
+            first_site_name,
+            </if>
+            <if test="reportTypeName != null and reportTypeName != ''">
+            report_type_name,
+            </if>
+            <if test="reportType != null">
+            report_type,
+            </if>
+            <if test="reportUserErp != null and reportUserErp != ''">
+            report_user_erp,
+            </if>
+            <if test="reportTime != null">
+            report_time,
+            </if>
+            <if test="reportImgUrls != null and reportImgUrls != ''">
+            report_img_urls,
+            </if>
+            <if test="createTime !=null">
+            create_time,
+            </if>
+            <if test="updateTime !=null ">
+            update_time,
+            </if>
+            <if test="yn != null">
+            yn,
+            </if>
+            <if test="ts != null">
+            ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="packageCode != null and packageCode != ''">
+                #{packageCode,jdbcType=VARCHAR},
+            </if>
+            <if test="orgCode != null">
+                #{orgCode,jdbcType=INTEGER},
+            </if>
+            <if test="orgName != null and orgName != ''">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode,jdbcType=INTEGER},
+            </if>
+            <if test="siteName != null and siteName !=''">
+                #{siteName,jdbcType=VARCHAR},
+            </if>
+            <if test="firstSiteCode != null">
+                #{firstSiteCode,jdbcType=INTEGER},
+            </if>
+            <if test="firstSiteName != null and firstSiteName !=''">
+                #{firstSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="reportTypeName != null and reportTypeName != ''">
+                #{reportTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="reportType != null">
+                #{reportType,jdbcType=INTEGER},
+            </if>
+            <if test="reportUserErp != null and reportUserErp != ''">
+                #{reportUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="reportTime != null">
+                #{reportTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reportImgUrls != null and reportImgUrls != ''">
+                #{reportImgUrls,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+
+    <!-- 判断空值 -->
+    <sql id="where_sql">
+        <if test="orgCode != null">
+            AND org_code = #{orgCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null">
+            AND site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="reportType != null">
+            AND report_type = #{reportType,jdbcType=INTEGER}
+        </if>
+        <if test="queryStartTime != null">
+            AND report_time >= #{queryStartTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="queryEndTime != null">
+            AND report_time <![CDATA[<]]> #{queryEndTime,jdbcType=TIMESTAMP}
+        </if>
+    </sql>
+
+</mapper>
