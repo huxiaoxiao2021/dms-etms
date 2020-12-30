@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.IsExcessReq;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
@@ -78,5 +79,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         }
         jdCResponse.toFail("操作失败！");
         return jdCResponse;
+    }
+
+    @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public JdCResponse<Void> spotCheckSubmit(SpotCheckSubmitReq req) {
+        return null;
     }
 }
