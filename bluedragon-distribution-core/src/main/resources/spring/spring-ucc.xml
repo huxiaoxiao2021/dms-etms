@@ -86,6 +86,7 @@
         <property name="quickSealTips" value="${quickSealTips:''}" />
 		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite}"/>
+		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 
 	</bean>
 
@@ -143,6 +144,7 @@
                 <value>uccPropertyConfiguration.quickSealTips</value>
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
+				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 			</list>
 		</property>
 	</bean>
