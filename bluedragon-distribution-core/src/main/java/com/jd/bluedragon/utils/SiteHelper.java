@@ -401,4 +401,21 @@ public class SiteHelper {
         }
         return Boolean.FALSE;
     }
+
+
+    /**
+     * 三级分类为：大家电综合站点
+     * @param site
+     * @return
+     */
+    public static Boolean isBigElectricApplianceSite(Site site){
+        if (site == null || site.getType() == null) {
+            return Boolean.FALSE;
+        }
+
+        if (18 == site.getSubType().intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }
