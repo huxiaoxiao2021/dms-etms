@@ -103,6 +103,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     private final static int WAYBILL_LOCK_TIME = 120;
 
+    /**
+     * 快运中心网点编码
+     */
+    public static final Integer EXPRESS_CENTER_SITE_ID = 6420;
+
     @Value("${unload.board.bindings.count.max:50}")
     private Integer unloadBoardBindingsMaxCount;
 
@@ -1884,49 +1889,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
 
         try {
-            // 初始化运单暂存表
-            UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
-                    tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
-            unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-
-            List<String> totalPackageCodes = new ArrayList<>();
-            List<String> packageCodes;
-            // 循环获取每个批次下的包裹号集合
-            for (String batchCode : batchCodes) {
-                packageCodes = querySendPackageBySendCode(tmsSealCar.getOperateSiteId(), batchCode);
-                totalPackageCodes.addAll(packageCodes);
-            }
-            if (CollectionUtils.isEmpty(totalPackageCodes)) {
-                return false;
-            }
-            Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
-            // 对包裹号集合按照运单维度分组，并统计每个所属运单下的应卸包裹数
-            for (String packageCode : totalPackageCodes) {
-                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-                // 从包裹号上截取包裹数
-                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                WaybillPackageNumInfo waybillInfo = waybillMap.get(waybillCode);
-                if (waybillInfo != null) {
-                    waybillInfo.setPackageAmount(packageNum);
-                    waybillInfo.setForceAmount(waybillInfo.getForceAmount() + 1);
-                } else {
-                    waybillInfo = new WaybillPackageNumInfo();
-                    waybillInfo.setWaybillCode(waybillCode);
-                    waybillInfo.setPackageAmount(packageNum);
-                    waybillInfo.setForceAmount(1);
-                    waybillMap.put(waybillCode, waybillInfo);
+            // 只有操作站点是快运中心时，才初始化运单暂存
+            if (isExpressCenterSite(tmsSealCar.getOperateSiteId())) {
+                boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
+                if (!isSuccess) {
+                    return false;
                 }
-            }
-
-            // 设置封车任务下总运单数
-            unloadCar.setWaybillNum(waybillMap.size());
-            unloadCar.setPackageNum(totalPackageCodes.size());
-            List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>(waybillMap.values());
-            // 分批保存
-            List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
-            for (List<WaybillPackageNumInfo> list : partitionList) {
-                unloadScan.setWaybillPackageNumInfoList(list);
-                unloadScanDao.batchInsert(unloadScan);
+            } else {
+                Map<String, Object> params = new HashMap<String, Object>();
+                params.put("createSiteCode", tmsSealCar.getOperateSiteId());
+                params.put("sendCodes", requiredBatchCodes);
+                Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
+                Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
+                unloadCar.setWaybillNum(waybillNum);
+                unloadCar.setPackageNum(packageNum);
             }
         } catch (Exception e) {
             logger.error("查询运单数或者包裹数失败!",e);
@@ -1952,6 +1928,54 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         } catch (Exception e) {
             logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
             return false;
+        }
+        return true;
+    }
+
+    private boolean batchSaveUnloadScan(TmsSealCar tmsSealCar, UnloadCar unloadCar) {
+        // 初始化运单暂存表
+        UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
+                tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
+        unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+
+        List<String> totalPackageCodes = new ArrayList<>();
+        List<String> packageCodes;
+        // 循环获取每个批次下的包裹号集合
+        for (String batchCode : tmsSealCar.getBatchCodes()) {
+            packageCodes = querySendPackageBySendCode(tmsSealCar.getOperateSiteId(), batchCode);
+            totalPackageCodes.addAll(packageCodes);
+        }
+        if (CollectionUtils.isEmpty(totalPackageCodes)) {
+            return false;
+        }
+        Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
+        // 对包裹号集合按照运单维度分组，并统计每个所属运单下的应卸包裹数
+        for (String packageCode : totalPackageCodes) {
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            WaybillPackageNumInfo waybillInfo = waybillMap.get(waybillCode);
+            if (waybillInfo != null) {
+                waybillInfo.setForceAmount(waybillInfo.getForceAmount() + 1);
+            } else {
+                waybillInfo = new WaybillPackageNumInfo();
+                waybillInfo.setWaybillCode(waybillCode);
+                // 从包裹号上截取包裹数
+                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+                waybillInfo.setPackageAmount(packageNum);
+                waybillInfo.setForceAmount(1);
+                waybillMap.put(waybillCode, waybillInfo);
+            }
+        }
+
+        // 设置封车任务下总运单数
+        unloadCar.setWaybillNum(waybillMap.size());
+        // 设置封车任务下总包裹数
+        unloadCar.setPackageNum(totalPackageCodes.size());
+        List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>(waybillMap.values());
+        // 分批保存
+        List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
+        for (List<WaybillPackageNumInfo> list : partitionList) {
+            unloadScan.setWaybillPackageNumInfoList(list);
+            unloadScanDao.batchInsert(unloadScan);
         }
         return true;
     }
@@ -2479,5 +2503,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("卸车-设置运单重量和体积--查询运单接口返回空:sealCarCode={},waybillCode={}", unloadScan.getSealCarCode(),
                     unloadScan.getWaybillCode());
         }
+    }
+
+    /**
+     * 判断当前操作场地是否是快运中心
+     * @param dmsSiteId 当前场地ID
+     */
+    private boolean isExpressCenterSite(Integer dmsSiteId) {
+        // 根据当前网点ID查询网点基础信息
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dmsSiteId);
+        if (siteOrgDto == null) {
+            logger.error("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}]", dmsSiteId);
+            return false;
+        }
+        if (EXPRESS_CENTER_SITE_ID.equals(siteOrgDto.getSubType())) {
+            return true;
+        }
+        return false;
     }
 }
