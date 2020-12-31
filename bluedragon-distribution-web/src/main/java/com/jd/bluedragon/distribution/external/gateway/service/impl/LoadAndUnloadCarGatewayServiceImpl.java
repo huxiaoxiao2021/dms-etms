@@ -295,6 +295,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdCResponse<List<String>> getUnloadPackageCodes(UnloadCarScanRequest request) {
         JdCResponse<List<String>> jdcResponse = new JdCResponse<>();
+
         if (null == request) {
             jdcResponse.toFail("请求参数不能为空！");
             return jdcResponse;
@@ -303,10 +304,15 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdcResponse.toFail("封车编码不能为空！");
             return jdcResponse;
         }
-        InvokeResult<List<String>>  invokeResult = unloadCarService.getUnloadPackageCodes(request);
-        jdcResponse.setCode(convertCode(invokeResult.getCode()));
-        jdcResponse.setMessage(invokeResult.getMessage());
-        jdcResponse.setData(invokeResult.getData());
+        InvokeResult<List<String>> invokeResult = unloadCarService.getUnloadPackageCodes(request);
+        if (invokeResult != null) {
+            jdcResponse.setCode(convertCode(invokeResult.getCode()));
+            jdcResponse.setMessage(invokeResult.getMessage());
+            jdcResponse.setData(invokeResult.getData());
+        } else {
+            jdcResponse.setCode(JdCResponse.CODE_ERROR);
+            jdcResponse.setMessage("接口查询返回空");
+        }
         return jdcResponse;
     }
 
