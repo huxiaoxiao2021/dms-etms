@@ -61,7 +61,7 @@ public class UnloadScanDetailDto implements Serializable {
     /**
      * 下一流向编码
      */
-    private String receiveSiteCode;
+    private Integer receiveSiteCode;
 
     /**
      * 未卸件数
@@ -146,11 +146,11 @@ public class UnloadScanDetailDto implements Serializable {
         this.receiveSiteName = receiveSiteName;
     }
 
-    public String getReceiveSiteCode() {
+    public Integer getReceiveSiteCode() {
         return receiveSiteCode;
     }
 
-    public void setReceiveSiteCode(String receiveSiteCode) {
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
     }
 
