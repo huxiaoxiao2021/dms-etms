@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ump.annotation.JProEnum;
@@ -7,13 +8,14 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.BaseResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ExceptionReasonService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import java.util.Map;
 public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
     private static final Integer SUCCESS_CODE= 1;
+    private static final Integer FAIL=-1;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -33,13 +36,10 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     @Override
     public Map<String, ExceptionReason> selectAbnReasonByErp(String userErp) {
         List<ExceptionReason> abnormalReasonDtoList = null;
-        try {
-            BaseResult<List<ExceptionReason>> res = exceptionReasonService.getExceptionReasons();
-            if(res!=null && res.getResultCode().equals(SUCCESS_CODE)){
-                abnormalReasonDtoList=res.getData();
-            }
-        } catch (Exception e) {
-            logger.error("getExceptionReasons JSF接口异常！ERP：{}", userErp, e);
+
+        BaseResult<List<ExceptionReason>> res=getExceptionReasons();
+        if(res!=null && res.getResultCode().equals(SUCCESS_CODE)){
+            abnormalReasonDtoList=res.getData();
         }
 
         if (abnormalReasonDtoList == null || abnormalReasonDtoList.size() == 0) {
@@ -63,13 +63,62 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.report", mState = {JProEnum.TP})
     @Override
-    public PdaResult report(WpAbnormalRecordPda wpAbnormalRecordPda) {
+    public PdaResult report(List<ReportRecord> wpAbnormalRecordPda) {
         PdaResult pdaResult = null;
+
+
+
         try {
             pdaResult = exceptionReasonService.report(wpAbnormalRecordPda);
         } catch (Exception e) {
             logger.error("调用质控系统report JSF接口异常！", e);
         }
         return pdaResult;
+    }
+
+    @Override
+    public JdCResponse<ExceptionReason> getAbnormalFirst(Long abnormalId){
+        JdCResponse<ExceptionReason> res = new JdCResponse<>(JdCResponse.CODE_FAIL, JdCResponse.MESSAGE_FAIL);
+        BaseResult<List<ExceptionReason>> reasons=getExceptionReasons();
+
+        if(reasons==null || !reasons.getResultCode().equals(SUCCESS_CODE)){
+            return res;
+        }
+
+        List<ExceptionReason> reasonList=reasons.getData();
+        //按照AbnormalLevel降序排列
+        Collections.sort(reasonList, new Comparator<ExceptionReason>() {
+            @Override
+            public int compare(ExceptionReason re0, ExceptionReason re1) {
+                return re1.getAbnormalLevel().compareTo(re0.getAbnormalLevel());
+            }
+        });
+
+        for (ExceptionReason item : reasonList) {
+            if(item.getId().equals(abnormalId)){
+                if(item.getAbnormalLevel().equals("1")){
+                    res.setCode(JdCResponse.CODE_SUCCESS);
+                    res.setMessage(JdCResponse.MESSAGE_SUCCESS);
+                    res.setData(item);
+                    return res;
+                }else {
+                    abnormalId=item.getFid();
+                }
+            }
+        }
+
+        return res;
+    }
+
+    private BaseResult<List<ExceptionReason>> getExceptionReasons(){
+        BaseResult<List<ExceptionReason>> res=new BaseResult<>(FAIL);
+
+        try {
+            res = exceptionReasonService.getExceptionReasons();
+        } catch (Exception e) {
+            logger.error("getExceptionReasons JSF接口异常！",e);
+        }
+
+        return res;
     }
 }

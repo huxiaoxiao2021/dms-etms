@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.qualityControl.service.QualityControlServi
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -29,17 +28,15 @@ import com.jd.ql.dms.report.domain.BasicSite;
 import com.jd.ql.dms.report.domain.SiteQueryCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.CodeTypeEnum;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -242,7 +239,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         //判断是不是质控
         Integer sourceType = dmsAbnormalReasonDto.getSourceType();
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
-            WpAbnormalRecordPda wpAbnormalRecordPda = this.convert2WpAbnormalRecordPda(abnormalReportingRequest);
+            List<ReportRecord> wpAbnormalRecordPda = this.convert2ReportRecord(abnormalReportingRequest);
             log.info("WpAbnormalRecordPda参数：{}", JsonHelper.toJson(wpAbnormalRecordPda));
             PdaResult pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
 
@@ -477,32 +474,59 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
 
-    private WpAbnormalRecordPda convert2WpAbnormalRecordPda(AbnormalReportingRequest abnormalReportingRequest) {
-        WpAbnormalRecordPda wpAbnormalRecordPda = new WpAbnormalRecordPda();
+    private List<ReportRecord> convert2ReportRecord(AbnormalReportingRequest abnormalReportingRequest) {
+        List<ReportRecord> res=new ArrayList<>();
+
         DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
-        wpAbnormalRecordPda.setOrders(StringUtils.join(abnormalReportingRequest.getBarCodes().toArray(), ','));
-        wpAbnormalRecordPda.setAbnormalSecondId(dmsAbnormalReasonDto.getParentCode());
-        wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
-        wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
-        wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
-
-        if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())
-                && abnormalReportingRequest.getDealDeptType() != null) {
-            wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
-            wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
-            wpAbnormalRecordPda.setStoreType(abnormalReportingRequest.getDealDeptType().toString());
+        JdCResponse<ExceptionReason> abnormalFirst=iAbnPdaAPIManager.getAbnormalFirst(dmsAbnormalReasonDto.getParentCode());
+        if(!abnormalFirst.getCode().equals(JdCResponse.CODE_SUCCESS)){
+            return res;
         }
 
-        wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
-        wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
-        wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
-        wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
-        wpAbnormalRecordPda.setCreateTimeStr(DateHelper.formatDate(abnormalReportingRequest.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
-        wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
-        if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
-            wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
+        for (String barCode: abnormalReportingRequest.getBarCodes()) {
+            ReportRecord itme=new ReportRecord();
+            itme.setCode(barCode);
+            if (WaybillUtil.isWaybillCode(barCode)) {
+                itme.setCodeTypeEnum(CodeTypeEnum.WAYBILL);
+            } else if (WaybillUtil.isPackageCode(barCode)) {
+                itme.setCodeTypeEnum(CodeTypeEnum.PACKAGE);
+            }
+
+            itme.setFirstLevelExceptionId(abnormalFirst.getData().getFid());
+            itme.setFirstLevelExceptionName(abnormalFirst.getData().getAbnormalName());
+            itme.setSecondLevelExceptionId(dmsAbnormalReasonDto.getParentCode());
+            itme.setSecondLevelExceptionName(dmsAbnormalReasonDto.getParentName());
+            itme.setThirdLevelExceptionId(dmsAbnormalReasonDto.getReasonCode());
+            itme.setThirdLevelExceptionName(dmsAbnormalReasonDto.getReasonName());
+
+            if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())) {
+                itme.setDealDept(abnormalReportingRequest.getDealDeptCode());
+                itme.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+            }
+
+            itme.setRemark(abnormalReportingRequest.getRemark());
+            if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
+                itme.setProofUrls(abnormalReportingRequest.getImgUrls());
+            }
+            itme.setCreateUser(abnormalReportingRequest.getUserErp());
+            itme.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
+            itme.setCreateDeptName(abnormalReportingRequest.getSiteName());
+            itme.setCreateTime(abnormalReportingRequest.getOperateTime());
+            itme.setReportSystem("11");
+
+            res.add(itme);
         }
 
-        return wpAbnormalRecordPda;
+        return res;
+    }
+
+    /**
+     * 根据二级原因ID获取一级原因
+     * @param abnormalSecondId
+     * @return
+     */
+    private JdCResponse<ExceptionReason> getAbnormalFirst(Long abnormalSecondId){
+        JdCResponse<ExceptionReason> res = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
     }
 }
