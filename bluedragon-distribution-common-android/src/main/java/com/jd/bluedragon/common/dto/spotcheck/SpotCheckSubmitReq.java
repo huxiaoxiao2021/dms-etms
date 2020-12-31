@@ -43,6 +43,8 @@ public class SpotCheckSubmitReq implements Serializable {
      */
     private List<String> urls;
 
+    private Integer source;
+
     public SpotCheckSubmitReq() {
     }
 
@@ -92,5 +94,13 @@ public class SpotCheckSubmitReq implements Serializable {
 
     public void setUrls(List<String> urls) {
         this.urls = urls;
+    }
+
+    public Integer getSource() {
+        return source;
+    }
+
+    public void setSource(Integer source) {
+        this.source = source;
     }
 }
