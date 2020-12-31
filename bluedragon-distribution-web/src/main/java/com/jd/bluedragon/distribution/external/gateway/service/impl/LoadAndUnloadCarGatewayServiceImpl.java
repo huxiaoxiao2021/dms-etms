@@ -292,6 +292,24 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return response;
     }
 
+    @Override
+    public JdCResponse<List<String>> getUnloadPackageCodes(UnloadCarScanRequest request) {
+        JdCResponse<List<String>> jdcResponse = new JdCResponse<>();
+        if (null == request) {
+            jdcResponse.toFail("请求参数不能为空！");
+            return jdcResponse;
+        }
+        if (StringUtils.isBlank(request.getSealCarCode())) {
+            jdcResponse.toFail("封车编码不能为空！");
+            return jdcResponse;
+        }
+        InvokeResult<List<String>>  invokeResult = unloadCarService.getUnloadPackageCodes(request);
+        jdcResponse.setCode(convertCode(invokeResult.getCode()));
+        jdcResponse.setMessage(invokeResult.getMessage());
+        jdcResponse.setData(invokeResult.getData());
+        return jdcResponse;
+    }
+
     private int convertCode(int invokeResultCode) {
         int code;
         if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {
