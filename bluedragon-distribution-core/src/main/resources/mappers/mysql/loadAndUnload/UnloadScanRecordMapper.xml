@@ -208,6 +208,12 @@
         and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
     </select>
 
+    <select id="selectPackageCodesBySealCarCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select package_code
+        from unload_scan_record where yn = 1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
 
 
 </mapper>
