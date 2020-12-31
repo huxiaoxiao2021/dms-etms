@@ -2474,6 +2474,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/checkWaybillForPreSortOnSite")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
 		return waybillService.checkWaybillForPreSortOnSite(waybillForPreSortOnSiteRequest);
 	}

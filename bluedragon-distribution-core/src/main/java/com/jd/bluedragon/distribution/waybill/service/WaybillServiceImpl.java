@@ -1012,8 +1012,8 @@ public class WaybillServiceImpl implements WaybillService {
                 //如果是包裹，提取运单号
                 waybillForPreSortOnSiteRequest.setWaybill(WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
             }
-            BaseEntity<Waybill> baseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillForPreSortOnSiteRequest.getWaybill());
-            if (baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null) {
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillForPreSortOnSiteRequest.getWaybill());
+            if (waybill == null) {
                 result.error("运单不存在。");
                 log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
@@ -1037,13 +1037,13 @@ public class WaybillServiceImpl implements WaybillService {
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
             //规则1
-            if(BusinessUtil.isSignChar(baseEntity.getData().getWaybillSign(),36,'4') &&
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
                     SiteTypeEnum.SORTING_CENTER.getCode().equals(userInfo.getSiteType())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此单为重货网运单，禁止操作现场预分拣");
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此单为重货网运单，禁止分拣人员操作现场预分拣");
                 return result;
             }
             //规则2
-            if (!BusinessUtil.isSignChar(baseEntity.getData().getWaybillSign(),36,'4') &&
+            if (!BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
                     SiteHelper.isBigElectricApplianceSite(site)){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"此单非重货网运单，禁止选择京东帮网点");
                 return result;

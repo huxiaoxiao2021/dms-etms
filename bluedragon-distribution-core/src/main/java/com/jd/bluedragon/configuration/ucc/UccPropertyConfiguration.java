@@ -219,6 +219,11 @@ public class UccPropertyConfiguration {
      */
     private String allPureValidateWeightWebSite;
 
+    /*
+    * 现场预分拣是否校验开关
+    * */
+    private boolean preSortOnSiteSwitchOn;
+
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
     }
@@ -609,5 +614,13 @@ public class UccPropertyConfiguration {
 
     public void setAllPureValidateWeightWebSite(String allPureValidateWeightWebSite) {
         this.allPureValidateWeightWebSite = allPureValidateWeightWebSite;
+    }
+
+    public boolean isPreSortOnSiteSwitchOn() {
+        return preSortOnSiteSwitchOn;
+    }
+
+    public void setPreSortOnSiteSwitchOn(boolean preSortOnSiteSwitchOn) {
+        this.preSortOnSiteSwitchOn = preSortOnSiteSwitchOn;
     }
 }
