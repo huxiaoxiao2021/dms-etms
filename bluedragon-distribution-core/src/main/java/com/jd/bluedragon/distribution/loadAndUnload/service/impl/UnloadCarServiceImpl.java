@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
@@ -44,6 +46,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -168,7 +171,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private UnloadScanRecordDao unloadScanRecordDao;
 
-
+    @Autowired
+    @Qualifier(value = "unloadCompleteProducer")
+    private DefaultJMQProducer unloadCompleteProducer;
 
 
     @Override
@@ -1997,6 +2002,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             logger.error("修改任务状态失败，请求信息：{}",JsonHelper.toJson(unloadCarTaskReq));
             return result;
+        }
+        UnloadCarCompleteMqDto dto = new UnloadCarCompleteMqDto();
+        dto.setSealCarCode(unloadCarTaskReq.getTaskCode());
+        dto.setStatus(3);
+        try {
+            unloadCompleteProducer.send(dto.getSealCarCode(), JsonHelper.toJson(dto));
+        } catch (JMQException e) {
+            logger.error("卸车完成消息异常,封车号={}", unloadCarTaskReq.getTaskCode(), e);
         }
         return this.getUnloadCarTask(unloadCarTaskReq);
     }
