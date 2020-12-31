@@ -616,7 +616,7 @@ public class UccPropertyConfiguration {
         this.allPureValidateWeightWebSite = allPureValidateWeightWebSite;
     }
 
-    public boolean isPreSortOnSiteSwitchOn() {
+    public boolean getPreSortOnSiteSwitchOn() {
         return preSortOnSiteSwitchOn;
     }
 

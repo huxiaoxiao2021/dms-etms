@@ -1005,7 +1005,7 @@ public class WaybillServiceImpl implements WaybillService {
     public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
-        if (!uccPropertyConfiguration.isPreSortOnSiteSwitchOn()){
+        if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
             return result;
         }
         try{
