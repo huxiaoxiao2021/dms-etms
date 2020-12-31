@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
+import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
@@ -18,6 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +39,9 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
 
     @Autowired
     private UnloadCarDao unloadCarDao;
+
+    @Autowired
+    private UnloadCarService unloadCarService;
 
     @Override
     public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
@@ -343,6 +349,22 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setTs(new Date());
         unloadCar.setCreateTime(new Date());
         unloadCarDao.add(unloadCar);
+
+        List<Integer> idList = new ArrayList<>();
+        idList.add(unloadCar.getUnloadCarId().intValue());
+        List<String> sealList = new ArrayList<>();
+        sealList.add(sealCarCode);
+
+        // 分配卸车负责人
+        DistributeTaskRequest request = new DistributeTaskRequest();
+        request.setUnloadUserErp(req.getOperateUserErp());
+        request.setUnloadUserName(req.getOperateUserName());
+        request.setRailWayPlatForm(null);
+        request.setUnloadCarIds(idList);
+        request.setUpdateUserErp(req.getOperateUserErp());
+        request.setUpdateUserName(req.getOperateUserName());
+        request.setSealCarCodes(sealList);
+        unloadCarService.distributeTask(request);
         jdCResponse.toSucceed("操作成功");
         jdCResponse.setData(sealCarCode);
         return jdCResponse;

@@ -1879,31 +1879,44 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
 
         try {
-            Map<String, Object> params = new HashMap<String, Object>();
-            params.put("createSiteCode",tmsSealCar.getOperateSiteId());
-            params.put("sendCodes",requiredBatchCodes);
-            // 初始化运单暂存表 todo 性能、 数据量、索引
-            Map<String, WaybillPackageNumInfo> map = sendDatailDao.queryPackageNumByWaybillCode(params);
-            if (map == null || map.isEmpty()) {
-                return false;
-            }
-
+            // 初始化运单暂存表
             UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
                     tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
             unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
-            List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>();
-            // 封车任务下总包裹数
-            int totalPackageNum = 0;
-            for (WaybillPackageNumInfo waybillPackageNumInfo : map.values()) {
-                // 从包裹号上截取包裹数
-                int packageNum = WaybillUtil.getPackNumByPackCode(waybillPackageNumInfo.getPackageCode());
-                waybillPackageNumInfo.setPackageAmount(packageNum);
-                waybillPackageNumInfoList.add(waybillPackageNumInfo);
-                totalPackageNum = totalPackageNum + waybillPackageNumInfo.getForceAmount();
+
+            List<String> totalPackageCodes = new ArrayList<>();
+            List<String> packageCodes;
+            // 循环获取每个批次下的包裹号集合
+            for (String batchCode : batchCodes) {
+                packageCodes = querySendPackageBySendCode(tmsSealCar.getOperateSiteId(), batchCode);
+                totalPackageCodes.addAll(packageCodes);
             }
+            if (CollectionUtils.isEmpty(totalPackageCodes)) {
+                return false;
+            }
+            Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
+            // 对包裹号集合按照运单维度分组，并统计每个所属运单下的应卸包裹数
+            for (String packageCode : totalPackageCodes) {
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                // 从包裹号上截取包裹数
+                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+                WaybillPackageNumInfo waybillInfo = waybillMap.get(waybillCode);
+                if (waybillInfo != null) {
+                    waybillInfo.setPackageAmount(packageNum);
+                    waybillInfo.setForceAmount(waybillInfo.getForceAmount() + 1);
+                } else {
+                    waybillInfo = new WaybillPackageNumInfo();
+                    waybillInfo.setWaybillCode(waybillCode);
+                    waybillInfo.setPackageAmount(packageNum);
+                    waybillInfo.setForceAmount(1);
+                    waybillMap.put(waybillCode, waybillInfo);
+                }
+            }
+
             // 设置封车任务下总运单数
-            unloadCar.setWaybillNum(map.size());
-            unloadCar.setPackageNum(totalPackageNum);
+            unloadCar.setWaybillNum(waybillMap.size());
+            unloadCar.setPackageNum(totalPackageCodes.size());
+            List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>(waybillMap.values());
             // 分批保存
             List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
             for (List<WaybillPackageNumInfo> list : partitionList) {
