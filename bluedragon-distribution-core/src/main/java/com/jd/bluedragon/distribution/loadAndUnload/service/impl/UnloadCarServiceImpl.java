@@ -2211,9 +2211,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode());
                 if (unloadCar != null && unloadCar.getBatchCode() != null) {
                     unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
+                } else {
+                    unloadCarTaskDto.setBatchNum(0);
                 }
-                unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum());
-                unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum());
+                unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum() == null ? 0 : unloadCar.getPackageNum());
+                unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum() == null ? 0 : unloadCar.getWaybillNum());
                 unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
                 unloadCarTaskDto.setTaskStatusName(UnloadCarStatusEnum.getEnum(unloadCar.getStatus()).getName());
 
