@@ -1707,7 +1707,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private List<String> getSurplusPackageCodes(List<String> totalPackages, String sealCarCode, String waybillCode) {
         // 查询封车任务下指定运单下的所有包裹
         List<String> allPackage = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
-        if(CollectionUtils.isEmpty(allPackage)){
+        if (CollectionUtils.isEmpty(allPackage) && !sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
         }
         return getDifferenceList(totalPackages, allPackage);
