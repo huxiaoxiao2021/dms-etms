@@ -579,7 +579,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
         UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
-        // 运单之前操作过 todo 单个包裹是否有不组板的
+        // 运单之前操作过
         if (unloadScan != null) {
             unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
             // 有应卸才有未卸
@@ -625,7 +625,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 nextSiteName = baseSiteInfoDto.getSiteName();
             }
         }
-        // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合 //todo 异步
+        // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合
         List<String> normalPackages = ListUtils.subtract(packageList, surplusPackages);
         UnloadScanRecord unloadScanRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
                 request.getTransfer(), nextSiteCode, nextSiteName, false, sendCode, request, unloadCar);
