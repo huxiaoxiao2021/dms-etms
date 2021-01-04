@@ -393,7 +393,7 @@ public class SiteHelper {
      * @return
      */
     public static Boolean isBigElectricApplianceSite(Site site){
-        if (site == null || site.getType() == null) {
+        if (null == site || null == site.getType() || null == site.getSubType()) {
             return Boolean.FALSE;
         }
 
