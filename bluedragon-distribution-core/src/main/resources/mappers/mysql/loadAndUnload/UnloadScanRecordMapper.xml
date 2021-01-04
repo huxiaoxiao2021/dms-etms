@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao">
+
+	<resultMap id="unloadScanRecord" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="license_number" property="licenseNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="end_site_name" property="endSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="end_site_code" property="endSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="transfer" property="transfer" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="flow_disaccord" property="flowDisaccord" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_code" property="updateUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+		id,task_id,seal_car_code,license_number,batch_code,waybill_code,package_code,create_site_name,create_site_code,
+        end_site_name,end_site_code,transfer,flow_disaccord,create_user_code,create_user_name,create_user_erp,
+        update_user_code,update_user_name,update_user_erp,create_time,update_time,yn
+	</sql>
+
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord">
+        insert into unload_scan_record
+        <trim  prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="sealCarCode != null">
+                seal_car_code,
+            </if>
+            <if test="licenseNumber != null">
+                license_number,
+            </if>
+            <if test="batchCode != null">
+                batch_code,
+            </if>
+            <if test="waybillCode != null">
+                waybill_code,
+            </if>
+            <if test="packageCode != null">
+                package_code,
+            </if>
+            <if test="createSiteName != null">
+                create_site_name,
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code,
+            </if>
+            <if test="endSiteCode != null">
+                end_site_code,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
+            <if test="transfer != null">
+                transfer,
+            </if>
+            <if test="flowDisaccord != null">
+                flow_disaccord,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="createUserCode != null">
+                create_user_code,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserCode != null">
+                update_user_code,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            yn,
+            ts
+        </trim>
+
+        <trim prefix="values (" suffix=")"  suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=BIGINT},
+            </if>
+            <if test="sealCarCode != null">
+                #{sealCarCode,jdbcType=VARCHAR},
+            </if>
+            <if test="licenseNumber != null">
+                #{licenseNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="batchCode != null">
+                #{batchCode,jdbcType=VARCHAR},
+            </if>
+            <if test="waybillCode != null">
+                #{waybillCode,jdbcType=VARCHAR},
+            </if>
+            <if test="packageCode != null">
+                #{packageCode,jdbcType=VARCHAR},
+            </if>
+            <if test="createSiteName != null">
+                #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="createSiteCode != null">
+                #{createSiteCode,jdbcType=INTEGER},
+            </if>
+            <if test="endSiteCode != null">
+                #{endSiteCode,jdbcType=INTEGER},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="transfer != null">
+                #{transfer,jdbcType=INTEGER},
+            </if>
+            <if test="flowDisaccord != null">
+                #{flowDisaccord,jdbcType=INTEGER},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserCode != null">
+                #{createUserCode,jdbcType=INTEGER},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserCode != null">
+                #{updateUserCode,jdbcType=INTEGER},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            1,
+            now(3)
+        </trim>
+    </insert>
+
+
+
+    <insert id="batchInsertByWaybill" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord">
+        insert into unload_scan_record (task_id, seal_car_code, license_number, batch_code, waybill_code, package_code, create_site_name, create_site_code,
+        end_site_code, end_site_name, transfer, flow_disaccord, create_user_name, create_user_erp, create_user_code, update_user_name,
+        update_user_erp, update_user_code,  create_time, update_time, yn, ts)  VALUES
+        <foreach collection="packageCodeList" item="item" separator=",">
+            (#{taskId,jdbcType=BIGINT},
+             #{sealCarCode,jdbcType=VARCHAR},
+             #{licenseNumber,jdbcType=VARCHAR},
+             #{batchCode,jdbcType=VARCHAR},
+             #{waybillCode,jdbcType=VARCHAR},
+             #{item,jdbcType=VARCHAR},
+             #{createSiteName,jdbcType=VARCHAR},
+             #{createSiteCode,jdbcType=INTEGER},
+             #{endSiteCode,jdbcType=INTEGER},
+             #{endSiteName,jdbcType=VARCHAR},
+             #{transfer,jdbcType=INTEGER},
+             #{flowDisaccord,jdbcType=INTEGER},
+             #{createUserName,jdbcType=VARCHAR},
+             #{createUserErp,jdbcType=VARCHAR},
+             #{createUserCode,jdbcType=INTEGER},
+             #{updateUserName,jdbcType=VARCHAR},
+             #{updateUserErp,jdbcType=VARCHAR},
+             #{updateUserCode,jdbcType=INTEGER},
+             #{createTime,jdbcType=TIMESTAMP},
+             #{updateTime,jdbcType=TIMESTAMP},
+             1,
+             now(3))
+        </foreach>
+    </insert>
+
+
+
+    <select id="selectRecordBySealCarCode" parameterType="java.lang.String" resultMap="unloadScanRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from unload_scan_record where yn = 1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectPackageCodesBySealCarCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select package_code
+        from unload_scan_record where yn = 1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+    </select>
+
+
+
+</mapper>

@@ -58,4 +58,11 @@ public class GoodsLoadScanConstants {
      */
     public static final Integer PACKAGE_TRANSFER_TO_WAYBILL = 2;
 
+    // 卸车运单颜色状态--0绿色扫描完成,1无特殊颜色,2黄色多扫扫齐,3橙色多扫,4红色不齐
+    public static final Integer UNLOAD_SCAN_GREEN = 0;
+    public static final Integer UNLOAD_SCAN_BLANK = 1;
+    public static final Integer UNLOAD_SCAN_YELLOW = 2;
+    public static final Integer UNLOAD_SCAN_ORANGE = 3;
+    public static final Integer UNLOAD_SCAN_RED = 4;
+
 }
