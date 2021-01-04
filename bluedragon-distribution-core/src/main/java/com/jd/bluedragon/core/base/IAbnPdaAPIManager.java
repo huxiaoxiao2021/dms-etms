@@ -12,7 +12,7 @@ public interface IAbnPdaAPIManager {
 
     Map<String, ExceptionReason> selectAbnReasonByErp(String userErp);
 
-    PdaResult report(List<ReportRecord> wpAbnormalRecordPda);
+    JdCResponse report(List<ReportRecord> wpAbnormalRecordPda);
 
     JdCResponse<ExceptionReason> getAbnormalFirst(Long abnormalSecondId);
 }

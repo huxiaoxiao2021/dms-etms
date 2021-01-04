@@ -7,13 +7,17 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.BaseResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ResultCodeEnum;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ExceptionReasonService;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ReportService;
+import com.jd.wms.packExchange.domains.packExchange.result.ReportResult;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -30,6 +34,9 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
     @Autowired
     private ExceptionReasonService exceptionReasonService;
+
+    @Autowired
+    private ReportService reportService;
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.selectAbnReasonByErp", mState = {JProEnum.TP})
     @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
@@ -63,17 +70,35 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.report", mState = {JProEnum.TP})
     @Override
-    public PdaResult report(List<ReportRecord> wpAbnormalRecordPda) {
-        PdaResult pdaResult = null;
+    public JdCResponse report(List<ReportRecord> wpAbnormalRecordPda) {
+        JdCResponse res = new JdCResponse<>(0, JdCResponse.MESSAGE_FAIL);
 
-
-
-        try {
-            pdaResult = exceptionReasonService.report(wpAbnormalRecordPda);
-        } catch (Exception e) {
-            logger.error("调用质控系统report JSF接口异常！", e);
+        List<String> reportFails=new ArrayList<>();
+        for (ReportRecord item : wpAbnormalRecordPda) {
+            try {
+                BaseResult result= reportService.report(item);
+                if(!result.getResultCode().equals(ResultCodeEnum.SUCCESS.getCode())){
+                    reportFails.add(item.getCode());
+                }
+            } catch (Exception e) {
+                logger.error("调用质控系统report JSF接口异常！入参：[{}]",JsonHelper.toJson(item), e);
+                reportFails.add(item.getCode());
+            }
         }
-        return pdaResult;
+
+        if(reportFails.size()<=0){
+            res.setCode(5);
+            res.setMessage("全部成功");
+            return res;
+        }
+
+        if(reportFails.size()>0 && reportFails.size()<wpAbnormalRecordPda.size()){
+            res.setCode(3);
+            res.setMessage(StringUtils.join(reportFails.toArray(), ','));
+            return res;
+        }
+
+        return res;
     }
 
     @Override

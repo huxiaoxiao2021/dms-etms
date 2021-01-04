@@ -241,14 +241,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
             List<ReportRecord> wpAbnormalRecordPda = this.convert2ReportRecord(abnormalReportingRequest);
             log.info("WpAbnormalRecordPda参数：{}", JsonHelper.toJson(wpAbnormalRecordPda));
-            PdaResult pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
+            JdCResponse pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
 
             if (pdaResult == null) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
                 return jdCResponse;
             }
-            log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMsg());
+            log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMessage());
             //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
             if (pdaResult.getCode() == 5) {
                 //生成异常处理的异步任务，与老质控逻辑保持一致
@@ -259,7 +259,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (pdaResult.getCode() == 3) {
                 //部分成功
                 //剔除失败列表
-                String failBarCodes = pdaResult.getMsg();
+                String failBarCodes = pdaResult.getMessage();
                 String[] failBarCodeList = failBarCodes.split(",");
                 Set<String> barCodeSet = new HashSet<>(abnormalReportingRequest.getBarCodes());
                 for (String failBarCode : failBarCodeList) {
@@ -277,7 +277,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (pdaResult.getCode() == 0) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("质控系统接口异常，请稍后再试！");
-                log.error("质控系统接口异常：{}", pdaResult.getMsg());
+                log.error("质控系统接口异常：{}", pdaResult.getMessage());
             } else {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("信息提交失败，请联系IT运营人员核实质控系统权限！");
