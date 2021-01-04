@@ -567,7 +567,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         abnormalResultMq.setIsNeedBlame(0);
         abnormalResultMq.setReviewDutyErp(dto.getReviewErp());
         abnormalResultMq.setReviewErp(dto.getReviewErp());
-        abnormalResultMq.setBusinessType(2);
+        abnormalResultMq.setBusinessType(BusinessHelper.translateSpotCheckTypeToBusinessType(dto.getSpotCheckType()));
 
         return abnormalResultMq;
     }

@@ -894,4 +894,19 @@ public class BusinessHelper {
             return 1;//B网
         }
     }
+
+    /**
+     * 转化逻辑
+     * 分拣与下游 B/C网标识  相反
+     * 分拣 spotType 0:C网  1：B网
+     * 下游 businessType 1:C网  2:B网
+     * @param spotCheckType
+     * @return
+     */
+    public static Integer  translateSpotCheckTypeToBusinessType(Integer spotCheckType){
+        if(spotCheckType==null){
+            return 1;
+        }
+        return spotCheckType.equals(0)?1:2;
+    }
 }
