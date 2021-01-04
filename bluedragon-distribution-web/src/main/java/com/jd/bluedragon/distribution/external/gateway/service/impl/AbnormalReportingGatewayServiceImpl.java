@@ -520,13 +520,4 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         return res;
     }
 
-    /**
-     * 根据二级原因ID获取一级原因
-     * @param abnormalSecondId
-     * @return
-     */
-    private JdCResponse<ExceptionReason> getAbnormalFirst(Long abnormalSecondId){
-        JdCResponse<ExceptionReason> res = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
-
-    }
 }
