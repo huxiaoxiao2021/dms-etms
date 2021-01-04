@@ -161,8 +161,5 @@ public interface UnloadCarService {
      */
     InvokeResult<String> interceptValidateUnloadCar(String barCode);
 
-    /**
-     * 获取封车任务下未卸包裹号集合
-     */
-    InvokeResult<List<String>> getUnloadPackageCodes(UnloadCarScanRequest request);
+
 }

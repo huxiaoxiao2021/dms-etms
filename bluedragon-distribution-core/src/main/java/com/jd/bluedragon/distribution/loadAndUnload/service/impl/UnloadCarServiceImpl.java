@@ -2387,26 +2387,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
-    @Override
-    public InvokeResult<List<String>> getUnloadPackageCodes(UnloadCarScanRequest request) {
-        InvokeResult<List<String>> result = new InvokeResult<>();
-        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-        // 获取封车编码下所有包裹号
-        List<String> totalPackageCodes = searchAllPackage(request.getSealCarCode());
-        result.setData(totalPackageCodes);
-        if (CollectionUtils.isEmpty(totalPackageCodes)) {
-            result.setMessage("根据封车编码没有找到包裹号");
-        }
-        // 获取卸车扫描记录表的已扫描包裹号
-        List<String> recordList = unloadScanRecordDao.findPackageCodesBySealCarCode(request.getSealCarCode());
-        if (CollectionUtils.isEmpty(recordList)) {
-            return result;
-        }
-        List<String> unloadPackageCodes = ListUtils.subtract(totalPackageCodes, recordList);
-        result.setData(unloadPackageCodes);
-        return result;
-    }
+
 
     /**
      * B网营业厅增加寄付揽收完成校验
