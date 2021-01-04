@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -447,6 +448,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             	log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
             }
         }
+        log.info("loadBasicData-waybillCode[{}]tag[{}]baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]",waybill.getWaybillCode(), JsonHelper.toJson(tag),
+                JsonHelper.toJson(baseDmsStore),waybill.getPrepareSiteCode(),waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
         if(null!=tag){
             if(tag.getIsAirTransport()!=null
                     && tag.getIsAirTransport()== ComposeService.AIR_TRANSPORT

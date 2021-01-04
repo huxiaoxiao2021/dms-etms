@@ -268,6 +268,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWEB.jsf.out.basicSecondaryWS.getCrossPackageTagByPara");
 		try{
 			BaseResult<CrossPackageTagNew> crossPackageTagResult= basicSecondaryWS.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
+			log.info("getCrossPackageTagByPara-1-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]crossPackageTagResult[{}]",
+					JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,JsonHelper.toJson(crossPackageTagResult));
 			if(null != crossPackageTagResult
 					&& BaseResult.SUCCESS==crossPackageTagResult.getResultCode()){
                result.setData(crossPackageTagResult.getData());
@@ -343,6 +345,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType)
 				|| Constants.ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType)){
 			JdResult<CrossPackageTagNew> result = this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+			log.info("queryCrossPackageTag-1-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
+					JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));
 			//如果新的大全表没有数据 则 继续查询老大全表
 			if(result.isSucceed() && result.getData()!= null && result.getData().getOriginalDmsId()!=null){
 				return result;
@@ -350,6 +354,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				JdResult<CrossPackageTagNew> normalResult = this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 				if(normalResult.isSucceed() && normalResult.getData()!=null
 						&& normalResult.getData().getOriginalDmsId()!=null && normalResult.getData().getDestinationDmsId()!=null){
+					log.info("queryCrossPackageTag-2-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
+							JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));
 					//始发和目的相等维护了道口 可以返回陆运大全表
 					if(normalResult.getData().getOriginalDmsId().equals(normalResult.getData().getDestinationDmsId())){
 						return normalResult;
@@ -376,6 +382,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			Integer originalDmsId, Integer originalCrossType) {
 		//1、先获取正向
 		JdResult<CrossPackageTagNew> result = this.queryCrossPackageTag(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+		log.info("queryCrossPackageTagForPrint-1-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
+				JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));
 		//2、正向调用失败,或者返回数据为空，调用一次逆向接口
 		if(!result.isSucceed() || result.getData() == null){
 			JdResult<ReverseCrossPackageTag> reverseResult = this.getReverseCrossPackageTag(originalDmsId, targetSiteId);
@@ -398,6 +406,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				result.setMessageCode(reverseResult.getMessageCode());
 				result.setMessage(reverseResult.getMessage());
 			}
+			log.info("queryCrossPackageTagForPrint-2-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
+					JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));
         }
 		return result;
 	}
