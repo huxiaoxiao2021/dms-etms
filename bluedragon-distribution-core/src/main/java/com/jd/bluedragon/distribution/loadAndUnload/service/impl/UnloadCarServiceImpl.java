@@ -1217,20 +1217,27 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             logger.error("获取封车编码【{}】的缓存异常",sealCarCode,e);
         }
-        Integer totalCount = 0;
-        UnloadCar unloadCar = null;
-        try {
-            unloadCar = unloadCarDao.selectBySealCarCode(sealCarCode);
-        }catch (Exception e){
-            logger.error(InvokeResult.SERVER_ERROR_MESSAGE,e);
+        if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            unloadCarScanResult.setPackageTotalCount(scanCount);
+            unloadCarScanResult.setPackageScanCount(scanCount);
+            unloadCarScanResult.setPackageUnScanCount(0);
+            unloadCarScanResult.setSurplusPackageScanCount(surplusCount);
+        } else {
+            Integer totalCount = 0;
+            UnloadCar unloadCar = null;
+            try {
+                unloadCar = unloadCarDao.selectBySealCarCode(sealCarCode);
+            } catch (Exception e) {
+                logger.error(InvokeResult.SERVER_ERROR_MESSAGE, e);
+            }
+            if (unloadCar != null && unloadCar.getPackageNum() != null) {
+                totalCount = unloadCar.getPackageNum();
+            }
+            unloadCarScanResult.setPackageTotalCount(totalCount);
+            unloadCarScanResult.setPackageScanCount(scanCount);
+            unloadCarScanResult.setPackageUnScanCount(totalCount - scanCount);
+            unloadCarScanResult.setSurplusPackageScanCount(surplusCount);
         }
-        if(unloadCar != null && unloadCar.getPackageNum() != null){
-            totalCount = unloadCar.getPackageNum();
-        }
-        unloadCarScanResult.setPackageTotalCount(totalCount);
-        unloadCarScanResult.setPackageScanCount(scanCount);
-        unloadCarScanResult.setPackageUnScanCount(totalCount-scanCount);
-        unloadCarScanResult.setSurplusPackageScanCount(surplusCount);
     }
 
     /**
@@ -1670,7 +1677,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(isSurplusPackage){
+        if(isSurplusPackage && !request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)){
             // 201 成功并页面提示
             result.customMessage(CODE_SUCCESS_HIT,LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
         }
@@ -1695,11 +1702,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("获取缓存【{}】异常",key,e);
             throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        List<String> allPackage = searchAllPackage(sealCarCode);
         // 空任务都是多扫
         if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             exist = true;
         } else {
+            List<String> allPackage = searchAllPackage(sealCarCode);
             if (CollectionUtils.isEmpty(allPackage)) {
                 throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
             }
