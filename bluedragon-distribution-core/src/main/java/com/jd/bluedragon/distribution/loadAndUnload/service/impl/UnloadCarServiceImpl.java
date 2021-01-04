@@ -403,7 +403,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         result.setData(convertToUnloadCarResult(request));
-        logger.info("卸车扫描1：参数request={}", JsonHelper.toJson(request));
+        logger.info("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
         try {
             // 如果勾选【包裹号转大宗】
             if (request.getTransfer() != null
@@ -491,8 +495,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
         logger.info("卸车扫描：参数request={}", JsonHelper.toJson(request));
         InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
             if (unloadCar == null) {
@@ -817,7 +826,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadCarScanResult> waybillScan(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
-
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
         String packageCode = request.getBarCode();
         String sealCarCode = request.getSealCarCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -890,9 +902,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
 
         InvokeResult<UnloadScanDetailDto> invokeResult = new InvokeResult<>();
-
         String packageCode = request.getBarCode();
         String sealCarCode = request.getSealCarCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
