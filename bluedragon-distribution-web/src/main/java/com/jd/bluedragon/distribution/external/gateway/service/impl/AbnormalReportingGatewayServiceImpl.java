@@ -398,8 +398,8 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         dmsAbnormalReasonDto.setLevel(Integer.parseInt(abnormalReasonDto.getAbnormalLevel()));
         dmsAbnormalReasonDto.setReasonName(abnormalReasonDto.getAbnormalName());
         dmsAbnormalReasonDto.setIsOutCallType(0);
-        dmsAbnormalReasonDto.setIsUploadImgType(abnormalReasonDto.getUploadImg() == null ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
-        dmsAbnormalReasonDto.setIsDeviceCodeType(abnormalReasonDto.getDeviceCode() == null ? 0 : Integer.parseInt(abnormalReasonDto.getDeviceCode()));
+        dmsAbnormalReasonDto.setIsUploadImgType(StringUtils.isEmpty(abnormalReasonDto.getUploadImg()) ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
+        dmsAbnormalReasonDto.setIsDeviceCodeType(StringUtils.isEmpty(abnormalReasonDto.getDeviceCode()) ? 0 : Integer.parseInt(abnormalReasonDto.getDeviceCode()));
         dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark());
         dmsAbnormalReasonDto.setChildReasonList(new ArrayList<DmsAbnormalReasonDto>());
         return dmsAbnormalReasonDto;
