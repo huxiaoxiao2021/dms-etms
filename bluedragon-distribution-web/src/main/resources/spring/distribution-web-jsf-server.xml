@@ -246,4 +246,13 @@
                   ref="expressBillExceptionReportCenterService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--  批次号对外生成服务  -->
+    <jsf:provider id="sendCodeExternalApi"
+                  interface="com.jd.bluedragon.distribution.api.batch.ISendCodeApi"
+                  alias="${dms.jsf.sendCode.external.alias}"
+                  ref="sendCodeExternalService"
+                  server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
+    </jsf:provider>
 </beans>
