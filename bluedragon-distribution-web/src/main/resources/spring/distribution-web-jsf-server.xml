@@ -248,8 +248,8 @@
     </jsf:provider>
 
     <!--  批次号对外生成服务  -->
-    <jsf:provider id="sendCodeExternalApi"
-                  interface="com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi"
+    <jsf:provider id="dmsSendCodeExternalApi"
+                  interface="com.jd.bluedragon.distribution.external.sdk.api.batch.IDMSSendCodeApi"
                   alias="${dms.jsf.sendCode.external.alias}"
                   ref="sendCodeExternalService"
                   server="dmsjsf">

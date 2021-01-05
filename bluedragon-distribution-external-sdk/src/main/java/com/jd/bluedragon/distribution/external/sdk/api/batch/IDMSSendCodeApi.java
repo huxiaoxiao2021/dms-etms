@@ -4,12 +4,12 @@ import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
 import com.jd.bluedragon.distribution.external.sdk.dto.batch.SendCodeReq;
 
 /**
- * @ClassName ISendCodeApi
+ * @ClassName IDMSSendCodeApi
  * @Description 批次号对外服务
  * @Author wyh
  * @Date 2021/1/4 15:54
  **/
-public interface ISendCodeApi {
+public interface IDMSSendCodeApi {
 
     /**
      * 批次号生成服务，按业务方向给调用放分配系统标识

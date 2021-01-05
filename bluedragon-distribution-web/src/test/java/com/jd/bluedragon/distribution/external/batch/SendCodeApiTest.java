@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.batch;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi;
+import com.jd.bluedragon.distribution.external.sdk.api.batch.IDMSSendCodeApi;
 import com.jd.bluedragon.distribution.external.sdk.constants.SysSourceEnum;
 import com.jd.bluedragon.distribution.external.sdk.dto.batch.SendCodeReq;
 import org.junit.Test;
@@ -21,7 +21,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class SendCodeApiTest {
 
     @Autowired
-    private ISendCodeApi sendCodeApi;
+    private IDMSSendCodeApi sendCodeApi;
 
     @Test
     public void genSendCodeTest() {

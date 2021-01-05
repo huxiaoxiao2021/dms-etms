@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.busineCode.sendCode.jsf;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi;
+import com.jd.bluedragon.distribution.external.sdk.api.batch.IDMSSendCodeApi;
 import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
@@ -27,7 +27,7 @@ import java.util.Map;
  * @Date 2021/1/4 15:57
  **/
 @Service("sendCodeExternalService")
-public class SendCodeExternalServiceImpl implements ISendCodeApi {
+public class SendCodeExternalServiceImpl implements IDMSSendCodeApi {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendCodeExternalServiceImpl.class);
 
