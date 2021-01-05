@@ -506,11 +506,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
         // 装车界面增加返回下一场地
         scanDetailDto.setNextSiteName(loadCar.getEndSiteName());
-        // 如果场地配置了发货白名单
-        if (hasSendFunction(createSiteId, user.getUserErp())) {
-            log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
-            // 开放大宗权限
-            scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        if (user != null && StringUtils.isNotBlank(user.getUserErp())) {
+            // 如果场地配置了发货白名单
+            if (hasSendFunction(createSiteId, user.getUserErp())) {
+                log.info("获取到了大宗权限taskId={},createSiteId={}", taskId, createSiteId);
+                // 开放大宗权限
+                scanDetailDto.setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+            }
         }
 
         if (CollectionUtils.isEmpty(tempList)) {
