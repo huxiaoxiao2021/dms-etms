@@ -249,7 +249,7 @@
 
     <!--  批次号对外生成服务  -->
     <jsf:provider id="sendCodeExternalApi"
-                  interface="com.jd.bluedragon.distribution.api.batch.ISendCodeApi"
+                  interface="com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi"
                   alias="${dms.jsf.sendCode.external.alias}"
                   ref="sendCodeExternalService"
                   server="dmsjsf">

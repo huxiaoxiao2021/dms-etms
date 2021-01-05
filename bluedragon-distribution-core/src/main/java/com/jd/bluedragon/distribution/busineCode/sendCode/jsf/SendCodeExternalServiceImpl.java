@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.busineCode.sendCode.jsf;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.batch.ISendCodeApi;
-import com.jd.bluedragon.distribution.base.ServiceResult;
+import com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi;
+import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
-import com.jd.bluedragon.distribution.constants.ServiceMessageEnum;
-import com.jd.bluedragon.distribution.dto.batch.SendCodeReq;
+import com.jd.bluedragon.distribution.external.sdk.constants.ServiceMessageEnum;
+import com.jd.bluedragon.distribution.external.sdk.dto.batch.SendCodeReq;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;

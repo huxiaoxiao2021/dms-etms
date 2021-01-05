@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.constants;
+package com.jd.bluedragon.distribution.external.sdk.constants;
 
 /**
  * @ClassName ServiceMessageEnum

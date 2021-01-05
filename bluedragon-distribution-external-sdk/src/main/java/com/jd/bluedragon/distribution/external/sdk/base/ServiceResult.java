@@ -1,6 +1,6 @@
-package com.jd.bluedragon.distribution.base;
+package com.jd.bluedragon.distribution.external.sdk.base;
 
-import com.jd.bluedragon.distribution.constants.ServiceMessageEnum;
+import com.jd.bluedragon.distribution.external.sdk.constants.ServiceMessageEnum;
 
 import java.io.Serializable;
 

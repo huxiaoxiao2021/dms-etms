@@ -1,7 +1,7 @@
-package com.jd.bluedragon.distribution.api.batch;
+package com.jd.bluedragon.distribution.external.sdk.api.batch;
 
-import com.jd.bluedragon.distribution.base.ServiceResult;
-import com.jd.bluedragon.distribution.dto.batch.SendCodeReq;
+import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
+import com.jd.bluedragon.distribution.external.sdk.dto.batch.SendCodeReq;
 
 /**
  * @ClassName ISendCodeApi
@@ -13,7 +13,7 @@ public interface ISendCodeApi {
 
     /**
      * 批次号生成服务，按业务方向给调用放分配系统标识
-     * @see com.jd.bluedragon.distribution.constants.SysSourceEnum
+     * @see com.jd.bluedragon.distribution.external.sdk.constants.SysSourceEnum
      * @param request
      * @return
      */

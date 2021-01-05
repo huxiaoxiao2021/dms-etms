@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.external.batch;
 
 import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.distribution.api.batch.ISendCodeApi;
-import com.jd.bluedragon.distribution.constants.SysSourceEnum;
-import com.jd.bluedragon.distribution.dto.batch.SendCodeReq;
+import com.jd.bluedragon.distribution.external.sdk.api.batch.ISendCodeApi;
+import com.jd.bluedragon.distribution.external.sdk.constants.SysSourceEnum;
+import com.jd.bluedragon.distribution.external.sdk.dto.batch.SendCodeReq;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

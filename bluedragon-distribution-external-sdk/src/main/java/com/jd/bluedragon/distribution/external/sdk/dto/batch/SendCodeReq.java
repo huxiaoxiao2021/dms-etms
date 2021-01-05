@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.dto.batch;
+package com.jd.bluedragon.distribution.external.sdk.dto.batch;
 
 import java.io.Serializable;
 
