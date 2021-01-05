@@ -894,4 +894,25 @@ public class BusinessHelper {
             return 1;//B网
         }
     }
+
+    /**
+     * 生鲜仓判断
+     * 当sendpay第二位为4/5/6/7/8/9且sendpay338位为1时 为生鲜仓
+     */
+    public static boolean isFreshWarehouse(String sendPay){
+        if (StringHelper.isNotEmpty(sendPay)
+                && sendPay.length() >= 338
+                && (BusinessUtil.isSignChar(sendPay, 2, '4')
+                || BusinessUtil.isSignChar(sendPay, 2, '5')
+                || BusinessUtil.isSignChar(sendPay, 2, '6')
+                || BusinessUtil.isSignChar(sendPay, 2, '7')
+                || BusinessUtil.isSignChar(sendPay, 2, '8')
+                || BusinessUtil.isSignChar(sendPay, 2, '9')
+                )
+                && BusinessUtil.isSignChar(sendPay, 338, '1')){
+            return Boolean.TRUE;
+        }else{
+            return Boolean.FALSE;
+        }
+    }
 }
