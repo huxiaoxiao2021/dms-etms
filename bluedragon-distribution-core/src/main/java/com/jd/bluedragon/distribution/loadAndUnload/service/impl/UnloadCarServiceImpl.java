@@ -332,6 +332,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 包裹是否扫描成功
             packageIsScanBoard(request);
+            // 多货包裹标识
+            boolean isSurplusPackage = false;
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
@@ -344,7 +346,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
                 // 是否多货包裹校验
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
@@ -360,21 +362,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
             }else {
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
             }
-            // 多货包裹标识
-            boolean isSurplusPackage = false;
-            if(result.getCode() == CODE_SUCCESS_HIT){
-                isSurplusPackage = true;
-            }
 
             // 卸车处理并回传TC组板关系
-            dealUnloadAndBoxToBoard(request,isSurplusPackage);
+            dealUnloadAndBoxToBoard(request, isSurplusPackage);
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             // 查询包裹所在批次号
             String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
@@ -425,6 +422,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 包裹是否扫描成功
             packageIsScanBoard(request);
+            // 多货包裹标识
+            boolean isSurplusPackage = false;
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
@@ -437,7 +436,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
                 // 是否多货包裹校验
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
@@ -453,17 +452,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
             }else {
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return result;
-            }
-            // 多货包裹标识
-            boolean isSurplusPackage = false;
-            if(result.getCode() == CODE_SUCCESS_HIT){
-                isSurplusPackage = true;
             }
 
             // 卸车处理并回传TC组板关系
@@ -511,6 +505,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 包裹是否扫描成功
             packageIsScanBoard(request);
+            // 多货包裹标识
+            boolean isSurplusPackage = false;
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
@@ -523,7 +519,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
                 // 是否多货包裹校验
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
@@ -539,18 +535,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return dtoInvokeResult;
                 }
             }else {
-                surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result);
                 BeanUtils.copyProperties(result, dtoInvokeResult);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,LoadIllegalException.BOARD_NOTE_EXIST_INTERCEPT_MESSAGE);
                 return dtoInvokeResult;
-            }
-            // 多货包裹标识
-            boolean isSurplusPackage = false;
-            if(result.getCode() == CODE_SUCCESS_HIT){
-                isSurplusPackage = true;
             }
 
             // 卸车处理并回传TC组板关系
@@ -580,6 +571,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, String sendCode, UnloadCar unloadCar) {
+
+        // 转板时不再重复暂存
+        if (Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
+            return;
+        }
         // 包裹暂存
         UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
                 request.getTransfer(), null, null, isSurplusPackage, sendCode, request, unloadCar);
@@ -1670,22 +1666,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param result
      * @return
      */
-    private void surfacePackageCheck(UnloadCarScanRequest request, InvokeResult<UnloadCarScanResult> result) throws LoadIllegalException {
+    private boolean surfacePackageCheck(UnloadCarScanRequest request, InvokeResult<UnloadCarScanResult> result) throws LoadIllegalException {
         boolean isSurplusPackage = false;
         try {
             isSurplusPackage = isSurfacePackage(request.getSealCarCode(),request.getBarCode());
         }catch (Exception e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(isSurplusPackage){
+        if(isSurplusPackage && !request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)){
             // 空任务不弹框提示
-            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
-                result.setCode(CODE_SUCCESS_HIT);
-            } else {
-                // 201 成功并页面提示
-                result.customMessage(CODE_SUCCESS_HIT, LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
-            }
+            // 201 成功并页面提示
+           result.customMessage(CODE_SUCCESS_HIT, LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
         }
+        return isSurplusPackage;
     }
 
     /**
