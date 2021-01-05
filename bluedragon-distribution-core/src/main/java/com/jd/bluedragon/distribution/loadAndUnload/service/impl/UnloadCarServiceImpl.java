@@ -1694,6 +1694,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             String existStr = redisClientCache.get(key);
             if(StringUtils.isNotEmpty(existStr)){
+                logger.info("空任务问题排查5-----existStr={}", existStr);
                 return Boolean.valueOf(existStr);
             }
         }catch (Exception e){
@@ -1702,13 +1703,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 空任务都是多扫
         if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            logger.info("空任务问题排查1-----sealCarCode={}", sealCarCode);
             exist = true;
         } else {
             List<String> allPackage = searchAllPackage(sealCarCode);
+            logger.info("空任务问题排查2-----allPackage={}", allPackage);
             if (CollectionUtils.isEmpty(allPackage)) {
+                logger.info("空任务问题排查4-----allPackage={}", allPackage);
                 throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
             }
             if (!allPackage.contains(packageCode)) {
+                logger.info("空任务问题排查3-----allPackage={}", allPackage);
                 // 不包含则是多货包裹
                 exist = true;
             }
