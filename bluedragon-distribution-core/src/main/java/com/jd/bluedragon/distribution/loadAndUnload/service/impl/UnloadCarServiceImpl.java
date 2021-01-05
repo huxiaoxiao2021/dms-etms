@@ -2025,7 +2025,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarTaskDto.setTaskCode(unloadCar.getSealCarCode());
             unloadCarTaskDto.setCarCode(unloadCar.getVehicleNumber());
             unloadCarTaskDto.setPlatformName(unloadCar.getRailWayPlatForm());
-            unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode());
+            unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode() == null ? "" : unloadCar.getBatchCode());
             if (unloadCar != null && unloadCar.getBatchCode() != null) {
                 unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
             } else {
@@ -2257,7 +2257,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarTaskDto.setTaskCode(unloadCar.getSealCarCode());
                 unloadCarTaskDto.setPlatformName(unloadCar.getRailWayPlatForm());
                 unloadCarTaskDto.setCarCode(unloadCar.getVehicleNumber());
-                unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode());
+                unloadCarTaskDto.setBatchCode(unloadCar.getBatchCode() == null ? "" : unloadCar.getBatchCode());
                 if (unloadCar != null && unloadCar.getBatchCode() != null) {
                     unloadCarTaskDto.setBatchNum(getBatchNumber(unloadCar.getBatchCode()));
                 } else {
