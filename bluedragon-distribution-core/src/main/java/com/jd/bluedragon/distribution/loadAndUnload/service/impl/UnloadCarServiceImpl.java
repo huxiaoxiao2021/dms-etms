@@ -1677,9 +1677,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }catch (Exception e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(isSurplusPackage && !request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)){
-            // 201 成功并页面提示
-            result.customMessage(CODE_SUCCESS_HIT,LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
+        if(isSurplusPackage){
+            // 空任务不弹框提示
+            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+                result.setCode(CODE_SUCCESS_HIT);
+            } else {
+                // 201 成功并页面提示
+                result.customMessage(CODE_SUCCESS_HIT, LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
+            }
         }
     }
 
