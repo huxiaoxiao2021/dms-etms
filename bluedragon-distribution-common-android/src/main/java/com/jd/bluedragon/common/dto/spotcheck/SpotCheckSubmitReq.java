@@ -45,6 +45,8 @@ public class SpotCheckSubmitReq implements Serializable {
 
     private Integer source;
 
+    private Integer isExcess;
+
     public SpotCheckSubmitReq() {
     }
 
@@ -102,5 +104,13 @@ public class SpotCheckSubmitReq implements Serializable {
 
     public void setSource(Integer source) {
         this.source = source;
+    }
+
+    public Integer getIsExcess() {
+        return isExcess;
+    }
+
+    public void setIsExcess(Integer isExcess) {
+        this.isExcess = isExcess;
     }
 }

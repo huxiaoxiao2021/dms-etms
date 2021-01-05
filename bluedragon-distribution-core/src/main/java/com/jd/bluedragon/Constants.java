@@ -1351,4 +1351,8 @@ public class Constants {
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
 
+    /**
+     * PDA超标值 1
+     */
+    public static final Integer IS_EXCESS = 1;
 }

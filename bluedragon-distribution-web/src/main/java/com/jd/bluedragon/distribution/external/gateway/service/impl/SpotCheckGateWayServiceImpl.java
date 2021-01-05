@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.IsExcessReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
@@ -75,7 +76,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
                 return jdCResponse;
             }
         } catch (Exception e) {
-            logger.error("DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess error={},waybillCode={}", e, req.getWaybillCode());
+            logger.error("DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess error waybillCode={}", req.getWaybillCode(), e);
         }
         jdCResponse.toFail("操作失败！");
         return jdCResponse;
@@ -84,6 +85,57 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<Void> spotCheckSubmit(SpotCheckSubmitReq req) {
-        return null;
+        JdCResponse<Void> jdCResponse = new JdCResponse<>();
+        if (null == req) {
+            jdCResponse.toConfirm("请求参数不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getWaybillCode())) {
+            jdCResponse.toConfirm("运单号不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getLoginErp()) || null == req.getCreateSiteCode()) {
+            jdCResponse.toConfirm("操作人或站点编号不能为空！");
+            return jdCResponse;
+        }
+        if (null == req.getVolume() || null == req.getWeight()) {
+            jdCResponse.toConfirm("复核重量或体积不能为空！");
+            return jdCResponse;
+        }
+        if (Constants.IS_EXCESS.equals(req.getIsExcess()) && CollectionUtils.isEmpty(req.getUrls())) {
+            jdCResponse.toConfirm("超标提交需要上传抽检图片！");
+            return jdCResponse;
+        }
+        try {
+            InvokeResult<String> result = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(convert(req));
+            if (null != result || Constants.SUCCESS_CODE.equals(result.getCode())) {
+                jdCResponse.toSucceed("操作成功！");
+                return jdCResponse;
+            }
+        } catch (Exception e) {
+            logger.error("DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit error waybillCode={}", req.getWaybillCode(), e);
+        }
+        jdCResponse.toFail("操作失败！");
+        return jdCResponse;
     }
+
+
+    /**
+     * 转换参数
+     *
+     * @param req
+     * @return
+     */
+    public WeightVolumeCheckConditionB2b convert(SpotCheckSubmitReq req) {
+        WeightVolumeCheckConditionB2b conditionB2b = new WeightVolumeCheckConditionB2b();
+        conditionB2b.setCreateSiteCode(req.getCreateSiteCode());
+        conditionB2b.setIsExcess(req.getIsExcess());
+        conditionB2b.setLoginErp(req.getLoginErp());
+        conditionB2b.setWaybillVolume(req.getVolume());
+        conditionB2b.setWaybillOrPackageCode(req.getWaybillCode());
+        conditionB2b.setWaybillWeight(req.getWeight());
+        return conditionB2b;
+    }
+
+
 }
