@@ -862,6 +862,23 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
+	    //当sendpay第二位为4/5/6/7/8/9且sendpay338位为1时增加 【生鲜仓已消毒】
+        if (StringHelper.isNotEmpty(waybill.getSendPay())
+                && waybill.getSendPay().length() >= 338
+                && (BusinessUtil.isSignChar(waybill.getSendPay(), 2, '4')
+                    || BusinessUtil.isSignChar(waybill.getSendPay(), 2, '5')
+                    || BusinessUtil.isSignChar(waybill.getSendPay(), 2, '6')
+                    || BusinessUtil.isSignChar(waybill.getSendPay(), 2, '7')
+                    || BusinessUtil.isSignChar(waybill.getSendPay(), 2, '8')
+                    || BusinessUtil.isSignChar(waybill.getSendPay(), 2, '9')
+                )
+                && BusinessUtil.isSignChar(waybill.getSendPay(), 338, '1')){
+            if (StringUtils.isEmpty(target.getjZDFlag())){
+                target.setjZDFlag(TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT);
+            }else{
+                target.setjZDFlag(target.getjZDFlag() + "\r\n" + TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT);
+            }
+        }
 
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){

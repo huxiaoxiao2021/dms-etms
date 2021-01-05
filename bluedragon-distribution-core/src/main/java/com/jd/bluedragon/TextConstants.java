@@ -116,7 +116,7 @@ public class TextConstants {
     /**
      * 京准达快递到车
      */
-    public static final String	TEXT_TRANSPORT_KDDC="京准达 快递到车";
+    public static final String	TEXT_TRANSPORT_KDDC="京准达\r\n快递到车";
     /**
      * 常用字符串:‘无’
      */
@@ -246,4 +246,18 @@ public class TextConstants {
      * 合约机 需激活
      */
     public static final String REMARK_CONTRACT_PHONE ="合约机 需激活";
+
+    /**
+     * 生鲜仓\n已消毒
+     */
+    public static final String FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT = "生鲜仓\r\n已消毒";
+    /**
+     * 生鲜仓已消毒
+     */
+    public static final String FRESH_FOOD_WAREHOUSE_DISINFECT = "生鲜仓已消毒";
+
+    /**
+     * 收件人地址
+     */
+    public static final String RECEIVER_ADDRESS = "收件人地址：";
 }

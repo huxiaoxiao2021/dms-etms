@@ -29,7 +29,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.Field;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -60,9 +58,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     private BaseMinorManager baseMinorManager;
 
     @Autowired
-    private BasicSecondaryWS basicSecondaryWS;
-
-    @Autowired
     private AirTransportService airTransportService;
 
     @Autowired
@@ -73,9 +68,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
-    @Autowired
-    private PreSortingSecondService preSortingSecondService;
     
     @Autowired
     private DmsBaseDictService dmsBaseDictService;
