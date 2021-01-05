@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface IAbnPdaAPIManager {
 
-    Map<String, ExceptionReason> selectAbnReasonByErp(String userErp);
+    Map<String, ExceptionReason> selectAbnReasonByErp();
 
     JdCResponse report(List<ReportRecord> wpAbnormalRecordPda);
 

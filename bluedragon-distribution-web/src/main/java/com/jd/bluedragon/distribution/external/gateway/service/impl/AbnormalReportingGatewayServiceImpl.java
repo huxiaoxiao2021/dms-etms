@@ -87,7 +87,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         JdCResponse<List<DmsAbnormalReasonDto>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         //获取质控的所有异常原因信息
-        this.abnormalReasonDtoMap = iAbnPdaAPIManager.selectAbnReasonByErp(userErp);
+        this.abnormalReasonDtoMap = iAbnPdaAPIManager.selectAbnReasonByErp();
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
@@ -241,8 +241,13 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
             List<ReportRecord> wpAbnormalRecordPda = this.convert2ReportRecord(abnormalReportingRequest);
             log.info("WpAbnormalRecordPda参数：{}", JsonHelper.toJson(wpAbnormalRecordPda));
-            JdCResponse pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
+            if(wpAbnormalRecordPda==null || wpAbnormalRecordPda.size()<=0){
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("上报质控系统失败，提报的原因不在质控系统中");
+                return jdCResponse;
+            }
 
+            JdCResponse pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
             if (pdaResult == null) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
@@ -492,7 +497,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 itme.setCodeTypeEnum(CodeTypeEnum.PACKAGE);
             }
 
-            itme.setFirstLevelExceptionId(abnormalFirst.getData().getFid());
+            itme.setFirstLevelExceptionId(abnormalFirst.getData().getId());
             itme.setFirstLevelExceptionName(abnormalFirst.getData().getAbnormalName());
             itme.setSecondLevelExceptionId(dmsAbnormalReasonDto.getParentCode());
             itme.setSecondLevelExceptionName(dmsAbnormalReasonDto.getParentName());
@@ -519,5 +524,4 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         return res;
     }
-
 }

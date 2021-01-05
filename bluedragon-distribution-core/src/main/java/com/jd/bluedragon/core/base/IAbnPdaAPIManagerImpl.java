@@ -41,7 +41,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.selectAbnReasonByErp", mState = {JProEnum.TP})
     @Cache(key = "IAbnPdaAPIManager.selectAbnReasonByErp@args0", memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000, redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
     @Override
-    public Map<String, ExceptionReason> selectAbnReasonByErp(String userErp) {
+    public Map<String, ExceptionReason> selectAbnReasonByErp()  {
         List<ExceptionReason> abnormalReasonDtoList = null;
 
         BaseResult<List<ExceptionReason>> res=getExceptionReasons();
@@ -50,7 +50,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
         }
 
         if (abnormalReasonDtoList == null || abnormalReasonDtoList.size() == 0) {
-            logger.warn("getExceptionReasons JSF接口返回原因列表为null！ERP：{}", userErp);
+            logger.warn("getExceptionReasons JSF接口返回原因列表为null！");
             return null;
         }
 
