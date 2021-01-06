@@ -442,6 +442,16 @@
           class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealVehicleDaoImpl"/>
     <bean id="sealVehiclesDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.newseal.dao.impl.SealVehiclesDaoImpl"/>
+    <!-- 封车 -->
+    <bean id="dmsSendRelationDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.DmsSendRelationDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="tmsVehicleRouteDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.TmsVehicleRouteDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="preSealBatchDao" class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealBatchDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>              
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>

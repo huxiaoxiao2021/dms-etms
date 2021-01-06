@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -199,5 +201,11 @@ public interface NewSealVehicleService {
      * @return
      */
     boolean checkBatchCodeIsSendPreSealVehicle(String batchCode);
-
+    /**
+     * 获取未封车批次号列表信息
+     * @param request
+     * @return
+     */
+	JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request);
+    
 }

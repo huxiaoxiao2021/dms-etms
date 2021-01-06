@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.newseal.dao.DmsSendRelationDao" >
+
+	<resultMap id="DmsSendRelation" type="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="original_site_code" property="originalSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="original_site_name" property="originalSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="original_cross_code" property="originalCrossCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="destination_site_code" property="destinationSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="destination_site_name" property="destinationSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="destination_cross_code" property="destinationCrossCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="line_type" property="lineType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,original_site_code,original_site_name,original_cross_code,destination_site_code,destination_site_name,
+		destination_cross_code,line_type,create_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation" useGeneratedKeys="true" keyProperty="id">
+		insert into dms_send_relation
+			(
+			<trim suffixOverrides=",">
+				<if test="originalSiteCode != null" >
+					original_site_code,
+				</if>
+				<if test="originalSiteName != null" >
+					original_site_name,
+				</if>
+				<if test="originalCrossCode != null" >
+					original_cross_code,
+				</if>
+				<if test="destinationSiteCode != null" >
+					destination_site_code,
+				</if>
+				<if test="destinationSiteName != null" >
+					destination_site_name,
+				</if>
+				<if test="destinationCrossCode != null" >
+					destination_cross_code,
+				</if>
+				<if test="lineType != null" >
+					line_type,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="originalSiteCode != null" >
+					#{originalSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="originalSiteName != null" >
+					#{originalSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="originalCrossCode != null" >
+					#{originalCrossCode,jdbcType=VARCHAR},
+				</if>
+				<if test="destinationSiteCode != null" >
+					#{destinationSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="destinationSiteName != null" >
+					#{destinationSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="destinationCrossCode != null" >
+					#{destinationCrossCode,jdbcType=VARCHAR},
+				</if>
+				<if test="lineType != null" >
+					#{lineType,jdbcType=INTEGER},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation">
+		update dms_send_relation
+			<set>
+				<if test="originalSiteCode != null" >
+					original_site_code = #{originalSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="originalSiteName != null" >
+					original_site_name = #{originalSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="originalCrossCode != null" >
+					original_cross_code = #{originalCrossCode,jdbcType=VARCHAR},
+				</if>
+				<if test="destinationSiteCode != null" >
+					destination_site_code = #{destinationSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="destinationSiteName != null" >
+					destination_site_name = #{destinationSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="destinationCrossCode != null" >
+					destination_cross_code = #{destinationCrossCode,jdbcType=VARCHAR},
+				</if>
+				<if test="lineType != null" >
+					line_type = #{lineType,jdbcType=INTEGER},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation" resultMap="DmsSendRelation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			dms_send_relation t
+		where yn = 1 
+		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition" resultMap="DmsSendRelation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			dms_send_relation t
+		where yn = 1 
+		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		and ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+		and line_type in 
+        <foreach collection="lineTypes" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>		
+		<if test="destinationSiteCode != null" >
+			and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="destinationSiteName != null" >
+			and destination_site_name = #{destinationSiteName,jdbcType=VARCHAR}
+		</if>		
+		<if test="destinationCrossCode != null" >
+			and destination_cross_code = #{destinationCrossCode,jdbcType=VARCHAR}
+		</if>				
+	</select>
+
+</mapper>

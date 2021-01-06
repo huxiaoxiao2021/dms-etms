@@ -470,4 +470,26 @@
 		where transport_code = #{transportCode,jdbcType=VARCHAR} and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		and is_delete = 0
 	</update>
+	<select id="countPreSealNumByTransportInfo" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  pre_seal_vehicle 
+		where is_delete = 0
+			and status = 1
+			and transport_code = #{transportCode,jdbcType=VARCHAR}
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+			and operate_time <![CDATA[ >= ]]> #{operateTime,jdbcType=TIMESTAMP}
+	</select>
+	<select id="countPreSealNumBySendRelation" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  pre_seal_vehicle 
+		where is_delete = 0
+			and status = 1
+			and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+			and receive_site_code = #{receiveSiteCode,jdbcType=BIGINT}
+			and operate_time <![CDATA[ >= ]]> #{operateTime,jdbcType=TIMESTAMP}
+	</select>		
 </mapper>

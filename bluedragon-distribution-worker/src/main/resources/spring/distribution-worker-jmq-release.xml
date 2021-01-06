@@ -289,5 +289,9 @@
     <jmq:consumer id="jmq.kyStorageSendConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.kyStorageSend}" listener="kyStorageSendConsumer"/>
     </jmq:consumer>
+    <!--tms线路数据消费-->
+    <jmq:consumer id="jmq.tmsVehicleRouteStatusConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tmsVehicleRouteStatus}" listener="tmsVehicleRouteStatusConsumer"/>
+    </jmq:consumer>    
 </beans>
 

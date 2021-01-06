@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.newseal.dao.PreSealBatchDao" >
+
+	<resultMap id="PreSealBatch" type="com.jd.bluedragon.distribution.newseal.entity.PreSealBatch" >
+		<id column="ID" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="PRE_SEAL_UUID" property="preSealUuid" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="BATCH_CODE" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="CREATE_TIME" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="YN" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="TS" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		ID,PRE_SEAL_UUID,BATCH_CODE,CREATE_TIME,YN,TS
+	</sql>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into pre_seal_batch
+			(
+				PRE_SEAL_UUID,BATCH_CODE,CREATE_TIME
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{preSealUuid,jdbcType=VARCHAR},
+					#{batchCode,jdbcType=VARCHAR},
+					#{createTime,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="batchLogicalDeleteByUuid" parameterType="java.lang.Long">
+		update pre_seal_batch
+			set yn = 0
+		where PRE_SEAL_UUID = #{preSealUuid,jdbcType=VARCHAR}
+	</update>
+
+	<select id="queryByUuid" parameterType="java.lang.String" resultMap="PreSealBatch">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			pre_seal_batch t
+		where yn = 1 and PRE_SEAL_UUID = #{preSealUuid,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

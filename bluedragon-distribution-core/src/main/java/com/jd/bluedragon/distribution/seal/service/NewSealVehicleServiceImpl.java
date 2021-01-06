@@ -7,14 +7,18 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
@@ -31,6 +35,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -40,6 +45,7 @@ import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.fastjson.JSONObject;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -54,6 +60,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -109,7 +116,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private SendDetailService sendDetailService;
-
+    
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+    /**
+     * 查询预封车封车小时数
+     */
+	@Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
+    private Integer preSealRecentHours = 24;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -1367,4 +1381,47 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         return temp;
     }
+    /**
+     * 获取未封车批次号列表信息
+     * @param request
+     * @return
+     */
+	@Override
+	public JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request){
+		JdResult<List<String>> result = new JdResult<List<String>>();
+		if(request != null 
+				&& request.getSiteCode() != null
+				&& StringHelper.isNotEmpty(request.getTransportCode())) {
+			com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> transDto = this.getTransportResourceByTransCode(request.getTransportCode());
+            if (transDto == null
+            		|| Constants.RESULT_SUCCESS != transDto.getCode()
+            		|| transDto.getData() == null) {
+                result.toFail("传入的运力编码无效!");
+                return result;
+            }
+			//获取运力对应的目的站点
+			Integer receiveSiteCode = transDto.getData().getEndNodeId();
+			if(receiveSiteCode == null ) {
+				BaseStaffSiteOrgDto endSiteInfo= baseMajorManager.getBaseSiteByDmsCode(transDto.getData().getEndNodeCode());
+				if(endSiteInfo != null) {
+					receiveSiteCode = endSiteInfo.getSiteCode();
+				}
+			}
+			if(receiveSiteCode == null) {
+                result.toFail("运力编码对应的目的网点无效!");
+                return result;
+			}
+			List<String> unSealSendCodeList = this.getUnSealSendCodeList(request.getSiteCode(), receiveSiteCode, preSealRecentHours);
+			//校验批次列表是否为空
+			if(CollectionUtils.isEmpty(unSealSendCodeList)) {
+                result.toFail("待封车批次信息为空!");
+                return result;
+			}
+			result.setData(unSealSendCodeList);
+			result.toSuccess("查询成功！");
+		}else {
+			result.toFail("传入参数无效！TransportCode和VehicleNumber不能为空");
+		}
+		return result;
+	}
 }

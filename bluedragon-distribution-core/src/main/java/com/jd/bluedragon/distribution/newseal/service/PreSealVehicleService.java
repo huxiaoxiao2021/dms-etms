@@ -156,4 +156,8 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      */
     boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 
+	Integer countPreSealNumByTransportInfo(String transportCode, String vehicleNumber);
+
+	Integer countPreSealNumBySendRelation(Integer originalSiteCode, Integer destinationSiteCode);
+
 }

@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.newseal.dao.PreSealVehicleDao;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
@@ -63,7 +64,12 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 
     @Autowired
     private VosManager vosManager;
-
+    /**
+     * 预封车有效数据天数（天）
+     */
+    @Value("${beans.PreSealVehicleServiceImpl.effectPreSealDays:2}")
+	private Integer effectPreSealDays;
+    
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
 	public boolean insert(PreSealVehicle preSealVehicle) {
@@ -481,4 +487,22 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     public boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle) {
         return preSealVehicleDao.completePreSealVehicleRecord(preSealVehicle) > 0;
     }
+
+	@Override
+	public Integer countPreSealNumByTransportInfo(String transportCode, String vehicleNumber) {
+		PreSealVehicleCondition condition = new PreSealVehicleCondition();
+		condition.setTransportCode(transportCode);
+		condition.setVehicleNumber(vehicleNumber);
+		condition.setOperateTime(DateHelper.addDate(new Date(), -effectPreSealDays));
+		return preSealVehicleDao.countPreSealNumByTransportInfo(condition);
+	}
+
+	@Override
+	public Integer countPreSealNumBySendRelation(Integer originalSiteCode, Integer destinationSiteCode) {
+		PreSealVehicleCondition condition = new PreSealVehicleCondition();
+		condition.setCreateSiteCode(originalSiteCode);
+		condition.setReceiveSiteCode(destinationSiteCode);
+		condition.setOperateTime(DateHelper.addDate(new Date(), -effectPreSealDays));
+		return preSealVehicleDao.countPreSealNumBySendRelation(condition);
+	}
 }

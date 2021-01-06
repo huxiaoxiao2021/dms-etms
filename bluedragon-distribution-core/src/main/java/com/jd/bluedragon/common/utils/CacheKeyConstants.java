@@ -76,4 +76,8 @@ public class CacheKeyConstants {
 	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
 	 */
 	public static final String REDIS_PREFIX_SEAL_PACK_INTERCEPT = "unload.seal.package.intercept-";
+    /**
+     * 缓存key-发货关系
+     */
+    public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
 }

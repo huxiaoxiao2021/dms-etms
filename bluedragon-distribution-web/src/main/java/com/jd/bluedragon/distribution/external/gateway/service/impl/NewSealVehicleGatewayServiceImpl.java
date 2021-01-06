@@ -495,6 +495,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             param.setSealSiteName(sc.getSealSiteName());
             param.setSealUserCode(sc.getSealUserCode());
             param.setSealUserName(sc.getSealUserName());
+            param.setSelectedSendCodes(sc.getSelectedSendCodes());
             sealCarDtos.add(param);
         }
         return sealCarDtos;
@@ -527,5 +528,26 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setSiteName(request.getCurrentOperate().getSiteName());
         param.setVehicleNumber(request.getCarNum());
         return param;
+    }
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getUnSealSendCodes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request) {
+    	JdCResponse<List<String>> result = new JdCResponse<List<String>>();
+    	if(request == null) {
+    		result.toFail("传入参数为空！");
+    		return result;
+    	}
+    	NewSealVehicleRequest queryRequest = new NewSealVehicleRequest();
+    	queryRequest.setTransportCode(request.getTransportCode());
+    	queryRequest.setVehicleNumber(request.getVehicleNumber());
+    	JdResult<List<String>> queryResult = newSealVehicleService.getUnSealSendCodes(queryRequest);
+    	if(queryResult != null && queryResult.isSucceed()) {
+    		result.toSucceed(queryResult.getMessage());
+    		result.setData(queryResult.getData());
+    	}else if(queryResult != null){
+    		result.toFail(queryResult.getMessage());
+    	}else {
+    		result.toFail("调用接口返回数据为空！");
+    	}
+    	return result;
     }
 }
