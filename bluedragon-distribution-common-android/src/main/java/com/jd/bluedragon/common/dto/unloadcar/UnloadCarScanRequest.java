@@ -71,6 +71,16 @@ public class UnloadCarScanRequest implements Serializable {
      */
     private Integer isCombinationTransfer;
 
+    /**
+     * 包裹号转运单号标识
+     */
+    private Integer transfer;
+
+    /**
+     * 运单号
+     */
+    private String waybillCode;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -181,5 +191,21 @@ public class UnloadCarScanRequest implements Serializable {
 
     public void setIsCombinationTransfer(Integer isCombinationTransfer) {
         this.isCombinationTransfer = isCombinationTransfer;
+    }
+
+    public Integer getTransfer() {
+        return transfer;
+    }
+
+    public void setTransfer(Integer transfer) {
+        this.transfer = transfer;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 }

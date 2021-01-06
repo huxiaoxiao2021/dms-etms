@@ -33,12 +33,33 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode);
 
     /**
+     * 获取卸车扫描列表
+     */
+    InvokeResult<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    /**
      * 卸车扫描
      *
      * @param request
      * @return
      */
     InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request);
+
+    /**
+     * 卸车扫描(新版)
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request);
+
+    /**
+     * 卸车扫描
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadCarScanResult> waybillScan(UnloadCarScanRequest request);
 
     /**
      * 卸车扫描明细

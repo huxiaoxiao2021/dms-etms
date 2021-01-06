@@ -22,7 +22,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
-import com.jd.bluedragon.distribution.seal.service.NewSealVehicleServiceImpl;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -31,10 +30,10 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 import org.apache.commons.collections.map.HashedMap;
@@ -144,14 +143,14 @@ public class NewSealVehicleResource {
             return response;
         }
         try {
-            com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(request.getTransportCode());
+            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(request.getTransportCode());
             if (vtsDto == null) {    //JSF接口返回空
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息结果为空:" + request.getTransportCode());
                 return response;
             }
             if (Constants.RESULT_SUCCESS == vtsDto.getCode()) { //JSF接口调用成功
-                VtsTransportResourceDto vtrd = vtsDto.getData();
+                TransportResourceDto vtrd = vtsDto.getData();
                 if (vtrd != null) {
                     response = checkTransportCode(vtrd, request.getSiteCode());
                 } else {
@@ -184,18 +183,17 @@ public class NewSealVehicleResource {
      * @param createSiteCode
      * @return
      */
-    private RouteTypeResponse checkTransportCode(VtsTransportResourceDto data, Integer createSiteCode) {
+    private RouteTypeResponse checkTransportCode(TransportResourceDto data, Integer createSiteCode) {
         RouteTypeResponse response = new RouteTypeResponse();
 
         //设置运力基本信息
         response.setSiteCode(data.getEndNodeId());
-        response.setDriverId(data.getCarrierId());
         response.setSendUserType(data.getTransType());
-        response.setRouteType(data.getRouteType());
+        response.setRouteType(data.getTransType());
         response.setDriver(data.getCarrierName());
-        response.setTransWay(data.getTransMode());
-        response.setTransWayName(data.getTransModeName());
-        response.setCarrierType(data.getTransType());
+        response.setTransWay(data.getTransWay());
+        response.setTransWayName(data.getTransWayName());
+        response.setCarrierType(data.getCarrierType());
 
         //仅限于传摆封车
         if(data.getStartNodeId() != null
@@ -373,7 +371,7 @@ public class NewSealVehicleResource {
             //批次号校验通过,且是按运力编码封车，需要校验目的地是否一致
             if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
                 //2.获取运力信息并检查目的站点
-                com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if (vtsDto == null) {    //JSF接口返回空
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
                     sealVehicleResponse.setMessage("查询运力信息结果为空:" + transportCode);
@@ -422,7 +420,7 @@ public class NewSealVehicleResource {
             checkBatchCode(sealVehicleResponse, sendCode);
             if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
-                com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto
+               com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto
                         = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if (vtsDto == null) {
                     sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);

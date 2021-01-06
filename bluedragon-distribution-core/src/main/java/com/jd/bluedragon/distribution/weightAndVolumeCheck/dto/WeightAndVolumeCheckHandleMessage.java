@@ -11,7 +11,6 @@ import java.io.Serializable;
  * @copyright jd.com 京东物流JDL
  * @date 2020-08-24 20:08:56 周一
  */
-@Data
 public class WeightAndVolumeCheckHandleMessage implements Serializable {
 
     public static final int SEND = 9;
@@ -39,4 +38,36 @@ public class WeightAndVolumeCheckHandleMessage implements Serializable {
      * 操作环节
      */
     private Integer opNode;
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public Integer getOpNode() {
+        return opNode;
+    }
+
+    public void setOpNode(Integer opNode) {
+        this.opNode = opNode;
+    }
 }

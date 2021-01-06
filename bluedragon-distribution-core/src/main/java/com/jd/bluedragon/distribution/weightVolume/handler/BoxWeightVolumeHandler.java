@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -50,9 +49,6 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private BoxService boxService;
-
-    @Autowired
-    private SortingService sortingService;
 
     @Autowired
     private ThirdBoxDetailService thirdBoxDetailService;

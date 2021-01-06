@@ -26,6 +26,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,11 +110,11 @@ public class WeightVolumeFilter implements Filter {
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
-            JdCResponse<Void>  jdCResponse =  funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-            if(jdCResponse.getCode().equals(SortingResponse.CODE_39002)){
-                throw  new SortingCheckException(jdCResponse.getCode() ,SortingResponse.MESSAGE_39002);
-            }else if(jdCResponse.getCode().equals(SortingResponse.CODE_29419)){
-                throw  new SortingCheckException(jdCResponse.getCode() ,SortingResponse.MESSAGE_29419);
+            JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+            if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
+                throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
+            }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
+                throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
             }
         }else if (isNeedWeight) {
             //查询重量体积信息

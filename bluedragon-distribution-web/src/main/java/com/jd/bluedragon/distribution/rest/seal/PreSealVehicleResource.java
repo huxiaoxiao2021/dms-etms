@@ -15,8 +15,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -133,7 +133,7 @@ public class PreSealVehicleResource {
         }
 
         /** 查询运力信息 */
-        VtsTransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
+        TransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
         if (vtrd == null || !NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())) {
             return preSealResponse;
         }
@@ -285,7 +285,7 @@ public class PreSealVehicleResource {
             return preSealResponse;
         }
         /** 查询运力信息 */
-        VtsTransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
+        TransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
         if(!NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())){
             return preSealResponse;
         }
@@ -373,10 +373,10 @@ public class PreSealVehicleResource {
      * @param response
      * @return
      */
-    private VtsTransportResourceDto getTransport(String transportCode, NewSealVehicleResponse<Boolean> response){
-        VtsTransportResourceDto vtrd = null;
+    private TransportResourceDto getTransport(String transportCode, NewSealVehicleResponse<Boolean> response){
+        TransportResourceDto vtrd = null;
         try {
-            CommonDto<VtsTransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+            CommonDto<TransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
             if (transDto == null) {    //JSF接口返回空
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息结果为空:" + transportCode);
@@ -457,7 +457,7 @@ public class PreSealVehicleResource {
      * @param isUpdate
      * @return
      */
-    private PreSealVehicle convertRequst(SealCarDto sealCarDto, VtsTransportResourceDto vtrd, boolean isUpdate, PreSealVehicleSourceEnum preSealVehicleSourceEnum){
+    private PreSealVehicle convertRequst(SealCarDto sealCarDto, TransportResourceDto vtrd, boolean isUpdate, PreSealVehicleSourceEnum preSealVehicleSourceEnum){
         PreSealVehicle preSealVehicle = new PreSealVehicle();
         //存储预封车来源
         preSealVehicle.setPreSealSource(preSealVehicleSourceEnum.getCode());

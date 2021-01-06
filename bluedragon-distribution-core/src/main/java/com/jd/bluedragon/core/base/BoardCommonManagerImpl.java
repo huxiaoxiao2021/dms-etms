@@ -187,7 +187,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return result;
             }
             try {
-                response = sortingCheckService.boardCombinationCheck(checkParam);
+                response = sortingCheckService.boardCombinationCheckAndReportIntercept(checkParam);
                 if (logger.isDebugEnabled()) {
                     logger.debug("组板校验,板号【{}】,箱号/包裹号【{}】,站点【{}】.校验结果【{}】",
                             request.getBoardCode(),request.getBarCode(),request.getOperateSiteCode(),response.getMessage());
@@ -196,7 +196,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 logger.error("调用组板验证服务失败：{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(checkParam), e);
             }
 
-            if (!response.getCode().equals(200)) {
+            if (response != null && !response.getCode().equals(200)) {
                 if (response.getCode() >= 39000) {
                     result.customMessage(com.jd.ql.dms.common.domain.JdResponse.CODE_CONFIRM, response.getMessage());
                 } else {

@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.filter.chains.*;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -36,7 +39,10 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONObject;
+import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,6 +53,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -84,17 +91,46 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
 
+    // 拦截报表发送服务
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+    // 拦截报表操作节点分拣类型
+    @Value("${businessIntercept.operate.node.sorting}")
+    private Integer interceptOperateNodeSorting;
+    // 拦截报表操作节点发货类型
+    @Value("${businessIntercept.operate.node.send}")
+    private Integer interceptOperateNodeSend;
+    // 拦截报表操作节点组板类型
+    @Value("${businessIntercept.operate.node.boardCombination}")
+    private Integer interceptOperateNodeBoardCombination;
+    // 拦截报表操作节点设备类型
+    @Value("${businessIntercept.device.type.pda}")
+    private Integer interceptOperateDeviceTypePda;
+
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest) {
+        return this.sortingCheck(pdaOperateRequest, false);
+    }
+
+    /**
+     * 拦截校验
+     * @param pdaOperateRequest 请求参数
+     * @param reportIntercept 是否提交拦截
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2020-12-23 15:13:20 周三
+     */
+    private SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest, boolean reportIntercept) {
         if (pdaOperateRequest == null) {
             return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
         }
         SortingJsfResponse response = new SortingJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
+        FilterContext filterContext = null;
         try {
             //初始化拦截链上下文
-            FilterContext filterContext = this.initContext(pdaOperateRequest);
+            filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
             if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
@@ -120,6 +156,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 SortingCheckException checkException = (SortingCheckException) ex;
                 response.setCode(checkException.getCode());
                 response.setMessage(checkException.getMessage());
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
             } else {
                 logger.error("分拣验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -130,9 +170,85 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return response;
     }
 
+    /**
+     * 分拣校验
+     */
+    @Override
+    public SortingJsfResponse sortingCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest){
+        return this.sortingCheck(pdaOperateRequest, true);
+    }
+
+    /**
+     * 发送拦截消息
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-10 11:21:39 周四
+     */
+    private boolean sendInterceptMsg(FilterContext filterContext, SortingCheckException checkException){
+        if(filterContext == null || checkException == null){
+            return true;
+        }
+        // logger.info("SortingCheckServiceImpl sendInterceptMsg filterContext: {} , checkException: {}", JSON.toJSONString(filterContext), JSON.toJSONString(checkException));
+
+        try {
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(checkException.getCode());
+            saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
+            saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
+            saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
+            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
+            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
+            long operateTimeMillis = System.currentTimeMillis();
+            if(pdaOperateRequest.getOperateTime() != null){
+                operateTimeMillis = DateUtil.parse(pdaOperateRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            }
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+            saveInterceptMsgDto.setOperateNode(this.getOperateNode(pdaOperateRequest));
+            saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
+            saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
+            saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
+
+            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                logger.error("SortingCheckServiceImpl call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+            }
+        } catch (Exception e) {
+            logger.error("SortingCheckServiceImpl sendInterceptMsg exception [{}]" , e.getMessage(), e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 根据操作节点获取拦截报表对应操作节点
+     * @param pdaOperateRequest pda请求参数
+     * @return 节点
+     * @author fanggang7
+     * @time 2020-12-17 20:48:27 周四
+     */
+    private int getOperateNode(PdaOperateRequest pdaOperateRequest){
+        int operateNode = 0;
+        if(pdaOperateRequest.getOperateNode() != null){
+            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SEND){
+                operateNode = interceptOperateNodeSend;
+            }
+            if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SORTING){
+                operateNode = interceptOperateNodeSorting;
+            }
+        }
+        return operateNode;
+    }
+
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse singleSendCheck(SortingCheck sortingCheck) {
+        return this.singleSendCheck(sortingCheck, false);
+    }
+
+    private SortingJsfResponse singleSendCheck(SortingCheck sortingCheck, boolean reportIntercept) {
 
         if (sortingCheck == null) {
             return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
@@ -142,9 +258,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         PdaOperateRequest pdaOperateRequest = this.getPdaOperateRequest(sortingCheck);
 
         if (pdaOperateRequest.getOperateType() != null && pdaOperateRequest.getOperateType() == Constants.OPERATE_TYPE_NEW_PACKAGE_SEND) {
+            FilterContext filterContext = null;
             try {
                 //初始化拦截链上下文
-                FilterContext filterContext = this.initContext(pdaOperateRequest);
+                filterContext = this.initContext(pdaOperateRequest);
                 DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } catch (IllegalWayBillCodeException e) {
@@ -156,6 +273,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     SortingCheckException checkException = (SortingCheckException) ex;
                     response.setCode(checkException.getCode());
                     response.setMessage(checkException.getMessage());
+                    if(reportIntercept){
+                        // 发出拦截报表mq
+                        this.sendInterceptMsg(filterContext, checkException);
+                    }
                 } else {
                     logger.error("新发货验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
                     response.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -164,7 +285,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             }
         } else {
             //调用装箱的分拣验证
-            return this.sortingCheck(pdaOperateRequest);
+            return this.sortingCheck(pdaOperateRequest, reportIntercept);
         }
 
         this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
@@ -172,17 +293,34 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck) {
+        return this.singleSendCheck(sortingCheck, true);
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest) {
+        return this.boardCombinationCheck(boardCombinationRequest, false);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest) {
+        return this.boardCombinationCheck(boardCombinationRequest, true);
+    }
+
+    private BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest boardCombinationRequest, boolean reportIntercept) {
 
         if (boardCombinationRequest == null) {
             return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
         }
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        FilterContext filterContext = null;
         try {
             if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
-                FilterContext filterContext = this.initFilterParam(boardCombinationRequest);
+                filterContext = this.initFilterParam(boardCombinationRequest);
                 //获取校验链
                 FilterChain boardCombinationChain = getBoardCombinationFilterChain();
                 //校验过程
@@ -196,6 +334,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         } catch (Exception ex) {
             if (ex instanceof SortingCheckException) {
                 SortingCheckException checkException = (SortingCheckException) ex;
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
                 return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
             } else {
                 logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);
@@ -241,6 +383,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         pdaOperateRequest.setOperateUserName(sortingCheck.getOperateUserName());
         pdaOperateRequest.setOperateTime(sortingCheck.getOperateTime());
         pdaOperateRequest.setOperateType(sortingCheck.getOperateType());
+        pdaOperateRequest.setOperateNode(sortingCheck.getOperateNode());
         if(sortingCheck.getIsLoss() == null){
             pdaOperateRequest.setIsLoss(0);
         }else{

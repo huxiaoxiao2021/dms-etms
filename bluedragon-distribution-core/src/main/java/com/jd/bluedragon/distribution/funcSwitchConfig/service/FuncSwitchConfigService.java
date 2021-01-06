@@ -91,6 +91,15 @@ public interface FuncSwitchConfigService {
     boolean checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 
     /**
+     * 校验是否配置功能(带缓存)
+     * @param menuCode 菜单编码
+     * @param siteCode 站点编码
+     * @param dimensionCode 维度编码
+     * @param operateErp 操作人erp
+     */
+    boolean checkIsConfiguredWithCache(Integer menuCode, Integer siteCode, Integer dimensionCode, String operateErp);
+
+    /**
      * 从缓存或数据库中查询拦截的状态
      * @param menuCode   功能编码
      * @return
@@ -128,7 +137,7 @@ public interface FuncSwitchConfigService {
      * @param packageCode
      * @throws SortingCheckException
      */
-   JdCResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode) ;
+    JdResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode) ;
 
     /**
      * 判断是否满足 纯配外单拦截标识

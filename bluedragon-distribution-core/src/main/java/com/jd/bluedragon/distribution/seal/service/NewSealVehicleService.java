@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -82,7 +82,7 @@ public interface NewSealVehicleService {
      * @param batchCode
      * @return
      */
-    public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode);
+    public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode);
 
     /**
      * 校验批次的体积是否超标

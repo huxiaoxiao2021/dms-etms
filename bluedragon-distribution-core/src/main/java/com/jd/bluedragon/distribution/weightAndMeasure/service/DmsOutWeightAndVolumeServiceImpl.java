@@ -22,6 +22,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @return
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Override
     public void saveOrUpdate(DmsOutWeightAndVolume dmsOutWeightAndVolume){
         List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);
 
@@ -38,6 +39,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @param dmsCode
      * @return
      */
+    @Override
     public List<DmsOutWeightAndVolume> getListByBarCodeAndDms(String barCode,Integer dmsCode){
         DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
         dmsOutWeightAndVolume.setBarCode(barCode);
@@ -56,6 +58,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @param dmsCode
      * @return
      */
+    @Override
     public DmsOutWeightAndVolume getOneByBarCodeAndDms(String barCode,Integer dmsCode){
         DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
         dmsOutWeightAndVolume.setBarCode(barCode);
@@ -74,6 +77,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @param barCode
      * @param dmsCode
      */
+    @Override
     public void deleteByBarCodeAndDms(String barCode,Integer dmsCode){
         DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
         dmsOutWeightAndVolume.setBarCode(barCode);

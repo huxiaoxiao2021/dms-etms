@@ -62,6 +62,9 @@ import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
+import com.jd.bluedragon.distribution.packageWeighting.domain.BusinessTypeEnum;
+import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
@@ -108,16 +111,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -137,6 +131,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -151,8 +146,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -386,6 +379,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private LoadCarDao loadCarDao;
 
+    @Autowired
+    private PackageWeightingDao packageWeightingDao;
+
     /**
      * 自动过期时间 15分钟
      */
@@ -463,6 +459,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
                 return sendResult;
             }
+        }
+        //众邮0重量拦截
+        //不能强制发货，因此放在外面
+        DeliveryResponse weightAndVolumeCheck = zeroWeightAndVolumeCheck(domain);
+        if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
+            SendResult sendResult = new SendResult();
+            sendResult.init(SendResult.CODE_SENDED,weightAndVolumeCheck.getMessage());
+            return  sendResult;
         }
         if (isCancelLastSend) {
             this.doCancelLastSend(domain);
@@ -795,6 +799,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SortingCheck getSortingCheck(SendM domain) {
         //大件分拣拦截验证
         SortingCheck sortingCheck = new SortingCheck();
+        sortingCheck.setOperateNode(OperateNodeConstants.SEND);
         sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
         sortingCheck.setBoxCode(domain.getBoxCode());
@@ -1749,10 +1754,47 @@ public class DeliveryServiceImpl implements DeliveryService {
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
         if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = zeroWeightAndVolumeCheck(tSendM);
+        }
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = deliveryCheckTransit(tSendM, isTransferSend);
         }
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
+        }
+        return response;
+    }
+
+    /**
+     * 0重量和体积校验
+     * 目前指针对一下单子拦截：众邮
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse zeroWeightAndVolumeCheck(SendM tSendM) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        //限定范围
+        //实发网点类型为经济网 10000 为众邮箱号
+        if (null == tSendM || StringUtils.isEmpty(tSendM.getBoxCode())){
+            return response;
+        }
+        Box box = boxService.findBoxByCode(tSendM.getBoxCode());
+        if(null == box){
+            return response;
+        }
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
+        if (!SiteHelper.isEconomicNet(yrDto)){
+            return response;
+        }
+        //查询箱重量和体积
+        List<PackageWeighting> packageWeightings = packageWeightingDao.findWeightVolume(tSendM.getBoxCode(),tSendM.getBoxCode(),Arrays.asList(BusinessTypeEnum.DMS.getCode()));
+
+        //判断
+        if (CollectionUtils.isEmpty(packageWeightings) ||
+                packageWeightings.get(0).getWeight().compareTo(0.0) <= 0 ||
+                packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
+            response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+            response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
         }
         return response;
     }

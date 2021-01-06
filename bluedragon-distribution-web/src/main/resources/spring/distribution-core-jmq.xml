@@ -108,11 +108,6 @@
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
     </bean>
-    <bean id="pickwarePushMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.pickware.push}"/>
-        <property name="timeout" value="1000"/>
-        <!--未找到-->
-    </bean>
     <bean id="bdExceptionToQcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.exception.to.qc}"/>
         <property name="timeout" value="1000"/>
@@ -194,13 +189,6 @@
         <property name="topic" value="${jmq.topic.dmsWeightSendMQ}"/>
         <property name="timeout" value="1000"/>
         <!---->
-    </bean>
-
-    <!-- 空铁项目 - 发货登记 推送路由MQ -->
-    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
     </bean>
 
     <!-- 空铁项目 - 发货登记 推送报表MQ -->
@@ -294,11 +282,6 @@
     <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_sortscheme_send_DTC"/>
         <property name="timeout" value="1000"/>
-    </bean>
-
-     <!--封车mq-->
-    <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.sealCar}"/>
     </bean>
 
     <!--解封车mq-->
@@ -473,6 +456,23 @@
     <!--  装车发货任务处理消息  -->
     <bean id="goodsLoadTaskProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.goods.load.task.deal}"/>
+    </bean>
+
+    <!-- 业务操作拦截原始动作记录 -->
+    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.action.send}"/>
+    </bean>
+    <!-- 业务操作拦截消息发送给拦截报表 -->
+    <bean id="businessOperateInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
+    </bean>
+    <!-- 拦截后处理原始动作数据发出消息 -->
+    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeActionAfterIntercept.send}"/>
+    </bean>
+    <!-- 拦截后处理数据发送给拦截报表 -->
+    <bean id="disposeAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
 
 </beans>

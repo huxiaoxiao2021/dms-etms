@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 装车发货下发MQ传递参数
@@ -32,14 +33,28 @@ public class GoodsLoadDto implements Serializable {
     private CurrentOperate currentOperate;
 
     /**
-     * 当前用户信息
-     */
-    private User user;
-
-    /**
      * 包裹号
      */
     private String packageCode;
+
+    /**
+     * 包裹更新时间
+     */
+    private Date updateTime;
+
+    /*
+     * 操作人编号
+     */
+    private int userCode;
+    /*
+     * 操作人姓名
+     */
+    private String userName;
+
+    /**
+     * 当前用户信息
+     */
+    private User user;
 
     public Long getTaskId() {
         return taskId;
@@ -73,19 +88,43 @@ public class GoodsLoadDto implements Serializable {
         this.currentOperate = currentOperate;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public String getPackageCode() {
         return packageCode;
     }
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public int getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(int userCode) {
+        this.userCode = userCode;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

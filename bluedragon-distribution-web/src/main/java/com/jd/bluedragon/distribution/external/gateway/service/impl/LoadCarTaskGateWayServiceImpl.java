@@ -322,6 +322,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                     loadDeleteReq.setOperateUserName(req.getCreateUserName());
                     loadDeleteReq.setId(taskInfo.getId());
                     loadService.deleteById(loadDeleteReq);
+                    loadScanCacheService.delTaskLoadScan(taskInfo.getId());
                     // 删除已开始任务时，删除关联的运单信息和包裹信息
                     if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(taskInfo.getStatus())) {
                         loadScanService.deleteLoadScanByTaskId(taskInfo.getId());
