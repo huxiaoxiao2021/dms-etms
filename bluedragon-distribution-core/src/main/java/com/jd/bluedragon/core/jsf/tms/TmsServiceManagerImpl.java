@@ -38,7 +38,7 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.tms.TmsServiceManagerImpl.";
     
     @Autowired
-    @Qualifier("carrierQueryWSManager")
+    @Qualifier("carrierQueryWSManger")
     private CarrierQueryWSManager carrierQueryWSManager;
     
     @Autowired
