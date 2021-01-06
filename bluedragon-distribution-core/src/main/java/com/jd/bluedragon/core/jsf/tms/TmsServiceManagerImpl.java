@@ -5,25 +5,29 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.etms.vts.dto.PageDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.PageDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.basic.ws.BasicSelectWS;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.springframework.beans.BeanUtils;
 
 /**
  * 
- * @ClassName: EclpImportServiceManagerImpl
- * @Description: 调用eclp站内信jsf接口实现
+ * @ClassName: TmsServiceManagerImpl
+ * @Description: 调用tms-jsf接口实现
  * @author: wuyoude
  * @date: 2021年01月14日 下午2:37:26
  *
@@ -31,18 +35,24 @@ import org.springframework.beans.BeanUtils;
 @Service("tmsServiceManager")
 public class TmsServiceManagerImpl implements TmsServiceManager{
     private static final Logger log = LoggerFactory.getLogger(TmsServiceManagerImpl.class);
-    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.tms.vtsQueryWS.";
+    private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.tms.TmsServiceManagerImpl.";
     
     @Autowired
-    @Qualifier("vtsQueryWS")
-    private VtsQueryWS vtsQueryWS;
+    @Qualifier("carrierQueryWSManager")
+    private CarrierQueryWSManager carrierQueryWSManager;
+    
+    @Autowired
+    private BasicSelectWS basicSelectWs;
+    
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     
 	@Override
 	public JdResult<TransportResource> getTransportResourceByTransCode(String transCode) {
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByTransCode");
     	JdResult<TransportResource> result = new JdResult<TransportResource>();
     	try {
-    		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> rest = vtsQueryWS.getTransportResourceByTransCode(transCode);
+    		CommonDto<TransportResourceDto> rest = carrierQueryWSManager.getTransportResourceByTransCode(transCode);
 	        if(null != rest 
 	        		&& Constants.RESULT_SUCCESS == rest.getCode()
 	        		&& rest.getData() != null){
@@ -72,16 +82,28 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByPage");
     	JdResult<List<TransportResource>> result = new JdResult<List<TransportResource>>();
     	try {
-	        VtsTransportResourceDto parameter=new VtsTransportResourceDto();
-	        PageDto<VtsTransportResourceDto> page = new PageDto<VtsTransportResourceDto>();
+    		TransportResourceDto parameter=new TransportResourceDto();
+    		PageDto<TransportResourceDto> page = new PageDto<TransportResourceDto>();
 	        page.setPageSize(5);
-	        parameter.setStartNodeId(createSiteCode);
-	        parameter.setEndNodeId(receiveSiteCode);
-	        PageDto<VtsTransportResourceDto> rest = vtsQueryWS.getTransportResourceByPage(parameter,page);
+	        BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+	        if(createSiteInfo == null) {
+				log.warn("调用基础资料获取始发站点信息为空！{0}",createSiteCode);
+				result.toFail("调用基础资料获取始发站点信息为空！");
+				return result;
+	        }
+	        parameter.setStartNodeCode(createSiteInfo.getDmsSiteCode());
+	        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+	        if(receiveSiteInfo == null) {
+				log.warn("调用基础资料获取目的站点信息为空！{0}",receiveSiteCode);
+				result.toFail("调用基础资料获取目的站点信息为空！");
+				return result;
+	        }
+	        parameter.setEndNodeCode(receiveSiteInfo.getDmsSiteCode());
+	        CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page,parameter);
 	        if(null != rest){
 	        	List<TransportResource> listData=new ArrayList<TransportResource>();
-	        	List<VtsTransportResourceDto> list = rest.getResult();
-	            for (VtsTransportResourceDto item:list){
+	        	List<TransportResourceDto> list = rest.getData().getResult();
+	            for (TransportResourceDto item:list){
 	                listData.add(convertBean(item));
 	            }
 	            result.setData(listData);
@@ -104,7 +126,7 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
      * @param tmsBean
      * @return
      */
-    private TransportResource convertBean(VtsTransportResourceDto tmsBean) {
+    private TransportResource convertBean(TransportResourceDto tmsBean) {
     	if(tmsBean != null) {
         	TransportResource resource=new TransportResource();
         	BeanUtils.copyProperties(tmsBean,resource);
