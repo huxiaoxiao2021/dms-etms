@@ -83,7 +83,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     	queryRequest.setCreateSiteCode(createSiteCode);
     	queryRequest.setCreateUserErp(createUserErp);
     	queryRequest.setHourRange(hourRange);
-    	return this.getUnSealVehicleInfo(queryRequest);
+    	return this.getUnSealVehicleInfos(queryRequest);
     }
     /*
      * 获取未封车信息列表
@@ -91,7 +91,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      * */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfoNew", mState = JProEnum.TP)
-	public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(QuickSealQueryRequest queryRequest) {
+	public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfos(QuickSealQueryRequest queryRequest) {
     	JdResponse<List<UnSealVehicleInfo>> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
     	Integer createSiteCode = queryRequest.getCreateSiteCode();
         try {

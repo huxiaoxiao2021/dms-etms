@@ -21,7 +21,7 @@ public interface DmsSealVehicleService {
     * 获取未封车信息列表(替代原有的方法，增加车牌号条件)
     *
     * */
-    JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(QuickSealQueryRequest queryRequest);
+    JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfos(QuickSealQueryRequest queryRequest);
     /*
      * 获取未封车信息明细
      *
