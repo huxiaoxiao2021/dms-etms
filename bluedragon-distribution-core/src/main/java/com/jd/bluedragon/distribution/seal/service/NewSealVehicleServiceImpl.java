@@ -11,14 +11,14 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
+import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
@@ -119,6 +119,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+	@Autowired
+	private TmsServiceManager tmsServiceManager;
     /**
      * 查询预封车封车小时数
      */
@@ -1392,15 +1395,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		if(request != null 
 				&& request.getSiteCode() != null
 				&& StringHelper.isNotEmpty(request.getTransportCode())) {
-			com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> transDto = this.getTransportResourceByTransCode(request.getTransportCode());
+			JdResult<TransportResource> transDto = tmsServiceManager.getTransportResourceByTransCode(request.getTransportCode());
             if (transDto == null
-            		|| Constants.RESULT_SUCCESS != transDto.getCode()
+            		|| !transDto.isSucceed()
             		|| transDto.getData() == null) {
                 result.toFail("传入的运力编码无效!");
                 return result;
             }
 			//获取运力对应的目的站点
-			Integer receiveSiteCode = transDto.getData().getEndNodeId();
+			Integer receiveSiteCode = null;
 			if(receiveSiteCode == null ) {
 				BaseStaffSiteOrgDto endSiteInfo= baseMajorManager.getBaseSiteByDmsCode(transDto.getData().getEndNodeCode());
 				if(endSiteInfo != null) {
