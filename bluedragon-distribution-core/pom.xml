@@ -138,12 +138,6 @@
         </dependency>
 
 		<dependency>
-			<groupId>com.jd.tms.basic</groupId>
-			<artifactId>tms-basic-client</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
@@ -799,17 +793,12 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
-      	<dependency>
-	        <groupId>com.jd.etms.vts</groupId>
-			<artifactId>etms-vts-client</artifactId>
-			<version>1.1-SNAPSHOT</version>
-        </dependency>
-
 		<dependency>
 			<groupId>com.jd.tms.basic</groupId>
 			<artifactId>tms-basic-client</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.4-SNAPSHOT</version>
 		</dependency>
+
 		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
@@ -1448,6 +1437,10 @@
 					<artifactId>jackson-dataformat-yaml</artifactId>
 					<groupId>com.fasterxml.jackson.dataformat</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>tms-basic-client</artifactId>
+					<groupId>com.jd.tms.basic</groupId>
+				</exclusion>
                 <exclusion>
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
@@ -1484,6 +1477,7 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
 		</dependency>
+
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>
