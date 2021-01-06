@@ -2079,13 +2079,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.error("修改任务状态失败，请求信息：{}",JsonHelper.toJson(unloadCarTaskReq));
             return result;
         }
-        UnloadCarCompleteMqDto dto = new UnloadCarCompleteMqDto();
-        dto.setSealCarCode(unloadCarTaskReq.getTaskCode());
-        dto.setStatus(3);
-        try {
-            unloadCompleteProducer.send(dto.getSealCarCode(), JsonHelper.toJson(dto));
-        } catch (JMQException e) {
-            logger.error("卸车完成消息异常,封车号={}", unloadCarTaskReq.getTaskCode(), e);
+        if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCarTaskReq.getTaskStatus()) {
+            UnloadCarCompleteMqDto dto = new UnloadCarCompleteMqDto();
+            dto.setSealCarCode(unloadCarTaskReq.getTaskCode());
+            dto.setStatus(3);
+            try {
+                unloadCompleteProducer.send(dto.getSealCarCode(), JsonHelper.toJson(dto));
+            } catch (JMQException e) {
+                logger.error("卸车完成消息异常,封车号={}", unloadCarTaskReq.getTaskCode(), e);
+            }
         }
         return this.getUnloadCarTask(unloadCarTaskReq);
     }
