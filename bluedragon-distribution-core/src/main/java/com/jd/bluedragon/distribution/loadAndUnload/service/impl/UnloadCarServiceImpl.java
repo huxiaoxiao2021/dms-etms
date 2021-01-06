@@ -2024,51 +2024,60 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     private boolean batchSaveUnloadScan(TmsSealCar tmsSealCar, UnloadCar unloadCar) {
-        // 初始化运单暂存表
-        UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
-                tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
-        unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+        CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.batchSaveUnloadScan", false, true);
+        try {
+            // 初始化运单暂存表
+            UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
+                    tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
+            unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
 
-        List<String> totalPackageCodes = new ArrayList<>();
-        List<String> packageCodes;
-        // 循环获取每个批次下的包裹号集合
-        for (String batchCode : tmsSealCar.getBatchCodes()) {
-            packageCodes = querySendPackageBySendCode(tmsSealCar.getOperateSiteId(), batchCode);
-            totalPackageCodes.addAll(packageCodes);
-        }
-        if (CollectionUtils.isEmpty(totalPackageCodes)) {
-            return false;
-        }
-        Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
-        // 对包裹号集合按照运单维度分组，并统计每个所属运单下的应卸包裹数
-        for (String packageCode : totalPackageCodes) {
-            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            WaybillPackageNumInfo waybillInfo = waybillMap.get(waybillCode);
-            if (waybillInfo != null) {
-                waybillInfo.setForceAmount(waybillInfo.getForceAmount() + 1);
-            } else {
-                waybillInfo = new WaybillPackageNumInfo();
-                waybillInfo.setWaybillCode(waybillCode);
-                // 从包裹号上截取包裹数
-                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                waybillInfo.setPackageAmount(packageNum);
-                waybillInfo.setForceAmount(1);
-                waybillMap.put(waybillCode, waybillInfo);
+            List<String> totalPackageCodes = new ArrayList<>();
+            List<String> packageCodes;
+            // 循环获取每个批次下的包裹号集合
+            for (String batchCode : tmsSealCar.getBatchCodes()) {
+                packageCodes = querySendPackageBySendCode(tmsSealCar.getOperateSiteId(), batchCode);
+                totalPackageCodes.addAll(packageCodes);
             }
-        }
+            if (CollectionUtils.isEmpty(totalPackageCodes)) {
+                return false;
+            }
+            Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
+            // 对包裹号集合按照运单维度分组，并统计每个所属运单下的应卸包裹数
+            for (String packageCode : totalPackageCodes) {
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                WaybillPackageNumInfo waybillInfo = waybillMap.get(waybillCode);
+                if (waybillInfo != null) {
+                    waybillInfo.setForceAmount(waybillInfo.getForceAmount() + 1);
+                } else {
+                    waybillInfo = new WaybillPackageNumInfo();
+                    waybillInfo.setWaybillCode(waybillCode);
+                    // 从包裹号上截取包裹数
+                    int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+                    waybillInfo.setPackageAmount(packageNum);
+                    waybillInfo.setForceAmount(1);
+                    waybillMap.put(waybillCode, waybillInfo);
+                }
+            }
 
-        // 设置封车任务下总运单数
-        unloadCar.setWaybillNum(waybillMap.size());
-        // 设置封车任务下总包裹数
-        unloadCar.setPackageNum(totalPackageCodes.size());
-        List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>(waybillMap.values());
-        // 分批保存
-        List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
-        for (List<WaybillPackageNumInfo> list : partitionList) {
-            unloadScan.setWaybillPackageNumInfoList(list);
-            unloadScanDao.batchInsert(unloadScan);
+            // 设置封车任务下总运单数
+            unloadCar.setWaybillNum(waybillMap.size());
+            // 设置封车任务下总包裹数
+            unloadCar.setPackageNum(totalPackageCodes.size());
+            List<WaybillPackageNumInfo> waybillPackageNumInfoList = new ArrayList<>(waybillMap.values());
+            // 分批保存
+            List<List<WaybillPackageNumInfo>> partitionList = ListUtils.partition(waybillPackageNumInfoList, 200);
+            for (List<WaybillPackageNumInfo> list : partitionList) {
+                unloadScan.setWaybillPackageNumInfoList(list);
+                unloadScanDao.batchInsert(unloadScan);
+            }
+            return true;
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("根据封车消息初始化运单暂存表发生异常,sealCarCode={},e=", tmsSealCar.getSealCarCode(), e);
+            return false;
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        return true;
     }
 
     @Override
