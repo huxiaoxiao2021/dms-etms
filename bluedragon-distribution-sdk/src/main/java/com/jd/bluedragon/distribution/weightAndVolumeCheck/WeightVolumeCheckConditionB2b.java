@@ -49,6 +49,11 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      * */
     private Integer isExcess;
 
+    /**
+     * PDA来源标识
+     */
+    private Integer pdaSource;
+
     public String getLoginErp() {
         return loginErp;
     }
@@ -119,5 +124,13 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setIsExcess(Integer isExcess) {
         this.isExcess = isExcess;
+    }
+
+    public Integer getPdaSource() {
+        return pdaSource;
+    }
+
+    public void setPdaSource(Integer pdaSource) {
+        this.pdaSource = pdaSource;
     }
 }

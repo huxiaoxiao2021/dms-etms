@@ -773,7 +773,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      */
     private SpotCheckData trans2SpotCheckDataOfWaybill(WeightVolumeCheckConditionB2b param) {
         SpotCheckData spotCheckData = new SpotCheckData();
-        spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
+        /**PDA抽检来源标识**/
+        if (Constants.PDA_SOURCE.equals(param.getPdaSource())) {
+            spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name());
+        } else {
+            spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
+        }
         spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode()));
         spotCheckData.setTotalWeight(param.getWaybillWeight());
         spotCheckData.setTotalVolume(param.getWaybillVolume());

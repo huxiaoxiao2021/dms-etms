@@ -1355,4 +1355,9 @@ public class Constants {
      * PDA超标值 1
      */
     public static final Integer IS_EXCESS = 1;
+
+    /**
+     * 抽检PDA来源标识
+     */
+    public static final Integer PDA_SOURCE = 1;
 }
