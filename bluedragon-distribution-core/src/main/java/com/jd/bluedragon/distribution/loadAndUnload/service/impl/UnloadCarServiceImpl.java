@@ -343,7 +343,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         result.setData(convertToUnloadCarResult(request));
-        logger.info("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        if (logger.isDebugEnabled()) {
+            logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        }
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
@@ -430,7 +432,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<UnloadCarScanResult>();
         result.setData(convertToUnloadCarResult(request));
-        logger.info("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        if (logger.isDebugEnabled()) {
+            logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        }
         // 判断当前扫描人员是否有按单操作权限
         if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
             result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
@@ -533,7 +537,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
             result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
         }
-        logger.info("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        if (logger.isDebugEnabled()) {
+            logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        }
         InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
@@ -1765,7 +1771,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             String existStr = redisClientCache.get(key);
             if(StringUtils.isNotEmpty(existStr)){
-                logger.info("空任务问题排查5-----existStr={}", existStr);
                 return Boolean.valueOf(existStr);
             }
         }catch (Exception e){
@@ -1774,17 +1779,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         // 空任务都是多扫
         if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
-            logger.info("空任务问题排查1-----sealCarCode={}", sealCarCode);
             exist = true;
         } else {
             List<String> allPackage = searchAllPackage(sealCarCode);
-            logger.info("空任务问题排查2-----allPackage={}", allPackage);
             if (CollectionUtils.isEmpty(allPackage)) {
-                logger.info("空任务问题排查4-----allPackage={}", allPackage);
                 throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
             }
             if (!allPackage.contains(packageCode)) {
-                logger.info("空任务问题排查3-----allPackage={}", allPackage);
                 // 不包含则是多货包裹
                 exist = true;
             }
@@ -2403,21 +2404,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             Waybill waybillNoCache = baseEntity.getData().getWaybill();
             String waybillSign = waybillNoCache.getWaybillSign();
-            logger.info("B网快运发货规则校验1：waybillSign={},againWeight={}", waybillSign, waybillNoCache.getAgainWeight());
-            if (waybillNoCache.getAgainWeight() == null) {
-                logger.info("B网快运发货规则校验0：againWeight is null");
-            }
+
             if(StringUtils.isBlank(waybillSign)){
                 logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
                 return result;
             }
             //信任运单标识
             boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
-            logger.info("B网快运发货规则校验2：isTrust={}", isTrust);
 
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
-            logger.info("B网快运发货规则校验3：isB2BPure={}", isB2BPure);
 
             //无重量禁止发货判断
             if(!isTrust && isB2BPure){
