@@ -539,6 +539,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     	NewSealVehicleRequest queryRequest = new NewSealVehicleRequest();
     	queryRequest.setTransportCode(request.getTransportCode());
     	queryRequest.setVehicleNumber(request.getVehicleNumber());
+    	queryRequest.setSiteCode(request.getCreateSiteCode());
     	JdResult<List<String>> queryResult = newSealVehicleService.getUnSealSendCodes(queryRequest);
     	if(queryResult != null && queryResult.isSucceed()) {
     		result.toSucceed(queryResult.getMessage());

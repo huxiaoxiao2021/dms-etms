@@ -1293,7 +1293,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 			result.setData(unSealSendCodeList);
 			result.toSuccess("查询成功！");
 		}else {
-			result.toFail("传入参数无效！TransportCode和VehicleNumber不能为空");
+			result.toFail("传入参数无效！transportCode和siteCode不能为空");
 		}
 		return result;
 	}
