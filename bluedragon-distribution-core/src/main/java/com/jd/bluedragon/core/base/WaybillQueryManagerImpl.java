@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
-import com.jd.dbs.util.CollectionUtils;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -32,6 +31,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
