@@ -138,4 +138,9 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
 	public Integer countPreSealNumBySendRelation(PreSealVehicleCondition condition) {
 		return sqlSession.selectOne(this.nameSpace+".countPreSealNumBySendRelation", condition);
 	}
+
+	@Override
+	public List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition) {
+		return sqlSession.selectList(this.nameSpace+".findOtherUuidsByCreateAndReceive", condition);
+	}
 }

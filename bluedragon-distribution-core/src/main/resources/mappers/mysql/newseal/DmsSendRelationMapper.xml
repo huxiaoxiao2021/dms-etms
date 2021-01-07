@@ -139,11 +139,7 @@
 			dms_send_relation t
 		where yn = 1 
 		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		and ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
-		and line_type in 
-        <foreach collection="lineTypes" item="item" index="index" open="(" separator="," close=")">
-            #{item,jdbcType=VARCHAR}
-        </foreach>		
+		and ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}		
 		<if test="destinationSiteCode != null" >
 			and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>

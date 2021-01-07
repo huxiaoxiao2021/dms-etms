@@ -34,5 +34,10 @@ public class PreSealBatchDaoImpl extends BaseDao<PreSealBatch> implements PreSea
 		return this.getSqlSession().selectList(namespace + ".queryByUuid", preSealUuid);
 	}
 
+	@Override
+	public List<String> querySendCodesByUuids(List<String> preSealUuids) {
+		return this.getSqlSession().selectList(namespace + ".querySendCodesByUuids", preSealUuids);
+	}
+
 
 }

@@ -168,6 +168,7 @@ public class PreSealVehicleResource {
                     //该目的已有预封车数据时，但是运力编码一致，车牌也一致时，属于更新封签号,根据ID更新数据
                     preSealVehicle = convertRequst(sealCarDto, vtrd, true, preSealVehicleSourceEnum);
                     preSealVehicle.setId(existId);
+                    preSealVehicle.setPreSealUuid(existUuid);
                     preSealVehicleService.updateById(preSealVehicle);
                     needUpdate = true;
                     preSealResponse.setData(true);

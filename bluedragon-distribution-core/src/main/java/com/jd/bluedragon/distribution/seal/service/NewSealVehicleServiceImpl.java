@@ -24,11 +24,14 @@ import com.jd.bluedragon.distribution.material.service.SortingMaterialSendServic
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
+import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -108,6 +111,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	
 	@Autowired
 	private TmsServiceManager tmsServiceManager;
+	
+	@Autowired
+	private PreSealVehicleService preSealVehicleService;
+	
+	@Autowired
+	private PreSealBatchService preSealBatchService;
     /**
      * 查询预封车封车小时数
      */
@@ -1264,7 +1273,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		JdResult<List<String>> result = new JdResult<List<String>>();
 		if(request != null 
 				&& request.getSiteCode() != null
-				&& StringHelper.isNotEmpty(request.getTransportCode())) {
+				&& StringHelper.isNotEmpty(request.getTransportCode())
+				&& StringHelper.isNotEmpty(request.getVehicleNumber())) {
 			JdResult<TransportResource> transDto = tmsServiceManager.getTransportResourceByTransCode(request.getTransportCode());
             if (transDto == null
             		|| !transDto.isSucceed()
@@ -1285,6 +1295,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 return result;
 			}
 			List<String> unSealSendCodeList = this.getUnSealSendCodeList(request.getSiteCode(), receiveSiteCode, preSealRecentHours);
+
+			//排除已操作预封车的批次
+			List<String> preSealUuids = preSealVehicleService.findOtherUuidsByCreateAndReceive(request.getSiteCode(), receiveSiteCode,request.getTransportCode(),request.getVehicleNumber());
+			List<String> preSealSendCodes = preSealBatchService.querySendCodesByUuids(preSealUuids);
+			if(CollectionUtils.isNotEmpty(preSealSendCodes)) {
+				unSealSendCodeList = filterSendCodes(unSealSendCodeList,preSealSendCodes);
+			}
 			//校验批次列表是否为空
 			if(CollectionUtils.isEmpty(unSealSendCodeList)) {
                 result.toFail("待封车批次信息为空!");
@@ -1293,8 +1310,23 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 			result.setData(unSealSendCodeList);
 			result.toSuccess("查询成功！");
 		}else {
-			result.toFail("传入参数无效！transportCode和siteCode不能为空");
+			result.toFail("传入参数无效！transportCode、vehicleNumber、siteCode不能为空");
 		}
 		return result;
+	}
+	/**
+	 * 过滤掉已操作预封车的批次
+	 * @param unSealSendCodeList
+	 * @param preSealSendCodes
+	 * @return
+	 */
+	private List<String> filterSendCodes(List<String> unSealSendCodeList, List<String> preSealSendCodes) {
+		List<String> newList = new ArrayList<String>();
+		for(String item : unSealSendCodeList) {
+			if(!preSealSendCodes.contains(item)) {
+				newList.add(item);
+			}
+		}
+		return newList;
 	}
 }

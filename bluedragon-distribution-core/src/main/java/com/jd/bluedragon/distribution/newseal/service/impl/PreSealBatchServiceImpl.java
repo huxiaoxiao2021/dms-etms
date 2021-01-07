@@ -45,4 +45,9 @@ public class PreSealBatchServiceImpl implements PreSealBatchService {
 		return preSealBatchDao.queryByUuid(preSealUuid);
 	}
 
+	@Override
+	public List<String> querySendCodesByUuids(List<String> preSealUuids) {
+		return preSealBatchDao.querySendCodesByUuids(preSealUuids);
+	}
+
 }

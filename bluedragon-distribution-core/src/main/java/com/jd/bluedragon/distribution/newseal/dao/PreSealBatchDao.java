@@ -21,4 +21,7 @@ public interface PreSealBatchDao {
 	int batchLogicalDeleteByUuid(String preSealUuid);
 
 	List<String> queryByUuid(String preSealUuid);
+	
+	List<String> querySendCodesByUuids(List<String> preSealUuids);
+	
 }

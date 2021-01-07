@@ -505,4 +505,15 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 		condition.setOperateTime(DateHelper.addDate(new Date(), -effectPreSealDays));
 		return preSealVehicleDao.countPreSealNumBySendRelation(condition);
 	}
+
+	@Override
+	public List<String> findOtherUuidsByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode,
+			String transportCode, String vehicleNumber) {
+		PreSealVehicleCondition condition = new PreSealVehicleCondition();
+		condition.setCreateSiteCode(createSiteCode);
+		condition.setReceiveSiteCode(receiveSiteCode);
+		condition.setTransportCode(transportCode);
+		condition.setVehicleNumber(vehicleNumber);
+		return preSealVehicleDao.findOtherUuidsByCreateAndReceive(condition);
+	}
 }

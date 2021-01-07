@@ -78,19 +78,19 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
      * @return
      */
     @Override
-    public JdResult<List<TransportResource>> loadTransportResources(Integer createSiteCode, Integer receiveSiteCode) {
+    public JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode) {
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByPage");
     	JdResult<List<TransportResource>> result = new JdResult<List<TransportResource>>();
     	try {
-    		if(createSiteCode == null || receiveSiteCode == null) {
-    			result.toFail("传入参数createSiteCode、receiveSiteCode不能为空！");
+    		if(startNodeCode == null || endNodeCode == null) {
+    			result.toFail("传入参数startNodeCode、endNodeCode不能为空！");
     			return result;
     		}
     		TransportResourceDto parameter=new TransportResourceDto();
     		PageDto<TransportResourceDto> page = new PageDto<TransportResourceDto>();
 	        page.setPageSize(5);
-	        parameter.setStartNodeCode(createSiteCode.toString());
-	        parameter.setEndNodeCode(receiveSiteCode.toString());
+	        parameter.setStartNodeCode(startNodeCode);
+	        parameter.setEndNodeCode(endNodeCode);
 	        CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page,parameter);
 	        if(null != rest){
 	        	List<TransportResource> listData=new ArrayList<TransportResource>();
@@ -101,7 +101,7 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
 	            result.setData(listData);
 	            result.toSuccess();
 	        }else {
-				log.warn("调用tms加载运力信息为空！{0}-{1}",createSiteCode,receiveSiteCode);
+				log.warn("调用tms加载运力信息为空！{0}-{1}",startNodeCode,endNodeCode);
 				result.toFail("调用tms加载运力信息为空！");
 	        }
 		} catch (Exception e) {

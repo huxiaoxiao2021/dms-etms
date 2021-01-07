@@ -104,25 +104,29 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 	 * @param dmsSendRelation
 	 */
 	private void loadLineAndCrossInfo(DmsSendRelation dmsSendRelation) {
+		String startNodeCode = null;
+		String endNodeCode = null;
 		//加载站点名称
-		if(dmsSendRelation.getOriginalSiteCode() == null ) {
+		if(dmsSendRelation.getOriginalSiteCode() != null ) {
 			BaseStaffSiteOrgDto startSiteInfo= baseMajorManager.getBaseSiteBySiteId(dmsSendRelation.getOriginalSiteCode());
 			if(startSiteInfo != null) {
 				dmsSendRelation.setOriginalSiteName(startSiteInfo.getSiteName());
+				startNodeCode = startSiteInfo.getDmsSiteCode();
 			}else {
 				logger.warn("加载始发信息为空！{0}", dmsSendRelation.getOriginalSiteCode());
 			}
 		}
-		if(dmsSendRelation.getDestinationSiteCode() == null ) {
+		if(dmsSendRelation.getDestinationSiteCode() != null ) {
 			BaseStaffSiteOrgDto endSiteInfo= baseMajorManager.getBaseSiteBySiteId(dmsSendRelation.getDestinationSiteCode());
 			if(endSiteInfo != null) {
 				dmsSendRelation.setDestinationSiteName(endSiteInfo.getSiteName());
+				endNodeCode = endSiteInfo.getDmsSiteCode();
 			}else {
 				logger.warn("加载目的信息为空！{0}", dmsSendRelation.getDestinationSiteCode());
 			}
 		}
 		//加载线路信息
-		JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(dmsSendRelation.getOriginalSiteCode(), dmsSendRelation.getDestinationSiteCode());
+		JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(startNodeCode, endNodeCode);
 		if(transportResult != null && CollectionUtils.isNotEmpty(transportResult.getData())) {
 			TransportResource transportResource = transportResult.getData().get(0);
 			dmsSendRelation.setLineType(transportResource.getRouteType());

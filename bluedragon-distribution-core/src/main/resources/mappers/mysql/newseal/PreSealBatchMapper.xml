@@ -38,10 +38,20 @@
 
 	<select id="queryByUuid" parameterType="java.lang.String" resultMap="PreSealBatch">
 		select
-			<include refid="Base_Column_List"/>
+			 distinct BATCH_CODE 
 		from
 			pre_seal_batch t
 		where yn = 1 and PRE_SEAL_UUID = #{preSealUuid,jdbcType=VARCHAR}
 	</select>
-
+	<select id="querySendCodesByUuids" parameterType="List" resultType="java.lang.String">
+		select 
+			distinct BATCH_CODE 
+		from
+		pre_seal_batch
+		where yn = 1 
+			and PRE_SEAL_UUID in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+	</select>
 </mapper>

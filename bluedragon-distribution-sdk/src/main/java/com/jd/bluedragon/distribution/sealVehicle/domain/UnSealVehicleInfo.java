@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sealVehicle.domain;
 
 
 import java.io.Serializable;
+import java.util.List;
 
 public class UnSealVehicleInfo implements Serializable {
 
@@ -76,6 +77,12 @@ public class UnSealVehicleInfo implements Serializable {
      * 车牌号
      */
 	private String vehicleNumber;
+	
+	private List<String> selectedSendCodes;
+	/*
+	* 批次数量
+	* */
+	private Integer selectedSendCodeCount;
 
 	public String getTransportCode() {
 		return transportCode;
@@ -187,5 +194,21 @@ public class UnSealVehicleInfo implements Serializable {
 
 	public void setVehicleNumber(String vehicleNumber) {
 		this.vehicleNumber = vehicleNumber;
+	}
+
+	public List<String> getSelectedSendCodes() {
+		return selectedSendCodes;
+	}
+
+	public void setSelectedSendCodes(List<String> selectedSendCodes) {
+		this.selectedSendCodes = selectedSendCodes;
+	}
+
+	public Integer getSelectedSendCodeCount() {
+		return selectedSendCodeCount;
+	}
+
+	public void setSelectedSendCodeCount(Integer selectedSendCodeCount) {
+		this.selectedSendCodeCount = selectedSendCodeCount;
 	}
 }

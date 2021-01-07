@@ -106,6 +106,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
             }
             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryByParam(param);
             Map<String, UnSealVehicleInfo> unSealVehicleInfoMap = new HashMap<>();
+            /**
+             * 存放uuid
+             */
+            Map<String, List<String>> unSealVehicleUuidMap = new HashMap<>();
             if (preSealVehicleList != null) {
                 //遍历所有预封车记录
                 for (PreSealVehicle preSealVehicle : preSealVehicleList) {
@@ -115,12 +119,16 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transportCode);
                         //存在多条运力编码信息，说明该运力下有多个车牌，存在多个车牌时设置未就绪
                         unSealVehicleInfo.setReady(false);
+                        unSealVehicleUuidMap.get(transportCode).add(preSealVehicle.getPreSealUuid());
                     } else {
                         //不存在运力编码，进行信息初始化
                         UnSealVehicleInfo unSealVehicleInfo = this.convert2UnSealVehicleInfo(preSealVehicle);
+                        List<String> uuids = new ArrayList<String>();
+                        uuids.add(preSealVehicle.getPreSealUuid());
                         //设置批次数量
                         int sendCodeCount = this.getUnSealSendCodeCount(createSiteCode, preSealVehicle.getReceiveSiteCode(), queryRequest.getHourRange());
                         unSealVehicleInfo.setSendCodeCount(sendCodeCount);
+                        
                         if (sendCodeCount > 0) {
                             //判断是否需要进行体积判断
                             if (this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay())) {
@@ -131,10 +139,18 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         } else {
                             unSealVehicleInfo.setReady(false);
                         }
-                        
+                        unSealVehicleUuidMap.put(transportCode, uuids);
                         unSealVehicleInfoMap.put(transportCode, unSealVehicleInfo);
                     }
                 }
+            }
+            /**
+             * 设置选中的批次信息
+             */
+            for(String transCode : unSealVehicleInfoMap.keySet()) {
+            	List<String> selectedSendCodes= this.preSealBatchService.querySendCodesByUuids(unSealVehicleUuidMap.get(transCode));
+            	unSealVehicleInfoMap.get(transCode).setSelectedSendCodes(selectedSendCodes);
+            	unSealVehicleInfoMap.get(transCode).setSelectedSendCodeCount(selectedSendCodes.size());
             }
             jdResponse.setData(new ArrayList<>(unSealVehicleInfoMap.values()));
         } catch (Exception e) {
@@ -187,14 +203,8 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
             //PDA未选择批次时，默认全选
             boolean selectAllSendCodes = false;
             //查询满足预封车条件下PDA已选择的所有的批次号
-            List<String> selectedSendCodes = new ArrayList<String>();
-            for(PreSealVehicle preSealVehicle:preSealVehicleList) {
-            	List<String> sendCodes = preSealBatchService.queryByUuid(preSealVehicle.getPreSealUuid());
-            	if(CollectionUtils.isNotEmpty(sendCodes)) {
-            		selectedSendCodes.addAll(sendCodes);
-            	}
-            }
-            if(selectedSendCodes.isEmpty()) {
+            List<String> selectedSendCodes = querySelectedSendCodes(preSealVehicleList);
+            if(CollectionUtils.isEmpty(selectedSendCodes)) {
             	selectAllSendCodes = true;
             }
             UnSealVehicleDetail unSealVehicleDetail = new UnSealVehicleDetail();
@@ -208,6 +218,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 sealVehicleSendCodeInfo.setReady(isAllReady);
                 sealVehicleSendCodeInfo.setVehicleNumber(vehicleNumber);
                 sealVehicleSendCodeInfo.setSealCode(sealCode);
+                //设置选中状态
                 if(isAllReady && (selectAllSendCodes || selectedSendCodes.contains(unSealSendCode))) {
                 	sealVehicleSendCodeInfo.setSelectedFlag(Boolean.TRUE);
                 }else {
@@ -496,5 +507,21 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 			}
 		}
 		return record;
+	}
+	/**
+	 * 根据预封车列表，查询预封车的批次信息
+	 * @param preSealVehicleList
+	 * @return
+	 */
+	private List<String> querySelectedSendCodes(List<PreSealVehicle> preSealVehicleList){
+		if(CollectionUtils.isEmpty(preSealVehicleList)) {
+			return Collections.EMPTY_LIST;
+		}
+	    //查询满足预封车条件下PDA已选择的所有的批次号
+	    List<String> preSealUuids = new ArrayList<String>();
+	    for(PreSealVehicle preSealVehicle:preSealVehicleList) {
+	    	preSealUuids.add(preSealVehicle.getPreSealUuid());
+	    }
+	    return preSealBatchService.querySendCodesByUuids(preSealUuids);
 	}
 }

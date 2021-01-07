@@ -25,5 +25,5 @@ public interface TmsServiceManager {
      * @param receiveSiteCode       结束站点
      * @return
      */
-	JdResult<List<TransportResource>> loadTransportResources(Integer createSiteCode, Integer receiveSiteCode);
+	JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode);
 }

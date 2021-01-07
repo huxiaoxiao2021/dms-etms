@@ -31,4 +31,10 @@ public interface PreSealBatchService {
 	 * @return
 	 */
 	List<String> queryByUuid(String preSealUuid);
+	/**
+	 * 根据uuids查询批次列表
+	 * @param preSealUuids
+	 * @return
+	 */
+	List<String> querySendCodesByUuids(List<String> preSealUuids);
 }

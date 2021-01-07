@@ -125,4 +125,10 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
 	Integer countPreSealNumBySendRelation(PreSealVehicleCondition condition);
+	/**
+	 * 
+	 * @param condition
+	 * @return
+	 */
+	List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition);
 }
