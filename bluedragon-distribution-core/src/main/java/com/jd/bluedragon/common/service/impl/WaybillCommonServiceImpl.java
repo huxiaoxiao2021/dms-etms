@@ -867,7 +867,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (StringUtils.isEmpty(target.getjZDFlag())){
                 target.setjZDFlag(TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT);
             }else{
-                target.setjZDFlag(target.getjZDFlag() + "\r\n" + TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT);
+                target.setjZDFlag(target.getjZDFlag() + "\\r\\n" + TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT);
             }
         }
 
