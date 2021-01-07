@@ -53,7 +53,7 @@ public class GoodsLoadingScanningServiceImplTest {
     @Resource
     private LoadScanServiceImpl loadScanService;
 
-    @Autowired
+    @Resource
     private SpotCheckGateWayService spotCheckGateWayService;
 
 
