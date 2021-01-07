@@ -36,7 +36,7 @@
 		where PRE_SEAL_UUID = #{preSealUuid,jdbcType=VARCHAR}
 	</update>
 
-	<select id="queryByUuid" parameterType="java.lang.String" resultMap="PreSealBatch">
+	<select id="queryByUuid" parameterType="java.lang.String" resultType="java.lang.String">
 		select
 			 distinct BATCH_CODE 
 		from
