@@ -82,23 +82,15 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByPage");
     	JdResult<List<TransportResource>> result = new JdResult<List<TransportResource>>();
     	try {
+    		if(createSiteCode == null || receiveSiteCode == null) {
+    			result.toFail("传入参数createSiteCode、receiveSiteCode不能为空！");
+    			return result;
+    		}
     		TransportResourceDto parameter=new TransportResourceDto();
     		PageDto<TransportResourceDto> page = new PageDto<TransportResourceDto>();
 	        page.setPageSize(5);
-	        BaseStaffSiteOrgDto createSiteInfo = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
-	        if(createSiteInfo == null) {
-				log.warn("调用基础资料获取始发站点信息为空！{0}",createSiteCode);
-				result.toFail("调用基础资料获取始发站点信息为空！");
-				return result;
-	        }
-	        parameter.setStartNodeCode(createSiteInfo.getDmsSiteCode());
-	        BaseStaffSiteOrgDto receiveSiteInfo = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
-	        if(receiveSiteInfo == null) {
-				log.warn("调用基础资料获取目的站点信息为空！{0}",receiveSiteCode);
-				result.toFail("调用基础资料获取目的站点信息为空！");
-				return result;
-	        }
-	        parameter.setEndNodeCode(receiveSiteInfo.getDmsSiteCode());
+	        parameter.setStartNodeCode(createSiteCode.toString());
+	        parameter.setEndNodeCode(receiveSiteCode.toString());
 	        CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page,parameter);
 	        if(null != rest){
 	        	List<TransportResource> listData=new ArrayList<TransportResource>();

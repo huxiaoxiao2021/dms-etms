@@ -23,9 +23,9 @@
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
 				(
-					#{preSealUuid,jdbcType=VARCHAR},
-					#{batchCode,jdbcType=VARCHAR},
-					#{createTime,jdbcType=TIMESTAMP}
+					#{item.preSealUuid,jdbcType=VARCHAR},
+					#{item.batchCode,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP}
 				)
 			</foreach>
 	</insert>

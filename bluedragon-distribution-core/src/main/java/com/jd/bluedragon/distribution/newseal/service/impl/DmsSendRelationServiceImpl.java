@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.cache.CacheService;
 
@@ -55,6 +57,8 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
     @Autowired
     private TmsServiceManager tmsServiceManager;
     
+	@Autowired
+	private BaseMajorManager baseMajorManager;
     /**
      * 数据更新频率，默认1800（单位：秒）
      */
@@ -100,6 +104,23 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 	 * @param dmsSendRelation
 	 */
 	private void loadLineAndCrossInfo(DmsSendRelation dmsSendRelation) {
+		//加载站点名称
+		if(dmsSendRelation.getOriginalSiteCode() == null ) {
+			BaseStaffSiteOrgDto startSiteInfo= baseMajorManager.getBaseSiteBySiteId(dmsSendRelation.getOriginalSiteCode());
+			if(startSiteInfo != null) {
+				dmsSendRelation.setOriginalSiteName(startSiteInfo.getSiteName());
+			}else {
+				logger.warn("加载始发信息为空！{0}", dmsSendRelation.getOriginalSiteCode());
+			}
+		}
+		if(dmsSendRelation.getDestinationSiteCode() == null ) {
+			BaseStaffSiteOrgDto endSiteInfo= baseMajorManager.getBaseSiteBySiteId(dmsSendRelation.getDestinationSiteCode());
+			if(endSiteInfo != null) {
+				dmsSendRelation.setDestinationSiteName(endSiteInfo.getSiteName());
+			}else {
+				logger.warn("加载目的信息为空！{0}", dmsSendRelation.getDestinationSiteCode());
+			}
+		}
 		//加载线路信息
 		JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(dmsSendRelation.getOriginalSiteCode(), dmsSendRelation.getDestinationSiteCode());
 		if(transportResult != null && CollectionUtils.isNotEmpty(transportResult.getData())) {
