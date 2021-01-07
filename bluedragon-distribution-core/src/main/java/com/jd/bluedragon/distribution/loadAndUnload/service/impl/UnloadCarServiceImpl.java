@@ -829,7 +829,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         // 设置状态
         int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageAmount, flowDisAccord);
         // 设置运单重量和体积
-        setWeightAndVolume(unloadScan);
+        if (StringUtils.isNotBlank(waybillCode)) {
+            setWeightAndVolume(unloadScan);
+        } else {
+            unloadScan.setWeight(0d);
+            unloadScan.setVolume(0d);
+        }
         unloadScan.setStatus(status);
         unloadScan.setYn(Constants.YN_YES);
         unloadScan.setCreateTime(new Date());
