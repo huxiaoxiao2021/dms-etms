@@ -504,7 +504,7 @@ public class DeliveryResource {
                         if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
                             List<SendM> relationSendList = new DeliverySendMGen().createBoxRelationSendM(request);
                             if (CollectionUtils.isNotEmpty(relationSendList)) {
-                                tDeliveryResponse = deliveryService.dealWJSending(SendBizSourceEnum.OLD_PACKAGE_SEND, relationSendList);
+                                tDeliveryResponse = deliveryService.dealFileBoxBatchSending(SendBizSourceEnum.OLD_PACKAGE_SEND, relationSendList);
                             }
                         }
                     }

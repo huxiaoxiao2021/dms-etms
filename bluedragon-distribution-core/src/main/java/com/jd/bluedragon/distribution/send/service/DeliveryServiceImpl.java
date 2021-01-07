@@ -443,7 +443,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         // BC箱号发货校验通过后，处理WJ箱号的发货逻辑
         if (ObjectUtils.equals(SendResult.CODE_OK, sendResult.getKey()) || ObjectUtils.equals(SendResult.CODE_WARN, sendResult.getKey())) {
 
-            this.dealWJBoxSend(bizSource, domain);
+            this.dealFileBoxSingleCarSend(bizSource, domain);
         }
 
         return sendResult;
@@ -475,72 +475,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         // BC箱号发货校验通过后，处理WJ箱号的发货逻辑
         if (SendResult.CODE_OK.equals(sendResult.getKey()) || SendResult.CODE_WARN.equals(sendResult.getKey())) {
 
-            this.dealWJBoxSend(bizSource, domain);
+            this.dealFileBoxSingleCarSend(bizSource, domain);
         }
 
         return sendResult;
-    }
-
-    /**
-     * 批量处理BC箱号绑定的WJ箱号的发货逻辑
-     *
-     * <h3>WJ箱号发货逻辑</h3>
-     * <ul>
-     *     <li>本次发货时间距离上次封车时间不超过1小时，目的地不同时自动取消上次发货</li>
-     *     <li>本次发货时间距离上次封车时间不超过1小时，批次目的地相同则忽略本次发货</li>
-     *     <li>本次发货时间距离上次封车时间超过1小时，按新批次再次发货</li>
-     * </ul>
-     * @param bizSource
-     * @param BCSendM
-     * @return
-     */
-    @Override
-    public SendResult dealWJBoxSend(SendBizSourceEnum bizSource, SendM BCSendM) {
-        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-
-        List<SendM> WJSendMList = this.getWJSendMDomains(BCSendM);
-        if (CollectionUtils.isEmpty(WJSendMList)) {
-            return result;
-        }
-
-        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealWJBoxSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
-
-        List<SendM> needSendBox = Lists.newArrayListWithExpectedSize(WJSendMList.size());
-        for (SendM domain : WJSendMList) {
-            SendResult verifyResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-
-            // 本次发货时间距离上次封车时间不超过1小时
-            if (!this.multiSendVerification(domain, verifyResult)) {
-                // 箱号已发货，忽略本次发货
-                if (SendResult.CODE_SENDED.equals(verifyResult.getKey())) {
-                    continue;
-                }
-                // 向新目的地再次发货，自动取消箱号的上次发货记录
-                if (SendResult.CODE_CONFIRM.equals(verifyResult.getKey())) {
-
-                    // 取消上次发货
-                    this.doCancelLastSend(domain);
-
-                    needSendBox.add(domain);
-                }
-            }
-            // 本次发货时间距离上次封车时间超过1小时，保留本次发货记录
-            else {
-                needSendBox.add(domain);
-            }
-        }
-
-        if (CollectionUtils.isEmpty(needSendBox)) {
-            return result;
-        }
-
-        for (SendM domain : needSendBox) {
-            this.doPackageSend(bizSource, domain);
-        }
-
-        Profiler.registerInfoEnd(callerInfo);
-
-        return result;
     }
 
     /**
@@ -1718,34 +1656,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public DeliveryResponse dealWJSending(SendBizSourceEnum source, List<SendM> sendMList) {
+    public DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList) {
 
-        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealWJBoxSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
 
-        List<SendM> needSendBox = Lists.newArrayListWithExpectedSize(sendMList.size());
-        for (SendM domain : sendMList) {
-
-            SendResult verifyResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-            // 本次发货时间距离上次封车时间不超过1小时
-            if (!this.multiSendVerification(domain, verifyResult)) {
-                // 箱号已发货，忽略本次发货
-                if (SendResult.CODE_SENDED.equals(verifyResult.getKey())) {
-                    continue;
-                }
-                // 向新目的地再次发货，自动取消箱号的上次发货记录
-                if (SendResult.CODE_CONFIRM.equals(verifyResult.getKey())) {
-
-                    // 取消上次发货
-                    this.doCancelLastSend(domain);
-
-                    needSendBox.add(domain);
-                }
-            }
-            // 本次发货时间距离上次封车时间超过1小时，保留本次发货记录
-            else {
-                needSendBox.add(domain);
-            }
-        }
+        List<SendM> needSendBox = this.findCouldSendingFileBox(sendMList);
 
         if (CollectionUtils.isEmpty(needSendBox)) {
             return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -1757,6 +1672,90 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(callerInfo);
 
         return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+    }
+
+    /**
+     * 批量处理BC箱号绑定的WJ箱号的发货逻辑
+     *
+     * <h3>WJ箱号发货逻辑</h3>
+     * <ul>
+     *     <li>本次发货时间距离上次封车时间不超过1小时，目的地不同时自动取消上次发货</li>
+     *     <li>本次发货时间距离上次封车时间不超过1小时，批次目的地相同则忽略本次发货</li>
+     *     <li>本次发货时间距离上次封车时间超过1小时，按新批次再次发货</li>
+     * </ul>
+     * @param bizSource
+     * @param BCSendM
+     * @return
+     */
+    @Override
+    public SendResult dealFileBoxSingleCarSend(SendBizSourceEnum bizSource, SendM BCSendM) {
+        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+
+        List<SendM> WJSendMList = this.getWJSendMDomains(BCSendM);
+        if (CollectionUtils.isEmpty(WJSendMList)) {
+            return result;
+        }
+
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
+
+        List<SendM> needSendBox = this.findCouldSendingFileBox(WJSendMList);
+
+        if (CollectionUtils.isEmpty(needSendBox)) {
+            return result;
+        }
+
+        for (SendM domain : needSendBox) {
+            this.doPackageSend(bizSource, domain);
+        }
+
+        Profiler.registerInfoEnd(callerInfo);
+
+        return result;
+    }
+
+    /**
+     * 可以发货的文件箱号
+     * <ul>
+     *     <li>如果BC绑定的WJ已经发过货，且重复同一个批次号发货，则系统自动跳过，不重复发货，系统不显示提示。</li>
+     *     <li>如果BC绑定的WJ已经发过货，上次与本次发货批次号不同，且时间在【封车+1小时】内（老逻辑），
+     * 则系统自动取消上次发货，以本次发货为准，系统不显示提示。</li>
+     *     <li>如果BC绑定的WJ已经发过货，上次与本次发货批次号不同，且时间在【封车+1小时】以外（老逻辑），
+     * 则系统直接按新批次发货，不取消上次发货，系统不显示提示。</li>
+     * </ul>
+     * @param sendMList WJ箱号发货
+     * @return 可发货的WJ箱号
+     */
+    private List<SendM> findCouldSendingFileBox(List<SendM> sendMList) {
+        List<SendM> needSendBox = Lists.newArrayListWithExpectedSize(sendMList.size());
+
+        for (SendM domain : sendMList) {
+
+            SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+            if (lastSendM != null) {
+                String lastSendCode = lastSendM.getSendCode();
+                // 继续用相同批次发货，不重复发货
+                if (ObjectUtils.equals(domain.getSendCode(), lastSendM.getSendCode())) {
+                    log.warn("箱子{}已经在批次[" + lastSendCode + "]中发货，不重复发货");
+                }
+                else {
+                    // 用新批次再次发货
+                    // 发货时间距离封车时间不超过1个小时
+                    if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
+                        // 取消上次发货
+                        this.doCancelLastSend(domain);
+                        needSendBox.add(domain);
+                    }
+                    else {
+                        needSendBox.add(domain);
+                    }
+                }
+            }
+            else {
+                needSendBox.add(domain);
+            }
+        }
+
+        return needSendBox;
     }
 
     /**

@@ -448,7 +448,7 @@ public interface DeliveryService {
      * @param BCSendM
      * @return
      */
-    SendResult dealWJBoxSend(SendBizSourceEnum bizSource, SendM BCSendM);
+    SendResult dealFileBoxSingleCarSend(SendBizSourceEnum bizSource, SendM BCSendM);
 
     /**
      * 老发货处理WJ发货逻辑
@@ -456,5 +456,5 @@ public interface DeliveryService {
      * @param sendMList
      * @return
      */
-    DeliveryResponse dealWJSending(SendBizSourceEnum source, List<SendM> sendMList);
+    DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList);
 }
