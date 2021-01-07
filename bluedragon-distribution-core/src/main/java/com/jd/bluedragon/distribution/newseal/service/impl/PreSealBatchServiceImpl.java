@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
+import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +49,10 @@ public class PreSealBatchServiceImpl implements PreSealBatchService {
 
 	@Override
 	public List<String> querySendCodesByUuids(List<String> preSealUuids) {
-		return preSealBatchDao.querySendCodesByUuids(preSealUuids);
+		if(CollectionUtils.isNotEmpty(preSealUuids)) {
+			return preSealBatchDao.querySendCodesByUuids(preSealUuids);
+		}
+		return Collections.EMPTY_LIST;
 	}
 
 }
