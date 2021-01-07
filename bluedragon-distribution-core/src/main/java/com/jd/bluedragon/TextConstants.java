@@ -246,4 +246,8 @@ public class TextConstants {
      * 合约机 需激活
      */
     public static final String REMARK_CONTRACT_PHONE ="合约机 需激活";
+    /**
+     * 收货人地址
+     */
+    public static final String RECEIVER_ADDRESS = "收件人地址：";
 }

@@ -301,6 +301,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
                 commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
+            //如果receiveCustomerCode存在，在remark中显示
+            if (StringUtils.isNotEmpty(null != tmsWaybill.getWaybillExt()?tmsWaybill.getWaybillExt().getReceiveCustomerCode():null)){
+                commonWaybill.appendRemark(StringUtils.isNotEmpty(commonWaybill.getRemark())? ";" : ""
+                    + TextConstants.RECEIVER_ADDRESS + tmsWaybill.getWaybillExt().getReceiveCustomerCode());
+            }
+
         	//路区-为空尝试从运单里获取
         	if(StringHelper.isEmpty(roadCode)){
         		if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
