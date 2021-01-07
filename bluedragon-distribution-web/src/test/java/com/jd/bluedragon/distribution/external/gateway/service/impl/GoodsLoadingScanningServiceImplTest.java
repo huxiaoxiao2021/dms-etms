@@ -8,6 +8,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+        import com.jd.bluedragon.common.dto.spotcheck.IsExcessReq;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
         import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
         import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
@@ -15,8 +16,10 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
         import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
         import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+        import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
         import org.junit.Test;
         import org.junit.runner.RunWith;
+        import org.springframework.beans.factory.annotation.Autowired;
         import org.springframework.test.context.ContextConfiguration;
         import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -50,7 +53,8 @@ public class GoodsLoadingScanningServiceImplTest {
     @Resource
     private LoadScanServiceImpl loadScanService;
 
-
+    @Autowired
+    private SpotCheckGateWayService spotCheckGateWayService;
 
 
     @Test //不齐异常数据查询测试
@@ -279,5 +283,15 @@ public class GoodsLoadingScanningServiceImplTest {
     }
 
 
+    @Test
+    public void testSpotCheckTest() {
+        IsExcessReq req = new IsExcessReq();
+        req.setWaybillCode("JDX000156830891");
+        req.setLoginErp("bjxings");
+        req.setCreateSiteCode(364605);
+        req.setWeight(30D);
+        req.setVolume(50D);
+        spotCheckGateWayService.checkIsExcess(req);
+    }
 
 }
