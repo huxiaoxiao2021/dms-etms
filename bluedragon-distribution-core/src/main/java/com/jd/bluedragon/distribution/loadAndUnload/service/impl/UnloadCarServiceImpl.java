@@ -2034,7 +2034,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 初始化运单暂存表
             UnloadScan unloadScan = createUnloadScan(null, tmsSealCar.getSealCarCode(), 0, 0,
                     tmsSealCar.getOperateUserName(), tmsSealCar.getOperateUserCode(), false);
-            unloadScan.setStatus(GoodsLoadScanConstants.GOODS_SCAN_LOAD_BLANK);
+            unloadScan.setStatus(GoodsLoadScanConstants.UNLOAD_SCAN_BLANK);
 
             List<String> totalPackageCodes = new ArrayList<>();
             List<String> packageCodes;
