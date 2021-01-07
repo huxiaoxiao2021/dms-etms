@@ -1,19 +1,15 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.core.redis.TaskMode;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
-import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
-import com.jd.etms.vts.dto.CarrierInfo;
-import com.jd.etms.vts.dto.CarrierParamDto;
-import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicDictDto;
+import com.jd.tms.basic.dto.CarrierDto;
 
 import java.util.List;
 import java.util.Map;
@@ -64,18 +60,18 @@ public interface BaseService{
 	BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups);
 	
 	/**
-	 * 通过VTS已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
+	 * 通过已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
 	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
 	 * @return
 	 */
-	DictDto[] getDictListByGroupType(List<Integer> typeGroups);
+	List<BasicDictDto> getDictListByGroupType(List<Integer> typeGroups);
 	
 	/**
 	 * 承运商列表
-	 * @param carrierParamDto
+	 * @param carrierDto
 	 * @return
 	 */
-	List<CarrierInfo> getCarrierInfoList(CarrierParamDto carrierParamDto);
+	List<CarrierDto> getCarrierInfoList(CarrierDto carrierDto);
 
 	/**
 	 * 根据站点ID查询站点名称，如果没有匹配数据则返回空值(null)

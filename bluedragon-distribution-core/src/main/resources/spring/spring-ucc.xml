@@ -86,6 +86,7 @@
         <property name="quickSealTips" value="${quickSealTips:''}" />
 		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite}"/>
+		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
         <property name="siteEnableFilePackageCheck" value="${siteEnableFilePackageCheck:false}" />
@@ -145,6 +146,7 @@
                 <value>uccPropertyConfiguration.quickSealTips</value>
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
+				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
                 <value>uccPropertyConfiguration.siteEnableFilePackageCheck</value>

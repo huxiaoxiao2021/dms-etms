@@ -131,6 +131,11 @@ public class GoodsLoadScanRecord implements Serializable {
      */
     private List<Long> taskIdList;
 
+    /**
+     * ID列表
+     */
+    private List<Long> idList;
+
     public Long getId() {
         return id;
     }
@@ -321,5 +326,13 @@ public class GoodsLoadScanRecord implements Serializable {
 
     public void setTaskIdList(List<Long> taskIdList) {
         this.taskIdList = taskIdList;
+    }
+
+    public List<Long> getIdList() {
+        return idList;
+    }
+
+    public void setIdList(List<Long> idList) {
+        this.idList = idList;
     }
 }

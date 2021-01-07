@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.common.util.MessageUtils;
+import com.jd.etms.api.common.enums.RequirementEnum;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -2463,4 +2465,17 @@ public class WaybillResource {
         result.setData(packageCode);
         return result;
     }
+
+
+	/**
+	 * 现场预分拣
+	 * @param waybillForPreSortOnSiteRequest
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/checkWaybillForPreSortOnSite")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
+		return waybillService.checkWaybillForPreSortOnSite(waybillForPreSortOnSiteRequest);
+	}
 }

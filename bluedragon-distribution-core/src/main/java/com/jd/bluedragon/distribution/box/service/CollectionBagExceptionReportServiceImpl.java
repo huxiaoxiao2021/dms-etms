@@ -12,14 +12,14 @@ import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,8 +29,9 @@ import java.util.List;
  * @time 2020-09-23 21:44:53 周三
  */
 @Service("dmsCollectionBagExceptionReportService")
-@Slf4j
 public class CollectionBagExceptionReportServiceImpl implements CollectionBagExceptionReportService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private CollectionBagExceptionReportDao collectionBagExceptionReportDao;

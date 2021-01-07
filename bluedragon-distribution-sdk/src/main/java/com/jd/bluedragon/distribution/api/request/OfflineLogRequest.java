@@ -44,6 +44,11 @@ public class OfflineLogRequest extends JdRequest {
 	 */
 	private String demo;
 
+	/**
+	 * 离线任务数据来源
+	 */
+	private Integer bizSource;
+
 	public Integer getOperateType() {
 		return operateType;
 	}
@@ -265,5 +270,13 @@ public class OfflineLogRequest extends JdRequest {
 	 */
 	public void setDemo(String demo) {
 		this.demo = demo;
+	}
+
+	public Integer getBizSource() {
+		return bizSource;
+	}
+
+	public void setBizSource(Integer bizSource) {
+		this.bizSource = bizSource;
 	}
 }

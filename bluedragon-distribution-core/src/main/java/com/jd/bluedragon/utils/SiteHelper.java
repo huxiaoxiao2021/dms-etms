@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.Arrays;
 
@@ -194,6 +195,21 @@ public class SiteHelper {
                 || SiteHelper.isSalesDeptSite(site);
     }
 
+    /**
+     * 判断是否是经济网
+     * @param site
+     * @return
+     */
+    public static  Boolean isEconomicNet(BaseStaffSiteOrgDto site){
+        if (site == null || site.getSiteType() == null || site.getSubType() == null) {
+            return Boolean.FALSE;
+        }
+        if (site.getSiteType().equals(10000)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
     public static Boolean isForward(String ruleSiteType, String receiveSiteType) {
         return SiteHelper.matchSiteTypeRule(ruleSiteType, receiveSiteType);
     }
@@ -381,6 +397,23 @@ public class SiteHelper {
         }
 
         if (903 == site.getType().intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+
+    /**
+     * 三级分类为：大家电综合站点
+     * @param site
+     * @return
+     */
+    public static Boolean isBigElectricApplianceSite(Site site){
+        if (null == site || null == site.getType() || null == site.getSubType()) {
+            return Boolean.FALSE;
+        }
+
+        if (18 == site.getSubType().intValue()) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

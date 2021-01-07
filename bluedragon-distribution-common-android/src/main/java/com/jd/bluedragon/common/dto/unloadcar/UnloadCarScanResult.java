@@ -49,7 +49,17 @@ public class UnloadCarScanResult implements Serializable {
      * */
     private Integer surplusPackageScanCount;
 
-    public String getSealCarCode() {
+    /**
+     * 包裹号转运单 权限标识
+     */
+    private Integer waybillAuthority;
+
+    /**
+     * 运单包裹总数
+     */
+    private Integer packageSize;
+
+     public String getSealCarCode() {
         return sealCarCode;
     }
 
@@ -119,5 +129,21 @@ public class UnloadCarScanResult implements Serializable {
 
     public void setSurplusPackageScanCount(Integer surplusPackageScanCount) {
         this.surplusPackageScanCount = surplusPackageScanCount;
+    }
+
+    public Integer getWaybillAuthority() {
+        return waybillAuthority;
+    }
+
+    public void setWaybillAuthority(Integer waybillAuthority) {
+        this.waybillAuthority = waybillAuthority;
+    }
+
+    public Integer getPackageSize() {
+        return packageSize;
+    }
+
+    public void setPackageSize(Integer packageSize) {
+        this.packageSize = packageSize;
     }
 }

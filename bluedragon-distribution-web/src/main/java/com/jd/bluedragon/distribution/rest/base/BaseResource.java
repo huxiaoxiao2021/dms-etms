@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
-import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.DateHelper;
@@ -31,10 +30,6 @@ import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
 import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
-import com.jd.etms.vts.dto.CarrierInfo;
-import com.jd.etms.vts.dto.CarrierParamDto;
-import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -44,6 +39,9 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import com.jd.tms.basic.dto.BasicDictDto;
+import com.jd.tms.basic.dto.CarrierDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
@@ -101,11 +99,6 @@ public class BaseResource {
 	@Autowired
 	private UserService userService;
 
-	@Autowired
-	private VtsQueryWS vtsQueryWS;
-	
-	@Autowired
-	private ClientConfigService clientConfigService;
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
 
@@ -1074,7 +1067,7 @@ public class BaseResource {
 	}
 	
 	/**
-	 * 通过VTS已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
+	 * 通过运输已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
 	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
 	 * add by lhc
 	 * 2016.8.31
@@ -1090,7 +1083,7 @@ public class BaseResource {
 		this.log.debug("获取运力的线路类型、运力类型、运输方式 ");
 
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
-		DictDto[] result = null;
+		List<BasicDictDto> result = null;
 		try {
 			//批量提交数据字典信息查询
 			result = baseService.getDictListByGroupType(vtsbaseSetConfig.getCapacityType());
@@ -1103,7 +1096,7 @@ public class BaseResource {
 			return responseList;
 		}
 
-		if (null == result || result.length == 0) {
+		if (CollectionUtils.isEmpty(result)) {
 			log.warn("获取运力信息为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_ERROR_EMPTY);
@@ -1111,7 +1104,7 @@ public class BaseResource {
 			return responseList;
 		}
 
-		for (DictDto dto : result) {
+		for (BasicDictDto dto : result) {
 			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			//类型名称
 			response.setTypeName(dto.getDictName());
@@ -1141,13 +1134,13 @@ public class BaseResource {
 	@Path("/bases/getCarrierInfoList")
 	public List<BaseResponse> getCarrierInfoList() {
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
-		CarrierParamDto carrierParamDto = new CarrierParamDto();
+		CarrierDto carrierParamDto = new CarrierDto();
 		carrierParamDto.setOwner("1");
 		
-		List<CarrierInfo> carrierInfoList = baseService.getCarrierInfoList(carrierParamDto);
+		List<CarrierDto> carrierInfoList = baseService.getCarrierInfoList(carrierParamDto);
 		
 		if (carrierInfoList != null && carrierInfoList.size() > 0) {
-			for (CarrierInfo carrierInfo : carrierInfoList) {
+			for (CarrierDto carrierInfo : carrierInfoList) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 				response.setCarrierId(carrierInfo.getCarrierId());
 				response.setCarrierCode(carrierInfo.getCarrierCode());

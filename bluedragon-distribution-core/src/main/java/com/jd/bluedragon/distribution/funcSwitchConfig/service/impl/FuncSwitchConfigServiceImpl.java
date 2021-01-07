@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.annotation.CacheMethod;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -448,6 +450,26 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return funcSwitchConfigDao.selectConfiguredCount(dto) > 0;
     }
 
+    @Override
+    @CacheMethod(key="FuncSwitchConfigServiceImpl.checkIsConfiguredWithCache-{0}-{1}-{2}-{3}", cacheBean="redisCache",
+            nullTimeout = 1000 * 60 * 5, timeout = 1000 * 60 * 5)
+    public boolean checkIsConfiguredWithCache(Integer menuCode, Integer siteCode, Integer dimensionCode, String operateErp) {
+        if(menuCode == null || dimensionCode == null || siteCode == null){
+            return false;
+        }
+        FuncSwitchConfigDto switchConfigDto = new FuncSwitchConfigDto();
+        switchConfigDto.setSiteCode(siteCode);
+        switchConfigDto.setMenuCode(menuCode);
+        switchConfigDto.setDimensionCode(dimensionCode);
+        if (DimensionEnum.PERSON.getCode() == dimensionCode) {
+            if (StringUtils.isBlank(operateErp)) {
+                return false;
+            }
+            switchConfigDto.setOperateErp(operateErp);
+        }
+        return funcSwitchConfigDao.selectConfiguredCount(switchConfigDto) > 0;
+    }
+
     /**
      * 调用分拣机批量接口
      */
@@ -505,7 +527,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
         BaseDmsAutoJsfResponse  longBaseDmsAutoJsfResponse = deviceConfigInfoJsfServiceManager.maintainSiteWeightSwitch(siteCodesArray,weightValidateSwitchEnum);
         if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-            throw  new RuntimeException("分拣机开关调用失败,站点:"+siteCodesArray);
+            throw  new RuntimeException("分拣机开关调用失败,站点:"+siteCodesOffList.toString());
         }
     }
 
@@ -540,7 +562,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
             longBaseDmsAutoJsfResponse = deviceConfigInfoJsfServiceManager.maintainSiteWeightSwitch(siteCodes,weightValidateSwitchEnum);
             if(longBaseDmsAutoJsfResponse == null || longBaseDmsAutoJsfResponse.getStatusCode()!=BaseDmsAutoJsfResponse.SUCCESS_CODE){
-                throw  new RuntimeException("分拣机开关调用失败,站点:"+siteCodes);
+                throw  new RuntimeException("分拣机开关调用失败,站点:"+ Arrays.asList(siteCodes).toString());
             }
         }
     }
@@ -570,6 +592,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
+    @Override
     public FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> getSiteFilterStatus(Integer siteCode){
         FuncSwitchConfigResponse<List<DmsFuncSwitchDto>> response =  new FuncSwitchConfigResponse<>();
         response.setCode(JdResponse.CODE_SUCCESS);
@@ -624,6 +647,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param menuCode
      * @return
      */
+    @Override
     public boolean getAllCountryFromCacheOrDb(Integer menuCode){
         boolean isAllMailFilter = true;
         String cacheKey = getAllCountTyCacheKey(DimensionEnum.NATIONAL.getCachePreKey(),menuCode);
@@ -660,6 +684,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param siteCode
      * @return
      */
+    @Override
     public boolean getSiteFlagFromCacheOrDb(Integer menuCode,Integer siteCode){
         boolean isAllMailFilter = true;
         String cacheKey = getSiteCacheKey(DimensionEnum.SITE.getCachePreKey(),menuCode,siteCode);
@@ -697,6 +722,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param operateErp
      * @return
      */
+    @Override
     public boolean getErpFlagFromCacheOrDb(Integer menuCode,String operateErp){
         boolean isAllMailFilter = true;
         String  cacheKey = getErpOneCacheKey(DimensionEnum.PERSON.getCachePreKey(),menuCode,operateErp);
@@ -770,13 +796,13 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * 返回0: 有重量    非0:无重量
      */
     @Override
-    public JdCResponse<Void>  checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
+    public JdResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
         if (waybillCache == null) {
-            return new JdCResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
+            return new JdResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
         }
         //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
         if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
-            return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+            return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
         }
 
         logger.warn("运单缓存未查询重量,查询运单库,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
@@ -785,9 +811,9 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             if(logger.isInfoEnabled()) {
                 logger.info("本地库未查到纯配外单重量,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
             }
-            return  new JdCResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
+            return  new JdResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
         }
-        return new JdCResponse(Constants.SUCCESS_NO_CODE,"success");
+        return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
     }
 
     /**
@@ -795,6 +821,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * @param request
      * @return  true:拦截   false:不拦截
      */
+    @Override
     public boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto request){
         String waybillSign = request.getWaybillSign();
         //众邮不拦截

@@ -185,6 +185,35 @@
         </foreach>
     </insert>
 
+    <insert id="batchInsertByWaybill" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+        insert into load_scan_record (task_id, waybill_code,end_site_code, end_site_name,create_site_name,create_site_code,license_number,package_code,
+        board_code, scan_action, transfer, flow_disaccord, force_status, create_user_code, create_user_name, update_user_code, update_user_name, create_time,
+        update_time, yn, ts)  VALUES
+        <foreach collection="packageCodeList" item="item" separator=",">
+            (#{taskId,jdbcType=BIGINT},
+             #{wayBillCode,jdbcType=VARCHAR},
+             #{endSiteCode,jdbcType=BIGINT},
+             #{endSiteName,jdbcType=VARCHAR},
+             #{createSiteName,jdbcType=VARCHAR},
+             #{createSiteCode,jdbcType=BIGINT},
+             #{licenseNumber,jdbcType=VARCHAR},
+             #{item,jdbcType=VARCHAR},
+             #{boardCode,jdbcType=VARCHAR},
+             #{scanAction,jdbcType=INTEGER},
+             #{transfer,jdbcType=INTEGER},
+             #{flowDisaccord,jdbcType=INTEGER},
+             #{forceStatus,jdbcType=INTEGER},
+             #{createUserCode,jdbcType=VARCHAR},
+             #{createUserName,jdbcType=VARCHAR},
+             #{updateUserCode,jdbcType=VARCHAR},
+             #{updateUserName,jdbcType=VARCHAR},
+             #{createTime,jdbcType=TIMESTAMP},
+             #{updateTime,jdbcType=TIMESTAMP},
+             1,
+             now(3))
+        </foreach>
+    </insert>
+
     <select id="selectPackageCodesByWaybillCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultType="java.lang.String">
     select
      package_code
@@ -201,6 +230,14 @@
     <foreach collection="packageCodeList" item="item" index="index" open="(" separator="," close=")">
         #{item,jdbcType=VARCHAR}
     </foreach>
+    </select>
+
+    <select id="selectRecordsByWaybillCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan_record where yn = 1
+        and create_site_code =  #{createSiteCode,jdbcType=BIGINT}
+        and waybill_code = #{wayBillCode,jdbcType=VARCHAR}
     </select>
 
     <select id="selectRecordByWaybillCodeAndPackCode" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" resultMap="goodsLoadScanRecord">
@@ -243,6 +280,26 @@
             <if test="yn != null">yn = #{yn,jdbcType=INTEGER},</if>
         </set>
         where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="batchUpdateGoodsScanRecordByIds" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">
+        update load_scan_record
+        <set>
+            <if test="taskId != null">task_id = #{taskId,jdbcType=BIGINT},</if>
+            <if test="scanAction != null">scan_action = #{scanAction,jdbcType=INTEGER},</if>
+            <if test="licenseNumber != null">license_number = #{licenseNumber,jdbcType=VARCHAR},</if>
+            <if test="updateUserCode != null">update_user_code = #{updateUserCode,jdbcType=VARCHAR},</if>
+            <if test="updateUserName != null">update_user_name = #{updateUserName,jdbcType=VARCHAR},</if>
+            <if test="updateTime != null">update_time = #{updateTime,jdbcType=TIMESTAMP},</if>
+            <if test="endSiteCode != null">end_site_code = #{endSiteCode,jdbcType=BIGINT},</if>
+            <if test="endSiteName != null">end_site_name = #{endSiteName,jdbcType=VARCHAR},</if>
+            <if test="createSiteName != null">create_site_name = #{createSiteName,jdbcType=VARCHAR},</if>
+            <if test="createSiteCode != null">create_site_code = #{createSiteCode,jdbcType=BIGINT},</if>
+        </set>
+        where id IN
+        <foreach collection="idList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
     </update>
 
     <update id="updatePackageForceStatus" parameterType="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord">

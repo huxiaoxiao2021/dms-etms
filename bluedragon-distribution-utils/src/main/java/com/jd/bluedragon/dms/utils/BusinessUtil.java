@@ -415,7 +415,8 @@ public class BusinessUtil {
         //12日26日修改 特快送项目  变更标位， 变更为 （31位1 并且 116位0 ）或者 84位3 都代表航
         if ((isSignChar(waybillSign, 31, '1') &&
                 BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_116,DmsConstants.FLG_CHAR_DEFAULT))
-                || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)) {
+                || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3)||
+                BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_C)) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_AIR;
         } else if (isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')) {
             return DmsConstants.ORIGINAL_CROSS_TYPE_FILL;
@@ -1368,6 +1369,16 @@ public class BusinessUtil {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_1,
                 WaybillSignConstants.CHAR_1_3,WaybillSignConstants.CHAR_1_6,WaybillSignConstants.CHAR_1_9,WaybillSignConstants.CHAR_1_K,WaybillSignConstants.CHAR_1_Y)
                 && isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0);
+    }
+
+    /**
+     * 是否是B2C 28位等于0，且29位不等于8
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isB2C(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_28, WaybillSignConstants.CHAR_28_0)
+                && !isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8);
     }
 
     /**

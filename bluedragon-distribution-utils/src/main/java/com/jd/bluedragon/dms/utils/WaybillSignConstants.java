@@ -101,6 +101,10 @@ public interface WaybillSignConstants {
 	 * 城配
 	 */
 	char CHAR_80_6 = '6';
+	/*
+	* 航空重货
+	* */
+	char CHAR_80_C = 'C';
 
 	int POSITION_118 = 118;
 	/**
@@ -273,6 +277,7 @@ public interface WaybillSignConstants {
 	char CHAR_1_Y = 'Y';
 	int POSITION_28 = 28;
 	char CHAR_28_0 = '0';
+	char CHAR_28_1 = '1';
 	/**
 	 * 是否是月结订单
 	 * */

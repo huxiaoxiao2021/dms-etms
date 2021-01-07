@@ -126,6 +126,8 @@
 <!--        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan" alias="goodsLoadScan"/>-->
 <!--        <typeAlias type="com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord" alias="goodsLoadScanRecord"/>-->
 
+        <!--面单异常举报-->
+        <typeAlias type="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport" alias="RM_ExpressBillExceptionReport"/>
     </typeAliases>
 
     <plugins>
@@ -375,5 +377,7 @@
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanMapper.xml" />-->
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
+        <!--面单异常举报-->
+      <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
     </mappers>
 </configuration>

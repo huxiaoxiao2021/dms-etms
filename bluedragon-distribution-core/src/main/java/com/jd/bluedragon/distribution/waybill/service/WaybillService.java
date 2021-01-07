@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -133,6 +134,13 @@ public interface WaybillService {
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
 
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
+
+    /**
+     * 现场预分拣拦截校验
+     * @param waybillForPreSortOnSiteRequest
+     * @return
+     */
+    InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
 
     /**
      * 判断包裹是文件类型

@@ -14,15 +14,34 @@ public interface SortingCheckService {
     SortingJsfResponse sortingCheck(PdaOperateRequest pdaOperateRequest);
 
     /**
+     * 分拣校验，并且有拦截是提交拦截信息
+     * @author fanggang7
+     * @time 2020-12-23 15:16:27 周三
+     */
+    SortingJsfResponse sortingCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest);
+
+    /**
      * 新发货校验
      */
     SortingJsfResponse singleSendCheck(SortingCheck sortingCheck);
+
+    /**
+     * 新发货校验，并且有拦截是提交拦截信息
+     * @author fanggang7
+     * @time 2020-12-23 15:16:27 周三
+     */
+    SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck);
 
 
     /*
      * 组板校验
      * */
     BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest request);
+
+    /*
+     * 组板校验，并且有拦截是提交拦截信息
+     */
+    BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest request);
 
     /*
     * 切换开关
