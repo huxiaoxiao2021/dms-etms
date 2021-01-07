@@ -92,13 +92,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 默认泡重比：8000
      * */
     private static final Integer DEFAULT_VOLUME_RATE = 8000;
+
+    /**
+     * 快运使用的泡重比:6000
+     */
+    private static final Integer EXPRESS_VOLUME_RATE= 6000;
+
     /**
      * C网抽检拦截编码
      * */
     private static final Integer C_SPOTCHECK_INTERCEPT_CODE = 10000;
 
     /**
-     * C网抽检阈值
+     * C网抽检阈值:公斤
      * */
     @Value("${spotCheck.firstThresholdWeight:1.0}")
     private double firstThresholdWeight;
@@ -114,8 +120,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private double thirdStage;
 
     /**
-     * C 网抽检 三边之和 阈值 100cm/120cm/200cm
-     * 误差： 1kg/1.5kg/2kg
+     * C 网抽检 三边之和 阈值 70cm/100cm/120cm/200cm
+     * 误差： 0.8kg/1kg/1.5kg/2kg
      */
     @Value("${spotCheck.firstSumLWH:100}")
     private String firstSumLWH;
@@ -123,12 +129,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private String secondSumLWH;
     @Value("${spotCheck.thirdSumLWH:200}")
     private String thirdSumLWH;
+    @Value("${spotCheck.fourSumLWH:70}")
+    private String fourSumLWH;
+
     @Value("${spotCheck.firstSumLWHStage:1}")
     private String firstSumLWHStage;
     @Value("${spotCheck.secondSumLWHStage:1.5}")
     private String secondSumLWHStage;
     @Value("${spotCheck.thirdSumLWHStage:2}")
     private String thirdSumLWHStage;
+    @Value("${spotCheck.fourSumLWHStage:0.8}")
+    private String fourSumLWHStage;
+
     /**
      * 抽检导出最大阈值
      * */
@@ -181,10 +193,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
-    @Qualifier("waybillPackageManager")
-    @Autowired
-    private WaybillPackageManager waybillPackageManager;
-
     /**
      * 包裹称重抽检记录有效时间（单位为天）
      */
@@ -193,9 +201,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
     private DefaultJMQProducer dmsWeightVolumeExcess;
-
-    @Autowired
-    private QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
 
     @Autowired
     private TaskService taskService;
@@ -721,8 +726,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param result
      */
     @Override
-    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO,
-                                                SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO,SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
         // 校验拦截
         if(!paramCheck(packWeightVO,result)){
             return result;
@@ -754,6 +758,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             //计费信息
             double billingWeight = 0;
             double billingVolume = 0;
+            double billingCalcWeight = 0;//计费结算重量
+            //调用计费接口获取重量体积信息
             ResponseDTO<BizDutyDTO> responseDto = businessFinanceManager.queryDutyInfo(waybillCode);
             if(responseDto != null && responseDto.getStatusCode() == 0 && responseDto.getData() != null){
                 weightVolumeCollectDto.setBillingOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()==null?"-1":responseDto.getData().getFirstLevelId()));
@@ -764,45 +770,35 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(responseDto.getData().getDutyErp());
                 weightVolumeCollectDto.setBillingCompany(dto==null?null:dto.getSiteName());
 
+                billingCalcWeight =responseDto.getData().getCalcWeight()==null?0:responseDto.getData().getCalcWeight().doubleValue();
                 billingWeight = responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue();
                 billingVolume = responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue();
             }
             weightVolumeCollectDto.setBillingWeight(billingWeight);
             weightVolumeCollectDto.setBillingVolume(billingVolume);
+            weightVolumeCollectDto.setBillingCalcWeight(billingCalcWeight);
+            //修改产品标识和计泡系数
+            setProductType(weightVolumeCollectDto);
+            Integer volumeRate = weightVolumeCollectDto.getVolumeRate();
 
-            QuoteCustomerDto quoteCustomerDto = quoteCustomerApiServiceManager.queryCustomerById(weightVolumeCollectDto.getBusiCode());
-            Integer volumeRate = (quoteCustomerDto==null || quoteCustomerDto.getVolumeRate()==null
-                    || quoteCustomerDto.getVolumeRate()==0) ? DEFAULT_VOLUME_RATE : quoteCustomerDto.getVolumeRate();
-            if(quoteCustomerDto == null){
-                //商家信息为空按泡重比计算
-                checkIsExcess(weightVolumeCollectDto,result, VolumeFeeType.vmrate.getType(),volumeRate);
-            }else {
-                checkIsExcess(weightVolumeCollectDto,result, quoteCustomerDto.getVolumeFeeType(),volumeRate);
-            }
+            checkIsExcess(weightVolumeCollectDto,result,volumeRate);
+
             if(result.getCode() == C_SPOTCHECK_INTERCEPT_CODE){
                 return result;
             }
 
-            //当计费重量或计费体积为0时，体积重量抽检超标
-            if(billingWeight == 0 || billingVolume == 0){
-                log.warn("运单【{}】获取计费重量/体积为空",waybillCode);
-                result.customMessage(this.NO_CHARGE_SYSTEM_DATA_CODE,"计费重量/体积为0或空，无法进行校验");
+            //当计费唯一值 为0
+            if(billingCalcWeight == 0 ){
+                log.warn("运单【{}】获取计费唯一值calcWeight为空",waybillCode);
+                result.customMessage(this.NO_CHARGE_SYSTEM_DATA_CODE,"calcWeight为0或空，无法进行校验");
                 result.setData(false);
             }
 
             weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
-
             weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
             weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
-
-            StringBuilder diffStandardOfWeight = new StringBuilder();
-            diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewWeight));
-            diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getStandardVal(reviewVolume/volumeRate));
-            weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
             weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/volumeRate - billingVolume/volumeRate)));
-            setProductType(weightVolumeCollectDto);
-            // 特殊处理
-            specialSceneHandle(weightVolumeCollectDto);
+
             //将重量体积实体存入es中
             BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
             this.sendWaybillTrace(weightVolumeCollectDto);
@@ -1023,63 +1019,35 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 特殊场景处理
-     * <p>
-     *     1、记录es但不超标
-     *          1）、1KG以下（含）
-     *          2）、计费体积为0或复重体积为0
-     * </p>
-     * @param weightVolumeCollectDto
-     */
-    private void specialSceneHandle(WeightVolumeCollectDto weightVolumeCollectDto) {
-        // 1KG以下（含）设为不超标并记录es | 计费体积为0或复重体积为0
-        if(weightVolumeCollectDto.getReviewWeight() <= 1
-                || weightVolumeCollectDto.getBillingVolume() == 0 || weightVolumeCollectDto.getReviewVolume() == 0){
-            weightVolumeCollectDto.setIsExcess(0);
-            weightVolumeCollectDto.setVolumeWeightIsExcess(0);
-            weightVolumeCollectDto.setDiffStandard("");
-        }
-    }
-
-    /**
      * 根据泡重比类型判断是否超标
-     * <p>
-     *     泡重比类型:
-     *      0|null 按重量
-     *      1 按体积
-     *      2 按泡重比
-     * </p>
      *
      * C网抽检对比逻辑变更
      * 校验标准A
-     *    1. 分拣称重1公斤至20公斤（含）， 正负0.5公斤（含）以内误差为正常
-     *    2. 分拣称重20公斤至50公斤（含）， 正负1公斤（含）以内误差为正常
-     *    3. 分拣称重50公斤以上，重量的2%（含）以内误差为正常
+         1. 分拣【较大值】小于等于1公斤，不论误差多少均判断为正常
+         2. 分拣【较大值】1公斤至20公斤（含）， 误差标准正负0.5 kg（含）
+         3. 分拣【较大值】20公斤至50公斤（含）， 误差标准正负1 kg（含）
+         4. 分拣【较大值】50公斤以上，误差标准为重量的正负2%（含）
+     *
      * 校验标准B
-     * 1. 100cm=<三边之和<120cm，泡重误差标准1kg（含）；
-     * 2. 120cm=<三边之和<200cm，泡重误差标准1.5kg（含）；
-     * 3. 三边之和>200cm，泡重误差标准2kg（含）；
+         1.  70cm=<三边之和<100cm，误差标准正负0.8 kg（含）
+         2. 100cm=<三边之和<120cm，误差标准正负1 kg（含）
+         3. 120cm=<三边之和<200cm，误差标准正负1.5 kg（含）
+         4. 三边之和>200cm，误差标准正负2kg（含）
+     *
      * 7.2.2 判断逻辑
-     *    1.按重量对比
-     *      执行校验标准A
-     *    2.按体积重量（长宽高相乘除以系数）对比
-     *      三边之和小于100CM，执行校验标准A
-     *      三边之和大于100CM，执行校验标准B
-     * 3.按重量和体积重量较大值对比
-     *   重量为较大值，则执行校验标准A
-     *   体积重量为较大值，且三边之和小于100CM，执行校验标准A
-     *   体积重量为较大值，且三边之和大于100CM，执行校验标准B
+     *
+         1.当分拣重量为较大值时，使用【较大值】与计费系统【唯一值】比较，执行校验标准A
+         2.当分拣体积重量为较大值，且三边之和小于70 cm 时，使用【较大值】与计费系统【唯一值】比较，执行校验标准A
+         3.当分拣体积重量为较大值，且三边之和大于70 cm 时，使用【较大值】与计费系统【唯一值】比较，执行校验标准B
      * @param weightVolumeCollectDto
      * @param result
-     * @param volumeFeeType 泡重比类型
      * @param volumeRate 泡重比
      * @return
      */
-    private void checkIsExcess(WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result, Integer volumeFeeType,Integer volumeRate) {
-        Double reviewVolume = weightVolumeCollectDto.getReviewVolume();
-        Double billingVolume = weightVolumeCollectDto.getBillingVolume();
-        Double reviewWeight = weightVolumeCollectDto.getReviewWeight();
-        Double billingWeight = weightVolumeCollectDto.getBillingWeight();
+    private void checkIsExcess(WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result,Integer volumeRate) {
+        Double reviewVolume = weightVolumeCollectDto.getReviewVolume(); //分拣体积
+        Double reviewWeight = weightVolumeCollectDto.getReviewWeight(); //分拣重量
+        Double billingCalcWeight = weightVolumeCollectDto.getBillingCalcWeight();//计费唯一值
 
         // 三边之和
         BigDecimal sumLWH = BigDecimal.ZERO;
@@ -1089,159 +1057,215 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
         }
 
-        if(volumeFeeType == null || VolumeFeeType.weight.getType().equals(volumeFeeType)){
-            // 按重量比较
-            Double diffWeight = Math.abs(reviewWeight - billingWeight);
-            if(isExcess(reviewWeight,diffWeight)){
-                String baseMessage = "此次操作的复核重量为"+reviewWeight+"kg,计费的重量为"+billingWeight+"kg，经校验误差值"+diffWeight+"kg已超出规定";
-                StringBuilder hitMessage = getStandardVal(reviewWeight).append("kg!");
-                StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
-                result.setData(false);
-                weightVolumeCollectDto.setIsExcess(1);
-            }
-        }else if(VolumeFeeType.volumeWeight.getType().equals(volumeFeeType)){
-            // 按体积重量比较
-            Double reviewVolumeWeight = reviewVolume/volumeRate;
-            Double diffVolumeWeight = Math.abs(reviewVolumeWeight - billingVolume/volumeRate);
+       // 比较分拣抽检实物重量与分拣体积重量比较
+        Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/volumeRate);
+        //分拣重量与体积重量的较大值
+        Double moreBigValue = reviewWeight > reviewVolumeWeight ? reviewWeight:reviewVolumeWeight;
+        Double differenceValue = Math.abs(keeTwoDecimals(moreBigValue - billingCalcWeight));
 
-            boolean isExcess = false;
-            StringBuilder hitMessage = new StringBuilder();
-            // 三边之和小于100cm 使用 校验标准A
-            if (sumLWH.compareTo(new BigDecimal(firstSumLWH)) < 0){
-                if(isExcess(reviewVolumeWeight,diffVolumeWeight)){
-                    isExcess = true;
-                    hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
-                }
-            } else if (isSumLWHExcess(sumLWH, diffVolumeWeight, hitMessage)) {
-                isExcess = true;
-            }
-            if (isExcess) {
-                String baseMessage = "此次操作的体积重量为"+reviewVolumeWeight+"kg,计费的体积重量为"+billingVolume/volumeRate+"kg，经校验误差值"+diffVolumeWeight+"kg已超出规定";
-                StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
-                result.setData(false);
-                weightVolumeCollectDto.setIsExcess(1);
-                weightVolumeCollectDto.setVolumeWeightIsExcess(1);
-            }
-        }else if(VolumeFeeType.vmrate.getType().equals(volumeFeeType)){
-            // 按抽检较大值与计费较大值比较
-            Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/volumeRate);
-            Double maxReviewWeight = reviewWeight > reviewVolumeWeight ? reviewWeight : reviewVolumeWeight;
-            Double billVolumeWeight = keeTwoDecimals(billingVolume/volumeRate);
-            Double maxBillingWeight = billingWeight > billVolumeWeight ? billingWeight : billVolumeWeight;
+        boolean isExcess= false;    //是否超标标识
+        StringBuilder hitMessage = new StringBuilder(); //误差值
+        boolean getStandardValFlag = true; //获取误差值方法标识-默认从A标准取
 
-            double diffOfWeight = Math.abs(keeTwoDecimals(maxReviewWeight - maxBillingWeight));
+        // 分拣重量为较大值----执行标准A
+        if(reviewWeight > reviewVolumeWeight){
+            hitMessage = getAStandardVal(moreBigValue);
+            isExcess = checkAExcess(moreBigValue,differenceValue,reviewWeight);
+        }else { //体积重量为较大值---判断三边之和与70cm
+            if(sumLWH.compareTo(new BigDecimal(fourSumLWH))<0){
+                hitMessage = getAStandardVal(moreBigValue);
+                isExcess =  checkAExcess(billingCalcWeight,differenceValue,reviewWeight);
+            }else {
+                hitMessage = getBStandardVal(moreBigValue);
+                isExcess = checkBExcess(sumLWH,differenceValue);
+                getStandardValFlag = false;
+            }
+        }
+        // 特殊处理-如果 较大值 <=1kg 都算未超标
+        if(moreBigValue <= 1){
+            isExcess = false;
+        }
 
-            boolean isExcess = false;
-            StringBuilder hitMessage = new StringBuilder();
-            // 体积为较大值，且 三边之和大于等于 100cm
-            if (reviewVolumeWeight > reviewWeight && sumLWH.compareTo(new BigDecimal(firstSumLWH)) >= 0) {
-                if (isSumLWHExcess(sumLWH, diffOfWeight, hitMessage)) {
-                    isExcess = true;
-                }
-            }else if(isExcess(maxReviewWeight,diffOfWeight)){
-                isExcess = true;
-                hitMessage = getStandardVal(reviewVolumeWeight).append("kg!");
-            }
-            if (isExcess) {
-                String baseMessage = "此次操作的泡重比为"+reviewVolumeWeight+"kg,计费的泡重比为"+billVolumeWeight+"kg，经校验误差值"+diffOfWeight+"kg已超出规定";
-                StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage);
-                result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
-                result.setData(false);
-                weightVolumeCollectDto.setIsExcess(1);
-            }
-        }else {
-            log.warn("运单【{}】抽检失败，原因：泡重比类型【{}】不合法",weightVolumeCollectDto.getWaybillCode(),volumeFeeType);
-            result.customMessage(C_SPOTCHECK_INTERCEPT_CODE,"泡重比类型【" + volumeFeeType + "】不合法");
+        // 1:是超标  0:未超标
+        if(isExcess){
+            String baseMessage = "此次操作的重量:"+reviewWeight+"kg,体积重量:"+reviewVolumeWeight+"kg,计费唯一值:"+billingCalcWeight+"kg，经校验误差值"+differenceValue+"kg已超出规定";
+            StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage).append("kg");
+            result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
             result.setData(false);
+            weightVolumeCollectDto.setIsExcess(1);
+            //封装误差标准值
+            StringBuilder diffStandardOfWeight = new StringBuilder();
+            //A标准
+            if(getStandardValFlag){
+                diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getAStandardVal(reviewWeight).toString());
+                diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getAStandardVal(reviewVolume/volumeRate).toString());
+            }else {
+                // B标准
+                diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getBStandardVal(reviewWeight).toString());
+                diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getBStandardVal(reviewVolume/volumeRate).toString());
+            }
+            weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
+        }else {
+            weightVolumeCollectDto.setIsExcess(0);
+            weightVolumeCollectDto.setVolumeWeightIsExcess(0);
+            weightVolumeCollectDto.setDiffStandard("");
         }
-
     }
 
     /**
-     * 校验标准B
-     * 1. 100cm=<三边之和<120cm，泡重误差标准1kg（含）；
-     * 2. 120cm=<三边之和<200cm，泡重误差标准1.5kg（含）；
-     * 3. 三边之和>200cm，泡重误差标准2kg（含）；
-     *
-     * @param sumLWH     三边之和
-     * @param diffWeight 误差值
-     * @return 超出标准：true
+     * 校验标准A:
+     *    1. 分拣【较大值】小于等于1公斤，不论误差多少均判断为正常
+     *    2. 分拣【较大值】1公斤至20公斤（含),误差标准正负0.5 kg（含）
+     *    3. 分拣【较大值】20公斤至50公斤（含),误差标准正负1 kg（含）
+     *    4. 分拣【较大值】50公斤以上，误差标准为重量的正负2%（含）
+     * @param moreBigValue (分拣重量与体积重量 的 较大值)
+     * @param differenceValue 误差值
+     * @return  false:未超标  true:超标
      */
-    private boolean isSumLWHExcess(BigDecimal sumLWH, double diffWeight, StringBuilder hitMessage) {
+    private boolean  checkAExcess(Double moreBigValue,Double differenceValue,Double reviewWeight){
+        //重量阀值
+        Double  firstWeight1   =   new Double(firstThresholdWeight);
+        Double  secondWeight20 =   new Double(secondThresholdWeight);
+        Double  thirdWeight50  =   new Double(thirdThresholdWeight);
 
-        BigDecimal diff = new BigDecimal(String.valueOf(diffWeight));
-        // 三边之和 阈值
-        BigDecimal sumLWH01 = new BigDecimal(firstSumLWH);
-        BigDecimal sumLWH02 = new BigDecimal(secondSumLWH);
-        BigDecimal sumLWH03 = new BigDecimal(thirdSumLWH);
+        //重量误差标准值
+        Double  firstStage05 = new Double(firstStage);
+        Double  secondStage1 = new Double(secondStage);
+        Double  thirdStage002 = new Double(thirdStage);
 
-        // 重量误差值
-        BigDecimal sumLWHStage01 = new BigDecimal(firstSumLWHStage);
-        BigDecimal sumLWHStage02 = new BigDecimal(secondSumLWHStage);
-        BigDecimal sumLWHStage03 = new BigDecimal(thirdSumLWHStage);
-
-        if (sumLWH.compareTo(sumLWH01) < 0) {
+        if(moreBigValue<= firstWeight1){
             return false;
-        } else if (sumLWH.compareTo(sumLWH01) >= 0 && sumLWH.compareTo(sumLWH02) < 0) {
-            if (diff.compareTo(sumLWHStage01) > 0) {
-                hitMessage.append(sumLWHStage01).append("kg!");
+        }
+
+        if(firstWeight1 < moreBigValue && moreBigValue<=secondWeight20){
+                if(differenceValue >= firstStage05){
+                    return true;
+                }
+                return  false;
+        }
+
+        if(secondWeight20<moreBigValue && moreBigValue<=thirdWeight50){
+            if(differenceValue>=secondStage1){
                 return true;
             }
-        } else if (sumLWH.compareTo(sumLWH02) >= 0 && sumLWH.compareTo(sumLWH03) < 0) {
-            if (diff.compareTo(sumLWHStage02) > 0) {
-                hitMessage.append(sumLWHStage02).append("kg!");
+            return false;
+        }
+
+        if(moreBigValue>thirdWeight50){
+            if(differenceValue > keeTwoDecimals(reviewWeight*thirdStage002)){
                 return true;
             }
-        } else {
-            if (diff.compareTo(sumLWHStage03) > 0) {
-                hitMessage.append(sumLWHStage03).append("kg!");
-                return true;
-            }
+            return false;
         }
         return false;
     }
 
     /**
-     * 重量超标判断(true:超标；false：未超标)
-     * <p>
-     *     1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
-     *     2、20kg~50kg（含）的（+-）1kg（含）误差为正常
-     *     3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
-     * <p/>
-     * @param weight 复核重量
-     * @param diffOfWeight 重量差异
-     * @return
+     * 校验标准B：
+     *  1. 70cm=<三边之和<100cm，误差标准正负0.8 kg（含）
+     *  2. 100cm=<三边之和<120cm，误差标准正负1 kg（含）
+     *  3. 120cm=<三边之和<200cm，误差标准正负1.5 kg（含）
+     *  4. 三边之和>200cm，误差标准正负2kg（含）
+     * @return false:未超标  true:超标
      */
-    private boolean isExcess(double weight,double diffOfWeight){
-        if((weight > firstThresholdWeight && weight <= secondThresholdWeight && diffOfWeight > firstStage)
-                || (weight > secondThresholdWeight && weight <= thirdThresholdWeight && diffOfWeight > secondStage)
-                || (weight > thirdThresholdWeight && diffOfWeight > weight * thirdStage)){
-            return true;
+    private boolean  checkBExcess(BigDecimal sumLWH,Double differenceValue){
+        // 三边之和的阀值
+        BigDecimal sumLWH70  = new BigDecimal(fourSumLWH);
+        BigDecimal sumLWH100 = new BigDecimal(firstSumLWH);
+        BigDecimal sumLWH120 = new BigDecimal(secondSumLWH);
+        BigDecimal sumLWH200 = new BigDecimal(thirdSumLWH);
+
+        //重量误差值
+        Double sumLWHStage08 =  new Double(fourSumLWHStage);
+        Double sumLWHStage1  =  new Double(firstSumLWHStage);
+        Double sumLWHStage15 =  new Double(secondSumLWHStage);
+        Double sumLWHStage2  =  new Double(thirdSumLWHStage);
+
+        if(sumLWH.compareTo(sumLWH70)>=0 && sumLWH.compareTo(sumLWH100)<0){
+            if(differenceValue.compareTo(sumLWHStage08)>0){
+                return true;
+            }
+            return  false;
+        }
+
+        if(sumLWH.compareTo(sumLWH100)>=0 && sumLWH.compareTo(sumLWH120)<0){
+            if(differenceValue.compareTo(sumLWHStage1)>0){
+                return true;
+            }
+            return false;
+        }
+
+        if(sumLWH.compareTo(sumLWH120)>=0 && sumLWH.compareTo(sumLWH200)<0){
+            if(differenceValue.compareTo(sumLWHStage15)>0){
+                return true;
+            }
+            return false;
+        }
+
+        if(sumLWH.compareTo(sumLWH200)>0){
+            if(differenceValue.compareTo(sumLWHStage2)>0){
+                return true;
+            }
+            return false;
         }
         return false;
     }
 
     /**
-     * 获取误差标准值
      *
-     * @param weight 复核重量
+     * 获取A标准的：误差标准值
+     *   1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
+     *   2、20kg~50kg（含）的（+-）1kg（含）误差为正常
+     *   3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
+     * @param moreBigWeight 复核重量与重量体积较大值
      * @return
      */
-    private StringBuilder getStandardVal(double weight){
+    private StringBuilder getAStandardVal(double moreBigWeight){
         StringBuilder stringBuilder = new StringBuilder();
-        if(weight > firstThresholdWeight && weight <= secondThresholdWeight){
+        if(moreBigWeight > firstThresholdWeight && moreBigWeight <= secondThresholdWeight){
             return stringBuilder.append(firstStage);
         }
-        if(weight > secondThresholdWeight && weight <= thirdThresholdWeight){
+        if(moreBigWeight > secondThresholdWeight && moreBigWeight <= thirdThresholdWeight){
             return stringBuilder.append(secondStage);
         }
-        if(weight > thirdThresholdWeight){
+        if(moreBigWeight > thirdThresholdWeight){
             return stringBuilder.append(getPercentInstance().format(thirdStage));
         }
         return stringBuilder;
     }
+
+
+    /**
+     * 获取 标准B的误差标准值
+     * 1.  70cm=<三边之和<100cm，误差标准正负0.8 kg（含）
+     * 2. 100cm=<三边之和<120cm，误差标准正负1 kg（含）
+     * 3. 120cm=<三边之和<200cm，误差标准正负1.5 kg（含）
+     * 4. 三边之和>200cm，误差标准正负2kg（含）
+     * @param sumLWH
+     * @return
+     */
+    private StringBuilder getBStandardVal(double sumLWH){
+        StringBuilder stringBuilder = new StringBuilder();
+        Double sumLWH70  = new Double(fourSumLWH);
+        Double sumLWH100 = new Double(firstSumLWH);
+        Double sumLWH120 = new Double(secondSumLWH);
+        Double sumLWH200 = new Double(thirdSumLWH);
+
+        if(sumLWH>= sumLWH70 && sumLWH< sumLWH100){
+            return stringBuilder.append(fourSumLWHStage);
+        }
+        if(sumLWH>=sumLWH100 && sumLWH< sumLWH120){
+            return stringBuilder.append(firstSumLWHStage);
+        }
+        if(sumLWH>=sumLWH120 && sumLWH<sumLWH200){
+            return stringBuilder.append(secondSumLWHStage);
+        }
+        if(sumLWH>=sumLWH200){
+            return stringBuilder.append(thirdSumLWHStage);
+        }
+        return stringBuilder;
+    }
+
 
     /**
      * 保留两位小数
@@ -1612,8 +1636,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     weightVolumeCollectDto.setProductTypeName(dmsBaseDict.getMemo());
                 }
             }
-        }
 
+            //计泡比系数  当waybillSign的31位为0 是快运 用特殊的6000;否则8000
+            Integer volumeRate = BusinessUtil.isExpress(waybillSign)?EXPRESS_VOLUME_RATE:DEFAULT_VOLUME_RATE;
+            weightVolumeCollectDto.setVolumeRate(volumeRate);
+        }
     }
 
     /**

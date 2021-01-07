@@ -1857,4 +1857,17 @@ public class BusinessUtil {
         }
         return  false;
     }
+
+    /**
+     * 判断是否是快运
+     * 31位 为0 是特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpress(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,31,'0');
+    }
 }
