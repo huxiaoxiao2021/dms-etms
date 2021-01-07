@@ -334,11 +334,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
+            Map<String,String> pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
             List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
                 for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
                 	PrintPackage pack=new PrintPackage();
                     pack.setPackageCode(item.getPackageBarcode());
+                    //设置包裹增值服务信息
+                    pack.setPackageSpecialRequirement(pickUpMap.get(item.getPackageBarcode()));
                     //设置包裹序号和包裹号后缀
                     pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));

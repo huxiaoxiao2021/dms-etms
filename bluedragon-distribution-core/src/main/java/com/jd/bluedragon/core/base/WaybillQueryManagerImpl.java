@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.dbs.util.CollectionUtils;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -22,12 +23,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -36,16 +32,14 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -746,4 +740,52 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return result;
 	}
+
+
+    @Override
+    public Map<String,String> doGetPackageVasInfo(String wayBillCode) {
+        //查询出一个属于一个包裹的所有商品的增值服务明细 key->包裹号 value->增值服务信息
+        Map<String,String> packageUpVasMap = new HashMap<>();
+        //获取包裹增值服务
+        GoodsQueryDto goodsQueryDto = new GoodsQueryDto();
+        goodsQueryDto.setQueryGoodsVas(true);
+        goodsQueryDto.setWaybillCode(wayBillCode);
+        try {
+            BaseEntity<List<GoodsDto>> baseEntity = waybillQueryApi.queryGoodsDataByWCode(goodsQueryDto);
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getResultCode() == 1) {
+                List<GoodsDto> dataList = baseEntity.getData();
+                if(dataList!= null && dataList.size()>0){
+                    if(log.isWarnEnabled()){
+                        this.log.warn("获取到运单下商品明细信息,运单号:{}",wayBillCode);
+                    }
+                    for (GoodsDto goodsDto:dataList) {
+                        //保存商品增值服务明细list
+                        StringBuilder sbString = new StringBuilder();
+                        String packPickUpVas = packageUpVasMap.get(goodsDto.getPackBarcode());
+                        //商品增值服务明细
+                        List<WaybillPickupVasDto> waybillPickupVasDtoList = goodsDto.getWaybillPickupVasDtoList();
+                        if(CollectionUtils.isNotEmpty(waybillPickupVasDtoList)){
+                            for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
+                                if(StringUtils.isNotBlank(waybillPickupVasDto.getPrimaryParam())) sbString.append(waybillPickupVasDto.getPrimaryParam());
+                            }
+                        }
+                        if(StringUtils.isNotBlank(packPickUpVas)){
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),new StringBuilder(packPickUpVas).append(sbString).toString());
+                        }else{
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),sbString.toString());
+                        }
+                    }
+                }
+            }else{
+                if(log.isWarnEnabled()){
+                    log.warn("查询运单下商品明细支持扩展属性接口失败！return:{}",JsonHelper.toJson(baseEntity));
+                }
+            }
+        }catch (Exception e){
+            if(log.isWarnEnabled()){
+                log.error("查询运单下商品明细支持扩展属性接口失败！运单号:{},异常信息:{}",wayBillCode,e);
+            }
+        }
+        return packageUpVasMap;
+    }
 }

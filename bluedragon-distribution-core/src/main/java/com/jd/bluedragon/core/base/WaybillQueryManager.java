@@ -14,6 +14,8 @@ import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.List;
+import java.util.Map;
+
 public interface WaybillQueryManager{
 	
 	/**
@@ -283,5 +285,12 @@ public interface WaybillQueryManager{
      * @return
      */
 	JdResult<List<String>> getOriginalAndReturnWaybillCodes(String waybillCode);
+
+	/**
+	 * 根据运单号，包裹号获取包裹增值信息
+	 * @param wayBillCode
+	 * @return
+	 */
+	Map<String,String> doGetPackageVasInfo(String wayBillCode);
 
 }
