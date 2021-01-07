@@ -78,6 +78,7 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
             try {
                 BaseResult result= reportService.report(item);
                 if(!result.getResultCode().equals(ResultCodeEnum.SUCCESS.getCode())){
+                    logger.info("调用质控系统report JSF失败！入参："+JsonHelper.toJson(item)+" 返回值："+JsonHelper.toJson(result));
                     reportFails.add(item.getCode());
                 }
             } catch (Exception e) {
