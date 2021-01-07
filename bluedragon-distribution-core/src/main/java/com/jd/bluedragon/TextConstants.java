@@ -250,7 +250,7 @@ public class TextConstants {
     /**
      * 生鲜仓\n已消毒
      */
-    public static final String FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT = "生鲜仓\\r\\n已消毒";
+    public static final String FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT = "生鲜仓\r\n已消毒";
     /**
      * 生鲜仓已消毒
      */
