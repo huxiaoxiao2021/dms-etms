@@ -148,9 +148,17 @@ $(function () {
             field: 'reviewLWH',
             title: '复核长宽高cm',
             align: 'center'
+        }, {
+            field: 'volumeRate',
+            title: '计泡系数',
+            align: 'center'
         },{
             field: 'reviewVolumeWeight',
             title: '复核体积重量',
+            align: 'center'
+        },{
+            field: 'moreBigWeight',
+            title: '较大重量值kg',
             align: 'center'
         },{
             field: 'billingOrgName',
@@ -169,6 +177,10 @@ $(function () {
             title: '计费操作人ERP',
             align: 'center'
         },{
+            field: 'billingCalcWeight',
+            title: '计费结算重量kg',
+            align: 'center'
+        },{
             field: 'billingWeight',
             title: '计费重量',
             align: 'center'
@@ -181,6 +193,21 @@ $(function () {
             title: '计费体积重量',
             align: 'center'
         },{
+            field: 'billingWeightDifference',
+            title: '计费结算重量差异',
+            align: 'center'
+        },{
+            field: 'diffStandard',
+            title: '误差标准值',
+            align: 'center'
+        },{
+            field: 'isExcess',
+            title: '是否超标',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
+            }
+        },{
             field: 'weightDiff',
             title: '重量差异',
             align: 'center'
@@ -191,17 +218,6 @@ $(function () {
         },{
             field: 'volumeWeightIsExcess',
             title: '体积重量是否超标',
-            align: 'center',
-            formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
-            }
-        },{
-            field: 'diffStandard',
-            title: '误差标准值',
-            align: 'center'
-        },{
-            field: 'isExcess',
-            title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
