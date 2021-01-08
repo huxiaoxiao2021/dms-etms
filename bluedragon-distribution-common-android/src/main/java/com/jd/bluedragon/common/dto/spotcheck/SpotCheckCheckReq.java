@@ -8,7 +8,7 @@ import java.io.Serializable;
  * @author: wuming
  * @create: 2020-12-28 14:34
  */
-public class IsExcessReq implements Serializable {
+public class SpotCheckCheckReq implements Serializable {
 
     private static final long serialVersionUID = -1L;
 
@@ -37,7 +37,7 @@ public class IsExcessReq implements Serializable {
      */
     private String waybillCode;
 
-    public IsExcessReq() {
+    public SpotCheckCheckReq() {
     }
 
     public Double getWeight() {

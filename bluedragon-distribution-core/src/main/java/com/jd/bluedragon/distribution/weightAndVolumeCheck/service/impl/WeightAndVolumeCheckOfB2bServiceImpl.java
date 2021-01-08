@@ -212,6 +212,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         // 组装抽检数据
         WeightVolumeCollectDto dto = assembleWeightVolumeDto(spotCheckData,waybill,waybillFlowDetail,baseDto);
 
+        /**PDA抽检来源,赋值图片**/
+        if (Constants.PDA_SOURCE.equals(spotCheckData.getFromSource())) {
+           dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
+        }
+
         BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
         if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
             log.warn("提交【{}】的超标数据失败!",dto.getPackageCode());
@@ -786,6 +791,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         spotCheckData.setLoginErp(param.getLoginErp());
         spotCheckData.setIsExcess(param.getIsExcess());
         spotCheckData.setIsWaybillSpotCheck(1);
+        spotCheckData.setUrls(param.getUrls());
         return spotCheckData;
     }
 

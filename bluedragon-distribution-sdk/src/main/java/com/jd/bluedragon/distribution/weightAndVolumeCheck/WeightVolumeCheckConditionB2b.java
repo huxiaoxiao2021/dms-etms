@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 类描述信息
@@ -53,6 +54,11 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      * PDA来源标识
      */
     private Integer pdaSource;
+
+    /**
+     * 图片urls
+     */
+    private List<String> urls;
 
     public String getLoginErp() {
         return loginErp;
@@ -132,5 +138,13 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setPdaSource(Integer pdaSource) {
         this.pdaSource = pdaSource;
+    }
+
+    public List<String> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
     }
 }

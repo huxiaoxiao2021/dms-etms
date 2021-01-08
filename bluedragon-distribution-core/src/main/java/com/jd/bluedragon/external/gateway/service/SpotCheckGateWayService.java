@@ -1,7 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.spotcheck.IsExcessReq;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
 
 /**
@@ -18,7 +18,7 @@ public interface SpotCheckGateWayService {
      * @param req
      * @return
      */
-    JdCResponse<Integer> checkIsExcess(IsExcessReq req);
+    JdCResponse<Integer> checkIsExcess(SpotCheckCheckReq req);
 
 
     /**

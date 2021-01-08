@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.spotcheck.IsExcessReq;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
@@ -37,12 +37,9 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
 
-    @Autowired
-    private ReportExternalService reportExternalService;
-
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public JdCResponse<Integer> checkIsExcess(IsExcessReq req) {
+    public JdCResponse<Integer> checkIsExcess(SpotCheckCheckReq req) {
         JdCResponse<Integer> jdCResponse = new JdCResponse<>();
         if (null == req) {
             jdCResponse.toConfirm("请求参数不能为空！");
@@ -109,7 +106,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             jdCResponse.toConfirm("复核重量或体积不能为空！");
             return jdCResponse;
         }
-        if (Constants.IS_EXCESS.equals(req.getIsExcess()) && CollectionUtils.isEmpty(req.getUrls())) {
+        if (Constants.IS_EXCESS.equals(req.getExcessFlag()) && CollectionUtils.isEmpty(req.getUrls())) {
             jdCResponse.toConfirm("超标提交需要上传抽检图片！");
             return jdCResponse;
         }
@@ -119,7 +116,6 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
                 jdCResponse.toSucceed("操作成功！");
                 return jdCResponse;
             }
-            savePictures(req);
         } catch (Exception e) {
             logger.error("DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit error waybillCode={}", req.getWaybillCode(), e);
         }
@@ -137,38 +133,41 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     public WeightVolumeCheckConditionB2b convert(SpotCheckSubmitReq req) {
         WeightVolumeCheckConditionB2b conditionB2b = new WeightVolumeCheckConditionB2b();
         conditionB2b.setCreateSiteCode(req.getCreateSiteCode());
-        conditionB2b.setIsExcess(req.getIsExcess());
+        conditionB2b.setIsExcess(req.getExcessFlag());
         conditionB2b.setLoginErp(req.getLoginErp());
         conditionB2b.setWaybillVolume(req.getVolume());
         conditionB2b.setWaybillOrPackageCode(req.getWaybillCode());
         conditionB2b.setWaybillWeight(req.getWeight());
         conditionB2b.setPdaSource(1);
+        conditionB2b.setUrls(req.getUrls());
         return conditionB2b;
     }
 
-    /**
-     * 保存抽检图片
-     *
-     * @param req
-     * @return
-     */
-    public boolean savePictures(SpotCheckSubmitReq req) {
-        WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        condition.setReviewSiteCode(req.getCreateSiteCode());
-        condition.setIsExcess(1);
-        condition.setIsHasPicture(0);
-        condition.setWaybillCode(WaybillUtil.getWaybillCode(req.getWaybillCode()));
-        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
-        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
-                || baseEntity.getData().get(0) == null) {
-            logger.warn("PDA抽检提交,查询运单【{}】站点【{}】超标数据为空", req.getWaybillCode(), req.getCreateSiteCode());
-            return false;
-        }
-        dto.setPictureAddress(StringUtils.join(req.getUrls().toArray(), ";"));
-        dto.setIsHasPicture(1);
-        reportExternalService.updateForWeightVolume(dto);
-        return true;
-    }
+//    /**
+//     * 保存抽检图片
+//     *
+//     * @param req
+//     * @return
+//     */
+//    public boolean savePictures(SpotCheckSubmitReq req) {
+//        WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
+//        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+//        condition.setReviewSiteCode(req.getCreateSiteCode());
+//        condition.setIsExcess(1);
+//        condition.setIsHasPicture(0);
+//        condition.setWaybillCode(WaybillUtil.getWaybillCode(req.getWaybillCode()));
+//        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
+//        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
+//                || baseEntity.getData().get(0) == null) {
+//            logger.warn("PDA抽检提交,查询运单【{}】站点【{}】超标数据为空", req.getWaybillCode(), req.getCreateSiteCode());
+//            return false;
+//        }
+//        dto.setWaybillCode(req.getWaybillCode());
+//        dto.setIsExcess(1);
+//        dto.setPictureAddress(StringUtils.join(req.getUrls().toArray(), ";"));
+//        dto.setIsHasPicture(1);
+//        reportExternalService.updateForWeightVolume(dto);
+//        return true;
+//    }
 
 }
