@@ -57,7 +57,7 @@ public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
 		TmsVehicleRoute tmsVehicleRoute = new TmsVehicleRoute();
 		tmsVehicleRoute.setTransportCode(mqData.getTransportCode());
 		tmsVehicleRoute.setVehicleJobCode(mqData.getVehicleJobCode());
-		tmsVehicleRoute.setVehicleJobCode(mqData.getVehicleJobCode());
+		tmsVehicleRoute.setVehicleRouteCode(mqData.getVehicleRouteCode());
 		tmsVehicleRoute.setCreateTime(mqData.getCreateTime());
 		tmsVehicleRoute.setCancelTime(mqData.getCancelTime());
 		tmsVehicleRoute.setCarrierTeamCode(mqData.getCarrierTeamCode());
