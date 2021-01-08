@@ -114,9 +114,9 @@ public class WeightAndVolumeCheckServiceImplTest {
         when(dmsWeightVolumeExcess.getTopic()).thenReturn("ldop_abnormal_fail");
 
         PackWeightVO packWeightVO = new PackWeightVO();
-        packWeightVO.setWeight(0.1);
+        packWeightVO.setWeight(3.0);
         packWeightVO.setHigh(30.0);
-        packWeightVO.setLength(40.0);
+        packWeightVO.setLength(30.0);
         packWeightVO.setWidth(20.0);
         packWeightVO.setCodeStr("JDVC03992440423");
 

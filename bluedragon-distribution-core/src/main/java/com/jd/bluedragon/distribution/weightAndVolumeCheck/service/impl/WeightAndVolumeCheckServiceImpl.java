@@ -779,6 +779,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             setProductType(weightVolumeCollectDto);
             Integer volumeRate = weightVolumeCollectDto.getVolumeRate();
 
+            //校验是否超标
             checkIsExcess(weightVolumeCollectDto,result,volumeRate);
 
             if(result.getCode() == C_SPOTCHECK_INTERCEPT_CODE){
@@ -791,11 +792,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.customMessage(this.NO_CHARGE_SYSTEM_DATA_CODE,"calcWeight为0或空，无法进行校验");
                 result.setData(false);
             }
-
-            weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
             weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
             weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
-            weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/volumeRate - billingVolume/volumeRate)));
 
             //将重量体积实体存入es中
             BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
@@ -1058,7 +1056,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
        // ----比较分拣抽检实物重量与分拣体积重量比较-----
         Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/volumeRate);
         //分拣重量与体积重量的较大值
-        Double moreBigValue = reviewWeight > reviewVolumeWeight ? reviewWeight : reviewVolumeWeight;
+        Double moreBigValue = reviewWeight >= reviewVolumeWeight ? reviewWeight : reviewVolumeWeight;
         Double differenceValue = Math.abs(keeTwoDecimals(moreBigValue - billingCalcWeight));
 
         boolean isExcess= false;    //是否超标标识
@@ -1101,7 +1099,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
         }else {
             weightVolumeCollectDto.setIsExcess(0);
-            weightVolumeCollectDto.setVolumeWeightIsExcess(0);
             weightVolumeCollectDto.setDiffStandard("");
         }
     }
@@ -1342,6 +1339,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         //设置无图片无图片链接
         weightVolumeCollectDto.setIsHasPicture(0);
         weightVolumeCollectDto.setPictureAddress("");
+        //重量差异-未来剔除
+        weightVolumeCollectDto.setWeightDiff("");
+        //体积重量差异--未来剔除
+        weightVolumeCollectDto.setVolumeWeightDiff("");
         return weightVolumeCollectDto;
     }
 
