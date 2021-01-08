@@ -59,4 +59,20 @@ public class ArAbnormalResource {
         }
         return result;
     }
+
+    @GET
+    @Path("/arAbnormal/getArContrabandReasonNew/{transpondType}")
+    public InvokeResult<List<ArContrabandReason>> getArContrabandReasonListNew(Integer transpondType){
+        InvokeResult<List<ArContrabandReason>> result = new InvokeResult<>();
+        try{
+            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+            result.setData(arAbnormalService.getArContrabandReasonListNew(transpondType));
+        }catch (Exception e){
+            log.error("获取运输方式变更原因失败",e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
 }

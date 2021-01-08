@@ -189,8 +189,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                     return;
                 }
                 // 第一期只做航空转陆运，其他运输类型不发送MQ消息 + 铁路转公路
-                if (!(ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.AIR_TO_ROAD_CODE
-                    || ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE)) {
+                if (ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
                     return;
                 }
                 // 发MQ消息
@@ -480,8 +479,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
-                //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign()) || request.getTranspondType()==60) {
+                //当运单为【航】字标的运单且不是自营不是众邮运单时，发送MQ
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
             } else {
@@ -493,7 +492,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     /**
      * 根据waybillSign判断是否需要发消息
-     * 【航】字标的运单， waybill_sign第31位等于1或84位等于3 才发消息
+     * waybill_sign1≠1 & waybill_sign84=3 & waybill_sign 62≠8 才发消息
      *
      * @param waybillSign
      * @return
@@ -685,6 +684,25 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             arContrabandReason.setReasonCode(_enum.getCode());
             arContrabandReason.setReasonName(_enum.getDesc());
             arContrabandReasons.add(arContrabandReason);
+        }
+        return arContrabandReasons;
+    }
+
+    /**
+     * 查询运输方式变更的原因-根据不同的运输方式变更类型获取不同的原因
+     * @param transpondType
+     * @return
+     */
+    @Override
+    public List<ArContrabandReason> getArContrabandReasonListNew(Integer transpondType) {
+        List<ArContrabandReason> arContrabandReasons = new ArrayList<>();
+        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
+            ArContrabandReason arContrabandReason = new ArContrabandReason();
+            if(_enum.getTranspondTypes().contains(transpondType.toString())){
+                arContrabandReason.setReasonCode(_enum.getCode());
+                arContrabandReason.setReasonName(_enum.getDesc());
+                arContrabandReasons.add(arContrabandReason);
+            }
         }
         return arContrabandReasons;
     }

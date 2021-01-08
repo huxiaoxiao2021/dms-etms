@@ -1589,14 +1589,14 @@ public class BusinessUtil {
     }
     /**
      * 航空转陆运，
-     * waybillsign第31位等于1或者84位等于3，目前用于航空转陆运通知质控和路由，如果需要确定使用请与产品确定标位
+     * waybill_sign1≠1 & waybill_sign84=3 & waybill_sign 62≠8，目前用于航空转陆运通知质控和路由，如果需要确定使用请与产品确定标位
      *
      * @param waybillSign
      * @return
      */
     public static Boolean isArTransportMode(String waybillSign) {
 
-        return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
+        return !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_1) && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3) && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.BUSINESS_ENET_POSITION_62, WaybillSignConstants.BUSINESS_ENET_CHAR_62_8);
     }
     /**
      * 根据标位判断是否企配仓数据sendpay标识314=1 或者 waybillSign128=1
