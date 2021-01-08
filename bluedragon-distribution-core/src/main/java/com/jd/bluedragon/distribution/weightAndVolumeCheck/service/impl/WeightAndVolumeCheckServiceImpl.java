@@ -19,8 +19,6 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
-import com.jd.bluedragon.dms.receive.enums.VolumeFeeType;
-import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -1042,7 +1040,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
          4. 三边之和>200cm，误差标准正负2kg（含）
      *
      * 7.2.2 判断逻辑
-     *
+     *   分拣重量 与 体积重量 取最大值
          1.当分拣重量为较大值时，使用【较大值】与计费系统【唯一值】比较，执行校验标准A
          2.当分拣体积重量为较大值，且三边之和小于70 cm 时，使用【较大值】与计费系统【唯一值】比较，执行校验标准A
          3.当分拣体积重量为较大值，且三边之和大于70 cm 时，使用【较大值】与计费系统【唯一值】比较，执行校验标准B
@@ -1064,15 +1062,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
         }
 
-       // 比较分拣抽检实物重量与分拣体积重量比较
+       // ----比较分拣抽检实物重量与分拣体积重量比较-----
         Double reviewVolumeWeight =  keeTwoDecimals(reviewVolume/volumeRate);
         //分拣重量与体积重量的较大值
-        Double moreBigValue = reviewWeight > reviewVolumeWeight ? reviewWeight:reviewVolumeWeight;
+        Double moreBigValue = reviewWeight > reviewVolumeWeight ? reviewWeight : reviewVolumeWeight;
         Double differenceValue = Math.abs(keeTwoDecimals(moreBigValue - billingCalcWeight));
 
         boolean isExcess= false;    //是否超标标识
         StringBuilder hitMessage = new StringBuilder(); //误差值
-        boolean getStandardValFlag = true; //获取误差值方法标识-默认从A标准取
+        boolean getAStandardValFlag = true; //获取误差值方法标识-默认从A标准取
 
         // 分拣重量为较大值----执行标准A
         if(reviewWeight > reviewVolumeWeight){
@@ -1083,9 +1081,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 hitMessage = getAStandardVal(moreBigValue);
                 isExcess =  checkAExcess(billingCalcWeight,differenceValue,reviewWeight);
             }else {
-                hitMessage = getBStandardVal(moreBigValue);
+                hitMessage = getBStandardVal(sumLWH.doubleValue());
                 isExcess = checkBExcess(sumLWH,differenceValue);
-                getStandardValFlag = false;
+                getAStandardValFlag = false;
             }
         }
         // 特殊处理-如果 较大值 <=1kg 都算未超标
@@ -1096,22 +1094,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 1:是超标  0:未超标
         if(isExcess){
             String baseMessage = "此次操作的重量:"+reviewWeight+"kg,体积重量:"+reviewVolumeWeight+"kg,计费唯一值:"+billingCalcWeight+"kg，经校验误差值"+differenceValue+"kg已超出规定";
-            StringBuilder warnMessage = new StringBuilder().append(baseMessage).append(hitMessage).append("kg");
+            StringBuilder warnMessage = new StringBuilder().append(baseMessage).append("误差标准:"+hitMessage).append("kg");
             result.customMessage(this.CHECK_OVER_STANDARD_CODE,warnMessage.toString());
             result.setData(false);
             weightVolumeCollectDto.setIsExcess(1);
-            //封装误差标准值
-            StringBuilder diffStandardOfWeight = new StringBuilder();
+            //---------封装误差标准值-------
             //A标准
-            if(getStandardValFlag){
-                diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getAStandardVal(reviewWeight).toString());
-                diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getAStandardVal(reviewVolume/volumeRate).toString());
+            if(getAStandardValFlag){
+                weightVolumeCollectDto.setDiffStandard(getAStandardVal(reviewWeight).toString());
             }else {
                 // B标准
-                diffStandardOfWeight.append(WEIGHT_STANDARD_PREFIX).append(getBStandardVal(reviewWeight).toString());
-                diffStandardOfWeight.append(VOLUME_WEIGHT_STANDARD_PREFIX).append(getBStandardVal(reviewVolume/volumeRate).toString());
+                weightVolumeCollectDto.setDiffStandard(getBStandardVal(sumLWH.doubleValue()).toString());
             }
-            weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
         }else {
             weightVolumeCollectDto.setIsExcess(0);
             weightVolumeCollectDto.setVolumeWeightIsExcess(0);
@@ -1131,35 +1125,35 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private boolean  checkAExcess(Double moreBigValue,Double differenceValue,Double reviewWeight){
         //重量阀值
-        Double  firstWeight1   =   new Double(firstThresholdWeight);
-        Double  secondWeight20 =   new Double(secondThresholdWeight);
-        Double  thirdWeight50  =   new Double(thirdThresholdWeight);
+        BigDecimal  firstWeight1   =   new BigDecimal(firstThresholdWeight);
+        BigDecimal  secondWeight20 =   new BigDecimal(secondThresholdWeight);
+        BigDecimal  thirdWeight50  =   new BigDecimal(thirdThresholdWeight);
 
         //重量误差标准值
-        Double  firstStage05 = new Double(firstStage);
-        Double  secondStage1 = new Double(secondStage);
-        Double  thirdStage002 = new Double(thirdStage);
+        BigDecimal  firstStage05 = new BigDecimal(firstStage);
+        BigDecimal  secondStage1 = new BigDecimal(secondStage);
+        BigDecimal  thirdStage002 = new BigDecimal(thirdStage);
 
-        if(moreBigValue<= firstWeight1){
+        if(moreBigValue <= firstWeight1.doubleValue()){
             return false;
         }
 
-        if(firstWeight1 < moreBigValue && moreBigValue<=secondWeight20){
-                if(differenceValue >= firstStage05){
+        if(firstWeight1.doubleValue() < moreBigValue && moreBigValue <= secondWeight20.doubleValue()){
+                if(differenceValue >= firstStage05.doubleValue()){
                     return true;
                 }
                 return  false;
         }
 
-        if(secondWeight20<moreBigValue && moreBigValue<=thirdWeight50){
-            if(differenceValue>=secondStage1){
+        if(secondWeight20.doubleValue() <moreBigValue && moreBigValue<=thirdWeight50.doubleValue()){
+            if(differenceValue>=secondStage1.doubleValue()){
                 return true;
             }
             return false;
         }
 
-        if(moreBigValue>thirdWeight50){
-            if(differenceValue > keeTwoDecimals(reviewWeight*thirdStage002)){
+        if(moreBigValue>thirdWeight50.doubleValue()){
+            if(differenceValue > keeTwoDecimals(reviewWeight*thirdStage002.doubleValue())){
                 return true;
             }
             return false;
@@ -1355,7 +1349,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         //设置无图片无图片链接
         weightVolumeCollectDto.setIsHasPicture(0);
         weightVolumeCollectDto.setPictureAddress("");
-
         return weightVolumeCollectDto;
     }
 
