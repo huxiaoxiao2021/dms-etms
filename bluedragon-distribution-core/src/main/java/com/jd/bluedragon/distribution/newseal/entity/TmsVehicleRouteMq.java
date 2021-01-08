@@ -66,6 +66,11 @@ public class TmsVehicleRouteMq implements Serializable {
 	 * 取消时间
 	 */
 	private Date cancelTime;
+	
+	/**
+	 * 创建时间
+	 */
+	private Date jobCreateTime;	
 
 	public String getVehicleJobCode() {
 		return vehicleJobCode;
@@ -153,5 +158,13 @@ public class TmsVehicleRouteMq implements Serializable {
 
 	public void setCancelTime(Date cancelTime) {
 		this.cancelTime = cancelTime;
+	}
+
+	public Date getJobCreateTime() {
+		return jobCreateTime;
+	}
+
+	public void setJobCreateTime(Date jobCreateTime) {
+		this.jobCreateTime = jobCreateTime;
 	}
 }

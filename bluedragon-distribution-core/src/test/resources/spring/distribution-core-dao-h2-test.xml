@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd"
+       default-lazy-init="true">
+
+    <aop:aspectj-autoproxy/>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath:configured/app.properties</value>
+                <value>classpath:configured/db.properties</value>
+                <value>classpath:configured/dms_ip_mapper.properties</value>
+                <value>classpath:configured/order_service_config.properties</value>
+                <value>classpath:configured/popabnormal.properties</value>
+                <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/jsf.properties</value>
+                <value>classpath:configured/mq.properties</value>
+                <value>classpath:configured/kafka.properties</value>
+                <value>classpath:configured/ucc.properties</value>
+                <value>classpath:configured/important.properties</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
+
+    <import resource="classpath:spring/distribution-core-redis.xml"/>
+    <import resource="classpath:spring/distribution-core-datasource-undiv-h2-test.xml"/>
+    <import resource="classpath:spring/distribution-core-datasource-div-h2-test.xml"/>
+    <import resource="classpath:spring/distribution-core-datasource-business-h2-test.xml"/>
+    <context:component-scan base-package="com.jd.bluedragon.distribution.*.dao"/>
+    <context:component-scan base-package="com.jd.bluedragon.core.redis"/>
+
+
+    <bean id="springHelper" class="com.jd.bluedragon.utils.SpringHelper"></bean>
+
+    <bean id="cacheKeyGeneratorScaner" class="com.jd.bluedragon.utils.CacheKeyGeneratorScaner">
+        <property name="keyGenerator" ref="keyGenerator"></property>
+    </bean>
+
+    <bean id="keyGenerator" class="com.jd.bluedragon.utils.DmsArgsMatchCacheKeyGenerator"></bean>
+
+    <!--    id生成-->
+    <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor">
+        <constructor-arg index="0">
+            <bean class="com.jd.coo.sa.sequence.snowflake.impl.PropertiesFileSnowflakeSequenceGen">
+                <constructor-arg index="0" value="/configured/snowflake.properties"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+
+</beans>

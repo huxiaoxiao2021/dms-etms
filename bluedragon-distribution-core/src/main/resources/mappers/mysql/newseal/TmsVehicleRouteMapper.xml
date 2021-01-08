@@ -66,6 +66,9 @@
 				<if test="cancelTime != null" >
 					cancel_time,
 				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
 			</trim>
 			)
 			values
@@ -107,6 +110,9 @@
 				<if test="cancelTime != null" >
 					#{cancelTime,jdbcType=TIMESTAMP},
 				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>				
 			</trim>
 			)
 	</insert>

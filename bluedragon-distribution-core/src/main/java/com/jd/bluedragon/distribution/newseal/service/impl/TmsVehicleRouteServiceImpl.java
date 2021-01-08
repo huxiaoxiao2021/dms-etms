@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
 import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.tms.tfc.dto.TransWorkItemDto;
 
 /**
  * @ClassName: TmsVehicleRouteServiceImpl
@@ -38,9 +37,6 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 	
     @Autowired
     private TmsServiceManager tmsServiceManager;
- 
-    @Autowired
-    private NewSealVehicleService newSealVehicleService;
     
 	@Override
 	public boolean insert(TmsVehicleRoute tmsVehicleRoute) {
@@ -78,21 +74,6 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 			}
 		}else {
 			if(Constants.YN_YES.equals(tmsVehicleRoute.getYn())){
-				//加载发车任务信息
-	            com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> returnCommonDto;
-				try {
-					returnCommonDto = newSealVehicleService.queryTransWorkItemBySimpleCode(tmsVehicleRoute.getVehicleJobCode());
-		            if (returnCommonDto != null
-		            		&& Constants.RESULT_SUCCESS == returnCommonDto.getCode()
-		            		&& returnCommonDto.getData() != null) {
-		            	tmsVehicleRoute.setJobCreateTime(returnCommonDto.getData().getCreateTime());
-		            }else {
-		            	logger.warn("加载任务信息失败！vehicleJobCode={0}", tmsVehicleRoute.getVehicleJobCode());
-		            }
-				} catch (Exception e) {
-					logger.error("加载任务信息异常！vehicleJobCode={0}",e,tmsVehicleRoute.getVehicleJobCode());
-				}
-
 				//加载始发和目的信息，计算发车时间
 				JdResult<TransportResource> transResult = tmsServiceManager.getTransportResourceByTransCode(tmsVehicleRoute.getTransportCode());
 	            if (transResult != null
@@ -105,7 +86,7 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 		            	tmsVehicleRoute.setDepartTime(DateHelper.parseDate(departTimeStr, departTimeStr));
 	            	}
 	            }else {
-	            	logger.warn("加载运力信息失败！transportCode={0}", tmsVehicleRoute.getTransportCode());
+	            	logger.warn("加载运力信息失败！transportCode={}", tmsVehicleRoute.getTransportCode());
 	            }
 			}
 			//无论yn是否取消都要插入数据

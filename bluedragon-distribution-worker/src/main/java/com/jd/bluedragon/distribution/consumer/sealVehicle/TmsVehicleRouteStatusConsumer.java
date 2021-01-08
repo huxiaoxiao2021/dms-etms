@@ -63,6 +63,7 @@ public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
 		tmsVehicleRoute.setCarrierTeamCode(mqData.getCarrierTeamCode());
 		tmsVehicleRoute.setCarrierTeamName(mqData.getCarrierTeamName());
 		tmsVehicleRoute.setVehicleNumber(mqData.getVehicleNumber());
+		tmsVehicleRoute.setJobCreateTime(mqData.getJobCreateTime());
 		//取消状态
 		if(OPERATE_CANCEL.equals(mqData.getOperateType())) {
 			tmsVehicleRoute.setYn(Constants.YN_NO);
