@@ -136,17 +136,17 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			dms_send_relation t
+			dms_send_relation 
 		where yn = 1 
 		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 		and ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}		
-		<if test="destinationSiteCode != null" >
+		<if test="destinationSiteCode != null and destinationSiteCode != ''" >
 			and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>
-		<if test="destinationSiteName != null" >
+		<if test="destinationSiteName != null and destinationSiteName != ''" >
 			and destination_site_name = #{destinationSiteName,jdbcType=VARCHAR}
 		</if>		
-		<if test="destinationCrossCode != null" >
+		<if test="destinationCrossCode != null and destinationCrossCode != ''" >
 			and destination_cross_code = #{destinationCrossCode,jdbcType=VARCHAR}
 		</if>
 		limit #{limitNum,jdbcType=INTEGER}

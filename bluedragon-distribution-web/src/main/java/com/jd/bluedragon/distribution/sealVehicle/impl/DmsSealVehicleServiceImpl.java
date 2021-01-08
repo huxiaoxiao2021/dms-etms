@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.*;
-import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -43,9 +42,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     private PreSealVehicleService preSealVehicleService;
 
     @Autowired
-    private SendMService sendMService;
-
-    @Autowired
     private NewSealVehicleService newSealVehicleService;
     
     @Autowired
@@ -61,7 +57,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      */
     @Value("${beans.DmsSealVehicleServiceImpl.effectDays:7}")
     private Integer effectDays;
-    
+    /**
+     * 默认-查询发车时间6小时内
+     */
+    private static final Integer DEFAULT_RECENT_HOURS = 6;
     /**
      * 传摆线路类型列表
      */
@@ -464,8 +463,14 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 		TmsVehicleRouteCondition routeCondition = new TmsVehicleRouteCondition();
 		routeCondition.setVehicleNumber(routeCondition.getVehicleNumber());
 		//时间格式yyyy-mm-dd hh:mm:ss
-		routeCondition.setDepartStartTime(DateHelper.parseDateTime(requestCondition.getDepartStartTime()));
-		routeCondition.setDepartEndTime(DateHelper.parseDateTime(requestCondition.getDepartEndTime()));
+		Integer recentHours = requestCondition.getRecentHours();
+		if(!NumberHelper.gt0(recentHours)) {
+			recentHours = DEFAULT_RECENT_HOURS;
+		}
+		Date now = new Date();
+		routeCondition.setDepartStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -recentHours));
+		routeCondition.setDepartEndTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, recentHours));
+		
 		routeCondition.setOriginalSiteCode(sendRelation.getOriginalSiteCode());
 		routeCondition.setDestinationSiteCode(sendRelation.getDestinationSiteCode());
 		List<TmsVehicleRoute> routeList = tmsVehicleRouteService.queryByCondition(routeCondition);

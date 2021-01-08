@@ -492,7 +492,7 @@
 			and receive_site_code = #{receiveSiteCode,jdbcType=BIGINT}
 			and operate_time <![CDATA[ >= ]]> #{operateTime,jdbcType=TIMESTAMP}
 	</select>
-	<select id="findOtherUuidsByCreateAndReceive" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="java.lang.String">
+	<select id="findOtherUuidsByCreateAndReceive" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition" resultType="String">
 		select pre_seal_uuid 
 		from
 		pre_seal_vehicle
@@ -500,7 +500,8 @@
 			and status = 0
 			and create_site_code = #{createSiteCode,jdbcType=BIGINT}
 			and receive_site_code = #{receiveSiteCode,jdbcType=BIGINT}
-			and transport_code <![CDATA[ != ]]> #{transportCode,jdbcType=VARCHAR}
-			and vehicle_number <![CDATA[ != ]]> #{vehicleNumber,jdbcType=VARCHAR}
+			and (transport_code != #{transportCode,jdbcType=VARCHAR}
+				or vehicle_number != #{vehicleNumber,jdbcType=VARCHAR}
+			)
 	</select>	
 </mapper>

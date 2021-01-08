@@ -25,14 +25,11 @@ public class PassPreSealQueryRequest implements Serializable{
 	 * 目的滑道号
 	 */
 	private String destinationCrossCode;
+
 	/**
-	 * 发车时间-开始
+	 * 最近小时数
 	 */
-	private String departStartTime;
-	/**
-	 * 发车时间-结束
-	 */
-	private String departEndTime;
+	private Integer recentHours;
 	/**
 	 * 查询数据条数
 	 */
@@ -62,17 +59,11 @@ public class PassPreSealQueryRequest implements Serializable{
 	public void setDestinationCrossCode(String destinationCrossCode) {
 		this.destinationCrossCode = destinationCrossCode;
 	}
-	public String getDepartStartTime() {
-		return departStartTime;
+	public Integer getRecentHours() {
+		return recentHours;
 	}
-	public void setDepartStartTime(String departStartTime) {
-		this.departStartTime = departStartTime;
-	}
-	public String getDepartEndTime() {
-		return departEndTime;
-	}
-	public void setDepartEndTime(String departEndTime) {
-		this.departEndTime = departEndTime;
+	public void setRecentHours(Integer recentHours) {
+		this.recentHours = recentHours;
 	}
 	public Integer getLimitNum() {
 		return limitNum;
