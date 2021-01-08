@@ -329,17 +329,23 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toFail("操作站点不能为空！");
             return jdCResponse;
         }
+        if (StringUtils.isBlank(req.getCreateSiteName())) {
+            jdCResponse.toFail("操作人站点名称不能为空！");
+            return jdCResponse;
+        }
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
         String sealCarCode = Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
         unloadCar.setEndSiteCode(req.getCreateSiteCode().intValue());
+        unloadCar.setEndSiteName(req.getCreateSiteName());
         List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCar);
         if (CollectionUtils.isNotEmpty(list)) {
             jdCResponse.toConfirm("当前场地存在未结束的同车牌任务，创建人erp:" + list.get(0).getOperateUserErp());
             return jdCResponse;
         }
         unloadCar.setSealCarCode(sealCarCode);
-        unloadCar.setStartSiteCode(0);
+        unloadCar.setStartSiteCode(req.getCreateSiteCode().intValue());
+        unloadCar.setStartSiteName(req.getCreateSiteName());
         unloadCar.setUnloadUserErp(req.getOperateUserErp());
         unloadCar.setUnloadUserName(req.getOperateUserName());
         unloadCar.setUnloadUserErp(req.getOperateUserErp());
