@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -40,6 +41,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<Integer> checkIsExcess(SpotCheckCheckReq req) {
+        logger.info("DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess-parameter={}", JSON.toJSONString(req));
         JdCResponse<Integer> jdCResponse = new JdCResponse<>();
         if (null == req) {
             jdCResponse.toConfirm("请求参数不能为空！");
@@ -89,6 +91,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<Void> spotCheckSubmit(SpotCheckSubmitReq req) {
+        logger.info("SpotCheckGateWayServiceImpl.spotCheckSubmit-parameter={}", JSON.toJSONString(req));
         JdCResponse<Void> jdCResponse = new JdCResponse<>();
         if (null == req) {
             jdCResponse.toConfirm("请求参数不能为空！");

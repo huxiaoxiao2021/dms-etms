@@ -34,6 +34,7 @@ import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -218,6 +219,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
 
         BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
+        log.info("dealSpotCheckLogic-parameter={},result={}", JSON.toJSONString(dto), JSON.toJSONString(baseEntity));
         if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
             log.warn("提交【{}】的超标数据失败!",dto.getPackageCode());
             result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,"提交超标数据失败!");
