@@ -15,7 +15,8 @@ import com.jd.bluedragon.dms.receive.enums.VolumeFeeType;
 import com.jd.bluedragon.dms.receive.quote.dto.QuoteCustomerDto;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
-import com.jd.jss.JingdongStorageService;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Pager;
@@ -27,7 +28,7 @@ import org.junit.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.slf4j.Logger;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -46,10 +47,6 @@ import static org.mockito.Mockito.when;
  * @date: 2020/5/28 17:46
  */
 public class WeightAndVolumeCheckServiceImplTest {
-    @Mock
-    Logger log;
-    @Mock
-    JingdongStorageService dmsWebJingdongStorageService;
     @Mock
     ReportExternalService reportExternalService;
     @Mock
@@ -76,12 +73,28 @@ public class WeightAndVolumeCheckServiceImplTest {
 
     @Test
     public void testInsertAndSendMq() throws Exception {
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl, "firstThresholdWeight", 1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstStage",0.5);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondThresholdWeight",20.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondStage",1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdThresholdWeight",50.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdStage",0.02);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstSumLWH","100");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondSumLWH","120");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdSumLWH","200");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"fourSumLWH","70");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstSumLWHStage","1");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondSumLWHStage","1.5");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdSumLWHStage","2");
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"fourSumLWHStage","0.8");
+
         when(dmsBaseDictService.queryListByParentId(anyInt())).thenReturn(Arrays.<DmsBaseDict>asList(new DmsBaseDict()));
 
         ResponseDTO<BizDutyDTO> responseDto = new ResponseDTO<>();
         BizDutyDTO bizDutyDTO = new BizDutyDTO();
         bizDutyDTO.setWeight(new BigDecimal(1.0));
         bizDutyDTO.setVolume(new BigDecimal(8000.0));
+        bizDutyDTO.setCalcWeight(new BigDecimal(10.1));
         responseDto.setStatusCode(0);
         responseDto.setData(bizDutyDTO);
 
@@ -89,25 +102,30 @@ public class WeightAndVolumeCheckServiceImplTest {
 
         when(baseMajorManager.getBaseSiteBySiteId(anyInt())).thenReturn(null);
         when(baseMajorManager.getBaseStaffByErpNoCache(anyString())).thenReturn(null);
-        when(waybillQueryManager.getDataByChoice(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(null);
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = new com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto>();
+        BigWaybillDto bigWaybillDto = new BigWaybillDto();
+        Waybill waybill = new Waybill();
+        waybill.setWaybillSign("300010020100000200000000202020020001000200020070110020000100000000000000000000120001000000301009000000000000");
+        bigWaybillDto.setWaybill(waybill);
+        baseEntity.setData(bigWaybillDto);
+        when(waybillQueryManager.getDataByChoice(anyString(), anyBoolean(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(baseEntity);
         when(waybillQueryManager.getOnlyWaybillByWaybillCode(anyString())).thenReturn(null);
         when(dmsWeightVolumeAbnormal.getTopic()).thenReturn("dms_weightVolume_abnormal");
         when(dmsWeightVolumeExcess.getTopic()).thenReturn("ldop_abnormal_fail");
 
+        PackWeightVO packWeightVO = new PackWeightVO();
+        packWeightVO.setWeight(0.1);
+        packWeightVO.setHigh(30.0);
+        packWeightVO.setLength(40.0);
+        packWeightVO.setWidth(20.0);
+        packWeightVO.setCodeStr("JDVC03992440423");
 
         QuoteCustomerDto quoteCustomerDto = new QuoteCustomerDto();
         quoteCustomerDto.setVolumeFeeType(8000);
         quoteCustomerDto.setVolumeFeeType(VolumeFeeType.volumeWeight.getType());
         when(quoteCustomerApiServiceManager.queryCustomerById(anyInt())).thenReturn(quoteCustomerDto);
 
-        PackWeightVO packWeightVO = new PackWeightVO();
-        packWeightVO.setWeight(10.0);
-        packWeightVO.setHigh(20.0);
-        packWeightVO.setLength(40.0);
-        packWeightVO.setWidth(20.0);
-        packWeightVO.setCodeStr("JDVC03992440423");
-        WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
-        weightVolumeCollectDto.setBusiCode(123);
+        when(waybillQueryManager.getOnlyWaybillByWaybillCode(anyString())).thenReturn(waybill);
         InvokeResult<Boolean> result = weightAndVolumeCheckServiceImpl.dealSportCheck(packWeightVO,
                 SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,new InvokeResult<Boolean>());
         Assert.assertTrue(result.getCode()!=200);
