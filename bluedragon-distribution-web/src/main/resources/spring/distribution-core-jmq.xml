@@ -475,9 +475,4 @@
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
 
-    <!--  文件包裹装箱消息  -->
-    <bean id="filePackageSortingProducer" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.file.package.sorting}" />
-    </bean>
-
 </beans>
