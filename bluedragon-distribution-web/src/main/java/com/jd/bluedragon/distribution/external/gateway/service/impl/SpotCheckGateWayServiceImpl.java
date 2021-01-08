@@ -70,7 +70,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             conditionB2b.setWaybillWeight(req.getWeight());
             InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
             if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
-                jdCResponse.toFail("抽检校验超标操作失败！");
+                jdCResponse.toFail(invokeResult.getMessage());
                 return jdCResponse;
             }
             WeightVolumeCheckOfB2bWaybill weightVolumeCheckOfB2bWaybill = invokeResult.getData().get(0);

@@ -287,11 +287,11 @@ public class GoodsLoadingScanningServiceImplTest {
     @Test
     public void testSpotCheckTest() {
         SpotCheckCheckReq req = new SpotCheckCheckReq();
-        req.setWaybillCode("JDK000000055167");
-        req.setLoginErp("bjxings");
+        req.setWaybillCode("JDK000000055176");
+        req.setLoginErp("wuyoude");
         req.setCreateSiteCode(364605);
-        req.setWeight(5D);
-        req.setVolume(5D);
+        req.setWeight(10D);
+        req.setVolume(10D);
         spotCheckGateWayService.checkIsExcess(req);
     }
 
