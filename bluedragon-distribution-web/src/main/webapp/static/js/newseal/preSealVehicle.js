@@ -386,9 +386,16 @@ $(function() {
             }
         };
         function subStateFormatter(value, row, index) {
-            return {
-                checked: true  //设置选中
-            };
+            var selectedFalg0 = row.selectedFalg;
+            if(selectedFalg0 != null && selectedFalg0 == false){
+	            return {
+	                checked: false  //设置不选中
+	            };
+            }else{
+	             return {
+	                checked: true  //设置选中
+	            };
+            }
         };
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');

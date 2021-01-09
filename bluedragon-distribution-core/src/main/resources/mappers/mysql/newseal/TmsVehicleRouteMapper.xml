@@ -183,7 +183,7 @@
 		where yn = 1 
 		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 		and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
-		<if test="vehicleNumber != null" >
+		<if test="vehicleNumber != null and vehicleNumber != ''" >
 			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
 		</if>
 		<if test="departStartTime != null" >

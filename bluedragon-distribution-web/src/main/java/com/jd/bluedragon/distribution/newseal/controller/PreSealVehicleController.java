@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -69,7 +70,10 @@ public class PreSealVehicleController extends DmsBaseController{
     @Autowired
     @Qualifier("newSealVehicleService")
     private NewSealVehicleService newSealVehicleService;
-
+    
+	@Autowired
+	private PreSealBatchService preSealBatchService;
+	
     private static final Integer SEAL_LIMIT = 5;
 
     @Autowired
@@ -128,7 +132,10 @@ public class PreSealVehicleController extends DmsBaseController{
             }else{
                 List<SealVehicles> unSealSendCodes = new ArrayList<>();
                 for(Integer receiveSiteCode : preMap.keySet()){
-                    List<SealVehicles> temp = getUnSealSendCodes(createSiteCode, receiveSiteCode, condition.getHourRange());
+                	//设置选中的批次信息
+                	PreSealVehicle item = preMap.get(receiveSiteCode);
+                	item.setSelectedSendCodes(preSealBatchService.querySendCodesByUuids(item.getPreSealUuids()));
+                    List<SealVehicles> temp = getUnSealSendCodes(item,createSiteCode, receiveSiteCode, condition.getHourRange());
                     if(temp != null && !temp.isEmpty()){
                         unSealSendCodes.addAll(temp);
                     }
@@ -160,15 +167,18 @@ public class PreSealVehicleController extends DmsBaseController{
                 //同一目的地，将车牌组装到车牌list中
                 if(preMap.containsKey(vo.getReceiveSiteCode())){
                     PreSealVehicle temp = preMap.get(vo.getReceiveSiteCode());
+					temp.getPreSealUuids().add(vo.getPreSealUuid());
                     temp.getVehicleNumbers().add(vo.getVehicleNumber());
                     temp.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
                     temp.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
                     temp.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
                 }else{
+                	vo.setPreSealUuids(new ArrayList<String>());
                     vo.getVehicleNumbers().add(vo.getVehicleNumber());
                     vo.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
                     vo.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
                     vo.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
+                    vo.getPreSealUuids().add(vo.getPreSealUuid());
                     preMap.put(vo.getReceiveSiteCode(), vo);
                 }
             }
@@ -237,7 +247,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @param hourRange
      * @return
      */
-    private List<SealVehicles> getUnSealSendCodes(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange){
+    private List<SealVehicles> getUnSealSendCodes(PreSealVehicle preSealVehicle,Integer createSiteCode, Integer receiveSiteCode, Integer hourRange){
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
@@ -257,10 +267,16 @@ public class PreSealVehicleController extends DmsBaseController{
         if(sealedSendCodes == null || sealedSendCodes.isEmpty()){
             return allSendCodes;
         }
-
+        List<String> selectedSendCodes = preSealVehicle.getSelectedSendCodes();
         List<SealVehicles> result = new ArrayList<>();
         for(SealVehicles vo : allSendCodes){
             if(!sealedSendCodes.contains(vo.getSealDataCode())){
+            	//设置页面选中状态
+                if(selectedSendCodes != null && !selectedSendCodes.contains(vo.getSealDataCode())) {
+                	vo.setSelectedFalg(Boolean.FALSE);
+                }else {
+                	vo.setSelectedFalg(Boolean.TRUE);
+                }
                 result.add(vo);
             }
         }
@@ -287,7 +303,7 @@ public class PreSealVehicleController extends DmsBaseController{
         List<SealVehicles> result = null;
 
         List<SealVehicles> sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
-
+        
         if(sourceList != null && !sourceList.isEmpty()){
             result = new ArrayList<>(sourceList.size());
             for(SealVehicles itme : sourceList){
@@ -298,7 +314,6 @@ public class PreSealVehicleController extends DmsBaseController{
                 if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
                     continue;
                 }
-
                 result.add(itme);
             }
         }

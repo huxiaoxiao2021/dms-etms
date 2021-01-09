@@ -496,6 +496,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 		record.setPreSealStatus(TextConstants.TEXT_FLAG_NO);
 		if(routeInfo != null) {
 			//存在车次信息，按运力编码+车牌查询预封车信息
+			record.setVehicleJobCode(routeInfo.getVehicleJobCode());
 			record.setCarrierTeamName(routeInfo.getCarrierTeamName());
 			record.setJobCreateTime(routeInfo.getJobCreateTime());
 			record.setVehicleNumber(routeInfo.getVehicleNumber());

@@ -95,6 +95,10 @@ public class PreSealVehicle extends DbEntity {
 
 	/** 车牌号:封签号Map */
 	private Map<String, VehicleMeasureInfo> vehicleMeasureMap;
+    /** 站点对应的预封车uuids */
+	private List<String> preSealUuids;
+    /** 已选中的批次信息 */
+	private List<String> selectedSendCodes;
 
 	/**
 	 * The set method for preSealUuid.
@@ -454,5 +458,21 @@ public class PreSealVehicle extends DbEntity {
 
 	public void setVehicleMeasureMap(Map<String, VehicleMeasureInfo> vehicleMeasureMap) {
 		this.vehicleMeasureMap = vehicleMeasureMap;
+	}
+
+	public List<String> getPreSealUuids() {
+		return preSealUuids;
+	}
+
+	public void setPreSealUuids(List<String> preSealUuids) {
+		this.preSealUuids = preSealUuids;
+	}
+
+	public List<String> getSelectedSendCodes() {
+		return selectedSendCodes;
+	}
+
+	public void setSelectedSendCodes(List<String> selectedSendCodes) {
+		this.selectedSendCodes = selectedSendCodes;
 	}
 }
