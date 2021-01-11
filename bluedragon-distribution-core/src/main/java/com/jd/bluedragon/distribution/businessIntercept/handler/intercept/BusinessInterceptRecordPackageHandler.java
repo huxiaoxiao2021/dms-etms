@@ -24,13 +24,11 @@ public class BusinessInterceptRecordPackageHandler extends BusinessInterceptReco
         result.setData(true);
 
         try {
-            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-            BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
-            saveInterceptMsgDto.setPackageCode(msgDto.getBarCode());
-            saveInterceptMsgDto.setWaybillCode(WaybillUtil.getWaybillCode(msgDto.getBarCode()));
+            msgDto.setPackageCode(msgDto.getBarCode());
+            msgDto.setWaybillCode(WaybillUtil.getWaybillCode(msgDto.getBarCode()));
             this.getAndSetWaybillInterceptEffectTime(msgDto);
-            log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
-            businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
+            log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
+            businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
         } catch (JMQException e) {
             log.error("BusinessInterceptRecordPackageHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
             result.toError("包裹维度处理拦截消息提交异常");
