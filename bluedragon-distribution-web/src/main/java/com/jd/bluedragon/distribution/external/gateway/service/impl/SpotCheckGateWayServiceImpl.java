@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
@@ -146,31 +147,30 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         return conditionB2b;
     }
 
-//    /**
-//     * 保存抽检图片
-//     *
-//     * @param req
-//     * @return
-//     */
-//    public boolean savePictures(SpotCheckSubmitReq req) {
-//        WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-//        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-//        condition.setReviewSiteCode(req.getCreateSiteCode());
-//        condition.setIsExcess(1);
-//        condition.setIsHasPicture(0);
-//        condition.setWaybillCode(WaybillUtil.getWaybillCode(req.getWaybillCode()));
-//        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
-//        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
-//                || baseEntity.getData().get(0) == null) {
-//            logger.warn("PDA抽检提交,查询运单【{}】站点【{}】超标数据为空", req.getWaybillCode(), req.getCreateSiteCode());
-//            return false;
-//        }
-//        dto.setWaybillCode(req.getWaybillCode());
-//        dto.setIsExcess(1);
-//        dto.setPictureAddress(StringUtils.join(req.getUrls().toArray(), ";"));
-//        dto.setIsHasPicture(1);
-//        reportExternalService.updateForWeightVolume(dto);
-//        return true;
-//    }
 
+    /**
+     * 校验抽检记录是否存在
+     *
+     * @param req
+     * @return
+     */
+    @Override
+    public JdCResponse<Void> checkRecordExist(SpotCheckRecordReq req) {
+        JdCResponse<Void> jdCResponse = new JdCResponse<>();
+        if (StringUtils.isBlank(req.getWaybillCode())) {
+            jdCResponse.toConfirm("运单号不能为空");
+            return jdCResponse;
+        }
+        if (null == req.getCreateSiteCode()) {
+            jdCResponse.toConfirm("抽检站点编号为空");
+            return jdCResponse;
+        }
+        InvokeResult<String> result = weightAndVolumeCheckOfB2bService.checkRecordExist(req.getWaybillCode(), req.getCreateSiteCode());
+        if (null == result || result.getCode() == 600) {
+            jdCResponse.toConfirm(result.getMessage());
+            return jdCResponse;
+        }
+        jdCResponse.toSucceed("操作成功");
+        return jdCResponse;
+    }
 }
