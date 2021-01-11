@@ -43,10 +43,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         Double moreBigValue = checkExcessParam.getMoreBigValue();
         Double differenceValue = checkExcessParam.getDifferenceValue();
         Double reviewWeight = checkExcessParam.getReviewWeight();
-        // 特殊处理-如果 较大值 <=1kg 都算未超标
-        if(moreBigValue <= 1){
-            return  false;
-        }
+
         //重量阀值
         BigDecimal firstWeight1   =   new BigDecimal(firstThresholdWeight);
         BigDecimal secondWeight20 =   new BigDecimal(secondThresholdWeight);
@@ -62,14 +59,14 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         }
 
         if(firstWeight1.doubleValue() < moreBigValue && moreBigValue <= secondWeight20.doubleValue()){
-            if(differenceValue >= firstStage05.doubleValue()){
+            if(differenceValue > firstStage05.doubleValue()){
                 return true;
             }
             return  false;
         }
 
         if(secondWeight20.doubleValue() <moreBigValue && moreBigValue<=thirdWeight50.doubleValue()){
-            if(differenceValue>=secondStage1.doubleValue()){
+            if(differenceValue > secondStage1.doubleValue()){
                 return true;
             }
             return false;

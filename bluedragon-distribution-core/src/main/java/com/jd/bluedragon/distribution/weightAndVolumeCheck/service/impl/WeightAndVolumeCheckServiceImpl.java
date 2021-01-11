@@ -704,11 +704,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
 
         // 校验是否能操作抽检
-       /* InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
+        InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
         if(!canDealSportCheckResult.getData()){
             result.customMessage(canDealSportCheckResult.getCode(), canDealSportCheckResult.getMessage());
             return result;
-        }*/
+        }
 
         // 组装基本数据
         WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO);
@@ -754,13 +754,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
             if(result.getCode() == C_SPOTCHECK_INTERCEPT_CODE){
                 return result;
-            }
-
-            //当计费唯一值 为0
-            if(billingCalcWeight == 0 ){
-                log.warn("运单【{}】获取计费唯一值calcWeight为空",waybillCode);
-                result.customMessage(this.NO_CHARGE_SYSTEM_DATA_CODE,"calcWeight为0或空，无法进行校验");
-                result.setData(false);
             }
 
             //校验是否超标
@@ -1073,7 +1066,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private WeightAndVolumeCheckStandardHandler getCheckStandardHandler(Double reviewWeight,Double reviewVolumeWeight,BigDecimal sumLWH) {
         if(reviewWeight > reviewVolumeWeight){
            return this.weightAndVolumeCheckAHandler;
-        }else { //体积重量为较大值---判断三边之和与70cm
+        }else {
+            //体积重量为较大值---判断三边之和与70cm
             if(sumLWH.compareTo(new BigDecimal(fourSumLWH))<0){
                 return this.weightAndVolumeCheckAHandler;
             }else {
