@@ -32,6 +32,11 @@ public class CreateUnloadTaskReq implements Serializable {
      */
     private Long createSiteCode;
 
+    /**
+     * 操作人所属站点名称
+     */
+    private String createSiteName;
+
     public CreateUnloadTaskReq() {
     }
 
@@ -65,5 +70,13 @@ public class CreateUnloadTaskReq implements Serializable {
 
     public void setCreateSiteCode(Long createSiteCode) {
         this.createSiteCode = createSiteCode;
+    }
+
+    public String getCreateSiteName() {
+        return createSiteName;
+    }
+
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 }
