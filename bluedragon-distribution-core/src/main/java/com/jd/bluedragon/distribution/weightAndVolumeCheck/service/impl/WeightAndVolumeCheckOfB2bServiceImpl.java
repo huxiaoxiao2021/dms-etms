@@ -215,7 +215,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WeightVolumeCollectDto dto = assembleWeightVolumeDto(spotCheckData,waybill,waybillFlowDetail,baseDto);
 
         /**PDA抽检来源,赋值图片**/
-        if (Constants.PDA_SOURCE.equals(spotCheckData.getFromSource())) {
+        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource())) {
            dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
         }
 
