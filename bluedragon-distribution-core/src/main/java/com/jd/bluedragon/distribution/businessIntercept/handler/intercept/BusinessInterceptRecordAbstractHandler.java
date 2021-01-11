@@ -69,6 +69,7 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
 
     /**
      * 抽象处理类，由不同类型处理器处理
+     *
      * @param msgDto 提交数据
      * @return 处理结果
      * @author fanggang7
@@ -91,12 +92,13 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
 
     /**
      * 获取应拦截生效时间
+     *
      * @param msgDto 消息内容
      * @return 处理结果
      * @author fanggang7
      * @time 2021-01-10 18:56:17 周日
      */
-    protected Response<Boolean> getAndSetWaybillInterceptEffectTime(SaveInterceptMsgDto msgDto){
+    protected Response<Boolean> getAndSetWaybillInterceptEffectTime(SaveInterceptMsgDto msgDto) {
         Response<Boolean> result = new Response<>();
         result.toSucceed();
         result.setData(true);
@@ -104,9 +106,9 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
         List<String> pdaWaybillCancelInterceptCodeList = Arrays.asList(this.pdaInterceptCodeWaybillCancel.split(","));
         List<String> automaticWaybillCancelInterceptCodeList = Arrays.asList(this.automaticInterceptCodeWaybillCancel.split(","));
         // 如果是取消类型的code，就查询一下运单取消记录
-        if((Objects.equals(interceptOperateDeviceTypePda, msgDto.getDeviceType()) && pdaWaybillCancelInterceptCodeList.contains(String.valueOf(msgDto.getInterceptCode())))
+        if ((Objects.equals(interceptOperateDeviceTypePda, msgDto.getDeviceType()) && pdaWaybillCancelInterceptCodeList.contains(String.valueOf(msgDto.getInterceptCode())))
                 || (Objects.equals(deviceTypeAutomatic, msgDto.getDeviceType()) && automaticWaybillCancelInterceptCodeList.contains(String.valueOf(msgDto.getInterceptCode())))
-        ){
+        ) {
             Response<Boolean> cancelTimeResult = this.getAndSetWaybillCancelTime(msgDto);
             result.setData(cancelTimeResult.getData());
             return result;
@@ -117,22 +119,25 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
 
     /**
      * 获取取消拦截生效时间
+     *
      * @param msgDto 消息内容
      * @return 处理结果
      * @author fanggang7
      * @time 2021-01-10 18:55:51 周日
      */
-    protected Response<Boolean> getAndSetWaybillCancelTime(SaveInterceptMsgDto msgDto){
+    protected Response<Boolean> getAndSetWaybillCancelTime(SaveInterceptMsgDto msgDto) {
         Response<Boolean> result = new Response<>();
         result.toSucceed();
         result.setData(true);
 
         try {
             List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(msgDto.getWaybillCode());
-            if(CollectionUtils.isNotEmpty(waybillCancelList)){
-                CancelWaybill cancelWaybill = waybillCancelList.get(0);
-                msgDto.setInterceptEffectTime(DateUtil.parse(cancelWaybill.getCreateTime(), DateUtil.FORMAT_DATE_TIME).getTime());
+            if (CollectionUtils.isEmpty(waybillCancelList)) {
+                log.warn("getWaybillCancelTime empty data");
+                return result;
             }
+            CancelWaybill cancelWaybill = waybillCancelList.get(0);
+            msgDto.setInterceptEffectTime(DateUtil.parse(cancelWaybill.getCreateTime(), DateUtil.FORMAT_DATE_TIME).getTime());
         } catch (Exception e) {
             log.error("getWaybillCancelTime exception");
             result.toError("获取运单取消时间失败");
@@ -144,12 +149,13 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
 
     /**
      * 获取取消拦截生效时间
+     *
      * @param msgDto 消息内容
      * @return 处理结果
      * @author fanggang7
      * @time 2021-01-10 18:55:51 周日
      */
-    protected Response<Boolean> getAndSetWaybillCreateTime(SaveInterceptMsgDto msgDto){
+    protected Response<Boolean> getAndSetWaybillCreateTime(SaveInterceptMsgDto msgDto) {
         Response<Boolean> result = new Response<>();
         result.toSucceed();
         result.setData(true);
@@ -158,10 +164,10 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
             BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(msgDto.getWaybillCode(), wChoice);
-            if(EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()){
+            if (EnumBusiCode.BUSI_SUCCESS.getCode() == bigWaybillDtoBaseEntity.getResultCode()) {
                 BigWaybillDto bigWaybillDto = bigWaybillDtoBaseEntity.getData();
                 Waybill waybill = bigWaybillDto.getWaybill();
-                if(waybill != null && waybill.getCreateTime() != null){
+                if (waybill != null && waybill.getCreateTime() != null) {
                     msgDto.setInterceptEffectTime(waybill.getCreateTime().getTime());
                 }
             }
