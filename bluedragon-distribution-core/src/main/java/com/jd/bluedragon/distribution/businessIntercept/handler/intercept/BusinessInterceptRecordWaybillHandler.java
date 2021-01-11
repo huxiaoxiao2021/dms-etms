@@ -47,7 +47,7 @@ public class BusinessInterceptRecordWaybillHandler extends BusinessInterceptReco
                 }
             }
         } catch (JMQException e) {
-            log.error("BusinessInterceptRecordWaybillHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto));
+            log.error("BusinessInterceptRecordWaybillHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
             result.toError("运单维度处理拦截消息提交异常");
         }
         return result;

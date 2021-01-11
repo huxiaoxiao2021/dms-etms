@@ -47,7 +47,7 @@ public class BusinessInterceptRecordBoxHandler extends BusinessInterceptRecordAb
                 }
             }
         } catch (JMQException e) {
-            log.error("BusinessInterceptRecordBoxHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto));
+            log.error("BusinessInterceptRecordBoxHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
             result.toError("处理箱号纬度拦截信息提交异常");
         }
         return result;

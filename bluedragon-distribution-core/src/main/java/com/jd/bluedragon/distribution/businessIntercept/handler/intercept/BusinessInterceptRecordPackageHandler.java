@@ -32,7 +32,7 @@ public class BusinessInterceptRecordPackageHandler extends BusinessInterceptReco
             log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
             businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
         } catch (JMQException e) {
-            log.error("BusinessInterceptRecordPackageHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto));
+            log.error("BusinessInterceptRecordPackageHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
             result.toError("包裹维度处理拦截消息提交异常");
         }
         return result;
