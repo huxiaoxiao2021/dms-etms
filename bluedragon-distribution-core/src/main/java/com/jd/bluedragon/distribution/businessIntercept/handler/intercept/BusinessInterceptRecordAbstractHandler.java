@@ -71,13 +71,13 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
     @Value("${businessIntercept.device.type.pda}")
     private Integer interceptOperateDeviceTypePda;
 
-    @Value("businessIntercept.device.type.automatic")
+    @Value("${businessIntercept.device.type.automatic}")
     private Integer deviceTypeAutomatic;
 
-    @Value("businessIntercept.pda.interceptCode.waybillCancel")
+    @Value("${businessIntercept.pda.interceptCode.waybillCancel}")
     private String pdaInterceptCodeWaybillCancel;
 
-    @Value("businessIntercept.automatic.interceptCode.waybillCancel")
+    @Value("${businessIntercept.automatic.interceptCode.waybillCancel}")
     private String automaticInterceptCodeWaybillCancel;
 
     /**

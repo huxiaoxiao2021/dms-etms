@@ -25,15 +25,15 @@ public class BusinessInterceptRecordHandlerStrategy {
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    @Qualifier("${businessInterceptRecordPackageHandler}")
+    @Qualifier("businessInterceptRecordPackageHandler")
     private IBusinessInterceptRecordHandler businessInterceptRecordPackageHandler;
 
     @Autowired
-    @Qualifier("${businessInterceptRecordWaybillHandler}")
+    @Qualifier("businessInterceptRecordWaybillHandler")
     private IBusinessInterceptRecordHandler businessInterceptRecordWaybillHandler;
 
     @Autowired
-    @Qualifier("${businessInterceptRecordBoxHandler}")
+    @Qualifier("businessInterceptRecordBoxHandler")
     private IBusinessInterceptRecordHandler businessInterceptRecordBoxHandler;
 
     public Response<Boolean> handle(SaveInterceptMsgDto msgDto) throws RuntimeException {
