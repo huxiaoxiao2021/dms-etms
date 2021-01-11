@@ -133,7 +133,7 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
         try {
             List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(msgDto.getWaybillCode());
             if (CollectionUtils.isEmpty(waybillCancelList)) {
-                log.warn("getWaybillCancelTime empty data");
+                log.warn("getWaybillCancelTime empty data waybillCode: {}", msgDto.getWaybillCode());
                 return result;
             }
             CancelWaybill cancelWaybill = waybillCancelList.get(0);
@@ -155,7 +155,7 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
      * @author fanggang7
      * @time 2021-01-10 18:55:51 周日
      */
-    protected Response<Boolean> getAndSetWaybillCreateTime(SaveInterceptMsgDto msgDto) {
+    /*protected Response<Boolean> getAndSetWaybillCreateTime(SaveInterceptMsgDto msgDto) {
         Response<Boolean> result = new Response<>();
         result.toSucceed();
         result.setData(true);
@@ -179,5 +179,5 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
         }
 
         return result;
-    }
+    }*/
 }
