@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
@@ -71,8 +73,15 @@ public class WeightAndVolumeCheckServiceImplTest {
     DefaultJMQProducer dmsWeightVolumeExcess;
     @Mock
     QuoteCustomerApiServiceManager quoteCustomerApiServiceManager;
+
     @InjectMocks
     WeightAndVolumeCheckServiceImpl weightAndVolumeCheckServiceImpl;
+
+    @InjectMocks
+    WeightAndVolumeCheckAHandler weightAndVolumeCheckAHandler;
+
+    @InjectMocks
+    WeightAndVolumeCheckBHandler weightAndVolumeCheckBHandler;
 
     @Before
     public void setUp() {
@@ -81,20 +90,38 @@ public class WeightAndVolumeCheckServiceImplTest {
 
     @Test
     public void testInsertAndSendMq() throws Exception {
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl, "firstThresholdWeight", 1.0);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstStage",0.5);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondThresholdWeight",20.0);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondStage",1.0);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdThresholdWeight",50.0);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdStage",0.02);
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstSumLWH","100");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondSumLWH","120");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdSumLWH","200");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler, "firstThresholdWeight", 1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"firstStage",0.5);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"secondThresholdWeight",20.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"secondStage",1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"thirdThresholdWeight",50.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"thirdStage",0.02);
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"firstSumLWH","100");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"secondSumLWH","120");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"thirdSumLWH","200");
         ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"fourSumLWH","70");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"firstSumLWHStage","1");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"secondSumLWHStage","1.5");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"thirdSumLWHStage","2");
-        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"fourSumLWHStage","0.8");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"firstSumLWHStage","1");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"secondSumLWHStage","1.5");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"thirdSumLWHStage","2");
+        ReflectionTestUtils.setField(weightAndVolumeCheckAHandler,"fourSumLWHStage","0.8");
+
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler, "firstThresholdWeight", 1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"firstStage",0.5);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"secondThresholdWeight",20.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"secondStage",1.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"thirdThresholdWeight",50.0);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"thirdStage",0.02);
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"firstSumLWH","100");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"secondSumLWH","120");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"thirdSumLWH","200");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"fourSumLWH","70");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"firstSumLWHStage","1");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"secondSumLWHStage","1.5");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"thirdSumLWHStage","2");
+        ReflectionTestUtils.setField(weightAndVolumeCheckBHandler,"fourSumLWHStage","0.8");
+
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"weightAndVolumeCheckAHandler",weightAndVolumeCheckAHandler);
+        ReflectionTestUtils.setField(weightAndVolumeCheckServiceImpl,"weightAndVolumeCheckBHandler",weightAndVolumeCheckBHandler);
 
         when(dmsBaseDictService.queryListByParentId(anyInt())).thenReturn(Arrays.<DmsBaseDict>asList(new DmsBaseDict()));
 
@@ -122,9 +149,9 @@ public class WeightAndVolumeCheckServiceImplTest {
         when(dmsWeightVolumeExcess.getTopic()).thenReturn("ldop_abnormal_fail");
 
         PackWeightVO packWeightVO = new PackWeightVO();
-        packWeightVO.setWeight(0.1);
-        packWeightVO.setHigh(30.0);
-        packWeightVO.setLength(40.0);
+        packWeightVO.setWeight(0.9);
+        packWeightVO.setHigh(20.0);
+        packWeightVO.setLength(30.0);
         packWeightVO.setWidth(20.0);
         packWeightVO.setCodeStr("JDVC03992440423");
 
