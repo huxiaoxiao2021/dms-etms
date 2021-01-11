@@ -42,8 +42,11 @@ public interface TmsVehicleRouteService {
 	/**
 	 * 同步数据
 	 * @param tmsVehicleRoute
+	 * @param beginNodeCode 始发网点
+	 * @param endNodeCode 目的网点
+	 * @return
 	 */
-	boolean syncToDb(TmsVehicleRoute tmsVehicleRoute);
+	boolean syncToDb(TmsVehicleRoute tmsVehicleRoute,String beginNodeCode,String endNodeCode);
 	/**
 	 * 查询满足条件的数据
 	 * @param dmsSendRelation

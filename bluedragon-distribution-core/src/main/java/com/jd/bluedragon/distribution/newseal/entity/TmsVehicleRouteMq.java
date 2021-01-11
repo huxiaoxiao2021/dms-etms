@@ -70,7 +70,15 @@ public class TmsVehicleRouteMq implements Serializable {
 	/**
 	 * 创建时间
 	 */
-	private Date jobCreateTime;	
+	private Date jobCreateTime;
+	/**
+	 * 始发网点编码
+	 */
+	private String beginNodeCode;
+	/**
+	 * 始发网点编码
+	 */
+	private String endNodeCode;
 
 	public String getVehicleJobCode() {
 		return vehicleJobCode;
@@ -166,5 +174,21 @@ public class TmsVehicleRouteMq implements Serializable {
 
 	public void setJobCreateTime(Date jobCreateTime) {
 		this.jobCreateTime = jobCreateTime;
+	}
+
+	public String getBeginNodeCode() {
+		return beginNodeCode;
+	}
+
+	public void setBeginNodeCode(String beginNodeCode) {
+		this.beginNodeCode = beginNodeCode;
+	}
+
+	public String getEndNodeCode() {
+		return endNodeCode;
+	}
+
+	public void setEndNodeCode(String endNodeCode) {
+		this.endNodeCode = endNodeCode;
 	}
 }

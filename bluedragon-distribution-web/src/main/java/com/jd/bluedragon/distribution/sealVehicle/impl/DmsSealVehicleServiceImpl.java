@@ -461,15 +461,19 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 	private void loadCarAndPreSealInfo(DmsSendRelation sendRelation,PassPreSealQueryRequest requestCondition,List<PassPreSealRecord> resultList) {
 		//筛选满足始发、目的、车牌、发车时间的数据
 		TmsVehicleRouteCondition routeCondition = new TmsVehicleRouteCondition();
-		routeCondition.setVehicleNumber(routeCondition.getVehicleNumber());
+		boolean filterRouteInfo = false;
+		if(StringHelper.isNotEmpty(routeCondition.getVehicleNumber())) {
+			routeCondition.setVehicleNumber(routeCondition.getVehicleNumber());
+			filterRouteInfo = true;
+		}
 		//时间格式yyyy-mm-dd hh:mm:ss
 		Integer recentHours = requestCondition.getRecentHours();
-		if(!NumberHelper.gt0(recentHours)) {
-			recentHours = DEFAULT_RECENT_HOURS;
+		if(NumberHelper.gt0(recentHours)) {
+			filterRouteInfo = true;
+			Date now = new Date();
+			routeCondition.setDepartStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -recentHours));
+			routeCondition.setDepartEndTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, recentHours));
 		}
-		Date now = new Date();
-		routeCondition.setDepartStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -recentHours));
-		routeCondition.setDepartEndTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, recentHours));
 		
 		routeCondition.setOriginalSiteCode(sendRelation.getOriginalSiteCode());
 		routeCondition.setDestinationSiteCode(sendRelation.getDestinationSiteCode());
@@ -478,7 +482,8 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 			for(TmsVehicleRoute route:routeList) {
 				resultList.add(initAndLoadPreSealInfo(sendRelation,route));
 			}
-		}else {
+		}else if(!filterRouteInfo){
+			//不过滤运力信息时，加入空运力信息
 			resultList.add(initAndLoadPreSealInfo(sendRelation,null));
 		}
 	}

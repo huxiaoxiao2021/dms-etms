@@ -46,7 +46,7 @@ public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
             log.warn("TmsVehicleRouteStatusConsumer consume --> 无效消息：{}", message.getText());
             return;
         }
-        tmsVehicleRouteService.syncToDb(tmsVehicleRoute);
+        tmsVehicleRouteService.syncToDb(tmsVehicleRoute,mqData.getBeginNodeCode(),mqData.getEndNodeCode());
     }
     /**
      * 转换成TmsVehicleRoute对象，并扩展其他相应的字段信息
