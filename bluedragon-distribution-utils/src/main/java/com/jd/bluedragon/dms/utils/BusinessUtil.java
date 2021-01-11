@@ -1868,6 +1868,6 @@ public class BusinessUtil {
         if(StringUtils.isEmpty(waybillSign)){
             return  false;
         }
-        return BusinessUtil.isSignChar(waybillSign,31,'0');
+        return BusinessUtil.isSignChar(waybillSign,31,'1');
     }
 }
