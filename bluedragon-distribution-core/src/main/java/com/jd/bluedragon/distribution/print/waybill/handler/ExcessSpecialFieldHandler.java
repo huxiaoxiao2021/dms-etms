@@ -108,7 +108,7 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
                 return true;
             }
             List<String> siteCodes = Arrays.asList(collectionAddressSiteCodes.split(Constants.SEPARATOR_COMMA));
-            return siteCodes.contains(siteCode);
+            return siteCodes.contains(String.valueOf(siteCode));
         }catch (Exception e){
             logger.error("获取集包地场地配置开关异常",e);
         }
