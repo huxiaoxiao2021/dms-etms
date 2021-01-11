@@ -118,6 +118,9 @@
 				<if test="yn != null" >
 					yn = #{yn,jdbcType=TINYINT},
 				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -69,9 +70,13 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 	public boolean saveOrUpdate(DmsSendRelation dmsSendRelation) {
 		DmsSendRelation oldData = dmsSendRelationDao.queryByBusinessKey(dmsSendRelation);
 		if(oldData == null){
+			if(dmsSendRelation.getCreateTime() == null) {
+				dmsSendRelation.setCreateTime(new Date());
+			}
 			return dmsSendRelationDao.insert(dmsSendRelation) == 1;
 		}else{
 			dmsSendRelation.setId(oldData.getId());
+			dmsSendRelation.setTs(new Date());
 			return dmsSendRelationDao.update(dmsSendRelation) == 1;
 		}
 	}
@@ -113,7 +118,7 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 				dmsSendRelation.setOriginalSiteName(startSiteInfo.getSiteName());
 				startNodeCode = startSiteInfo.getDmsSiteCode();
 			}else {
-				logger.warn("加载始发信息为空！{0}", dmsSendRelation.getOriginalSiteCode());
+				logger.warn("加载始发信息为空！{}", dmsSendRelation.getOriginalSiteCode());
 			}
 		}
 		if(dmsSendRelation.getDestinationSiteCode() != null ) {
@@ -122,7 +127,7 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 				dmsSendRelation.setDestinationSiteName(endSiteInfo.getSiteName());
 				endNodeCode = endSiteInfo.getDmsSiteCode();
 			}else {
-				logger.warn("加载目的信息为空！{0}", dmsSendRelation.getDestinationSiteCode());
+				logger.warn("加载目的信息为空！{}", dmsSendRelation.getDestinationSiteCode());
 			}
 		}
 		//加载线路信息
