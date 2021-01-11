@@ -28,6 +28,7 @@ public class BusinessInterceptRecordPackageHandler extends BusinessInterceptReco
             BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
             saveInterceptMsgDto.setPackageCode(msgDto.getBarCode());
             saveInterceptMsgDto.setWaybillCode(WaybillUtil.getWaybillCode(msgDto.getBarCode()));
+            this.getAndSetWaybillInterceptEffectTime(msgDto);
             log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
             businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
         } catch (JMQException e) {

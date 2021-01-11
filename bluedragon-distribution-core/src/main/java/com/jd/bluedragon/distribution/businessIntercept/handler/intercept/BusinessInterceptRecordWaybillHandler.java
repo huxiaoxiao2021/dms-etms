@@ -36,11 +36,12 @@ public class BusinessInterceptRecordWaybillHandler extends BusinessInterceptReco
             Waybill waybillAndPack = waybillCommonService.findWaybillAndPack(msgDto.getBarCode(), true, false, true, true);
             if(waybillAndPack != null && CollectionUtils.isNotEmpty(waybillAndPack.getPackList())){
                 List<Pack> packList = waybillAndPack.getPackList();
+                msgDto.setWaybillCode(msgDto.getBarCode());
+                this.getAndSetWaybillInterceptEffectTime(msgDto);
                 for (Pack pack : packList) {
                     SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
                     BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                     saveInterceptMsgDto.setPackageCode(pack.getPackageCode());
-                    saveInterceptMsgDto.setWaybillCode(msgDto.getBarCode());
                     log.info("BusinessInterceptRecordWaybillHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
                     businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
                 }
