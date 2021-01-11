@@ -743,6 +743,8 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.doGetPackageVasInfo" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public Map<String,String> doGetPackageVasInfo(String wayBillCode) {
         //查询出一个属于一个包裹的所有商品的增值服务明细 key->包裹号 value->增值服务信息
         Map<String,String> packageUpVasMap = new HashMap<>();
