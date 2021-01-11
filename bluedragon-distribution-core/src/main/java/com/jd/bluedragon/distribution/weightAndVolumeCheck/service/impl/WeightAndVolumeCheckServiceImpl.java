@@ -704,11 +704,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
 
         // 校验是否能操作抽检
-       /* InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
+        InvokeResult<Boolean> canDealSportCheckResult = this.canDealSportCheck(packWeightVO);
         if(!canDealSportCheckResult.getData()){
             result.customMessage(canDealSportCheckResult.getCode(), canDealSportCheckResult.getMessage());
             return result;
-        }*/
+        }
 
         // 组装基本数据
         WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO);
