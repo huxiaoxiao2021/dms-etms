@@ -62,7 +62,7 @@ public class ArAbnormalResource {
 
     @GET
     @Path("/arAbnormal/getArContrabandReasonNew/{transpondType}")
-    public InvokeResult<List<ArContrabandReason>> getArContrabandReasonListNew(Integer transpondType){
+    public InvokeResult<List<ArContrabandReason>> getArContrabandReasonListNew(@PathParam("transpondType") Integer transpondType){
         InvokeResult<List<ArContrabandReason>> result = new InvokeResult<>();
         try{
             result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
