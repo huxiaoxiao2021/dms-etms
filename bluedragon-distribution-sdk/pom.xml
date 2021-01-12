@@ -7,12 +7,12 @@
 
 	<groupId>com.jd.bluedragon</groupId>
 	<artifactId>bluedragon-distribution-sdk</artifactId>
-	<version>1.5.5-SNAPSHOT</version>
+	<version>1.5.6-test-SNAPSHOT</version>
 	<name>bluedragon-distribution-sdk</name>
 	<url>http://bluedragon.360buy.com</url>
 	<packaging>jar</packaging>
 
-	<!--1.5.5 面单异常上报-->
+	<!--1.5.7 面单异常上报-->
 	<!--1.5.4 增加异常枚举-->
 	<!--1.5.3 提供分拣机拦截同步接口-->
 

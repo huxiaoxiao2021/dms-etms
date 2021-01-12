@@ -20,11 +20,12 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="remark" column="remark"/>
     </resultMap>
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,create_time,update_time,yn,ts
+        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,create_time,update_time,yn,ts,remark
     </sql>
 
 
@@ -111,6 +112,9 @@
             <if test="ts != null">
             ts,
             </if>
+            <if test="remark !=null and remark !=''" >
+            remark,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="packageCode != null and packageCode != ''">
@@ -160,6 +164,9 @@
             </if>
             <if test="ts != null">
                 #{ts},
+            </if>
+            <if test="remark !=null and remark !=''">
+                #{remark,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>

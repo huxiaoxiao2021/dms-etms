@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.request.Expr
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
+import java.util.Map;
+
 /**
  * @Author: liming522
  * @Description:  提供给工作台的
@@ -17,5 +19,11 @@ public interface ExpressBillExceptionReportCenterService {
      * @return
      */
     Response<PageDto<ExpressBillExceptionReportVo>> queryPageList(ExpressBillExceptionReportQuery reportRequest);
+
+    /**
+     * 返回所有举报类型枚举
+     * @return
+     */
+    Response<Map<Integer,String>> getAllExceptionReportType();
 }
     
