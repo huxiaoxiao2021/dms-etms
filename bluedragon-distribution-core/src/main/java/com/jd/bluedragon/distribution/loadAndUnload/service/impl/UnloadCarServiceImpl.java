@@ -2068,7 +2068,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             // 只有操作站点是快运中心时，才初始化运单暂存
             if (isExpressCenterSite(tmsSealCar.getOperateSiteId())) {
+                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId());
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
+                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={},执行结果：isSuccess={}", tmsSealCar.getSealCarCode(),
+                        tmsSealCar.getOperateSiteId(), isSuccess);
                 if (!isSuccess) {
                     return false;
                 }
