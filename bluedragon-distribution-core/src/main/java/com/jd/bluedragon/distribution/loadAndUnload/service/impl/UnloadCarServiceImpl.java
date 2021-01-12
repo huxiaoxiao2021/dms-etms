@@ -622,16 +622,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             dealUnloadAndBoxToBoard(request,isSurplusPackage);
 
             // 获取卸车运单扫描信息
-            UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
-            BeanUtils.copyProperties(result.getData(), unloadScanDetailDto);
-            setUnloadScanDetail(unloadScanDetailDto, request.getSealCarCode());
-            dtoInvokeResult.setData(unloadScanDetailDto);
+            setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
+            // 获取最新列表
+            setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
             return dtoInvokeResult;
         }catch (Exception e){
             if (e instanceof UnloadPackageBoardException) {
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                // 获取最新列表
+                setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
                 return dtoInvokeResult;
             }
             logger.error("packageCodeScanNew接口发生异常：e=", e);
@@ -641,6 +642,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unLock(request.getSealCarCode(), waybillCode);
         }
         return dtoInvokeResult;
+    }
+
+    /**
+     * 获取每次扫描后的卸车扫描列表
+     * @param scanResult 初始返回对象
+     * @param dtoInvokeResult 新版返回对象
+     * @param sealCarCode 封车编码
+     */
+    private void setUnloadScanDetailList(UnloadCarScanResult scanResult, InvokeResult<UnloadScanDetailDto> dtoInvokeResult,
+                                         String sealCarCode) {
+        UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
+        BeanUtils.copyProperties(scanResult, unloadScanDetailDto);
+        setUnloadScanDetail(unloadScanDetailDto, sealCarCode);
+        dtoInvokeResult.setData(unloadScanDetailDto);
     }
 
     private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, String sendCode, UnloadCar unloadCar) {
@@ -1031,6 +1046,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 验货校验--发验货消息及全流程跟踪
             inspectionIntercept(request);
+
+
+
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
