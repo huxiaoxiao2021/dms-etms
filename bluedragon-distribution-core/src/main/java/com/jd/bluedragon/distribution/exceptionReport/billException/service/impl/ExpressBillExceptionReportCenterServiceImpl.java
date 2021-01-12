@@ -113,7 +113,10 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         Response<Map<Integer,String>> response = new Response<>();
         JdCResponse<Map<Integer,String>>  jdCResponse = expressBillExceptionReportService.getAllExceptionReportType();
         if(jdCResponse.getData()!=null&&jdCResponse!=null){
+            response.toSucceed();
             response.setData(jdCResponse.getData());
+        }else {
+            response.toError();
         }
         return response;
     }
