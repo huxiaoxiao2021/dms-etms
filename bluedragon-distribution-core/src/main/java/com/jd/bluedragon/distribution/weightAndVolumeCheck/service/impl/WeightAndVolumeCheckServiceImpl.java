@@ -1039,6 +1039,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         Double moreBigValue = reviewWeight >= reviewVolumeWeight ? reviewWeight : reviewVolumeWeight;
         Double differenceValue = Math.abs(keeTwoDecimals(moreBigValue - billingCalcWeight));
 
+        weightVolumeCollectDto.setMoreBigWeight(moreBigValue);
+        weightVolumeCollectDto.setBillingWeightDifference(differenceValue);
+
         WeightAndVolumeCheckStandardHandler weightAndVolumeCheckStandardHandler = this.getCheckStandardHandler(reviewWeight,reviewVolumeWeight,sumLWH);
         CheckExcessParam checkExcessParam = new CheckExcessParam();
         checkExcessParam.setSumLWH(sumLWH);
