@@ -1,11 +1,10 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: liming522
@@ -31,7 +30,7 @@ public interface ExpressBillExceptionReportService {
      * 获取所有面单举报类型
      * @return
      */
-    JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType();
+    JdCResponse<Map<Integer,String>> getAllExceptionReportType();
 
     /**
      * 查询包裹是否举报过
