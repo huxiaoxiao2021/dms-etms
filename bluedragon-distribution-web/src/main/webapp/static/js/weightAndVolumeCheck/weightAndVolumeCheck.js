@@ -213,12 +213,12 @@ $(function () {
             formatter: function (value, row, index) {
                 // 为了兼容之前定义的枚举。。。。
                 if(value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" || value == "SPOT_CHECK_CLIENT_PLATE"){
-                    return "<span class='fromSource' origin='"+value+"'>平台打印抽检</span>>";
+                    return "<span class='fromSource' origin='"+value+"'>平台打印抽检</span>";
                 }
                 if(value == "DMS_AUTOMATIC_MEASURE" || value == "SPOT_CHECK_DWS"){
-                    return "<span class='fromSource' origin='"+value+"'>DWS抽检</span>>";
+                    return "<span class='fromSource' origin='"+value+"'>DWS抽检</span>";
                 }
-                return value == "SPOT_CHECK_DMS_WEB" ? "<span class='fromSource' origin='"+value+"'>B网网页抽检</span>>" : value == "SPOT_CHECK_ANDROID" ? "<span class='fromSource' origin='"+value+"'>B网安卓抽检</span>>" : "<span class='fromSource' origin='"+value+"'>其它</span>>";
+                return value == "SPOT_CHECK_DMS_WEB" ? "<span class='fromSource' origin='"+value+"'>B网网页抽检</span>" : value == "SPOT_CHECK_ANDROID" ? "<span class='fromSource' origin='"+value+"'>B网安卓抽检</span>" : "<span class='fromSource' origin='"+value+"'>其它</span>";
             }
         },{
             field: 'isHasPicture',
