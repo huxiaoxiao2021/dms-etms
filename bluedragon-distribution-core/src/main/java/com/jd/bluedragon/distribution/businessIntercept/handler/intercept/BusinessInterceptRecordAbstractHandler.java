@@ -137,7 +137,7 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
                 return result;
             }
             CancelWaybill cancelWaybill = waybillCancelList.get(0);
-            msgDto.setInterceptEffectTime(DateUtil.parse(cancelWaybill.getCreateTime(), DateUtil.FORMAT_DATE_TIME).getTime());
+            msgDto.setInterceptEffectTime(DateUtil.parse(cancelWaybill.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime());
         } catch (Exception e) {
             log.error("getWaybillCancelTime exception");
             result.toError("获取运单取消时间失败");

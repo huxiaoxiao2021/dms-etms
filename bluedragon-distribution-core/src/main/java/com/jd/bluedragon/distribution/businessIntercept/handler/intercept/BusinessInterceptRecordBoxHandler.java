@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.businessIntercept.handler.intercept;
 
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,12 +42,12 @@ public class BusinessInterceptRecordBoxHandler extends BusinessInterceptRecordAb
                     BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
                     saveInterceptMsgDto.setPackageCode(sorting.getPackageCode());
                     saveInterceptMsgDto.setWaybillCode(sorting.getWaybillCode());
-                    log.info("BusinessInterceptRecordBoxHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(saveInterceptMsgDto));
-                    businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(saveInterceptMsgDto));
+                    log.info("BusinessInterceptRecordBoxHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JsonHelper.toJson(saveInterceptMsgDto));
+                    businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JsonHelper.toJson(saveInterceptMsgDto));
                 }
             }
         } catch (JMQException e) {
-            log.error("BusinessInterceptRecordBoxHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
+            log.error("BusinessInterceptRecordBoxHandler doHandle businessOperateInterceptSendProducer send exception: {}", JsonHelper.toJson(msgDto), e);
             result.toError("处理箱号纬度拦截信息提交异常");
         }
         return result;

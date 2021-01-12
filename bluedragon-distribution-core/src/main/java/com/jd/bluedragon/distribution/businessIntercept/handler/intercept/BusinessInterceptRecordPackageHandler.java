@@ -3,9 +3,8 @@ package com.jd.bluedragon.distribution.businessIntercept.handler.intercept;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.fastjson.JSON;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.exception.JMQException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,10 +26,10 @@ public class BusinessInterceptRecordPackageHandler extends BusinessInterceptReco
             msgDto.setPackageCode(msgDto.getBarCode());
             msgDto.setWaybillCode(WaybillUtil.getWaybillCode(msgDto.getBarCode()));
             this.getAndSetWaybillInterceptEffectTime(msgDto);
-            log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JSON.toJSONString(msgDto));
-            businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JSON.toJSONString(msgDto));
+            log.info("BusinessInterceptRecordPackageHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JsonHelper.toJson(msgDto));
+            businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JsonHelper.toJson(msgDto));
         } catch (JMQException e) {
-            log.error("BusinessInterceptRecordPackageHandler doHandle businessOperateInterceptSendProducer send exception: {}", JSON.toJSONString(msgDto), e);
+            log.error("BusinessInterceptRecordPackageHandler doHandle businessOperateInterceptSendProducer send exception: {}", JsonHelper.toJson(msgDto), e);
             result.toError("包裹维度处理拦截消息提交异常");
         }
         return result;
