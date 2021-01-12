@@ -982,14 +982,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
             }
-            // 查询封车任务下指定运单下的所有包裹
-            List<String> taskPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
+
             // 筛选出多货包裹
             List<String> surplusPackages;
             if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
                 surplusPackages = packageList;
             } else {
-                surplusPackages = getSurplusPackageCodes(packageList, taskPackages, sealCarCode);
+                surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
             // 查询运单所在批次号
             String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
@@ -1088,14 +1087,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return invokeResult;
                 }
             }
-            // 查询封车任务下指定运单下的所有包裹
-            List<String> taskPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
+
             // 筛选出多货包裹
             List<String> surplusPackages;
             if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
                 surplusPackages = packageList;
             } else {
-                surplusPackages = getSurplusPackageCodes(packageList, taskPackages, sealCarCode);
+                surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
 
             // 查询运单所在批次号
@@ -1882,9 +1880,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * 检查运单下属于多货的包裹集合
      * @param totalPackages 运单总包裹号集合
      * @param sealCarCode 封车编码
+     * @param waybillCode 运单号
      * @return 多货的包裹集合
      */
-    private List<String> getSurplusPackageCodes(List<String> totalPackages, List<String> taskPackages, String sealCarCode) {
+    private List<String> getSurplusPackageCodes(List<String> totalPackages, String sealCarCode, String waybillCode) {
+        // 查询封车任务下指定运单下的所有包裹
+        List<String> taskPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
         if (CollectionUtils.isEmpty(taskPackages)) {
             if (!sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
                 throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
