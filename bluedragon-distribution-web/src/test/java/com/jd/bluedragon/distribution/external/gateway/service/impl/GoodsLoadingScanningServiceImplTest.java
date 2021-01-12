@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
@@ -56,6 +57,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private SpotCheckGateWayService spotCheckGateWayService;
+
+    @Resource
+    private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
 
     @Test //不齐异常数据查询测试
@@ -309,5 +313,11 @@ public class GoodsLoadingScanningServiceImplTest {
         list.add("http://test.storage.jd.com/dms-feedback/31babd13-ebea-478b-824e-b93a28af3bae.png?Expires=1925111176&AccessKey=a7ogJNbj3Ee9YM1O&Signature=g77Mk2WV0R%2BOqVXcB%2BPoSXhAA58%3D");
         list.add("http://test.storage.jd.com/dms-feedback/31babd13-ebea-478b-824e-b93a28af3bae.png?Expires=1925111176&AccessKey=a7ogJNbj3Ee9YM1O&Signature=g77Mk2WV0R%2BOqVXcB%2BPoSXhAA58%3D");
         spotCheckGateWayService.spotCheckSubmit(req);
+    }
+
+    @Test
+    public void testSpotCheckPictures(){
+
+        weightAndVolumeCheckService.searchPicture("JDK000000055832",364605,1,"SPOT_CHECK_ANDROID");
     }
 }

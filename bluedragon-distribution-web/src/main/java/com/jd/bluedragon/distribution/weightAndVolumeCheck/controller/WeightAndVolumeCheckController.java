@@ -242,7 +242,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public InvokeResult<String> searchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
                                                        @QueryParam("siteCode")Integer siteCode,
-                                                       @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck){
-        return weightAndVolumeCheckService.searchPicture(waybillCode,siteCode,isWaybillSpotCheck);
+                                                       @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,
+                                                       @RequestParam("fromSource")String fromSource){
+        return weightAndVolumeCheckService.searchPicture(waybillCode,siteCode,isWaybillSpotCheck,fromSource);
     }
 }
