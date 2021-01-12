@@ -218,7 +218,15 @@
         select
         <include refid="Base_Column_List"/>
         from unload_scan_record where yn = 1
-        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and package_code = #{packageCode,jdbcType=VARCHAR}
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and package_code = #{packageCode,jdbcType=VARCHAR} limit 1
+    </select>
+
+    <select id="selectRecordsBySealAndWaybillCode" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" resultMap="unloadScanRecord">
+        select
+        <include refid="Base_Column_List"/>
+        from unload_scan_record where yn = 1
+        and seal_car_code =  #{sealCarCode,jdbcType=VARCHAR}
+        and waybill_code = #{waybillCode,jdbcType=VARCHAR}
     </select>
 
 </mapper>

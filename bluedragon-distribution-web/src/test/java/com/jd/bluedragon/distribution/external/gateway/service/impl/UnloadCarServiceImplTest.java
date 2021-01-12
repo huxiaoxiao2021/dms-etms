@@ -10,12 +10,15 @@ import com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -108,6 +111,26 @@ public class UnloadCarServiceImplTest {
         System.out.println(unloadScanRecord);
     }
 
+    @Test
+    public void testFindRecordsBySealAndWaybillCode() {
+        List<String> packageList = new ArrayList<>();
+        packageList.add("JDV000503638245-1-5-");
+        packageList.add("JDV000503638245-2-5-");
+        packageList.add("JDV000503638245-3-5-");
+        packageList.add("JDV000503638245-4-5-");
+        packageList.add("JDV000503638245-5-5-");
 
+        List<UnloadScanRecord> unloadRecordList = unloadScanRecordDao.findRecordsBySealAndWaybillCode("PDA1609338538034",
+                "JDV000503638245");
+        List<String> loadPackages;
+        if (CollectionUtils.isNotEmpty(unloadRecordList)) {
+            loadPackages = new ArrayList<>();
+            for (UnloadScanRecord scanRecord : unloadRecordList) {
+                loadPackages.add(scanRecord.getPackageCode());
+            }
+            packageList = ListUtils.subtract(packageList, loadPackages);
+        }
+        System.out.println(packageList);
+    }
 
 }
