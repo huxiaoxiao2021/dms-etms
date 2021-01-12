@@ -966,6 +966,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 result.setMessage("根据运单号查询包裹集合返回空");
                 return result;
             }
+            // 过滤运单上的重复数据，筛选出有效的包裹
+            List<UnloadScanRecord> recordList =unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            List<String> loadPackages;
+            if (CollectionUtils.isNotEmpty(recordList)) {
+                loadPackages = new ArrayList<>();
+                for (UnloadScanRecord scanRecord : recordList) {
+                    loadPackages.add(scanRecord.getPackageCode());
+                }
+                packageList = ListUtils.subtract(packageList, loadPackages);
+                if (CollectionUtils.isEmpty(packageList)) {
+                    logger.error("运单卸车扫描--该运单属于重复扫:sealCarCode={},packageCode={}", sealCarCode, packageCode);
+                    result.setCode(JdCResponse.CODE_FAIL);
+                    result.setMessage("该运单属于重复扫");
+                    return result;
+                }
+            }
             // 筛选出多货包裹
             List<String> surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             // 查询运单所在批次号
@@ -1048,11 +1064,29 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 invokeResult.setMessage("根据运单号查询包裹集合返回空");
                 return invokeResult;
             }
+
+            // 过滤运单上的重复数据，筛选出有效的包裹
+            List<UnloadScanRecord> recordList =unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            List<String> loadPackages;
+            if (CollectionUtils.isNotEmpty(recordList)) {
+                loadPackages = new ArrayList<>();
+                for (UnloadScanRecord scanRecord : recordList) {
+                    loadPackages.add(scanRecord.getPackageCode());
+                }
+                packageList = ListUtils.subtract(packageList, loadPackages);
+                if (CollectionUtils.isEmpty(packageList)) {
+                    logger.error("运单卸车扫描--该运单属于重复扫:sealCarCode={},packageCode={}", sealCarCode, packageCode);
+                    invokeResult.setCode(JdCResponse.CODE_FAIL);
+                    invokeResult.setMessage("该运单属于重复扫");
+                    return invokeResult;
+                }
+            }
             // 筛选出多货包裹
             List<String> surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
 
             // 查询运单所在批次号
             String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
 

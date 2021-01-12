@@ -36,4 +36,11 @@ public class UnloadScanRecordDao extends BaseDao<UnloadScanRecord> {
         return this.getSqlSession().selectOne(NAMESPACE + ".selectRecordBySealAndPackCode", unloadScanRecord);
     }
 
+    public List<UnloadScanRecord> findRecordsBySealAndWaybillCode(String sealCarCode, String waybillCode) {
+        UnloadScanRecord unloadScanRecord = new UnloadScanRecord();
+        unloadScanRecord.setSealCarCode(sealCarCode);
+        unloadScanRecord.setWaybillCode(waybillCode);
+        return this.getSqlSession().selectList(NAMESPACE + ".selectRecordsBySealAndWaybillCode", unloadScanRecord);
+    }
+
 }
