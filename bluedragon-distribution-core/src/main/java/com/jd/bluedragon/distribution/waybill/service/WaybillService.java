@@ -143,9 +143,10 @@ public interface WaybillService {
     InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest);
 
     /**
-     * 判断包裹是文件类型
+     * 判断满足文件类型的拦截条件
+     * @param subType
      * @param waybillSign
      * @return
      */
-    boolean checkIsFilePack(String waybillSign);
+    boolean allowFilePackFilter(Integer subType, String waybillSign);
 }

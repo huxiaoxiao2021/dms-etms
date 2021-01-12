@@ -89,7 +89,6 @@
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
-        <property name="siteEnableFilePackageCheck" value="${siteEnableFilePackageCheck:false}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -149,7 +148,6 @@
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
-                <value>uccPropertyConfiguration.siteEnableFilePackageCheck</value>
 			</list>
 		</property>
 	</bean>
