@@ -360,6 +360,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
+
+                // 查询包裹所在批次号
+                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                // 获取锁
+                if (!lock(request.getSealCarCode(), waybillCode)) {
+                    logger.warn("原始包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
+                    return result;
+                }
+                // 是否多货包裹校验
+                isSurplusPackage = surfacePackageCheck(request,result);
+                // 保存包裹卸车记录和运单暂存
+                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -368,8 +382,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boardCommonManager.isSendCheck(boardCommonRequest);
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
-                // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
@@ -396,16 +409,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 卸车处理并回传TC组板关系
             dealUnloadAndBoxToBoard(request, isSurplusPackage);
 
-            // 查询包裹所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
-            // 获取锁
-            if (!lock(request.getSealCarCode(), waybillCode)) {
-                logger.warn("原始包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
-                result.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
-                return result;
-            }
-            // 保存包裹卸车记录和运单暂存
-            saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
             //设置包裹数
             setPackageCount(result.getData());
         }catch (LoadIllegalException e){
@@ -462,6 +465,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
+
+                // 查询包裹所在批次号
+                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                // 获取锁
+                if (!lock(request.getSealCarCode(), waybillCode)) {
+                    logger.warn("包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
+                    result.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
+                    return result;
+                }
+                // 是否多货包裹校验
+                isSurplusPackage = surfacePackageCheck(request,result);
+                // 保存包裹卸车记录和运单暂存
+                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+                // 释放锁
+                unLock(request.getSealCarCode(), waybillCode);
+
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -470,8 +489,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boardCommonManager.isSendCheck(boardCommonRequest);
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
-                // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
@@ -498,16 +516,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 卸车处理并回传TC组板关系
             dealUnloadAndBoxToBoard(request,isSurplusPackage);
 
-            // 查询包裹所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
-            // 获取锁
-            if (!lock(request.getSealCarCode(), waybillCode)) {
-                logger.warn("包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
-                result.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
-                return result;
-            }
-            // 保存包裹卸车记录和运单暂存
-            saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
             //设置包裹数
             setPackageCount(result.getData());
         }catch (LoadIllegalException e){
@@ -556,6 +564,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if(!request.getIsForceCombination()){
                 // 验货校验
                 inspectionIntercept(request);
+
+                // 查询包裹所在批次号
+                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                // 获取锁
+                if (!lock(request.getSealCarCode(), waybillCode)) {
+                    logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
+                    dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
+                    return dtoInvokeResult;
+                }
+                // 是否多货包裹校验
+                isSurplusPackage = surfacePackageCheck(request,result);
+                // 保存包裹卸车记录和运单暂存
+                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+                // 释放锁
+                unLock(request.getSealCarCode(), waybillCode);
+
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -564,8 +588,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boardCommonManager.isSendCheck(boardCommonRequest);
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
-                // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
@@ -593,16 +616,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 卸车处理并回传TC组板关系
             dealUnloadAndBoxToBoard(request,isSurplusPackage);
 
-            // 查询包裹所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
-            // 获取锁
-            if (!lock(request.getSealCarCode(), waybillCode)) {
-                logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
-                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
-                return dtoInvokeResult;
-            }
-            // 保存包裹卸车记录和运单暂存
-            saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
             // 获取卸车运单扫描信息
             UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
             BeanUtils.copyProperties(result.getData(), unloadScanDetailDto);
@@ -630,6 +643,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             // 转板时不再重复暂存
             if (Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
+                return;
+            }
+            // 卸车扫描包裹重复性校验
+            UnloadScanRecord unloadScanRecord = unloadScanRecordDao.findRecordBySealAndPackCode(request.getSealCarCode(),
+                    request.getBarCode());
+            if (unloadScanRecord != null) {
                 return;
             }
             // 包裹暂存

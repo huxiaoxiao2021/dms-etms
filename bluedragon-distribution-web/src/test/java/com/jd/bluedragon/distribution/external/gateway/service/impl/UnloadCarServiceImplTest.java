@@ -101,6 +101,13 @@ public class UnloadCarServiceImplTest {
         System.out.println(result);
     }
 
+    @Test
+    public void testFindRecordBySealAndPackCode() {
+        UnloadScanRecord unloadScanRecord = unloadScanRecordDao.findRecordBySealAndPackCode("PDA1609827639109",
+                "JDV000503743644-3-5-");
+        System.out.println(unloadScanRecord);
+    }
+
 
 
 }
