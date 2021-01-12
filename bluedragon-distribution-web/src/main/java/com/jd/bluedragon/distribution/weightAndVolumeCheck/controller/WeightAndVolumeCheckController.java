@@ -223,10 +223,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toSearchB2bExcessPicture")
     public String toSearchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
                                            @QueryParam("siteCode")Integer siteCode,
-                                           @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,Model model){
+                                           @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,
+                                           @QueryParam("fromSource")String fromSource,Model model){
         model.addAttribute("siteCode",siteCode);
         model.addAttribute("waybillCode",waybillCode);
         model.addAttribute("isWaybillSpotCheck",isWaybillSpotCheck);
+        model.addAttribute("fromSource",fromSource);
         return "/weightAndVolumeCheck/b2bExcessPicture";
     }
 

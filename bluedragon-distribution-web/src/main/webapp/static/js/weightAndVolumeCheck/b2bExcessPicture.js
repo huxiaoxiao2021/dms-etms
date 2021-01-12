@@ -1,9 +1,7 @@
 $(function() {
 
-    var fromSource = $(this).parent().parent().find("td:eq(32)").find(".fromSource").attr("origin");
-    console.log("origin"+fromSource);
     var url = '/weightAndVolumeCheck/searchB2bExcessPicture?waybillCode='+$('#waybillCode').val()
-        +'&siteCode='+$('#siteCode').val() +'&isWaybillSpotCheck='+$('#isWaybillSpotCheck').val()+'&fromSource='+fromSource;
+        +'&siteCode='+$('#siteCode').val() +'&isWaybillSpotCheck='+$('#isWaybillSpotCheck').val()+'&fromSource='+$('#fromSource').val();
     var tableInit = function() {
 
         /*获得B网抽检图片链接，并循环添加到table中*/
