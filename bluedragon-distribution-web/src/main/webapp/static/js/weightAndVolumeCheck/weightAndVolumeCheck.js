@@ -267,7 +267,7 @@ $(function () {
                     if(spotCheckType == 1){
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
-                            +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+fromSource);
+                            +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
                     }else {
                         //C网
                         $.ajax({
