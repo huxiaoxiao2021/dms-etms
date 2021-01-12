@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
-import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.DateHelper;
@@ -100,13 +99,6 @@ public class BaseResource {
 	@Autowired
 	private UserService userService;
 
-
-	@Autowired
-	@Qualifier("baseUserService")
-	protected LoginService baseUserService;
-
-	@Autowired
-	private ClientConfigService clientConfigService;
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
 

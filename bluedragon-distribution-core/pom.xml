@@ -1477,6 +1477,7 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
 		</dependency>
+
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>

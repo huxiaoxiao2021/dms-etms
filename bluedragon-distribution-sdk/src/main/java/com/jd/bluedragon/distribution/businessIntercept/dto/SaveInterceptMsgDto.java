@@ -48,6 +48,11 @@ public class SaveInterceptMsgDto implements Serializable {
     private Integer deviceType;
 
     /**
+     * 设备子类型
+     */
+    private Integer deviceSubType;
+
+    /**
      * 设备编码
      */
     private String deviceCode;
@@ -81,6 +86,11 @@ public class SaveInterceptMsgDto implements Serializable {
      * 拦截提示语
      */
     private String interceptMessage;
+
+    /**
+     * 拦截生效时间
+     */
+    private Long interceptEffectTime;
 
     public String getBarCode() {
         return barCode;
@@ -194,14 +204,33 @@ public class SaveInterceptMsgDto implements Serializable {
         this.interceptMessage = interceptMessage;
     }
 
+    public Integer getDeviceSubType() {
+        return deviceSubType;
+    }
+
+    public void setDeviceSubType(Integer deviceSubType) {
+        this.deviceSubType = deviceSubType;
+    }
+
+    public Long getInterceptEffectTime() {
+        return interceptEffectTime;
+    }
+
+    public void setInterceptEffectTime(Long interceptEffectTime) {
+        this.interceptEffectTime = interceptEffectTime;
+    }
+
     @Override
     public String toString() {
         return "SaveInterceptMsgDto{" +
                 "barCode='" + barCode + '\'' +
+                ", packageCode='" + packageCode + '\'' +
+                ", waybillCode='" + waybillCode + '\'' +
                 ", operateNode=" + operateNode +
                 ", siteCode=" + siteCode +
                 ", siteName='" + siteName + '\'' +
                 ", deviceType=" + deviceType +
+                ", deviceSubType=" + deviceSubType +
                 ", deviceCode='" + deviceCode + '\'' +
                 ", operateUserCode=" + operateUserCode +
                 ", operateUserErp='" + operateUserErp + '\'' +
@@ -209,6 +238,7 @@ public class SaveInterceptMsgDto implements Serializable {
                 ", operateTime=" + operateTime +
                 ", interceptCode=" + interceptCode +
                 ", interceptMessage='" + interceptMessage + '\'' +
+                ", interceptEffectTime=" + interceptEffectTime +
                 '}';
     }
 }
