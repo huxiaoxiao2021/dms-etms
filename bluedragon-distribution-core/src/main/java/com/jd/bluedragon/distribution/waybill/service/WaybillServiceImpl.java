@@ -740,7 +740,12 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
-    public boolean checkIsFilePack(String waybillSign) {
+    public boolean allowFilePackFilter(Integer subType, String waybillSign) {
+        if (!(Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(subType)
+                || Constants.SITE_SUBTYPE_SECOND.equals(subType)
+                || Constants.SITE_SUBTYPE_THIRD.equals(subType))) {
+            return false;
+        }
 
         return BusinessHelper.fileTypePackage(waybillSign);
     }

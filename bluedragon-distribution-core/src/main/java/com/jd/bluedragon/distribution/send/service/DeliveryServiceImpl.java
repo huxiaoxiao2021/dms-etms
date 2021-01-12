@@ -47,6 +47,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -87,8 +89,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
-import com.jd.bluedragon.distribution.ucc.UccConfigService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -359,10 +361,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BoxRelationService boxRelationService;
 
     @Autowired
-    private UccConfigService uccConfigService;
+    private PackageWeightingDao packageWeightingDao;
 
     @Autowired
-    private PackageWeightingDao packageWeightingDao;
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     /**
      * 自动过期时间 15分钟
@@ -1953,7 +1955,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DeliveryResponse filePackSendByBox(SendM tSendM) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
-        if (!uccConfigService.siteEnableFilePackageCheck(tSendM.getCreateSiteCode())) {
+        // 配置白名单不拦截
+        if (funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION_WHITELIST.getCode(),
+                tSendM.getCreateSiteCode(), null)) {
             return response;
         }
 
@@ -1972,11 +1976,13 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             if (null != waybillCache) {
 
+                Site site = siteService.get(tSendM.getCreateSiteCode());
+
                 // 判断运单是否是文件
-                if (waybillService.checkIsFilePack(waybillCache.getWaybillSign())) {
+                if (waybillService.allowFilePackFilter(site.getSubType(), waybillCache.getWaybillSign())) {
 
                     if (log.isWarnEnabled()) {
-                        log.warn("文件包裹禁止按包裹发货. packageCode:{}", tSendM.getBoxCode());
+                        log.warn("文件包裹禁止按包裹发货. packageBarCode:{}", tSendM.getBoxCode());
                     }
 
                     response.setCode(DeliveryResponse.CODE_40100);

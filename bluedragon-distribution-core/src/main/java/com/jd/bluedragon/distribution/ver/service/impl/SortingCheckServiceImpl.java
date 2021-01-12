@@ -420,6 +420,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext.setReceiveSite(receiveSite);
         }
 
+        // 操作站点
+        Site createSite = this.siteService.get(filterContext.getCreateSiteCode());
+        filterContext.setCreateSite(createSite);
+
         String sReceiveSiteSubType = String.valueOf(receiveSite.getSubType());
         filterContext.setsReceiveSiteSubType(sReceiveSiteSubType);
 

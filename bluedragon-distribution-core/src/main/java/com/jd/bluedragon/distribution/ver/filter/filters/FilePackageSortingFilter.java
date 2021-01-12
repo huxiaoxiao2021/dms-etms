@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.ucc.UccConfigService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
@@ -31,15 +32,17 @@ public class FilePackageSortingFilter implements Filter {
     private WaybillService waybillService;
 
     @Autowired
-    private UccConfigService uccConfigService;
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        if (uccConfigService.siteEnableFilePackageCheck(request.getCreateSiteCode())) {
+        // 文件包裹默认全国拦截，未配置白名单，执行拦截逻辑
+        if (!funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION_WHITELIST.getCode(), request.getCreateSiteCode(), null)) {
 
-            if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
+            if (waybillService.allowFilePackFilter(request.getCreateSite().getSubType(), request.getWaybillCache().getWaybillSign())) {
 
+                // 文件标识包裹必须集包
                 if (BusinessHelper.isBoxcode(request.getBoxCode())
                         && !(request.getBoxCode().startsWith(Box.TYPE_WJ) || request.getBoxCode().startsWith(Box.TYPE_TC))) {
 
