@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class FilePackageSendingFilter implements Filter {
             if (waybillService.checkIsFilePack(request.getWaybillCache().getWaybillSign())) {
 
                 // 文件标识的不能按运单或者包裹发货
-                if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
+                if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
 
                     throw new SortingCheckException(DeliveryResponse.CODE_40100, DeliveryResponse.MESSAGE_40100);
                 }

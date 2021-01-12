@@ -1672,18 +1672,24 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList) {
+    public DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList) {
 
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
 
-        List<SendM> needSendBox = this.findCouldSendingFileBox(sendMList);
+        // 获得可以发货的文件箱号
+        List<SendM> needSendBox = this.findCouldSendingFileBox(fileSendMList);
 
         if (CollectionUtils.isEmpty(needSendBox)) {
             return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         }
 
+        long startTime = System.currentTimeMillis();
         // 老发货逻辑
-        this.dellCreateSendM(source, needSendBox);
+        DeliveryResponse result = this.dellCreateSendM(source, needSendBox);
+        long endTime = System.currentTimeMillis();
+
+        // 添加Log
+        this.addFileSendingBizLog(sendMList, needSendBox, JsonHelper.toJson(result), startTime, endTime);
 
         Profiler.registerInfoEnd(callerInfo);
 
@@ -1694,11 +1700,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 批量处理BC箱号绑定的WJ箱号的发货逻辑
      *
      * <h3>WJ箱号发货逻辑</h3>
-     * <ul>
-     *     <li>本次发货时间距离上次封车时间不超过1小时，目的地不同时自动取消上次发货</li>
-     *     <li>本次发货时间距离上次封车时间不超过1小时，批次目的地相同则忽略本次发货</li>
-     *     <li>本次发货时间距离上次封车时间超过1小时，按新批次再次发货</li>
-     * </ul>
      * @param bizSource
      * @param BCSendM
      * @return
@@ -1714,19 +1715,54 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
 
+        // 获得能够发货的WJ箱号
         List<SendM> needSendBox = this.findCouldSendingFileBox(WJSendMList);
 
         if (CollectionUtils.isEmpty(needSendBox)) {
             return result;
         }
 
+        // 批量处理新发货逻辑
+        long startTime = System.currentTimeMillis();
         for (SendM domain : needSendBox) {
-            this.doPackageSend(bizSource, domain);
+            result = this.doPackageSend(bizSource, domain);
         }
+        long endTime = System.currentTimeMillis();
+
+        // 添加Business Log
+        this.addFileSendingBizLog(Collections.singletonList(BCSendM), needSendBox, JsonHelper.toJson(result), startTime, endTime);
 
         Profiler.registerInfoEnd(callerInfo);
 
         return result;
+    }
+
+    /**
+     * 文件发货添加Business Log
+     * @param BCSendMList
+     * @param fileSendMList
+     * @param result
+     * @param startTime
+     * @param endTime
+     */
+    private void addFileSendingBizLog(List<SendM> BCSendMList, List<SendM> fileSendMList, String result, Long startTime, Long endTime) {
+        JSONObject operateRequest = new JSONObject();
+        operateRequest.put("bcSendM", JsonHelper.toJson(BCSendMList));
+        List<String> fileBoxCodes = Lists.newArrayListWithExpectedSize(fileSendMList.size());
+        for (SendM sendBox : fileSendMList) {
+            fileBoxCodes.add(sendBox.getBoxCode());
+        }
+        operateRequest.put("wjBoxCodes", fileBoxCodes);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_SEAL)
+                .operateRequest(operateRequest)
+                .operateResponse(result)
+                .processTime(endTime, startTime)
+                .methodName("DeliveryServiceImpl#dealFileBoxSending")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
     }
 
     /**

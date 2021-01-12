@@ -454,7 +454,8 @@ public interface DeliveryService {
      * 老发货处理WJ发货逻辑
      * @param source
      * @param sendMList
+     * @param fileSendMList
      * @return
      */
-    DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList);
+    DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList);
 }
