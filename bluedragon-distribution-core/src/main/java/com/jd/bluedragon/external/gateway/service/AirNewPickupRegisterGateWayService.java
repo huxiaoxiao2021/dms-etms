@@ -61,4 +61,11 @@ public interface AirNewPickupRegisterGateWayService {
      * @return
      */
     JdCResponse<List<AirContrabandReason>> getArContrabandReasonList(String request);
+
+    /**
+     * 查询运输方式变更的原因-根据不同的运输方式变更类型获取不同的原因
+     * @param transpondType
+     * @return
+     */
+    JdCResponse<List<AirContrabandReason>> getArContrabandReasonListNew(Integer transpondType);
 }
