@@ -1750,7 +1750,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         log.info("handleAfterUploadImgMessage param: {}", JSON.toJSONString(weightAndVolumeCheckHandleMessage));
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
-        
+
         // 根据节点操作类型，分别做不同处理逻辑
         // 上传图片环节
         if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG){
@@ -1913,6 +1913,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             log.warn("通过运单【{}】站点【{}】查询超标数据为空", waybillCode, siteCode);
             return list;
         }
-        return Arrays.asList(baseEntity.getData().get(0).getPictureAddress().split(";"));
+        return StringUtils.isBlank(baseEntity.getData().get(0).getPictureAddress()) ? list : Arrays.asList(baseEntity.getData().get(0).getPictureAddress().split(";"));
     }
 }
