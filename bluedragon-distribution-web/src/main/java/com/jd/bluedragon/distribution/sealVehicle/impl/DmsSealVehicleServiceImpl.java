@@ -118,6 +118,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transportCode);
                         //存在多条运力编码信息，说明该运力下有多个车牌，存在多个车牌时设置未就绪
                         unSealVehicleInfo.setReady(false);
+                        unSealVehicleInfo.setVehicleNumber(null);
                         unSealVehicleUuidMap.get(transportCode).add(preSealVehicle.getPreSealUuid());
                     } else {
                         //不存在运力编码，进行信息初始化
@@ -418,6 +419,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
         unSealVehicleInfo.setPreSealSource(preSealVehicle.getPreSealSource());
         unSealVehicleInfo.setSource(preSealVehicle.getSource());
         unSealVehicleInfo.setCreateUserErp(preSealVehicle.getCreateUserErp());
+        unSealVehicleInfo.setVehicleNumber(preSealVehicle.getVehicleNumber());
         return unSealVehicleInfo;
     }
 
