@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -267,12 +268,12 @@ public class PreSealVehicleController extends DmsBaseController{
         if(sealedSendCodes == null || sealedSendCodes.isEmpty()){
             return allSendCodes;
         }
-        List<String> selectedSendCodes = preSealVehicle.getSelectedSendCodes();
+        List<String> selectedSendCodes = CollectionHelper.retainAll(sealedSendCodes, preSealVehicle.getSelectedSendCodes());
         List<SealVehicles> result = new ArrayList<>();
         for(SealVehicles vo : allSendCodes){
             if(!sealedSendCodes.contains(vo.getSealDataCode())){
             	//设置页面选中状态
-                if(selectedSendCodes != null && !selectedSendCodes.contains(vo.getSealDataCode())) {
+                if(CollectionUtils.isNotEmpty(selectedSendCodes) && !selectedSendCodes.contains(vo.getSealDataCode())) {
                 	vo.setSelectedFalg(Boolean.FALSE);
                 }else {
                 	vo.setSelectedFalg(Boolean.TRUE);

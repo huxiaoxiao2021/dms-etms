@@ -432,7 +432,20 @@ $(function() {
                     Jd.alert('请选择要需要封车的目的地批次数据！');
                     return;
                 }
-                !$.msg.confirm("确认执行一键封车？",function () {
+                var hasNoSelected = false;
+                for ( var i = 0; i <params.length && !hasNoSelected; i++){
+                	var id  = params[i].receiveSiteCode;
+                	var subAllData = $("#" + id).bootstrapTable('getData');
+                	var subSelected = $("#" + id).bootstrapTable('getAllSelections');
+                	if(subAllData.length > subSelected.length){
+                		hasNoSelected = true;
+                	}
+                }
+                var confirmMsg = "确认执行一键封车？";
+                if(hasNoSelected){
+                	confirmMsg = "存在未选中的批次，确认执行一键封车？";
+                }
+                !$.msg.confirm(confirmMsg,function () {
                     // if(isDoing){
                     //     return;
                     // }

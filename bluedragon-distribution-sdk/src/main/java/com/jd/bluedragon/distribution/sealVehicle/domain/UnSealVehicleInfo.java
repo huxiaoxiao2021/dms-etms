@@ -78,6 +78,11 @@ public class UnSealVehicleInfo implements Serializable {
      */
 	private String vehicleNumber;
 	
+	/**
+	 * 车牌号列表
+	 */
+	private List<String> vehicleNumbers;
+	
 	private List<String> selectedSendCodes;
 	/*
 	* 批次数量
@@ -194,6 +199,14 @@ public class UnSealVehicleInfo implements Serializable {
 
 	public void setVehicleNumber(String vehicleNumber) {
 		this.vehicleNumber = vehicleNumber;
+	}
+
+	public List<String> getVehicleNumbers() {
+		return vehicleNumbers;
+	}
+
+	public void setVehicleNumbers(List<String> vehicleNumbers) {
+		this.vehicleNumbers = vehicleNumbers;
 	}
 
 	public List<String> getSelectedSendCodes() {

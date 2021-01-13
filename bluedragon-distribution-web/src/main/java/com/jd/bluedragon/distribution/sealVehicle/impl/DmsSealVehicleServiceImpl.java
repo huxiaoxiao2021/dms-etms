@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.*;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -89,7 +90,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      *
      * */
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfoNew", mState = JProEnum.TP)
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfos", mState = JProEnum.TP)
 	public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfos(QuickSealQueryRequest queryRequest) {
     	JdResponse<List<UnSealVehicleInfo>> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
     	Integer createSiteCode = queryRequest.getCreateSiteCode();
@@ -109,6 +110,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
              * 存放uuid
              */
             Map<String, List<String>> unSealVehicleUuidMap = new HashMap<>();
+            /**
+             * 存放待封车的批次号
+             */
+            Map<String, List<String>> unSealSendCodesMap = new HashMap<>();
             if (preSealVehicleList != null) {
                 //遍历所有预封车记录
                 for (PreSealVehicle preSealVehicle : preSealVehicleList) {
@@ -118,17 +123,22 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transportCode);
                         //存在多条运力编码信息，说明该运力下有多个车牌，存在多个车牌时设置未就绪
                         unSealVehicleInfo.setReady(false);
-                        unSealVehicleInfo.setVehicleNumber(null);
                         unSealVehicleUuidMap.get(transportCode).add(preSealVehicle.getPreSealUuid());
+                        if(!unSealVehicleInfo.getVehicleNumbers().contains(preSealVehicle.getVehicleNumber())) {
+                        	unSealVehicleInfo.getVehicleNumbers().add(preSealVehicle.getVehicleNumber());
+                        }
                     } else {
                         //不存在运力编码，进行信息初始化
                         UnSealVehicleInfo unSealVehicleInfo = this.convert2UnSealVehicleInfo(preSealVehicle);
                         List<String> uuids = new ArrayList<String>();
+                        List<String> vehicleNumbers = new ArrayList<String>(); 
                         uuids.add(preSealVehicle.getPreSealUuid());
+                        vehicleNumbers.add(preSealVehicle.getVehicleNumber());
                         //设置批次数量
-                        int sendCodeCount = this.getUnSealSendCodeCount(createSiteCode, preSealVehicle.getReceiveSiteCode(), queryRequest.getHourRange());
+                        List<String> sendCodeList = this.getUnSealSendCodeList(createSiteCode, preSealVehicle.getReceiveSiteCode(), queryRequest.getHourRange());
+                        int sendCodeCount = sendCodeList.size();
                         unSealVehicleInfo.setSendCodeCount(sendCodeCount);
-                        
+                        unSealVehicleInfo.setVehicleNumbers(vehicleNumbers);
                         if (sendCodeCount > 0) {
                             //判断是否需要进行体积判断
                             if (this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay())) {
@@ -141,6 +151,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         }
                         unSealVehicleUuidMap.put(transportCode, uuids);
                         unSealVehicleInfoMap.put(transportCode, unSealVehicleInfo);
+                        unSealSendCodesMap.put(transportCode, sendCodeList);
                     }
                 }
             }
@@ -148,9 +159,13 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
              * 设置选中的批次信息
              */
             for(String transCode : unSealVehicleInfoMap.keySet()) {
+            	UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transCode);
             	List<String> selectedSendCodes= this.preSealBatchService.querySendCodesByUuids(unSealVehicleUuidMap.get(transCode));
-            	unSealVehicleInfoMap.get(transCode).setSelectedSendCodes(selectedSendCodes);
-            	unSealVehicleInfoMap.get(transCode).setSelectedSendCodeCount(selectedSendCodes.size());
+            	//取交集
+            	List<String> realSelectedSendCodes = CollectionHelper.retainAll(unSealSendCodesMap.get(transCode), selectedSendCodes);
+            	unSealVehicleInfo.setSelectedSendCodes(realSelectedSendCodes);
+            	unSealVehicleInfo.setSelectedSendCodeCount(realSelectedSendCodes.size());
+            	unSealVehicleInfo.setVehicleNumber(StringHelper.join(unSealVehicleInfo.getVehicleNumbers()));
             }
             jdResponse.setData(new ArrayList<>(unSealVehicleInfoMap.values()));
         } catch (Exception e) {
@@ -219,7 +234,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 sealVehicleSendCodeInfo.setVehicleNumber(vehicleNumber);
                 sealVehicleSendCodeInfo.setSealCode(sealCode);
                 //设置选中状态
-                if(isAllReady && (selectAllSendCodes || selectedSendCodes.contains(unSealSendCode))) {
+                if(selectAllSendCodes || selectedSendCodes.contains(unSealSendCode)) {
                 	sealVehicleSendCodeInfo.setSelectedFlag(Boolean.TRUE);
                 }else {
                 	sealVehicleSendCodeInfo.setSelectedFlag(Boolean.FALSE);
@@ -391,9 +406,9 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     /**
      * 查询全部的未封车批次号数量
      */
-    private Integer getUnSealSendCodeCount(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
+    private List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
         List<String> result = newSealVehicleService.getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
-        return result == null ? 0 : result.size();
+        return result == null ? Collections.EMPTY_LIST : result;
     }
 
     /**
