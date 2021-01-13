@@ -377,6 +377,23 @@ public class GoodsLoadingScanningServiceImplTest {
         loadScanRecord.setEndSiteName("北京马驹桥分拣中心");
         loadScanRecord.setLicenseNumber("京A12345");
 
+        List<List<String>> subPackageCodes = ListUtils.partition(list, 2);
+        // 分批批量插入，每次1000个
+        for (List<String> packageCodes : subPackageCodes) {
+            loadScanRecord.setPackageCodeList(packageCodes);
+            goodsLoadScanRecordDao.batchInsertByWaybill(loadScanRecord);
+        }
+
+        List<Long> idList = new ArrayList<>();
+        idList.add(86170L);
+        idList.add(86171L);
+        idList.add(86172L);
+        loadScanRecord.setIdList(idList);
+        int a = goodsLoadScanRecordDao.batchUpdateGoodsScanRecordByIds(loadScanRecord);
+
+        System.out.println(JsonHelper.toJson(map));
+    }
+
     @Test
     public void testSpotCheckTest() {
         SpotCheckCheckReq req = new SpotCheckCheckReq();
@@ -405,22 +422,6 @@ public class GoodsLoadingScanningServiceImplTest {
     }
 
 
-        List<List<String>> subPackageCodes = ListUtils.partition(list, 2);
-        // 分批批量插入，每次1000个
-        for (List<String> packageCodes : subPackageCodes) {
-            loadScanRecord.setPackageCodeList(packageCodes);
-            goodsLoadScanRecordDao.batchInsertByWaybill(loadScanRecord);
-        }
-
-        List<Long> idList = new ArrayList<>();
-        idList.add(86170L);
-        idList.add(86171L);
-        idList.add(86172L);
-        loadScanRecord.setIdList(idList);
-        int a = goodsLoadScanRecordDao.batchUpdateGoodsScanRecordByIds(loadScanRecord);
-
-        System.out.println(JsonHelper.toJson(map));
-    }
 
     @Test
     public void testCreateUnloadTask(){
