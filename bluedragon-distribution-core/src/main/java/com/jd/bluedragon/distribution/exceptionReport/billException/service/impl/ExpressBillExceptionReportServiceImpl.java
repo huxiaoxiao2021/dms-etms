@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.exceptionReport.billException.service.imp
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -25,10 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @Author: liming522
@@ -178,14 +176,40 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     public JdCResponse<Map<Integer,String>> getAllExceptionReportType() {
         JdCResponse<Map<Integer,String>> result =  new  JdCResponse<>();
         result.toSucceed();
+        result.setData(getDictMap());
+        return result;
+    }
+
+    private Map<Integer,String > getDictMap(){
         List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
         Map<Integer, String> map = new HashMap<Integer, String>();
         for (int i = 0; i < list.size(); i++) {
             map.put(list.get(i).getTypeCode(), list.get(i).getMemo());
         }
-        result.setData(map);
+        return map;
+    }
+
+    /**
+     * 提供给安卓的举报类型枚举方法
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportType", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeList() {
+        JdCResponse<List<ReportTypeVo>> result =  new  JdCResponse<>();
+        result.toSucceed();
+        List<ReportTypeVo> list = new ArrayList<>();
+        Map<Integer,String> dictMap = getDictMap();
+        for (Map.Entry<Integer, String>  map : dictMap.entrySet()){
+            ReportTypeVo reportTypeVo = new ReportTypeVo();
+            reportTypeVo.setReportTypeCode(map.getKey());
+            reportTypeVo.setReportTypeName(map.getValue());
+            list.add(reportTypeVo);
+        }
+        result.setData(list);
         return result;
     }
+
 
     /**
      * 判断包裹是否举报过

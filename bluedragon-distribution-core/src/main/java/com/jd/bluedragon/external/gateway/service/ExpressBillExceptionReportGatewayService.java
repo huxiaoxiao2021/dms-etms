@@ -2,10 +2,11 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 
 
-import java.util.Map;
+import java.util.List;
 
 public interface ExpressBillExceptionReportGatewayService {
 
@@ -27,5 +28,5 @@ public interface ExpressBillExceptionReportGatewayService {
      * 获取所有举报类型
      * @return
      */
-    JdCResponse<Map<Integer,String>>  getAllExceptionReportType();
+    JdCResponse<List<ReportTypeVo>>  getAllExceptionReportType();
 }
