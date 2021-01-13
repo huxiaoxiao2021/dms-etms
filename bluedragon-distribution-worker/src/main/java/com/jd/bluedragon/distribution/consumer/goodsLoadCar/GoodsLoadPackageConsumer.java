@@ -71,6 +71,14 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         if(CollectionUtils.isEmpty(packageList)) {
             return;
         }
+        //当前操作场地编码
+        int currentSiteCode = context.getCurrentOperate().getSiteCode();
+        //暂存场地编码
+        int tempStorageSiteCode = packageList.get(0).getCurrentSiteCode();
+        //当前操作场地为非暂存操作场地时，装车发货不做暂存相关逻辑变更
+        if(currentSiteCode != tempStorageSiteCode) {
+            return;
+        }
         //如果是暂存包裹，修改暂存包裹状态
         int tempRes = appointStorageService.updateTempStoragePackageInfo(packageList.get(0));
         if(tempRes <= 0) {
