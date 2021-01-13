@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.base.service.LoginService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
@@ -98,6 +100,9 @@ public class BaseResource {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private DeviceInfoService deviceInfoService;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -294,6 +299,18 @@ public class BaseResource {
 			return loginUserResponse;
 		}
 		return ((LoginService)userService).clientLoginIn(request);
+	}
+
+	/**
+	 * 设备信息上传
+	 */
+	@POST
+	@Path("/bases/deviceInfoUpload")
+	public Object deviceInfoUpload(DeviceInfoRequest request) {
+		if (log.isInfoEnabled()) {
+			log.info("设备信息上传接口:[{}]", JsonHelper.toJson(request));
+		}
+		return deviceInfoService.deviceInfoUpload(request);
 	}
 
 	@POST

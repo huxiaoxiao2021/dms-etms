@@ -1,9 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -16,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author yangwenshu
@@ -31,6 +35,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
     private static final Logger log = LoggerFactory.getLogger(UserVerifyManagerImpl.class);
 
     private static final String NONE = "NONE";
+    private static final String APP_ID = "dms.etms";
     private static final String SOURCE = "ql_dms";
     /**
      * 登录设备是手持PDA
@@ -106,7 +111,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             loginParam.setDeviceOS(NONE);
             loginParam.setDeviceVersion(NONE);
             Map<String, String> extInfo = new HashMap(20);
-            extInfo.put(Constants.LoginParam.APP_ID, NONE);
+            extInfo.put(Constants.LoginParam.APP_ID, APP_ID);
             extInfo.put(Constants.LoginParam.EQUIPMNET_ID, NONE);
             extInfo.put(Constants.LoginParam.OPEN_UDID, NONE);
             extInfo.put(Constants.LoginParam.UUID, NONE);
@@ -121,6 +126,8 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
                     extInfo.put(Constants.LoginParam.CHANNEL, PDA);
                 }
             }
+            //填充设备信息
+            putDeviceInfo(clientInfo, extInfo);
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
             if (loginResult == null) {
@@ -173,6 +180,33 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL);
             basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL_MSG);
             return basePdaUserDto;
+        }
+    }
+
+    /**
+     * 针对PC客户端 填充设备指纹信息
+     */
+    public void putDeviceInfo(ClientInfo clientInfo, Map<String, String> extInfo) {
+        if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || extInfo == null) {
+            return;
+        }
+        if (!Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL))) {
+            return;
+        }
+        try {
+            DeviceInfoRequest deviceInfo = JsonHelper.fromJson(clientInfo.getDeviceInfo(), DeviceInfoRequest.class);
+            if (deviceInfo == null) {
+                return;
+            }
+            // TODO 升级 userSDK ,标准化 参数名
+            extInfo.put(Constants.LoginParam.EQUIPMNET_ID, deviceInfo.getEquipmentId());
+            extInfo.put("deviceName", deviceInfo.getDeviceName());
+            extInfo.put("deviceVersion", clientInfo.getVersionName());
+            extInfo.put("deviceOS", deviceInfo.getPlatform());
+            extInfo.put("deviceOSVersion", deviceInfo.getSystemVersion());
+
+        } catch (Exception e) {
+            log.error("解析设备信息出错:",e);
         }
     }
 }
