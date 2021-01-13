@@ -2,6 +2,17 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
@@ -25,6 +36,8 @@ import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
+import com.jd.bluedragon.distribution.loadAndUnload.*;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
@@ -247,7 +260,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         result.setData(unloadScanDetailDto);
         return result;
     }
-
+    
     private void setUnloadScanDetail(UnloadScanDetailDto unloadScanDetailDto, String sealCarCode) {
         CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.setUnloadScanDetail", false, true);
         try {
@@ -330,7 +343,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             Profiler.registerInfoEnd(info);
         }
     }
-
+    
     private UnloadScanDto convertData(UnloadScan unloadScan) {
         UnloadScanDto unloadScanDto = new UnloadScanDto();
         unloadScanDto.setWayBillCode(unloadScan.getWaybillCode());
