@@ -152,7 +152,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         query.setCreateSiteCode(preSealVehicle.getCreateSiteCode());
         query.setCreateUserErp(preSealVehicle.getCreateUserErp());
         query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
-
+        query.setVehicleNumber(preSealVehicle.getVehicleNumber());
         return preSealVehicleDao.queryByCondition(query);
     }
 
