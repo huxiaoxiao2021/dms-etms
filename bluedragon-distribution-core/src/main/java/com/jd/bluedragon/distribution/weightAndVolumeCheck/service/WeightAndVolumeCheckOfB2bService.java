@@ -76,4 +76,12 @@ public interface WeightAndVolumeCheckOfB2bService {
      * @return
      */
     WaybillFlowDetail getFirstWeightAndVolumeDetail(String waybillCode);
+
+    /**
+     * PDA判断记录是否存在
+     *
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<String> checkRecordExist(String waybillCode, Integer siteCode);
 }

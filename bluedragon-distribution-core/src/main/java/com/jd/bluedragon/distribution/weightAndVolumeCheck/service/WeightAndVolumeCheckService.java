@@ -37,7 +37,7 @@ public interface WeightAndVolumeCheckService {
      * @param isWaybillSpotCheck
      * @return
      */
-    InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck);
+    InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck,String fromSource);
 
     /**
      * 查看超标图片（C网）

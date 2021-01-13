@@ -27,7 +27,34 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import org.junit.runner.RunWith;
         import org.springframework.test.context.ContextConfiguration;
         import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
         import javax.annotation.Resource;
         import java.util.ArrayList;
         import java.util.Date;
@@ -36,10 +63,11 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 /**
  * 装车发货相关功能测试
+ *
  * @Author zhengchengfa
  * @Date 2020年10月22日
  */
-@ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
@@ -60,8 +88,12 @@ public class GoodsLoadingScanningServiceImplTest {
     private LoadScanServiceImpl loadScanService;
 
     @Resource
+    private SpotCheckGateWayService spotCheckGateWayService;
+    @Resource
     private DmsDisSendService dmsDisSendService;
 
+    @Resource
+    private WeightAndVolumeCheckService weightAndVolumeCheckService;
     @Resource
     private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
 
@@ -85,11 +117,11 @@ public class GoodsLoadingScanningServiceImplTest {
         loadScanCacheService.delTaskLoadScan(param.getTaskId());
 
         JdCResponse<List<GoodsExceptionScanningDto>> res = null;
-        for(int i=0; i< 3; i++) {
+        for (int i = 0; i < 3; i++) {
             res = goodsLoadingScanningService.findExceptionGoodsLoading(param);
         }
         System.out.println(res.getCode() + "----" + res.getMessage());
-        for(GoodsExceptionScanningDto r : res.getData()) {
+        for (GoodsExceptionScanningDto r : res.getData()) {
             System.out.println(r.getTaskId());
             System.out.println("运单：" + r.getWaybillCode());
             System.out.println("已装：" + r.getLoadAmount());
@@ -227,7 +259,7 @@ public class GoodsLoadingScanningServiceImplTest {
         param1.setFlowDisaccord(1);
         list.add(param1);
 
-        boolean res =  goodsLoadScanRecordDao.batchInsert(list);
+        boolean res = goodsLoadScanRecordDao.batchInsert(list);
         System.out.println(res);
 
     }
@@ -260,14 +292,14 @@ public class GoodsLoadingScanningServiceImplTest {
 
 
     @Test
-    public void testLicenseNumber(){
-    String licenseNumber="010A01077";
-    loadCarTaskGateWayService.checkLicenseNumber(licenseNumber);
+    public void testLicenseNumber() {
+        String licenseNumber = "010A01077";
+        loadCarTaskGateWayService.checkLicenseNumber(licenseNumber);
     }
 
     @Test
-    public void testCreateTask(){
-        LoadCarTaskCreateReq loadCarTaskCreateReq=new LoadCarTaskCreateReq();
+    public void testCreateTask() {
+        LoadCarTaskCreateReq loadCarTaskCreateReq = new LoadCarTaskCreateReq();
         loadCarTaskCreateReq.setCreateSiteCode(910L);
         loadCarTaskCreateReq.setEndSiteCode(698L);
         loadCarTaskCreateReq.setEndSiteName("杭州配送中心");
@@ -345,6 +377,32 @@ public class GoodsLoadingScanningServiceImplTest {
         loadScanRecord.setEndSiteName("北京马驹桥分拣中心");
         loadScanRecord.setLicenseNumber("京A12345");
 
+    @Test
+    public void testSpotCheckTest() {
+        SpotCheckCheckReq req = new SpotCheckCheckReq();
+        req.setWaybillCode("JDK000000055176");
+        req.setLoginErp("wuyoude");
+        req.setCreateSiteCode(364605);
+        req.setWeight(10D);
+        req.setVolume(10D);
+        spotCheckGateWayService.checkIsExcess(req);
+    }
+
+    @Test
+    public void testSpotCheckSubmit() {
+        SpotCheckSubmitReq req = new SpotCheckSubmitReq();
+        req.setWaybillCode("JDK000000055167");
+        req.setLoginErp("bjxings");
+        req.setCreateSiteCode(910);
+        req.setWeight(5D);
+        req.setVolume(5D);
+        req.setSource(1);
+        List<String>list=new ArrayList<>();
+        list.add("http://test.storage.jd.com/dms-feedback/31babd13-ebea-478b-824e-b93a28af3bae.png?Expires=1925111176&AccessKey=a7ogJNbj3Ee9YM1O&Signature=g77Mk2WV0R%2BOqVXcB%2BPoSXhAA58%3D");
+        list.add("http://test.storage.jd.com/dms-feedback/31babd13-ebea-478b-824e-b93a28af3bae.png?Expires=1925111176&AccessKey=a7ogJNbj3Ee9YM1O&Signature=g77Mk2WV0R%2BOqVXcB%2BPoSXhAA58%3D");
+        list.add("http://test.storage.jd.com/dms-feedback/31babd13-ebea-478b-824e-b93a28af3bae.png?Expires=1925111176&AccessKey=a7ogJNbj3Ee9YM1O&Signature=g77Mk2WV0R%2BOqVXcB%2BPoSXhAA58%3D");
+        spotCheckGateWayService.spotCheckSubmit(req);
+    }
 
 
         List<List<String>> subPackageCodes = ListUtils.partition(list, 2);
@@ -372,5 +430,10 @@ public class GoodsLoadingScanningServiceImplTest {
         req.setVehicleNumber("京A00001");
         req.setOperateUserName("刑松");
         loadAndUnloadCarGatewayService.createUnloadTask(req);
+    }
+    @Test
+    public void testSpotCheckPictures(){
+
+        weightAndVolumeCheckService.searchPicture("JDK000000055832",364605,1,"SPOT_CHECK_ANDROID");
     }
 }

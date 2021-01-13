@@ -48,10 +48,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
-import com.jd.ql.dms.report.domain.BaseEntity;
-import com.jd.ql.dms.report.domain.Pager;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
+import com.jd.ql.dms.report.domain.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -254,10 +251,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     @Override
-    public InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck){
+    public InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck,String fromSource){
         InvokeResult<String> result = new InvokeResult<>();
         Map<String,List<String>> map = new LinkedHashMap<>();
         if(isWaybillSpotCheck!=null && isWaybillSpotCheck==1){
+            if(SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(fromSource)){
+                map.put(waybillCode,spotCheckPdaPictures(waybillCode,siteCode));
+                result.setData(JsonHelper.toJson(map));
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                return result;
+            }
             //B网运单维度
             InvokeResult<List<String>> invokeResult = searchExcessPictureOfB2b(waybillCode, siteCode);
             if(invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())){
@@ -1753,7 +1756,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         log.info("handleAfterUploadImgMessage param: {}", JSON.toJSONString(weightAndVolumeCheckHandleMessage));
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
-        
+
         // 根据节点操作类型，分别做不同处理逻辑
         // 上传图片环节
         if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG){
@@ -1896,4 +1899,26 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
     }
 
+    /**
+     * 查询PDA上传的图片
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    public List<String> spotCheckPdaPictures(String waybillCode, Integer siteCode) {
+        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+        List<String> list = new ArrayList<>();
+        condition.setReviewSiteCode(siteCode);
+        condition.setIsExcess(1);
+        condition.setWaybillCode(waybillCode);
+        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
+        log.info("spotCheckPdaPictures.result={}", JSON.toJSONString(baseEntity));
+        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
+                || baseEntity.getData().get(0) == null) {
+            log.warn("通过运单【{}】站点【{}】查询超标数据为空", waybillCode, siteCode);
+            return list;
+        }
+        return StringUtils.isBlank(baseEntity.getData().get(0).getPictureAddress()) ? list : Arrays.asList(baseEntity.getData().get(0).getPictureAddress().split(";"));
+    }
 }
