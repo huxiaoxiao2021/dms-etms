@@ -2,12 +2,13 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.external.gateway.service.ExpressBillExceptionReportGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * @Author: liming522
@@ -25,8 +26,8 @@ public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBill
     }
 
     @Override
-    public JdCResponse<Map<Integer,String>> getAllExceptionReportType() {
-        return expressBillExceptionReportService.getAllExceptionReportType();
+    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportType() {
+        return expressBillExceptionReportService.getAllExceptionReportTypeList();
     }
 
     /**
