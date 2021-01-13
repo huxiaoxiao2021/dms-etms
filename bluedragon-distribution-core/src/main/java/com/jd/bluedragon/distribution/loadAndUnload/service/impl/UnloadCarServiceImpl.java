@@ -35,10 +35,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -2066,13 +2063,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
 
         try {
+            // 通过工具类从批次号上截取目的场地ID
+            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
+            if (nextSiteCode == null) {
+                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
+                return false;
+            }
             // 只有操作站点是快运中心时，才初始化运单暂存
-            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId());
-            if (isExpressCenterSite(tmsSealCar.getOperateSiteId())) {
-                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId());
+            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
+            if (isExpressCenterSite(nextSiteCode)) {
+                logger.info("当前封车消息属于快运中心：sealCarCode={}", tmsSealCar.getSealCarCode());
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
-                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={},执行结果：isSuccess={}", tmsSealCar.getSealCarCode(),
-                        tmsSealCar.getOperateSiteId(), isSuccess);
+                logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
                 if (!isSuccess) {
                     return false;
                 }
