@@ -220,7 +220,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
 
         BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
-        log.info("dealSpotCheckLogic-parameter={},result={}", JSON.toJSONString(dto), JSON.toJSONString(baseEntity));
         if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
             log.warn("提交【{}】的超标数据失败!",dto.getPackageCode());
             result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_INTERCEPT_CODE,"提交超标数据失败!");
