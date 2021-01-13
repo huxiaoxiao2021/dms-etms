@@ -25,6 +25,7 @@ import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.constant.EnumWaybillAttachmentType;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
@@ -119,6 +120,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/q/02ixD6QH52bQO100000074}")
     private String popularizeMatrixCode;
+    private String POPULARIZEMATRIXCODEDESC_DEFAULT = "扫码寄快递";
+    private String POPULARIZEMATRIXCODEDESC_PACKAGE_SAY = "包裹有话说";
 
     /**
      * 京东logo的文件路径
@@ -161,6 +164,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String DISTRIBUTE_TYPE_PRECISION_COLD = "精准冷藏";
 
     private static final String STORE_TYPE_WMS = "wms";
+
+    private static final Integer CUSTOMER_VIDEO = 19;
 
     @Override
     public Waybill findByWaybillCode(String waybillCode) {
@@ -674,10 +679,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setJdLogoImageKey("");
             target.setPopularizeMatrixCode("");
             target.setAdditionalComment("");
+            target.setPopularizeMatrixCodeDesc("");
         }else{
             target.setJdLogoImageKey(LOGO_IMAGE_KEY_JD);
-            target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
+            //包裹二维码和描述
+            target.setPopularizeMatrixCode(popularizeMatrixCode);
+            target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_DEFAULT);
+
+            //包裹有话说
+            if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,'1')){
+                BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
+                if (CollectionUtils.isNotEmpty(waybillAttachments.getData())){
+                    String attachmentUrl = this.getAttachmentUrl(waybillAttachments.getData());
+                    if (StringUtils.isNotEmpty(attachmentUrl)){
+                        target.setPopularizeMatrixCode(attachmentUrl);
+                        target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_PACKAGE_SAY);
+                    }
+                }
+            }
         }
         target.setBusiOrderCode(waybill.getBusiOrderCode());
 
@@ -967,6 +987,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }      
         return target;
     }
+
+    /**
+     * 获取附属地址
+     * @param data
+     * @return
+     */
+    private String getAttachmentUrl(List<WaybillAttachmentDto> data) {
+        for (int i =0;i < data.size();i++){
+            WaybillAttachmentDto tmp = data.get(i);
+            if (CUSTOMER_VIDEO.equals(tmp.getAttachmentType())){
+                return tmp.getAttachmentUrl();
+            }
+        }
+        return null;
+    }
+
     /**
      * 设置运费和货款信息
      * @param target

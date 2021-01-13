@@ -6,11 +6,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.List;
@@ -283,5 +279,13 @@ public interface WaybillQueryManager{
      * @return
      */
 	JdResult<List<String>> getOriginalAndReturnWaybillCodes(String waybillCode);
+
+	/**
+	 * 查询附件、图片等，需根据对应附件类型查询
+	 * @param waybill
+	 * @param attachmentType
+	 */
+	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill,
+																							Integer attachmentType);
 
 }
