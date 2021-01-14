@@ -8,6 +8,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.dao.PreSealVehicleDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
@@ -127,4 +128,19 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
         return sqlSession.update(this.nameSpace+".completePreSealVehicleRecord", preSealVehicle);
 
     }
+
+	@Override
+	public Integer countPreSealNumByTransportInfo(PreSealVehicleCondition condition) {
+		return sqlSession.selectOne(this.nameSpace+".countPreSealNumByTransportInfo", condition);
+	}
+
+	@Override
+	public Integer countPreSealNumBySendRelation(PreSealVehicleCondition condition) {
+		return sqlSession.selectOne(this.nameSpace+".countPreSealNumBySendRelation", condition);
+	}
+
+	@Override
+	public List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition) {
+		return sqlSession.selectList(this.nameSpace+".findOtherUuidsByCreateAndReceive", condition);
+	}
 }

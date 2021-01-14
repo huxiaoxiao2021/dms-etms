@@ -1355,7 +1355,10 @@ public class Constants {
      * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
-
+    /**
+     * 操作标识-1
+     */
+    public static final Integer FLAG_OPRATE_ON = 1;
     /**
      * PDA无封车号任务前缀
      */

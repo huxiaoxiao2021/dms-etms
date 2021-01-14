@@ -84,4 +84,10 @@ public interface NewSealVehicleGatewayService {
      * @return
      */
     public JdCResponse<Boolean> cancelPreBlockCar(CancelPreBlockCarRequest request);
+    /**
+     * 获取预封车-待封车批次信息
+     * @param request
+     * @return
+     */
+    JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request);
 }

@@ -23,6 +23,10 @@ public class SealVehicleSendCodeInfo {
     * 批次信息是否就绪
     * */
     private Boolean isReady;
+    /*
+    * 批次是否选中
+    * */
+    private Boolean selectedFlag;
 
     public String getSendCode() {
         return sendCode;
@@ -55,5 +59,13 @@ public class SealVehicleSendCodeInfo {
     public void setReady(Boolean ready) {
         isReady = ready;
     }
+
+	public Boolean getSelectedFlag() {
+		return selectedFlag;
+	}
+
+	public void setSelectedFlag(Boolean selectedFlag) {
+		this.selectedFlag = selectedFlag;
+	}
 
 }
