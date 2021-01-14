@@ -53,10 +53,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -380,7 +377,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("原始包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -485,7 +482,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -584,7 +581,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -686,7 +683,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadScanRecordDao.insert(newUnloadRecord);
 
             boolean flowDisAccord = false;
-            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX) || isSurplusPackage) {
                 flowDisAccord = true;
             }
             // 运单暂存
@@ -704,14 +701,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadScan.setUpdateTime(new Date());
                 unloadScan.setUpdateUserName(request.getOperateUserName());
                 unloadScan.setUpdateUserErp(request.getOperateUserErp());
-                int status;
-                // 多货
-                if (isSurplusPackage) {
-                    status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, true);
-                } else {
-                    // 非多货
-                    status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
-                }
+                int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
                 unloadScan.setStatus(status);
                 if (unloadScan.getWeight() <= 0) {
                     // 设置运单重量和体积
@@ -720,8 +710,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadScanDao.updateByPrimaryKey(unloadScan);
             } else {
                 // 运单之前没有操作过
-                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), 0,
-                        1, request.getOperateUserName(), request.getOperateUserErp(), true);
+                int forceAmount = 0;
+                List<String> taskPackages = searchAllPackageByWaybillCode(request.getSealCarCode(), waybillCode);
+                if (CollectionUtils.isNotEmpty(taskPackages)) {
+                    forceAmount = taskPackages.size();
+                }
+                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), forceAmount,
+                        1, request.getOperateUserName(), request.getOperateUserErp(), flowDisAccord);
                 unloadScanDao.insert(newUnload);
             }
         } catch (Exception e) {
@@ -868,10 +863,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScan.setLoadAmount(loadAmount);
         if (forceAmount != null && forceAmount != 0) {
             unloadScan.setUnloadAmount(forceAmount > loadAmount ? forceAmount - loadAmount : 0);
-        }
-        // 多扫的应卸=0
-        if (flowDisAccord) {
-            unloadScan.setForceAmount(0);
+        } else {
+            unloadScan.setUnloadAmount(0);
         }
 
         // 空任务的应卸和未卸都是0
@@ -1009,7 +1002,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
             // 查询运单所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+            String sendCode = null;
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
 
@@ -1115,7 +1108,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             // 查询运单所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+            String sendCode = null;
 
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
@@ -2087,13 +2080,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
 
         try {
+            // 通过工具类从批次号上截取目的场地ID
+            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
+            if (nextSiteCode == null) {
+                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
+                return false;
+            }
             // 只有操作站点是快运中心时，才初始化运单暂存
-            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId());
-            if (isExpressCenterSite(tmsSealCar.getOperateSiteId())) {
-                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId());
+            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
+            if (isExpressCenterSite(nextSiteCode)) {
+                logger.info("当前封车消息属于快运中心：sealCarCode={}", tmsSealCar.getSealCarCode());
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
-                logger.info("当前封车消息属于快运中心：sealCarCode={}, operateSiteId={},执行结果：isSuccess={}", tmsSealCar.getSealCarCode(),
-                        tmsSealCar.getOperateSiteId(), isSuccess);
+                logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
                 if (!isSuccess) {
                     return false;
                 }
