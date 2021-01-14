@@ -665,7 +665,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadScanRecordDao.insert(newUnloadRecord);
 
             boolean flowDisAccord = false;
-            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            if (request.getSealCarCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX) || isSurplusPackage) {
                 flowDisAccord = true;
             }
             // 运单暂存
@@ -683,14 +683,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadScan.setUpdateTime(new Date());
                 unloadScan.setUpdateUserName(request.getOperateUserName());
                 unloadScan.setUpdateUserErp(request.getOperateUserErp());
-                int status;
-                // 多货
-                if (isSurplusPackage) {
-                    status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, true);
-                } else {
-                    // 非多货
-                    status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
-                }
+                int status = getWaybillStatus(unloadScan.getForceAmount(), unloadScan.getLoadAmount(), packageNum, flowDisAccord);
                 unloadScan.setStatus(status);
                 if (unloadScan.getWeight() <= 0) {
                     // 设置运单重量和体积
@@ -699,8 +692,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadScanDao.updateByPrimaryKey(unloadScan);
             } else {
                 // 运单之前没有操作过
-                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), 0,
-                        1, request.getOperateUserName(), request.getOperateUserErp(), true);
+                int forceAmount = 0;
+                List<String> taskPackages = searchAllPackageByWaybillCode(request.getSealCarCode(), waybillCode);
+                if (CollectionUtils.isNotEmpty(taskPackages)) {
+                    forceAmount = taskPackages.size();
+                }
+                UnloadScan newUnload = createUnloadScan(request.getBarCode(), request.getSealCarCode(), forceAmount,
+                        1, request.getOperateUserName(), request.getOperateUserErp(), flowDisAccord);
                 unloadScanDao.insert(newUnload);
             }
         } catch (Exception e) {
@@ -847,10 +845,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScan.setLoadAmount(loadAmount);
         if (forceAmount != null && forceAmount != 0) {
             unloadScan.setUnloadAmount(forceAmount > loadAmount ? forceAmount - loadAmount : 0);
-        }
-        // 多扫的应卸=0
-        if (flowDisAccord) {
-            unloadScan.setForceAmount(0);
+        } else {
+            unloadScan.setUnloadAmount(0);
         }
 
         // 空任务的应卸和未卸都是0
