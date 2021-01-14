@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.exceptionReport.billException.service.imp
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
@@ -117,14 +118,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
             //1.先找出仓配的始发地
-            BaseEntity<Waybill> baseEntity =  waybillQueryManager.getWaybillByWaybillCode(waybillCode);
-            if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getResultCode()==Constants.RESULT_SUCCESS){
-                if(baseEntity.getData().getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getData().getDistributeStoreName())){
-                    firstSiteVo =  this.packageFirstSiteVo(baseEntity.getData().getDistributeStoreId(),baseEntity.getData().getDistributeStoreName());
-                    result.setData(firstSiteVo);
-                    return result;
-                }
+            Waybill baseEntity =  waybillQueryManager.getWaybillByWayCode(waybillCode);
+            if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
+                firstSiteVo =  this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
+                result.setData(firstSiteVo);
+                return result;
             }
+
 
             //2.找揽收完成的--满足纯配营业部、驻场、车队
             List<PackageStateDto>   stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
@@ -194,8 +194,22 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
      * @return
      */
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportType", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeList() {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportTypeList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportTypeList() {
+        JdCResponse<List<ExpressBillExceptionReportTypeEnum>> result =  new  JdCResponse<>();
+        result.toSucceed();
+        List<ExpressBillExceptionReportTypeEnum> allTypes = ExpressBillExceptionReportTypeEnum.getAllExpressBillExceptionReportType();
+        result.setData(allTypes);
+        return result;
+    }
+
+    /**
+     * 提供给安卓的新方法(举报类型)
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportTypeListNew", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeListNew() {
         JdCResponse<List<ReportTypeVo>> result =  new  JdCResponse<>();
         result.toSucceed();
         List<ReportTypeVo> list = new ArrayList<>();
@@ -209,7 +223,6 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         result.setData(list);
         return result;
     }
-
 
     /**
      * 判断包裹是否举报过
