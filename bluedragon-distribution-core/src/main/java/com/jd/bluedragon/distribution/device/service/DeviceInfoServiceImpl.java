@@ -83,39 +83,38 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
             logger.info("开始调用设备指纹接口,req:{}", JsonHelper.toJson(request));
         }
         result.toSuccess();
-        result.setData("eidWd6828321f3sfQhLe8S3CQMaWalWvXgHChEIS4GDZ7QIBGQ5GbYft5k7jnZzfDvVcIXUybPxvFgQAa17bT1PvkUTXAEjlU6CkSZAicKFcYiEDm+s1");
-//        try {
-//            HttpClient httpClient = new HttpClient();
-//            PostMethod method = new PostMethod(eidUrl);
-//            method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
-//            method.addRequestHeader("Accept", REST_CONTENT_TYPE);
-//            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(eidRequest),
-//                    REST_CONTENT_TYPE,
-//                    StandardCharsets.UTF_8.name()));
-//            int statusCode = httpClient.executeMethod(method);
-//            if (statusCode != HttpStatus.OK.value()) {
-//                logger.error("调用设备指纹接口失败,statusCode=:{}", statusCode);
-//                result.toError("调用设备指纹接口失败！请联系分拣小秘");
-//                return result;
-//            }
-//            String body = method.getResponseBodyAsString();
-//            logger.info("调用设备指纹接口返回值:{}", body);
-//            Map response = JsonHelper.fromJson(body, Map.class);
-//            if (response == null || response.get("data") == null) {
-//                result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
-//                return result;
-//            }
-//            Map dataMap = JsonHelper.fromJson(response.get("data").toString(), Map.class);
-//            if (dataMap != null && dataMap.get("eid") !=null) {
-//                result.setData(dataMap.get("eid").toString());
-//            } else {
-//                result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
-//                return result;
-//            }
-//        } catch (Exception e) {
-//            logger.error("调用设备指纹接口出错:", e);
-//            result.toError("调用设备指纹接口出错！请联系分拣小秘");
-//        }
+        try {
+            HttpClient httpClient = new HttpClient();
+            PostMethod method = new PostMethod(eidUrl);
+            method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
+            method.addRequestHeader("Accept", REST_CONTENT_TYPE);
+            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(eidRequest),
+                    REST_CONTENT_TYPE,
+                    StandardCharsets.UTF_8.name()));
+            int statusCode = httpClient.executeMethod(method);
+            if (statusCode != HttpStatus.OK.value()) {
+                logger.error("调用设备指纹接口失败,statusCode=:{}", statusCode);
+                result.toError("调用设备指纹接口失败！请联系分拣小秘");
+                return result;
+            }
+            String body = method.getResponseBodyAsString();
+            logger.info("调用设备指纹接口返回值:{}", body);
+            Map response = JsonHelper.fromJson(body, Map.class);
+            if (response == null || response.get("data") == null) {
+                result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
+                return result;
+            }
+            Map dataMap = JsonHelper.fromJson(response.get("data").toString(), Map.class);
+            if (dataMap != null && dataMap.get("eid") !=null) {
+                result.setData(dataMap.get("eid").toString());
+            } else {
+                result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
+                return result;
+            }
+        } catch (Exception e) {
+            logger.error("调用设备指纹接口出错:", e);
+            result.toError("调用设备指纹接口出错！请联系分拣小秘");
+        }
         return result;
     }
 }
