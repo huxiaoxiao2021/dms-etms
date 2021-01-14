@@ -5,11 +5,13 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.base.ZhongyouexQueryManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.box.service.DmsBoxQueryService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
+import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.utils.BoxHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -148,21 +151,19 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         result.success();
         /*-------------------------------------逻辑校验--------------------------------------*/
         //经济网的逻辑
-        Response<Boolean> isEconomicNetBoxResult = dmsBoxQueryService.isEconomicNetBox(entity.getBarCode());
-        if (null == isEconomicNetBoxResult || null == isEconomicNetBoxResult.getData()){
+        Response<Boolean> isEconomicNetBoxAndNotBoundingPackage = dmsBoxQueryService.isEconomicNetBoxAndNotBoundingPackage(entity.getBarCode());
+        if (null == isEconomicNetBoxAndNotBoundingPackage || Response.CODE_SUCCESS != isEconomicNetBoxAndNotBoundingPackage.getCode()){
             result.error(MessageFormat.format(InvokeResult.RESULT_NO_BOX_MESSAGE, entity.getBarCode()));
             result.setData(Boolean.FALSE);
             return result;
         }
-        if (isEconomicNetBoxResult.getData()) {
+        if (isEconomicNetBoxAndNotBoundingPackage.getData()) {
             //规则1
-            if (BusinessUtil.isBoxcode(entity.getBarCode())){
-                boolean isEmpty = zhongyouexQueryManager.findBoxIsEmpty(entity.getBarCode());
-                if (isEmpty){
-                    result.customMessage(InvokeResult.RESULT_BOX_EMPTY_CODE,InvokeResult.RESULT_BOX_EMPTY_MESSAGE);
-                    result.setData(Boolean.FALSE);
-                    return result;
-                }
+            boolean isEmpty = zhongyouexQueryManager.findBoxIsEmpty(entity.getBarCode());
+            if (isEmpty){
+                result.customMessage(InvokeResult.RESULT_BOX_EMPTY_CODE,InvokeResult.RESULT_BOX_EMPTY_MESSAGE);
+                result.setData(Boolean.FALSE);
+                return result;
             }
         }
         return result;

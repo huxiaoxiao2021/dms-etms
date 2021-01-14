@@ -43,7 +43,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String RESULT_BOX_EMPTY_MESSAGE = "该箱号无关联的包裹号，请拆包称重";
 
     public static final int RESULT_NO_BOX_CODE=304;
-    public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，无法判断是否是众邮箱号";
+    public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，箱号不合法";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
