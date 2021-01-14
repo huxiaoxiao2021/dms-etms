@@ -151,13 +151,13 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         result.success();
         /*-------------------------------------逻辑校验--------------------------------------*/
         //经济网的逻辑
-        Response<Boolean> isEconomicNetBoxAndNotBoundingPackage = dmsBoxQueryService.isEconomicNetBoxAndNotBoundingPackage(entity.getBarCode());
-        if (null == isEconomicNetBoxAndNotBoundingPackage || Response.CODE_SUCCESS != isEconomicNetBoxAndNotBoundingPackage.getCode()){
+        Response<Boolean> isEconomicNetBox = dmsBoxQueryService.isEconomicNetBox(entity.getBarCode());
+        if (null == isEconomicNetBox || Response.CODE_SUCCESS != isEconomicNetBox.getCode()){
             result.error(MessageFormat.format(InvokeResult.RESULT_NO_BOX_MESSAGE, entity.getBarCode()));
             result.setData(Boolean.FALSE);
             return result;
         }
-        if (isEconomicNetBoxAndNotBoundingPackage.getData()) {
+        if (isEconomicNetBox.getData()) {
             //规则1
             boolean isEmpty = zhongyouexQueryManager.findBoxIsEmpty(entity.getBarCode());
             if (isEmpty){
