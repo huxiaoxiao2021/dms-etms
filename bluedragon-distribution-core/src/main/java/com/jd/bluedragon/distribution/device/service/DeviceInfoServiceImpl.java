@@ -26,10 +26,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * <p>
@@ -85,6 +82,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         if (logger.isInfoEnabled()) {
             logger.info("开始调用设备指纹接口,req:{}", JsonHelper.toJson(request));
         }
+        result.toSuccess();
         result.setData("eidWd6828321f3sfQhLe8S3CQMaWalWvXgHChEIS4GDZ7QIBGQ5GbYft5k7jnZzfDvVcIXUybPxvFgQAa17bT1PvkUTXAEjlU6CkSZAicKFcYiEDm+s1");
 //        try {
 //            HttpClient httpClient = new HttpClient();
