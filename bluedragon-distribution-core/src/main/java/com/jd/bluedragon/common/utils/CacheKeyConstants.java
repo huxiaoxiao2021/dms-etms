@@ -88,4 +88,8 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_WAYBILL_PACKAGE_CODES = "dmsWeb:waybillPackageCodes:";
 
+    /**
+     * 缓存key-发货关系
+     */
+    public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
 }

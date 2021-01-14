@@ -156,4 +156,18 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      */
     boolean completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
 
+	Integer countPreSealNumByTransportInfo(String transportCode, String vehicleNumber);
+
+	Integer countPreSealNumBySendRelation(Integer originalSiteCode, Integer destinationSiteCode);
+	/**
+	 * 查询非当前运力和车牌的所有预封车uuid
+	 * @param siteCode
+	 * @param receiveSiteCode
+	 * @param transportCode
+	 * @param vehicleNumber
+	 * @return
+	 */
+	List<String> findOtherUuidsByCreateAndReceive(Integer siteCode, Integer receiveSiteCode, String transportCode,
+			String vehicleNumber);
+
 }

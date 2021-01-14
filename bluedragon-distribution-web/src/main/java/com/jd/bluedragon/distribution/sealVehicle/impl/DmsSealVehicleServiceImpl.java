@@ -1,15 +1,21 @@
 package com.jd.bluedragon.distribution.sealVehicle.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleSourceEnum;
+import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
+import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
+import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
+import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
+import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
-import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.*;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -17,10 +23,13 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,11 +43,35 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     private PreSealVehicleService preSealVehicleService;
 
     @Autowired
-    private SendMService sendMService;
-
-    @Autowired
     private NewSealVehicleService newSealVehicleService;
-
+    
+    @Autowired
+    private DmsSendRelationService dmsSendRelationService;
+    
+    @Autowired
+    private TmsVehicleRouteService tmsVehicleRouteService;
+    @Autowired
+    private PreSealBatchService preSealBatchService;
+    
+    /**
+     * 发货关系数据有效天数，默认7天
+     */
+    @Value("${beans.DmsSealVehicleServiceImpl.effectDays:7}")
+    private Integer effectDays;
+    /**
+     * 默认-查询发车时间6小时内
+     */
+    private static final Integer DEFAULT_RECENT_HOURS = 6;
+    /**
+     * 传摆线路类型列表
+     */
+    private static List<Integer> SITE_LINE_TYPES = new ArrayList<Integer>();
+    
+    static{
+    	SITE_LINE_TYPES.add(30);
+    	SITE_LINE_TYPES.add(31);
+    	SITE_LINE_TYPES.add(40);
+    }
     /*
      * 获取未封车信息列表
      *
@@ -46,16 +79,41 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfo", mState = JProEnum.TP)
     public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfo(Integer createSiteCode, Integer hourRange, String createUserErp) {
-        JdResponse<List<UnSealVehicleInfo>> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+    	QuickSealQueryRequest queryRequest = new QuickSealQueryRequest();
+    	queryRequest.setCreateSiteCode(createSiteCode);
+    	queryRequest.setCreateUserErp(createUserErp);
+    	queryRequest.setHourRange(hourRange);
+    	return this.getUnSealVehicleInfos(queryRequest);
+    }
+    /*
+     * 获取未封车信息列表
+     *
+     * */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.DmsSealVehicleServiceImpl.getUnSealVehicleInfos", mState = JProEnum.TP)
+	public JdResponse<List<UnSealVehicleInfo>> getUnSealVehicleInfos(QuickSealQueryRequest queryRequest) {
+    	JdResponse<List<UnSealVehicleInfo>> jdResponse = new JdResponse<>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+    	Integer createSiteCode = queryRequest.getCreateSiteCode();
         try {
             //获取该场地所有预封车信息
             PreSealVehicle param = new PreSealVehicle();
             param.setCreateSiteCode(createSiteCode);
-            if (StringUtils.isNotBlank(createUserErp)) {
-                param.setCreateUserErp(createUserErp);
+            if (StringUtils.isNotBlank(queryRequest.getCreateUserErp())) {
+                param.setCreateUserErp(queryRequest.getCreateUserErp());
+            }
+            if (StringUtils.isNotBlank(queryRequest.getVehicleNumber())) {
+                param.setVehicleNumber(queryRequest.getVehicleNumber());
             }
             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryByParam(param);
             Map<String, UnSealVehicleInfo> unSealVehicleInfoMap = new HashMap<>();
+            /**
+             * 存放uuid
+             */
+            Map<String, List<String>> unSealVehicleUuidMap = new HashMap<>();
+            /**
+             * 存放待封车的批次号
+             */
+            Map<String, List<String>> unSealSendCodesMap = new HashMap<>();
             if (preSealVehicleList != null) {
                 //遍历所有预封车记录
                 for (PreSealVehicle preSealVehicle : preSealVehicleList) {
@@ -65,12 +123,22 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transportCode);
                         //存在多条运力编码信息，说明该运力下有多个车牌，存在多个车牌时设置未就绪
                         unSealVehicleInfo.setReady(false);
+                        unSealVehicleUuidMap.get(transportCode).add(preSealVehicle.getPreSealUuid());
+                        if(!unSealVehicleInfo.getVehicleNumbers().contains(preSealVehicle.getVehicleNumber())) {
+                        	unSealVehicleInfo.getVehicleNumbers().add(preSealVehicle.getVehicleNumber());
+                        }
                     } else {
                         //不存在运力编码，进行信息初始化
                         UnSealVehicleInfo unSealVehicleInfo = this.convert2UnSealVehicleInfo(preSealVehicle);
+                        List<String> uuids = new ArrayList<String>();
+                        List<String> vehicleNumbers = new ArrayList<String>(); 
+                        uuids.add(preSealVehicle.getPreSealUuid());
+                        vehicleNumbers.add(preSealVehicle.getVehicleNumber());
                         //设置批次数量
-                        int sendCodeCount = this.getUnSealSendCodeCount(createSiteCode, preSealVehicle.getReceiveSiteCode(), hourRange);
+                        List<String> sendCodeList = this.getUnSealSendCodeList(createSiteCode, preSealVehicle.getReceiveSiteCode(), queryRequest.getHourRange());
+                        int sendCodeCount = sendCodeList.size();
                         unSealVehicleInfo.setSendCodeCount(sendCodeCount);
+                        unSealVehicleInfo.setVehicleNumbers(vehicleNumbers);
                         if (sendCodeCount > 0) {
                             //判断是否需要进行体积判断
                             if (this.isNeedCheckVolume(preSealVehicle.getPreSealSource(), preSealVehicle.getTransWay())) {
@@ -81,10 +149,23 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                         } else {
                             unSealVehicleInfo.setReady(false);
                         }
-                        
+                        unSealVehicleUuidMap.put(transportCode, uuids);
                         unSealVehicleInfoMap.put(transportCode, unSealVehicleInfo);
+                        unSealSendCodesMap.put(transportCode, sendCodeList);
                     }
                 }
+            }
+            /**
+             * 设置选中的批次信息
+             */
+            for(String transCode : unSealVehicleInfoMap.keySet()) {
+            	UnSealVehicleInfo unSealVehicleInfo = unSealVehicleInfoMap.get(transCode);
+            	List<String> selectedSendCodes= this.preSealBatchService.querySendCodesByUuids(unSealVehicleUuidMap.get(transCode));
+            	//取交集
+            	List<String> realSelectedSendCodes = CollectionHelper.retainAll(unSealSendCodesMap.get(transCode), selectedSendCodes);
+            	unSealVehicleInfo.setSelectedSendCodes(realSelectedSendCodes);
+            	unSealVehicleInfo.setSelectedSendCodeCount(realSelectedSendCodes.size());
+            	unSealVehicleInfo.setVehicleNumber(StringHelper.join(unSealVehicleInfo.getVehicleNumbers()));
             }
             jdResponse.setData(new ArrayList<>(unSealVehicleInfoMap.values()));
         } catch (Exception e) {
@@ -93,8 +174,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
             log.error("获取未封车信息列表失败，操作单位：{}", createSiteCode, e);
         }
         return jdResponse;
-    }
-
+	}
     /*
      * 获取未封车信息明细
      *
@@ -122,7 +202,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 jdResponse.setMessage("运力编码【" + transportCode + "】没有需要封车的批次信息！");
                 return jdResponse;
             }
-
             boolean isAllReady = false;
             String vehicleNumber = null;
             String sealCode = null;
@@ -136,7 +215,13 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                     isAllReady = true;
                 }
             }
-
+            //PDA未选择批次时，默认全选
+            boolean selectAllSendCodes = false;
+            //查询满足预封车条件下PDA已选择的所有的批次号
+            List<String> selectedSendCodes = querySelectedSendCodes(preSealVehicleList);
+            if(CollectionUtils.isEmpty(selectedSendCodes)) {
+            	selectAllSendCodes = true;
+            }
             UnSealVehicleDetail unSealVehicleDetail = new UnSealVehicleDetail();
             unSealVehicleDetail.setCreateSiteCode(createSiteCode);
             unSealVehicleDetail.setTransportCode(transportCode);
@@ -148,6 +233,12 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
                 sealVehicleSendCodeInfo.setReady(isAllReady);
                 sealVehicleSendCodeInfo.setVehicleNumber(vehicleNumber);
                 sealVehicleSendCodeInfo.setSealCode(sealCode);
+                //设置选中状态
+                if(selectAllSendCodes || selectedSendCodes.contains(unSealSendCode)) {
+                	sealVehicleSendCodeInfo.setSelectedFlag(Boolean.TRUE);
+                }else {
+                	sealVehicleSendCodeInfo.setSelectedFlag(Boolean.FALSE);
+                }
                 sealVehicleSendCodeInfoList.add(sealVehicleSendCodeInfo);
             }
             unSealVehicleDetail.setSendCodeInfoList(sealVehicleSendCodeInfoList);
@@ -315,9 +406,9 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     /**
      * 查询全部的未封车批次号数量
      */
-    private Integer getUnSealSendCodeCount(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
+    private List<String> getUnSealSendCodeList(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange) {
         List<String> result = newSealVehicleService.getUnSealSendCodeList(createSiteCode, receiveSiteCode, hourRange);
-        return result == null ? 0 : result.size();
+        return result == null ? Collections.EMPTY_LIST : result;
     }
 
     /**
@@ -343,6 +434,122 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
         unSealVehicleInfo.setPreSealSource(preSealVehicle.getPreSealSource());
         unSealVehicleInfo.setSource(preSealVehicle.getSource());
         unSealVehicleInfo.setCreateUserErp(preSealVehicle.getCreateUserErp());
+        unSealVehicleInfo.setVehicleNumber(preSealVehicle.getVehicleNumber());
         return unSealVehicleInfo;
     }
+
+	@Override
+	public JdResponse<List<PassPreSealRecord>> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		JdResponse<List<PassPreSealRecord>> result = new JdResponse<List<PassPreSealRecord>>();
+		result.toSucceed();
+		
+		//根据始发、滑道号、目的查询流向信息
+		DmsSendRelationCondition dmsSendRelationCondition = new DmsSendRelationCondition();
+		dmsSendRelationCondition.setOriginalSiteCode(queryCondition.getOriginalSiteCode());
+		dmsSendRelationCondition.setDestinationCrossCode(queryCondition.getDestinationCrossCode());
+		//数字按站点编码查询，否则按名称处理
+		String destinationSiteCodeOrName = queryCondition.getDestinationSiteCodeOrName();
+		if(NumberHelper.isNumber(destinationSiteCodeOrName)) {
+			dmsSendRelationCondition.setDestinationSiteCode(NumberHelper.convertToInteger(destinationSiteCodeOrName));
+		}else {
+			dmsSendRelationCondition.setDestinationSiteName(destinationSiteCodeOrName);
+		}
+		dmsSendRelationCondition.setLimitNum(queryCondition.getLimitNum());
+		dmsSendRelationCondition.setLineTypes(SITE_LINE_TYPES);
+		//查询7天内有发货的线路
+		dmsSendRelationCondition.setStartTime(DateHelper.addDate(new Date(), -effectDays));
+		List<DmsSendRelation> sendList = dmsSendRelationService.queryByCondition(dmsSendRelationCondition);
+		if(CollectionUtils.isNotEmpty(sendList)) {
+			List<PassPreSealRecord> dataList = new ArrayList<PassPreSealRecord>();
+			for(DmsSendRelation sendRelation : sendList) {
+				loadCarAndPreSealInfo(sendRelation,queryCondition,dataList);
+			}
+			result.setData(dataList);
+		}
+		return result;
+		
+	}
+	/**
+	 * 加载发车及预封车信息
+	 * @param sendRelation
+	 * @param requestCondition
+	 * @return
+	 */
+	private void loadCarAndPreSealInfo(DmsSendRelation sendRelation,PassPreSealQueryRequest requestCondition,List<PassPreSealRecord> resultList) {
+		//筛选满足始发、目的、车牌、发车时间的数据
+		TmsVehicleRouteCondition routeCondition = new TmsVehicleRouteCondition();
+		boolean filterRouteInfo = false;
+		if(StringHelper.isNotEmpty(routeCondition.getVehicleNumber())) {
+			routeCondition.setVehicleNumber(routeCondition.getVehicleNumber());
+			filterRouteInfo = true;
+		}
+		//时间格式yyyy-mm-dd hh:mm:ss
+		Integer recentHours = requestCondition.getRecentHours();
+		if(NumberHelper.gt0(recentHours)) {
+			filterRouteInfo = true;
+			Date now = new Date();
+			routeCondition.setDepartStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -recentHours));
+			routeCondition.setDepartEndTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, recentHours));
+		}
+		
+		routeCondition.setOriginalSiteCode(sendRelation.getOriginalSiteCode());
+		routeCondition.setDestinationSiteCode(sendRelation.getDestinationSiteCode());
+		List<TmsVehicleRoute> routeList = tmsVehicleRouteService.queryByCondition(routeCondition);
+		if(CollectionUtils.isNotEmpty(routeList)) {
+			for(TmsVehicleRoute route:routeList) {
+				resultList.add(initAndLoadPreSealInfo(sendRelation,route));
+			}
+		}else if(!filterRouteInfo){
+			//不过滤运力信息时，加入空运力信息
+			resultList.add(initAndLoadPreSealInfo(sendRelation,null));
+		}
+	}
+	/**
+	 * 初始化看板信息，加载预封车状态
+	 * @param sendRelation
+	 * @param routeInfo
+	 * @return
+	 */
+	private PassPreSealRecord initAndLoadPreSealInfo(DmsSendRelation sendRelation,TmsVehicleRoute routeInfo) {
+		PassPreSealRecord record = new PassPreSealRecord();
+		record.setOriginalSiteName(sendRelation.getOriginalSiteName());
+		record.setDestinationSiteName(sendRelation.getDestinationSiteName());
+		record.setDestinationCrossCode(sendRelation.getDestinationCrossCode());
+		record.setPreSealStatus(TextConstants.TEXT_FLAG_NO);
+		if(routeInfo != null) {
+			//存在车次信息，按运力编码+车牌查询预封车信息
+			record.setVehicleJobCode(routeInfo.getVehicleJobCode());
+			record.setCarrierTeamName(routeInfo.getCarrierTeamName());
+			record.setJobCreateTime(routeInfo.getJobCreateTime());
+			record.setVehicleNumber(routeInfo.getVehicleNumber());
+			record.setDepartTime(routeInfo.getDepartTime());
+			Integer preNum = preSealVehicleService.countPreSealNumByTransportInfo(routeInfo.getTransportCode(), routeInfo.getVehicleNumber());
+			if(NumberHelper.gt0(preNum)) {
+				record.setPreSealStatus(TextConstants.TEXT_FLAG_YES);
+			}
+		}else {
+			//不存在车次信息，按始发和目的查询预封车信息
+			Integer preNum = preSealVehicleService.countPreSealNumBySendRelation(sendRelation.getOriginalSiteCode(), sendRelation.getDestinationSiteCode());
+			if(NumberHelper.gt0(preNum)) {
+				record.setPreSealStatus(TextConstants.TEXT_FLAG_YES);
+			}
+		}
+		return record;
+	}
+	/**
+	 * 根据预封车列表，查询预封车的批次信息
+	 * @param preSealVehicleList
+	 * @return
+	 */
+	private List<String> querySelectedSendCodes(List<PreSealVehicle> preSealVehicleList){
+		if(CollectionUtils.isEmpty(preSealVehicleList)) {
+			return Collections.EMPTY_LIST;
+		}
+	    //查询满足预封车条件下PDA已选择的所有的批次号
+	    List<String> preSealUuids = new ArrayList<String>();
+	    for(PreSealVehicle preSealVehicle:preSealVehicleList) {
+	    	preSealUuids.add(preSealVehicle.getPreSealUuid());
+	    }
+	    return preSealBatchService.querySendCodesByUuids(preSealUuids);
+	}
 }

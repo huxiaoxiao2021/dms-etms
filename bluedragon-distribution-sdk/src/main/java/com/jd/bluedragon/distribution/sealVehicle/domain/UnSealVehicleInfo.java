@@ -72,6 +72,22 @@ public class UnSealVehicleInfo implements Serializable {
      * 预封车录入人员
      */
 	private String createUserErp;
+	
+    /**
+     * 车牌号
+     */
+	private String vehicleNumber;
+	
+	/**
+	 * 车牌号列表
+	 */
+	private List<String> vehicleNumbers;
+	
+	private List<String> selectedSendCodes;
+	/*
+	* 批次数量
+	* */
+	private Integer selectedSendCodeCount;
 
 	public String getTransportCode() {
 		return transportCode;
@@ -176,4 +192,36 @@ public class UnSealVehicleInfo implements Serializable {
     public void setCreateUserErp(String createUserErp) {
         this.createUserErp = createUserErp;
     }
+
+	public String getVehicleNumber() {
+		return vehicleNumber;
+	}
+
+	public void setVehicleNumber(String vehicleNumber) {
+		this.vehicleNumber = vehicleNumber;
+	}
+
+	public List<String> getVehicleNumbers() {
+		return vehicleNumbers;
+	}
+
+	public void setVehicleNumbers(List<String> vehicleNumbers) {
+		this.vehicleNumbers = vehicleNumbers;
+	}
+
+	public List<String> getSelectedSendCodes() {
+		return selectedSendCodes;
+	}
+
+	public void setSelectedSendCodes(List<String> selectedSendCodes) {
+		this.selectedSendCodes = selectedSendCodes;
+	}
+
+	public Integer getSelectedSendCodeCount() {
+		return selectedSendCodeCount;
+	}
+
+	public void setSelectedSendCodeCount(Integer selectedSendCodeCount) {
+		this.selectedSendCodeCount = selectedSendCodeCount;
+	}
 }
