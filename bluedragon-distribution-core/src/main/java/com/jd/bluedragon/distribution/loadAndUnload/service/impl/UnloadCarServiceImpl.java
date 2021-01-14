@@ -2032,6 +2032,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Override
     public boolean insertUnloadCar(TmsSealCar tmsSealCar) {
+        logger.info("封车消息过来了：sealCarCode={}, operateSiteId={}, batchCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), tmsSealCar.getBatchCodes());
 
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
