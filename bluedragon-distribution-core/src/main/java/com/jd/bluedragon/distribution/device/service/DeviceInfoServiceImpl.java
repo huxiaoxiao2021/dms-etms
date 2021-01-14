@@ -44,9 +44,9 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
     private static final Logger logger = LoggerFactory.getLogger(DeviceInfoServiceImpl.class);
     private static final String REST_CONTENT_TYPE = "application/json; charset=UTF-8";
     // 设备指纹信息获取 接口地址
-    @Value("${PC_EID_GET_URL}")
+    @Value("${PC_EID_GET_URL:''}")
     private String eidUrl;
-    @Value("${PC_EID_VERSION}")
+    @Value("${PC_EID_VERSION:v1.0.0}")
     private String eidVersion;
 
     @Autowired
