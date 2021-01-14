@@ -1,9 +1,12 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.gson.JsonObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.zhongyouex.api.common.CommonParam;
+import com.zhongyouex.api.common.CommonResponseDto;
 import com.zhongyouex.order.api.box.BoxOperateApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,8 +40,11 @@ public class ZhongyouexQueryManagerImpl  implements ZhongyouexQueryManager{
         commonParam.setAppCode(APPCODE);
         commonParam.setSource(SOURCE);
         log.info("调众邮接口判断箱是否绑定运单，param：" + boxCode);
-        Integer result = boxOperateApi.findBoxIsEmpty(commonParam,boxCode);
-        log.info("调众邮接口判断箱是否绑定运单，result：" + result);
-        return EMPTYBOX.equals(result)? Boolean.TRUE: Boolean.FALSE;
+        CommonResponseDto<Integer> result = boxOperateApi.findBoxIsEmpty(commonParam,boxCode);
+        log.info("调众邮接口判断箱是否绑定运单，result：" + JsonHelper.toJson(result));
+        if (null == result || CommonResponseDto.CODE_SUCCESS != result.getCode()){
+            log.warn("调众邮接口失败，失败原因" + JsonHelper.toJson(result));
+        }
+        return null != result && EMPTYBOX.equals(result.getData())? Boolean.TRUE: Boolean.FALSE;
     }
 }
