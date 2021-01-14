@@ -1369,12 +1369,12 @@ public class Constants {
     /**
      * 在配置内的站点隐藏
      */
-    public static final int SITE_CLOSE = 0;
+    public static final int SITE_CLOSE = 1;
 
     /**
      * 不隐藏
      */
-    public static final int SITE_OPEN = 1;
+    public static final int SITE_OPEN = 0;
 
     /**
      * 全部关闭
