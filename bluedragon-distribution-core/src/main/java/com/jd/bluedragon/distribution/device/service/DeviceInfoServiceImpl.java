@@ -90,7 +90,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
             PostMethod method = new PostMethod(eidUrl);
             method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
             method.addRequestHeader("Accept", REST_CONTENT_TYPE);
-            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(request),
+            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(eidRequest),
                     REST_CONTENT_TYPE,
                     StandardCharsets.UTF_8.name()));
             int statusCode = httpClient.executeMethod(method);

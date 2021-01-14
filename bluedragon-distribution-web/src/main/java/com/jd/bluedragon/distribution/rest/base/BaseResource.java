@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
+import com.jd.bluedragon.distribution.api.request.EquipmentIdRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
@@ -311,6 +312,18 @@ public class BaseResource {
 			log.info("设备信息上传接口:[{}]", JsonHelper.toJson(request));
 		}
 		return deviceInfoService.deviceInfoUpload(request);
+	}
+
+	/**
+	 * 获取设备指纹信息mock
+	 */
+	@POST
+	@Path("/bases/geteid")
+	public Object geteid(EquipmentIdRequest request) {
+		if (log.isInfoEnabled()) {
+			log.info("geteid接口:[{}]", JsonHelper.toJson(request));
+		}
+		return "{\"statuscode\":200,\"message\":\"\",\"data\":{\"eid\":\"eidWd6828321f3sfQhLe8S3CQMaWalWvXgHChEIS4GDZ7QIBGQ5GbYft5k7jnZzfDvVcIXUybPxvFgQAa17bT1PvkUTXAEjlU6CkSZAicKFcYiEDm+s1\",\"code\":200}}";
 	}
 
 	@POST

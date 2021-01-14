@@ -190,6 +190,11 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
         if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || extInfo == null) {
             return;
         }
+
+        if (log.isInfoEnabled()) {
+            log.info("填充设备指纹信息:clientInfo={}", JsonHelper.toJson(clientInfo));
+        }
+
         if (!Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL))) {
             return;
         }
@@ -198,7 +203,6 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             if (deviceInfo == null) {
                 return;
             }
-            // TODO 升级 userSDK ,标准化 参数名
             extInfo.put(Constants.LoginParam.EQUIPMNET_ID, deviceInfo.getEquipmentId());
             extInfo.put("deviceName", deviceInfo.getDeviceName());
             extInfo.put("deviceVersion", clientInfo.getVersionName());
@@ -207,6 +211,10 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
 
         } catch (Exception e) {
             log.error("解析设备信息出错:",e);
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("填充设备指纹信息:exInfo={}", JsonHelper.toJson(extInfo));
         }
     }
 }
