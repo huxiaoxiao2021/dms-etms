@@ -11,6 +11,7 @@ import com.zhongyouex.order.api.box.BoxOperateApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +19,8 @@ public class ZhongyouexQueryManagerImpl  implements ZhongyouexQueryManager{
 
     private static final Logger log = LoggerFactory.getLogger(ZhongyouexQueryManagerImpl.class);
 
-    private static final String APPCODE = "JD_EXPRESS_FRONT";
+    @Value("${ZhongyouexQueryManagerImpl.APPCODE}")
+    private String APPCODE;
     private static final String SOURCE = "1020";
 
     //1:非空箱   0：空箱
