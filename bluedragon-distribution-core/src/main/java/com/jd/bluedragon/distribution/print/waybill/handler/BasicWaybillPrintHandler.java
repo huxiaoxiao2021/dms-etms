@@ -335,7 +335,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
             // 什么类型的单子才打印包裹增值服务 所有的包裹
-            Map<String,String> pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
+            //waybillsign86=3或2 表示包裹有增值服务
+            Map<String,String> pickUpMap = new HashMap();
+            boolean isPackageHavePickUpOrNo = BusinessUtil.isPackageHavePickUpOrNo(tmsWaybill.getWaybillSign());
+            if(isPackageHavePickUpOrNo){
+                pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
+            }
             List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
                 for (DeliveryPackageD item:bigWaybillDto.getPackageList()){

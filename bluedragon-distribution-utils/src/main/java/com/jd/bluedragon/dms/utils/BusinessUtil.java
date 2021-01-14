@@ -1857,4 +1857,13 @@ public class BusinessUtil {
         }
         return  false;
     }
+    /**
+     * 判断包裹维度是否有增值服务信息，waybillSign86位=2或者3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPackageHavePickUpOrNo(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
+    }
 }

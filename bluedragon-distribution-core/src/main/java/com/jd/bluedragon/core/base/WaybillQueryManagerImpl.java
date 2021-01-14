@@ -754,6 +754,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         goodsQueryDto.setWaybillCode(wayBillCode);
         try {
             BaseEntity<List<GoodsDto>> baseEntity = waybillQueryApi.queryGoodsDataByWCode(goodsQueryDto);
+            log.info("查询运单下商品明细-支持扩展属性,运单号:{},获取数据:{}",wayBillCode,JsonHelper.toJson(baseEntity));
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getResultCode() == 1) {
                 List<GoodsDto> dataList = baseEntity.getData();
                 if(dataList!= null && dataList.size()>0){
@@ -768,7 +769,10 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                         List<WaybillPickupVasDto> waybillPickupVasDtoList = goodsDto.getWaybillPickupVasDtoList();
                         if(CollectionUtils.isNotEmpty(waybillPickupVasDtoList)){
                             for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
-                                if(StringUtils.isNotBlank(waybillPickupVasDto.getPrimaryParam())) sbString.append(waybillPickupVasDto.getPrimaryParam());
+                                Map<String,Object> vasExtMap = waybillPickupVasDto.getVasExt();
+                                if(vasExtMap != null && !vasExtMap.isEmpty()){
+                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(vasExtMap.get("vasName"));
+                                }
                             }
                         }
                         if(StringUtils.isNotBlank(packPickUpVas)){
@@ -788,6 +792,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 log.error("查询运单下商品明细支持扩展属性接口失败！运单号:{},异常信息:{}",wayBillCode,e);
             }
         }
+        log.info("获取商品增值信息成功,运单号:{},返回增值信息:{}",wayBillCode,packageUpVasMap);
         return packageUpVasMap;
     }
 }
