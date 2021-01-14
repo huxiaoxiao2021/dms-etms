@@ -3095,6 +3095,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 	        SendDetail tSendDetail = new SendDetail();
 	        List<SendDetail> sendDetailListTemp;
 	        List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
+	        if(CollectionUtils.isEmpty(tSendM)){
+	            return true;
+            }
 	        for (SendM newSendM : tSendM) {
 	            tSendDetail.setBoxCode(newSendM.getBoxCode());
 	            tSendDetail.setCreateSiteCode(newSendM.getCreateSiteCode());

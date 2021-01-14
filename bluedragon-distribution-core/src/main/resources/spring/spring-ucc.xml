@@ -87,6 +87,7 @@
 		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite}"/>
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
+		<property name="deliverHideSites" value="${deliverHideSites:''}" />
 
 	</bean>
 
@@ -146,6 +147,7 @@
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
+				<value>uccPropertyConfiguration.deliverHideSites</value>
 			</list>
 		</property>
 	</bean>

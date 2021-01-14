@@ -1372,4 +1372,24 @@ public class Constants {
      * 抽检PDA来源标识
      */
     public static final Integer PDA_SOURCE = 1;
+
+    /**
+     * 全部站点隐藏
+     */
+    public static final int ALL_SITE_CLOSE = -1;
+
+    /**
+     * 在配置内的站点隐藏
+     */
+    public static final int SITE_CLOSE = 1;
+
+    /**
+     * 不隐藏
+     */
+    public static final int SITE_OPEN = 0;
+
+    /**
+     * 全部关闭
+     */
+    public static final String CLOSE_ALL_SITE = "close_all_site";
 }
