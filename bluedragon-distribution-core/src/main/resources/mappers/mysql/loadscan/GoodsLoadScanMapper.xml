@@ -150,7 +150,7 @@
             #{info.loadAmount,jdbcType=INTEGER}, #{info.unloadAmount,jdbcType=INTEGER}, #{info.forceAmount,jdbcType=INTEGER},
             #{info.status,jdbcType=INTEGER}, #{info.createUserCode,jdbcType=VARCHAR},
             #{info.createUserName,jdbcType=VARCHAR}, #{info.updateUserCode,jdbcType=VARCHAR}, #{info.updateUserName,jdbcType=VARCHAR},
-            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER}), now(3)
+            #{info.createTime,jdbcType=TIMESTAMP}, #{info.updateTime,jdbcType=TIMESTAMP}, #{info.yn,jdbcType=INTEGER}, now(3))
         </foreach>
     </insert>
 

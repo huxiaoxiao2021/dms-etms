@@ -506,7 +506,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 组装返回对象
         LoadScanDetailDto scanDetailDto = new LoadScanDetailDto();
         scanDetailDto.setBatchCode(loadCar.getBatchCode());
-
+        // 装车界面增加返回下一场地
+        scanDetailDto.setNextSiteName(loadCar.getEndSiteName());
         if (user != null && StringUtils.isNotBlank(user.getUserErp())) {
             // 如果场地配置了发货白名单
             if (hasSendFunction(createSiteId, user.getUserErp())) {
