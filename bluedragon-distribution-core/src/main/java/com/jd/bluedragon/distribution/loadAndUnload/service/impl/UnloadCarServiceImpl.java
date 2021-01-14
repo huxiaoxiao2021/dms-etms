@@ -359,7 +359,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("原始包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -464,7 +464,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -563,7 +563,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 inspectionIntercept(request);
 
                 // 查询包裹所在批次号
-                String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -984,7 +984,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
             // 查询运单所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+            String sendCode = null;
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
 
@@ -1090,7 +1090,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             // 查询运单所在批次号
-            String sendCode = getBatchCode(waybillCode, request.getOperateSiteCode());
+            String sendCode = null;
 
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
