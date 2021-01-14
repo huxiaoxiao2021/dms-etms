@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.google.gson.JsonObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -15,9 +14,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ZhongyouexQueryManagerImpl  implements ZhongyouexQueryManager{
+public class BoxOperateApiManagerImpl implements BoxOperateApiManager {
 
-    private static final Logger log = LoggerFactory.getLogger(ZhongyouexQueryManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(BoxOperateApiManagerImpl.class);
 
     @Value("${ZhongyouexQueryManagerImpl.APPCODE}")
     private String APPCODE;

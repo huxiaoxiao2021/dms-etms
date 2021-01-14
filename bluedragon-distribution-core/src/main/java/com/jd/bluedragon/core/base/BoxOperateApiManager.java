@@ -3,7 +3,7 @@ package com.jd.bluedragon.core.base;
 /**
  * 众邮相关接口
  */
-public interface ZhongyouexQueryManager {
+public interface BoxOperateApiManager {
 
     /**
      * 判断箱是否空箱

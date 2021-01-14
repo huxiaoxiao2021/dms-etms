@@ -2,25 +2,20 @@ package com.jd.bluedragon.distribution.weightVolume.check;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.core.base.ZhongyouexQueryManager;
+import com.jd.bluedragon.core.base.BoxOperateApiManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.box.service.DmsBoxQueryService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
-import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BoxHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +44,7 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
     private WeighByWaybillService weighByWaybillService;
 
     @Autowired
-    private ZhongyouexQueryManager zhongyouexQueryManager;
+    private BoxOperateApiManager boxOperateApiManager;
 
     @Autowired
     private DmsBoxQueryService dmsBoxQueryService;
@@ -159,7 +154,7 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         }
         if (isEconomicNetBox.getData()) {
             //规则1
-            boolean isEmpty = zhongyouexQueryManager.findBoxIsEmpty(entity.getBarCode());
+            boolean isEmpty = boxOperateApiManager.findBoxIsEmpty(entity.getBarCode());
             if (isEmpty){
                 result.customMessage(InvokeResult.RESULT_BOX_EMPTY_CODE,InvokeResult.RESULT_BOX_EMPTY_MESSAGE);
                 result.setData(Boolean.FALSE);

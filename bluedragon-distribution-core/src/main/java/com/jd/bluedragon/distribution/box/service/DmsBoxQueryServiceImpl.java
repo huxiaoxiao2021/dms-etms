@@ -5,6 +5,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.common.annotation.CacheMethod;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,6 +30,7 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    @CacheMethod(key="DmsBoxQueryServiceImpl.isEconomicNetBox-{0}", cacheBean="redisCache", timeout = 1000 * 60 * 5)
     public Response<Boolean> isEconomicNetBox(String boxCode) {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
