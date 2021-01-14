@@ -4,18 +4,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
-import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -30,9 +25,6 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     private BoxService boxService;
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private ThirdBoxDetailService thirdBoxDetailService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBoxQueryServiceImpl.isEconomicNetBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
