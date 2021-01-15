@@ -82,7 +82,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         eidRequest.setTimeStamp(System.currentTimeMillis());
         eidRequest.setFpVersion(eidVersion);
         if (logger.isInfoEnabled()) {
-            logger.info("开始调用设备指纹接口,req:{}", JsonHelper.toJson(request));
+            logger.info("开始调用设备指纹接口:url:{},req:{}", eidUrl, JsonHelper.toJson(request));
         }
         try {
             HttpClient httpClient = new HttpClient();
