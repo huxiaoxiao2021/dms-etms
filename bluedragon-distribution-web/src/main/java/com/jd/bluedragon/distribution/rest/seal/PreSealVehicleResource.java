@@ -203,7 +203,7 @@ public class PreSealVehicleResource {
      * @return
      */
     private List<PreSealBatch> convertPreSealBatchs(PreSealVehicle preSealVehicle, SealCarDto sealCarDto) {
-    	if(CollectionUtils.isNotEmpty(sealCarDto.getSelectedSendCodes())) {
+    	if(preSealVehicle != null && CollectionUtils.isNotEmpty(sealCarDto.getSelectedSendCodes())) {
     		List<PreSealBatch> preSealBatchs = new ArrayList<PreSealBatch>();
     		for(String sendCode : sealCarDto.getSelectedSendCodes()) {
     			PreSealBatch preSealBatch = new PreSealBatch();

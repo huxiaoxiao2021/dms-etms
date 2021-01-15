@@ -42,10 +42,6 @@ public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
             return;
         }
         TmsVehicleRoute tmsVehicleRoute = convertBean(mqData);
-        if(tmsVehicleRoute == null) {
-            log.warn("TmsVehicleRouteStatusConsumer consume --> 无效消息：{}", message.getText());
-            return;
-        }
         tmsVehicleRouteService.syncToDb(tmsVehicleRoute,mqData.getBeginNodeCode(),mqData.getEndNodeCode());
     }
     /**
