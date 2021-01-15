@@ -1,38 +1,40 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
-        import com.jd.bluedragon.Constants;
-        import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-        import com.jd.bluedragon.common.dto.base.request.User;
-        import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
-        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
-        import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
-        import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-        import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
-        import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
-        import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
-        import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-        import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
-        import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
-        import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
-        import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-        import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
-        import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
-        import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
-        import com.jd.bluedragon.utils.JsonHelper;
-        import com.jd.ql.dms.report.domain.LoadScanDto;
-        import org.apache.commons.collections4.ListUtils;
-        import org.junit.Test;
-        import org.junit.runner.RunWith;
-        import org.springframework.test.context.ContextConfiguration;
-        import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
+import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.report.domain.LoadScanDto;
+import org.apache.commons.collections4.ListUtils;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-        import javax.annotation.Resource;
-        import java.util.ArrayList;
-        import java.util.Date;
-        import java.util.List;
-        import java.util.Map;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 装车发货相关功能测试
@@ -48,6 +50,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
+
+    @Resource
+    private GoodsLoadScanDao goodsLoadScanDao;
 
     @Resource
     private LoadCarTaskGateWayService loadCarTaskGateWayService;
@@ -372,5 +377,64 @@ public class GoodsLoadingScanningServiceImplTest {
         req.setVehicleNumber("京A00001");
         req.setOperateUserName("刑松");
         loadAndUnloadCarGatewayService.createUnloadTask(req);
+    }
+
+    @Test
+    public void testFindPackageCodesByWaybillCode3() {
+
+        List<String> waybillCodes = new ArrayList<>();
+        for (int i = 1; i < 1000; i ++) {
+            String index;
+            if ((i / 100) >= 1 ) {
+                index = "";
+            } else if ((i / 10) >= 1) {
+                index = "0";
+            } else {
+                index = "00";
+            }
+            String waybillCode = "JDV100000000" + index + i;
+            waybillCodes.add(waybillCode);
+        }
+
+        GoodsLoadScan goodsLoadScan;
+        GoodsLoadScanRecord goodsLoadScanRecord;
+        List<GoodsLoadScan> list = new ArrayList<>();
+        List<GoodsLoadScanRecord> records = new ArrayList<>();
+        for (int i = 0; i <= waybillCodes.size() - 1; i ++) {
+            goodsLoadScan = new GoodsLoadScan();
+            String waybillCode = waybillCodes.get(i);
+            goodsLoadScan.setTaskId(197L);
+            goodsLoadScan.setWayBillCode(waybillCode);
+            goodsLoadScan.setPackageAmount(5);
+            goodsLoadScan.setLoadAmount(1);
+            goodsLoadScan.setUnloadAmount(4);
+            goodsLoadScan.setForceAmount(0);
+            goodsLoadScan.setStatus(4);
+            goodsLoadScan.setWeight(0d);
+            goodsLoadScan.setVolume(0d);
+            goodsLoadScan.setYn(1);
+            list.add(goodsLoadScan);
+            for (int j = 1; j <= 1; j ++) {
+                goodsLoadScanRecord = new GoodsLoadScanRecord();
+                String packageCode = waybillCode + "-" + j + "-" + "5" + "-";
+                goodsLoadScanRecord.setTaskId(197L);
+                goodsLoadScanRecord.setWayBillCode(waybillCode);
+                goodsLoadScanRecord.setPackageCode(packageCode);
+                goodsLoadScanRecord.setCreateSiteCode(910L);
+                goodsLoadScanRecord.setCreateSiteName("北京马驹桥分拣中心");
+                goodsLoadScanRecord.setEndSiteCode(364605L);
+                goodsLoadScanRecord.setEndSiteName("北京通州分拣中心");
+                goodsLoadScanRecord.setFlowDisaccord(0);
+                goodsLoadScanRecord.setForceStatus(0);
+                goodsLoadScanRecord.setLicenseNumber("京J00001");
+                goodsLoadScanRecord.setScanAction(1);
+                goodsLoadScanRecord.setTransfer(0);
+                goodsLoadScanRecord.setYn(1);
+                records.add(goodsLoadScanRecord);
+            }
+        }
+        goodsLoadScanRecordDao.batchInsert(records);
+        goodsLoadScanDao.batchInsert(list);
+        System.out.println("123");
     }
 }
