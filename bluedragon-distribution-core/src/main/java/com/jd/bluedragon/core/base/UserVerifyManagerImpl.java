@@ -127,7 +127,9 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
                 }
             }
             //填充设备信息
-            putDeviceInfo(clientInfo, extInfo);
+            if ((Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL)))) {
+                putDeviceInfo(clientInfo, loginParam);
+            }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
             if (loginResult == null) {
@@ -186,8 +188,8 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
     /**
      * 针对PC客户端 填充设备指纹信息
      */
-    public void putDeviceInfo(ClientInfo clientInfo, Map<String, String> extInfo) {
-        if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || extInfo == null) {
+    public void putDeviceInfo(ClientInfo clientInfo,LoginParam loginParam ) {
+        if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || loginParam == null) {
             return;
         }
 
@@ -195,26 +197,22 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             log.info("填充设备指纹信息:clientInfo={}", JsonHelper.toJson(clientInfo));
         }
 
-        if (!Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL))) {
-            return;
-        }
         try {
             DeviceInfoRequest deviceInfo = JsonHelper.fromJson(clientInfo.getDeviceInfo(), DeviceInfoRequest.class);
+            if (log.isInfoEnabled()) {
+                log.info("填充设备指纹信息:deviceInfo={}", JsonHelper.toJson(deviceInfo));
+            }
             if (deviceInfo == null) {
                 return;
             }
-            extInfo.put(Constants.LoginParam.EQUIPMNET_ID, deviceInfo.getEquipmentId());
-            extInfo.put("deviceName", deviceInfo.getDeviceName());
-            extInfo.put("deviceVersion", clientInfo.getVersionName());
-            extInfo.put("deviceOS", deviceInfo.getPlatform());
-            extInfo.put("deviceOSVersion", deviceInfo.getSystemVersion());
-
+            loginParam.setEquipmentId(deviceInfo.getEquipmentId());
+            loginParam.setDeviceName(deviceInfo.getDeviceName());
+            loginParam.setDeviceOSVersion(deviceInfo.getAppVersion());
+            loginParam.setDeviceOS(deviceInfo.getPlatform());
+            loginParam.setDeviceOSVersion(deviceInfo.getSystemVersion());
         } catch (Exception e) {
             log.error("解析设备信息出错:",e);
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("填充设备指纹信息:exInfo={}", JsonHelper.toJson(extInfo));
-        }
     }
 }
