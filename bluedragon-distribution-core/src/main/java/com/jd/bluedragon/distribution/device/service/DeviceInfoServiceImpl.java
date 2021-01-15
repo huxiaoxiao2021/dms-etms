@@ -75,6 +75,8 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeviceInfoServiceImpl.deviceInfoUpload", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.FunctionError,JProEnum.TP})
     public JdResult<String> deviceInfoUpload(DeviceInfoRequest request) {
         JdResult<String> result = new JdResult<>();
+        result.toSuccess();
+
         EquipmentIdRequest eidRequest = new EquipmentIdRequest();
         BeanUtils.copyProperties(request, eidRequest);
         eidRequest.setTimeStamp(System.currentTimeMillis());
@@ -82,7 +84,6 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         if (logger.isInfoEnabled()) {
             logger.info("开始调用设备指纹接口,req:{}", JsonHelper.toJson(request));
         }
-        result.toSuccess();
         try {
             HttpClient httpClient = new HttpClient();
             PostMethod method = new PostMethod(eidUrl);
@@ -102,6 +103,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
             Map response = JsonHelper.fromJson(body, Map.class);
             if (response == null || response.get("data") == null) {
                 result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
+                logger.warn("调用设备指纹接口body或data为空!");
                 return result;
             }
             Map dataMap = JsonHelper.fromJson(response.get("data").toString(), Map.class);
@@ -109,6 +111,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
                 result.setData(dataMap.get("eid").toString());
             } else {
                 result.toError("调用设备指纹接口未获取到指纹信息！请联系分拣小秘");
+                logger.warn("调用设备指纹接口data或eid为空!");
                 return result;
             }
         } catch (Exception e) {

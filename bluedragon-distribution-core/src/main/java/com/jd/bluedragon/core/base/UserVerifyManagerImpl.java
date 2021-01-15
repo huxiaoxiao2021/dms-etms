@@ -205,11 +205,21 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             if (deviceInfo == null) {
                 return;
             }
-            loginParam.setEquipmentId(deviceInfo.getEquipmentId());
-            loginParam.setDeviceName(deviceInfo.getDeviceName());
-            loginParam.setDeviceOSVersion(deviceInfo.getAppVersion());
-            loginParam.setDeviceOS(deviceInfo.getPlatform());
-            loginParam.setDeviceOSVersion(deviceInfo.getSystemVersion());
+            if (!StringUtils.isEmpty(deviceInfo.getEquipmentId())) {
+                loginParam.setEquipmentId(deviceInfo.getEquipmentId());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getDeviceName())) {
+                loginParam.setDeviceName(deviceInfo.getDeviceName());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getAppVersion())) {
+                loginParam.setDeviceOSVersion(deviceInfo.getAppVersion());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getPlatform())){
+                loginParam.setDeviceOS(deviceInfo.getPlatform());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getSystemVersion())) {
+                loginParam.setDeviceOSVersion(deviceInfo.getSystemVersion());
+            }
         } catch (Exception e) {
             log.error("解析设备信息出错:",e);
         }
