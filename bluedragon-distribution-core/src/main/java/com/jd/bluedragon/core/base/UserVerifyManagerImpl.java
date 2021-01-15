@@ -128,7 +128,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             }
             //填充设备信息
             if ((Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL)))) {
-                putDeviceInfo(clientInfo, loginParam);
+                putDeviceInfo(clientInfo, loginParam, extInfo);
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
@@ -188,7 +188,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
     /**
      * 针对PC客户端 填充设备指纹信息
      */
-    public void putDeviceInfo(ClientInfo clientInfo,LoginParam loginParam ) {
+    public void putDeviceInfo(ClientInfo clientInfo,LoginParam loginParam ,Map<String, String> extInfo) {
         if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || loginParam == null) {
             return;
         }
@@ -207,6 +207,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             }
             if (!StringUtils.isEmpty(deviceInfo.getEquipmentId())) {
                 loginParam.setEquipmentId(deviceInfo.getEquipmentId());
+                extInfo.put(Constants.LoginParam.EQUIPMNET_ID, deviceInfo.getEquipmentId());
             }
             if (!StringUtils.isEmpty(deviceInfo.getDeviceName())) {
                 loginParam.setDeviceName(deviceInfo.getDeviceName());
