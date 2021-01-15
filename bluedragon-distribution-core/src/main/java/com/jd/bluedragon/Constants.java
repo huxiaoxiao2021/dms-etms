@@ -1363,4 +1363,24 @@ public class Constants {
      * PDA无封车号任务前缀
      */
     public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
+
+    /**
+     * 全部站点隐藏
+     */
+    public static final int ALL_SITE_CLOSE = -1;
+
+    /**
+     * 在配置内的站点隐藏
+     */
+    public static final int SITE_CLOSE = 1;
+
+    /**
+     * 不隐藏
+     */
+    public static final int SITE_OPEN = 0;
+
+    /**
+     * 全部关闭
+     */
+    public static final String CLOSE_ALL_SITE = "close_all_site";
 }

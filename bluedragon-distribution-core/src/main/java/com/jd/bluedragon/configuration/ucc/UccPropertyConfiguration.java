@@ -219,6 +219,11 @@ public class UccPropertyConfiguration {
      */
     private String allPureValidateWeightWebSite;
 
+    /**
+     * 隐藏站点编号
+     */
+    private String deliverHideSites;
+
     /*
     * 现场预分拣是否校验开关
     * */
@@ -622,5 +627,13 @@ public class UccPropertyConfiguration {
 
     public void setPreSortOnSiteSwitchOn(boolean preSortOnSiteSwitchOn) {
         this.preSortOnSiteSwitchOn = preSortOnSiteSwitchOn;
+    }
+
+    public String getDeliverHideSites() {
+        return deliverHideSites;
+    }
+
+    public void setDeliverHideSites(String deliverHideSites) {
+        this.deliverHideSites = deliverHideSites;
     }
 }
