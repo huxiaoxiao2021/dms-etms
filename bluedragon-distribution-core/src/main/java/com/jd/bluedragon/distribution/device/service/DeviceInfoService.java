@@ -2,12 +2,13 @@ package com.jd.bluedragon.distribution.device.service;
 
 
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
+import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
 
 import java.util.List;
 
 /**
- * <p>
- *     自动化设备查询信息
+ *     设备信息 处理逻辑
  *
  * @author wuzuxiang
  * @since 2019/11/27
@@ -21,4 +22,9 @@ public interface DeviceInfoService {
      * @return 返回满足条件的设备列表
      */
     List<DeviceInfoDto> queryDeviceConfigByTypeAndSiteCode(String siteCode, String deviceType);
+
+    /**
+     * 上传设备信息，返回信任token
+     */
+    JdResult<String> deviceInfoUpload(DeviceInfoRequest request);
 }
