@@ -40,9 +40,13 @@ public class BoxOperateApiManagerImpl implements BoxOperateApiManager {
         CommonParam commonParam = new CommonParam();
         commonParam.setAppCode(APPCODE);
         commonParam.setSource(SOURCE);
-        log.info("调众邮接口判断箱是否绑定运单，param：" + boxCode);
+        if(log.isInfoEnabled()){
+            log.info("调众邮接口判断箱是否绑定运单，param：" + boxCode);
+        }
         CommonResponseDto<Integer> result = boxOperateApi.findBoxIsEmpty(commonParam,boxCode);
-        log.info("调众邮接口判断箱是否绑定运单，result：" + JsonHelper.toJson(result));
+        if(log.isInfoEnabled()){
+            log.info("调众邮接口判断箱是否绑定运单，result：" + JsonHelper.toJson(result));
+        }
         if (null == result || CommonResponseDto.CODE_SUCCESS != result.getCode()){
             log.warn("调众邮接口失败，失败原因" + JsonHelper.toJson(result));
         }
