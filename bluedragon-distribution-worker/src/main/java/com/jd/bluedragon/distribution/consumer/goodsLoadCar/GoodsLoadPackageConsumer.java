@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.util.StringUtils;
 import com.jd.jmq.common.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,12 +56,29 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         domain.setCreateSiteCode(req.getCurrentOperate().getSiteCode());
         domain.setSendCode(req.getSendCode());
         domain.setBoxCode(req.getPackageCode());//包裹号
-        domain.setCreateUser(req.getUserName());
-        domain.setCreateUserCode(req.getUserCode());
+        if (StringUtils.isNotBlank(req.getUserName())) {
+            domain.setCreateUser(req.getUserName());
+            domain.setCreateUserCode(req.getUserCode());
+        } else {
+            if (req.getUser() != null) {
+                domain.setCreateUser(req.getUser().getUserName());
+                domain.setCreateUserCode(req.getUser().getUserCode());
+            } else {
+                domain.setCreateUser("system");
+                domain.setCreateUserCode(0);
+            }
+        }
+
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(GoodsLoadScanConstants.YN_Y);
-        domain.setCreateTime(req.getUpdateTime());
-        domain.setOperateTime(req.getUpdateTime());
+
+        if (req.getUpdateTime() != null) {
+            domain.setCreateTime(req.getUpdateTime());
+            domain.setOperateTime(req.getUpdateTime());
+        } else {
+            domain.setCreateTime(new Date());
+            domain.setOperateTime(new Date());
+        }
 
         if(log.isDebugEnabled()) {
             log.debug("装车完成发货--begin--参数【{}】", JsonHelper.toJson(domain));
