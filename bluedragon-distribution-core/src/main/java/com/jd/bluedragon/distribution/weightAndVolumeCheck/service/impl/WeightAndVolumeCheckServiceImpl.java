@@ -609,11 +609,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     private AbnormalResultMq convertToAbnormalResultMq(WeightVolumeCollectDto weightVolumeCollectDto) {
-        // C抽B 临时方案,不下发
-        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            return null;
-        }
-
         AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
         abnormalResultMq.setSource(SystemEnum.DMS.getCode());
         abnormalResultMq.setBusinessType(1);
@@ -1748,6 +1743,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @time 2020-08-26 15:00:19 周三
      */
     private void sendMqToFxm(WeightVolumeCollectDto weightVolumeCollectDto){
+        // C抽B 临时方案,不下发
+        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            return;
+        }
         // 下发
         AbnormalResultMq abnormalResultMq = convertToAbnormalResultMq(weightVolumeCollectDto);
         if(abnormalResultMq == null){
