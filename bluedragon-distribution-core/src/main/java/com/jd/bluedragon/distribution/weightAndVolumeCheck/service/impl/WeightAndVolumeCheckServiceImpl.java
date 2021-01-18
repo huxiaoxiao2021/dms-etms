@@ -611,7 +611,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private AbnormalResultMq convertToAbnormalResultMq(WeightVolumeCollectDto weightVolumeCollectDto) {
         AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
         abnormalResultMq.setSource(SystemEnum.DMS.getCode());
-        abnormalResultMq.setBusinessType(1);
+        abnormalResultMq.setBusinessType(BusinessHelper.translateSpotCheckTypeToBusinessType(weightVolumeCollectDto.getSpotCheckType()));
         try {
             String[] split = weightVolumeCollectDto.getReviewLWH().split("\\*");
             abnormalResultMq.setReviewLength(Double.valueOf(split[0]));
