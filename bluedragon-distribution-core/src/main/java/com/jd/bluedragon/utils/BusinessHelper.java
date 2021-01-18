@@ -186,7 +186,7 @@ public class BusinessHelper {
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
                     && BusinessUtil.isSignChar(waybillSign, 25, '2')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -217,7 +217,7 @@ public class BusinessHelper {
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
                     && BusinessUtil.isSignChar(waybillSign, 25, '3')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -677,7 +677,7 @@ public class BusinessHelper {
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
                     && BusinessUtil.isSignChar(waybillSign, 25, '2')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return true;
             }
         }
@@ -695,7 +695,7 @@ public class BusinessHelper {
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
                     && BusinessUtil.isSignChar(waybillSign, 25, '3')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return true;
             }
         }
