@@ -1860,7 +1860,7 @@ public class BusinessUtil {
 
     /**
      * 判断是否是快运
-     * 31位 为0 是特快送
+     * 31位 为1 是特快送
      * @param waybillSign
      * @return
      */

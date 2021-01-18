@@ -49,6 +49,7 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -608,6 +609,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     private AbnormalResultMq convertToAbnormalResultMq(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // C抽B 临时方案,不下发
+        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            return null;
+        }
+
         AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
         abnormalResultMq.setSource(SystemEnum.DMS.getCode());
         abnormalResultMq.setBusinessType(1);
@@ -764,6 +770,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.setData(false);
             }
 
+            // 超标标识判断
             if(standardDto!=null && standardDto.getExcessFlag()){
                 result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
                 result.setData(false);
@@ -776,6 +783,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
             weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/volumeRate));
             weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
+
+            //C抽B 特殊处理
+            this.specialTreatment(weightVolumeCollectDto);
 
             //将重量体积实体存入es中
             BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
@@ -790,6 +800,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
+    }
+
+    /**
+     * 针对C抽B的 特殊处理 --是否超标不填
+     * @param weightVolumeCollectDto
+     */
+    private void specialTreatment(WeightVolumeCollectDto weightVolumeCollectDto) {
+        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            weightVolumeCollectDto.setIsExcess(SpotCheckTypeEnum.SPOT_CHECK_TYPE_X.getCode());
+        }
     }
 
     private void sendWaybillTrace(WeightVolumeCollectDto dto) {
@@ -917,7 +937,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
         condition.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         // B网抽检是按运单号存入packageCode字段，如果以后不是一单一件，则需要更改此处
-
         InvokeResult<WeightVolumeCollectDto> weightVolumeCollectDtoInvokeResult = this.queryLatestCheckRecord(condition);
         if(weightVolumeCollectDtoInvokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
             result.setData(false);
@@ -1127,7 +1146,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(StringUtils.isNotEmpty(baseEntity.getData().getWaybill().getWaybillSign())){
                 weightVolumeCollectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(baseEntity.getData().getWaybill().getWaybillSign()));
             }else {
-                weightVolumeCollectDto.setSpotCheckType(0);//C网
+                weightVolumeCollectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode());//C网
             }
 
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){

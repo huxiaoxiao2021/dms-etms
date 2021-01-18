@@ -16,6 +16,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
 import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -227,9 +228,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             spotCheckInfo.setSiteName(spotCheckExcelDataList.get(i).getSiteName());
 
             if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("C网")){
-                spotCheckInfo.setSpotCheckType(0);
+                spotCheckInfo.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode());
             }else if(spotCheckExcelDataList.get(i).getSpotCheckType().equals("B网")){
-                spotCheckInfo.setSpotCheckType(1);
+                spotCheckInfo.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());
             }
             spotCheckInfo.setNormalPackageNum(spotCheckExcelDataList.get(i).getNormalPackageNum());
             spotCheckInfo.setTrustPackageNum(spotCheckExcelDataList.get(i).getTrustPackageNum());
