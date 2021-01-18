@@ -43,22 +43,22 @@ public class DeviceInfoRequest extends JdRequest {
     /**
     * BIOS序列号
     */
-    private String BIOSSerial ;
+    private String biosSerial ;
 
     /**
     * 主板UUID
     */
-    private String boardUUID ;
+    private String boardUuid ;
 
     /**
     * machineGUID: 注册表中 windows系统的GUID
     */
-    private String machineGUID ;
+    private String machineGuid ;
 
     /**
     * 处理器ID
     */
-    private String CPUID ;
+    private String cpuId ;
 
     public String getEquipmentId() {
         return equipmentId;
@@ -132,35 +132,35 @@ public class DeviceInfoRequest extends JdRequest {
         this.diskDriveSerial = diskDriveSerial;
     }
 
-    public String getBIOSSerial() {
-        return BIOSSerial;
+    public String getBiosSerial() {
+        return biosSerial;
     }
 
-    public void setBIOSSerial(String BIOSSerial) {
-        this.BIOSSerial = BIOSSerial;
+    public void setBiosSerial(String biosSerial) {
+        this.biosSerial = biosSerial;
     }
 
-    public String getBoardUUID() {
-        return boardUUID;
+    public String getBoardUuid() {
+        return boardUuid;
     }
 
-    public void setBoardUUID(String boardUUID) {
-        this.boardUUID = boardUUID;
+    public void setBoardUuid(String boardUuid) {
+        this.boardUuid = boardUuid;
     }
 
-    public String getMachineGUID() {
-        return machineGUID;
+    public String getMachineGuid() {
+        return machineGuid;
     }
 
-    public void setMachineGUID(String machineGUID) {
-        this.machineGUID = machineGUID;
+    public void setMachineGuid(String machineGuid) {
+        this.machineGuid = machineGuid;
     }
 
-    public String getCPUID() {
-        return CPUID;
+    public String getCpuId() {
+        return cpuId;
     }
 
-    public void setCPUID(String CPUID) {
-        this.CPUID = CPUID;
+    public void setCpuId(String cpuId) {
+        this.cpuId = cpuId;
     }
 }

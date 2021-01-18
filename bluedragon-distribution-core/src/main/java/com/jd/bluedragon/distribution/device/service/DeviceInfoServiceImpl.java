@@ -7,19 +7,15 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
-import com.jd.bluedragon.distribution.api.request.EquipmentIdRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.JdCloudPrintResponse;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -77,19 +73,16 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         JdResult<String> result = new JdResult<>();
         result.toSuccess();
 
-        EquipmentIdRequest eidRequest = new EquipmentIdRequest();
-        BeanUtils.copyProperties(request, eidRequest);
-        eidRequest.setTimeStamp(System.currentTimeMillis());
-        eidRequest.setFpVersion(eidVersion);
+        Map<String, Object> eidParamMap = getEidParamMap(request);
         if (logger.isInfoEnabled()) {
-            logger.info("开始调用设备指纹接口:url:{},req:{}", eidUrl, JsonHelper.toJson(request));
+            logger.info("开始调用设备指纹接口:url:{},req:{}", eidUrl, JsonHelper.toJsonMs(eidParamMap));
         }
         try {
             HttpClient httpClient = new HttpClient();
             PostMethod method = new PostMethod(eidUrl);
             method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
             method.addRequestHeader("Accept", REST_CONTENT_TYPE);
-            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJson(eidRequest),
+            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJsonMs(eidParamMap),
                     REST_CONTENT_TYPE,
                     StandardCharsets.UTF_8.name()));
             int statusCode = httpClient.executeMethod(method);
@@ -119,5 +112,79 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
             result.toError("调用设备指纹接口出错！请联系分拣小秘");
         }
         return result;
+    }
+
+    private Map<String, Object> getEidParamMap(DeviceInfoRequest request) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put(EidParamKey.timeStamp, System.currentTimeMillis());
+        map.put(EidParamKey.platform, request.getPlatform());
+        map.put(EidParamKey.fpVersion, eidVersion);
+        map.put(EidParamKey.systemVersion, request.getSystemVersion());
+        map.put(EidParamKey.packageName, request.getPackageName());
+        map.put(EidParamKey.appName, request.getAppName());
+        map.put(EidParamKey.appVersion, request.getAppVersion());
+        map.put(EidParamKey.mac, request.getMac());
+        map.put(EidParamKey.diskDriveSerial, request.getDiskDriveSerial());
+        map.put(EidParamKey.BIOSSerial, request.getBiosSerial());
+        map.put(EidParamKey.boardUUID, request.getBoardUuid());
+        map.put(EidParamKey.machineGUID, request.getMachineGuid());
+        map.put(EidParamKey.CPUID, request.getCpuId());
+        return map;
+    }
+
+    private interface EidParamKey {
+        /**
+         * 时间戳
+         */
+         String timeStamp = "timeStamp";
+        /**
+         * 平台（windows/macOS）
+         */
+         String platform = "platform";
+        /**
+         * 指纹程序版本号（v1.0.0）
+         */
+         String fpVersion = "fpVersion";
+        /**
+         * 系统版本号
+         */
+         String systemVersion = "systemVersion";
+        /**
+         * 应用程序包名
+         */
+         String packageName = "packageName";
+        /**
+         * 程序名
+         */
+         String appName = "appName";
+        /**
+         * 程序版本号
+         */
+         String appVersion = "appVersion";
+        /**
+         * 网卡mac地址，格式：[{"address":"FC-AA-14-50-F6-B0","type":"MIB_IF_TYPE_ETHERNET"}]
+         */
+         String mac = "mac";
+        /**
+         * 硬盘序列号
+         */
+         String diskDriveSerial = "diskDriveSerial";
+        /**
+         * BIOS序列号
+         */
+         String BIOSSerial = "BIOSSerial";
+        /**
+         * 主板UUID
+         */
+         String boardUUID = "boardUUID";
+        /**
+         * machineGUID: 注册表中 windows系统的GUID
+         */
+         String machineGUID = "machineGUID";
+        /**
+         * 处理器ID
+         */
+         String CPUID = "CPUID";
+
     }
 }
