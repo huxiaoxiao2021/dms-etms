@@ -205,7 +205,7 @@ $(function () {
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "";
             }
         },{
             field: 'weightDiff',
@@ -220,7 +220,7 @@ $(function () {
             title: '体积重量是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "";
             }
         },{
             field: 'fromSource',
