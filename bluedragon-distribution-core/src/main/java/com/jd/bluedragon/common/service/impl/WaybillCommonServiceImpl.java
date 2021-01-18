@@ -688,7 +688,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_DEFAULT);
 
             //包裹有话说
-            if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,'1')){
+            if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,WaybillVasConstant.packageSay)){
                 BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
                 if (CollectionUtils.isNotEmpty(waybillAttachments.getData())){
                     String attachmentUrl = this.getAttachmentUrl(waybillAttachments.getData());

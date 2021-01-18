@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.dms.utils.WaybillVasConstant;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -557,7 +558,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
         /*增值服务打标-包裹有话说*/
         if (isHasPackageSay(context)){
-            context.getResponse().setWaybillVasSign("1");
+            context.getBasePrintWaybill().setWaybillVasSign(String.valueOf(WaybillVasConstant.packageSay));
         }
     }
 
