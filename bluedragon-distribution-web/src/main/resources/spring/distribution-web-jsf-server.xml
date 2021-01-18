@@ -255,4 +255,12 @@
                   server="dmsjsf">
         <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
+
+    <!--  储位号对外生成服务  -->
+    <jsf:provider id="storageCodeExternalApi"
+                  interface="com.jd.bluedragon.distribution.external.sdk.api.Storage.StorageCodeApi"
+                  alias="${jsf.storageCode.external.alias}"
+                  ref="storageCodeExternalService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
