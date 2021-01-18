@@ -40,6 +40,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
@@ -393,7 +394,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 collectDto.setIsTrustBusi(0);
             }
         }else {
-            collectDto.setSpotCheckType(1);//B网
+            collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());//B网
         }
 
         String reviewErp = spotCheckData.getLoginErp();
