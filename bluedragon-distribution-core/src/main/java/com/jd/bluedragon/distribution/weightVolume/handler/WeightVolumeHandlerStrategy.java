@@ -70,7 +70,7 @@ public class WeightVolumeHandlerStrategy {
 
         /* 2. 按箱称重的内部拆分处理逻辑 */
         if (FromSourceEnum.DMS_INNER_SPLIT.equals(entity.getSourceCode())) {
-            return splitwaybillweightvolumehandler.handleroperateweightvolume(entity);
+            return splitWaybillWeightVolumeHandler.handlerOperateWeightVolume(entity);
         }
 
         /* 3. 按包裹称重 */
