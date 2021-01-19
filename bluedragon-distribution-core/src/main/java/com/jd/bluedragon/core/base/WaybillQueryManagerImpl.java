@@ -338,6 +338,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         wChoice.setQueryPackList(Boolean.TRUE);
         wChoice.setQueryWaybillExtend(Boolean.TRUE);
         wChoice.setQueryWaybillP(Boolean.TRUE);
+        wChoice.setQueryWaybillVas(Boolean.TRUE);
         return this.getDataByChoice(waybillCode, wChoice);
     }
 
@@ -762,4 +763,18 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
        return baseEntity;
     }
 
+
+
+    /**
+     * 获取运单的附属信息
+     * 附件、图片等，需根据对应附件类型查询
+     * @param waybill
+     * @param attachmentType
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillAttachmentByWaybillCodeAndType" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill, Integer attachmentType){
+        return waybillQueryApi.getWaybillAttachmentByWaybillCodeAndType(waybill,attachmentType);
+    }
 }

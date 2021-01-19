@@ -287,4 +287,12 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<List<WaybillServiceRelationDto>>  getServiceCodeInfoByWaybillCode(String waybillCode);
 
+	/**
+	 * 查询附件、图片等，需根据对应附件类型查询
+	 * @param waybill
+	 * @param attachmentType
+	 */
+	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill,
+																							Integer attachmentType);
+
 }

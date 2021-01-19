@@ -20,7 +20,7 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.dms.utils.WaybillVasConstant;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -28,6 +28,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WaybillServiceRelationDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -59,7 +60,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private AirTransportService airTransportService;
-
+    
     @Autowired
     private PreSortingSecondService preSortingSecondService;
 
@@ -143,42 +144,52 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
 
-    @Override
-    public InterceptResult<String> handle(WaybillPrintContext context) {
-        InterceptResult<String> interceptResult = context.getResult();
+    /*
+    * 包裹有话说增值服务编码
+    * */
+    private static final String PACKAGE_SAY = "festivalAttachment";
+
+	@Override
+	public InterceptResult<String> handle(WaybillPrintContext context) {
+		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         try {
             BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
-            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-                //运单数据为空，直接返回运单数据为空异常
-                if(baseEntity.getData() == null
-                        ||baseEntity.getData().getWaybill() == null){
-                    interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-                    log.warn("调用运单接口获取运单数据为空，waybillCode：{}", waybillCode);
-                    return interceptResult;
-                }
-                //获取运单数据正常，设置打印基础信息
-                context.setBigWaybillDto(baseEntity.getData());
-                context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false));
-                loadWaybillInfo(context);
-                interceptResult = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
-                loadWaybillPackageWeight(context, context.getResponse());
-                loadPrintedData(context);
-                //根据预分拣站点加载始发及目的站点信息
-                loadBasicData(context.getResponse());
-                //加载路由信息
-                waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
-            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
-                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
-            }else{
+            if (null == baseEntity){
                 interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
+                return interceptResult;
             }
+            if (baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
+                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
+                return interceptResult;
+            }
+            //运单数据为空，直接返回运单数据为空异常
+            if(null == baseEntity.getData() || null == baseEntity.getData().getWaybill()){
+                interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(),
+                        WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+                log.warn("调用运单接口获取运单数据为空，waybillCode：{}", waybillCode);
+                return interceptResult;
+            }
+            //获取运单数据正常，设置打印基础信息
+            context.setBigWaybillDto(baseEntity.getData());
+            context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false));
+            //加载运单基础数据
+            loadWaybillInfo(context);
+            interceptResult = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
+            //加载运单包裹重量
+            loadWaybillPackageWeight(context, context.getResponse());
+            //加载已打印记录【标签打印与发票打印】
+            loadPrintedData(context);
+            //根据预分拣站点加载始发及目的站点信息
+            loadBasicData(context.getResponse());
+            //加载路由信息
+            waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
         }catch (Exception ex){
             log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
             interceptResult.toError();
         }
         return interceptResult;
-    }
+	}
     /**
      * 加载运单基础数据
      * @param context
@@ -301,7 +312,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     roadCode = transbillM.getTruckSpot();
                 }
             }
-//                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
             commonWaybill.appendRemark(scheduleCode);
         }
 
@@ -404,6 +414,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 commonWaybill.setPrintAddress(commonWaybill.getNewAddress());
             }
         }
+
+        //打标增值服务
+        markingWaybillVasSign(context);
         //加载始发站点信息
         waybillCommonService.loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
@@ -547,4 +560,40 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
         return result;
     }
+
+
+    /**
+     * 打标运单的增值服务
+     * 如果后期扩展，追加标位
+     * @param context
+     */
+    private void markingWaybillVasSign(WaybillPrintContext context) {
+        if (null == context.getBigWaybillDto() || CollectionUtils.isEmpty(context.getBigWaybillDto().getWaybillVasList())){
+            return ;
+        }
+        /*增值服务打标-包裹有话说*/
+        if (isHasPackageSay(context)){
+            context.getBasePrintWaybill().setWaybillVasSign(String.valueOf(WaybillVasConstant.packageSay));
+        }
+    }
+
+    /**
+     * 是否有 '包裹有话说' 增值服务
+     * @param context
+     * @return
+     */
+    private boolean isHasPackageSay(WaybillPrintContext context) {
+        if (null == context.getBigWaybillDto() || CollectionUtils.isEmpty(context.getBigWaybillDto().getWaybillVasList())){
+            return Boolean.FALSE;
+        }
+        List<WaybillVasDto> waybillVasDtos = context.getBigWaybillDto().getWaybillVasList();
+        for (int i =0 ;i < waybillVasDtos.size();i++){
+            WaybillVasDto tmp = waybillVasDtos.get(i);
+            if (PACKAGE_SAY.equals(tmp.getVasNo())){
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
 }
