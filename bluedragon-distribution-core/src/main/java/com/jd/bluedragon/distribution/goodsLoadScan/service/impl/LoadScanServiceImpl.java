@@ -149,6 +149,12 @@ public class LoadScanServiceImpl implements LoadScanService {
             //修改任务状态为：已完成状态
             loadCar.setId(req.getTaskId());
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END);
+            User user = req.getUser();
+            if (user != null) {
+                loadCar.setOperateUserName(user.getUserName());
+                loadCar.setOperateUserErp(user.getUserErp());
+            }
+            loadCar.setUpdateTime(new Date());
             boolean flagRes = loadCarDao.updateLoadCarById(loadCar);
             if (!flagRes) {
                 if(log.isWarnEnabled()) {
