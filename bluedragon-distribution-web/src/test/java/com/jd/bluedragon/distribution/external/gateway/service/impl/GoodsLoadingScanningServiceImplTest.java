@@ -9,6 +9,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
         import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
         import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
