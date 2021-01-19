@@ -896,21 +896,6 @@ public class BusinessHelper {
     }
 
     /**
-     * 转化逻辑
-     * 分拣与下游 B/C网标识  相反
-     * 分拣 spotType 0:C网  1：B网
-     * 下游 businessType 1:C网  2:B网
-     * @param spotCheckType
-     * @return
-     */
-    public static Integer  translateSpotCheckTypeToBusinessType(Integer spotCheckType){
-        if(spotCheckType==null){
-            return 1;
-        }
-        return spotCheckType.equals(0)?1:2;
-    }
-
-    /**
      * 生鲜仓判断
      * 当sendpay第二位为4/5/6/7/8/9且sendpay338位为1时 为生鲜仓
      */
@@ -929,5 +914,21 @@ public class BusinessHelper {
         }else{
             return Boolean.FALSE;
         }
+    }
+
+    /**
+     * 转化逻辑
+     * 分拣与下游 B/C网标识  相反
+     * 分拣 spotType 0:C网  1：B网  2:c抽b的特殊值
+     * 下游 businessType 1:C网  2:B网
+     * 如果
+     * @param spotCheckType
+     * @return
+     */
+    public static Integer  translateSpotCheckTypeToBusinessType(Integer spotCheckType) {
+        if (spotCheckType == null) {
+            return 1;
+        }
+        return spotCheckType.equals(0) ? 1 : spotCheckType.equals(1)? 2: 2;
     }
 }

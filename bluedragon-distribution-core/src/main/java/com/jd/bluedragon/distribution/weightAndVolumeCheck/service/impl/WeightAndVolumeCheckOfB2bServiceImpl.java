@@ -40,6 +40,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -666,7 +667,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         Boolean sign = isExcess(nowWeight,beforeWeight,M3_TRANS_TO_CM3*nowVolume,beforeVolume);
-        weightVolumeCheckOfB2bWaybill.setIsExcess(sign?1:0);
+        weightVolumeCheckOfB2bWaybill.setIsExcess(sign? IsExcessEnum.EXCESS_ENUM_YES.getCode() :IsExcessEnum.EXCESS_ENUM_NO.getCode());
 
         return result;
     }
