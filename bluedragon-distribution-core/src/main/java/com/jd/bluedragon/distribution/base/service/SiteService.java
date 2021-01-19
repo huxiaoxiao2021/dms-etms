@@ -20,14 +20,14 @@ public interface SiteService {
 	BasicTraderInfoDTO getTrader(Integer siteCode);
 	/**
 	 * 通过运力编码获取基础资料信息
-	 * @param 运力编码capacityCode
+	 * @param capacityCode 运力编码
 	 * @return
 	 */
 	public RouteTypeResponse getCapacityCodeInfo(String capacityCode);
 	
 	/**
 	 * 获取基础资料信息
-	 * @param 运力编码
+	 * @param request 运力编码
 	 * @return
 	 */
 	public CapacityCodeResponse queryCapacityCodeInfo(CapacityCodeRequest request);

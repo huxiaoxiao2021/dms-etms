@@ -9,6 +9,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+        import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
         import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
         import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
@@ -17,6 +18,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
         import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
         import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+        import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
         import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
         import com.jd.bluedragon.utils.JsonHelper;
         import com.jd.ql.dms.report.domain.LoadScanDto;
@@ -60,7 +62,8 @@ public class GoodsLoadingScanningServiceImplTest {
     @Resource
     private DmsDisSendService dmsDisSendService;
 
-
+    @Resource
+    private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
 
 
     @Test //不齐异常数据查询测试
@@ -359,5 +362,15 @@ public class GoodsLoadingScanningServiceImplTest {
         int a = goodsLoadScanRecordDao.batchUpdateGoodsScanRecordByIds(loadScanRecord);
 
         System.out.println(JsonHelper.toJson(map));
+    }
+
+    @Test
+    public void testCreateUnloadTask(){
+        CreateUnloadTaskReq req=new CreateUnloadTaskReq();
+        req.setCreateSiteCode(910L);
+        req.setOperateUserErp("bjxingsong");
+        req.setVehicleNumber("京A00001");
+        req.setOperateUserName("刑松");
+        loadAndUnloadCarGatewayService.createUnloadTask(req);
     }
 }

@@ -70,7 +70,8 @@
 			and yn=1
 	</sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar">
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" useGeneratedKeys="true"
+            keyProperty="unloadCarId">
         insert into unload_car
         (
         <trim suffixOverrides=",">
@@ -139,6 +140,12 @@
             </if>
             <if test="updateTime != null">
                 update_time,
+            </if>
+            <if test="operateUserErp != null and operateUserErp!=''">
+                operate_user_erp,
+            </if>
+            <if test="operateUserName != null and operateUserName!=''">
+                operate_user_name,
             </if>
             yn
         </trim>
@@ -211,6 +218,12 @@
             </if>
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="operateUserErp != null and operateUserErp!=''">
+                #{operateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="operateUserName != null and operateUserName!=''">
+                #{operateUserName,jdbcType=VARCHAR},
             </if>
             1
         </trim>
@@ -317,11 +330,16 @@
         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
         update_time = #{updateTime, jdbcType=TIMESTAMP}
-        WHERE
-        YN = 1
-        AND seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-        AND unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR}
-        AND end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        <where>
+            YN = 1
+            and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            <if test="unloadUserErp != null">
+                and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="endSiteCode != null">
+                and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+            </if>
+        </where>
     </update>
 
     <select id="getUnloadCarTaskScan" resultMap="unloadCar">
@@ -368,5 +386,33 @@
         WHERE
         YN = 1
         <include refid="whereCondition"/>
+    </select>
+
+    <select id="selectTaskByLicenseNumberAndSiteCode" parameterType="unloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+        and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        and yn=1
+        and status in (0,1)
+        <include refid="Base_Condition_Sql"/>
+        order by update_time desc
+    </select>
+
+    <select id="selectTaskByLicenseNumberAndUserErp" parameterType="unloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+        and operate_user_erp = #{operateUserErp,jdbcType=VARCHAR}
+        and yn=1
+        and status in (0,1,2)
+        <include refid="Base_Condition_Sql"/>
+        order by update_time desc
     </select>
 </mapper>

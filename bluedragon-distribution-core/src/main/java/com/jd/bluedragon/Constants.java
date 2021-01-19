@@ -1355,5 +1355,32 @@ public class Constants {
      * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
+    /**
+     * 操作标识-1
+     */
+    public static final Integer FLAG_OPRATE_ON = 1;
+    /**
+     * PDA无封车号任务前缀
+     */
+    public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
 
+    /**
+     * 全部站点隐藏
+     */
+    public static final int ALL_SITE_CLOSE = -1;
+
+    /**
+     * 在配置内的站点隐藏
+     */
+    public static final int SITE_CLOSE = 1;
+
+    /**
+     * 不隐藏
+     */
+    public static final int SITE_OPEN = 0;
+
+    /**
+     * 全部关闭
+     */
+    public static final String CLOSE_ALL_SITE = "close_all_site";
 }

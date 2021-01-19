@@ -485,7 +485,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                 lexicalOrder = this.getLexicalOrder(packageNum);
             }
             //包裹数不相等，重新计算lexicalOrder列表
-            if(lexicalOrder.size() != packageNum){
+            if(lexicalOrder != null && lexicalOrder.size() != packageNum){
             	lexicalOrder = this.getLexicalOrder(packageNum);
             }
             //该索引是字典序数组中的索引

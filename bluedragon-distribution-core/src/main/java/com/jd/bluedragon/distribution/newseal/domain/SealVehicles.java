@@ -97,6 +97,7 @@ public class SealVehicles extends DbEntity {
 	 */
     private String executeMessage;
 
+    private Boolean selectedFalg = Boolean.TRUE;
 	/**
 	 * The set method for createSiteCode.
 	 * @param createSiteCode
@@ -495,5 +496,13 @@ public class SealVehicles extends DbEntity {
 
 	public void setExecuteMessage(String executeMessage) {
 		this.executeMessage = executeMessage;
+	}
+
+	public Boolean getSelectedFalg() {
+		return selectedFalg;
+	}
+
+	public void setSelectedFalg(Boolean selectedFalg) {
+		this.selectedFalg = selectedFalg;
 	}
 }

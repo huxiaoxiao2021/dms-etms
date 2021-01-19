@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.loadAndUnload.WaybillPackageNumInfo;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -500,6 +501,15 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      */
     public Integer queryPackageNumBybatchCodes (Map<String,Object> params) {
         return this.getSqlSession().selectOne(namespace + ".queryPackageNumBybatchCodes", params);
+    }
+
+    /**
+     * 根据批次号列表查询每个运单下包裹数
+     * @param params
+     * @return
+     */
+    public Map<String, WaybillPackageNumInfo> queryPackageNumByWaybillCode (Map<String,Object> params) {
+        return this.getSqlSession().selectMap(namespace + ".queryPackageNumByWaybillCode", params, "waybillCode");
     }
 
 }

@@ -4,22 +4,25 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.domain.*;
+import com.jd.bluedragon.distribution.newseal.entity.PreSealBatch;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
-import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,8 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,12 +54,8 @@ public class PreSealVehicleResource {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
-
     @Autowired
-    private SealVehiclesService sealVehiclesService;
-
-    @Autowired
-    private SiteService siteService;
+    private PreSealBatchService preSealBatchService;
 
     private static final String SYSTEM_CODE = "DMS";
 
@@ -132,19 +133,22 @@ public class PreSealVehicleResource {
         }
 
         /** 查询运力信息 */
-        VtsTransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
+        TransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
         if (vtrd == null || !NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())) {
             return preSealResponse;
         }
 
         List<PreSealVehicle> exists = preSealVehicleService.findByCreateAndReceive(sealCarDto.getSealSiteId(), vtrd.getEndNodeId());
-
+        PreSealVehicle preSealVehicle = null;
+        Long existId = null;
+        String existUuid = null;
+        boolean needUpdate = false;
         if (exists == null || exists.isEmpty()) {
             //该目的地没有预封车数据时，属于新增
-            preSealVehicleService.insert(convertRequst(sealCarDto, vtrd, false, preSealVehicleSourceEnum));
+        	preSealVehicle = convertRequst(sealCarDto, vtrd, false, preSealVehicleSourceEnum);
+            preSealVehicleService.insert(preSealVehicle);
             preSealResponse.setData(true);
         } else {
-            Long existId = null;
             for (PreSealVehicle exist : exists) {
                 if (!sealCarDto.getTransportCode().equals(exist.getTransportCode())) {
                     //该目的已有预封车数据时，但是运力编码不一致时提示是否更新
@@ -154,6 +158,7 @@ public class PreSealVehicleResource {
                 } else if (sealCarDto.getVehicleNumber().equals(exist.getVehicleNumber())) {
                     //该目的已有预封车数据时，但是运力编码一致，车牌也一致时，属于更新封签号
                     existId = exist.getId();
+                    existUuid = exist.getPreSealUuid();
                     break;
                 }
 
@@ -161,23 +166,58 @@ public class PreSealVehicleResource {
             if (NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())) {
                 if (existId != null) {
                     //该目的已有预封车数据时，但是运力编码一致，车牌也一致时，属于更新封签号,根据ID更新数据
-                    PreSealVehicle preSealVehicle = convertRequst(sealCarDto, vtrd, true, preSealVehicleSourceEnum);
+                    preSealVehicle = convertRequst(sealCarDto, vtrd, true, preSealVehicleSourceEnum);
                     preSealVehicle.setId(existId);
+                    preSealVehicle.setPreSealUuid(existUuid);
                     preSealVehicleService.updateById(preSealVehicle);
+                    needUpdate = true;
                     preSealResponse.setData(true);
                     preSealResponse.setMessage("预封车封签号更新成功!");
                 } else {
+                	preSealVehicle = convertRequst(sealCarDto, vtrd, false, preSealVehicleSourceEnum);
                     //该目的已有预封车数据时，但是运力编码一致，车牌不一致时，属于新增
-                    preSealVehicleService.insert(convertRequst(sealCarDto, vtrd, false, preSealVehicleSourceEnum));
+                    preSealVehicleService.insert(preSealVehicle);
                     preSealResponse.setData(true);
                 }
             }
         }
-
+        //记录选中的批次信息
+        if (NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())) {
+        	List<PreSealBatch> preSealBatchs = convertPreSealBatchs(preSealVehicle,sealCarDto);
+        	if(CollectionUtils.isNotEmpty(preSealBatchs)) {
+        		/**
+        		 * 更新旧数据时，删除原有的批次信息
+        		 */
+        		if(needUpdate) {
+                    preSealBatchService.batchLogicalDeleteByUuid(existUuid);
+        		}
+        		this.preSealBatchService.batchInsert(preSealBatchs);
+        	}
+        }
         return preSealResponse;
     }
-
     /**
+     * 转换预封车选择批次列表
+     * @param preSealVehicle
+     * @param request
+     * @return
+     */
+    private List<PreSealBatch> convertPreSealBatchs(PreSealVehicle preSealVehicle, SealCarDto sealCarDto) {
+    	if(preSealVehicle != null && CollectionUtils.isNotEmpty(sealCarDto.getSelectedSendCodes())) {
+    		List<PreSealBatch> preSealBatchs = new ArrayList<PreSealBatch>();
+    		for(String sendCode : sealCarDto.getSelectedSendCodes()) {
+    			PreSealBatch preSealBatch = new PreSealBatch();
+    			preSealBatch.setBatchCode(sendCode);
+    			preSealBatch.setCreateTime(new Date());
+    			preSealBatch.setPreSealUuid(preSealVehicle.getPreSealUuid());
+    			preSealBatchs.add(preSealBatch);
+    		}
+    		return preSealBatchs;
+    	}
+		return null;
+	}
+
+	/**
      * 普通预封车更新服务
      */
     @POST
@@ -246,7 +286,7 @@ public class PreSealVehicleResource {
             return preSealResponse;
         }
         /** 查询运力信息 */
-        VtsTransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
+        TransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
         if(!NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())){
             return preSealResponse;
         }
@@ -334,10 +374,10 @@ public class PreSealVehicleResource {
      * @param response
      * @return
      */
-    private VtsTransportResourceDto getTransport(String transportCode, NewSealVehicleResponse<Boolean> response){
-        VtsTransportResourceDto vtrd = null;
+    private TransportResourceDto getTransport(String transportCode, NewSealVehicleResponse<Boolean> response){
+        TransportResourceDto vtrd = null;
         try {
-            CommonDto<VtsTransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
+            CommonDto<TransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
             if (transDto == null) {    //JSF接口返回空
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息结果为空:" + transportCode);
@@ -418,7 +458,7 @@ public class PreSealVehicleResource {
      * @param isUpdate
      * @return
      */
-    private PreSealVehicle convertRequst(SealCarDto sealCarDto, VtsTransportResourceDto vtrd, boolean isUpdate, PreSealVehicleSourceEnum preSealVehicleSourceEnum){
+    private PreSealVehicle convertRequst(SealCarDto sealCarDto, TransportResourceDto vtrd, boolean isUpdate, PreSealVehicleSourceEnum preSealVehicleSourceEnum){
         PreSealVehicle preSealVehicle = new PreSealVehicle();
         //存储预封车来源
         preSealVehicle.setPreSealSource(preSealVehicleSourceEnum.getCode());
@@ -465,5 +505,14 @@ public class PreSealVehicleResource {
         preSealVehicle.setOperateTime(DateHelper.parseAllFormatDateTime(sealCarDto.getSealCarTime()));
 
         return preSealVehicle;
+    }
+    /**
+     * 获取未封车批次信息明细
+     */
+    @POST
+    @Path("/new/preSeal/getUnSealSendCodes")
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.getUnSealSendCodes", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
+    public JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request) {
+    	return this.newsealVehicleService.getUnSealSendCodes(request);
     }
 }

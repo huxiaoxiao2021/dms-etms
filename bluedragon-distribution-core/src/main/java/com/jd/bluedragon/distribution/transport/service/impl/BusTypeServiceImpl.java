@@ -1,14 +1,14 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BasicQueryWSManagerImpl;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.dms.common.domain.BusType;
+import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class BusTypeServiceImpl implements BusTypeService {
     public static final Integer BUSDICTIONARY_DICTLEVEL = 2;
 
     @Autowired
-    private VtsQueryWS vtsQueryWS;
+    private BasicQueryWSManagerImpl  basicQueryWSManager;
 
     /**
      * 所需要的摆渡车系车型id
@@ -54,24 +54,19 @@ public class BusTypeServiceImpl implements BusTypeService {
         List<BusType> busTypes = new ArrayList<BusType>();
         try {
             //调用运输接口获取所有的车型信息，参数：parentCode =1019,dictLevel =2, dictGroup =1019
-            CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(BUSDICTIONARY_PARENTCODE,
+            List<BasicDictDto> commonDtoList = basicQueryWSManager.getDictList(BUSDICTIONARY_PARENTCODE,
                     BUSDICTIONARY_DICTLEVEL, BUSDICTIONARY_DICTGROUP);
-            if(commonDtoList == null || commonDtoList.getCode() != 1){
-                log.warn("调用运输接口获取车型失败:{}" , JsonHelper.toJson(commonDtoList));
-                return busTypes;
-            }
-            if(commonDtoList.getData() == null || commonDtoList.getData().size() < 1){
+
+            if(CollectionUtils.isEmpty(commonDtoList)){
                 log.warn("调用运输接口获取的车型信息为空：{}" , JsonHelper.toJson(commonDtoList));
                 return busTypes;
             }
-            List<DictDto> dictDtoList =  commonDtoList.getData();
-            for (DictDto dto : dictDtoList) {
+            for (BasicDictDto dto : commonDtoList) {
                 busTypes.add(new BusType(Integer.parseInt(dto.getDictCode()),dto.getDictName()));
             }
         }catch(Exception e){
             log.error("BusTypeServiceImpl.getAllBusType()调用运输接口获取车型失败,信息为：", e);
         }
-
         return busTypes;
     }
 

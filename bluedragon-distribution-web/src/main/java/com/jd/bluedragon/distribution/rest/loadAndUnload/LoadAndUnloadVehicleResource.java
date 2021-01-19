@@ -1,13 +1,7 @@
 package com.jd.bluedragon.distribution.rest.loadAndUnload;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -73,6 +67,23 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
+     * 获取卸车扫描列表(新版--对应PDA上的扫描按钮)
+     * @param unloadCarScanRequest 请求参数对象
+     */
+    public InvokeResult<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<UnloadScanDetailDto>();
+        if(StringUtils.isEmpty(unloadCarScanRequest.getSealCarCode())){
+            result.parameterError("封车编码不存在!");
+            return result;
+        }
+        if(unloadCarScanRequest.getOperateSiteCode() == null){
+            result.parameterError("操作场地站点ID不存在!");
+            return result;
+        }
+        return unloadCarService.unloadScan(unloadCarScanRequest);
+    }
+
+    /**
      * 卸车扫描
      * @param unloadCarScanRequest
      * @return
@@ -108,6 +119,20 @@ public class LoadAndUnloadVehicleResource {
     }
 
     /**
+     * 卸车扫描(空任务卸车最新版)
+     */
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1016,operateType = 101601)
+    public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.packageCodeScanNew(unloadCarScanRequest);
+    }
+
+    /**
      * 卸车扫描
      * @param unloadCarScanRequest
      * @return
@@ -122,6 +147,19 @@ public class LoadAndUnloadVehicleResource {
             return result;
         }
         return unloadCarService.waybillScan(unloadCarScanRequest);
+    }
+
+    /**
+     * 卸车按运单扫描（空任务卸车最新版）
+     */
+    public InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
+        InvokeResult<UnloadScanDetailDto> result = new InvokeResult<UnloadScanDetailDto>();
+        String remindMessage = unloadParamsCheck(unloadCarScanRequest);
+        if(remindMessage != null){
+            result.parameterError(remindMessage);
+            return result;
+        }
+        return unloadCarService.waybillScanNew(unloadCarScanRequest);
     }
 
     /**
@@ -203,6 +241,23 @@ public class LoadAndUnloadVehicleResource {
         }
 
         return unloadCarService.updateUnloadCarTaskStatus(unloadCarTaskReq);
+    }
+
+    /**
+     * 开始任务
+     * @param unloadCarTaskReq 修改卸车任务状态请求信息
+     */
+    public InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        if (unloadCarTaskReq == null || unloadCarTaskReq.getTaskCode() == null
+                || unloadCarTaskReq.getUser() == null || unloadCarTaskReq.getUser().getUserErp() == null
+                || unloadCarTaskReq.getCurrentOperate().getSiteCode() <=0
+                || unloadCarTaskReq.getOperateTime() == null) {
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+
+        return unloadCarService.startUnloadTask(unloadCarTaskReq);
     }
 
     /**

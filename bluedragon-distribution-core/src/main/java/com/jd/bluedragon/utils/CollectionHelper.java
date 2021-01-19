@@ -1,6 +1,8 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.distribution.send.domain.SendM;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +77,22 @@ public class CollectionHelper<E> {
         }
         return result;
     }
-
+    /**
+     * 返回2个列表的交集
+     * @param <E>
+     * @param a
+     * @param b
+     * @return
+     */
+    public static <E> List<E> retainAll(List<E> a, List<E> b)
+    {
+    	List<E> result = new ArrayList<>();
+    	if(a != null && b != null ) {
+    		result.addAll(CollectionUtils.retainAll(a, b));
+    	}
+    	return result;
+    }
+    
     public static void main(String[] args) {
         List<SendM> list = new ArrayList<>();
         SendM sendM = new SendM();

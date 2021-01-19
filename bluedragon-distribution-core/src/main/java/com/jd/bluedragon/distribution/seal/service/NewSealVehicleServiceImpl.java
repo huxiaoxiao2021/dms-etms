@@ -7,11 +7,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
+import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -21,25 +24,29 @@ import com.jd.bluedragon.distribution.material.service.SortingMaterialSendServic
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
+import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.etms.vts.dto.VtsTransportResourceDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.fastjson.JSONObject;
+import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -53,7 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -65,9 +72,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Autowired
 	private VosBusinessWS vosBusinessWS;
-
-	@Autowired
-	private VtsQueryWS vtsQueryWS;
 
 	@Autowired
 	private TfcQueryWS tfcQueryWS;
@@ -101,6 +105,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private SendDetailService sendDetailService;
+    
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+	
+	@Autowired
+	private TmsServiceManager tmsServiceManager;
+	
+	@Autowired
+	private PreSealVehicleService preSealVehicleService;
+	
+	@Autowired
+	private PreSealBatchService preSealBatchService;
+    /**
+     * 查询预封车封车小时数
+     */
+	@Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
+    private Integer preSealRecentHours = 24;
+
+    @Autowired
+    private CarrierQueryWSManager carrierQueryWSManager;
 
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
@@ -708,32 +732,32 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
 	@Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
-		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.carrierQuery.getTransportResourceByTransCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode) {
+		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryTransWorkItemBySimpleCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcQueryWS.queryTransWorkItemBySimpleCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
         return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
     }
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryVehicleNumberOrItemCodeByParam", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.queryVehicleNumberOrItemCodeByParam", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception {
         return tfcSelectWS.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
     }
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<String> checkTransportCode(String simpleCode, String transportCode) throws Exception {
         return tfcSelectWS.checkTransportCode(simpleCode, transportCode);
     }
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransBookBill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.getTransBookBill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception {
         return tfcSelectWS.getTransBookBill(transBookBillQueryDto, pageDto);
     }
@@ -744,7 +768,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @param sealCarDto
      * @return
      */
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.verifySealVehicleVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vosBusinessWS.verifySealVehicleVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public CommonDto<String> verifySealVehicleVolume(SealCarDto sealCarDto){
         CommonDto<String> commonDto = vosBusinessWS.checkSealCarData(sealCarDto);
         return commonDto;
@@ -1239,4 +1263,70 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         return temp;
     }
+    /**
+     * 获取未封车批次号列表信息
+     * @param request
+     * @return
+     */
+	@Override
+	public JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request){
+		JdResult<List<String>> result = new JdResult<List<String>>();
+		if(request != null 
+				&& request.getSiteCode() != null
+				&& StringHelper.isNotEmpty(request.getTransportCode())
+				&& StringHelper.isNotEmpty(request.getVehicleNumber())) {
+			JdResult<TransportResource> transDto = tmsServiceManager.getTransportResourceByTransCode(request.getTransportCode());
+            if (transDto == null
+            		|| !transDto.isSucceed()
+            		|| transDto.getData() == null) {
+                result.toFail("传入的运力编码无效!");
+                return result;
+            }
+			//获取运力对应的目的站点
+			Integer receiveSiteCode = null;
+			if(receiveSiteCode == null ) {
+				BaseStaffSiteOrgDto endSiteInfo= baseMajorManager.getBaseSiteByDmsCode(transDto.getData().getEndNodeCode());
+				if(endSiteInfo != null) {
+					receiveSiteCode = endSiteInfo.getSiteCode();
+				}
+			}
+			if(receiveSiteCode == null) {
+                result.toFail("运力编码对应的目的网点无效!");
+                return result;
+			}
+			List<String> unSealSendCodeList = this.getUnSealSendCodeList(request.getSiteCode(), receiveSiteCode, preSealRecentHours);
+
+			//排除已操作预封车的批次
+			List<String> preSealUuids = preSealVehicleService.findOtherUuidsByCreateAndReceive(request.getSiteCode(), receiveSiteCode,request.getTransportCode(),request.getVehicleNumber());
+			List<String> preSealSendCodes = preSealBatchService.querySendCodesByUuids(preSealUuids);
+			if(CollectionUtils.isNotEmpty(preSealSendCodes)) {
+				unSealSendCodeList = filterSendCodes(unSealSendCodeList,preSealSendCodes);
+			}
+			//校验批次列表是否为空
+			if(CollectionUtils.isEmpty(unSealSendCodeList)) {
+                result.toFail("待封车批次信息为空!");
+                return result;
+			}
+			result.setData(unSealSendCodeList);
+			result.toSuccess("查询成功！");
+		}else {
+			result.toFail("传入参数无效！transportCode、vehicleNumber、siteCode不能为空");
+		}
+		return result;
+	}
+	/**
+	 * 过滤掉已操作预封车的批次
+	 * @param unSealSendCodeList
+	 * @param preSealSendCodes
+	 * @return
+	 */
+	private List<String> filterSendCodes(List<String> unSealSendCodeList, List<String> preSealSendCodes) {
+		List<String> newList = new ArrayList<String>();
+		for(String item : unSealSendCodeList) {
+			if(!preSealSendCodes.contains(item)) {
+				newList.add(item);
+			}
+		}
+		return newList;
+	}
 }
