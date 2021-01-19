@@ -42,6 +42,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -563,6 +567,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.saveLoadScanByBoardCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> saveLoadScanByBoardCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -603,7 +609,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount >= uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -716,6 +722,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.saveLoadScanByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> saveLoadScanByWaybillCode(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -743,7 +751,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount >= uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={}", taskId, packageCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -991,6 +999,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.checkInspectAndSave",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<Void> checkInspectAndSave(GoodsLoadingScanningReq req, JdCResponse<Void> response, LoadCar loadCar) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -1038,7 +1048,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             if (log.isDebugEnabled()) {
                 log.debug("常规包裹号后续校验--开始暂存：taskId={}", loadCar.getId());
             }
-        }catch(Exception e) {
+        } catch(Exception e) {
             log.error("包裹装车扫描出现异常，异常信息：" + e.getMessage(), e);
         }
         return saveLoadScanByPackCode(taskId, waybillCode, packageCode, goodsAmount, transfer, flowDisAccord, user, loadCar);
@@ -1114,6 +1124,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      * 校验板号
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.checkBoardCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdVerifyResponse<Void> checkBoardCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
 
         Long taskId = req.getTaskId();
@@ -1195,6 +1207,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.LoadScanServiceImpl.checkWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdVerifyResponse<Void> checkWaybillCode(GoodsLoadingScanningReq req, JdVerifyResponse<Void> response) {
         Long taskId = req.getTaskId();
         String packageCode = req.getPackageCode();
@@ -1359,6 +1373,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     public JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                      Integer goodsAmount, Integer transfer, Integer flowDisAccord,
                                                      User user, LoadCar loadCar) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.LoadScanServiceImpl.saveLoadScanByPackCode", false, true);
         JdCResponse<Void> response = new JdCResponse<>();
         if (log.isDebugEnabled()) {
             log.debug("常规包裹号后续校验--开始暂存前校验--是否属于重复扫：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
@@ -1374,7 +1389,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
-            if (waybillCount != null && waybillCount >= uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
+            if (waybillCount != null && waybillCount > uccPropertyConfiguration.getLoadScanTaskWaybillSize()) {
                 log.warn("该任务下运单数量已达上限！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该任务下运单数量已达上限！");
@@ -1443,9 +1458,13 @@ public class LoadScanServiceImpl implements LoadScanService {
                 goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
             }
 
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            log.error("常规包裹号暂存发生错误error=", e);
         } finally {
             // 释放锁
             unLock(taskId, waybillCode, null);
+            Profiler.registerInfoEnd(info);
         }
 
         log.info("常规包裹号后续校验--暂存结束：taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
