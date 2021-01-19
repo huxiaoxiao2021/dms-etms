@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.security.tde.util.Base64;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.httpclient.HttpClient;
@@ -21,7 +22,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.*;
 
 /**
@@ -41,6 +47,8 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
     private String eidUrl;
     @Value("${PC_EID_VERSION:v1.0.0}")
     private String eidVersion;
+    @Value("${PC_EID_AES_KEY:''}")
+    private String aesKey;
 
     @Autowired
     private DeviceConfigInfoJsfService deviceConfigInfoJsfService;
@@ -74,15 +82,16 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         result.toSuccess();
 
         Map<String, Object> eidParamMap = getEidParamMap(request);
-        if (logger.isInfoEnabled()) {
-            logger.info("开始调用设备指纹接口:url:{},req:{}", eidUrl, JsonHelper.toJsonMs(eidParamMap));
-        }
+        String jsonParam = JsonHelper.toJsonMs(eidParamMap);
+        logger.info("开始调用设备指纹接口:url:{},req:{}", eidUrl, jsonParam);
         try {
             HttpClient httpClient = new HttpClient();
             PostMethod method = new PostMethod(eidUrl);
             method.addRequestHeader("Content-type", REST_CONTENT_TYPE);
             method.addRequestHeader("Accept", REST_CONTENT_TYPE);
-            method.setRequestEntity(new StringRequestEntity(JsonHelper.toJsonMs(eidParamMap),
+            String encryptParam = encrypt(jsonParam, aesKey.getBytes());
+            logger.info("调用设备指纹接口加密后的参数:{}", encryptParam);
+            method.setRequestEntity(new StringRequestEntity(encryptParam,
                     REST_CONTENT_TYPE,
                     StandardCharsets.UTF_8.name()));
             int statusCode = httpClient.executeMethod(method);
@@ -112,6 +121,26 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
             result.toError("调用设备指纹接口出错！请联系分拣小秘");
         }
         return result;
+    }
+
+    private String encrypt(final String text, final byte[] privateKey){
+        byte[] b = new byte[0];
+        try {
+            //初始化向量参数，AES 为16bytes. DES 为8bytes.
+            String iv = "0102030405060708";
+            //两个参数，第一个为私钥字节数组， 第二个为加密方式 AES或者DES
+            Key keySpec = new SecretKeySpec(privateKey, "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(iv.getBytes());
+            //实例化加密类，参数为加密方式，要写全
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            //初始化，此方法可以采用三种方式，按服务器要求来添加。
+            // （1）无第三个参数（2）第三个参数为SecureRandom random = new SecureRandom();中random对象，随机数。(AES不可采用这种方法)（3）采用此代码中的IVParameterSpec
+            b = cipher.doFinal(text.getBytes(Charset.defaultCharset()));
+        } catch (Exception e) {
+            logger.error("加密出错:", e);
+        }
+        return Base64.encodeToString(b);
     }
 
     private Map<String, Object> getEidParamMap(DeviceInfoRequest request) {
