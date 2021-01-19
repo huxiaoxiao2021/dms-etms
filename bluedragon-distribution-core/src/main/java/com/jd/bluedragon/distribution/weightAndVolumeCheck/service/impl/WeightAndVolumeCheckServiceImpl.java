@@ -775,6 +775,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.setData(false);
             }
 
+            //校验是否超标
+            StandardDto standardDto = this.checkStandard(weightVolumeCollectDto,volumeRate);
+            // 1:是超标  0:未超标
+            if(standardDto == null){
+                result.customMessage(this.STANDARD_ERROR_CODE,"无法获取是否超标standardDto对象");
+                result.setData(false);
+            }
+
             if(standardDto!=null && standardDto.getExcessFlag()){
                 result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
                 result.setData(false);
@@ -1077,8 +1085,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private WeightAndVolumeCheckStandardHandler getCheckStandardHandler(Double reviewWeight,Double reviewVolumeWeight,BigDecimal sumLWH) {
         if(reviewWeight > reviewVolumeWeight){
            return this.weightAndVolumeCheckAHandler;
-        }else {
-            //体积重量为较大值---判断三边之和与70cm
+        }else { //体积重量为较大值---判断三边之和与70cm
             if(sumLWH.compareTo(new BigDecimal(fourSumLWH))<0){
                 return this.weightAndVolumeCheckAHandler;
             }else {
