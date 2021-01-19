@@ -1422,14 +1422,17 @@ public class LoadScanServiceImpl implements LoadScanService {
             updateTaskStatus(loadCar, user);
 
             // 运单暂存表新增或修改
-            GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
-                    goodsAmount, flowDisAccord, user);
             GoodsLoadScan oldLoadScan = goodsLoadScanDao.findLoadScanByTaskIdAndWaybillCode(taskId, waybillCode);
             if (oldLoadScan == null) {
+                GoodsLoadScan newLoadScan = createGoodsLoadScan(taskId, waybillCode, packageCode,
+                        goodsAmount, flowDisAccord, user);
                 // 设置重量和体积
                 setWeightAndVolume(newLoadScan);
                 goodsLoadScanDao.insert(newLoadScan);
             } else {
+                oldLoadScan.setUpdateTime(new Date());
+                oldLoadScan.setUpdateUserCode(user.getUserCode());
+                oldLoadScan.setUpdateUserName(user.getUserName());
                 computeAndUpdateLoadScan(oldLoadScan, goodsAmount, flowDisAccord);
                 goodsLoadScanDao.updateByPrimaryKey(oldLoadScan);
             }
