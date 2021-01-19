@@ -1,9 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -16,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author yangwenshu
@@ -31,6 +35,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
     private static final Logger log = LoggerFactory.getLogger(UserVerifyManagerImpl.class);
 
     private static final String NONE = "NONE";
+    private static final String APP_ID = "dms.etms";
     private static final String SOURCE = "ql_dms";
     /**
      * 登录设备是手持PDA
@@ -106,7 +111,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             loginParam.setDeviceOS(NONE);
             loginParam.setDeviceVersion(NONE);
             Map<String, String> extInfo = new HashMap(20);
-            extInfo.put(Constants.LoginParam.APP_ID, NONE);
+            extInfo.put(Constants.LoginParam.APP_ID, APP_ID);
             extInfo.put(Constants.LoginParam.EQUIPMNET_ID, NONE);
             extInfo.put(Constants.LoginParam.OPEN_UDID, NONE);
             extInfo.put(Constants.LoginParam.UUID, NONE);
@@ -120,6 +125,10 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
                 } else {
                     extInfo.put(Constants.LoginParam.CHANNEL, PDA);
                 }
+            }
+            //填充设备信息
+            if ((Objects.equals(PC, extInfo.get(Constants.LoginParam.CHANNEL)))) {
+                putDeviceInfo(clientInfo, loginParam, extInfo);
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
@@ -174,5 +183,47 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL_MSG);
             return basePdaUserDto;
         }
+    }
+
+    /**
+     * 针对PC客户端 填充设备指纹信息
+     */
+    public void putDeviceInfo(ClientInfo clientInfo,LoginParam loginParam ,Map<String, String> extInfo) {
+        if (clientInfo == null || StringUtils.isEmpty(clientInfo.getDeviceInfo()) || loginParam == null) {
+            return;
+        }
+
+        if (log.isInfoEnabled()) {
+            log.info("填充设备指纹信息:clientInfo={}", JsonHelper.toJson(clientInfo));
+        }
+
+        try {
+            DeviceInfoRequest deviceInfo = JsonHelper.fromJson(clientInfo.getDeviceInfo(), DeviceInfoRequest.class);
+            if (log.isInfoEnabled()) {
+                log.info("填充设备指纹信息:deviceInfo={}", JsonHelper.toJson(deviceInfo));
+            }
+            if (deviceInfo == null) {
+                return;
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getEquipmentId())) {
+                loginParam.setEquipmentId(deviceInfo.getEquipmentId());
+                extInfo.put(Constants.LoginParam.EQUIPMNET_ID, deviceInfo.getEquipmentId());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getDeviceName())) {
+                loginParam.setDeviceName(deviceInfo.getDeviceName());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getAppVersion())) {
+                loginParam.setDeviceOSVersion(deviceInfo.getAppVersion());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getPlatform())){
+                loginParam.setDeviceOS(deviceInfo.getPlatform());
+            }
+            if (!StringUtils.isEmpty(deviceInfo.getSystemVersion())) {
+                loginParam.setDeviceOSVersion(deviceInfo.getSystemVersion());
+            }
+        } catch (Exception e) {
+            log.error("解析设备信息出错:",e);
+        }
+
     }
 }

@@ -41,6 +41,11 @@ public class ClientInfo {
     /** 文件版本列表 */
     private List<FileVersion> files;
 
+    /**
+     * 设备信息
+     */
+    private String deviceInfo;
+
     public static class FileVersion{
         private String filePath;
         private String versionCode;
@@ -208,4 +213,12 @@ public class ClientInfo {
 	public void setMatchFlag(Integer matchFlag) {
 		this.matchFlag = matchFlag;
 	}
+
+    public String getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(String deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
 }
