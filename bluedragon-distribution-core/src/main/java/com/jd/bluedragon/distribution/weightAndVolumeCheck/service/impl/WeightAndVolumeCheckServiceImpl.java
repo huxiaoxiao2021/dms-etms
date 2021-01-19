@@ -49,6 +49,7 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -470,7 +471,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         try {
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(1);
+            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
             condition.setIsHasPicture(0);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
@@ -550,7 +551,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         try {
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(1);
+            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
             condition.setIsHasPicture(0);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
@@ -759,20 +760,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
             //校验是否超标
             StandardDto standardDto = this.checkStandard(weightVolumeCollectDto,volumeRate);
-            // 1:是超标  0:未超标
-            if(standardDto == null){
+            // 超标标识判断  1:是超标  0:未超标
+            if(standardDto==null){
+                // 未知
                 result.customMessage(this.STANDARD_ERROR_CODE,"无法获取是否超标standardDto对象");
                 result.setData(false);
-            }
-
-            // 超标标识判断
-            if(standardDto!=null && standardDto.getExcessFlag()){
-                result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
-                result.setData(false);
-                weightVolumeCollectDto.setIsExcess(1);
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO_KNOW.getCode());
+                weightVolumeCollectDto.setDiffStandard("");
+            }else if(standardDto!=null && standardDto.getExcessFlag()){
+                //超标--- C抽B  临时不提示
+                if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_C)){
+                    result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
+                    result.setData(false);
+                }
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
                 weightVolumeCollectDto.setDiffStandard(standardDto.getHitMessage());
-            }else {
-                weightVolumeCollectDto.setIsExcess(0);
+            }else{
+                //未超标
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
                 weightVolumeCollectDto.setDiffStandard("");
             }
 
@@ -803,7 +808,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void specialTreatment(WeightVolumeCollectDto weightVolumeCollectDto) {
         if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            weightVolumeCollectDto.setIsExcess(SpotCheckTypeEnum.SPOT_CHECK_TYPE_X.getCode());
+            weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO_KNOW.getCode());
         }
     }
 
@@ -1170,7 +1175,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setReviewSiteCode(packWeightVO.getOperatorSiteCode());
         weightVolumeCollectDto.setReviewSiteName(packWeightVO.getOperatorSiteName());
         weightVolumeCollectDto.setReviewErp(packWeightVO.getErpCode());
-        weightVolumeCollectDto.setIsExcess(0);
+        weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
         //设置无图片无图片链接
         weightVolumeCollectDto.setIsHasPicture(0);
         weightVolumeCollectDto.setPictureAddress("");
@@ -1530,7 +1535,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         try {
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(1);
+            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
             condition.setIsHasPicture(1);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
@@ -1569,7 +1574,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         try {
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(1);
+            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
             condition.setIsHasPicture(0);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
