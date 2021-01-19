@@ -108,7 +108,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
                 logger.warn("调用设备指纹接口body或data为空!");
                 return result;
             }
-            Map dataMap = JsonHelper.fromJson(response.get("data").toString(), Map.class);
+            Map dataMap = (Map)response.get("data");
             if (dataMap != null && dataMap.get("eid") !=null) {
                 result.setData(dataMap.get("eid").toString());
             } else {
