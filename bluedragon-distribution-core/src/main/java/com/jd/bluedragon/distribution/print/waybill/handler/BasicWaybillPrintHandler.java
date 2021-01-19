@@ -214,10 +214,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         commonWaybill.setBusiId(tmsWaybill.getBusiId());
         commonWaybill.setBusiName(tmsWaybill.getBusiName());
 
-        //备注拼接服务单号-逆向打印调用 (自营售后取件快递业务 124 位等于4)
-        if (BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 124, '4')) {
-            commonWaybill.appendRemark("运单号:"+tmsWaybill.getWaybillCode());
-        }
+            //备注拼接服务单号-逆向打印调用 (自营售后取件快递业务 124 位等于4)
+            if (BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 124, '4')) {
+                commonWaybill.appendRemark("运单号:"+tmsWaybill.getWaybillCode());
+            }
 
         commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
         //调用外单接口，根据商家id获取商家编码

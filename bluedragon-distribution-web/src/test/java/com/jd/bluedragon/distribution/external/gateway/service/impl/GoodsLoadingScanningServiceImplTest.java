@@ -9,6 +9,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
         import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
         import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
         import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
         import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -27,39 +29,13 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
         import org.junit.runner.RunWith;
         import org.springframework.test.context.ContextConfiguration;
         import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
-import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
-import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
-import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
-import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
-import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
-import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
-import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
         import javax.annotation.Resource;
         import java.util.ArrayList;
         import java.util.Date;
         import java.util.List;
         import java.util.Map;
+        import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+        import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 
 /**
  * 装车发货相关功能测试
@@ -88,14 +64,14 @@ public class GoodsLoadingScanningServiceImplTest {
     private LoadScanServiceImpl loadScanService;
 
     @Resource
-    private SpotCheckGateWayService spotCheckGateWayService;
-    @Resource
     private DmsDisSendService dmsDisSendService;
+    @Resource
+    private SpotCheckGateWayService spotCheckGateWayService;
 
     @Resource
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
-    @Resource
     private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
+    @Resource
+    private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
 
     @Test //不齐异常数据查询测试
@@ -393,7 +369,6 @@ public class GoodsLoadingScanningServiceImplTest {
 
         System.out.println(JsonHelper.toJson(map));
     }
-
     @Test
     public void testSpotCheckTest() {
         SpotCheckCheckReq req = new SpotCheckCheckReq();
@@ -422,6 +397,8 @@ public class GoodsLoadingScanningServiceImplTest {
     }
 
 
+        weightAndVolumeCheckService.searchPicture("JDK000000055832",364605,1,"SPOT_CHECK_ANDROID");
+    }
 
     @Test
     public void testCreateUnloadTask(){
