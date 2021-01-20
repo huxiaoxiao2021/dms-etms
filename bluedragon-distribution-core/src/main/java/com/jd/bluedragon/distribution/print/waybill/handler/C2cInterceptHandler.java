@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -12,13 +12,12 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -35,6 +34,9 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
     WaybillTraceManager waybillTraceManager;
     @Autowired
     private ReprintRecordService reprintRecordService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 需要校验运单是否已经妥投的类型
      */
@@ -54,7 +56,6 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
      */
     private static Set<Integer> needCheckCollectFinished = new HashSet<>();
     static {
-        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());//平台打印
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType());//包裹补打
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType());//批量包裹补打
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());//站点平台打印
@@ -74,6 +75,18 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
                 param.setCollectComplete(Boolean.TRUE);
             }
         }
+
+        //校验操作人所属场地是否为分拣中心
+        if (null==param.getDmsCenter()){
+            param.setDmsCenter(Boolean.TRUE);
+            BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(param.getRequest().getUserERP());
+            if (null!=baseStaffByErpNoCache){
+                Integer siteType = baseStaffByErpNoCache.getSiteType();
+                if (siteType != 64) {
+                    param.setDmsCenter(Boolean.FALSE);
+                }
+            }
+        }
     }
 
     @Override
@@ -82,6 +95,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         interceptResult.toSuccess();
         String waybillSign = context.getWaybill().getWaybillSign();
         if (needCheckCollectFinished.contains(context.getRequest().getOperateType())
+                && !context.getDmsCenter()
                 && BusinessHelper.isC2cForward(waybillSign)
                 && !(BusinessHelper.isC2cChangeAddress(waybillSign))) {
             //揽收交接完成（-1300）全程跟踪结果
