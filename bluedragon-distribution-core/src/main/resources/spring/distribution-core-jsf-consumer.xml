@@ -654,4 +654,9 @@
     <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
+
+    <jsf:consumer id="stagingServiceWS" interface="com.jd.merchant.api.staging.ws.StagingServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
+    </jsf:consumer>
+
 </beans>
