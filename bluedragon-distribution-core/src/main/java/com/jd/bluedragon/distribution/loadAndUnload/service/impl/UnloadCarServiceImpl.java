@@ -2529,8 +2529,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             boolean isBnetCancel = BusinessUtil.isYDZF(waybillSign);
             //B网营业厅（原单拒收因京东原因产生的逆向单，不计费）
             boolean isBnetJDCancel = BusinessUtil.isJDJS(waybillSign);
+            //防疫物资绿色通道
+            boolean isFYWZ = BusinessUtil.isFYWZ(waybillSign);
             //运费寄付无运费金额禁止发货
-            if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+            if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight()) && !isFYWZ){
                 logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
