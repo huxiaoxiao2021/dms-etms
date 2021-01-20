@@ -108,7 +108,7 @@ public class WaybillPrintContext implements Context{
 	/**
 	 * 操作人所属场地是否为分拣中心
 	 */
-    private Boolean dmsCenter;
+    private Boolean dmsCenter=Boolean.FALSE;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){

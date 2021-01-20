@@ -56,6 +56,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
      */
     private static Set<Integer> needCheckCollectFinished = new HashSet<>();
     static {
+        needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());//平台打印
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType());//包裹补打
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType());//批量包裹补打
         needCheckCollectFinished.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());//站点平台打印
@@ -77,13 +78,12 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         }
 
         //校验操作人所属场地是否为分拣中心
-        if (null==param.getDmsCenter()){
-            param.setDmsCenter(Boolean.TRUE);
+        if(null!=param.getRequest().getUserERP()){
             BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByErpNoCache(param.getRequest().getUserERP());
             if (null!=baseStaffByErpNoCache){
                 Integer siteType = baseStaffByErpNoCache.getSiteType();
-                if (siteType != 64) {
-                    param.setDmsCenter(Boolean.FALSE);
+                if (siteType == 64) {
+                    param.setDmsCenter(Boolean.TRUE);
                 }
             }
         }
