@@ -475,8 +475,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 isSurplusPackage = surfacePackageCheck(request,result);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
-                // 释放锁
-                unLock(request.getSealCarCode(), waybillCode);
+
 
                 // 路由校验、生成板号
                 routerCheck(request,result);
@@ -574,8 +573,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 isSurplusPackage = surfacePackageCheck(request,result);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
-                // 释放锁
-                unLock(request.getSealCarCode(), waybillCode);
+
 
                 // 路由校验、生成板号
                 routerCheck(request,result);
@@ -1473,7 +1471,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param waybillCode 运单号
      * @return 包裹号集合
      */
-    private List<String> searchAllPackageByWaybillCode(String sealCarCode, String waybillCode){
+    public List<String> searchAllPackageByWaybillCode(String sealCarCode, String waybillCode){
         List<String> allPackage = new ArrayList<>();
         UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(sealCarCode);
         if (unloadCar == null || StringUtils.isEmpty(unloadCar.getBatchCode())) {
