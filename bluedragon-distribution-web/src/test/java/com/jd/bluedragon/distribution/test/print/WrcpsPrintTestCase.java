@@ -180,4 +180,5 @@ public class WrcpsPrintTestCase {
 				Assert.assertEquals(hasAdress,isWrcps);
 		}
 	}
+
 }

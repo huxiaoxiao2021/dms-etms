@@ -29,16 +29,15 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -776,5 +775,60 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError})
 	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill, Integer attachmentType){
         return waybillQueryApi.getWaybillAttachmentByWaybillCodeAndType(waybill,attachmentType);
+    }
+
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.doGetPackageVasInfo" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Map<String,String> doGetPackageVasInfo(String wayBillCode) {
+        //查询出一个属于一个包裹的所有商品的增值服务明细 key->包裹号 value->增值服务信息
+        Map<String,String> packageUpVasMap = new HashMap<>();
+        //获取包裹增值服务
+        GoodsQueryDto goodsQueryDto = new GoodsQueryDto();
+        goodsQueryDto.setQueryGoodsVas(true);
+        goodsQueryDto.setWaybillCode(wayBillCode);
+        try {
+            BaseEntity<List<GoodsDto>> baseEntity = waybillQueryApi.queryGoodsDataByWCode(goodsQueryDto);
+            log.info("查询运单下商品明细-支持扩展属性,运单号:{},获取数据:{}",wayBillCode,JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getResultCode() == 1) {
+                List<GoodsDto> dataList = baseEntity.getData();
+                if(dataList!= null && dataList.size()>0){
+                    if(log.isWarnEnabled()){
+                        this.log.warn("获取到运单下商品明细信息,运单号:{}",wayBillCode);
+                    }
+                    for (GoodsDto goodsDto:dataList) {
+                        //保存商品增值服务明细list
+                        StringBuilder sbString = new StringBuilder();
+                        String packPickUpVas = packageUpVasMap.get(goodsDto.getPackBarcode());
+                        //商品增值服务明细
+                        List<WaybillPickupVasDto> waybillPickupVasDtoList = goodsDto.getWaybillPickupVasDtoList();
+                        if(CollectionUtils.isNotEmpty(waybillPickupVasDtoList)){
+                            for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
+                                Map<String,Object> vasExtMap = waybillPickupVasDto.getVasExt();
+                                if(vasExtMap != null && !vasExtMap.isEmpty()){
+                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(vasExtMap.get("vasName"));
+                                }
+                            }
+                        }
+                        if(StringUtils.isNotBlank(packPickUpVas)){
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),new StringBuilder(packPickUpVas).append(sbString).toString());
+                        }else{
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),sbString.toString());
+                        }
+                    }
+                }
+            }else{
+                if(log.isWarnEnabled()){
+                    log.warn("查询运单下商品明细支持扩展属性接口失败！return:{}",JsonHelper.toJson(baseEntity));
+                }
+            }
+        }catch (Exception e){
+            if(log.isWarnEnabled()){
+                log.error("查询运单下商品明细支持扩展属性接口失败！运单号:{},异常信息:{}",wayBillCode,e);
+            }
+        }
+        log.info("获取商品增值信息成功,运单号:{},返回增值信息:{}",wayBillCode,packageUpVasMap);
+        return packageUpVasMap;
     }
 }
