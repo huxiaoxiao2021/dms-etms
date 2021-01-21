@@ -11,7 +11,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.template.TBRedisWorkerMultiTemplate;
 import com.jd.tbschedule.redis.template.TaskEntry;

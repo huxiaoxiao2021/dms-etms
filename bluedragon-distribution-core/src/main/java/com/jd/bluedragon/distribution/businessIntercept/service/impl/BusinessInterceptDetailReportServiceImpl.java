@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.businessIntercept.handler.intercept.Busine
 import com.jd.bluedragon.distribution.businessIntercept.handler.intercept.BusinessInterceptRecordHandlerStrategy;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptDetailReportService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

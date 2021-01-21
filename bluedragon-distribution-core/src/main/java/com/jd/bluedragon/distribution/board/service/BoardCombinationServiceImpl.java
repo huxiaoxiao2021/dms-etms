@@ -39,7 +39,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;

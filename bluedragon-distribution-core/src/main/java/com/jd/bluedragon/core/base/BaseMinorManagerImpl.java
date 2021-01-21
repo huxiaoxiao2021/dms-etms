@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.api.BasicTraderReturnAPI;
 import com.jd.ldop.basic.dto.*;

@@ -13,7 +13,7 @@ import com.jd.bluedragon.external.crossbow.whems.manager.WuHanEMSBusinessManager
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
