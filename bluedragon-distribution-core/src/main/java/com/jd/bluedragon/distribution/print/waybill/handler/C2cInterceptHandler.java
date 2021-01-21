@@ -78,7 +78,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         }
 
         //校验操作人所属场地是否为分拣中心
-        if(null!=param.getRequest().getUserERP()){
+        if(null!=param.getRequest().getUserCode()){
             BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByStaffId(param.getRequest().getUserCode());
             if(null!=baseStaffByErpNoCache && Integer.valueOf(64).equals(baseStaffByErpNoCache.getSiteType())){
                 param.setDmsCenter(Boolean.TRUE);
