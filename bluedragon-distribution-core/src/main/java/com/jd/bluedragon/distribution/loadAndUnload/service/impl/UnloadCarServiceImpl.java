@@ -1001,6 +1001,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             String sendCode = null;
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
+            /**新增暂存校验**/
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
@@ -1108,6 +1109,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
+
+            /**新增暂存校验**/
+
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
