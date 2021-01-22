@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -12,13 +12,12 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -35,6 +34,9 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
     WaybillTraceManager waybillTraceManager;
     @Autowired
     private ReprintRecordService reprintRecordService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 需要校验运单是否已经妥投的类型
      */
@@ -74,6 +76,14 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
                 param.setCollectComplete(Boolean.TRUE);
             }
         }
+
+        //校验操作人所属场地是否为分拣中心
+        if(null!=param.getRequest().getUserCode()){
+            BaseStaffSiteOrgDto baseStaffByErpNoCache = baseMajorManager.getBaseStaffByStaffId(param.getRequest().getUserCode());
+            if(null!=baseStaffByErpNoCache && Integer.valueOf(64).equals(baseStaffByErpNoCache.getSiteType())){
+                param.setDmsCenter(Boolean.TRUE);
+            }
+        }
     }
 
     @Override
@@ -82,6 +92,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         interceptResult.toSuccess();
         String waybillSign = context.getWaybill().getWaybillSign();
         if (needCheckCollectFinished.contains(context.getRequest().getOperateType())
+                && !context.getDmsCenter()
                 && BusinessHelper.isC2cForward(waybillSign)
                 && !(BusinessHelper.isC2cChangeAddress(waybillSign))) {
             //揽收交接完成（-1300）全程跟踪结果
