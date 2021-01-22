@@ -40,6 +40,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
@@ -215,7 +217,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WeightVolumeCollectDto dto = assembleWeightVolumeDto(spotCheckData,waybill,waybillFlowDetail,baseDto);
 
         /**PDA抽检来源,赋值图片**/
-        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource())) {
+        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource()) && CollectionUtils.isNotEmpty(spotCheckData.getUrls())) {
            dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
         }
 
@@ -393,7 +395,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 collectDto.setIsTrustBusi(0);
             }
         }else {
-            collectDto.setSpotCheckType(1);//B网
+            collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());//B网
         }
 
         String reviewErp = spotCheckData.getLoginErp();
@@ -427,7 +429,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         // 设置产品类型
         weightAndVolumeCheckService.setProductType(collectDto);
-
         return collectDto;
     }
 
@@ -666,7 +667,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         Double beforeWeight = waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight();
         Double beforeVolume = waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume();
         Boolean sign = isExcess(nowWeight,beforeWeight,M3_TRANS_TO_CM3*nowVolume,beforeVolume);
-        weightVolumeCheckOfB2bWaybill.setIsExcess(sign?1:0);
+        weightVolumeCheckOfB2bWaybill.setIsExcess(sign? IsExcessEnum.EXCESS_ENUM_YES.getCode() :IsExcessEnum.EXCESS_ENUM_NO.getCode());
 
         return result;
     }
@@ -758,6 +759,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             log.error("参数:{}, 异常信息:{}", JsonHelper.toJson(param) , e.getMessage(), e);
             result.customMessage(600,"B网按运单抽检失败!");
         }
+        result.setCode(Constants.SUCCESS_CODE);
         return result;
     }
 

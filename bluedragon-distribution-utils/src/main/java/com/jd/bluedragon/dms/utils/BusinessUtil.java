@@ -1875,4 +1875,26 @@ public class BusinessUtil {
     public static boolean isFYWZ(String waybillSign) {
         return isSignChar(waybillSign, 82, '6');
     }
+
+    /**
+     * 判断是否是快运
+     * 31位 为1 是特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpress(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,31,'1');
+    }
+    /**
+     * 判断包裹维度是否有增值服务信息，waybillSign86位=2或者3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPackageHavePickUpOrNo(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
+    }
 }

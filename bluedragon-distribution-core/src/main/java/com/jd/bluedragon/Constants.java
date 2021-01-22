@@ -1376,16 +1376,6 @@ public class Constants {
      */
     public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
     /**
-     * PDA超标值 1
-     */
-    public static final Integer IS_EXCESS = 1;
-
-    /**
-     * 抽检PDA来源标识
-     */
-    public static final Integer PDA_SOURCE = 1;
-
-    /**
      * 全部站点隐藏
      */
     public static final int ALL_SITE_CLOSE = -1;
@@ -1404,4 +1394,13 @@ public class Constants {
      * 全部关闭
      */
     public static final String CLOSE_ALL_SITE = "close_all_site";
+    /**
+     * PDA超标值 1
+     */
+    public static final Integer IS_EXCESS = 1;
+
+    /**
+     * 抽检PDA来源标识
+     */
+    public static final Integer PDA_SOURCE = 1;
 }
