@@ -36,6 +36,7 @@
 <input style="display: none" id="waybillCode" value="${waybillCode}" />
 <input style="display: none" id="siteCode" value="${siteCode}" />
 <input style="display: none" id="isWaybillSpotCheck" value="${isWaybillSpotCheck}" />
+<input style="display: none" id="fromSource" value="${fromSource}" />
 <table id="b2bExcessPicture" width="100%" ></table>
 <script type="text/javascript">
     var jaq = jaq || [];

@@ -190,7 +190,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 }
                 // 第一期只做航空转陆运，其他运输类型不发送MQ消息 + 铁路转公路
                 if (!(ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.AIR_TO_ROAD_CODE
-                    || ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE)) {
+                        || ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE)) {
                     return;
                 }
                 // 发MQ消息
@@ -685,6 +685,25 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             arContrabandReason.setReasonCode(_enum.getCode());
             arContrabandReason.setReasonName(_enum.getDesc());
             arContrabandReasons.add(arContrabandReason);
+        }
+        return arContrabandReasons;
+    }
+
+    /**
+     * 查询运输方式变更的原因-根据不同的运输方式变更类型获取不同的原因
+     * @param transpondType
+     * @return
+     */
+    @Override
+    public List<ArContrabandReason> getArContrabandReasonListNew(Integer transpondType) {
+        List<ArContrabandReason> arContrabandReasons = new ArrayList<>();
+        for (ArContrabandReasonEnum _enum : ArContrabandReasonEnum.values()) {
+            ArContrabandReason arContrabandReason = new ArContrabandReason();
+            if(_enum.getTranspondTypes().contains(transpondType.toString())){
+                arContrabandReason.setReasonCode(_enum.getCode());
+                arContrabandReason.setReasonName(_enum.getDesc());
+                arContrabandReasons.add(arContrabandReason);
+            }
         }
         return arContrabandReasons;
     }

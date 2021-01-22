@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.dao;
 
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
@@ -112,4 +113,22 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      *
      * */
     int completePreSealVehicleRecord(PreSealVehicle preSealVehicle);
+    /**
+     * 根据运力编码及车牌查询预封车数据
+     * @param condition
+     * @return
+     */
+	Integer countPreSealNumByTransportInfo(PreSealVehicleCondition condition);
+    /**
+     * 根据始发和目的查询预封车数据
+     * @param condition
+     * @return
+     */
+	Integer countPreSealNumBySendRelation(PreSealVehicleCondition condition);
+	/**
+	 * 
+	 * @param condition
+	 * @return
+	 */
+	List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition);
 }

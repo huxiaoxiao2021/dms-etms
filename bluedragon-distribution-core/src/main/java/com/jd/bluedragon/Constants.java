@@ -971,6 +971,11 @@ public class Constants {
     public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
 
     /**
+     * 全程跟踪状态 换单完成
+     */
+    public static final String WAYBILL_TRACE_STATE_EXCHANGE = "-280";
+
+    /**
      * 全程跟踪状态  揽收完成
      */
     public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
@@ -1046,6 +1051,11 @@ public class Constants {
      * 字典的产品类型父节点
      */
     public static final Integer PRODUCT_PARENT_ID = 30048;
+
+    /**
+     * 字典的面单举报类型父节点
+     */
+    public static final Integer EXPRESS_BILL_REPORT_PARENT_ID = 601;
     /**
      * 货物类型
      */
@@ -1314,6 +1324,8 @@ public class Constants {
      */
     public static final Integer WAYBILL_TRACE_STATE_RECEIVE = -640;
 
+
+
     /**
      * 运单全程跟踪 妥投state枚举
      * */
@@ -1355,9 +1367,41 @@ public class Constants {
      * 跨越那边要求 打印出来的跨越单号为：KYCode + "-" + 000 + "001"
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
-
+    /**
+     * 操作标识-1
+     */
+    public static final Integer FLAG_OPRATE_ON = 1;
     /**
      * PDA无封车号任务前缀
      */
     public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
+
+    /**
+     * 全部站点隐藏
+     */
+    public static final int ALL_SITE_CLOSE = -1;
+
+    /**
+     * 在配置内的站点隐藏
+     */
+    public static final int SITE_CLOSE = 1;
+
+    /**
+     * 不隐藏
+     */
+    public static final int SITE_OPEN = 0;
+
+    /**
+     * 全部关闭
+     */
+    public static final String CLOSE_ALL_SITE = "close_all_site";
+    /**
+     * PDA超标值 1
+     */
+    public static final Integer IS_EXCESS = 1;
+
+    /**
+     * 抽检PDA来源标识
+     */
+    public static final Integer PDA_SOURCE = 1;
 }

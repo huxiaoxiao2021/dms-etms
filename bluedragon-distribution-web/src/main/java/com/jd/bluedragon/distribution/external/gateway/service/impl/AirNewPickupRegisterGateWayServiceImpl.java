@@ -199,4 +199,23 @@ public class AirNewPickupRegisterGateWayServiceImpl implements AirNewPickupRegis
 
         return res;
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.AirNewPickupRegisterGateWayServiceImpl.getArContrabandReasonListNew", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<List<AirContrabandReason>> getArContrabandReasonListNew(Integer transpondType){
+        JdCResponse<List<AirContrabandReason>> res = new JdCResponse<>();
+        res.toSucceed();
+
+        InvokeResult<List<ArContrabandReason>> resourceRES=arAbnormalResource.getArContrabandReasonListNew(transpondType);
+        if (InvokeResult.RESULT_SUCCESS_CODE == resourceRES.getCode()) {
+            res.setMessage(resourceRES.getMessage());
+            String datastr= JsonHelper.toJson(resourceRES.getData());
+            res.setData(JsonHelper.fromJson(datastr,new ArrayList<AirContrabandReason>().getClass()));
+        }
+        else {
+            res.toFail(resourceRES.getMessage());
+        }
+
+        return res;
+    }
 }

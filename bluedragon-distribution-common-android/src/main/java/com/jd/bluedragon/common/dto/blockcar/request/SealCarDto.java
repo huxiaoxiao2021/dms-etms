@@ -96,6 +96,11 @@ public class SealCarDto implements Serializable {
      * 运力类型名称
      */
     private String transWayName;
+    
+    /**
+     * 预封车选择的批次号列表
+     */
+    private List<String> selectedSendCodes;
 
     @Override
     public String toString() {
@@ -255,4 +260,12 @@ public class SealCarDto implements Serializable {
     public void setTransWayName(String transWayName) {
         this.transWayName = transWayName;
     }
+
+	public List<String> getSelectedSendCodes() {
+		return selectedSendCodes;
+	}
+
+	public void setSelectedSendCodes(List<String> selectedSendCodes) {
+		this.selectedSendCodes = selectedSendCodes;
+	}
 }
