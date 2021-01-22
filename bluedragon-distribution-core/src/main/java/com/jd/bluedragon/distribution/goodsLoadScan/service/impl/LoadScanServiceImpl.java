@@ -41,6 +41,9 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.merchant.api.common.dto.ResponseResult;
+import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
+import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -122,6 +125,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Resource
+    private StagingServiceWS stagingServiceWS;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -1068,6 +1074,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        // 校验是否是暂存包裹，并且校验包裹是否可发货
+        JdVerifyResponse<Void> result = checkIsCanDelivery(packageCode, loadCar.getCreateSiteCode().intValue());
+        if (!JdVerifyResponse.CODE_SUCCESS.equals(result.getCode())) {
+            return result;
+        }
         if (log.isDebugEnabled()) {
             log.debug("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         }
@@ -1219,6 +1230,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+
+        // 校验是否是暂存运单，并且校验运单是否可发货
+        JdVerifyResponse<Void> result = checkIsCanDelivery(waybillCode, loadCar.getCreateSiteCode().intValue());
+        if (!JdVerifyResponse.CODE_SUCCESS.equals(result.getCode())) {
+            return result;
+        }
+
         int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
@@ -1852,6 +1870,38 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         return packageCodes;
     }
+
+    /**
+     * 根据包裹号或运单号判断是否可发货
+     * @param barCode 包裹号或运单号
+     * @param creatSiteId 当前网点ID
+     */
+    private JdVerifyResponse<Void> checkIsCanDelivery(String barCode, Integer creatSiteId) {
+        JdVerifyResponse<Void> jdCResponse = new JdVerifyResponse<>();
+        List<String> list = new ArrayList<>();
+        list.add(barCode);
+        try {
+            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
+            if (result == null) {
+                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
+                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
+                return jdCResponse;
+            }
+            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
+                jdCResponse.toSuccess();
+                return jdCResponse;
+            }
+            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
+                    creatSiteId, result.getCode(), result.getMessage());
+            jdCResponse.toFail(result.getMessage());
+            return jdCResponse;
+        } catch (Exception e) {
+            log.error("根据包裹号或运单号判断是否可发货发生异常：barCode={},creatSiteId={},error=", barCode, creatSiteId, e);
+            jdCResponse.toFail("根据包裹号或运单号判断是否可发货发生异常");
+            return jdCResponse;
+        }
+    }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload")
