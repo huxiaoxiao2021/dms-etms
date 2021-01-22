@@ -1565,6 +1565,13 @@
             <artifactId>bluedragon-distribution-external-sdk</artifactId>
         </dependency>
 
+		<dependency>
+			<groupId>com.zhongyouex.order</groupId>
+			<artifactId>zhongyouex-order-api</artifactId>
+			<version>1.0.0-test-SNAPSHOT</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<profiles>
