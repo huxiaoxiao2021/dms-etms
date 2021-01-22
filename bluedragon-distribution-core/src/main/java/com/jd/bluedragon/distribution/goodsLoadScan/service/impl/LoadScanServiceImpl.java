@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsDetailDto
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -132,6 +133,9 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     @Qualifier(value = "goodsLoadTaskProducer")
     private DefaultJMQProducer goodsLoadTaskProducer;
+
+    @Autowired
+    protected BaseMajorManager baseMajorManager;
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
@@ -1106,10 +1110,27 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
+//            log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
+//            response.setCode(JdCResponse.CODE_CONFIRM);
+//            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+//            msgBox.setMsg("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
+//            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+//            response.addBox(msgBox);
+//            return response;
+
             log.warn("包裹下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},packageNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, loadScanDto.getNextSiteId(), loadCar.getEndSiteCode());
             response.setCode(JdCResponse.CODE_CONFIRM);
             JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
-            msgBox.setMsg("错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！");
+            if(nextDmsSiteId == null){
+                msgBox.setMsg("错发！请核实！系统未获取到包裹发货流向,请确认是否继续发货！");
+            }else{
+                BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(nextDmsSiteId);
+                String nextSiteName ="";
+                if (baseSiteInfoDto != null) {
+                    nextSiteName = baseSiteInfoDto.getSiteName();
+                }
+                msgBox.setMsg("错发！请核实！此包裹流向" + nextSiteName + "与发货流向不一致，请确认是否继续发货！");
+            }
             msgBox.setType(MsgBoxTypeEnum.CONFIRM);
             response.addBox(msgBox);
             return response;
@@ -1241,9 +1262,27 @@ public class LoadScanServiceImpl implements LoadScanService {
         log.info("校验运单号--实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
 
         // 校验运单下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此运单流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
+//        if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
+//            log.warn("校验运单号--运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
+//            msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+//            msgBox.setMsg(msg);
+//            response.addBox(msgBox);
+//            return response;
+//        }
+        // 校验运单下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此运单流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
             log.warn("校验运单号--运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
-            msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+            if(nextDmsSiteId == null){
+                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+            }else{
+                BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(nextDmsSiteId);
+                String nextSiteName ="";
+                if (baseSiteInfoDto != null) {
+                    nextSiteName = baseSiteInfoDto.getSiteName();
+                }
+                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号流向为" + nextSiteName + "与批次目的地不一致，请确认是否继续发货！";
+            }
+
             msgBox.setMsg(msg);
             response.addBox(msgBox);
             return response;
