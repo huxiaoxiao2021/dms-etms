@@ -254,4 +254,8 @@ public class TextConstants {
      * 否
      */
     public static final String TEXT_FLAG_NO = "否";
+    /**
+     * 收货人地址
+     */
+    public static final String RECEIVER_ADDRESS = "收件人地址：";
 }
