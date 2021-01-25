@@ -60,6 +60,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -85,6 +86,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -195,6 +197,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Qualifier(value = "unloadCompleteProducer")
     private DefaultJMQProducer unloadCompleteProducer;
 
+    @Resource
+    private WaybillStagingCheckManager waybillStagingCheckManager;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -590,7 +594,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
 
-
+                //TODO 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
+                if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+                    return dtoInvokeResult;
+                }
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
@@ -1111,7 +1119,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
 
             /**新增暂存校验**/
-
+            if (waybillStagingCheckManager.stagingCheck(packageCode, request.getOperateSiteCode())) {
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+                return invokeResult;
+            }
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
