@@ -594,7 +594,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
 
-                //TODO 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
+                // 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
                 if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
                     dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
                     return dtoInvokeResult;
