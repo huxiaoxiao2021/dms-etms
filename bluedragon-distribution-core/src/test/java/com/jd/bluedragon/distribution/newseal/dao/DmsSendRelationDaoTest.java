@@ -13,7 +13,10 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.dao.common.AbstractCoreDaoH2Test;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jddl.common.utils.Assert;
 
 /**
@@ -57,6 +60,14 @@ public class DmsSendRelationDaoTest extends AbstractCoreDaoH2Test {
         condition.setOriginalSiteCode(originalSiteCode);
         List<DmsSendRelation> queryByCondition = dmsSendRelationDao.queryByCondition(condition);
         Assert.assertTrue(queryByCondition.size()==1);
+      
+        PassPreSealQueryRequest queryCondition = new PassPreSealQueryRequest();
+        queryCondition.setOriginalSiteCode(originalSiteCode);
+        queryCondition.setEffectStartTime(DateHelper.addDate(new Date(), -7));
+        List<PassPreSealRecord> queryPassPreSealData = dmsSendRelationDao.queryPassPreSealData(queryCondition);
+        Assert.assertTrue(queryPassPreSealData.size()==1);
         
+        Integer countPassPreSealData = dmsSendRelationDao.countPassPreSealData(queryCondition);
+        Assert.assertTrue(NumberHelper.gt0(countPassPreSealData));
     }
 }

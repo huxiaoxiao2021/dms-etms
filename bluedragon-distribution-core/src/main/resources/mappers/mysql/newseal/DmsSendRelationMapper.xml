@@ -174,8 +174,8 @@
 			and s.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 			and t.destination_site_code = s.destination_site_code
 		where t.yn = 1 
-		and t.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		and t.ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}		
+		and t.original_site_code = #{originalSiteCode,jdbcType=INTEGER} 
+		and t.ts <![CDATA[ >= ]]> #{effectStartTime,jdbcType=TIMESTAMP} 
 		<if test="destinationSiteCode != null and destinationSiteCode != ''" >
 			and t.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>
