@@ -23,6 +23,8 @@ import com.jd.bluedragon.distribution.newseal.dao.DmsSendRelationDao;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
@@ -153,6 +155,16 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 	@Override
 	public List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation) {
 		return dmsSendRelationDao.queryByCondition(dmsSendRelation);
+	}
+
+	@Override
+	public List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		return dmsSendRelationDao.queryPassPreSealData(queryCondition);
+	}
+
+	@Override
+	public Integer countPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		return dmsSendRelationDao.countPassPreSealData(queryCondition);
 	}
 
 }

@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
 
 /**
  * @ClassName: DmsSendRelationDao
@@ -27,4 +29,8 @@ public interface DmsSendRelationDao {
 	 * @return
 	 */
 	List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation);
+
+	List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition);
+
+	Integer countPassPreSealData(PassPreSealQueryRequest queryCondition);
 }
