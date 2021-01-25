@@ -75,7 +75,8 @@ $(function() {
             title : '操作',
             formatter : function(value,row,index){
                 return '<a href="#" class="show-storage-view" onclick="printEdnPickingList(\''+row.scheduleBillCode+'\',event)">'+'打印拣货单</a>'
-                      +'<br/>'+'<a href="#" class="show-storage-view" onclick="printEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'打印配送单</a>';
+					  +'<br/>'+'<a href="#" class="show-storage-view" onclick="printEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'打印配送单</a>'
+					  +'<br/>'+'<a href="#" class="show-storage-view" onclick="printBatchEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'批量打印配送单</a>';
             }
         },{
             field : 'scheduleBillCode',
@@ -322,6 +323,30 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
         }        
         $("#deliveryReceiptDetailTbody").html(tableBodyHtml);
     });
+    event.stopPropagation();
+}
+function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
+	// 批量打印配送单
+    // 获取明细
+    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
+	var param = {};
+    $.ajaxHelper.doPostSync(queryDUrl,
+		JSON.stringify(param),
+		function(data){
+			var ednBatchNums = []
+			if (data.code == 200) {
+				if (data.data.length == 0) {
+					alert('未获取到明细数据')
+				}
+				for(var i = 0 ; i<data.data.length ; i++ ){
+					var pojo = data.data[i];
+					ednBatchNums.push(pojo.ednBatchNum);
+				}
+			} else {
+				alert(data.message);
+			}
+		}
+	);
     event.stopPropagation();
 }
 function showView(scheduleBillCode,event){
