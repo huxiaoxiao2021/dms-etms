@@ -1683,7 +1683,7 @@ public class DeliveryResource {
             saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
             saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
 
-            String saveInterceptMqMsg = com.alibaba.fastjson.JSON.toJSONString(saveInterceptMsgDto);
+            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
                 businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
             } catch (Exception e) {
