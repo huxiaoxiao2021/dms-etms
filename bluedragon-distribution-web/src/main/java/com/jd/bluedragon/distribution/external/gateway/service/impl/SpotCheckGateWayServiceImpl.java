@@ -73,7 +73,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             conditionB2b.setWaybillWeight(req.getWeight());
             InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
             if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
-                jdCResponse.toFail(invokeResult.getMessage());
+                jdCResponse.toFail("操作失败！");
                 return jdCResponse;
             }
             WeightVolumeCheckOfB2bWaybill weightVolumeCheckOfB2bWaybill = invokeResult.getData().get(0);
@@ -116,7 +116,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         }
         try {
             InvokeResult<String> result = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(convert(req));
-            if (null != result || Constants.SUCCESS_CODE.equals(result.getCode())) {
+            if (null != result && Constants.SUCCESS_CODE.equals(result.getCode())) {
                 jdCResponse.toSucceed("操作成功！");
                 return jdCResponse;
             }
@@ -166,7 +166,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             return jdCResponse;
         }
         InvokeResult<String> result = weightAndVolumeCheckOfB2bService.checkRecordExist(req.getWaybillCode(), req.getCreateSiteCode());
-        if (null == result || result.getCode() == 600) {
+        if (null == result) {
+            jdCResponse.toConfirm("操作失败");
+            return jdCResponse;
+        }
+        if (result.getCode() == 600) {
             jdCResponse.toConfirm(result.getMessage());
             return jdCResponse;
         }

@@ -215,7 +215,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         WeightVolumeCollectDto dto = assembleWeightVolumeDto(spotCheckData,waybill,waybillFlowDetail,baseDto);
 
         /**PDA抽检来源,赋值图片**/
-        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource())) {
+        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource()) && CollectionUtils.isNotEmpty(spotCheckData.getUrls())) {
            dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
         }
 
@@ -758,6 +758,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             log.error("参数:{}, 异常信息:{}", JsonHelper.toJson(param) , e.getMessage(), e);
             result.customMessage(600,"B网按运单抽检失败!");
         }
+        result.setCode(Constants.SUCCESS_CODE);
         return result;
     }
 
