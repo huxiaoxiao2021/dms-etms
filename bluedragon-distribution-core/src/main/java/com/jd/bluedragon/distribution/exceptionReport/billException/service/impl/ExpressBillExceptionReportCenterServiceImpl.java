@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.service.Expr
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
 import com.jd.etms.sdk.util.DateUtil;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

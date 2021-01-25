@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;

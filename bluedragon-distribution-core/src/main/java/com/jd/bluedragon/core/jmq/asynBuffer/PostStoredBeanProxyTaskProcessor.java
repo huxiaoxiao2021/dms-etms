@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

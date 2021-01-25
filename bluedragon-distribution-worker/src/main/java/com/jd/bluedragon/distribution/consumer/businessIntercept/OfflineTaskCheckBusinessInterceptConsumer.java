@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;

@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

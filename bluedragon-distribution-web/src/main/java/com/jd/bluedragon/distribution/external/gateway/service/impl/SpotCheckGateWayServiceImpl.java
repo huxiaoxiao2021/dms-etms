@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;

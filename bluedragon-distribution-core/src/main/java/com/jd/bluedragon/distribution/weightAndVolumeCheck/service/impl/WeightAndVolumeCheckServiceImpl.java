@@ -35,7 +35,7 @@ import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.JingdongStorageService;
 import com.jd.jss.client.Request;

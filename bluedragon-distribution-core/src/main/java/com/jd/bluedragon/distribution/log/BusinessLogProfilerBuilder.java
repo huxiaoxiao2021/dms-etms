@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.log;
 
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
