@@ -203,6 +203,7 @@
 		from
 			dms_send_relation t 
 			<include refid="queryPassPreSeal_condition"/>
+			order by s.depart_time, s.job_create_time
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 	<select id="countPassPreSealData" parameterType="com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest" resultType="Integer">
