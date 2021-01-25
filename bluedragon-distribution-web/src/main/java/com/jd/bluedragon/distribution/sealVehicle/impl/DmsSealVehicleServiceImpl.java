@@ -444,10 +444,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 		JdResponse<PageDto<PassPreSealRecord>> result = new JdResponse<PageDto<PassPreSealRecord>>();
 		result.toSucceed();
 		
-		//根据始发、滑道号、目的查询流向信息
-		DmsSendRelationCondition dmsSendRelationCondition = new DmsSendRelationCondition();
-		dmsSendRelationCondition.setOriginalSiteCode(queryCondition.getOriginalSiteCode());
-		dmsSendRelationCondition.setDestinationCrossCode(queryCondition.getDestinationCrossCode());
 		//数字按站点编码查询，否则按名称处理
 		String destinationSiteCodeOrName = queryCondition.getDestinationSiteCodeOrName();
 		if(NumberHelper.isNumber(destinationSiteCodeOrName)) {
@@ -456,7 +452,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 			queryCondition.setDestinationSiteName(destinationSiteCodeOrName);
 		}
 		//查询7天内有发货的线路
-		dmsSendRelationCondition.setStartTime(DateHelper.addDate(new Date(), -effectDays));
+		queryCondition.setEffectStartTime(DateHelper.addDate(new Date(), -effectDays));
 		Integer recentHours = queryCondition.getRecentHours();
 		if(NumberHelper.gt0(recentHours)) {
 			Date now = new Date();
