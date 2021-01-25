@@ -161,7 +161,6 @@
 		<result column="destination_site_name" property="destinationSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="destination_cross_code" property="destinationCrossCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="vehicle_job_code" property="vehicleJobCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="vehicle_route_code" property="vehicleRouteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="depart_time" property="departTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="carrier_team_name" property="carrierTeamName" javaType="java.lang.String" jdbcType="VARCHAR" />
