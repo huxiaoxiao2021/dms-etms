@@ -4,14 +4,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleSourceEnum;
-import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
-import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
-import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.*;
@@ -50,8 +45,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     private DmsSendRelationService dmsSendRelationService;
     
     @Autowired
-    private TmsVehicleRouteService tmsVehicleRouteService;
-    @Autowired
     private PreSealBatchService preSealBatchService;
     
     /**
@@ -59,10 +52,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      */
     @Value("${beans.DmsSealVehicleServiceImpl.effectDays:7}")
     private Integer effectDays;
-    /**
-     * 默认-查询发车时间6小时内
-     */
-    private static final Integer DEFAULT_RECENT_HOURS = 6;
     /**
      * 传摆线路类型列表
      */
