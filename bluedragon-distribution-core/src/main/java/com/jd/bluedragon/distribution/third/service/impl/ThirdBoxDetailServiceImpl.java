@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.third.service.impl;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,10 @@ import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -70,7 +74,21 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	 */
 	@Override
 	public List<ThirdBoxDetail> queryByBoxCode(String tenantCode, Integer startSiteId, String boxCode) {
-		return thirdBoxDetailDao.queryByBoxCode(tenantCode, startSiteId, boxCode);
+		List<ThirdBoxDetail> result = new ArrayList<>();
+		Set<String> packageCodes = new HashSet<>();
+		List<ThirdBoxDetail> datas = thirdBoxDetailDao.queryByBoxCode(tenantCode, startSiteId, boxCode);
+		if(!CollectionUtils.isEmpty(datas)){
+			//兼容上线数据过滤多余数据
+			for(ThirdBoxDetail thirdBoxDetail : datas){
+				if(packageCodes.contains(thirdBoxDetail.getPackageCode())){
+					continue;
+				}
+				packageCodes.add(thirdBoxDetail.getPackageCode());
+				result.add(thirdBoxDetail);
+			}
+
+		}
+		return result;
 	}
 
 	/**
@@ -85,7 +103,21 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	 */
 	@Override
 	public List<ThirdBoxDetail> queryByWaybillOrPackage(String tenantCode,String waybillCode, String packageCode) {
-		return thirdBoxDetailDao.queryByWaybillOrPackage(tenantCode, waybillCode,packageCode);
+		List<ThirdBoxDetail> result = new ArrayList<>();
+		Set<String> packageCodes = new HashSet<>();
+		List<ThirdBoxDetail> datas = thirdBoxDetailDao.queryByWaybillOrPackage(tenantCode, waybillCode,packageCode);
+		if(!CollectionUtils.isEmpty(datas)){
+			//兼容上线数据过滤多余数据
+			for(ThirdBoxDetail thirdBoxDetail : datas){
+				if(packageCodes.contains(thirdBoxDetail.getPackageCode())){
+					continue;
+				}
+				packageCodes.add(thirdBoxDetail.getPackageCode());
+				result.add(thirdBoxDetail);
+			}
+
+		}
+		return result;
 	}
 
 	/**
@@ -98,6 +130,6 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	 */
 	@Override
 	public boolean isExist(String tenantCode, Integer startSiteId, String boxCode) {
-		return thirdBoxDetailDao.queryCountByBoxCode(tenantCode, startSiteId, boxCode) > 0;
+		return !CollectionUtils.isEmpty(thirdBoxDetailDao.isExist(tenantCode, startSiteId, boxCode));
 	}
 }

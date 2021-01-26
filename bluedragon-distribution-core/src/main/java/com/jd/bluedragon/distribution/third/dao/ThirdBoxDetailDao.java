@@ -49,6 +49,6 @@ public interface ThirdBoxDetailDao extends Dao<ThirdBoxDetail> {
      * @param boxCode
      * @return
      */
-    int queryCountByBoxCode(String tenantCode, Integer startSiteId, String boxCode);
+    List<ThirdBoxDetail> isExist(String tenantCode, Integer startSiteId, String boxCode);
 
 }

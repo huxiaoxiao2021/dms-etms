@@ -75,11 +75,11 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
      * @return
      */
     @Override
-    public int queryCountByBoxCode(String tenantCode, Integer startSiteId, String boxCode) {
+    public List<ThirdBoxDetail> isExist(String tenantCode, Integer startSiteId, String boxCode) {
         ThirdBoxDetail param = new ThirdBoxDetail();
         param.setStartSiteId(startSiteId);
         param.setBoxCode(boxCode);
         param.setTenantCode(tenantCode);
-        return sqlSession.selectOne(this.nameSpace+".queryCountByBoxCode", param);
+        return sqlSession.selectList(this.nameSpace+".isExist", param);
     }
 }

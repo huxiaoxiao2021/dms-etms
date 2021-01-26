@@ -121,9 +121,9 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }
         /*兼容上线逻辑，从经济网接口继续获取箱包关系  取合集*/
         //获取装箱明细
-        BoxDetailResultDto resultDto = boxOperateApiManager.findBoxDetailInfoList(entity.getBoxCode());
-        if(resultDto != null && resultDto.getBoxDetailList() != null && !resultDto.getBoxDetailList().isEmpty()){
-            for(BoxDetailInfoDto boxDetailInfoDto : resultDto.getBoxDetailList()){
+        List<BoxDetailInfoDto> resultDto = boxOperateApiManager.findBoxDetailInfoList(entity.getBoxCode());
+        if(!CollectionUtils.isEmpty(resultDto)){
+            for(BoxDetailInfoDto boxDetailInfoDto : resultDto){
                 if(boxDetailInfoDto != null && StringUtils.isNotBlank(boxDetailInfoDto.getWaybillCode())){
                     waybillList.add(boxDetailInfoDto.getWaybillCode());
                 }

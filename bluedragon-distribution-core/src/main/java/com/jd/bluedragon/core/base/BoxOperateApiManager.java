@@ -1,6 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.zhongyouex.order.api.dto.BoxDetailInfoDto;
 import com.zhongyouex.order.api.dto.BoxDetailResultDto;
+
+import java.util.List;
 
 /**
  * 众邮相关接口
@@ -19,5 +22,5 @@ public interface BoxOperateApiManager {
      * @param boxCode
      * @return
      */
-    public BoxDetailResultDto findBoxDetailInfoList(String boxCode);
+    public List<BoxDetailInfoDto> findBoxDetailInfoList(String boxCode);
 }

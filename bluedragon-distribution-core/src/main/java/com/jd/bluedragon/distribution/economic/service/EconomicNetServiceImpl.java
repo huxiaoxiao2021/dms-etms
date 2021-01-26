@@ -67,14 +67,17 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
 
     private String LOAD_SAVE_BEGIN = "enet:box:w:";
 
+    private String EQUALIZATION_FOMART = "enet:e:%s:%s:%s";
+
+
     @Autowired
     private LogEngine logEngine;
 
     private Integer DEFAULT_BATCH_ADD = 50;
 
-    private Integer DEFAULT_BOX_SPLIT = 10;
+    private Integer DEFAULT_BOX_SPLIT = 1;
 
-    private Integer DEFAULT_BATCH_QUERY_ES = 100;
+    private Integer DEFAULT_BATCH_QUERY_ES = 300;
 
     private Logger logger = LoggerFactory.getLogger(EconomicNetServiceImpl.class);
 
@@ -149,18 +152,18 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             }
             String boxCode = box.getCode();
             //获取装箱明细
-            BoxDetailResultDto resultDto = boxOperateApiManager.findBoxDetailInfoList(boxCode);
+            List<BoxDetailInfoDto> resultDto = boxOperateApiManager.findBoxDetailInfoList(boxCode);
 
-            if(resultDto ==null || resultDto.getBoxDetailList()==null || resultDto.getBoxDetailList().isEmpty()){
+            if(CollectionUtils.isEmpty(resultDto)){
                 logger.error("未加载到装箱数据，箱号 {}，返回消息 {}",boxCode, JsonHelper.toJson(resultDto));
                 return false;
             }
 
             if(logger.isInfoEnabled()){
-                logger.info("boxOperateApiManager.findBoxDetailInfoList {} find size",boxCode,resultDto.getBoxDetailList().size());
+                logger.info("boxOperateApiManager.findBoxDetailInfoList {} find size",boxCode,resultDto.size());
             }
             List<ThirdBoxDetail> thirdBoxDetails = new ArrayList<>();
-            for(BoxDetailInfoDto boxDetailInfoDto : resultDto.getBoxDetailList()){
+            for(BoxDetailInfoDto boxDetailInfoDto : resultDto){
                 thirdBoxDetails.add(convertThirdBoxDetail(boxDetailInfoDto,box));
             }
             List<List<ThirdBoxDetail>> partition = ListUtils.partition(thirdBoxDetails, DEFAULT_BATCH_ADD);
@@ -180,7 +183,7 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             //保存加载记录
             addLoadSaveFlag(box.getCode());
             //保存操作日志
-            loadAndSaveBoxPackageDataSuccessLog(box,resultDto.getBoxDetailList().size());
+            loadAndSaveBoxPackageDataSuccessLog(box,resultDto.size());
             return true;
         }catch (Exception e){
             logger.error("loadAndSaveBoxPackageData error! {} {}",JsonHelper.toJson(box),e.getMessage(),e);
@@ -215,9 +218,9 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             return false;
         }
         noExistFlowDetails.addAll(thirdBoxDetails);
-        //获取已称重数据
-        List<ThirdBoxDetail> existFlowDetails = findExistFlowPackages(thirdBoxDetails);
-        noExistFlowDetails.removeAll(existFlowDetails);
+        //获取已称重数据 暂时认为数据库的里数据就是已经排除过称重的关系数据
+        /* List<ThirdBoxDetail> existFlowDetails = findExistFlowPackages(thirdBoxDetails);
+        noExistFlowDetails.removeAll(existFlowDetails); */
         //均分称重量方数据
         Double itemWeight = vo.getWeight() == null? null :  Double.valueOf(vo.getWeight()) / noExistFlowDetails.size();
         Double itemLength = vo.getLength() == null? null : Double.valueOf(vo.getLength());
@@ -287,69 +290,95 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
                 || excludeBusinessType.contains(weightVolumeEntity.getBusinessType())){
             return true;
         }
-        //判断是否是经济网运单
-        String waybillCode = weightVolumeEntity.getWaybillCode();
-        String packageCode = weightVolumeEntity.getPackageCode();
-        if(StringUtils.isBlank(waybillCode) && StringUtils.isNotBlank(packageCode)){
-            waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        }
-        if(StringUtils.isBlank(waybillCode)){
-            logger.error("weightVolumeListener 未获取到运单号，{}",JsonHelper.toJson(weightVolumeEntity));
-            return false;
-        }
-        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-        if(waybill == null || StringUtils.isBlank(waybill.getWaybillSign())){
-            logger.error("weightVolumeListener 未获取到运单数据，{}",JsonHelper.toJson(weightVolumeEntity));
-        }
-        if(!BusinessUtil.isBusinessNet(waybill.getWaybillSign())){
-            // 非经济网运单排除
-            return true;
-        }
-        //取出经济网箱包关系数据。如果存在则触发重新均摊
-        String boxCode = null;
-        List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByWaybillOrPackage(TENANT_CODE_ECONOMIC,waybillCode,packageCode);
-        if(thirdBoxDetails == null || thirdBoxDetails.isEmpty()){
-            // 不存在装箱数据
-            return true;
-        }else{
-            //存在 且只有一个箱子 如果有多个就取最新的一条
-            boxCode = thirdBoxDetails.get(0)!=null?thirdBoxDetails.get(0).getBoxCode():null;
-        }
-        if(StringUtils.isBlank(boxCode)){
-            logger.error("weightVolumeListener 未获取到经济网装箱对应的箱号数据，{}",JsonHelper.toJson(weightVolumeEntity));
-            return true;
-        }
-        //存在装箱数据，需要判断是否同场地内存在装箱称重，如果存在则触发重新分配
-        WeightVolumeFlowEntity boxFlow = weightVolumeFlowJSFManager.findExistFlowOfBox(boxCode,weightVolumeEntity.getOperateSiteCode());
-        if(boxFlow == null){
-            //无箱号称重数据
-            return true;
-        }
-        //存在同场地箱号称重数据
-        /* 获取箱号的信息 */
-        Box box = boxService.findBoxByCode(boxCode);
-        if(box == null){
-            logger.error("weightVolumeListener box is null! {}",boxCode);
-            return true;
-        }
-        //解绑箱号和包裹关系
-        ThirdBoxDetail cancelParam = new ThirdBoxDetail();
-        cancelParam.setStartSiteId(box.getCreateSiteCode());
-        cancelParam.setTenantCode(TENANT_CODE_ECONOMIC);
-        cancelParam.setBoxCode(boxCode);
-        cancelParam.setUpdateUserId(String.valueOf(weightVolumeEntity.getOperatorId()));
-        cancelParam.setUpdateUserName(weightVolumeEntity.getOperatorName());
-        cancelParam.setOperatorTime(weightVolumeEntity.getOperateTime());
-        if(WaybillUtil.isPackageCode(weightVolumeEntity.getBarCode())){
-            cancelParam.setPackageCode(weightVolumeEntity.getBarCode());
-        }else{
-            cancelParam.setWaybillCode(weightVolumeEntity.getBarCode());
-        }
-        if(thirdBoxDetailService.cancel(cancelParam)){
-            //触发重算
-            return equalizationWeightAndVolume(box,weightVolumeEntity);
-        }else{
-            throw new EconomicNetException("取消箱包关系失败");
+        try{
+            //判断是否是经济网运单
+            String waybillCode = weightVolumeEntity.getWaybillCode();
+            String packageCode = weightVolumeEntity.getPackageCode();
+            if(StringUtils.isBlank(waybillCode) && StringUtils.isNotBlank(packageCode)){
+                waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            }
+            if(StringUtils.isBlank(waybillCode)){
+                logger.error("weightVolumeListener 未获取到运单号，{}",JsonHelper.toJson(weightVolumeEntity));
+                return false;
+            }
+            //次包裹或运单已在本场地已触发过
+            if(isEqualization(weightVolumeEntity.getWaybillCode(),weightVolumeEntity.getPackageCode(),String.valueOf(weightVolumeEntity.getOperateSiteCode()))){
+                if(logger.isInfoEnabled()){
+                    logger.info("经济网箱号重量均摊重算 已被执行过无需继续执行 {}",JsonHelper.toJson(weightVolumeEntity));
+                }
+                return true;
+            }
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+            if(waybill == null || StringUtils.isBlank(waybill.getWaybillSign())){
+                logger.error("weightVolumeListener 未获取到运单数据，{}",JsonHelper.toJson(weightVolumeEntity));
+            }
+            if(!BusinessUtil.isBusinessNet(waybill.getWaybillSign())){
+                // 非经济网运单排除
+                return true;
+            }
+            //取出经济网箱包关系数据。如果存在则触发重新均摊
+            String boxCode = null;
+            List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByWaybillOrPackage(TENANT_CODE_ECONOMIC,waybillCode,packageCode);
+            if(thirdBoxDetails == null || thirdBoxDetails.isEmpty()){
+                // 不存在装箱数据
+                return true;
+            }else{
+                //存在 且只有一个箱子 如果有多个就取最新的一条
+                boxCode = thirdBoxDetails.get(0)!=null?thirdBoxDetails.get(0).getBoxCode():null;
+            }
+            if(StringUtils.isBlank(boxCode)){
+                logger.error("weightVolumeListener 未获取到经济网装箱对应的箱号数据，{}",JsonHelper.toJson(weightVolumeEntity));
+                return true;
+            }
+            //存在装箱数据，需要判断是否同场地内存在装箱称重，如果存在则触发重新分配
+            WeightVolumeFlowEntity boxFlow = weightVolumeFlowJSFManager.findExistFlowOfBox(boxCode,weightVolumeEntity.getOperateSiteCode());
+            if(boxFlow == null){
+                //无箱号称重数据
+                return true;
+            }
+            //存在同场地箱号称重数据
+            /* 获取箱号的信息 */
+            Box box = boxService.findBoxByCode(boxCode);
+            if(box == null){
+                logger.error("weightVolumeListener box is null! {}",boxCode);
+                return true;
+            }
+            //解绑箱号和包裹关系
+            ThirdBoxDetail cancelParam = new ThirdBoxDetail();
+            cancelParam.setStartSiteId(box.getCreateSiteCode());
+            cancelParam.setTenantCode(TENANT_CODE_ECONOMIC);
+            cancelParam.setBoxCode(boxCode);
+            cancelParam.setUpdateUserId(String.valueOf(weightVolumeEntity.getOperatorId()));
+            cancelParam.setUpdateUserName(weightVolumeEntity.getOperatorName());
+            cancelParam.setOperatorTime(weightVolumeEntity.getOperateTime());
+            if(WaybillUtil.isPackageCode(weightVolumeEntity.getBarCode())){
+                cancelParam.setPackageCode(weightVolumeEntity.getBarCode());
+            }else{
+                cancelParam.setWaybillCode(weightVolumeEntity.getBarCode());
+            }
+            if(thirdBoxDetailService.cancel(cancelParam)){
+                //触发重算
+                WeightVolumeEntity equalization = new WeightVolumeEntity();
+                equalization.setLength(boxFlow.getLength());
+                equalization.setWidth(boxFlow.getWidth());
+                equalization.setHeight(boxFlow.getHeight());
+                equalization.setWeight(boxFlow.getWeight());
+                equalization.setVolume(boxFlow.getVolume());
+                equalization.setOperatorId(weightVolumeEntity.getOperatorId());
+                equalization.setOperatorCode(weightVolumeEntity.getOperatorCode());
+                equalization.setOperatorName(weightVolumeEntity.getOperatorName());
+                equalization.setOperateSiteCode(weightVolumeEntity.getOperateSiteCode());
+                equalization.setOperateSiteName(weightVolumeEntity.getOperateSiteName());
+                equalization.setOperateTime(weightVolumeEntity.getOperateTime());
+                return equalizationWeightAndVolume(box,equalization);
+            }else{
+                throw new EconomicNetException("取消箱包关系失败");
+            }
+
+        }catch (Exception e){
+            logger.error("equalizationWeightAndVolume error {}",JsonHelper.toJson(weightVolumeEntity),e);
+            delEqualization(weightVolumeEntity.getWaybillCode(),weightVolumeEntity.getPackageCode(),String.valueOf(weightVolumeEntity.getOperateSiteCode()));
+            throw new EconomicNetException(e.getMessage());
         }
     }
 
@@ -471,10 +500,8 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
 
         }
         List<List<String>> wsplits = ListUtils.partition(new ArrayList<String>(waybillCodes),DEFAULT_BATCH_QUERY_ES);
-        List<List<String>> psplits = ListUtils.partition(new ArrayList<String>(packageCodes),DEFAULT_BATCH_QUERY_ES);
         //已称重集合
         Set<String> waybillCodesOfWeight = new HashSet<>();
-        Set<String> packageCodesOfWeight = new HashSet<>();
 
         //获取已称重运单
         for(List<String> wsplit : wsplits){
@@ -482,14 +509,6 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
            if(r!=null && !r.isEmpty()){
                waybillCodesOfWeight.addAll(r);
            }
-        }
-
-        //获取已称重包裹
-        for(List<String> psplit : psplits){
-            Set<String> r = weightVolumeFlowJSFManager.findExistFlow(psplit,null);
-            if(r!=null && !r.isEmpty()){
-                packageCodesOfWeight.addAll(r);
-            }
         }
 
         //组装返回对象
@@ -534,6 +553,46 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         }
         return true;
     }
+
+    /**
+     * 是否已重新均摊过
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    private boolean isEqualization(String waybillCode,String packageCode,String siteCode){
+        if(StringUtils.isBlank(waybillCode) && StringUtils.isBlank(packageCode)){
+            return true;
+        }
+        String key = String.format(EQUALIZATION_FOMART,waybillCode,packageCode,siteCode);
+        try{
+            return !cacheService.setNx(key,StringUtils.EMPTY,15, TimeUnit.DAYS);
+        }catch (Exception e){
+            logger.error("检查是否已重新均摊过异常{},{},{},{}",waybillCode,packageCode,siteCode,e.getMessage(),e);
+        }
+        return true;
+    }
+
+    /**
+     * 删除
+     * @param waybillCode
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    private boolean delEqualization(String waybillCode,String packageCode,String siteCode){
+        if(StringUtils.isBlank(waybillCode) && StringUtils.isBlank(packageCode)){
+            return true;
+        }
+        String key = String.format(EQUALIZATION_FOMART,waybillCode,packageCode,siteCode);
+        try{
+            return cacheService.del(key);
+        }catch (Exception e){
+            logger.error("delEqualization error {},{},{},{}",waybillCode,packageCode,siteCode,e.getMessage(),e);
+        }
+        return true;
+    }
+
 
     /**
      * 是否已加载过
