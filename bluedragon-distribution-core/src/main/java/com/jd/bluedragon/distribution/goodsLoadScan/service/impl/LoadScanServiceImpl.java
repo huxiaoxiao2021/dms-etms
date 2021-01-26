@@ -42,6 +42,7 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -915,6 +916,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         // 如果这些包裹有之前扫过的，需要过滤
         if (packageMap != null && !packageMap.isEmpty()) {
+            //保存查询到装车任务数据.
+            Map<Long,Integer> loadCarStatusKV = new HashMap<>();
             // 循环处理每一个包裹
             for (String packCode : packages) {
                 if (!WaybillUtil.isPackageCode(packCode)) {
@@ -924,10 +927,25 @@ public class LoadScanServiceImpl implements LoadScanService {
                 GoodsLoadScanRecord record = packageMap.get(packCode);
                 // 重复扫的包裹忽略
                 if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
-                    continue;
-                }
-                // 扫描过但被取消的包裹可以再装
-                if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                    //获取包裹对应的装车任务,若尚未完成，说明当前存在装车任务中,无论是哪辆车都从当前中剔除即可。获取到的装车任务信息若存在也极少,避免后续再次获取放到内存中给其他包裹使用,避免会有多次获取数据的情况。
+                    Long taskIdCheck = record.getTaskId();
+                    if(loadCarStatusKV.get(taskIdCheck) == null){
+                        LoadCar loadCarCheck = loadCarDao.findLoadCarByTaskId(taskIdCheck);
+                        if(loadCarCheck != null){
+                            loadCarStatusKV.put(taskIdCheck,loadCarCheck.getStatus());
+                        }//如果根据任务号获取为空的时候,此处暂不做判断,理论上是不存在的,若存在,需与产品业务确认,如何处理。
+                    }
+                    //状态为未完成的装车任务,从中剔除。
+                    if(loadCarStatusKV.get(taskIdCheck) == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
+                        continue;
+                    }else{
+                        log.info("判断是否二次发货的判断:当前操作的任务号={},包裹号={},站点={},尚未完成的装车任务为{},在本站通过组板发货再次操作装车发货." , packCode,loadCar.getId(),loadCar.getCreateSiteCode(),taskIdCheck);
+                        GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                                boardCode, transfer, flowDisAccord, user, loadCar);
+                        insertRecords.add(goodsLoadScanRecord);
+                    }
+                }else if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
+                    // 扫描过但被取消的包裹可以再装
                     record.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
                     record.setUpdateUserName(user.getUserName());
                     record.setUpdateUserCode(user.getUserCode());
@@ -940,12 +958,13 @@ public class LoadScanServiceImpl implements LoadScanService {
                     record.setEndSiteName(loadCar.getEndSiteName());
                     record.setLicenseNumber(loadCar.getLicenseNumber());
                     updateRecords.add(record);
-                }
-                // 没扫描过的包裹正常装
-                if (record == null) {
-                    GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
-                            boardCode, transfer, flowDisAccord, user, loadCar);
-                    insertRecords.add(goodsLoadScanRecord);
+                }else{
+                    // 没扫描过的包裹正常装
+                    if (record == null) {
+                        GoodsLoadScanRecord goodsLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packCode,
+                                boardCode, transfer, flowDisAccord, user, loadCar);
+                        insertRecords.add(goodsLoadScanRecord);
+                    }
                 }
             }
         } else {
@@ -976,6 +995,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         Map<String, GoodsLoadScanRecord> packageMap = goodsLoadScanRecordDao.findRecordsByWaybillCode(loadCar.getCreateSiteCode(), waybillCode);
         // 如果这些包裹有之前扫过的，需要过滤
         if (packageMap != null && !packageMap.isEmpty()) {
+            //保存查询到装车任务数据.
+            Map<Long,Integer> loadCarStatusKV = new HashMap<>();
             // 循环处理每一个包裹
             for (String packCode : packages) {
                 if (!WaybillUtil.isPackageCode(packCode)) {
@@ -984,7 +1005,19 @@ public class LoadScanServiceImpl implements LoadScanService {
                 GoodsLoadScanRecord record = packageMap.get(packCode);
                 // 重复扫的包裹忽略
                 if (record != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(record.getScanAction())) {
-                    continue;
+                    Long taskIdCheck = record.getTaskId();
+                    if(loadCarStatusKV.get(taskIdCheck) == null){
+                        LoadCar loadCarCheck = loadCarDao.findLoadCarByTaskId(taskIdCheck);
+                        if(loadCarCheck != null){
+                            loadCarStatusKV.put(taskIdCheck,loadCarCheck.getStatus());
+                        }//如果根据任务号获取为空的时候,此处暂不做判断,理论上是不存在的,若存在,需与产品业务确认,如何处理。
+                    }
+                    //状态为未完成的装车任务,从中剔除。
+                    if(loadCarStatusKV.get(taskIdCheck) == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN) {
+                        continue;
+                    }
+                    log.info("判断是否二次发货的判断:当前操作的任务号={},包裹号={},站点={},未完结的任务号为{}在本站点通过大宗发货再次操作装车发货." , packCode,loadCar.getId(),loadCar.getCreateSiteCode(),record.getTaskId());
+                    insertPackageCodes.add(packCode);
                 }
                 // 扫描过但被取消的包裹可以再装
                 if (record != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(record.getScanAction())) {
@@ -1098,7 +1131,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("包裹未验货或已发货，请核实包裹状态");
-            return response;
+//            return response;
+            loadScanDto = new LoadScanDto();
         }
         Integer nextDmsSiteId = loadScanDto.getNextSiteId();
         // 如果ES中的路由还没计算出来，再实时调用一次
@@ -1273,14 +1307,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
             log.warn("校验运单号--运单下一动态路由节点与批次号下一场站不一致taskId={},packageCode={},waybillCode={},waybillNextSite={},taskEndSite={}", taskId, packageCode, waybillCode, nextDmsSiteId, loadCar.getEndSiteCode());
             if(nextDmsSiteId == null){
-                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号与批次目的地不一致，请确认是否继续发货！";
+                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！实时获取运单路由为空,请确认是否继续发货！";
             }else{
                 BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(nextDmsSiteId);
                 String nextSiteName ="";
                 if (baseSiteInfoDto != null) {
                     nextSiteName = baseSiteInfoDto.getSiteName();
                 }
-                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号流向为" + nextSiteName + "与批次目的地不一致，请确认是否继续发货！";
+                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号实时流向为" + nextSiteName + "与批次目的地不一致，请确认是否继续发货！";
             }
 
             msgBox.setMsg(msg);
@@ -1439,23 +1473,19 @@ public class LoadScanServiceImpl implements LoadScanService {
             GoodsLoadScanRecord loadScanRecord = goodsLoadScanRecordDao.findRecordByWaybillCodeAndPackCode(waybillCode, packageCode, loadCar.getCreateSiteCode());
             // 如果是重复扫，返回错误
             if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_LOAD.equals(loadScanRecord.getScanAction())) {
-                response.setCode(JdCResponse.CODE_FAIL);
-                if (!loadCar.getLicenseNumber().equals(loadScanRecord.getLicenseNumber())) {
-                    log.warn("该包裹所属运单已装入{}车内，不能改装！taskId={},packageCode={},waybillCode={}",
-                            loadScanRecord.getLicenseNumber(), taskId, packageCode, waybillCode);
-                    response.setMessage("该包裹所属运单已装入" + loadScanRecord.getLicenseNumber() + "车内，不能改装！");
+                Long taskIdCheck = loadScanRecord.getTaskId();
+                LoadCar loadCarCheck = loadCarDao.findLoadCarByTaskId(taskIdCheck);
+                if(loadCarCheck != null && loadCarCheck.getStatus() == GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN){
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    log.warn("该包裹所属运单已装入{}车内，不能改装！taskId={},packageCode={},waybillCode={}", loadCarCheck.getLicenseNumber(), taskId, packageCode, waybillCode);
+                    response.setMessage("该包裹所属运单已装入" + loadCarCheck.getLicenseNumber() + "车内，不能改装！");
                     return response;
+                }else{
+                    log.info("判断是否二次发货的判断:当前操作的任务号={},包裹号={},站点={},尚未完成的装车任务为{},在本站地为再次扫描装车发货." , packageCode,loadCar.getId(),loadCar.getCreateSiteCode(),taskIdCheck);
                 }
-                log.warn("该包裹号已扫描装车，请勿重复扫描！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
-                response.setMessage("该包裹号已扫描装车，请勿重复扫描！");
-                return response;
-            }
-            if (log.isDebugEnabled()) {
-                log.debug("常规包裹号后续校验--包裹不属于重复扫：taskId={},packageCode={},waybillCode={},flowDisAccord={}",
-                        taskId, packageCode, waybillCode, flowDisAccord);
             }
             // 不属于重复扫,但被取消扫描过
-            if (loadScanRecord != null) {
+            if (loadScanRecord != null && GoodsLoadScanConstants.GOODS_SCAN_REMOVE.equals(loadScanRecord.getScanAction())) {
                 loadScanRecord.setUpdateTime(new Date());
                 loadScanRecord.setUpdateUserCode(user.getUserCode());
                 loadScanRecord.setUpdateUserName(user.getUserName());
@@ -1468,10 +1498,9 @@ public class LoadScanServiceImpl implements LoadScanService {
                 loadScanRecord.setLicenseNumber(loadCar.getLicenseNumber());
                 goodsLoadScanRecordDao.updateGoodsScanRecordById(loadScanRecord);
             } else {
-                // 如果不是重复扫，包裹扫描记录表新增一条记录
+                // 需再次发货的以及未操作过装车发货的，包裹扫描记录表新增一条记录
                 GoodsLoadScanRecord newLoadScanRecord = createGoodsLoadScanRecord(taskId, waybillCode, packageCode,
                         null, transfer, flowDisAccord, user, loadCar);
-
                 goodsLoadScanRecordDao.insert(newLoadScanRecord);
             }
 
