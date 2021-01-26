@@ -4,10 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.*;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -47,7 +44,7 @@ import java.util.Map;
  * @Author zhengchengfa
  * @Date 2020年10月22日
  */
-@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:spring/distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
@@ -476,5 +473,13 @@ public class GoodsLoadingScanningServiceImplTest {
         goodsLoadScanRecordDao.batchInsert(records);
         goodsLoadScanDao.batchInsert(list);
         System.out.println("123");
+    }
+
+    @Test
+    public void testCheckPackageCode(){
+        GoodsLoadingScanningReq req = new GoodsLoadingScanningReq();
+        req.setTaskId(204L);
+        req.setPackageCode("JDV000503436330-1640-20000-");
+        goodsLoadingScanningService.checkPackageCode(req);
     }
 }
