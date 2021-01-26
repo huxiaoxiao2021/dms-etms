@@ -92,11 +92,11 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 		            	tmsVehicleRoute.setOriginalSiteCode(transResult.getData().getStartNodeId());
 		            	tmsVehicleRoute.setDestinationSiteCode(transResult.getData().getEndNodeId());
 		            	if(tmsVehicleRoute.getCreateTime() != null) {
-		            		//先获取当前日期,增加小时及分钟
-		            		Date dayTime = DateHelper.parseDate(DateHelper.formatDate(tmsVehicleRoute.getCreateTime()));
-		            		Date departTime = DateHelper.add(dayTime, Calendar.HOUR_OF_DAY, transResult.getData().getSendCarHour());
-		            		departTime = DateHelper.add(dayTime, Calendar.MINUTE, transResult.getData().getSendCarMin());
-			            	tmsVehicleRoute.setDepartTime(departTime);
+		            		//先获取线路创建时间，根据运力编码对应的时间计算发车时间
+		            		String dayStr = DateHelper.formatDate(tmsVehicleRoute.getCreateTime());
+		            		String sendCarTimeStr = transResult.getData().getSendCarTimeStr();
+		            		Date departTime = DateHelper.parseTmsCarTime(dayStr,sendCarTimeStr);
+	            			tmsVehicleRoute.setDepartTime(departTime);
 		            	}
 		            }else {
 		            	logger.warn("加载运力信息失败！transportCode={}", tmsVehicleRoute.getTransportCode());
