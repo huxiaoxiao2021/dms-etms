@@ -1858,6 +1858,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是快运
+     * 31位 为1 是特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isExpress(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,31,'1');
+    }
+
+    /**
      * 判断是否防疫物资绿色通道(82位6)
      *
      * @param waybillSign
