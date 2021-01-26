@@ -6,9 +6,14 @@ import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
 import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureLogDao;
 import com.jd.bluedragon.distribution.departure.domain.DepartureLog;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.dao.ReceiveDao;
@@ -99,6 +104,15 @@ public class ReceiveServiceImpl implements ReceiveService {
 	@Autowired
 	private DepartureLogDao departureLogDao;
 
+	@Autowired
+	private IEconomicNetService economicNetService;
+
+	@Autowired
+	private BoxService boxService;
+
+	@Autowired
+	private SiteService siteService;
+
 	/**
 	 * 收货
 	 *
@@ -124,6 +138,10 @@ public class ReceiveServiceImpl implements ReceiveService {
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 			returnTrack(cenConfirm);
 		}else{
+			//先加载箱包数据
+			if(!this.loadENetBox(receive.getBoxCode())){
+				throw new EconomicNetException("收箱验货时加载箱包关系失败！"+receive.getBoxCode());
+			}
 			List<SendDetail> sendDetails=deliveryService.getCancelSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
 				log.warn("根据[boxCode={}]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪",receive.getBoxCode());
@@ -139,6 +157,26 @@ public class ReceiveServiceImpl implements ReceiveService {
 		}
 		// 推送mq消息
 		pushTurnoverBoxInfo(receive);
+	}
+
+	/**
+	 * 加载箱包数据数据
+	 * @param boxCode
+	 * @return
+	 */
+	private boolean loadENetBox(String boxCode){
+		/* 获取箱号的信息 */
+		Box box = boxService.findBoxByCode(boxCode);
+		if(box == null){
+			log.error("loadENetBox box is null! {}",boxCode);
+			return true;
+		}
+		BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
+		if (siteEntity == null || siteEntity.getSiteType() != BaseContants.ECONOMIC_NET_SITE) {
+			log.error("loadENetBox siteEntity not satisfy! {}",boxCode);
+			return true;
+		}
+		return economicNetService.loadAndSaveBoxPackageData(box);
 	}
 
 	private CenConfirm paseCenConfirm(Receive receive) {

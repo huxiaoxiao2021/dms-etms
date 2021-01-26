@@ -29,6 +29,7 @@ import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.zhongyouex.order.api.dto.BoxDetailInfoDto;
 import com.zhongyouex.order.api.dto.BoxDetailResultDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,7 +131,10 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         }else{
             logger.error("BoxWeightVolumeHandler 未从经济网接口中获取箱号数据{}   返回值 {}",entity.getBoxCode(),JsonHelper.toJson(resultDto));
         }
-
+        if(CollectionUtils.isEmpty(waybillList)){
+            logger.error("BoxWeightVolumeHandler waybillList is empty {} ",entity.getBoxCode());
+            return;
+        }
         Double itemWeight = entity.getWeight() == null? null :  entity.getWeight() / waybillList.size();
         Double itemLength = entity.getLength();
         Double itemWidth = entity.getWidth();
@@ -250,7 +254,7 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         // 出现异常、无响应结果、响应结果非成功code码 则 抛出异常 自动重试
         if (e != null || result == null || !"0000".equals(result.getCode())) {
             if(uccPropertyConfiguration.getEconomicNetPushZTDRetry()){
-                throw new RuntimeException(MessageFormat.format("推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
+                throw new RuntimeException(MessageFormat.format(entity.getBoxCode()+"推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
             }
         }
     }
