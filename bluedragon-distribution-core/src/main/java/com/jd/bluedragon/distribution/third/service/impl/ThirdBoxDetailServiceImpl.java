@@ -72,4 +72,32 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	public List<ThirdBoxDetail> queryByBoxCode(String tenantCode, Integer startSiteId, String boxCode) {
 		return thirdBoxDetailDao.queryByBoxCode(tenantCode, startSiteId, boxCode);
 	}
+
+	/**
+	 * 获取运单或包裹装箱数据
+	 * 为了走索引查询包裹时也需要传入运单号
+	 *
+	 * @param tenantCode
+	 * @param startSiteId
+	 * @param waybillCode
+	 * @param packageCode
+	 * @return
+	 */
+	@Override
+	public List<ThirdBoxDetail> queryByWaybillOrPackage(String tenantCode,String waybillCode, String packageCode) {
+		return thirdBoxDetailDao.queryByWaybillOrPackage(tenantCode, waybillCode,packageCode);
+	}
+
+	/**
+	 * 检查是否存在数据
+	 *
+	 * @param tenantCode
+	 * @param startSiteId
+	 * @param boxCode
+	 * @return
+	 */
+	@Override
+	public boolean isExist(String tenantCode, Integer startSiteId, String boxCode) {
+		return thirdBoxDetailDao.queryCountByBoxCode(tenantCode, startSiteId, boxCode) > 0;
+	}
 }

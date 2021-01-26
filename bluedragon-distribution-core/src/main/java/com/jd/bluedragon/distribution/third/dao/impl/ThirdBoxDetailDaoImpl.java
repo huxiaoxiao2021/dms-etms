@@ -28,7 +28,7 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
      */
     @Override
     public boolean cancel(ThirdBoxDetail detail) {
-        return sqlSession.update(this.nameSpace+".cancel", detail) == 1;
+        return sqlSession.update(this.nameSpace+".cancel", detail) > 0;
     }
 
     /**
@@ -46,5 +46,40 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
         param.setBoxCode(boxCode);
         param.setTenantCode(tenantCode);
         return sqlSession.selectList(this.nameSpace+".queryByBoxCode", param);
+    }
+
+    /**
+     * 获取运单或包裹装箱数据
+     * 为了走索引查询包裹时也需要传入运单号
+     *
+     * @param tenantCode
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    @Override
+    public List<ThirdBoxDetail> queryByWaybillOrPackage(String tenantCode, String waybillCode, String packageCode) {
+        ThirdBoxDetail param = new ThirdBoxDetail();
+        param.setWaybillCode(waybillCode);
+        param.setPackageCode(packageCode);
+        param.setTenantCode(tenantCode);
+        return sqlSession.selectList(this.nameSpace+".queryByWaybillOrPackage", param);
+    }
+
+    /**
+     * 获取存在数据
+     *
+     * @param tenantCode
+     * @param startSiteId
+     * @param boxCode
+     * @return
+     */
+    @Override
+    public int queryCountByBoxCode(String tenantCode, Integer startSiteId, String boxCode) {
+        ThirdBoxDetail param = new ThirdBoxDetail();
+        param.setStartSiteId(startSiteId);
+        param.setBoxCode(boxCode);
+        param.setTenantCode(tenantCode);
+        return sqlSession.selectOne(this.nameSpace+".queryCountByBoxCode", param);
     }
 }

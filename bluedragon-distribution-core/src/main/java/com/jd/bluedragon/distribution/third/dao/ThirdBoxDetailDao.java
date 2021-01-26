@@ -33,4 +33,22 @@ public interface ThirdBoxDetailDao extends Dao<ThirdBoxDetail> {
      */
     List<ThirdBoxDetail> queryByBoxCode(String tenantCode, Integer startSiteId, String boxCode);
 
+    /**
+     * 获取运单或包裹装箱数据
+     * 为了走索引查询包裹时也需要传入运单号
+     * @param tenantCode
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    List<ThirdBoxDetail> queryByWaybillOrPackage(String tenantCode, String waybillCode, String packageCode);
+    /**
+     * 获取存在数据
+     * @param tenantCode
+     * @param startSiteId
+     * @param boxCode
+     * @return
+     */
+    int queryCountByBoxCode(String tenantCode, Integer startSiteId, String boxCode);
+
 }

@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.16-SNAPSHOT</version>
+			<version>1.1.16-test-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1455,6 +1455,10 @@
                 	<groupId>com.jd.jim.cli</groupId>
                 	<artifactId>jim-cli-api</artifactId>
                 </exclusion>
+				<exclusion>
+					<artifactId>tms-basic-client</artifactId>
+					<groupId>com.jd.tms.basic</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1558,6 +1562,12 @@
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.zhongyouex.order</groupId>
+			<artifactId>zhongyouex-order-api</artifactId>
+			<version>1.0.0-test-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
