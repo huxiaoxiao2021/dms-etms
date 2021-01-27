@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.qualityControl.service.QualityControlServi
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -29,16 +28,15 @@ import com.jd.ql.dms.report.domain.BasicSite;
 import com.jd.ql.dms.report.domain.SiteQueryCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.AbnormalReasonDto;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.CodeTypeEnum;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.WpAbnormalRecordPda;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +50,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Value("${non.qc.abnormal.reason.type:920002313}")
     private int nonQcAbnormalReasonType;
 
-    private Map<String, AbnormalReasonDto> abnormalReasonDtoMap;
+    private Map<String, ExceptionReason> abnormalReasonDtoMap;
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -89,11 +87,11 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         JdCResponse<List<DmsAbnormalReasonDto>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
         //获取质控的所有异常原因信息
-        this.abnormalReasonDtoMap = iAbnPdaAPIManager.selectAbnReasonByErp(userErp);
+        this.abnormalReasonDtoMap = iAbnPdaAPIManager.selectAbnReasonByErp();
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("请联系权限接口人配置质控系统异常上报权限");
+            jdCResponse.setMessage("没有查询到异常原因数据。请联质控系统接口人配置异常上报权限");
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);
@@ -241,16 +239,21 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         //判断是不是质控
         Integer sourceType = dmsAbnormalReasonDto.getSourceType();
         if (sourceType == AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM.getType()) {
-            WpAbnormalRecordPda wpAbnormalRecordPda = this.convert2WpAbnormalRecordPda(abnormalReportingRequest);
+            List<ReportRecord> wpAbnormalRecordPda = this.convert2ReportRecord(abnormalReportingRequest);
             log.info("WpAbnormalRecordPda参数：{}", JsonHelper.toJson(wpAbnormalRecordPda));
-            PdaResult pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
+            if(wpAbnormalRecordPda==null || wpAbnormalRecordPda.size()<=0){
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("上报质控系统失败，提报的原因不在质控系统中");
+                return jdCResponse;
+            }
 
+            JdCResponse pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
             if (pdaResult == null) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
                 return jdCResponse;
             }
-            log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMsg());
+            log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMessage());
             //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
             if (pdaResult.getCode() == 5) {
                 //生成异常处理的异步任务，与老质控逻辑保持一致
@@ -261,7 +264,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (pdaResult.getCode() == 3) {
                 //部分成功
                 //剔除失败列表
-                String failBarCodes = pdaResult.getMsg();
+                String failBarCodes = pdaResult.getMessage();
                 String[] failBarCodeList = failBarCodes.split(",");
                 Set<String> barCodeSet = new HashSet<>(abnormalReportingRequest.getBarCodes());
                 for (String failBarCode : failBarCodeList) {
@@ -279,7 +282,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             } else if (pdaResult.getCode() == 0) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("质控系统接口异常，请稍后再试！");
-                log.error("质控系统接口异常：{}", pdaResult.getMsg());
+                log.error("质控系统接口异常：{}", pdaResult.getMessage());
             } else {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("信息提交失败，请联系IT运营人员核实质控系统权限！");
@@ -351,7 +354,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
             if (source.equals(AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM)) {
                 String key = level + "-" + baseDataDict.getTypeCode();
-                AbnormalReasonDto abnormalReasonDto = abnormalReasonDtoMap.get(key);
+                ExceptionReason abnormalReasonDto = abnormalReasonDtoMap.get(key);
                 if (abnormalReasonDto == null) {
                     log.warn("编号：【{}】的原因不存在于质控系统中", baseDataDict.getTypeCode());
                     continue;
@@ -390,14 +393,18 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     /**
      * 从质控获取到的原因转化为通用原因
      */
-    private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(AbnormalReasonDto abnormalReasonDto) {
+    private DmsAbnormalReasonDto convertDmsAbnormalReasonDto(ExceptionReason abnormalReasonDto) {
         DmsAbnormalReasonDto dmsAbnormalReasonDto = new DmsAbnormalReasonDto();
         dmsAbnormalReasonDto.setLevel(Integer.parseInt(abnormalReasonDto.getAbnormalLevel()));
         dmsAbnormalReasonDto.setReasonName(abnormalReasonDto.getAbnormalName());
-        dmsAbnormalReasonDto.setIsOutCallType(abnormalReasonDto.getOutCall() == null ? 0 : Integer.parseInt(abnormalReasonDto.getOutCall()));
-        dmsAbnormalReasonDto.setIsUploadImgType(abnormalReasonDto.getUploadImg() == null ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
-        dmsAbnormalReasonDto.setIsDeviceCodeType(abnormalReasonDto.getDeviceCode() == null ? 0 : Integer.parseInt(abnormalReasonDto.getDeviceCode()));
-        dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark());
+        dmsAbnormalReasonDto.setIsOutCallType(0);
+        dmsAbnormalReasonDto.setIsUploadImgType(StringUtils.isEmpty(abnormalReasonDto.getUploadImg()) ? 0 : Integer.parseInt(abnormalReasonDto.getUploadImg()));
+        dmsAbnormalReasonDto.setIsDeviceCodeType(StringUtils.isEmpty(abnormalReasonDto.getDeviceCode()) ? 0 : Integer.parseInt(abnormalReasonDto.getDeviceCode()));
+        if(StringUtils.isNotBlank(abnormalReasonDto.getRemark()) && abnormalReasonDto.getRemark().length()>10){
+            dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark().substring(0,10));
+        }else {
+            dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark());
+        }
         dmsAbnormalReasonDto.setChildReasonList(new ArrayList<DmsAbnormalReasonDto>());
         return dmsAbnormalReasonDto;
     }
@@ -476,32 +483,49 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     }
 
 
-    private WpAbnormalRecordPda convert2WpAbnormalRecordPda(AbnormalReportingRequest abnormalReportingRequest) {
-        WpAbnormalRecordPda wpAbnormalRecordPda = new WpAbnormalRecordPda();
+    private List<ReportRecord> convert2ReportRecord(AbnormalReportingRequest abnormalReportingRequest) {
+        List<ReportRecord> res=new ArrayList<>();
+
         DmsAbnormalReasonDto dmsAbnormalReasonDto = abnormalReportingRequest.getDmsAbnormalReasonDto();
-        wpAbnormalRecordPda.setOrders(StringUtils.join(abnormalReportingRequest.getBarCodes().toArray(), ','));
-        wpAbnormalRecordPda.setAbnormalSecondId(dmsAbnormalReasonDto.getParentCode());
-        wpAbnormalRecordPda.setAbnormalSecondName(dmsAbnormalReasonDto.getParentName());
-        wpAbnormalRecordPda.setAbnormalThirdId(dmsAbnormalReasonDto.getReasonCode());
-        wpAbnormalRecordPda.setAbnormalThirdName(dmsAbnormalReasonDto.getReasonName());
-
-        if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())
-                && abnormalReportingRequest.getDealDeptType() != null) {
-            wpAbnormalRecordPda.setDealDept(abnormalReportingRequest.getDealDeptCode());
-            wpAbnormalRecordPda.setDealDeptName(abnormalReportingRequest.getDealDeptName());
-            wpAbnormalRecordPda.setStoreType(abnormalReportingRequest.getDealDeptType().toString());
+        JdCResponse<ExceptionReason> abnormalFirst=iAbnPdaAPIManager.getAbnormalFirst(dmsAbnormalReasonDto.getParentCode());
+        if(!abnormalFirst.getCode().equals(JdCResponse.CODE_SUCCESS)){
+            return res;
         }
 
-        wpAbnormalRecordPda.setOutCallStatus(dmsAbnormalReasonDto.getIsOutCallType().toString());
-        wpAbnormalRecordPda.setRemark(abnormalReportingRequest.getRemark());
-        wpAbnormalRecordPda.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
-        wpAbnormalRecordPda.setCreateDeptName(abnormalReportingRequest.getSiteName());
-        wpAbnormalRecordPda.setCreateTimeStr(DateHelper.formatDate(abnormalReportingRequest.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
-        wpAbnormalRecordPda.setCreateUser(abnormalReportingRequest.getUserErp());
-        if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
-            wpAbnormalRecordPda.setProofUrls(StringUtils.join(abnormalReportingRequest.getImgUrls().toArray(), ','));
+        for (String barCode: abnormalReportingRequest.getBarCodes()) {
+            ReportRecord itme=new ReportRecord();
+            itme.setCode(barCode);
+            if (WaybillUtil.isWaybillCode(barCode)) {
+                itme.setCodeTypeEnum(CodeTypeEnum.WAYBILL);
+            } else if (WaybillUtil.isPackageCode(barCode)) {
+                itme.setCodeTypeEnum(CodeTypeEnum.PACKAGE);
+            }
+
+            itme.setFirstLevelExceptionId(abnormalFirst.getData().getId());
+            itme.setFirstLevelExceptionName(abnormalFirst.getData().getAbnormalName());
+            itme.setSecondLevelExceptionId(dmsAbnormalReasonDto.getParentCode());
+            itme.setSecondLevelExceptionName(dmsAbnormalReasonDto.getParentName());
+            itme.setThirdLevelExceptionId(dmsAbnormalReasonDto.getReasonCode());
+            itme.setThirdLevelExceptionName(dmsAbnormalReasonDto.getReasonName());
+
+            if (StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptCode()) && StringHelper.isNotEmpty(abnormalReportingRequest.getDealDeptName())) {
+                itme.setDealDept(abnormalReportingRequest.getDealDeptCode());
+                itme.setDealDeptName(abnormalReportingRequest.getDealDeptName());
+            }
+
+            itme.setRemark(abnormalReportingRequest.getRemark());
+            if (abnormalReportingRequest.getImgUrls() != null && abnormalReportingRequest.getImgUrls().size() > 0) {
+                itme.setProofUrls(abnormalReportingRequest.getImgUrls());
+            }
+            itme.setCreateUser(abnormalReportingRequest.getUserErp());
+            itme.setCreateDept(abnormalReportingRequest.getSiteCode().toString());
+            itme.setCreateDeptName(abnormalReportingRequest.getSiteName());
+            itme.setCreateTime(abnormalReportingRequest.getOperateTime());
+            itme.setReportSystem("11");
+
+            res.add(itme);
         }
 
-        return wpAbnormalRecordPda;
+        return res;
     }
 }
