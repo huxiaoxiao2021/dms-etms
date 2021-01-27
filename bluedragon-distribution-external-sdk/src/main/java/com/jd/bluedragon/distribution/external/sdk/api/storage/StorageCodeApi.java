@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.sdk.api.Storage;
+package com.jd.bluedragon.distribution.external.sdk.api.storage;
 
 import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
 

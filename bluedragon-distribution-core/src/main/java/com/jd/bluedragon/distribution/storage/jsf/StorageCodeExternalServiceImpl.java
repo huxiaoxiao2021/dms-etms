@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.storage.jsf;
 
 import com.jd.bluedragon.core.base.DmsLocalServerManager;
-import com.jd.bluedragon.distribution.external.sdk.api.Storage.StorageCodeApi;
+import com.jd.bluedragon.distribution.external.sdk.api.storage.StorageCodeApi;
 import com.jd.bluedragon.distribution.external.sdk.base.ServiceResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
