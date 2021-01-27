@@ -82,6 +82,7 @@
 		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
 		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
 		<property name="economicNetPushZTDRetry" value="${economicNetPushZTDRetry:true}"/>
+		<property name="eNetSyncWaybillCodeAndBoxCode" value="${eNetSyncWaybillCodeAndBoxCode:true}"/>
 		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
         <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
         <property name="quickSealTips" value="${quickSealTips:''}" />
@@ -142,6 +143,7 @@
 				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
 				<value>uccPropertyConfiguration.economicNetPushZTDRetry</value>
+				<value>uccPropertyConfiguration.eNetSyncWaybillCodeAndBoxCode</value>
 				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
                 <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
                 <value>uccPropertyConfiguration.quickSealTips</value>

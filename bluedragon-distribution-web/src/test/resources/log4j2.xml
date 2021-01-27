@@ -71,11 +71,11 @@
         <!-- mybatis  -->
         <logger name="org.mybatis" level="DEBUG" additivity="true"/>
         <logger name="org.apache.ibatis" level="DEBUG" additivity="true"/>
-        <logger name="org.springframework" level="DEBUG" additivity="true"/>
-        <logger name="org.apache.commons" level="DEBUG" additivity="true"/>
-        <logger name="org.apache.cxf" level="DEBUG" additivity="true"/>
+        <logger name="org.springframework" level="ERROR" additivity="true"/>
+        <logger name="org.apache.commons" level="ERROR" additivity="true"/>
+        <logger name="org.apache.cxf" level="ERROR" additivity="true"/>
 
-        <logger name="com.jd.jsf" level="DEBUG" additivity="true"/>
+        <logger name="com.jd.jsf" level="ERROR" additivity="true"/>
         <logger name="com.jd.jmq" level="ERROR" additivity="true"/>
         <logger name="com.jd.common" level="ERROR" additivity="true"/>
         <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
@@ -86,7 +86,7 @@
             <appender-ref ref="business.log"/>
         </logger>
         <!-- 建立一个默认的root的Logger -->
-        <AsyncRoot level="DEBUG">
+        <AsyncRoot level="INFO">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
