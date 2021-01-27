@@ -1,7 +1,13 @@
 package ld;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
+import com.jd.bluedragon.distribution.receive.domain.Receive;
+import com.jd.bluedragon.distribution.receive.service.ReceiveService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -34,6 +40,30 @@ public class BoxWeightTest {
 
     @Autowired
     private IEconomicNetService economicNetService;
+
+    @Autowired
+    private ReceiveService receiveService;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Test
+    public void testReceive(){
+        TaskRequest request = JsonHelper.fromJson(taskReqJson,TaskRequest.class);
+        Object[] array = JsonHelper.jsonToArray(request.getBody(), Object[].class);
+
+        for(Object element : array){
+            String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                    + JsonHelper.toJson(element)
+                    + Constants.PUNCTUATION_CLOSE_BRACKET;
+            Task task = this.taskService.toTask(request, eachJson);
+            Receive receive = receiveService.taskToRecieve(task);
+            if(receive != null){
+                receiveService.doReceiveing(receive);
+            }
+        }
+
+    }
 
     @Test
     public void test(){
@@ -79,6 +109,8 @@ public class BoxWeightTest {
         economicNetService.dealBoxSplitWeightOfPage(splits);
 
     }
+
+    String taskReqJson = "{\"type\":1110,\"siteCode\":910,\"keyword1\":\"910\",\"keyword2\":\"BC1001210127140000004211\",\"body\":\"[{\\\"shieldsCarCode\\\":\\\"\\\",\\\"carCode\\\":\\\"\\\",\\\"sealBoxCode\\\":\\\"\\\",\\\"packOrBox\\\":\\\"BC1001210127140000004211\\\",\\\"turnoverBoxCode\\\":\\\"\\\",\\\"queueNo\\\":\\\"\\\",\\\"departureCarId\\\":\\\"\\\",\\\"shieldsCarTime\\\":\\\"\\\",\\\"id\\\":6,\\\"businessType\\\":10,\\\"userCode\\\":17331,\\\"userName\\\":\\\"吴有德\\\",\\\"siteCode\\\":910,\\\"siteName\\\":\\\"北京马驹桥分拣中心\\\",\\\"operateTime\\\":\\\"2021-01-27 17:49:35.253\\\"}]\",\"boxCode\":\"\",\"receiveSiteCode\":910}";
 
     String splitP = "[ {\n" +
             "  \"barCode\" : \"ZYY000000000921-1-1-\",\n" +

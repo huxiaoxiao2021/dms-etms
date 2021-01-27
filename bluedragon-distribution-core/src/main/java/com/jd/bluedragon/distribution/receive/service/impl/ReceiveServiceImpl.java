@@ -104,14 +104,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 	@Autowired
 	private DepartureLogDao departureLogDao;
 
-	@Autowired
-	private IEconomicNetService economicNetService;
-
-	@Autowired
-	private BoxService boxService;
-
-	@Autowired
-	private SiteService siteService;
 
 	/**
 	 * 收货
@@ -138,10 +130,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 			returnTrack(cenConfirm);
 		}else{
-			//先加载箱包数据
-			if(!this.loadENetBox(receive.getBoxCode())){
-				throw new EconomicNetException("收箱验货时加载箱包关系失败！"+receive.getBoxCode());
-			}
 			List<SendDetail> sendDetails=deliveryService.getCancelSendByBox(receive.getBoxCode());
 			if (sendDetails == null || sendDetails.isEmpty()){
 				log.warn("根据[boxCode={}]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪",receive.getBoxCode());
@@ -159,25 +147,6 @@ public class ReceiveServiceImpl implements ReceiveService {
 		pushTurnoverBoxInfo(receive);
 	}
 
-	/**
-	 * 加载箱包数据数据
-	 * @param boxCode
-	 * @return
-	 */
-	private boolean loadENetBox(String boxCode){
-		/* 获取箱号的信息 */
-		Box box = boxService.findBoxByCode(boxCode);
-		if(box == null){
-			log.error("loadENetBox box is null! {}",boxCode);
-			return true;
-		}
-		BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
-		if (siteEntity == null || siteEntity.getSiteType() != BaseContants.ECONOMIC_NET_SITE) {
-			log.error("loadENetBox siteEntity not satisfy! {}",boxCode);
-			return true;
-		}
-		return economicNetService.loadAndSaveBoxPackageData(box);
-	}
 
 	private CenConfirm paseCenConfirm(Receive receive) {
 		CenConfirm cenConfirm=new CenConfirm();
