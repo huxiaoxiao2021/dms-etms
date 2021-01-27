@@ -683,8 +683,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setReviewSecondLevelName(weightVolumeCollectDto.getReviewSiteName());
 
         abnormalResultMq.setDiffStandard(weightVolumeCollectDto.getDiffStandard());
-        abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
-        abnormalResultMq.setVolumeDiff(Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
+        abnormalResultMq.setWeightDiff(StringUtils.isEmpty(weightVolumeCollectDto.getWeightDiff())
+                ? null : Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
+        abnormalResultMq.setVolumeDiff(StringUtils.isEmpty(weightVolumeCollectDto.getVolumeWeightDiff())
+                ? null : Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
         abnormalResultMq.setIsExcess(weightVolumeCollectDto.getIsExcess());
         abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
         //默认值:认责不判责
