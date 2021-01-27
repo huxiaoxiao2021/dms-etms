@@ -479,22 +479,21 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         Set<String> packageCodes = new HashSet<>();
         //运单对应包裹数，不从运单获取  以传入的关系为准
         Map<String,List<ThirdBoxDetail>> waybillPackMap = new HashMap<>();
-        Map<String,ThirdBoxDetail> packMap = new HashMap<>();
+        //Map<String,ThirdBoxDetail> packMap = new HashMap<>();
 
         //组装所需要数据结构
         if(thirdBoxDetails!=null){
             for(ThirdBoxDetail thirdBoxDetail : thirdBoxDetails){
                 if(StringUtils.isNotBlank(thirdBoxDetail.getWaybillCode())){
                     waybillCodes.add(thirdBoxDetail.getWaybillCode());
-                    if(waybillPackMap.containsKey(thirdBoxDetail.getWaybillCode())){
-                        waybillPackMap.get(thirdBoxDetail.getWaybillCode()).add(thirdBoxDetail);
-                    }else{
+                    if(!waybillPackMap.containsKey(thirdBoxDetail.getWaybillCode())){
                         waybillPackMap.put(thirdBoxDetail.getWaybillCode(),new ArrayList<ThirdBoxDetail>());
                     }
+                    waybillPackMap.get(thirdBoxDetail.getWaybillCode()).add(thirdBoxDetail);
                 }
                 if(StringUtils.isNotBlank(thirdBoxDetail.getPackageCode())){
                     packageCodes.add(thirdBoxDetail.getPackageCode());
-                    packMap.put(thirdBoxDetail.getPackageCode(),thirdBoxDetail);
+                    //packMap.put(thirdBoxDetail.getPackageCode(),thirdBoxDetail);
                 }
             }
 
@@ -515,11 +514,6 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         for(String waybill : waybillCodesOfWeight){
             result.addAll(waybillPackMap.get(waybill));
         }
-
-        for(String pack : waybillCodesOfWeight){
-            result.add(packMap.get(pack));
-        }
-
         return result;
     }
 

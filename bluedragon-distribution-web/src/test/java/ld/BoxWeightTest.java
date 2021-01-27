@@ -116,8 +116,8 @@ public class BoxWeightTest {
 
 
     String boxW = "{\n" +
-            "  \"barCode\" : \"BC1001210127180000000202\",\n" +
-            "  \"boxCode\" : \"BC1001210127180000000202\",\n" +
+            "  \"barCode\" : \"BC1001210127110000003504\",\n" +
+            "  \"boxCode\" : \"BC1001210127110000003504\",\n" +
             "  \"weight\" : 120.0,\n" +
             "  \"length\" : 3.0,\n" +
             "  \"width\" : 3.0,\n" +
@@ -125,11 +125,11 @@ public class BoxWeightTest {
             "  \"volume\" : 225.0,\n" +
             "  \"businessType\" : \"BY_BOX\",\n" +
             "  \"sourceCode\" : \"DMS_CLIENT_WEIGHT_VOLUME\",\n" +
-            "  \"operateSiteCode\" : 10098,\n" +
+            "  \"operateSiteCode\" : 910,\n" +
             "  \"operateSiteName\" : \"北京双树直送第一车队-测试\",\n" +
-            "  \"operatorCode\" : \"ldtest32\",\n" +
+            "  \"operatorCode\" : \"ldtest35\",\n" +
             "  \"operatorId\" : 10053,\n" +
-            "  \"operatorName\" : \"ldtest32\",\n" +
+            "  \"operatorName\" : \"ldtest35\",\n" +
             "  \"operateTime\" : 1611113868022,\n" +
             "  \"longPackage\" : 0\n" +
             "}";

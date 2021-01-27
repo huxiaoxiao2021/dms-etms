@@ -76,7 +76,7 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	@Override
 	public boolean cancelNoCareSite(ThirdBoxDetail detail) {
 		if(detail == null){
-			return false;
+			return true;
 		}
 		//限制索引 必须有箱号和运单号
 		if(StringUtils.isBlank(detail.getWaybillCode()) && StringUtils.isBlank(detail.getPackageCode())){
