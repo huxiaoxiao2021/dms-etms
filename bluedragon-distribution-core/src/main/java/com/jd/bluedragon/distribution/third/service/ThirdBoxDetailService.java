@@ -29,6 +29,13 @@ public interface ThirdBoxDetailService extends Service<ThirdBoxDetail> {
      */
     boolean cancel(ThirdBoxDetail detail);
 
+
+    /**
+     * 取消某一包裹的绑定关系 不关系某个站点 全部取消
+     * @param detail 明细
+     * @return 结果
+     */
+    boolean cancelNoCareSite(ThirdBoxDetail detail);
     /**
      * 查询箱子明细
      * 兼容上线关系表中存在重复数据问题 修改SQL去重逻辑 取最新数据

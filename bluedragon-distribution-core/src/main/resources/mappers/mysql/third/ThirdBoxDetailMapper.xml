@@ -131,6 +131,31 @@
 		    and is_delete = 0
 	</update>
 
+	<update id="cancelNoCareSite" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail">
+		update third_box_detail
+		<set>
+			<if test="updateUserId != null">
+				update_user_id = #{operatorId,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUserName != null">
+				update_user_name = #{operatorName,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUnitName != null">
+				update_unit_name = #{operatorUnitName,jdbcType=VARCHAR},
+			</if>
+			update_time = #{operatorTime,jdbcType=TIMESTAMP},
+			is_delete = 1
+		</set>
+		where
+		box_code = #{boxCode,jdbcType=VARCHAR}
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		and is_delete = 0
+	</update>
+
 	<select id="queryByBoxCode" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail" resultMap="ThirdBoxDetail">
 		select
 		<include refid="Base_Column_List"/>

@@ -177,7 +177,7 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             if(existFlowDetails!=null && !existFlowDetails.isEmpty()){
                 //存在 则逻辑移除，保留数据方便排查问题使用
                 for(ThirdBoxDetail thirdBoxDetail : existFlowDetails){
-                    thirdBoxDetailService.cancel(thirdBoxDetail);
+                    thirdBoxDetailService.cancelNoCareSite(thirdBoxDetail);
                 }
             }
             //保存加载记录
@@ -356,7 +356,7 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             }else{
                 cancelParam.setWaybillCode(weightVolumeEntity.getBarCode());
             }
-            if(thirdBoxDetailService.cancel(cancelParam)){
+            if(thirdBoxDetailService.cancelNoCareSite(cancelParam)){
                 //触发重算
                 WeightVolumeEntity equalization = new WeightVolumeEntity();
                 equalization.setLength(boxFlow.getLength());

@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.third.service.impl;
 
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -62,6 +65,29 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	@Override
 	public boolean cancel(ThirdBoxDetail detail) {
 		return thirdBoxDetailDao.cancel(detail);
+	}
+
+	/**
+	 * 取消某一包裹的绑定关系 不关系某个站点 全部取消
+	 *
+	 * @param detail 明细
+	 * @return 结果
+	 */
+	@Override
+	public boolean cancelNoCareSite(ThirdBoxDetail detail) {
+		if(detail == null){
+			return false;
+		}
+		//限制索引 必须有箱号和运单号
+		if(StringUtils.isBlank(detail.getWaybillCode()) && StringUtils.isBlank(detail.getPackageCode())){
+			throw new EconomicNetException("必须存在运单号或者包裹号的某项，才允许取消");
+		}
+		//如果运单号为空则取包裹号中的的运单号
+		if(StringUtils.isBlank(detail.getWaybillCode())){
+			detail.setWaybillCode(WaybillUtil.getWaybillCode(detail.getPackageCode()));
+		}
+
+		return thirdBoxDetailDao.cancelNoCareSite(detail);
 	}
 
 	/**

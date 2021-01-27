@@ -32,6 +32,17 @@ public class ThirdBoxDetailDaoImpl extends BaseDao<ThirdBoxDetail> implements Th
     }
 
     /**
+     * 取消某一包裹的绑定关系 不限制场地
+     *
+     * @param detail 明细
+     * @return 结果
+     */
+    @Override
+    public boolean cancelNoCareSite(ThirdBoxDetail detail) {
+        return sqlSession.update(this.nameSpace+".cancelNoCareSite", detail) > 0;
+    }
+
+    /**
      * 查询箱子明细
      *
      * @param tenantCode 租户编码
