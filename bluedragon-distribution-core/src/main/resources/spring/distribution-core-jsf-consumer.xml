@@ -654,4 +654,11 @@
     <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
+
+    <jsf:consumer id="materialFlowJsfService"
+                  interface="com.jd.ql.dms.report.api.material.IMaterialFlowJsfService"
+                  alias="${jsf.reportExternalService.alias}"
+                  timeout="${jsf.reportExternalService.timeout}">
+    </jsf:consumer>
+
 </beans>

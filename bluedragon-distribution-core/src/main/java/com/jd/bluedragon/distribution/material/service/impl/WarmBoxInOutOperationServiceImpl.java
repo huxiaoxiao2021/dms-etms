@@ -7,11 +7,11 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.material.dao.MaterialReceiveDao;
 import com.jd.bluedragon.distribution.material.dao.MaterialRelationDao;
 import com.jd.bluedragon.distribution.material.dao.MaterialSendDao;
-import com.jd.bluedragon.distribution.material.domain.*;
+import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
+import com.jd.bluedragon.distribution.material.domain.DmsMaterialRelation;
+import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
 import com.jd.bluedragon.distribution.material.dto.BoxInOutMessage;
-import com.jd.bluedragon.distribution.material.enums.MaterialOperationStatusEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialReceiveTypeEnum;
-import com.jd.bluedragon.distribution.material.enums.MaterialScanTypeEnum;
 import com.jd.bluedragon.distribution.material.enums.MaterialSendTypeEnum;
 import com.jd.bluedragon.distribution.material.service.WarmBoxInOutOperationService;
 import com.jd.bluedragon.distribution.material.service.impl.base.AbstractMaterialBaseServiceImpl;
@@ -21,13 +21,19 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.api.material.IMaterialFlowJsfService;
+import com.jd.ql.dms.report.domain.Pager;
+import com.jd.ql.dms.report.domain.material.DmsMaterialFlowDto;
+import com.jd.ql.dms.report.domain.material.MaterialFlowCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -62,6 +68,10 @@ public class WarmBoxInOutOperationServiceImpl extends AbstractMaterialBaseServic
 
     @Autowired
     private SiteService siteService;
+
+    @Autowired
+    @Qualifier("materialFlowJsfService")
+    private IMaterialFlowJsfService materialFlowJsfService;
 
     @Override
     protected Boolean checkReceiveParam(List<DmsMaterialReceive> materialReceives) {
@@ -221,91 +231,33 @@ public class WarmBoxInOutOperationServiceImpl extends AbstractMaterialBaseServic
 
     @Override
     public PagerResult<RecycleMaterialScanVO> queryByPagerCondition(RecycleMaterialScanQuery query) {
+
         PagerResult<RecycleMaterialScanVO> result = new PagerResult<>();
-
-        // 只查收货
-        if ((null != query.getMaterialStatus() && MaterialOperationStatusEnum.INBOUND.getCode() == query.getMaterialStatus()) ||
-                (null != query.getScanType() && MaterialScanTypeEnum.INBOUND.getCode() == query.getScanType())) {
-
-            this.createReceiveScanVO(result, query);
+        MaterialFlowCondition condition = new MaterialFlowCondition();
+        BeanUtils.copyProperties(query, condition);
+        condition.setStartTime(DateUtil.format(query.getStartTime(), DateUtil.FORMAT_DATE_TIME));
+        condition.setEndTime(DateUtil.format(query.getEndTime(), DateUtil.FORMAT_DATE_TIME));
+        Pager<DmsMaterialFlowDto> pager = materialFlowJsfService.queryByPage(condition);
+        if (null != pager && CollectionUtils.isNotEmpty(pager.getData())) {
+            List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
+            for (DmsMaterialFlowDto item : pager.getData()) {
+                RecycleMaterialScanVO scanVO = new RecycleMaterialScanVO();
+                scanVO.setMaterialType(item.getMaterialType().byteValue());
+                scanVO.setMaterialCode(item.getMaterialCode());
+                scanVO.setBoardCode(item.getReceiveCode());
+                scanVO.setScanType(item.getScanType().byteValue());
+                scanVO.setCreateSiteCode(item.getCreateSiteCode());
+                scanVO.setCreateSiteName(this.getSiteName(item.getCreateSiteCode()));
+                scanVO.setUserErp(item.getUpdateUserErp());
+                scanVO.setOperateTime(DateUtil.parse(item.getUpdateTime(), DateUtil.FORMAT_DATE_TIME));
+                scanVO.setMaterialStatus(item.getMaterialStatus().byteValue());
+                scanVOS.add(scanVO);
+            }
+            result.setRows(scanVOS);
+            result.setTotal(pager.getTotal().intValue());
         }
-        // 只查发货
-        else if ((null != query.getMaterialStatus() && MaterialOperationStatusEnum.OUTBOUND.getCode() == query.getMaterialStatus()) ||
-                (null != query.getScanType() && MaterialScanTypeEnum.OUTBOUND.getCode() == query.getScanType())){
-
-            this.createSendScanVO(result, query);
-
-        }
-        // 发货收货Union查询
-        else {
-
-            this.createReceiveAndSendVO(result, query);
-        }
-
+        
         return result;
-    }
-
-    private void createReceiveScanVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
-        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
-        PagerResult<DmsMaterialReceive> pageResult = materialReceiveDao.queryByPagerCondition(query);
-        if (!CollectionUtils.isEmpty(pageResult.getRows())) {
-            for (DmsMaterialReceive row : pageResult.getRows()) {
-                RecycleMaterialScanVO vo = new RecycleMaterialScanVO();
-                vo.setBoardCode(row.getReceiveCode());
-                vo.setMaterialCode(row.getMaterialCode());
-                vo.setCreateSiteName(this.getSiteName(row.getCreateSiteCode()));
-                vo.setMaterialStatus(MaterialOperationStatusEnum.INBOUND.getCode());
-                vo.setMaterialType(row.getMaterialType());
-                vo.setOperateTime(row.getUpdateTime());
-                vo.setScanType(MaterialScanTypeEnum.INBOUND.getCode());
-                vo.setUserErp(row.getUpdateUserErp());
-                scanVOS.add(vo);
-            }
-        }
-        result.setRows(scanVOS);
-        result.setTotal(pageResult.getTotal());
-    }
-
-    private void createSendScanVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
-        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
-        PagerResult<DmsMaterialSend> pagerResult = materialSendDao.queryByPagerCondition(query);
-        if (!CollectionUtils.isEmpty(pagerResult.getRows())) {
-            for (DmsMaterialSend row : pagerResult.getRows()) {
-                RecycleMaterialScanVO vo = new RecycleMaterialScanVO();
-                vo.setBoardCode(row.getSendCode());
-                vo.setMaterialCode(row.getMaterialCode());
-                vo.setCreateSiteName(this.getSiteName(row.getCreateSiteCode()));
-                vo.setMaterialStatus(MaterialOperationStatusEnum.OUTBOUND.getCode());
-                vo.setMaterialType(row.getMaterialType());
-                vo.setOperateTime(row.getUpdateTime());
-                vo.setScanType(MaterialScanTypeEnum.OUTBOUND.getCode());
-                vo.setUserErp(row.getUpdateUserErp());
-                scanVOS.add(vo);
-            }
-        }
-        result.setRows(scanVOS);
-        result.setTotal(pagerResult.getTotal());
-    }
-
-    private void createReceiveAndSendVO(PagerResult<RecycleMaterialScanVO> result, RecycleMaterialScanQuery query) {
-        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
-        PagerResult<RecycleMaterialScanVO> pagerResult = materialRelationDao.queryReceiveAndSend(query);
-        if (!CollectionUtils.isEmpty(pagerResult.getRows())) {
-            for (RecycleMaterialScanVO row : pagerResult.getRows()) {
-                RecycleMaterialScanVO vo = new RecycleMaterialScanVO();
-                vo.setBoardCode(row.getBoardCode());
-                vo.setMaterialCode(row.getMaterialCode());
-                vo.setCreateSiteName(this.getSiteName(row.getCreateSiteCode()));
-                vo.setMaterialStatus(row.getMaterialStatus());
-                vo.setMaterialType(row.getMaterialType());
-                vo.setOperateTime(row.getOperateTime());
-                vo.setScanType(row.getScanType());
-                vo.setUserErp(row.getUserErp());
-                scanVOS.add(vo);
-            }
-        }
-        result.setRows(scanVOS);
-        result.setTotal(pagerResult.getTotal());
     }
 
     private String getSiteName(Long createSiteCode) {
