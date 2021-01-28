@@ -9,7 +9,6 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -848,8 +847,7 @@ public class BusinessHelper {
      * @return 是：true 否：false
      */
     public static boolean fileTypePackage(String waybillSign) {
-        // TODO 补全文件标识
-        return BusinessUtil.isSignChar(waybillSign, 0, '0');
+        return BusinessUtil.isSignChar(waybillSign, 135, '1');
     }
 
     /**
