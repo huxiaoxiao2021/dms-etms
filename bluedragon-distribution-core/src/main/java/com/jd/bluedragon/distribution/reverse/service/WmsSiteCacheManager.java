@@ -20,7 +20,7 @@ public class WmsSiteCacheManager {
 	private static Map<Integer, WmsSite> siteCaches = Collections
 			.synchronizedMap(new HashMap<Integer, WmsSite>());
 	public static final WmsSite EMPTY_SITE = new WmsSite();
-	private static final Long CACHE_REFRESH_INTEVEVAL = 1 * 60 * 60 * 1000l;
+	private static final Long CACHE_REFRESH_INTEVEVAL = 1 * 60 * 60 * 1000L;
 	private static final Integer CACHE_NUM_THRESHOLD = 500;
 
 	@Autowired

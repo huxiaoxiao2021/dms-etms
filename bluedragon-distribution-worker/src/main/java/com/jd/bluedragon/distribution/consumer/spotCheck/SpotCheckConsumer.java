@@ -80,8 +80,8 @@ public class SpotCheckConsumer extends MessageBaseConsumer {
             Integer blameType = pictureInfoMq.getBlameType();
             Integer businessType = pictureInfoMq.getBusinessType();
             if(tos.contains(TO)
-                    &&businessType!=null&&businessType==BUSINESS_TYPE
-                    &&blameType!=null&&blameType==BLAME_TYPE){
+                    &&businessType!=null&& businessType.equals(BUSINESS_TYPE)
+                    &&blameType!=null&& blameType.equals(BLAME_TYPE)){
                 Integer inputMode = pictureInfoMq.getInputMode();
                 if(inputMode==null){
                     log.warn("参数:{}, 异常信息:运单号抽检类型为空", pictureInfoMq.getBillCode());

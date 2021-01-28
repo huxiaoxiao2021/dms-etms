@@ -182,7 +182,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                         } else { // 已装载 剔除
                             preWaybillCodeCache.put(lb.getWaybillCode(), Boolean.TRUE);
                         }
-                    } else if (isPre == Boolean.FALSE) {
+                    } else if (Boolean.FALSE.equals(isPre)) {
                         addList.add(lb);
                     }
                 } else { // 一单一件

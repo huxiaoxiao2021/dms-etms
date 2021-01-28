@@ -334,8 +334,8 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		tWaybillStatus.setPackageCode(cenConfirm.getPackageBarcode());
 		
 		//设置站点相关属性
-		tWaybillStatus = setSiteRelated(tWaybillStatus,cenConfirm,bDto,rDto);
-		
+		this.setSiteRelated(tWaybillStatus,cenConfirm,bDto,rDto);
+
 		tWaybillStatus.setOperatorId(cenConfirm.getOperateUserCode());
 		tWaybillStatus.setOperateTime(cenConfirm.getOperateTime());
 		tWaybillStatus.setOperator(cenConfirm.getOperateUser());
@@ -395,7 +395,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 	 * @param rDto
 	 * @return
 	 */
-	private WaybillStatus setSiteRelated(WaybillStatus tWaybillStatus,
+	private void setSiteRelated(WaybillStatus tWaybillStatus,
 			CenConfirm cenConfirm, BaseStaffSiteOrgDto bDto, BaseStaffSiteOrgDto rDto) {
 		//如果是三方，则createSiteCode和receiveSiteCode互换
 		//业务方要求，全程跟踪时操作单位 显示为 三方人员所属的三方物流单位，date:20/08/2013
@@ -419,7 +419,6 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 				tWaybillStatus.setReceiveSiteType(rDto.getSiteType());
 			}
 		}
-		return tWaybillStatus;
 	}
 
 	public Boolean checkFormat(WaybillStatus tWaybillStatus, Short popType) {

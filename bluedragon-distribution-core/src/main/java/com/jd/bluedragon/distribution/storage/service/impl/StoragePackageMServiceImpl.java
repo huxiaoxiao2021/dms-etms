@@ -848,7 +848,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 					newStoragePackageD.setPackageCode(packages.getPackageBarcode());
 					StoragePackageDs.add(newStoragePackageD);
 				} catch (CloneNotSupportedException e) {
-					//不会报错。。
+					logger.warn("StoragePackageD对象转换异常！");
 				}
 				if(StoragePackageDs.size()==10){
 					storagePackageDDao.batchInsert(StoragePackageDs);
