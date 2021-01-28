@@ -25,7 +25,7 @@ import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.DmsDisSendJsfService;
 import com.jd.ql.dms.report.domain.dmsDisSend.DmsDisSend;

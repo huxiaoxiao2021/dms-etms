@@ -1,16 +1,27 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bk.common.util.string.StringUtils;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
+import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
+import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +36,12 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
 
     @Autowired
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
+
+    @Autowired
+    private UnloadCarDao unloadCarDao;
+
+    @Autowired
+    private UnloadCarService unloadCarService;
 
     @Override
     public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
@@ -195,6 +212,88 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @Override
+    public JdCResponse<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
+        JdCResponse<Void> jdcResponse = new JdCResponse<>();
+        if (unloadCarTaskReq == null) {
+            jdcResponse.toError("参数错误");
+            return jdcResponse;
+        }
+        InvokeResult<Void> result = loadAndUnloadVehicleResource.startUnloadTask(unloadCarTaskReq);
+        if (!Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+            jdcResponse.toError(result.getMessage());
+            return jdcResponse;
+        }
+        jdcResponse.toSucceed(result.getMessage());
+        jdcResponse.setData(result.getData());
+        return jdcResponse;
+    }
+
+    @Override
+    public JdCResponse<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest req) {
+        JdCResponse<UnloadScanDetailDto> jdCResponse = new JdCResponse<UnloadScanDetailDto>();
+        if (req == null) {
+            jdCResponse.toError("参数不能为空");
+            return jdCResponse;
+        }
+        InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.unloadScan(req);
+
+        jdCResponse.setCode(convertCode(invokeResult.getCode()));
+        jdCResponse.setMessage(invokeResult.getMessage());
+        jdCResponse.setData(invokeResult.getData());
+
+        return jdCResponse;
+    }
+
+    @Override
+    public JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest req) {
+        JdVerifyResponse<UnloadScanDetailDto> response = new JdVerifyResponse<>();
+        if (req == null) {
+            response.toError("参数不能为空");
+            return response;
+        }
+        if (StringUtils.isBlank(req.getBarCode())) {
+            response.toError("包裹号不能为空");
+            return response;
+        }
+        // 包裹号转大宗标识
+        Integer transfer = req.getTransfer();
+        if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(transfer)) {
+            if(!WaybillUtil.isPackageCode(req.getBarCode())){
+                response.setCode(JdVerifyResponse.CODE_FAIL);
+                response.setMessage("包裹号不符合规则!");
+                return response;
+            }
+            // 大宗操作提示
+            int packageNum = WaybillUtil.getPackNumByPackCode(req.getBarCode());
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("大宗订单按单操作！此单共计" + packageNum + "件，请确认包裹集齐！");
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+            response.addBox(msgBox);
+            return response;
+
+        }
+        InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.packageCodeScanNew(req);
+        response.setCode(convertCode(invokeResult.getCode()));
+        response.setMessage(invokeResult.getMessage());
+        response.setData(invokeResult.getData());
+
+        return response;
+    }
+
+    @Override
+    public JdCResponse<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
+        JdCResponse<UnloadScanDetailDto> response = new JdCResponse<>();
+        InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.waybillScanNew(unloadCarScanRequest);
+        response.setCode(convertCode(invokeResult.getCode()));
+        response.setMessage(invokeResult.getMessage());
+        response.setData(invokeResult.getData());
+        return response;
+    }
+
+
+
     private int convertCode(int invokeResultCode) {
         int code;
         if (InvokeResult.RESULT_SUCCESS_CODE == invokeResultCode) {
@@ -211,4 +310,71 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return code;
     }
 
+    @Override
+    public JdCResponse<String> createUnloadTask(CreateUnloadTaskReq req) {
+        JdCResponse<String> jdCResponse = new JdCResponse<>();
+        if (null == req) {
+            jdCResponse.toFail("请求参数不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getVehicleNumber())) {
+            jdCResponse.toFail("车牌号不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getOperateUserName())) {
+            jdCResponse.toFail("操作人姓名不能为空！");
+            return jdCResponse;
+        }
+        if (null == req.getCreateSiteCode()) {
+            jdCResponse.toFail("操作站点不能为空！");
+            return jdCResponse;
+        }
+        if (StringUtils.isBlank(req.getCreateSiteName())) {
+            jdCResponse.toFail("操作人站点名称不能为空！");
+            return jdCResponse;
+        }
+        UnloadCar unloadCar = new UnloadCar();
+        BeanUtils.copyProperties(req, unloadCar);
+        String sealCarCode = Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
+        unloadCar.setEndSiteCode(req.getCreateSiteCode().intValue());
+        unloadCar.setEndSiteName(req.getCreateSiteName());
+        List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCar);
+        if (CollectionUtils.isNotEmpty(list)) {
+            jdCResponse.toConfirm("当前场地存在未结束的同车牌任务，创建人erp:" + list.get(0).getOperateUserErp());
+            return jdCResponse;
+        }
+        unloadCar.setSealCarCode(sealCarCode);
+        unloadCar.setStartSiteCode(req.getCreateSiteCode().intValue());
+        unloadCar.setStartSiteName(req.getCreateSiteName());
+        unloadCar.setUnloadUserErp(req.getOperateUserErp());
+        unloadCar.setUnloadUserName(req.getOperateUserName());
+        unloadCar.setUnloadUserErp(req.getOperateUserErp());
+        unloadCar.setUnloadUserName(req.getOperateUserName());
+        unloadCar.setWaybillNum(0);
+        unloadCar.setPackageNum(0);
+        unloadCar.setStatus(0);
+        unloadCar.setYn(1);
+        unloadCar.setTs(new Date());
+        unloadCar.setCreateTime(new Date());
+        unloadCarDao.add(unloadCar);
+
+        List<Integer> idList = new ArrayList<>();
+        idList.add(unloadCar.getUnloadCarId().intValue());
+        List<String> sealList = new ArrayList<>();
+        sealList.add(sealCarCode);
+
+        // 分配卸车负责人
+        DistributeTaskRequest request = new DistributeTaskRequest();
+        request.setUnloadUserErp(req.getOperateUserErp());
+        request.setUnloadUserName(req.getOperateUserName());
+        request.setRailWayPlatForm(null);
+        request.setUnloadCarIds(idList);
+        request.setUpdateUserErp(req.getOperateUserErp());
+        request.setUpdateUserName(req.getOperateUserName());
+        request.setSealCarCodes(sealList);
+        unloadCarService.distributeTask(request);
+        jdCResponse.toSucceed("操作成功");
+        jdCResponse.setData(sealCarCode);
+        return jdCResponse;
+    }
 }

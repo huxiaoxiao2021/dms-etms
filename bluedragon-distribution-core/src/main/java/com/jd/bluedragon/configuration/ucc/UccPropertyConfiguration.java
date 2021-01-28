@@ -215,6 +215,21 @@ public class UccPropertyConfiguration {
     private boolean sendCodeGenSwitchOn;
 
     /**
+     * 纯配外单 0重量拦截 黑名单 (在名单的拦截)
+     */
+    private String allPureValidateWeightWebSite;
+
+    /**
+     * 隐藏站点编号
+     */
+    private String deliverHideSites;
+
+    /*
+    * 现场预分拣是否校验开关
+    * */
+    private boolean preSortOnSiteSwitchOn;
+
+    /**
      * BC箱号绑定WJ数量限制
      */
     private int BCContainWJNumberLimit;
@@ -223,16 +238,6 @@ public class UccPropertyConfiguration {
      * WJ装箱包裹数限制
      */
     private int WJPackageNumberLimit;
-
-    /**
-     * 纯配外单 0重量拦截 黑名单 (在名单的拦截)
-     */
-    private String allPureValidateWeightWebSite;
-
-    /*
-    * 现场预分拣是否校验开关
-    * */
-    private boolean preSortOnSiteSwitchOn;
 
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
@@ -618,22 +623,6 @@ public class UccPropertyConfiguration {
         this.sendCodeGenSwitchOn = sendCodeGenSwitchOn;
     }
 
-    public int getBCContainWJNumberLimit() {
-        return BCContainWJNumberLimit;
-    }
-
-    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
-        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
-    }
-
-    public int getWJPackageNumberLimit() {
-        return WJPackageNumberLimit;
-    }
-
-    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
-        this.WJPackageNumberLimit = WJPackageNumberLimit;
-    }
-
     public String getAllPureValidateWeightWebSite() {
         return allPureValidateWeightWebSite;
     }
@@ -648,5 +637,29 @@ public class UccPropertyConfiguration {
 
     public void setPreSortOnSiteSwitchOn(boolean preSortOnSiteSwitchOn) {
         this.preSortOnSiteSwitchOn = preSortOnSiteSwitchOn;
+    }
+
+    public String getDeliverHideSites() {
+        return deliverHideSites;
+    }
+
+    public void setDeliverHideSites(String deliverHideSites) {
+        this.deliverHideSites = deliverHideSites;
+    }
+
+    public int getBCContainWJNumberLimit() {
+        return BCContainWJNumberLimit;
+    }
+
+    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
+        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
+    }
+
+    public int getWJPackageNumberLimit() {
+        return WJPackageNumberLimit;
+    }
+
+    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
+        this.WJPackageNumberLimit = WJPackageNumberLimit;
     }
 }

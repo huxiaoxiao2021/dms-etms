@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.external.gateway.service.ExpressBillExceptionReportGatewayService;
@@ -26,8 +27,13 @@ public class ExpressBillExceptionReportGatewayServiceImpl implements ExpressBill
     }
 
     @Override
-    public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType() {
-        return expressBillExceptionReportService.getAllExceptionReportType();
+    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeNew() {
+        return expressBillExceptionReportService.getAllExceptionReportTypeListNew();
+    }
+
+    @Override
+    public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType(){
+        return expressBillExceptionReportService.getAllExceptionReportTypeList();
     }
 
     /**

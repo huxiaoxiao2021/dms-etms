@@ -149,4 +149,5 @@ public interface WaybillService {
      * @return
      */
     boolean allowFilePackFilter(Integer subType, String waybillSign);
+
 }

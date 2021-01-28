@@ -535,16 +535,15 @@ public class NewSealVehicleResource {
     public SealVehicleVolumeVerifyResponse verifySendVolume(SealVehicleVolumeVerifyRequest request){
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-
-        if(!isNeedCheck(request.getSealSiteId())){
-            response.setCode(JdCResponse.CODE_SUCCESS);
-            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
-            return response;
-        }
         if (request == null) {
             log.warn("NewSealVehicleResource verifySendVolume --> 传入参数非法");
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if(!isNeedCheck(request.getSealSiteId())){
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setMessage(JdCResponse.MESSAGE_SUCCESS);
             return response;
         }
         try{

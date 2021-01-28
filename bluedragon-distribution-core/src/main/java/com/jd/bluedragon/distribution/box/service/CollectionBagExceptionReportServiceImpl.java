@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionRep
 import com.jd.bluedragon.distribution.bagException.domain.CollectionBagExceptionReport;
 import com.jd.bluedragon.distribution.bagException.request.CollectionBagExceptionReportQuery;
 import com.jd.etms.sdk.util.DateUtil;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.lang.StringUtils;

@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 
 
@@ -25,8 +26,15 @@ public interface ExpressBillExceptionReportGatewayService {
     JdCResponse<FirstSiteVo> getFirstSiteByPackageCode(String packageCode);
 
     /**
-     * 获取所有举报类型
+     * 获取所有举报类型-新接口
      * @return
      */
-    JdCResponse<List<ExpressBillExceptionReportTypeEnum>>  getAllExceptionReportType();
+    JdCResponse<List<ReportTypeVo>>  getAllExceptionReportTypeNew();
+
+
+    /**
+     * 获取所有举报类型-旧接口
+     * @return
+     */
+    JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType();
 }

@@ -99,7 +99,7 @@ import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.domain.BaseDataDict;

@@ -1,12 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
@@ -38,6 +32,11 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest);
 
     /**
+     * 获取卸车扫描列表(最新版)
+     */
+    InvokeResult<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest unloadCarScanRequest);
+
+    /**
      * 卸车扫描
      *
      * @param request
@@ -54,12 +53,25 @@ public interface UnloadCarService {
     InvokeResult<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest request);
 
     /**
+     * 卸车扫描(空任务卸车最新版)
+     */
+    InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request);
+
+    /**
      * 卸车扫描
      *
      * @param request
      * @return
      */
     InvokeResult<UnloadCarScanResult> waybillScan(UnloadCarScanRequest request);
+
+    /**
+     * 大宗按运单卸车扫描
+     *
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest request);
 
     /**
      * 卸车扫描明细
@@ -110,6 +122,14 @@ public interface UnloadCarService {
     InvokeResult<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq);
 
     /**
+     * 开始任务
+     *
+     * @param unloadCarTaskReq
+     * @return
+     */
+    InvokeResult<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq);
+
+    /**
      * 获取任务协助人列表
      *
      * @param sealCarCode 任务编码(封车编码)
@@ -140,4 +160,6 @@ public interface UnloadCarService {
      * @return
      */
     InvokeResult<String> interceptValidateUnloadCar(String barCode);
+
+
 }

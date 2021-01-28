@@ -30,7 +30,7 @@ public enum ExpressBillExceptionReportTypeEnum implements Serializable {
      * 获取所有枚举值
      * @return
      */
-    public static List<ExpressBillExceptionReportTypeEnum>  getAllExpressBillExceptionReportType(){
+    public static List<ExpressBillExceptionReportTypeEnum> getAllExpressBillExceptionReportType(){
         List<ExpressBillExceptionReportTypeEnum>  list = new ArrayList<ExpressBillExceptionReportTypeEnum>();
         ExpressBillExceptionReportTypeEnum[]  allType =  values();
         for(ExpressBillExceptionReportTypeEnum expressBillExceptionReportTypeEnum:allType){

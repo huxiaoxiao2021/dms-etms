@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.funcSwitchConfig.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.constant.WeightValidateSwitchEnum;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;

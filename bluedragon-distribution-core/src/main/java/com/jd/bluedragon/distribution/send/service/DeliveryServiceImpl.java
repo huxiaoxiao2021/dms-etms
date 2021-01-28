@@ -113,7 +113,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -2031,6 +2031,40 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 0重量和体积校验
+     * 目前指针对一下单子拦截：众邮
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse zeroWeightAndVolumeCheck(SendM tSendM) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        //限定范围
+        //实发网点类型为经济网 10000 为众邮箱号
+        if (null == tSendM || StringUtils.isEmpty(tSendM.getBoxCode())){
+            return response;
+        }
+        Box box = boxService.findBoxByCode(tSendM.getBoxCode());
+        if(null == box){
+            return response;
+        }
+        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
+        if (!SiteHelper.isEconomicNet(yrDto)){
+            return response;
+        }
+        //查询箱重量和体积
+        List<PackageWeighting> packageWeightings = packageWeightingDao.findWeightVolume(tSendM.getBoxCode(),tSendM.getBoxCode(),Arrays.asList(BusinessTypeEnum.DMS.getCode()));
+
+        //判断
+        if (CollectionUtils.isEmpty(packageWeightings) ||
+                packageWeightings.get(0).getWeight().compareTo(0.0) <= 0 ||
+                packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
+            response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+            response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+        }
+        return response;
+    }
+
+    /**
      * 三方发货时校验箱子是否完验
      * @param tSendM
      * @return
@@ -3126,6 +3160,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 	        SendDetail tSendDetail = new SendDetail();
 	        List<SendDetail> sendDetailListTemp;
 	        List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
+	        if(CollectionUtils.isEmpty(tSendM)){
+	            return true;
+            }
 	        for (SendM newSendM : tSendM) {
 	            tSendDetail.setBoxCode(newSendM.getBoxCode());
 	            tSendDetail.setCreateSiteCode(newSendM.getCreateSiteCode());

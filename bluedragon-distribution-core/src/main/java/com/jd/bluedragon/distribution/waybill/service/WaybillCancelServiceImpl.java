@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptModeE
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;

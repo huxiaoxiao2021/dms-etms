@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
+import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
@@ -40,7 +42,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -112,6 +114,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("kyStorageSendMQProducer")
     private DefaultJMQProducer kyStorageSendMQProducer;
+
+    @Autowired
+    @Qualifier("dmsSendRelationService")
+    private DmsSendRelationService dmsSendRelationService;    
 
     /**
      * 缓存redis的key
@@ -255,6 +261,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.kyStorageSendMq(sendDetail);
                 // 发送称重抽检mq消息
                 this.pushWeightCheckMq(sendDetail, waybill);
+                // 保存发货关系
+                this.saveSendRelation(sendDetail);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -263,7 +271,16 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         }
     }
 
-    /**
+    private void saveSendRelation(SendDetailMessage sendDetail) {
+		DmsSendRelation dmsSendRelation = new DmsSendRelation();
+		dmsSendRelation.setOriginalSiteCode(sendDetail.getCreateSiteCode());
+		dmsSendRelation.setDestinationSiteCode(sendDetail.getReceiveSiteCode());
+		if(!dmsSendRelationService.saveWithFrequency(dmsSendRelation)){
+			log.warn("流向关系并保存失败！消息体：" + JsonHelper.toJson(dmsSendRelation));
+		}
+	}
+
+	/**
      * 调用运单JSF接口获取运单基础数据信息
      *
      * @param waybillCode

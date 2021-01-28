@@ -36,7 +36,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;

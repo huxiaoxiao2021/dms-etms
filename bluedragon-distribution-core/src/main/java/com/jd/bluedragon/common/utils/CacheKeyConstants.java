@@ -90,9 +90,13 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_WAYBILL_PACKAGE_CODES = "dmsWeb:waybillPackageCodes:";
 
+    /**
+     * 缓存key-发货关系
+     */
+    public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
 
     /**
      * 文件箱号绑定锁
      */
-	public static final String BOX_BIND_NX_KEY = DMS_CACHE_PREFIX + "fileBox.bind:";
+    public static final String BOX_BIND_NX_KEY = DMS_CACHE_PREFIX + "fileBox.bind:";
 }

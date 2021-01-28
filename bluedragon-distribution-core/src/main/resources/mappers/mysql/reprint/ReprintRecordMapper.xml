@@ -113,9 +113,6 @@
         <if test="operateTimeTo != null">
             AND ts &lt; #{operateTimeTo}
         </if>
-        <if test="isDelete != null">
-            AND is_delete = #{isDelete}
-        </if>
     </sql>
 
     <!-- 查询行数 -->
