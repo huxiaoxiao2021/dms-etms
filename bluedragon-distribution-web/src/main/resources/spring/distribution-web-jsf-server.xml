@@ -247,12 +247,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!--  箱号绑定JSF服务   -->
-    <jsf:provider id="dmsBoxRelationJsfService"
-                  interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="boxRelationJsfService"
+    <!--  批次号对外生成服务  -->
+    <jsf:provider id="dmsSendCodeExternalApi"
+                  interface="com.jd.bluedragon.distribution.external.sdk.api.batch.IDMSSendCodeApi"
+                  alias="${dms.jsf.sendCode.external.alias}"
+                  ref="sendCodeExternalService"
                   server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
-
 </beans>

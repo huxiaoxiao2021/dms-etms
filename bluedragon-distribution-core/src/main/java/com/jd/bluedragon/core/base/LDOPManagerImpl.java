@@ -21,7 +21,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ldop.business.api.BackAddressInfoApi;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ldop.business.api.dto.response.ResponseStatus;

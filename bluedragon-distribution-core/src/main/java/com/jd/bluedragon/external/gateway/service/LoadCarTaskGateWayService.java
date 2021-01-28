@@ -75,4 +75,12 @@ public interface LoadCarTaskGateWayService {
      * @return
      */
     JdCResponse<HelperDto> getNameByErp(String erp);
+
+    /**
+     * 是否隐藏菜单
+     *
+     * @param currentSiteCode
+     * @return
+     */
+    JdCResponse<Integer> hideMenuCheck(Integer currentSiteCode);
 }

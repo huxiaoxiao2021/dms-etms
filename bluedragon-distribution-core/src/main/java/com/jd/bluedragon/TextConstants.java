@@ -246,4 +246,16 @@ public class TextConstants {
      * 合约机 需激活
      */
     public static final String REMARK_CONTRACT_PHONE ="合约机 需激活";
+    /**
+     * 是
+     */
+    public static final String TEXT_FLAG_YES = "是";
+    /**
+     * 否
+     */
+    public static final String TEXT_FLAG_NO = "否";
+    /**
+     * 收货人地址
+     */
+    public static final String RECEIVER_ADDRESS = "收件人地址：";
 }

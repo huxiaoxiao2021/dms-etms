@@ -67,13 +67,12 @@ public class GoodsLoadTaskConsumer extends MessageBaseConsumer {
             if(cycleCount < GoodsLoadScanConstants.GOODS_LOAD_CYCLE_COUNT) {//控制循环次数，避免while死循环
                 cycleCount = cycleCount + 1;
             }else {
-                flag = false;
                 break;
             }
 
             List<GoodsLoadScanRecord> list = findGoodsLoadRecordPage(taskId, start, end);
             if(list == null || list.size() <= 0) {
-                flag = false;
+                break;
             }
             if(list.size() < GoodsLoadScanConstants.PAGE_SIZE) {
                 flag = false;

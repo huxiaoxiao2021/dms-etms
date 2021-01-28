@@ -24,7 +24,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -218,11 +218,16 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             throw e;
         } finally {
             try {
-                bos.flush();
-                bos.close();
-                fis.close();
-                zipOut.finish();
-                zipOut.close();
+                if(bos != null){
+                    bos.flush();
+                }
+                if(fis != null){
+                    fis.close();
+                }
+                if(zipOut != null){
+                    zipOut.finish();
+                    zipOut.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -288,11 +293,16 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             throw e;
         } finally {
             try {
-                bos.flush();
-                bos.close();
-                fis.close();
-                zipOut.finish();
-                zipOut.close();
+                if(bos != null){
+                    bos.flush();
+                }
+                if(fis != null){
+                    fis.close();
+                }
+                if(zipOut != null){
+                    zipOut.finish();
+                    zipOut.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -337,7 +347,9 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
             try {
                 bos.flush();
                 bos.close();
-                fis.close();
+                if(fis != null){
+                    fis.close();
+                }
                 zipOut.finish();
                 zipOut.close();
             } catch (IOException e) {
@@ -409,7 +421,9 @@ public class WaybilCodeCheckExportLogConsumer extends MessageBaseConsumer {
         } finally {
             // 关闭创建的流对象
             try {
-                bins.close();
+                if(bins != null){
+                    bins.close();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -475,4 +475,9 @@
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
 
+    <!--  卸车完成消息  -->
+    <bean id="unloadCompleteProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.unload.car.task.complete}"/>
+    </bean>
+
 </beans>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.newseal.dao.TmsVehicleRouteDao" >
+
+	<resultMap id="TmsVehicleRoute" type="com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="vehicle_job_code" property="vehicleJobCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="vehicle_route_code" property="vehicleRouteCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="original_site_code" property="originalSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="destination_site_code" property="destinationSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="depart_time" property="departTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="carrier_team_code" property="carrierTeamCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="carrier_team_name" property="carrierTeamName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="job_create_time" property="jobCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="cancel_time" property="cancelTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,vehicle_job_code,vehicle_route_code,transport_code,original_site_code,destination_site_code,
+		depart_time,carrier_team_code,carrier_team_name,vehicle_number,job_create_time,
+		create_time,cancel_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute" useGeneratedKeys="true" keyProperty="id">
+		insert into tms_vehicle_route
+			(
+			<trim suffixOverrides=",">
+				<if test="vehicleJobCode != null" >
+					vehicle_job_code,
+				</if>
+				<if test="vehicleRouteCode != null" >
+					vehicle_route_code,
+				</if>
+				<if test="transportCode != null" >
+					transport_code,
+				</if>
+				<if test="originalSiteCode != null" >
+					original_site_code,
+				</if>
+				<if test="destinationSiteCode != null" >
+					destination_site_code,
+				</if>
+				<if test="departTime != null" >
+					depart_time,
+				</if>
+				<if test="carrierTeamCode != null" >
+					carrier_team_code,
+				</if>
+				<if test="carrierTeamName != null" >
+					carrier_team_name,
+				</if>
+				<if test="vehicleNumber != null" >
+					vehicle_number,
+				</if>
+				<if test="jobCreateTime != null" >
+					job_create_time,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="cancelTime != null" >
+					cancel_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="vehicleJobCode != null" >
+					#{vehicleJobCode,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleRouteCode != null" >
+					#{vehicleRouteCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null" >
+					#{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="originalSiteCode != null" >
+					#{originalSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="destinationSiteCode != null" >
+					#{destinationSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="departTime != null" >
+					#{departTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="carrierTeamCode != null" >
+					#{carrierTeamCode,jdbcType=VARCHAR},
+				</if>
+				<if test="carrierTeamName != null" >
+					#{carrierTeamName,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleNumber != null" >
+					#{vehicleNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="jobCreateTime != null" >
+					#{jobCreateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="cancelTime != null" >
+					#{cancelTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>				
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute">
+		update tms_vehicle_route
+			<set>
+				<if test="vehicleJobCode != null" >
+					vehicle_job_code = #{vehicleJobCode,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleRouteCode != null" >
+					vehicle_route_code = #{vehicleRouteCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null" >
+					transport_code = #{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="originalSiteCode != null" >
+					original_site_code = #{originalSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="destinationSiteCode != null" >
+					destination_site_code = #{destinationSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="departTime != null" >
+					depart_time = #{departTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="carrierTeamCode != null" >
+					carrier_team_code = #{carrierTeamCode,jdbcType=VARCHAR},
+				</if>
+				<if test="carrierTeamName != null" >
+					carrier_team_name = #{carrierTeamName,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleNumber != null" >
+					vehicle_number = #{vehicleNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="jobCreateTime != null" >
+					job_create_time = #{jobCreateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="cancelTime != null" >
+					cancel_time = #{cancelTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="logicalDeleteById" parameterType="java.lang.Long">
+		update tms_vehicle_route
+			set yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryByVehicleRouteCode" parameterType="java.lang.String" resultMap="TmsVehicleRoute">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			tms_vehicle_route t
+		where yn = 1 
+		and vehicle_route_code = #{vehicleRouteCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition" resultMap="TmsVehicleRoute">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			tms_vehicle_route t
+		where yn = 1 
+		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+		and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+		<if test="vehicleNumber != null and vehicleNumber != ''" >
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
+		<if test="departStartTime != null" >
+			and depart_time <![CDATA[ >= ]]> #{departStartTime,jdbcType=TIMESTAMP}
+		</if>		
+		<if test="departEndTime != null" >
+			and depart_time <![CDATA[ <= ]]> #{departEndTime,jdbcType=TIMESTAMP}
+		</if>
+	</select>
+
+</mapper>

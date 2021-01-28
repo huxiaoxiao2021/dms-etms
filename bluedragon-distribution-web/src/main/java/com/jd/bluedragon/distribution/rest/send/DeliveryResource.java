@@ -23,6 +23,10 @@ import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -1744,7 +1748,7 @@ public class DeliveryResource {
             saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
             saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
 
-            String saveInterceptMqMsg = com.jd.fastjson.JSON.toJSONString(saveInterceptMsgDto);
+            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
                 businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
             } catch (Exception e) {

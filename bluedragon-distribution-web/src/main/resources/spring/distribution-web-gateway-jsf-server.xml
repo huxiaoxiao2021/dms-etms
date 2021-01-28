@@ -340,4 +340,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- PDA端抽检 -->
+    <bean id="spotCheckGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SpotCheckGateWayServiceImpl" />
+    <jsf:provider id="jsfSpotCheckGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="spotCheckGateWayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

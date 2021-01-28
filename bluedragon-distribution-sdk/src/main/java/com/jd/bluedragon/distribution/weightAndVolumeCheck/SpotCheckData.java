@@ -51,6 +51,11 @@ public class SpotCheckData implements Serializable {
      * */
     private String fromSource;
 
+    /**
+     * 超标图片urls
+     */
+    private List<String> urls;
+
     public String getFromSource() {
         return fromSource;
     }
@@ -186,5 +191,11 @@ public class SpotCheckData implements Serializable {
         }
     }
 
+    public List<String> getUrls() {
+        return urls;
+    }
 
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
+    }
 }

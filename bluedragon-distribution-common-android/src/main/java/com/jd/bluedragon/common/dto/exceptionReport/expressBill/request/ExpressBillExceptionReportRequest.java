@@ -56,6 +56,11 @@ public class ExpressBillExceptionReportRequest {
      */
     private String firstSiteName;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -126,6 +131,14 @@ public class ExpressBillExceptionReportRequest {
 
     public void setFirstSiteName(String firstSiteName) {
         this.firstSiteName = firstSiteName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
     
