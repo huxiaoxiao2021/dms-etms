@@ -81,11 +81,13 @@
 		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
 		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
 		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
+		<property name="economicNetPushZTDRetry" value="${economicNetPushZTDRetry:true}"/>
+		<property name="eNetSyncWaybillCodeAndBoxCode" value="${eNetSyncWaybillCodeAndBoxCode:true}"/>
 		<property name="preSealVehicleRemoveEmptyBatchCode" value="${preSealVehicleRemoveEmptyBatchCode:1}"/>
         <property name="inspectionAggEffectiveSites" value="${inspectionAggEffectiveSites}" />
         <property name="quickSealTips" value="${quickSealTips:''}" />
 		<property name="sendCodeGenSwitchOn" value="${sendCodeGenSwitchOn:false}" />
-		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite}"/>
+		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite:-1}"/>
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
 
@@ -140,6 +142,8 @@
 				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
+				<value>uccPropertyConfiguration.economicNetPushZTDRetry</value>
+				<value>uccPropertyConfiguration.eNetSyncWaybillCodeAndBoxCode</value>
 				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
                 <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>

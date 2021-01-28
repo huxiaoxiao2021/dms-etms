@@ -199,6 +199,16 @@ public class UccPropertyConfiguration {
     private int loadScanTaskPackageMaxSize;
 
     /**
+     * 经济网箱号称重数据推送智腾达失败是否重试
+     */
+    private boolean economicNetPushZTDRetry;
+
+    /**
+     * 提供给经济网接口存入关系是否生效
+     */
+    private boolean eNetSyncWaybillCodeAndBoxCode;
+
+    /**
      * 一键封车空批次剔除开关 1：开启剔除 0：关闭
      */
     private String preSealVehicleRemoveEmptyBatchCode;
@@ -229,6 +239,14 @@ public class UccPropertyConfiguration {
     * 现场预分拣是否校验开关
     * */
     private boolean preSortOnSiteSwitchOn;
+
+    public boolean getENetSyncWaybillCodeAndBoxCode() {
+        return eNetSyncWaybillCodeAndBoxCode;
+    }
+
+    public void setENetSyncWaybillCodeAndBoxCode(boolean eNetSyncWaybillCodeAndBoxCode) {
+        this.eNetSyncWaybillCodeAndBoxCode = eNetSyncWaybillCodeAndBoxCode;
+    }
 
     public int getLoadScanTaskWaybillSize() {
         return loadScanTaskWaybillSize;
@@ -396,6 +414,14 @@ public class UccPropertyConfiguration {
 
     public void setOldLogPageTips(String oldLogPageTips) {
         this.oldLogPageTips = oldLogPageTips;
+    }
+
+    public boolean getEconomicNetPushZTDRetry() {
+        return economicNetPushZTDRetry;
+    }
+
+    public void setEconomicNetPushZTDRetry(boolean economicNetPushZTDRetry) {
+        this.economicNetPushZTDRetry = economicNetPushZTDRetry;
     }
 
     public int getOfflineTaskOperateTimeCorrectHours() {

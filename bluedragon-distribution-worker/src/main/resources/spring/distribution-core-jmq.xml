@@ -499,5 +499,15 @@
     <bean id="unloadCompleteProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.unload.car.task.complete}"/>
     </bean>
+    <!--    经济网按箱称重分页消息-->
+    <bean id="economicNetSplitWeightVolumeFlowProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.economicNet.box.split.weight}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!--    称重流水统一消息-->
+    <bean id="dmsWeightVolumeFlowProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.weight.volume.flow}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 
 </beans>

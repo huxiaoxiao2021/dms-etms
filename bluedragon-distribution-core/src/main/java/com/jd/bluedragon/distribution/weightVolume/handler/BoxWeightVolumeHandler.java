@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BoxOperateApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -25,6 +27,10 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.zhongyouex.order.api.dto.BoxDetailInfoDto;
+import com.zhongyouex.order.api.dto.BoxDetailResultDto;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -69,12 +75,24 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     private LogEngine logEngine;
 
+    @Autowired
+    private BoxOperateApiManager boxOperateApiManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {
         /* 处理称重对象 */
         entity.setBoxCode(entity.getBarCode());
         if (entity.getWidth() != null && entity.getLength() != null && entity.getHeight() != null && !NumberHelper.gt0(entity.getVolume())) {
             entity.setVolume(entity.getWidth() * entity.getLength() * entity.getHeight());
+        }
+        //修复兼容 只传入总体积时拆分长宽高 体积立方厘米 长宽高厘米
+        if (entity.getWidth() == null && entity.getLength() == null && entity.getHeight() == null && NumberHelper.gt0(entity.getVolume())) {
+            entity.setLength(1.0);
+            entity.setWidth(1.0);
+            entity.setHeight(entity.getVolume());
         }
 
         /* 获取箱号的信息 */
@@ -101,7 +119,22 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
                 waybillList.add(waybillCode);
             }
         }
-
+        /*兼容上线逻辑，从经济网接口继续获取箱包关系  取合集*/
+        //获取装箱明细
+        List<BoxDetailInfoDto> resultDto = boxOperateApiManager.findBoxDetailInfoList(entity.getBoxCode());
+        if(!CollectionUtils.isEmpty(resultDto)){
+            for(BoxDetailInfoDto boxDetailInfoDto : resultDto){
+                if(boxDetailInfoDto != null && StringUtils.isNotBlank(boxDetailInfoDto.getWaybillCode())){
+                    waybillList.add(boxDetailInfoDto.getWaybillCode());
+                }
+            }
+        }else{
+            logger.error("BoxWeightVolumeHandler 未从经济网接口中获取箱号数据{}   返回值 {}",entity.getBoxCode(),JsonHelper.toJson(resultDto));
+        }
+        if(CollectionUtils.isEmpty(waybillList)){
+            logger.error("BoxWeightVolumeHandler waybillList is empty {} ",entity.getBoxCode());
+            return;
+        }
         Double itemWeight = entity.getWeight() == null? null :  entity.getWeight() / waybillList.size();
         Double itemLength = entity.getLength();
         Double itemWidth = entity.getWidth();
@@ -220,7 +253,9 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         logger.warn("推送箱号信息至经济网异常:{}", JsonHelper.toJson(response));
         // 出现异常、无响应结果、响应结果非成功code码 则 抛出异常 自动重试
         if (e != null || result == null || !"0000".equals(result.getCode())) {
-            throw new RuntimeException(MessageFormat.format("推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
+            if(uccPropertyConfiguration.getEconomicNetPushZTDRetry()){
+                throw new RuntimeException(MessageFormat.format(entity.getBoxCode()+"推送箱号信息至经济网失败,异常原因：{0}", JsonHelper.toJson(response)));
+            }
         }
     }
 }
