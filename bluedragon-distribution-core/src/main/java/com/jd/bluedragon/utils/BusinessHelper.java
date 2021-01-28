@@ -9,7 +9,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -889,9 +889,25 @@ public class BusinessHelper {
     public static Integer getSpotCheckTypeBorC(String waybillSign){
         //0:C网    1:B网
         if(BusinessUtil.isCInternet(waybillSign)){
-            return 0;//C网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode();//C网
         }else {
-            return 1;//B网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode();//B网
         }
+    }
+
+    /**
+     * 转化逻辑
+     * 分拣与下游 B/C网标识  相反
+     * 分拣 spotType 0:C网  1：B网  2:c抽b的特殊值
+     * 下游 businessType 1:C网  2:B网
+     * 如果
+     * @param spotCheckType
+     * @return
+     */
+    public static Integer  translateSpotCheckTypeToBusinessType(Integer spotCheckType) {
+        if (spotCheckType == null) {
+            return 1;
+        }
+        return spotCheckType.equals(0) ? 1 : spotCheckType.equals(1)? 2: 2;
     }
 }

@@ -114,4 +114,6 @@ public interface WeightAndVolumeCheckService {
      * @time 2020-08-25 10:08:37 周二
      */
     InvokeResult<Boolean> handleAfterUploadImgMessageOrAfterSend(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage);
+
+
 }

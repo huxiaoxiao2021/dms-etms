@@ -53,7 +53,7 @@ public class BusinessInterceptRecordHandlerStrategy {
             return businessInterceptRecordBoxHandler.handle(msgDto);
         }
 
-        log.error("根据单号无法获取该数据的拦截消息处理策略：{}", JsonHelper.toJson(msgDto));
+        log.warn("根据单号无法获取该数据的拦截消息处理策略：{}", JsonHelper.toJson(msgDto));
         // throw new RuntimeException(MessageFormat.format("获取该单号的拦截消息处理器失败：{0}",JsonHelper.toJson(msgDto)));
         Response<Boolean> result = new Response<Boolean>();
         result.toSucceed();
