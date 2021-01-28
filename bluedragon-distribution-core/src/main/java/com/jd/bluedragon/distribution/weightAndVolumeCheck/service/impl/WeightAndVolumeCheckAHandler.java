@@ -45,14 +45,14 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         Double reviewWeight = checkExcessParam.getReviewWeight();
 
         //重量阀值
-        BigDecimal firstWeight1   =   new BigDecimal(firstThresholdWeight);
-        BigDecimal secondWeight20 =   new BigDecimal(secondThresholdWeight);
-        BigDecimal thirdWeight50  =   new BigDecimal(thirdThresholdWeight);
+        BigDecimal firstWeight1   =  BigDecimal.valueOf(firstThresholdWeight);
+        BigDecimal secondWeight20 =   BigDecimal.valueOf(secondThresholdWeight);
+        BigDecimal thirdWeight50  =  BigDecimal.valueOf(thirdThresholdWeight);
 
         //重量误差标准值
-        BigDecimal  firstStage05 = new BigDecimal(firstStage);
-        BigDecimal  secondStage1 = new BigDecimal(secondStage);
-        BigDecimal  thirdStage002 = new BigDecimal(thirdStage);
+        BigDecimal  firstStage05 = BigDecimal.valueOf(firstStage);
+        BigDecimal  secondStage1 =   BigDecimal.valueOf(secondStage);
+        BigDecimal  thirdStage002 = BigDecimal.valueOf(thirdStage);
 
         if(moreBigValue <= firstWeight1.doubleValue()){
             return false;

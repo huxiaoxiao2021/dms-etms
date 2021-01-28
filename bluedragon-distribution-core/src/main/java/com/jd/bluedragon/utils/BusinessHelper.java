@@ -908,6 +908,12 @@ public class BusinessHelper {
         if (spotCheckType == null) {
             return 1;
         }
-        return spotCheckType.equals(0) ? 1 : spotCheckType.equals(1)? 2: 2;
+        //下发下有是C网
+        if(spotCheckType.equals(0)){
+            return 1;
+            //下发下有是B网
+        }else {
+            return 2;
+        }
     }
 }
