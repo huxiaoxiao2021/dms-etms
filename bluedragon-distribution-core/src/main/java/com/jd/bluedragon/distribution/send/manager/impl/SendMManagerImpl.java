@@ -1,18 +1,18 @@
 package com.jd.bluedragon.distribution.send.manager.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -33,8 +33,8 @@ public class SendMManagerImpl implements SendMManager {
     public Integer add(String namespace, SendM sendM) {
         Integer result = sendMDao.add(namespace, sendM);
         if (result > 0) {
-            //更新箱号状态缓存
-            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendM.getCreateUser());
+            //关闭箱
+            updateBoxStatus(sendM);
         }
         return result;
     }
@@ -44,10 +44,9 @@ public class SendMManagerImpl implements SendMManager {
     public boolean insertSendM(SendM sendM) {
         boolean result = sendMDao.insertSendM(sendM);
         if (result) {
-            //更新箱号状态缓存
-            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendM.getCreateUser());
+            //关闭箱
+            updateBoxStatus(sendM);
         }
-
         return result;
     }
 
@@ -59,6 +58,27 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     public List<SendM> findSendMByBoxCode(SendM sendM){
         return sendMDao.findSendMByBoxCode(sendM);
+    }
+
+
+    /**
+     * 关闭箱
+     * @param sendM
+     */
+    private void updateBoxStatus(SendM sendM){
+        //构造参数
+        BoxReq boxReq = new BoxReq();
+        boxReq.setBoxCode(sendM.getBoxCode());
+        boxReq.setBoxStatus(com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum.CLOSE.getStatus());
+        boxReq.setOpNodeCode(OpBoxNodeEnum.SEND.getNodeCode());
+        boxReq.setOpNodeName(OpBoxNodeEnum.SEND.getNodeName());
+        boxReq.setOpSiteCode(sendM.getCreateSiteCode());
+        boxReq.setOpSiteName("");
+        boxReq.setOpErp(sendM.getCreateUser());
+        boxReq.setOpTime(new Date());
+        boxReq.setOpDescription(String.format("{}操作发货，关闭此箱号{}的箱子", sendM.getCreateUser(),sendM.getBoxCode()));
+        //更新逻辑
+        boxService.updateBoxStatus(boxReq);
     }
 
 

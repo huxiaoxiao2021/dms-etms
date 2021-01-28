@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.box.service;
 
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 
 import java.util.List;
 
@@ -57,4 +58,12 @@ public interface BoxService {
      * @return
      */
     Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode);
+
+
+    /**
+     * 更新箱状态
+     * @param boxReq
+     * @return
+     */
+    Boolean updateBoxStatus(BoxReq boxReq);
 }

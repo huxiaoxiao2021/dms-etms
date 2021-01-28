@@ -122,4 +122,25 @@ public class ServiceResult<T> implements Serializable {
         this.code = code;
         this.message = message;
     }
+
+    /**
+     * 成功 有返回值
+     * @param data
+     */
+    public void toSuccess(T data){
+        this.success = Boolean.TRUE;
+        this.code = ServiceMessageEnum.CODE_SUCCESS.getCode();
+        this.message = ServiceMessageEnum.CODE_SUCCESS.getMessage();
+        this.data = data;
+    }
+
+    /**
+     * 成功 无返回值
+     */
+    public void toSuccess(){
+        this.success = Boolean.TRUE;
+        this.code = ServiceMessageEnum.CODE_SUCCESS.getCode();
+        this.message = ServiceMessageEnum.CODE_SUCCESS.getMessage();
+    }
+
 }

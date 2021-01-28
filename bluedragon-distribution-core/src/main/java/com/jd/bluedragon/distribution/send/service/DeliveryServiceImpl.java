@@ -47,6 +47,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -1951,8 +1953,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
-                    //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
-                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode(), tSendM.getUpdaterUser());
+                    //更新箱号状态
+                    openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
@@ -2049,8 +2051,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, sendMs);
                         if (threeDeliveryResponse.getCode().equals(200)) {
                             /* 更新箱号缓存状态 */
-                            boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode()
-                                    , BoxStatusEnum.CANCELED_STATUS.getCode(),sendMItem.getUpdaterUser());
+                            openBox(sendMItem);
                         } else {
                             continue;
                         }
@@ -2081,6 +2082,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    /**
+     * 由于取消发货，打开箱
+     * @param tSendM
+     */
+    private void openBox(SendM tSendM){
+        //参数构建
+        BoxReq boxReq = new BoxReq();
+        boxReq.setBoxCode(tSendM.getBoxCode());
+        boxReq.setBoxStatus(com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum.OPEN.getStatus());
+        boxReq.setOpNodeCode(OpBoxNodeEnum.CANCELSEND.getNodeCode());
+        boxReq.setOpNodeName(OpBoxNodeEnum.CANCELSEND.getNodeName());
+        boxReq.setOpSiteCode(tSendM.getCreateSiteCode());
+        boxReq.setOpSiteName("");
+        boxReq.setOpErp(tSendM.getCreateUser());
+        boxReq.setOpTime(tSendM.getExcuteTime());// TODO: 2021/1/27 确认这个时间是否正确
+        boxReq.setOpDescription(String.format("{}操作取消发货，打开此箱号{}的箱子", tSendM.getCreateUser(),tSendM.getBoxCode()));
+        //修改箱状态
+        boxService.updateBoxStatus(boxReq);
     }
 
     /**

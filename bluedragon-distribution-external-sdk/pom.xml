@@ -9,7 +9,7 @@
 
     <groupId>com.jd.bluedragon</groupId>
     <artifactId>bluedragon-distribution-external-sdk</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-test-SNAPSHOT</version>
     <name>bluedragon-distribution-external-sdk</name>
     <packaging>jar</packaging>
 

@@ -134,6 +134,11 @@ public class Box {
 	 */
 	private Integer packageNum = 0;
 
+	/**
+	 * 当前节点
+	 */
+	private Integer currentNode;
+
 	public String getGroupSendCode() {
 		return groupSendCode;
 	}
@@ -410,4 +415,11 @@ public class Box {
 		this.packageNum = packageNum;
 	}
 
+	public Integer getCurrentNode() {
+		return currentNode;
+	}
+
+	public void setCurrentNode(Integer currentNode) {
+		this.currentNode = currentNode;
+	}
 }

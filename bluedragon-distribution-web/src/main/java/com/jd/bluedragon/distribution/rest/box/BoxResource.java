@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum;
+import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -515,6 +517,9 @@ public class BoxResource {
         //临时占用字段处理站点商家重复
         box.setStatuses(request.getCreateSiteType());
         box.setUpdateUser(request.getReceiveSiteType());
+        //设置状态和当前节点
+        box.setStatus(BoxStatusEnum.OPEN.getStatus());
+        box.setCurrentNode(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
         return box;
     }
 
