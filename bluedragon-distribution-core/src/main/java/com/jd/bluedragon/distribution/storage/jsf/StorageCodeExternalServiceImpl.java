@@ -26,6 +26,7 @@ public class StorageCodeExternalServiceImpl implements StorageCodeApi {
         ServiceResult<List<String>> result = new ServiceResult<>();
         try {
             result.setData(dmsLocalServerManager.getStorageCodeByDmsId(dmsId));
+            result.toSuccess();
         } catch (Exception e) {
             log.error("获取储位信息失败,error=", e);
             result.toSystemError();
@@ -38,6 +39,7 @@ public class StorageCodeExternalServiceImpl implements StorageCodeApi {
         ServiceResult<Boolean> result = new ServiceResult<>();
         try {
             result.setData(dmsLocalServerManager.checkStorage(dmsId, storageCode));
+            result.toSuccess();
         } catch (Exception e) {
             log.error("校验储位信息失败,error=", e);
             result.toSystemError();
