@@ -778,7 +778,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setDiffStandard("");
             }else if(standardDto!=null && standardDto.getExcessFlag()){
                 //超标--- C抽B  临时不提示
-                if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_C)){
+                if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(),SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
                     result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
                     result.setData(false);
                 }
