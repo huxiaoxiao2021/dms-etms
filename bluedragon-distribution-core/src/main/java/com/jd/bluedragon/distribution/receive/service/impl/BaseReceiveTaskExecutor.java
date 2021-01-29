@@ -430,7 +430,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		}
 		BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
 		if (siteEntity == null || siteEntity.getSiteType() != BaseContants.ECONOMIC_NET_SITE) {
-			log.error("loadENetBox siteEntity not satisfy! {}",boxCode);
+			log.info("loadENetBox siteEntity not satisfy! {}",boxCode);
 			return true;
 		}
 		return economicNetService.loadAndSaveBoxPackageData(box);

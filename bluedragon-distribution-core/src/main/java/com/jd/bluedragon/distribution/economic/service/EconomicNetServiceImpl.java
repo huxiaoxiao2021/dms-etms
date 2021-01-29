@@ -409,7 +409,7 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         }
         BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
         if (siteEntity == null || siteEntity.getSiteType() != BaseContants.ECONOMIC_NET_SITE) {
-            logger.error("economicNetBoxWeightConsumer siteEntity not satisfy! {}",JsonHelper.toJson(weightVolumeEntity));
+            logger.info("economicNetBoxWeightConsumer siteEntity not satisfy! {}",JsonHelper.toJson(weightVolumeEntity));
             return true;
         }
         //获取箱包关系批量存储
