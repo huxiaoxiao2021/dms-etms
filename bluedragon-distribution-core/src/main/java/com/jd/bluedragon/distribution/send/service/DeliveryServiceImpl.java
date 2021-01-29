@@ -3832,7 +3832,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 
         //发货目的地不是车队，返回true，不再校验
-        if(! receiveSite.getSiteType().equals(Constants.BASE_SITE_MOTORCADE)){
+        if(! Constants.BASE_SITE_MOTORCADE.equals(receiveSite.getSiteType())){
             return true;
         }
         String waybillCode = null;
