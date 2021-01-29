@@ -43,7 +43,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
-import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -128,8 +127,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
-    @Resource
-    private StagingServiceWS stagingServiceWS;
+//    @Resource
+//    private StagingServiceWS stagingServiceWS;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -1899,19 +1898,19 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<String> list = new ArrayList<>();
         list.add(barCode);
         try {
-            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
-            if (result == null) {
-                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
-                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
-                return jdCResponse;
-            }
-            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
-                jdCResponse.toSuccess();
-                return jdCResponse;
-            }
-            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
-                    creatSiteId, result.getCode(), result.getMessage());
-            jdCResponse.toFail(result.getMessage());
+//            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
+//            if (result == null) {
+//                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
+//                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
+//                return jdCResponse;
+//            }
+//            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
+//                jdCResponse.toSuccess();
+//                return jdCResponse;
+//            }
+//            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
+//                    creatSiteId, result.getCode(), result.getMessage());
+//            jdCResponse.toFail(result.getMessage());
             return jdCResponse;
         } catch (Exception e) {
             log.error("根据包裹号或运单号判断是否可发货发生异常：barCode={},creatSiteId={},error=", barCode, creatSiteId, e);

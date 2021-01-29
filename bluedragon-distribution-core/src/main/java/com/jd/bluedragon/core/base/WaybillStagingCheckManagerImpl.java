@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.merchant.api.common.dto.Result;
 import com.jd.merchant.api.staging.dto.StagingCheckReq;
-import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -24,7 +23,7 @@ public class WaybillStagingCheckManagerImpl implements WaybillStagingCheckManage
     private final Logger log = LoggerFactory.getLogger(WaybillStagingCheckManagerImpl.class);
 
     @Resource
-    private StagingServiceWS stagingServiceWS;
+//    private StagingServiceWS stagingServiceWS;
 
     @JProfiler(jKey = "DMSCORE.WaybillStagingCheckManagerImpl.stagingCheck", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -33,10 +32,10 @@ public class WaybillStagingCheckManagerImpl implements WaybillStagingCheckManage
             StagingCheckReq req = new StagingCheckReq();
             req.setCurrentSiteCode(operateSiteCode);
             req.setPackageCode(packageCode);
-            Result<Boolean> result = stagingServiceWS.stagingCheck(req);
-            if (null != result && Constants.STAGING_CHECK_SUCCESS_CODE.equals(result.getCode())) {
-                return true;
-            }
+//            Result<Boolean> result = stagingServiceWS.stagingCheck(req);
+//            if (null != result && Constants.STAGING_CHECK_SUCCESS_CODE.equals(result.getCode())) {
+//                return true;
+//            }
         } catch (Exception e) {
             log.error("WaybillStagingCheckManagerImpl.stagingCheck.error-packageCode={}", packageCode, e);
         }

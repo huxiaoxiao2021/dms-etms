@@ -594,10 +594,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
 
                 // 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
-                if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
-                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
-                    return dtoInvokeResult;
-                }
+//                if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
+//                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+//                    return dtoInvokeResult;
+//                }
                 // 路由校验、生成板号
                 routerCheck(request,result);
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
