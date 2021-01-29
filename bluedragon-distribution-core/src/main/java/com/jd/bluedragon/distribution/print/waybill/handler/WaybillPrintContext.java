@@ -56,6 +56,7 @@ public class WaybillPrintContext implements Context{
 	 * 商家标识位
 	 * */
 	private String traderSign;
+
 	/**
 	 * 获取waybillSign信息
 	 * @return
