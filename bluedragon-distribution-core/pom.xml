@@ -1562,7 +1562,7 @@
 		<dependency>
 			<groupId>com.zhongyouex.order</groupId>
 			<artifactId>zhongyouex-order-api</artifactId>
-			<version>1.0.0-uat-SNAPSHOT</version>
+			<version>1.0.35-SNAPSHOT</version>
 		</dependency>
 
 
