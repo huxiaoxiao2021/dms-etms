@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -34,6 +35,7 @@ import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -211,6 +213,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseSiteBySiteId(waybillFlowDetail.getOperateSiteCode());
         // 组装抽检数据
         WeightVolumeCollectDto dto = assembleWeightVolumeDto(spotCheckData,waybill,waybillFlowDetail,baseDto);
+
+        /**PDA抽检来源,赋值图片**/
+        if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource()) && CollectionUtils.isNotEmpty(spotCheckData.getUrls())) {
+           dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
+        }
 
         BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
         if(baseEntity == null || baseEntity.getCode() != BaseEntity.CODE_SUCCESS){
@@ -751,6 +758,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             log.error("参数:{}, 异常信息:{}", JsonHelper.toJson(param) , e.getMessage(), e);
             result.customMessage(600,"B网按运单抽检失败!");
         }
+        result.setCode(Constants.SUCCESS_CODE);
         return result;
     }
 
@@ -775,7 +783,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      */
     private SpotCheckData trans2SpotCheckDataOfWaybill(WeightVolumeCheckConditionB2b param) {
         SpotCheckData spotCheckData = new SpotCheckData();
-        spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
+        /**PDA抽检来源标识**/
+        if (Constants.PDA_SOURCE.equals(param.getPdaSource())) {
+            spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name());
+        } else {
+            spotCheckData.setFromSource(SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB.name());
+        }
         spotCheckData.setWaybillCode(WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode()));
         spotCheckData.setTotalWeight(param.getWaybillWeight());
         spotCheckData.setTotalVolume(param.getWaybillVolume());
@@ -783,6 +796,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         spotCheckData.setLoginErp(param.getLoginErp());
         spotCheckData.setIsExcess(param.getIsExcess());
         spotCheckData.setIsWaybillSpotCheck(1);
+        spotCheckData.setUrls(param.getUrls());
         return spotCheckData;
     }
 
@@ -1135,6 +1149,18 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
         param = (double)Math.round(param*100)/100;
         return param;
+    }
+
+
+    @Override
+    public InvokeResult<String> checkRecordExist(String waybillCode, Integer siteCode) {
+        InvokeResult<String> result = new InvokeResult<>();
+        if (isSpotCheck(waybillCode, siteCode)) {
+            result.customMessage(600, "运单" + waybillCode + "已经进行过抽检，请勿重复操作!");
+            return result;
+        }
+        result.setCode(Constants.SUCCESS_CODE);
+        return result;
     }
 
 }

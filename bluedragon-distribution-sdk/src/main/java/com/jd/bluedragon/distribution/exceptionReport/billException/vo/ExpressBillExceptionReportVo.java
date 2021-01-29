@@ -98,6 +98,11 @@ public class ExpressBillExceptionReportVo implements Serializable {
      */
     private Boolean yn;
 
+    /**
+     * 举报备注
+     */
+    private String remark;
+
     public Boolean getYn() {
         return yn;
     }
@@ -232,6 +237,14 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public void setReportTimeFormat(String reportTimeFormat) {
         this.reportTimeFormat = reportTimeFormat;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }
     

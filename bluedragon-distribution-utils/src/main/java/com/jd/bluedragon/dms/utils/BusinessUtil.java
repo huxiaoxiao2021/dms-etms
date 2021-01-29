@@ -1588,14 +1588,13 @@ public class BusinessUtil {
     	return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_2);
     }
     /**
-     * 航空转陆运，
+     * 航空转陆运
      * waybillsign第31位等于1或者84位等于3，目前用于航空转陆运通知质控和路由，如果需要确定使用请与产品确定标位
      *
      * @param waybillSign
      * @return
      */
     public static Boolean isArTransportMode(String waybillSign) {
-
         return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
     }
     /**
@@ -1856,5 +1855,15 @@ public class BusinessUtil {
             return true;
         }
         return  false;
+    }
+
+    /**
+     * 判断是否防疫物资绿色通道(82位6)
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isFYWZ(String waybillSign) {
+        return isSignChar(waybillSign, 82, '6');
     }
 }

@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportCenterService;
+import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author: liming522
@@ -31,6 +34,9 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
 
     @Autowired
     private ExpressBillExceptionReportDao expressBillExceptionReportDao;
+
+    @Autowired
+    private ExpressBillExceptionReportService expressBillExceptionReportService;
 
     @Override
     public Response<PageDto<ExpressBillExceptionReportVo>> queryPageList(ExpressBillExceptionReportQuery query) {
@@ -97,6 +103,22 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
             query.setQueryEndTime(DateUtil.parse(query.getQueryEndTimeStr(), DateUtil.FORMAT_DATE_TIME));
         }
         return  response;
+    }
+
+    /**
+     * 获取面单举报类型
+     * @return
+     */
+    public Response<Map<Integer,String>> getAllExceptionReportType(){
+        Response<Map<Integer,String>> response = new Response<>();
+        JdCResponse<Map<Integer,String>>  jdCResponse = expressBillExceptionReportService.getAllExceptionReportType();
+        if(jdCResponse.getData()!=null&&jdCResponse!=null){
+            response.toSucceed();
+            response.setData(jdCResponse.getData());
+        }else {
+            response.toError();
+        }
+        return response;
     }
 }
     

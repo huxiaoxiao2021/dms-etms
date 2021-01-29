@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.lang.StringUtils;
@@ -45,7 +46,7 @@ public class FreightFilter implements Filter {
         //b2b校验是否包含-寄付运费
         if (BusinessHelper.isCheckSendFreightForB2b(waybillCache.getWaybillSign())) {
             fixFreight(waybillCache);
-            if (!NumberHelper.gt0(waybillCache.getFreight())) {
+            if (!NumberHelper.gt0(waybillCache.getFreight()) && !BusinessUtil.isFYWZ(waybillCache.getWaybillSign())) {
                 logger.warn("运单无寄付运费金额:" + waybillCache.getWaybillCode());
                 throw new SortingCheckException(SortingResponse.CODE_29406, SortingResponse.MESSAGE_29406);
             }

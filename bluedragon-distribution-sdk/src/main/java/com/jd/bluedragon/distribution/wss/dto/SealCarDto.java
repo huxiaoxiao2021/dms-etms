@@ -70,6 +70,10 @@ public class SealCarDto implements Serializable {
     private String transBookCode;
     private String routeLineCode;
     private Integer palletCount;
+    /**
+     * 预封车选择的批次号列表
+     */
+    private List<String> selectedSendCodes;
 
     public SealCarDto() {
     }
@@ -532,4 +536,12 @@ public class SealCarDto implements Serializable {
     public void setPalletCount(Integer palletCount) {
         this.palletCount = palletCount;
     }
+
+	public List<String> getSelectedSendCodes() {
+		return selectedSendCodes;
+	}
+
+	public void setSelectedSendCodes(List<String> selectedSendCodes) {
+		this.selectedSendCodes = selectedSendCodes;
+	}
 }

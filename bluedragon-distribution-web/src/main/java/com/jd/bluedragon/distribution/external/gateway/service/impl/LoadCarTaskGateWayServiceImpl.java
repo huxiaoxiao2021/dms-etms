@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
@@ -60,6 +61,8 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     @Autowired
     private LoadScanService loadScanService;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 添加装车任务协助人
@@ -378,6 +381,43 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setCode(JdCResponse.CODE_SUCCESS);
         jdCResponse.setMessage(JdCResponse.MESSAGE_SUCCESS);
         jdCResponse.setData(helperDto);
+        return jdCResponse;
+    }
+
+    /**
+     * -1:全部站点隐藏;0打开;1隐藏
+     *
+     * @param currentSiteCode
+     * @return
+     */
+    @Override
+    public JdCResponse<Integer> hideMenuCheck(Integer currentSiteCode) {
+        JdCResponse<Integer> jdCResponse = new JdCResponse<>();
+        if (null == currentSiteCode) {
+            jdCResponse.toFail("操作站点编号不能为空");
+            return jdCResponse;
+        }
+        String sites = uccPropertyConfiguration.getDeliverHideSites();
+        log.info("发货菜单隐藏配置信息={}", sites);
+        if (StringUtils.isBlank(sites)) {
+            jdCResponse.toSucceed();
+            jdCResponse.setData(Constants.SITE_OPEN);
+            return jdCResponse;
+        }
+        List<String> list = Arrays.asList(sites.split(";"));
+        //关闭站点配置里包含当前站点，需要隐藏
+        if (list.contains(String.valueOf(currentSiteCode))) {
+            jdCResponse.toSucceed();
+            jdCResponse.setData(Constants.SITE_CLOSE);
+            return jdCResponse;
+        }
+        if (Constants.CLOSE_ALL_SITE.equals(sites)) {
+            jdCResponse.toSucceed();
+            jdCResponse.setData(Constants.ALL_SITE_CLOSE);
+            return jdCResponse;
+        }
+        jdCResponse.toSucceed();
+        jdCResponse.setData(Constants.SITE_OPEN);
         return jdCResponse;
     }
 

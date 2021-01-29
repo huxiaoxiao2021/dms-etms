@@ -47,8 +47,8 @@ public class SiteServiceImplTest {
        List<TransportResourceDto> result =  basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
 
         for(TransportResourceDto dto :result){
-            Date transDisableTime = dto.getTransDisableTime();
-            Date transEnableTime = dto.getTransEnableTime();
+            Date transDisableTime = dto.getCreateTime();
+            String arriveCarTimeStr = dto.getArriveCarTimeStr();
         }
     }
 }

@@ -190,7 +190,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
         }
 
         if(log.isInfoEnabled()) {
-            log.debug("根据任务号【{}】查询不齐异常数据 --end-- 返回不齐数据【{}】", taskId, JsonHelper.toJson(res));
+            log.info("根据任务号【{}】查询不齐异常数据 --end-- 返回不齐数据【{}】", taskId, JsonHelper.toJson(res));
         }
         return res;
     }

@@ -29,4 +29,10 @@ public interface ArAbnormalService {
      * @param 
      */
     public List<ArContrabandReason> getArContrabandReasonList();
+
+    /**
+     * 查询运输方式变更的原因-根据不同的运输方式变更类型获取不同的原因
+     * @return
+     */
+    public List<ArContrabandReason> getArContrabandReasonListNew(Integer transpondType);
 }

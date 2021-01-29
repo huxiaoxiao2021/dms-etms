@@ -4,24 +4,30 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.fastjson.JSON;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @Author: liming522
@@ -37,6 +43,12 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private ExpressBillExceptionReportDao expressBillExceptionReportDao;
+
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     /**
      * 面单异常提交
@@ -89,6 +101,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getFirstSiteByPackageCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<FirstSiteVo> getFirstSiteByPackageCode(String packageCode) {
         JdCResponse<FirstSiteVo> result =  new  JdCResponse<>();
+        result.toSucceed();
         if(log.isInfoEnabled()){
             log.info("ExpressBillExceptionReportServiceImpl.getFirstSiteByPackageCode param {}", packageCode);
         }
@@ -98,21 +111,41 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 result.toFail("包裹号格式不正确");
                 return result;
             }
+
+            //始发地对象
+            FirstSiteVo firstSiteVo = null;
             // 获取运单始发地
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            List<PackageStateDto>   stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
-            if(CollectionUtils.isEmpty(stateList)){
-                log.error("当前包裹{}没揽收完成，无法获取始发地",packageCode);
-                result.toFail("当前包裹没揽收完成，无法获取始发地");
+
+            //1.先找出仓配的始发地
+            Waybill baseEntity =  waybillQueryManager.getWaybillByWayCode(waybillCode);
+            if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
+                firstSiteVo =  this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
+                result.setData(firstSiteVo);
                 return result;
             }
-            result.toSucceed();
-            PackageStateDto packageState = stateList.get(0);
 
-            FirstSiteVo firstSiteVo = new FirstSiteVo();
-            firstSiteVo.setFirstSiteName(packageState.getOperatorSite());
-            firstSiteVo.setFirstSiteCode(packageState.getOperatorSiteId());
 
+            //2.找揽收完成的--满足纯配营业部、驻场、车队
+            List<PackageStateDto>   stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+            if(CollectionUtils.isNotEmpty(stateList)){
+                PackageStateDto packageState = stateList.get(0);
+                firstSiteVo = this.packageFirstSiteVo(packageState.getOperatorSiteId(),packageState.getOperatorSite());
+                result.setData(firstSiteVo);
+                return result;
+            }
+
+            //3.找换单完成的-换单营业部
+            List<PackageStateDto>   changeStateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_EXCHANGE);
+
+            if(CollectionUtils.isEmpty(changeStateList)){
+                log.error("当前包裹{}，无法获取始发地",packageCode);
+                result.toFail("当前包裹，无法获取始发地");
+                return result;
+            }
+
+            PackageStateDto packageState = changeStateList.get(0);
+            firstSiteVo = this.packageFirstSiteVo(packageState.getOperatorSiteId(),packageState.getOperatorSite());
             result.setData(firstSiteVo);
         }catch (Exception e){
             log.error("通过包裹号获取运单始发网点异常 packageCode:{}",packageCode,e);
@@ -122,16 +155,72 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     }
 
     /**
+     * 封装始发站点对象
+     * @param siteCode
+     * @param siteName
+     * @return
+     */
+    private FirstSiteVo packageFirstSiteVo(Integer siteCode,String siteName){
+        FirstSiteVo firstSiteVo = new FirstSiteVo();
+        firstSiteVo.setFirstSiteName(siteName);
+        firstSiteVo.setFirstSiteCode(siteCode);
+        return firstSiteVo;
+    }
+
+    /**
      * 获取异常举报类型枚举值
      * @return
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportType", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportType() {
+    public JdCResponse<Map<Integer,String>> getAllExceptionReportType() {
+        JdCResponse<Map<Integer,String>> result =  new  JdCResponse<>();
+        result.toSucceed();
+        result.setData(getDictMap());
+        return result;
+    }
+
+    private Map<Integer,String > getDictMap(){
+        List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
+        Map<Integer, String> map = new HashMap<Integer, String>();
+        for (int i = 0; i < list.size(); i++) {
+            map.put(list.get(i).getTypeCode(), list.get(i).getMemo());
+        }
+        return map;
+    }
+
+    /**
+     * 提供给安卓的举报类型枚举方法
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportTypeList", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<ExpressBillExceptionReportTypeEnum>> getAllExceptionReportTypeList() {
         JdCResponse<List<ExpressBillExceptionReportTypeEnum>> result =  new  JdCResponse<>();
         result.toSucceed();
         List<ExpressBillExceptionReportTypeEnum> allTypes = ExpressBillExceptionReportTypeEnum.getAllExpressBillExceptionReportType();
         result.setData(allTypes);
+        return result;
+    }
+
+    /**
+     * 提供给安卓的新方法(举报类型)
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExpressBillExceptionReportServiceImpl.getAllExceptionReportTypeListNew", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeListNew() {
+        JdCResponse<List<ReportTypeVo>> result =  new  JdCResponse<>();
+        result.toSucceed();
+        List<ReportTypeVo> list = new ArrayList<>();
+        Map<Integer,String> dictMap = getDictMap();
+        for (Map.Entry<Integer, String>  map : dictMap.entrySet()){
+            ReportTypeVo reportTypeVo = new ReportTypeVo();
+            reportTypeVo.setReportTypeCode(map.getKey());
+            reportTypeVo.setReportTypeName(map.getValue());
+            list.add(reportTypeVo);
+        }
+        result.setData(list);
         return result;
     }
 
@@ -172,6 +261,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setUpdateTime(new Date());
         report.setYn(1);
         report.setTs(new Date());
+        report.setRemark(reportRequest.getRemark());
         return report;
     }
 }
