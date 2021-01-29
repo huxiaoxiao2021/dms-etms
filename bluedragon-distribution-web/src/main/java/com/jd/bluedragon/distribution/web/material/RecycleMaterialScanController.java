@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.web.material;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.material.service.MaterialOperationService;
 import com.jd.bluedragon.distribution.material.service.WarmBoxInOutOperationService;
 import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanQuery;
 import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanVO;
