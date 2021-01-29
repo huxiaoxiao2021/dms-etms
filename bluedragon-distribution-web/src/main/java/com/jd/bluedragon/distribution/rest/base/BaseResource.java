@@ -1251,7 +1251,7 @@ public class BaseResource {
 		InvokeResult result = new InvokeResult();
 		List<String> list = new ArrayList<String>();
 		DatadictResponse response =getOrignalBackBusIds(parentGroup,nodeLevel,typeGroup);
-		if(response != null && response.getCode() == JdResponse.CODE_OK){
+		if(response != null && JdResponse.CODE_OK.equals(response.getCode())){
 			for (BaseDatadict bd :response.getDatadicts()) {
 				list.add(bd.getTypeName());
 			}

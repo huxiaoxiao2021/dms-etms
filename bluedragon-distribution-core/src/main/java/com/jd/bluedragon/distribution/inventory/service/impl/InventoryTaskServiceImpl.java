@@ -251,7 +251,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             }
 
             //有任务号并且协作类型是协作者，在inventory_task表里插入协助数据
-            if (request.getCooperateType() == CooperateTypeEnum.COOPERATOR.getCode()) {
+            if (CooperateTypeEnum.COOPERATOR.getCode().equals(request.getCooperateType())) {
                 List<SiteEntity> directionList = new ArrayList<>();
                 for (InventoryTask task : inventoryTaskList) {
                     task.setCreateUserCode(request.getUserCode());
@@ -390,7 +390,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         Integer inventoryScope = inventoryTaskList.get(0).getInventoryScope();
 
         String doingDirectionStr = "";
-        if (inventoryScope == InventoryScopeEnum.CUSTOMIZE.getCode()) {
+        if (InventoryScopeEnum.CUSTOMIZE.getCode().equals(inventoryScope)) {
             doingDirectionStr = inventoryTaskList.get(0).getDirectionName();
             directionList.add(new SiteEntity(inventoryTaskList.get(0).getDirectionCode(), inventoryTaskList.get(0).getDirectionName()));
             if (inventoryTaskList.size() > 1) {

@@ -144,6 +144,7 @@ public class CsvExportUtil {
         try {
             response.setHeader("Content-Disposition", "attachment;filename=".concat(new String(fileName.getBytes("GBK"),"iso8859-1")));
         } catch (UnsupportedEncodingException e) {
+            log.warn("setResponseParam异常！",e);
         }
         response.setHeader("Connection", "close");
         response.setHeader("Content-Type", "application/csv");
