@@ -1,6 +1,6 @@
 package com.jd.bluedragon;
 /**
- * 
+ *
  * @ClassName: TextConstants
  * @Description: 字符串定义常量类
  * @author: wuyoude
@@ -54,7 +54,7 @@ public class TextConstants {
      * 货款-代收货款
      */
     public static final String GOODS_PAYMENT_NEED_PAY = "代收货款";
-    
+
     /**
      * 备注-【合并送】
      */
@@ -153,7 +153,7 @@ public class TextConstants {
     /**
      * 纯配B2B运单、纯配C转B添加水印 B-【运单号】后4位
      */
-    public static final String	PECIAL_B_MARK1="B-";    
+    public static final String	PECIAL_B_MARK1="B-";
     /**
      * 无接触标识‘代’
      */
@@ -233,7 +233,7 @@ public class TextConstants {
     /**
      * 产品名-特惠包裹
      */
-    public static final String PRODUCT_NAME_THBG = "特惠包裹";      
+    public static final String PRODUCT_NAME_THBG = "特惠包裹";
     /**
      * 无人车配送标识-车
      */
@@ -256,10 +256,6 @@ public class TextConstants {
      */
     public static final String FRESH_FOOD_WAREHOUSE_DISINFECT = "生鲜仓已消毒";
 
-    /**
-     * 收件人地址
-     */
-    public static final String RECEIVER_ADDRESS = "收件人地址：";
     /**
      * 是
      */
