@@ -132,10 +132,16 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     }
 
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
-        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
-        // 线上【青龙基础资料】-【数据字典】-【部门类型】
-        if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
-            packOpeDto.setOpeType(2);
+        /* 2021年01月20日15:57:30  增加 经济网按箱拆分包裹称重类型*/
+        if(entity.getSourceCode().equals(FromSourceEnum.ENET_BOX_SPLIT_PACKAGE)){
+            packOpeDto.setOpeType(14);
+
+        }else {
+            BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(entity.getOperatorCode());
+            // 线上【青龙基础资料】-【数据字典】-【部门类型】
+            if (baseStaffByErp != null && !BusinessUtil.isSortingSiteType(baseStaffByErp.getSiteType())) {
+                packOpeDto.setOpeType(2);
+            }
         }
     }
 

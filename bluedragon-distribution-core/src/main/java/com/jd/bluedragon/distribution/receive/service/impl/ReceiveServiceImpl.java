@@ -6,9 +6,14 @@ import com.jd.bluedragon.distribution.api.request.ReceiveRequest;
 import com.jd.bluedragon.distribution.api.request.SealBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureLogDao;
 import com.jd.bluedragon.distribution.departure.domain.DepartureLog;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.receive.dao.ReceiveDao;
@@ -99,6 +104,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 	@Autowired
 	private DepartureLogDao departureLogDao;
 
+
 	/**
 	 * 收货
 	 *
@@ -140,6 +146,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		// 推送mq消息
 		pushTurnoverBoxInfo(receive);
 	}
+
 
 	private CenConfirm paseCenConfirm(Receive receive) {
 		CenConfirm cenConfirm=new CenConfirm();

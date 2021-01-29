@@ -216,6 +216,8 @@ public class BusinessLogConstans {
         EDN_PRINT_DELIVERY_RECEIPT(BizTypeEnum.EDN_BUSINESS,20162,"打印配送单"),
 
         ECONOMIC_NET_BOX_WEIGHT(BizTypeEnum.ECONOMIC_NET,20171,"经济网推送箱号"),
+        ECONOMIC_NET_BOX_LOAD(BizTypeEnum.ECONOMIC_NET,20172,"经济网加载箱包关系数据"),
+        ECONOMIC_NET_BOX_EQUALIZATION(BizTypeEnum.ECONOMIC_NET,20173,"经济网箱内称重量方均摊"),
 
         COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除");
 

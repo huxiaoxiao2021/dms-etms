@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.17-SNAPSHOT</version>
+			<version>1.1.18-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1568,7 +1568,7 @@
 		<dependency>
 			<groupId>com.zhongyouex.order</groupId>
 			<artifactId>zhongyouex-order-api</artifactId>
-			<version>1.0.35-SNAPSHOT</version>
+			<version>1.0.36-SNAPSHOT</version>
 		</dependency>
 
 

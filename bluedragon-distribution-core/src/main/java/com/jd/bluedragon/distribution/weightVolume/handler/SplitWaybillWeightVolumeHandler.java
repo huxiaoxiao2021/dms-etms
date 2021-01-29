@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service("splitWaybillWeightVolumeHandler")
 public class SplitWaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
-    /* MQ消息生产者： topic:dms_waybill_weight*/
+    /* MQ消息生产者： topic:dms_waybill_weight_ope_flow*/
     @Autowired
     @Qualifier("dmsWeighByWaybillProducer")
     private DefaultJMQProducer dmsWeighByWaybillProducer;
