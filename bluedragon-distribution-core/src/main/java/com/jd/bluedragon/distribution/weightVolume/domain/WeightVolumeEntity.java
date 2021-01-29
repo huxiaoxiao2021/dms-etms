@@ -200,6 +200,11 @@ public class WeightVolumeEntity {
         return this;
     }
 
+    public WeightVolumeEntity machineCode(String machineCode){
+        this.machineCode = machineCode;
+        return this;
+    }
+
     public Integer getLongPackage() {
         return longPackage;
     }
