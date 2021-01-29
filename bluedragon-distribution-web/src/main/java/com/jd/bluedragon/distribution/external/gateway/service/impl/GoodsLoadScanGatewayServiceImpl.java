@@ -348,11 +348,12 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 //        }
 
-            if(req.getSendCode() == null) {
+            if(StringUtils.isBlank(loadCar.getBatchCode())) {
                 response.toFail("发货批次号不能为空");
                 return response;
             }
-
+            // 使用装车任务上绑定的批次号
+            req.setSendCode(loadCar.getBatchCode());
             if(req.getReceiveSiteCode() == null) {
                 response.toFail("收货单位编码不能为空");
                 return response;
