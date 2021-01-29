@@ -196,8 +196,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Qualifier(value = "unloadCompleteProducer")
     private DefaultJMQProducer unloadCompleteProducer;
 
-    @Resource
-    private WaybillStagingCheckManager waybillStagingCheckManager;
+//    @Resource
+//    private WaybillStagingCheckManager waybillStagingCheckManager;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -1118,10 +1118,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
 
             /**新增暂存校验**/
-            if (waybillStagingCheckManager.stagingCheck(packageCode, request.getOperateSiteCode())) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
-                return invokeResult;
-            }
+//            if (waybillStagingCheckManager.stagingCheck(packageCode, request.getOperateSiteCode())) {
+//                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+//                return invokeResult;
+//            }
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
