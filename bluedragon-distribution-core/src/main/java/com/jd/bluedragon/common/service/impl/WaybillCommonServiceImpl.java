@@ -687,6 +687,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_DEFAULT);
 
+            // 如果获取到收件人地址寄递码(receiveCustomerCode存在)，则转换为二维码替换左下角二维码链接内容，同时将原二维码文本“扫码寄快递”设置为空。
+            if (waybillExt != null) {
+                String receiveCustomerCode = waybillExt.getReceiveCustomerCode();
+                if (StringUtils.isNotBlank(receiveCustomerCode)) {
+                    target.setPopularizeMatrixCode(receiveCustomerCode);
+                    target.setPopularizeMatrixCodeDesc("");
+                }
+            }
+
             //包裹有话说
             if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,WaybillVasConstant.packageSay)){
                 BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
@@ -882,14 +891,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
-	    //当sendpay第二位为4/5/6/7/8/9且sendpay338位为1时增加 【生鲜仓已消毒】
-        if (BusinessHelper.isFreshWarehouse(waybill.getSendPay())){
-            if (StringUtils.isEmpty(target.getjZDFlag())){
-                target.setjZDFlag(TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT_SPLIT);
-            }else{
-                target.setjZDFlag(target.getjZDFlag() + "\r\n" + TextConstants.FRESH_FOOD_WAREHOUSE_DISINFECT);
-            }
-        }
 
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
