@@ -105,6 +105,11 @@ public class WeightVolumeEntity {
      * */
     private Integer longPackage;
 
+    /**
+     * 设备编码
+     */
+    private String machineCode;
+
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
         return this;
@@ -337,5 +342,13 @@ public class WeightVolumeEntity {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }
