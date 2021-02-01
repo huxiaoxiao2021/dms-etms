@@ -28,7 +28,9 @@ public class DmsScheduleInfoServiceManagerImpl implements DmsScheduleInfoService
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "com.jd.bluedragon.core.base.DmsScheduleInfoServiceManagerImpl.generatePdfUrlByBatchList",mState={JProEnum.TP,JProEnum.FunctionError})
     @Override
     public JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(EdnDeliveryReceiptBatchRequest param) {
-        logger.warn("com.jd.bluedragon.core.base.DmsScheduleInfoServiceManagerImpl--》generatePdfUrlByBatchList  start ,param=[{}]", JsonHelper.toJson(param));
+        if(logger.isInfoEnabled()){
+            logger.info("com.jd.bluedragon.core.base.DmsScheduleInfoServiceManagerImpl--》generatePdfUrlByBatchList  start ,param=[{}]", JsonHelper.toJson(param));
+        }
         JdResponse<EdnDeliveryReceiptBatchPdfDto> response = new JdResponse<>();
         try {
             SdkCommonResult<EdnDeliveryReceiptBatchPdfDto> result = kaGenerateEdnDeliveryReceiptPdfService.generatePdfUrlByBatchList(param);

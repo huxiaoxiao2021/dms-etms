@@ -302,7 +302,9 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 
 	@Override
 	public JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(EdnDeliveryReceiptBatchRequest param) {
-		logger.info("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList start ,param=[{}]",JsonHelper.toJson(param));
+		if(logger.isInfoEnabled()){
+			logger.info("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList start ,param=[{}]",JsonHelper.toJson(param));
+		}
 		JdResponse<EdnDeliveryReceiptBatchPdfDto> response = new JdResponse<>();
 		response.setCode(JdResponse.CODE_SUCCESS);
 

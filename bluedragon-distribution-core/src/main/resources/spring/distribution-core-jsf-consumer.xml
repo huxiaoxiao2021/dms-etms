@@ -656,6 +656,6 @@
     </jsf:consumer>
 
     <jsf:consumer id="kaGenerateEdnDeliveryReceiptPdfService" interface="com.jd.jp.print.templet.center.sdk.service.KaGenerateEdnDeliveryReceiptPdfService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
+                  protocol="jsf" alias="${jsf.kaGenerateEdnDeliveryReceiptPdfService.alias}" timeout="${jsf.kaGenerateEdnDeliveryReceiptPdfService.timeout}" >
     </jsf:consumer>
 </beans>
