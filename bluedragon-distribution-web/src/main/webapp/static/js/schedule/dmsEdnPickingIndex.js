@@ -352,7 +352,7 @@ function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 }
 // 开始批量打印
 function printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums){
-	var printBatchUrl = 'schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
+	var printBatchUrl = '/schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
 	var param = {ednNos: ednBatchNums, scheduleBillCode: scheduleBillCode};
     $.ajaxHelper.doPostSync(printBatchUrl,
 		JSON.stringify(param),
