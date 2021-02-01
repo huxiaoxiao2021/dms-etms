@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfoCondition;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnBatchVo;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnPickingVo;
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchPdfDto;
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchRequest;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
@@ -80,4 +82,6 @@ public interface DmsScheduleInfoService extends Service<DmsScheduleInfo> {
 	 * @return
 	 */
 	JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode,LoginUser user);
+
+	JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(EdnDeliveryReceiptBatchRequest param);
 }
