@@ -4,7 +4,12 @@ import java.text.Collator;
 import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.core.base.DmsScheduleInfoServiceManager;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import com.jd.jp.print.templet.center.sdk.common.SdkCommonResult;
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchPdfDto;
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchRequest;
+import com.jd.jp.print.templet.center.sdk.service.KaGenerateEdnDeliveryReceiptPdfService;
 import com.jd.ldop.utils.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -37,6 +42,8 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.print.utils.StringHelper;
+
+import javax.annotation.Resource;
 
 /**
  * @ClassName: DmsScheduleInfoServiceImpl
@@ -82,7 +89,11 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	@Qualifier("storagePackageDService")
 	private StoragePackageDService storagePackageDService;
 
-	
+
+
+	@Resource
+	private DmsScheduleInfoServiceManager  dmsScheduleInfoServiceManager;
+
 	@Override
 	public Dao<DmsScheduleInfo> getDao() {
 		return this.dmsScheduleInfoDao;
@@ -285,5 +296,39 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			printResult.toFail("调度单下企配仓批次为空！");
 		}
 		return printResult;
+	}
+
+
+
+	@Override
+	public JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(EdnDeliveryReceiptBatchRequest param) {
+		logger.info("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList start ,param=[{}]",JsonHelper.toJson(param));
+		JdResponse<EdnDeliveryReceiptBatchPdfDto> response = new JdResponse<>();
+		response.setCode(JdResponse.CODE_SUCCESS);
+
+		if(StringUtils.isBlank(param.getScheduleBillCode())){
+			logger.warn("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList 调度单号不能为空 ,param=[{}]",JsonHelper.toJson(param));
+			response.setCode(JdResponse.CODE_FAIL);
+			response.setMessage("调度单号不能为空");
+			return  response;
+		}
+
+		if(org.apache.commons.collections4.CollectionUtils.isEmpty(param.getEdnNos())){
+			logger.warn("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList 企配单批次号不能为空 ,param=[{}]",JsonHelper.toJson(param));
+			response.setCode(JdResponse.CODE_FAIL);
+			response.setMessage("企配单批次号不能为空");
+			return  response;
+		}
+
+		DmsScheduleInfoCondition scheduleInfo = new DmsScheduleInfoCondition();
+		scheduleInfo.setScheduleBillCode(param.getScheduleBillCode());
+		PagerResult<DmsEdnPickingVo> pagerResult = dmsScheduleInfoDao.queryEdnPickingListByPagerCondition(scheduleInfo);
+		if(org.apache.commons.collections4.CollectionUtils.isEmpty(pagerResult.getRows())){
+			logger.warn("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList 调度单号不存在 ,param=[{}]",JsonHelper.toJson(param));
+			response.setCode(JdResponse.CODE_FAIL);
+			response.setMessage("调度单号不存在");
+			return  response;
+		}
+	 	return dmsScheduleInfoServiceManager.generatePdfUrlByBatchList(param);
 	}
 }

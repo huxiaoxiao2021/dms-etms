@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.schedule.controller;
 
 import java.util.List;
 
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchPdfDto;
+import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,5 +120,17 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	@RequestMapping(value = "/printEdnDeliveryReceipt/{scheduleBillCode}")
 	public @ResponseBody JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(@PathVariable("scheduleBillCode") String scheduleBillCode) {
 		return dmsScheduleInfoService.printEdnDeliveryReceipt(scheduleBillCode,this.getLoginUser());
+	}
+
+	/**
+	 *  批量打印
+	 * @param param
+	 * @return
+	 */
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@RequestMapping(value = "/generatePdfUrlByBatchList")
+	@ResponseBody
+	public JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(@RequestBody EdnDeliveryReceiptBatchRequest param){
+		 return dmsScheduleInfoService.generatePdfUrlByBatchList(param);
 	}
 }
