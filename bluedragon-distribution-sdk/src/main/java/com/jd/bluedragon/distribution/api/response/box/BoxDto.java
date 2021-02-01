@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.sdk.dto.box;
+package com.jd.bluedragon.distribution.api.response.box;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -53,7 +53,7 @@ public class BoxDto implements Serializable {
     /** 打印数量 */
     private Integer quantity;
 
-
+    /** 状态 '0' 新增 '1’打印完毕 */
     private Integer status;
 
     private String statuses;

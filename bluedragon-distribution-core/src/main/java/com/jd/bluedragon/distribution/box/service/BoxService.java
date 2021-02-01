@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.box.service;
 
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 
 import java.util.List;
 

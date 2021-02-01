@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.sdk.dto.box;
+package com.jd.bluedragon.distribution.api.request.box;
 
 import java.io.Serializable;
 import java.util.Date;
