@@ -130,7 +130,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
             if(sendResult.getInterceptCode()!= null && sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
                 JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
-                msgBox.setCode(sendResult.getKey());
+                msgBox.setCode(sendResult.getInterceptCode().intValue());
                 msgBox.setMsg(sendResult.getValue());
                 msgBox.setData(sendResult.getReceiveSiteCode());
                 jdVerifyResponse.addBox(msgBox);
