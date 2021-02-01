@@ -1127,6 +1127,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadScan.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
 
         LoadScanDto loadScanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(loadScan);
+        //若不存在数据,则提示未验货;若存在,则判断装车信息。装车信息在保存时有判断,此处不重复做判断了,后续需要将所有的判断前置在一起。
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
@@ -1163,7 +1164,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 if (baseSiteInfoDto != null) {
                     nextSiteName = baseSiteInfoDto.getSiteName();
                 }
-                msgBox.setMsg("错发！请核实！此包裹流向" + nextSiteName + "与发货流向不一致，请确认是否继续发货！");
+                msgBox.setMsg("错发！请核实！与发货流向不一致，请确认是否继续发货！" +"此包裹流向:" + nextSiteName);
             }
             msgBox.setType(MsgBoxTypeEnum.CONFIRM);
             response.addBox(msgBox);
@@ -1314,7 +1315,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 if (baseSiteInfoDto != null) {
                     nextSiteName = baseSiteInfoDto.getSiteName();
                 }
-                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号实时流向为" + nextSiteName + "与批次目的地不一致，请确认是否继续发货！";
+                msg = "大宗按单操作！此单共计" + packageNum + "件，请确认包裹集齐！\n" + "错发！请核实！运单号实时流向与批次目的地不一致，请确认是否继续发货！" +"当前流向为" + nextSiteName ;
             }
 
             msgBox.setMsg(msg);
