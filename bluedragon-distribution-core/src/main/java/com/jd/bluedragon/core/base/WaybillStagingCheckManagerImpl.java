@@ -34,7 +34,7 @@ public class WaybillStagingCheckManagerImpl implements WaybillStagingCheckManage
             req.setCurrentSiteCode(operateSiteCode);
             req.setPackageCode(packageCode);
             Result<Boolean> result = stagingServiceWS.stagingCheck(req);
-            if (null != result && Constants.STAGING_CHECK_SUCCESS_CODE.equals(result.getCode())) {
+            if (null != result && Constants.STAGING_CHECK_SUCCESS_CODE.equals(result.getCode()) && result.getData()) {
                 return true;
             }
         } catch (Exception e) {
