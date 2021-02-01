@@ -689,11 +689,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
             // 如果获取到收件人地址寄递码(receiveCustomerCode存在)，则转换为二维码替换左下角二维码链接内容，同时将原二维码文本“扫码寄快递”设置为空。
             if (waybillExt != null) {
+                this.log.info("根据waybill获取waybillExt，运单号：【{}】", waybill.getWaybillCode());
                 String receiveCustomerCode = waybillExt.getReceiveCustomerCode();
                 if (StringUtils.isNotBlank(receiveCustomerCode)) {
+                    this.log.info("根据waybillExt获取寄递码receiveCustomerCode：{}，运单号：【{}】", receiveCustomerCode, waybill.getWaybillCode());
                     target.setPopularizeMatrixCode(receiveCustomerCode);
                     target.setPopularizeMatrixCodeDesc("");
+                } else {
+                    this.log.warn("未获取到寄递码receiveCustomerCode，运单号：【{}】", waybill.getWaybillCode());
                 }
+            } else {
+                this.log.warn("未获取到waybillExt，运单号：【{}】", waybill.getWaybillCode());
             }
 
             //包裹有话说
