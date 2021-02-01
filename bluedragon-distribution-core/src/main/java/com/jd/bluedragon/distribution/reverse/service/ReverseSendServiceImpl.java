@@ -2355,7 +2355,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         reverseStockInDetail.setSendCode(sendDetail.getSendCode());
         reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
         //这种成功状态对方系统不提供常量 我们也没办法
-        if(orderResponse != null && orderResponse.getResCode() != EclpItemManager.ORDER_RESPONSE_SUCCESS){
+        if(orderResponse == null || orderResponse.getResCode() != EclpItemManager.ORDER_RESPONSE_SUCCESS){
             return reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.ERROR);
         }else{
             return reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.SUCCESS);
