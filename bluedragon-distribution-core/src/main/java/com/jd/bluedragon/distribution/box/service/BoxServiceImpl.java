@@ -16,7 +16,7 @@ import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
-import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -43,7 +43,6 @@ import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -480,7 +479,7 @@ public class BoxServiceImpl implements BoxService {
 		if (null == box){
 			throw new RuntimeException(String.format("没有此箱号{}", boxCode));
 		}
-		result = com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum.CLOSE.getStatus().equals(box.getStatus())
+		result = com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.CLOSE.getStatus().equals(box.getStatus())
 				&& OpBoxNodeEnum.SEND.equals(box.getCurrentNode()) ? Boolean.TRUE : Boolean.FALSE;// TODO: 2021/1/27 是否需要判断终端的状态
 		return result;
 	}

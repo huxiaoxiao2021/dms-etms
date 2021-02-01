@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.sdk.constants;
+package com.jd.bluedragon.distribution.external.constants;
 
 /**
  * 操作箱节点枚举值

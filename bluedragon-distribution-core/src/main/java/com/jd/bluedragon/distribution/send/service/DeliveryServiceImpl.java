@@ -40,7 +40,6 @@ import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -48,7 +47,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -2092,7 +2092,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //参数构建
         BoxReq boxReq = new BoxReq();
         boxReq.setBoxCode(tSendM.getBoxCode());
-        boxReq.setBoxStatus(com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum.OPEN.getStatus());
+        boxReq.setBoxStatus(BoxStatusEnum.OPEN.getStatus());
         boxReq.setOpNodeCode(OpBoxNodeEnum.CANCELSEND.getNodeCode());
         boxReq.setOpNodeName(OpBoxNodeEnum.CANCELSEND.getNodeName());
         boxReq.setOpSiteCode(tSendM.getCreateSiteCode());

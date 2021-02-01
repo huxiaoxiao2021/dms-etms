@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.sdk.constants;
+package com.jd.bluedragon.distribution.external.constants;
 
 public enum BoxStatusEnum {
     OPEN(1,"可以使用"),

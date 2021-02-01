@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.send.manager.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
@@ -69,7 +70,7 @@ public class SendMManagerImpl implements SendMManager {
         //构造参数
         BoxReq boxReq = new BoxReq();
         boxReq.setBoxCode(sendM.getBoxCode());
-        boxReq.setBoxStatus(com.jd.bluedragon.distribution.external.sdk.constants.BoxStatusEnum.CLOSE.getStatus());
+        boxReq.setBoxStatus(BoxStatusEnum.CLOSE.getStatus());
         boxReq.setOpNodeCode(OpBoxNodeEnum.SEND.getNodeCode());
         boxReq.setOpNodeName(OpBoxNodeEnum.SEND.getNodeName());
         boxReq.setOpSiteCode(sendM.getCreateSiteCode());
