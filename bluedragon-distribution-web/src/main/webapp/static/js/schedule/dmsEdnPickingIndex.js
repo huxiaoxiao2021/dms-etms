@@ -358,8 +358,8 @@ function printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums){
 		JSON.stringify(param),
 		function(data){
 			if (data.code == 200) {
-				if(data.pdfUrl) {
-					window.open(data.pdfUrl);
+				if(data.data.pdfUrl) {
+					window.open(data.data.pdfUrl);
 				} else {
 					alert(data.message);
 				}
