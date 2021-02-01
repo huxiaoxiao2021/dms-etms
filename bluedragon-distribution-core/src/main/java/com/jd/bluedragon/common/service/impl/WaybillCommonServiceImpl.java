@@ -559,7 +559,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
                 List<Goods> goodses = baseEntity.getData().getGoodsList();
                 if (goodses == null || goodses.size() == 0) {
-                    this.log.warn("调用运单接口获得商品明细数据为空");
+                    this.log.warn("调用运单接口获得商品明细数据为空, waybill:{}", waybillCode);
                 }
                 if(goodses != null && !goodses.isEmpty()){
                     for (Goods goods : goodses) {
