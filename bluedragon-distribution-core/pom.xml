@@ -1566,11 +1566,11 @@
             <artifactId>bluedragon-distribution-external-sdk</artifactId>
         </dependency>
 
-<!--		<dependency>-->
-<!--			<groupId>com.jd.merchant</groupId>-->
-<!--			<artifactId>platform-api</artifactId>-->
-<!--			<version>1.0.0-TEST-SNAPSHOT</version>-->
-<!--		</dependency>-->
+		<dependency>
+			<groupId>com.jd.merchant</groupId>
+			<artifactId>platform-api</artifactId>
+			<version>1.0.1-TEST-SNAPSHOT</version>
+		</dependency>
 
 	</dependencies>
 

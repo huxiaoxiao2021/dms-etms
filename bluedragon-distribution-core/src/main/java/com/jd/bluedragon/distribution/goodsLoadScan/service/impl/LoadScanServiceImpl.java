@@ -41,6 +41,9 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.merchant.api.common.dto.ResponseResult;
+import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
+import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -125,8 +128,8 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
-//    @Resource
-//    private StagingServiceWS stagingServiceWS;
+    @Resource
+    private StagingServiceWS stagingServiceWS;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -903,7 +906,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param updateRecords 修改的包裹集合
      */
     private void handlePackagesOfBulk(List<String> packages, LoadCar loadCar, String boardCode, GoodsLoadingScanningReq req,
-                                       List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
+                                      List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
         User user = req.getUser();
         Long taskId = loadCar.getId();
         Integer transfer = req.getTransfer();
@@ -1386,8 +1389,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED)
     public JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
-                                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord,
-                                                     User user, LoadCar loadCar) {
+                                                    Integer goodsAmount, Integer transfer, Integer flowDisAccord,
+                                                    User user, LoadCar loadCar) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.LoadScanServiceImpl.saveLoadScanByPackCode", false, true);
         JdCResponse<Void> response = new JdCResponse<>();
         if (log.isDebugEnabled()) {
@@ -1679,7 +1682,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     private List<LoadScanDto> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map,
-                                         Map<String, LoadScanDto> flowDisAccordMap) {
+                                              Map<String, LoadScanDto> flowDisAccordMap) {
         List<LoadScanDto> list = new ArrayList<>();
         LoadScanDto scanDto;
         for (GoodsLoadScan scan : scans) {
@@ -1896,19 +1899,19 @@ public class LoadScanServiceImpl implements LoadScanService {
         List<String> list = new ArrayList<>();
         list.add(barCode);
         try {
-//            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
-//            if (result == null) {
-//                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
-//                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
-//                return jdCResponse;
-//            }
-//            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
-//                jdCResponse.toSuccess();
-//                return jdCResponse;
-//            }
-//            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
-//                    creatSiteId, result.getCode(), result.getMessage());
-//            jdCResponse.toFail(result.getMessage());
+            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
+            if (result == null) {
+                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
+                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
+                return jdCResponse;
+            }
+            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
+                jdCResponse.toSuccess();
+                return jdCResponse;
+            }
+            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
+                    creatSiteId, result.getCode(), result.getMessage());
+            jdCResponse.toFail(result.getMessage());
             return jdCResponse;
         } catch (Exception e) {
             log.error("根据包裹号或运单号判断是否可发货发生异常：barCode={},creatSiteId={},error=", barCode, creatSiteId, e);
