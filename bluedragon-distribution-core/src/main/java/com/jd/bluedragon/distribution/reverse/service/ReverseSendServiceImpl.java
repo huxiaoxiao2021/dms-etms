@@ -99,7 +99,7 @@ import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -117,7 +117,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
 
-    private final Logger log = LoggerFactory.getLogger(ReverseSendServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ReverseSendServiceImpl.class);
 
     @Autowired
     private LogEngine logEngine;
@@ -267,7 +267,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     try {
                         siteCode = Integer.valueOf(siteCodeRaw.trim());
                     } catch (Exception e) {
-                        // do nothing
+                        log.warn("initAsionNoOneSiteCodeList异常！siteCode:{}", siteCode, e);
                     }
                     if (siteCode != null) {
                         ASION_NO_ONE_SITE_CODE_LIST.add(siteCode);
@@ -1854,7 +1854,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private void sendReportLoss(String orderId, Integer receiveType, Integer createSiteCode, Integer receiveSiteCode) {
 
         //判断收货类型，非大库、备件库直接返回
-        if (receiveType != RECEIVE_TYPE_WMS && receiveType != RECEIVE_TYPE_SPARE) return;
+        if (! RECEIVE_TYPE_WMS.equals(receiveType) && ! RECEIVE_TYPE_SPARE.equals(receiveType)) return;
 
         ReverseReceiveLoss reverseReceiveLoss = new ReverseReceiveLoss();
         try {
@@ -2315,10 +2315,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     //更新上次记录状态 更新至取消成功状态
                     ReverseStockInDetail updateReverseStockInDetail = new ReverseStockInDetail();
                     updateReverseStockInDetail.setExternalCode(reverseStockInDetail.getExternalCode());
-                    reverseStockInDetail.setWaybillCode(reverseStockInDetail.getWaybillCode());
-                    reverseStockInDetail.setSendCode(reverseStockInDetail.getSendCode());
-                    reverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
-                    if(!reverseStockInDetailService.updateStatus(reverseStockInDetail,ReverseStockInDetailStatusEnum.CANCEL)){
+                    updateReverseStockInDetail.setWaybillCode(reverseStockInDetail.getWaybillCode());
+                    updateReverseStockInDetail.setSendCode(reverseStockInDetail.getSendCode());
+                    updateReverseStockInDetail.setBusiType(ReverseStockInDetailTypeEnum.C2C_REVERSE_SPWMS.getCode());
+                    if(!reverseStockInDetailService.updateStatus(updateReverseStockInDetail,ReverseStockInDetailStatusEnum.CANCEL)){
                         log.error("ECLP退备件库更新入库单记录失败-更新上次取消状态：{}|{}",reverseStockInDetail.getWaybillCode(),reverseStockInDetail.getSendCode());
                         return false;
                     }

@@ -9,7 +9,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,7 +186,7 @@ public class BusinessHelper {
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
                     && BusinessUtil.isSignChar(waybillSign, 25, '2')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -217,7 +217,7 @@ public class BusinessHelper {
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
                     && BusinessUtil.isSignChar(waybillSign, 25, '3')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -677,7 +677,7 @@ public class BusinessHelper {
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
                     && BusinessUtil.isSignChar(waybillSign, 25, '2')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return true;
             }
         }
@@ -695,7 +695,7 @@ public class BusinessHelper {
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
                     && BusinessUtil.isSignChar(waybillSign, 25, '3')
-                    && !reverseB2bNoInterceptFreight(waybillSign)) {
+                    && !reverseB2bNoInterceptFreight(waybillSign) && !BusinessUtil.isFYWZ(waybillSign)) {
                 return true;
             }
         }
@@ -889,9 +889,31 @@ public class BusinessHelper {
     public static Integer getSpotCheckTypeBorC(String waybillSign){
         //0:C网    1:B网
         if(BusinessUtil.isCInternet(waybillSign)){
-            return 0;//C网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode();//C网
         }else {
-            return 1;//B网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode();//B网
+        }
+    }
+
+    /**
+     * 转化逻辑
+     * 分拣与下游 B/C网标识  相反
+     * 分拣 spotType 0:C网  1：B网  2:c抽b的特殊值
+     * 下游 businessType 1:C网  2:B网
+     * 如果
+     * @param spotCheckType
+     * @return
+     */
+    public static Integer  translateSpotCheckTypeToBusinessType(Integer spotCheckType) {
+        if (spotCheckType == null) {
+            return 1;
+        }
+        //下发下有是C网
+        if(spotCheckType.equals(0)){
+            return 1;
+            //下发下有是B网
+        }else {
+            return 2;
         }
     }
 }

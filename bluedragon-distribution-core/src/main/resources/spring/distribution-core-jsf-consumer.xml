@@ -654,4 +654,9 @@
     <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
+
+    <!--众邮箱服务-->
+    <jsf:consumer id="boxOperateApi" interface="com.zhongyouex.order.api.box.BoxOperateApi"
+                  protocol="jsf" alias="${jsf.zhongyouex.alias}" timeout="${jsf.zhongyouex.timeout}" >
+    </jsf:consumer>
 </beans>

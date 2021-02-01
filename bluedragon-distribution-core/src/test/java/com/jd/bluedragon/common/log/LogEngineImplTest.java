@@ -12,7 +12,7 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

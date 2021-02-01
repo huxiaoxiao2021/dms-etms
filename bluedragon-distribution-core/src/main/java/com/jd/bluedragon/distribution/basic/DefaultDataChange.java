@@ -31,7 +31,7 @@ public class DefaultDataChange implements DataChange {
 					ret = DATEFORMAT.parse(val);
 				}
 			} else if (this.isLong(field)) {
-				ret = val == null?0l:this.getDouble(val, field, columnIndex).longValue();
+				ret = val == null?0L:this.getDouble(val, field, columnIndex).longValue();
 			} else if (this.isInteger(field)) {
 				ret = val == null?0:this.getDouble(val, field, columnIndex).intValue();
 			} else if (this.isDouble(field)) {

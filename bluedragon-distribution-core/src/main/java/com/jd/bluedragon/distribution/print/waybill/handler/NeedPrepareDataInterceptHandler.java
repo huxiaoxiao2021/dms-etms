@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 
-public abstract class NeedPrepareDataInterceptHandler <T,R>  implements Handler<T, InterceptResult<R>> {
+public abstract class NeedPrepareDataInterceptHandler <T,R>  implements InterceptHandler<T, R> {
 
     /**
      * 准备需要的数据,

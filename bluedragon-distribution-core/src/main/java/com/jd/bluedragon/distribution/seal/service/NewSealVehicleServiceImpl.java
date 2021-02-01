@@ -44,7 +44,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;

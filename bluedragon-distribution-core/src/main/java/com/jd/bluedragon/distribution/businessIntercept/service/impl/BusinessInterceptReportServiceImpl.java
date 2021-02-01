@@ -6,7 +6,7 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;

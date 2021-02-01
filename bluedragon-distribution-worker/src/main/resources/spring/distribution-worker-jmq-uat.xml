@@ -214,6 +214,14 @@
     <!--tms线路数据消费-->
     <jmq:consumer id="jmq.tmsVehicleRouteStatusConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.tmsVehicleRouteStatus}" listener="tmsVehicleRouteStatusConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+    <!--经济网按箱称重分页消息监听-->
+    <jmq:consumer id="jmq.economicNetBoxSplitWeightConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.economicNet.box.split.weight}" listener="economicNetBoxSplitWeightConsumer"/>
+    </jmq:consumer>
+    <!--统一称重量方消息监听-->
+    <jmq:consumer id="jmq.dmsWeightVolumeFlowConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dms.weight.volume.flow}" listener="dmsWeightVolumeFlowConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -35,7 +35,7 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.ChuguanParam;

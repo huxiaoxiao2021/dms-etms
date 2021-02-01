@@ -17,7 +17,7 @@ import com.jd.bluedragon.distribution.financialForKA.domain.WaybillCodeCheckDto;
 import com.jd.bluedragon.distribution.financialForKA.service.WaybillCodeCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -170,7 +170,7 @@ public class WaybillCodeCheckServiceImpl implements WaybillCodeCheckService {
                 body.add(detail.getBusiName());
                 body.add(detail.getOperateSiteCode());
                 body.add(detail.getOperateSiteName());
-                body.add(detail.getCheckResult() == null ? FAIL_RESULT : (detail.getCheckResult() == SUCCESS_RESULT_NUM ? SUCCESS_RESULT : FAIL_RESULT));
+                body.add(detail.getCheckResult() == null ? FAIL_RESULT : (SUCCESS_RESULT_NUM.equals(detail.getCheckResult()) ? SUCCESS_RESULT : FAIL_RESULT));
                 body.add(detail.getOperateErp());
                 body.add(detail.getOperateTime() == null ? null : DateHelper.formatDate(detail.getOperateTime(), Constants.DATE_TIME_FORMAT));
                 resList.add(body);

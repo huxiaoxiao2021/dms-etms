@@ -9,8 +9,6 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
-import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
-import com.jd.eclp.core.ApiResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -22,12 +20,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -345,6 +338,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         wChoice.setQueryPackList(Boolean.TRUE);
         wChoice.setQueryWaybillExtend(Boolean.TRUE);
         wChoice.setQueryWaybillP(Boolean.TRUE);
+        wChoice.setQueryWaybillVas(Boolean.TRUE);
         return this.getDataByChoice(waybillCode, wChoice);
     }
 
@@ -746,4 +740,18 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return result;
 	}
+
+
+    /**
+     * 获取运单的附属信息
+     * 附件、图片等，需根据对应附件类型查询
+     * @param waybill
+     * @param attachmentType
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillAttachmentByWaybillCodeAndType" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill, Integer attachmentType){
+        return waybillQueryApi.getWaybillAttachmentByWaybillCodeAndType(waybill,attachmentType);
+    }
 }

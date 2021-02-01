@@ -533,12 +533,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 log.warn(rest.getMessage());
                 return rest;
             }
-            if (abnormalUnknownWaybill.getOrderNumber() == AbnormalUnknownWaybill.ORDERNUMBER_0) {
+            if (AbnormalUnknownWaybill.ORDERNUMBER_0.equals(abnormalUnknownWaybill.getOrderNumber())) {
                 rest.toFail(waybillCode + "已由系统回复，不允许上报");
                 log.warn(rest.getMessage());
                 return rest;
             }
-            if (abnormalUnknownWaybill.getIsReceipt() == AbnormalUnknownWaybill.ISRECEIPT_NO) {
+            if (AbnormalUnknownWaybill.ISRECEIPT_NO.equals(abnormalUnknownWaybill.getIsReceipt())) {
                 rest.toFail(waybillCode + "第" + abnormalUnknownWaybill.getOrderNumber() + "次上报还未回复，不允许再次上报");
                 log.warn(rest.getMessage());
                 return rest;

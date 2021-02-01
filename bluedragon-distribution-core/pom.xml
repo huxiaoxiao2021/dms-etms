@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.3.1</jmq.version>
-		<etms.waybill.agent.version>4.2.185</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.199</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.16-SNAPSHOT</version>
+			<version>1.1.18-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -203,7 +203,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.5.5-SNAPSHOT</version>
+			<version>1.5.6-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -213,7 +213,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.3.1-SNAPSHOT</version>
+			<version>1.3.5-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -230,7 +230,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.2.3-SNAPSHOT</version>
+            <version>1.2.6-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -771,10 +771,11 @@
 			<artifactId>tms-tfc-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
 		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>
-            <version>1.0.6.6-SNAPSHOT</version>
+            <version>1.0.7.5-SNAPSHOT</version>
         </dependency>
 
 <!-- 		<dependency>
@@ -798,12 +799,6 @@
             <artifactId>receiver-rpc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
-		<dependency>
-	        <groupId>com.jd.etms.vts</groupId>
-			<artifactId>etms-vts-client</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
 
 		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
@@ -1444,6 +1439,10 @@
 					<groupId>com.fasterxml.jackson.dataformat</groupId>
 				</exclusion>
 				<exclusion>
+					<artifactId>tms-basic-client</artifactId>
+					<groupId>com.jd.tms.basic</groupId>
+				</exclusion>
+                <exclusion>
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
@@ -1479,6 +1478,7 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-api</artifactId>
 		</dependency>
+
 		<dependency>
 			<artifactId>dms-ver-sdk</artifactId>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1564,6 +1564,13 @@
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-external-sdk</artifactId>
         </dependency>
+
+		<dependency>
+			<groupId>com.zhongyouex.order</groupId>
+			<artifactId>zhongyouex-order-api</artifactId>
+			<version>1.0.35-SNAPSHOT</version>
+		</dependency>
+
 
 	</dependencies>
 

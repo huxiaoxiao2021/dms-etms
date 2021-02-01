@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
+import com.jd.etms.framework.utils.JsonUtils;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -240,6 +241,7 @@ public class JsonHelper {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
+            log.warn("isJson异常！json:{}", json, e);
         }
         
         return Boolean.FALSE;
