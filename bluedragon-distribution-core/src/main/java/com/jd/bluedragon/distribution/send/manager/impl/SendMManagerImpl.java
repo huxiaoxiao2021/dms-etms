@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.send.manager.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
-import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
@@ -76,7 +76,7 @@ public class SendMManagerImpl implements SendMManager {
         boxReq.setOpSiteName("");
         boxReq.setOpErp(sendM.getCreateUser());
         boxReq.setOpTime(new Date());
-        boxReq.setOpDescription(String.format("{}操作发货，关闭此箱号{}的箱子", sendM.getCreateUser(),sendM.getBoxCode()));
+        boxReq.setOpDescription(String.format("%s操作发货，关闭此箱号%s的箱子", sendM.getCreateUser(),sendM.getBoxCode()));
         //更新逻辑
         boxService.updateBoxStatus(boxReq);
     }

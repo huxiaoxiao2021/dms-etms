@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -48,7 +49,6 @@ import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.external.sdk.constants.OpBoxNodeEnum;
-import com.jd.bluedragon.distribution.external.sdk.dto.box.BoxReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -2099,7 +2099,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         boxReq.setOpSiteName("");
         boxReq.setOpErp(tSendM.getCreateUser());
         boxReq.setOpTime(tSendM.getExcuteTime());// TODO: 2021/1/27 确认这个时间是否正确
-        boxReq.setOpDescription(String.format("{}操作取消发货，打开此箱号{}的箱子", tSendM.getCreateUser(),tSendM.getBoxCode()));
+        boxReq.setOpDescription(String.format("%s操作取消发货，打开此箱号%s的箱子", tSendM.getCreateUser(),tSendM.getBoxCode()));
         //修改箱状态
         boxService.updateBoxStatus(boxReq);
     }
