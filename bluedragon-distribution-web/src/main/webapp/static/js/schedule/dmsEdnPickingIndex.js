@@ -328,9 +328,9 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
 function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 	// 批量打印配送单
     // 获取明细
-    var queryDUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
+    var queryUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
 	var param = {};
-    $.ajaxHelper.doPostSync(queryDUrl,
+    $.ajaxHelper.doPostSync(queryUrl,
 		JSON.stringify(param),
 		function(data){
 			var ednBatchNums = []
@@ -342,12 +342,32 @@ function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 					var pojo = data.data[i];
 					ednBatchNums.push(pojo.ednBatchNum);
 				}
+				this.printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums)
 			} else {
 				alert(data.message);
 			}
 		}
 	);
     event.stopPropagation();
+}
+// 开始批量打印
+function printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums){
+	var printBatchUrl = 'schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
+	var param = {ednNos: ednBatchNums, scheduleBillCode: scheduleBillCode};
+    $.ajaxHelper.doPostSync(printBatchUrl,
+		JSON.stringify(param),
+		function(data){
+			if (data.code == 200) {
+				if(data.pdfUrl) {
+					window.open(data.pdfUrl);
+				} else {
+					alert(data.message);
+				}
+			} else {
+				alert(data.message);
+			}
+		}
+	);
 }
 function showView(scheduleBillCode,event){
     //获取明细
