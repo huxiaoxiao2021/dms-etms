@@ -14,8 +14,8 @@ public class MD5Hash implements Hashing {
 			try {
 				return MessageDigest.getInstance("MD5");
 			} catch (NoSuchAlgorithmException e) {
+				throw new IllegalStateException("MD5 Algorithm is not found");
 			}
-			throw new IllegalStateException("MD5 Algorithm is not found");
 		}
 	};
 

@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.operateMonitor.domain;
 import java.util.Date;
 
 public class OperateMonitor  implements java.io.Serializable {
-    private static final long serialVersionUID = -1l;
+    private static final long serialVersionUID = -1L;
 
     /** 包裹号 */
     private String packageCode;

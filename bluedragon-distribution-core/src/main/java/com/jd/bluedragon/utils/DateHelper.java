@@ -208,7 +208,7 @@ public class DateHelper {
         source = 1473824030L;
         target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
-        System.out.println(daysBetween(new Date(1570104779000l),new Date()));
+        System.out.println(daysBetween(new Date(1570104779000L),new Date()));
 
     }
 

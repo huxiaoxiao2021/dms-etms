@@ -175,7 +175,7 @@ public class AbnormalOrderResource {
 		for (String waybillCode:waybillCodeArr){
 			request.setOrderId(waybillCode);
 			AbnormalOrderResponse responseOne=pushAbnormalOrder(request);
-			if(responseOne.getCode()!=JdResponse.CODE_OK){
+			if(JdResponse.CODE_OK.equals(responseOne.getCode())){
 				//如果有失败的
 				response.setCode(responseOne.getCode());
 				if (response.getMessage()==null){

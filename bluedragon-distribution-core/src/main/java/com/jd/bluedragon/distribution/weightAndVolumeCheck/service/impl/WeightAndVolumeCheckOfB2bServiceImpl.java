@@ -531,13 +531,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         abnormalResultMq.setSource(SystemEnum.DMS.getCode());
         abnormalResultMq.setDutyErp(dto.getBillingErp());
         if(abnormalResultMq.getDutyType() != null){
-            if(abnormalResultMq.getDutyType()==DutyTypeEnum.DMS.getCode()
-                    || abnormalResultMq.getDutyType()==DutyTypeEnum.FLEET.getCode()
-                    || (abnormalResultMq.getDutyType()==DutyTypeEnum.SITE.getCode()
+            if(DutyTypeEnum.DMS.getCode().equals(abnormalResultMq.getDutyType())
+                    || DutyTypeEnum.FLEET.getCode().equals(abnormalResultMq.getDutyType())
+                    || (DutyTypeEnum.SITE.getCode().equals(abnormalResultMq.getDutyType())
                     &&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
                 //责任为分拣或车队或站点无erp
                 abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
-            }else if(abnormalResultMq.getDutyType()==DutyTypeEnum.SITE.getCode()
+            }else if(DutyTypeEnum.SITE.getCode().equals(abnormalResultMq.getDutyType())
                     && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
                 //责任为站点有erp
                 StringBuilder to = new StringBuilder();

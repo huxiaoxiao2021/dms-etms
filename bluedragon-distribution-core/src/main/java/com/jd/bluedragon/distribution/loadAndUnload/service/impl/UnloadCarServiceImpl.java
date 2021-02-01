@@ -1201,18 +1201,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             String key = CacheKeyConstants.REDIS_PREFIX_BOARD_PACK + boardCode + Constants.SEPARATOR_HYPHEN + packageCode;
             scanIsSuccessStr = redisClientCache.get(key);
+            scanIsSuccess = Boolean.parseBoolean(scanIsSuccessStr);
         }catch (Exception e){
             logger.error("获取缓存【{}】异常","",e);
         }
-        if(StringUtils.isEmpty(scanIsSuccessStr)){
-            // 包裹未扫描
-            scanIsSuccess = false;
-        }
-        try {
-            scanIsSuccess = Boolean.valueOf(scanIsSuccessStr);
-        }catch (Exception e){
-            logger.warn("组板【{}】包裹【{}】缓存转换异常",boardCode,packageCode);
-        }
+
         if(scanIsSuccess){
             // 包裹已扫描组板成功则提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,packageCode,boardCode));
