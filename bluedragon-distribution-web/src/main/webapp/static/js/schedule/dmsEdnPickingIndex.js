@@ -328,19 +328,19 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
 function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 	// 批量打印配送单
     // 获取明细
-    var queryUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
+	var queryUrl = '/schedule/dmsScheduleInfo/queryEdnPickingVo/'+scheduleBillCode;
 	var param = {};
     $.ajaxHelper.doPostSync(queryUrl,
 		JSON.stringify(param),
 		function(data){
 			var ednBatchNums = []
 			if (data.code == 200) {
-				if (data.data.length == 0) {
+				if(data.data.dmsScheduleInfoList.length == 0){
 					alert('未获取到明细数据')
 				}
-				for(var i = 0 ; i<data.data.length ; i++ ){
-					var pojo = data.data[i];
-					ednBatchNums.push(pojo.ednBatchNum);
+				for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
+					var pojo = data.data.dmsScheduleInfoList[i];
+					ednBatchNums.push(pojo.businessBatchCode);
 				}
 				this.printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums)
 			} else {
