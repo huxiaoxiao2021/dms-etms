@@ -687,6 +687,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_DEFAULT);
 
+            // 如果获取到收件人地址寄递码(receiveAdderesssCode存在)，则转换为二维码替换左下角二维码链接内容，同时将原二维码文本“扫码寄快递”设置为空。
+            if (waybillExt != null) {
+                String receiveAddressCode = waybillExt.getReceiveAddressCode();
+                if (StringUtils.isNotBlank(receiveAddressCode)) {
+                    target.setPopularizeMatrixCode(receiveAddressCode);
+                    target.setPopularizeMatrixCodeDesc("");
+                }
+            }
+
             //包裹有话说
             if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,WaybillVasConstant.packageSay)){
                 BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
