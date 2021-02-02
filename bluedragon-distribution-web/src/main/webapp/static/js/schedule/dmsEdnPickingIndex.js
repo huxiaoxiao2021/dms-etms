@@ -328,19 +328,20 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
 function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 	// 批量打印配送单
     // 获取明细
-    var queryUrl = '/schedule/dmsScheduleInfo/printEdnDeliveryReceipt/'+scheduleBillCode;
+	var queryUrl = '/schedule/dmsScheduleInfo/queryEdnPickingVo/'+scheduleBillCode;
 	var param = {};
     $.ajaxHelper.doPostSync(queryUrl,
 		JSON.stringify(param),
 		function(data){
 			var ednBatchNums = []
 			if (data.code == 200) {
-				if (data.data.length == 0) {
+				if(data.data==null||data.data.dmsScheduleInfoList==null||data.data.dmsScheduleInfoList.length == 0){
 					alert('未获取到明细数据')
+					return;
 				}
-				for(var i = 0 ; i<data.data.length ; i++ ){
-					var pojo = data.data[i];
-					ednBatchNums.push(pojo.ednBatchNum);
+				for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
+					var pojo = data.data.dmsScheduleInfoList[i];
+					ednBatchNums.push(pojo.businessBatchCode);
 				}
 				this.printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums)
 			} else {
@@ -352,7 +353,7 @@ function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 }
 // 开始批量打印
 function printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums){
-	var printBatchUrl = 'schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
+	var printBatchUrl = '/schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
 	var param = {ednNos: ednBatchNums, scheduleBillCode: scheduleBillCode};
     $.ajaxHelper.doPostSync(printBatchUrl,
 		JSON.stringify(param),
