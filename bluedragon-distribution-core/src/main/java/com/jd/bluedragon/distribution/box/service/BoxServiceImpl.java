@@ -62,7 +62,7 @@ public class BoxServiceImpl implements BoxService {
 
 	public static final String prefixOfLock = "DMS_BOX_SERVICE_LOCK_";
 
-	public static final Integer LOCK_TTL = 60;
+	public static final Integer LOCK_TTL = 2;
 
     @Autowired
     private BoxDao boxDao;
@@ -346,6 +346,7 @@ public class BoxServiceImpl implements BoxService {
 				return box;
 			}
 			box = JsonHelper.fromJson(boxJson, Box.class);
+			return box;
 		} catch (Exception e) {
 			this.log.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , boxCode, e);
 		}
@@ -517,6 +518,7 @@ public class BoxServiceImpl implements BoxService {
 	 * @return
 	 */
 	@Override
+	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatus", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Boolean updateBoxStatus(BoxReq boxReq) {
 		Boolean result = Boolean.FALSE;
 		try{
@@ -528,10 +530,6 @@ public class BoxServiceImpl implements BoxService {
 			boxSaved.setLastNodeType(boxReq.getOpNodeCode());
 			try{
 				if (lock(boxReq.getBoxCode())){
-					Boolean isCatched = jimdbCacheService.setEx(getCacheKey(boxReq.getBoxCode()),JsonHelper.toJson(boxSaved), timeout);
-					if (!isCatched){
-						throw new RuntimeException(String.format("{}更新此箱号缓存状态失败！", boxReq.getBoxCode()));
-					}
 					//更新数据库状态
 					Box box = new Box();
 					box.setCode(boxReq.getBoxCode());
@@ -545,6 +543,8 @@ public class BoxServiceImpl implements BoxService {
 			}finally {
 				unLock(boxReq.getBoxCode());
 			}
+			//删除缓存
+			delboxCodeCache(boxReq.getBoxCode());
 			//记录流水
 			changeBoxStatusLogProducer.sendOnFailPersistent(boxReq.getBoxCode(),JsonHelper.toJson(boxReq));
 			result = Boolean.TRUE;
