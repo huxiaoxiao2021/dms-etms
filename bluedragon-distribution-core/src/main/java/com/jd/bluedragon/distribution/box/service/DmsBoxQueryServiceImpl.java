@@ -3,12 +3,15 @@ package com.jd.bluedragon.distribution.box.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.response.box.BoxDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,5 +63,28 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
         response.setData(Boolean.FALSE);
         response.setMessage(String.format("箱号始发网点【%s】不是众邮类型网点！",startSite.getSiteName()));
         return response;
+    }
+
+    /**
+     * 根据箱号查询箱信息
+     * @param boxCode
+     * @return
+     */
+    @Override
+    public BoxDto getBoxByBoxCode(String boxCode) {
+        Box box = boxService.findBoxByCode(boxCode);
+        BoxDto result = new BoxDto();
+        BeanUtils.copyProperties(box,result);
+        return result;
+    }
+
+    /**
+     * 更新箱状态；状态有：可用，不可用
+     * @param boxReq
+     * @return
+     */
+    @Override
+    public Boolean updateBoxStatus(BoxReq boxReq) {
+        return boxService.updateBoxStatus(boxReq);
     }
 }

@@ -35,27 +35,4 @@ public class DmsBoxServiceImpl implements DmsBoxService {
         return boxResource.get(boxCode);
     }
 
-
-    /**
-     * 根据箱号查询箱信息
-     * @param boxCode
-     * @return
-     */
-    @Override
-    public BoxDto getBoxByBoxCode(String boxCode) {
-        Box box = boxService.findBoxByCode(boxCode);
-        BoxDto result = new BoxDto();
-        BeanUtils.copyProperties(box,result);
-        return result;
-    }
-
-    /**
-     * 更新箱状态；状态有：可用，不可用
-     * @param boxReq
-     * @return
-     */
-    @Override
-    public Boolean updateBoxStatus(BoxReq boxReq) {
-        return boxService.updateBoxStatus(boxReq);
-    }
 }

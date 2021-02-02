@@ -76,7 +76,7 @@ public class SendMManagerImpl implements SendMManager {
         boxReq.setOpSiteCode(sendM.getCreateSiteCode());
         boxReq.setOpSiteName("");
         boxReq.setOpErp(sendM.getCreateUser());
-        boxReq.setOpTime(new Date());
+        boxReq.setOpTime(sendM.getOperateTime());
         boxReq.setOpDescription(String.format("%s操作发货，关闭此箱号%s的箱子", sendM.getCreateUser(),sendM.getBoxCode()));
         //更新逻辑
         boxService.updateBoxStatus(boxReq);

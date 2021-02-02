@@ -21,18 +21,4 @@ public interface DmsBoxService {
      */
     BoxResponse get(String boxCode);
 
-
-    /**
-     * 根据箱号查询箱信息
-     * @param boxCode
-     * @return
-     */
-    BoxDto getBoxByBoxCode(String boxCode);
-
-    /**
-     * 更新箱状态；状态有：可用，不可用
-     * @param boxReq
-     * @return
-     */
-    Boolean updateBoxStatus(BoxReq boxReq);
 }

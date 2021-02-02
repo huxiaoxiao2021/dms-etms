@@ -2098,7 +2098,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         boxReq.setOpSiteCode(tSendM.getCreateSiteCode());
         boxReq.setOpSiteName("");
         boxReq.setOpErp(tSendM.getCreateUser());
-        boxReq.setOpTime(tSendM.getExcuteTime());// TODO: 2021/1/27 确认这个时间是否正确
+        boxReq.setOpTime(tSendM.getOperateTime());
         boxReq.setOpDescription(String.format("%s操作取消发货，打开此箱号%s的箱子", tSendM.getCreateUser(),tSendM.getBoxCode()));
         //修改箱状态
         boxService.updateBoxStatus(boxReq);

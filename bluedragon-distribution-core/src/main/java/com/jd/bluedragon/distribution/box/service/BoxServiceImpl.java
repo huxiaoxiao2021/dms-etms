@@ -43,6 +43,7 @@ import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -58,6 +59,10 @@ public class BoxServiceImpl implements BoxService {
     private static final String BOX_STATUS_REDIS_QUERY_SWITCH = PropertiesHelper.newInstance().getValue("box.status.redis.query.switch");
 
     private static final String prefixOfCache = "DMS_BOX_SERVICE_";
+
+	public static final String prefixOfLock = "DMS_BOX_SERVICE_LOCK_";
+
+	public static final Integer LOCK_TTL = 60;
 
     @Autowired
     private BoxDao boxDao;
@@ -92,13 +97,12 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
 
-
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
         //持久化
 		Integer result = this.boxDao.add(BoxDao.namespace, box);
         //缓存
-		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);// TODO: 2021/1/26 增加前缀表示
+		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
 		if (!isCatched){
 			log.warn("box cache fail. the boxCode is " + box.getCode());
 		}
@@ -477,10 +481,10 @@ public class BoxServiceImpl implements BoxService {
 		//获取箱状态信息
 		Box box = this.findBoxByCode(boxCode);
 		if (null == box){
-			throw new RuntimeException(String.format("没有此箱号{}", boxCode));
+			return Boolean.FALSE;
 		}
 		result = com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.CLOSE.getStatus().equals(box.getStatus())
-				&& OpBoxNodeEnum.SEND.equals(box.getCurrentNode()) ? Boolean.TRUE : Boolean.FALSE;// TODO: 2021/1/27 是否需要判断终端的状态
+				&& OpBoxNodeEnum.SEND.equals(box.getLastNodeType()) ? Boolean.TRUE : Boolean.FALSE;
 		return result;
 	}
 
@@ -518,27 +522,73 @@ public class BoxServiceImpl implements BoxService {
 		try{
 			Box boxSaved = findBoxByCode(boxReq.getBoxCode());
 			if (null == boxSaved){
-				throw new RuntimeException(String.format("{}不存在此箱号！", boxReq.getBoxCode()));
+				return Boolean.FALSE;
 			}
 			boxSaved.setStatus(boxReq.getBoxStatus());
-			boxSaved.setCurrentNode(boxReq.getOpNodeCode());
-			Boolean isCatched = jimdbCacheService.setEx(getCacheKey(boxReq.getBoxCode()),JsonHelper.toJson(boxSaved), timeout);
-			if (!isCatched){
-				throw new RuntimeException(String.format("{}更新此箱号缓存状态失败！", boxReq.getBoxCode()));
+			boxSaved.setLastNodeType(boxReq.getOpNodeCode());
+			try{
+				if (lock(boxReq.getBoxCode())){
+					Boolean isCatched = jimdbCacheService.setEx(getCacheKey(boxReq.getBoxCode()),JsonHelper.toJson(boxSaved), timeout);
+					if (!isCatched){
+						throw new RuntimeException(String.format("{}更新此箱号缓存状态失败！", boxReq.getBoxCode()));
+					}
+					//更新数据库状态
+					Box box = new Box();
+					box.setCode(boxReq.getBoxCode());
+					box.setStatus(boxReq.getBoxStatus());
+					box.setUpdateTime(boxReq.getOpTime());
+					box.setLastNodeType(boxReq.getOpNodeCode());
+					this.boxDao.updateBoxStatus(box);
+				}else{
+					log.warn("updateBoxStatus获取锁失败，boxCode={}",boxReq.getBoxCode());
+				}
+			}finally {
+				unLock(boxReq.getBoxCode());
 			}
-			//更新数据库状态
-			Box box = new Box();
-			box.setCode(boxReq.getBoxCode());
-			box.setStatus(boxReq.getBoxStatus());
-			box.setCurrentNode(boxReq.getOpNodeCode());
-			this.boxDao.updateBoxStatus(box);
 			//记录流水
-			changeBoxStatusLogProducer.send(boxReq.getBoxCode(),JsonHelper.toJson(boxReq));
+			changeBoxStatusLogProducer.sendOnFailPersistent(boxReq.getBoxCode(),JsonHelper.toJson(boxReq));
 			result = Boolean.TRUE;
 		}catch (Exception ex){
 			log.error("updateBoxStatus has error. The error is " +ex.getMessage(),ex);
 		}
 		return result;
+	}
+
+
+	/**
+	 * 获取锁
+	 * @param boxCode
+	 * @return
+	 */
+	private boolean lock(String boxCode) {
+		String lockKey = getLockCashKey(boxCode);
+		log.info("开始获取锁lockKey={}", lockKey);
+		try {
+			for(int i =0;i < 4;i++){
+				if (jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TTL, TimeUnit.SECONDS)){
+					return Boolean.TRUE;
+				}else{
+					Thread.sleep(100);
+				}
+			}
+		} catch (Exception e) {
+			log.error("箱状态修改Lock异常:boxCode={},e=", boxCode , e);
+			jimdbCacheService.del(lockKey);
+		}
+		return Boolean.FALSE;
+	}
+
+	private void unLock(String boxCode) {
+		try {
+			String lockKey = getLockCashKey(boxCode);
+			jimdbCacheService.del(lockKey);
+		} catch (Exception e) {
+			log.error("箱状态修改unLock异常:boxCode={},e=", boxCode, e);
+		}
+	}
+
+	private String getLockCashKey(String boxCode){
+		return  prefixOfLock + boxCode;
 	}
 
 	/**

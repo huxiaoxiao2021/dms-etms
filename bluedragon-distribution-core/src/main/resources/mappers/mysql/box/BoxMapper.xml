@@ -27,7 +27,7 @@
 		<result column="predict_send_time" property="predictSendTime" />
 		<result column="router" property="router" />
 		<result column="router_name" property="routerName" />
-		<result column="current_node" property="currentNode" />
+		<result column="last_node_type" property="lastNodeType" />
 	</resultMap>
 	
 	<insert id="add" parameterType="box" >
@@ -36,7 +36,7 @@
 			receive_site_code, receive_site_name, create_user_code, create_user,
 			update_user_code, update_user, transport_type,mix_box_type,
 			create_time, update_time, times, box_status, yn,predict_send_time,
-			router,router_name,current_node)
+			router,router_name,last_node_type)
 		VALUES (
 			#{id,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
@@ -62,7 +62,7 @@
 	<select id="findBoxByBoxCode" resultMap="box" parameterType="box" >
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
-			transport_type,mix_box_type,predict_send_time,router,router_name
+			transport_type,mix_box_type,predict_send_time,router,router_name,last_node_type
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code} AND create_site_code = #{createSiteCode}
 		 LIMIT 1
@@ -98,8 +98,8 @@
 		UPDATE Box
 		SET
 			box_status = #{status},
-			current_node = #{currentNode},
-			update_time = NOW()
+			last_node_type = #{currentNode},
+			update_time = #{updateTime}
 		WHERE
 			box_code = #{code,jdbcType=VARCHAR}
 	</update>

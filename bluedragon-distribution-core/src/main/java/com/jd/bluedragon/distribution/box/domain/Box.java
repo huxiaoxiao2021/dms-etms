@@ -137,7 +137,7 @@ public class Box {
 	/**
 	 * 当前节点
 	 */
-	private Integer currentNode;
+	private Integer lastNodeType;
 
 	public String getGroupSendCode() {
 		return groupSendCode;
@@ -415,11 +415,11 @@ public class Box {
 		this.packageNum = packageNum;
 	}
 
-	public Integer getCurrentNode() {
-		return currentNode;
+	public Integer getLastNodeType() {
+		return lastNodeType;
 	}
 
-	public void setCurrentNode(Integer currentNode) {
-		this.currentNode = currentNode;
+	public void setLastNodeType(Integer lastNodeType) {
+		this.lastNodeType = lastNodeType;
 	}
 }
