@@ -335,8 +335,9 @@ function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
 		function(data){
 			var ednBatchNums = []
 			if (data.code == 200) {
-				if(data.data.dmsScheduleInfoList.length == 0){
+				if(data.data==null||data.data.dmsScheduleInfoList==null||data.data.dmsScheduleInfoList.length == 0){
 					alert('未获取到明细数据')
+					return;
 				}
 				for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
 					var pojo = data.data.dmsScheduleInfoList[i];
