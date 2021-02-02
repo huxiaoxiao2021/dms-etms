@@ -1131,9 +1131,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (loadScanDto == null) {
             log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
             response.setCode(JdCResponse.CODE_FAIL);
-            response.setMessage("包裹未验货或已发货，请核实包裹状态");
+            response.setMessage("包裹未验货，请核实包裹状态");
             return response;
-//            loadScanDto = new LoadScanDto();
+        }else if(loadScanDto.getSendTime() != null && loadScanDto.getInpectTime().longValue() < loadScanDto.getSendTime().longValue()){
+            log.error("根据包裹号和运单号从分拣报表查询运单信息为已发货taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("包裹已发货，请核实包裹状态");
+            return response;
         }
         Integer nextDmsSiteId = loadScanDto.getNextSiteId();
         // 如果ES中的路由还没计算出来，再实时调用一次
