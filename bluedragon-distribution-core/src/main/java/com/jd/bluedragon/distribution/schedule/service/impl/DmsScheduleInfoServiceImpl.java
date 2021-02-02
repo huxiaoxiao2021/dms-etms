@@ -322,15 +322,6 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			return  response;
 		}
 
-		DmsScheduleInfoCondition scheduleInfo = new DmsScheduleInfoCondition();
-		scheduleInfo.setScheduleBillCode(param.getScheduleBillCode());
-		PagerResult<DmsEdnPickingVo> pagerResult = dmsScheduleInfoDao.queryEdnPickingListByPagerCondition(scheduleInfo);
-		if(org.apache.commons.collections4.CollectionUtils.isEmpty(pagerResult.getRows())){
-			logger.warn("com.jd.bluedragon.distribution.schedule.service.impl.DmsScheduleInfoServiceImpl--》generatePdfUrlByBatchList 调度单号不存在 ,param=[{}]",JsonHelper.toJson(param));
-			response.setCode(JdResponse.CODE_FAIL);
-			response.setMessage("调度单号不存在");
-			return  response;
-		}
 	 	return dmsScheduleInfoServiceManager.generatePdfUrlByBatchList(param);
 	}
 }
