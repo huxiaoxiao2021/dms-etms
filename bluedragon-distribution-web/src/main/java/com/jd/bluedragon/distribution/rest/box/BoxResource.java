@@ -519,7 +519,7 @@ public class BoxResource {
         box.setUpdateUser(request.getReceiveSiteType());
         //设置状态和当前节点
         box.setStatus(BoxStatusEnum.OPEN.getStatus());
-        box.setCurrentNode(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
+        box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
         return box;
     }
 
