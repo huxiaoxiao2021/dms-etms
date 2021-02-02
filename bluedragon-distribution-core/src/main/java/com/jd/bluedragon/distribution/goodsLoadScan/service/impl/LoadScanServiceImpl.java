@@ -1895,28 +1895,28 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param creatSiteId 当前网点ID
      */
     private JdVerifyResponse<Void> checkIsCanDelivery(String barCode, Integer creatSiteId) {
-        JdVerifyResponse<Void> jdCResponse = new JdVerifyResponse<>();
+        JdVerifyResponse<Void> jdcResponse = new JdVerifyResponse<>();
         List<String> list = new ArrayList<>();
         list.add(barCode);
         try {
             ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
             if (result == null) {
                 log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
-                jdCResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
-                return jdCResponse;
+                jdcResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
+                return jdcResponse;
             }
             if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
-                jdCResponse.toSuccess();
-                return jdCResponse;
+                jdcResponse.toSuccess();
+                return jdcResponse;
             }
             log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
                     creatSiteId, result.getCode(), result.getMessage());
-            jdCResponse.toFail(result.getMessage());
-            return jdCResponse;
+            jdcResponse.toFail(result.getMessage());
+            return jdcResponse;
         } catch (Exception e) {
             log.error("根据包裹号或运单号判断是否可发货发生异常：barCode={},creatSiteId={},error=", barCode, creatSiteId, e);
-            jdCResponse.toFail("根据包裹号或运单号判断是否可发货发生异常");
-            return jdCResponse;
+            jdcResponse.toFail("根据包裹号或运单号判断是否可发货发生异常");
+            return jdcResponse;
         }
     }
 
