@@ -564,7 +564,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
                 List<Goods> goodses = baseEntity.getData().getGoodsList();
                 if (goodses == null || goodses.size() == 0) {
-                    this.log.warn("调用运单接口获得商品明细数据为空");
+                    this.log.warn("调用运单接口获得商品明细数据为空, waybill:{}", waybillCode);
                 }
                 if(goodses != null && !goodses.isEmpty()){
                     for (Goods goods : goodses) {
@@ -689,17 +689,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
             // 如果获取到收件人地址寄递码(receiveAdderesssCode存在)，则转换为二维码替换左下角二维码链接内容，同时将原二维码文本“扫码寄快递”设置为空。
             if (waybillExt != null) {
-                this.log.info("根据waybill获取waybillExt，运单号：【{}】", waybill.getWaybillCode());
                 String receiveAddressCode = waybillExt.getReceiveAddressCode();
                 if (StringUtils.isNotBlank(receiveAddressCode)) {
-                    this.log.info("根据waybillExt获取寄递码receiveAddressCode：{}，运单号：【{}】", receiveAddressCode, waybill.getWaybillCode());
                     target.setPopularizeMatrixCode(receiveAddressCode);
                     target.setPopularizeMatrixCodeDesc("");
-                } else {
-                    this.log.warn("未获取到寄递码receiveAddressCode，运单号：【{}】", waybill.getWaybillCode());
                 }
-            } else {
-                this.log.warn("未获取到waybillExt，运单号：【{}】", waybill.getWaybillCode());
             }
 
             //包裹有话说

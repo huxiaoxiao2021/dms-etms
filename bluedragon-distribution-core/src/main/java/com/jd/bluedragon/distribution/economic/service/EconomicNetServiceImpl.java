@@ -222,14 +222,14 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         /* List<ThirdBoxDetail> existFlowDetails = findExistFlowPackages(thirdBoxDetails);
         noExistFlowDetails.removeAll(existFlowDetails); */
         //均分称重量方数据
-        Double itemWeight = vo.getWeight() == null? null :  Double.valueOf(vo.getWeight()) / noExistFlowDetails.size();
-        Double itemLength = vo.getLength() == null? null : Double.valueOf(vo.getLength());
-        Double itemWidth = vo.getWidth() == null? null : Double.valueOf(vo.getWidth());
-        Double itemHeight = vo.getHeight() == null? null : Double.valueOf(vo.getHeight()) / noExistFlowDetails.size();
+        Double itemWeight = vo.getWeight() == null ? Constants.DOUBLE_ZERO :  vo.getWeight() / noExistFlowDetails.size();
+        Double itemLength = vo.getLength();
+        Double itemWidth = vo.getWidth();
+        Double itemHeight = vo.getHeight() == null ? Constants.DOUBLE_ZERO : vo.getHeight() / noExistFlowDetails.size();
         //重量体积保留小数点1位 四舍五入
-        BigDecimal bw = new BigDecimal(itemWeight);
+        BigDecimal bw = BigDecimal.valueOf(itemWeight);
         itemWeight = bw.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-        BigDecimal bh = new BigDecimal(itemHeight);
+        BigDecimal bh = BigDecimal.valueOf(itemHeight);
         itemHeight = bh.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         List<Message> messages = new ArrayList<>();
@@ -311,6 +311,7 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
             if(waybill == null || StringUtils.isBlank(waybill.getWaybillSign())){
                 logger.error("weightVolumeListener 未获取到运单数据，{}",JsonHelper.toJson(weightVolumeEntity));
+                return true;
             }
             if(!BusinessUtil.isBusinessNet(waybill.getWaybillSign())){
                 // 非经济网运单排除
