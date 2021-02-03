@@ -55,6 +55,9 @@ public class RouterServiceImpl implements RouterService {
         try{
 
             RouteNextDto routeNextDto = this.matchRouterNextNode(siteCode,waybillCode);
+            if(routeNextDto.getFirstNextSiteId() == null){
+                return null;
+            }
             return siteService.getSite(routeNextDto.getFirstNextSiteId());
         }catch (Exception e){
             Profiler.functionError(info);
