@@ -1557,9 +1557,10 @@ public class WaybillResource {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
 		try {
-
 			RouteNextDto routeNextDto = routerService.matchRouterNextNode(operateSiteCode,waybillCode);
-			nextRouters.add(routeNextDto.getFirstNextSiteId());
+			if(routeNextDto.isRoutExistCurrentSite()){
+				nextRouters.add(routeNextDto.getFirstNextSiteId());
+			}
 		} catch (Exception e) {
 			log.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
