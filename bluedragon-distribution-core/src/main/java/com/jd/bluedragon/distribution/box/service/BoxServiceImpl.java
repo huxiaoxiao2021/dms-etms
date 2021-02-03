@@ -316,6 +316,9 @@ public class BoxServiceImpl implements BoxService {
 			return result;
 		}
 		result = this.boxDao.findBoxByCode(code);
+		if (null == result){
+			return result;
+		}
 		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(result.getCode()),JsonHelper.toJson(result), timeout);
 		if (!isCatched){
 			log.warn("box cache fail. the boxCode is " + result.getCode());
