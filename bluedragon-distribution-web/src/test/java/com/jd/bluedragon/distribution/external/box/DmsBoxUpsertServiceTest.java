@@ -30,7 +30,7 @@ public class DmsBoxUpsertServiceTest {
         req.setDestSiteCode(910);
         req.setOperatorId(10000);
         req.setOperatorName("xingsong");
-        req.setBoxType("JX");
+        req.setBoxType("BC");
         req.setNum(1);
         System.out.println(JsonHelper.toJson(dmsBoxUpsertService.generateBox(req)));
 

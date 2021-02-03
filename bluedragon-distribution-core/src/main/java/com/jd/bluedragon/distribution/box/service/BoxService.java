@@ -14,7 +14,7 @@ public interface BoxService {
     List<Box> batchAdd(Box box);
 
     /** 批量生成箱子信息 */
-    List<Box> batchAddNew(Box box, String systemType, boolean useStablePrefixBox);
+    List<Box> batchAddNew(Box box, String systemType);
 
     /**重打*/
     Integer reprint(Box box);
@@ -64,8 +64,7 @@ public interface BoxService {
      * @param request
      * @param systemType
      * @param isNew
-     * @param useStablePrefixBox 生成固定前缀的箱号
      * @return
      */
-    BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew, boolean useStablePrefixBox);
+    BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew);
 }
