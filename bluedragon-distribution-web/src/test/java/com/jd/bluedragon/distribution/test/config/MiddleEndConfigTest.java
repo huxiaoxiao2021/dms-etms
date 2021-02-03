@@ -53,7 +53,7 @@ public class MiddleEndConfigTest {
     public void boxService(){
         Box param = new Box();
         param.setCreateSiteCode(364605);
-        boxService.batchAddNew(param,BoxSystemTypeEnum.PRINT_CLIENT);
+        boxService.batchAddNew(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode(), false);
 
     }
     @Test
@@ -61,7 +61,7 @@ public class MiddleEndConfigTest {
 
         Box param = new Box();
         param.setCreateSiteCode(364605);
-        boxService.batchAddNew(param,BoxSystemTypeEnum.PRINT_CLIENT);
+        boxService.batchAddNew(param,BoxSystemTypeEnum.PRINT_CLIENT.getCode(), false);
 
         ISortingDao sortingDao = dynamicSortingQueryDao.selectDao(364605);
 

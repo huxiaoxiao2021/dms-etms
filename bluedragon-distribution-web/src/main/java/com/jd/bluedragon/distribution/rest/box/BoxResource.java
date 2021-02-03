@@ -191,7 +191,7 @@ public class BoxResource {
     @Path("/boxes")
     @Deprecated
     public BoxResponse add(BoxRequest request) {
-        return add(request,BoxSystemTypeEnum.PRINT_CLIENT,false);
+        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),false, false);
     }
 
     /**
@@ -202,54 +202,7 @@ public class BoxResource {
     @POST
     @Path("/printClient/boxes")
     public BoxResponse printClientBoxes(BoxRequest request) {
-        return add(request,BoxSystemTypeEnum.PRINT_CLIENT,true);
-    }
-
-    private BoxResponse add(BoxRequest request, BoxSystemTypeEnum systemType, boolean isNew) {
-        Assert.notNull(request, "request must not be null");
-        Assert.notNull(request.getType(), "request type must not be null");
-        Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
-        Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
-        Assert.notNull(request.getQuantity(), "request quantity must not be null");
-        if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
-            Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
-        }
-        this.log.info("BoxRequest's {}", request.toString());
-        BoxResponse response = this.ok();
-        // 先生成路由信息
-        // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
-        CrossBoxResult<String[]> routInfoRes = null;
-        try {
-            routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(), request.getTransportType());
-            if (routInfoRes != null) {
-                this.log.info("BasicSaf getCrossDmsBox RouterInfo:{} ResultCode:{} Message:{}"
-                        ,routInfoRes.getData(), routInfoRes.getResultCode(), routInfoRes.getMessage());
-                if (log.isInfoEnabled()) {
-                    this.log.info("调用跨箱号中转获取箱号路由:{}", JsonHelper.toJson(routInfoRes));
-                }
-                if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
-                    // 没超过5个站点，用这个选择模板打印
-                    response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
-                    // 超过5个站点，打印系统直接用他打印
-                    response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
-                }
-            } else {
-                log.warn("获得站点路由信息结果为空,参数信息：{}", JsonHelper.toJson(request));
-            }
-        } catch (Exception e) {
-            this.log.error("获得站点路由信息失败： ", e);
-        }
-        // 生成箱号
-        List<Box> availableBoxes;
-        if (isNew) {
-            availableBoxes = this.boxService.batchAddNew(this.toBoxWithRouter(request, routInfoRes), systemType);
-        } else {
-            availableBoxes = this.boxService.batchAdd(this.toBoxWithRouter(request, routInfoRes));
-        }
-        response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
-
-        this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
-        return response;
+        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true, false);
     }
 
     /**
@@ -342,7 +295,7 @@ public class BoxResource {
     @Path("/boxes/create")
     @Deprecated
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
-        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE,false);
+        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),false);
     }
 
     /**
@@ -354,10 +307,10 @@ public class BoxResource {
     @POST
     @Path("/autoSorting/boxes")
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingBoxes(BoxRequest request) {
-        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE,true);
+        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
     }
 
-    private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request,BoxSystemTypeEnum systemType,boolean isNew) {
+    private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request, String systemType,boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -376,7 +329,8 @@ public class BoxResource {
 
         List<Box> availableBoxes;
         if(isNew){
-            availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
+            boolean useStablePrefixBox = false;
+            availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType, useStablePrefixBox);
         }else {
             availableBoxes = this.boxService.batchAdd(this.toBox(request));
         }
@@ -526,20 +480,6 @@ public class BoxResource {
         return box;
     }
 
-    /**
-     * 对象转换，包括路由信息
-     * @param request
-     * @param crossBoxResult
-     * @return
-     */
-    private Box toBoxWithRouter(BoxRequest request, CrossBoxResult<String[]> crossBoxResult){
-        Box box=toBox(request);
-        if (crossBoxResult != null && CrossBoxResult.SUCCESS==crossBoxResult.getResultCode() && crossBoxResult.getData()!=null && crossBoxResult.getData().length==2){
-            box.setRouterName(crossBoxResult.getData()[0]);
-            box.setRouter(crossBoxResult.getData()[1]);
-        }
-        return box;
-    }
     private BoxResponse boxNoFound() {
         return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
     }
