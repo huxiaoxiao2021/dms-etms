@@ -67,4 +67,32 @@ public class RouterServiceImpl implements RouterService {
         }
         return null;
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.RouterServiceImpl.matchRouterNextNode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public RouteNextDto matchRouterNextNode(Integer siteCode, String waybillCode){
+        if(siteCode == null || StringUtils.isEmpty(waybillCode)){
+            return RouteNextDto.NONE;
+        }
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        if(StringUtils.isEmpty(routerStr)){
+            return RouteNextDto.NONE;
+        }
+        String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        List<Integer> nextSiteIdList = null;
+        Integer firstNextSiteId = null;
+        int arrayLastIndex = routers.length - 1;
+        for (int i = arrayLastIndex; i >= 0; i--) {
+            Integer item = NumberHelper.convertToInteger(routers[i]);
+            if(Objects.equals(siteCode,item)){
+                return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList);
+            }
+            if(nextSiteIdList == null){
+                nextSiteIdList = Lists.newArrayList();
+            }
+            nextSiteIdList.add(0,item);
+            firstNextSiteId = item;
+        }
+        return RouteNextDto.NONE;
+    }
 }
