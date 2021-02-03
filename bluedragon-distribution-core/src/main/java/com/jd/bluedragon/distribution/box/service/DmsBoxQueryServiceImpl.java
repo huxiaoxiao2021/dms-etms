@@ -73,6 +73,9 @@ public class DmsBoxQueryServiceImpl implements DmsBoxQueryService{
     @Override
     public BoxDto getBoxByBoxCode(String boxCode) {
         Box box = boxService.findBoxByCode(boxCode);
+        if (null == box){
+            return null;
+        }
         BoxDto result = new BoxDto();
         BeanUtils.copyProperties(box,result);
         return result;
