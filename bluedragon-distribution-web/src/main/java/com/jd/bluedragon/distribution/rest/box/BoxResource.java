@@ -191,7 +191,7 @@ public class BoxResource {
     @Path("/boxes")
     @Deprecated
     public BoxResponse add(BoxRequest request) {
-        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),false, false);
+        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),false);
     }
 
     /**
@@ -202,7 +202,7 @@ public class BoxResource {
     @POST
     @Path("/printClient/boxes")
     public BoxResponse printClientBoxes(BoxRequest request) {
-        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true, false);
+        return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
 
     /**
@@ -329,8 +329,7 @@ public class BoxResource {
 
         List<Box> availableBoxes;
         if(isNew){
-            boolean useStablePrefixBox = false;
-            availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType, useStablePrefixBox);
+            availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
         }else {
             availableBoxes = this.boxService.batchAdd(this.toBox(request));
         }

@@ -9,7 +9,7 @@ package com.jd.bluedragon.distribution.box.constants;
 public enum BoxTypeEnum {
 
     TYPE_BC("BC", "正向普通"),
-    TYPE_TC("TC", "自动分拣机"),
+    TYPE_TC("TC", "退货普通"),
     TYPE_GC("GC", "取件普通"),
     TYPE_FC("FC", "返调度再投普通"),
     TYPE_BS("BS", "正向奢侈品"),
@@ -19,6 +19,12 @@ public enum BoxTypeEnum {
     TYPE_BX("BX", "正向虚拟"),
     TYPE_TW("TW", "逆向内配"),
     TYPE_LP("LP", "理赔完成"),
+    TYPE_WJ("WJ", "文件"),
+    TYPE_ZH("ZH", "航空件"),
+    TYPE_ZF("ZF", "同城混包"),
+    TYPE_ZK("ZK", "特快混包"),
+    TYPE_ZQ("ZQ", "其他混包"),
+    TYPE_ZS("ZS", "售后件")
     ;
 
     private String code;

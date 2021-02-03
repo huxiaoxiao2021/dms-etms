@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxDto;
 import com.jd.bluedragon.distribution.box.domain.BoxGenReq;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -54,15 +55,18 @@ public class DmsBoxUpsertServiceImpl implements DmsBoxUpsertService{
                 || null == req.getDestSiteCode()
                 || null == req.getNum() || req.getNum() < 1 || req.getNum() > 100
                 || null == req.getBoxType()) {
-
             response.parameterError("参数校验失败!");
             return response;
         }
 
+        if (BoxTypeEnum.getFromCode(req.getBoxType()) == null) {
+            response.parameterError("不支持的箱号类型!");
+            return response;
+        }
+
         BoxRequest request = convertParam(req);
-        boolean useStablePrefixBox = true; // 生成固定BC开头的箱号，用type字段区分箱号类型
-        BoxResponse boxResponse = boxService.commonGenBox(request, req.getTenantCode(), true, useStablePrefixBox);
-        if (ObjectUtils.notEqual(JdResponse.CODE_OK, boxResponse.getCode())) {
+        BoxResponse boxResponse = boxService.commonGenBox(request, req.getTenantCode(), true);
+        if (!ObjectUtils.equals(JdResponse.CODE_OK, boxResponse.getCode())) {
             response.error(boxResponse.getMessage());
             return response;
         }

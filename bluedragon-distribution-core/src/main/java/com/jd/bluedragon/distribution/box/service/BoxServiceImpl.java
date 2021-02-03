@@ -31,6 +31,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +39,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -85,6 +88,12 @@ public class BoxServiceImpl implements BoxService {
 
     @Autowired
     private CrossBoxService crossBoxService;
+
+    @Resource(name = "stableBoxPrefixSystem")
+    private Set<String> stableBoxPrefixSystem;
+
+    @Resource(name = "stableBoxPrefixType")
+    private Set<String> stableBoxPrefixType;
 
 
     public Integer add(Box box) {
@@ -137,12 +146,11 @@ public class BoxServiceImpl implements BoxService {
 		 BC1001181227231000000121
 	 * @param param
 	 * @param systemType
-     * @param useStablePrefixBox
 	 * @return
 	 */
 	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public List<Box> batchAddNew(Box param, String systemType, boolean useStablePrefixBox) {
-		return batchAddNewFromDMS(param, systemType, useStablePrefixBox);
+	public List<Box> batchAddNew(Box param, String systemType) {
+		return batchAddNewFromDMS(param, systemType);
 	}
 
     /**
@@ -185,22 +193,21 @@ public class BoxServiceImpl implements BoxService {
      * 使用中台生产箱号
      * @param param 参数
      * @param systemType 类型
-     * @param useStablePrefixBox 生成固定前缀的箱号
      * @return 箱号集合
      */
-	private List<Box> batchAddNewFromDMS(Box param, String systemType, boolean useStablePrefixBox) {
+	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
 		try{
-			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen, useStablePrefixBox);
+			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
 			seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),dbOpen);
 		}catch (Exception e){
 			log.error("箱号生成序列号异常",e);
 			if(!dbOpen){
 				//redis 异常
-				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true, useStablePrefixBox);
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true);
 				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
@@ -242,9 +249,9 @@ public class BoxServiceImpl implements BoxService {
 	 * @return
 	 */
 
-	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB, boolean useStablePrefixBox) {
+	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
-		if (!useStablePrefixBox) {
+		if (!this.genStableBoxPrefix(box, systemType)) {
             preFix.append(box.getType());
         }
 		else {
@@ -255,6 +262,19 @@ public class BoxServiceImpl implements BoxService {
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
 				.append(isDB?"2":"1").toString();
 	}
+
+    /**
+     * 判断是否生成固定前缀的箱号
+     * @param box
+     * @param systemType
+     * @return
+     */
+	private boolean genStableBoxPrefix(Box box, String systemType) {
+	    if (CollectionUtils.isEmpty(stableBoxPrefixSystem) || CollectionUtils.isEmpty(stableBoxPrefixType)) {
+	        return false;
+        }
+        return stableBoxPrefixSystem.contains(systemType) || stableBoxPrefixType.contains(box.getType());
+    }
 
 	/**
 	 * 生成序列号
@@ -590,7 +610,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.BoxServiceImpl.commonGenBox", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew, boolean useStablePrefixBox) {
+    public BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -627,7 +647,7 @@ public class BoxServiceImpl implements BoxService {
         // 生成箱号
         List<Box> availableBoxes;
         if (isNew) {
-            availableBoxes = this.batchAddNew(this.toBoxWithRouter(request, routInfoRes), systemType, useStablePrefixBox);
+            availableBoxes = this.batchAddNew(this.toBoxWithRouter(request, routInfoRes), systemType);
         } else {
             availableBoxes = this.batchAdd(this.toBoxWithRouter(request, routInfoRes));
         }
