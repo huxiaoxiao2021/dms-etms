@@ -1,11 +1,17 @@
 package com.jd.bluedragon.distribution.router.impl;
 
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -13,6 +19,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 类描述信息
@@ -42,23 +51,11 @@ public class RouterServiceImpl implements RouterService {
         if(!WaybillUtil.isWaybillCode(waybillCode)){
             return null;
         }
-        Integer nextRouterSiteCode = null;
         CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.RouterServiceImpl.getRouterNextSite");
         try{
-            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);;
 
-            if(StringUtils.isNotBlank(routerStr)){
-                String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
-                if(routers != null && routers.length > 0) {
-                    for (int i = 0; i < routers.length - 1; i++) {
-                        if(siteCode.equals(Integer.valueOf(routers[i]))){
-                            nextRouterSiteCode = Integer.valueOf(routers[i+1]);
-                            break;
-                        }
-                    }
-                }
-            }
-            return siteService.getSite(nextRouterSiteCode);
+            RouteNextDto routeNextDto = this.matchRouterNextNode(siteCode,waybillCode);
+            return siteService.getSite(routeNextDto.getFirstNextSiteId());
         }catch (Exception e){
             Profiler.functionError(info);
             this.log.error("通过运单号:{} 查询站点:{}的路由下一节点失败!",waybillCode,siteCode,e);
