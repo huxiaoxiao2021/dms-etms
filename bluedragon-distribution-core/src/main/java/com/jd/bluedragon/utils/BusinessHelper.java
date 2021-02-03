@@ -259,6 +259,10 @@ public class BusinessHelper {
         if(StringHelper.isNotEmpty(sendPay) && BusinessUtil.isSignChar(sendPay, 146, '1')){
             sendPayFlag = true;
         }
+        // waybill_sign 第36位等于4，表示为大件网络
+        if (StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '4')) {
+            waybillSignFlag = true;
+        }
         return waybillSignFlag || sendPayFlag;
     }
     /**
