@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.box.constants;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @ClassName BoxTypeEnum
  * @Description 箱号类型枚举
@@ -19,6 +22,11 @@ public enum BoxTypeEnum {
     TYPE_BX("BX", "正向虚拟"),
     TYPE_TW("TW", "逆向内配"),
     TYPE_LP("LP", "理赔完成"),
+    TYPE_ZH("ZH","航空件"),
+    TYPE_ZF("ZF","同城混包"),
+    TYPE_ZK("ZK","特快混包"),
+    TYPE_ZQ("ZQ","其他混包"),
+    TYPE_ZS("ZS","售后件")
     ;
 
     private String code;
@@ -48,5 +56,13 @@ public enum BoxTypeEnum {
             }
         }
         return null;
+    }
+
+    public static Map<String,String> getMap(){
+        Map<String,String> result = new HashMap<String, String>();
+        for(BoxTypeEnum boxTypeEnum : BoxTypeEnum.values()){
+            result.put(boxTypeEnum.getCode(),boxTypeEnum.getName());
+        }
+        return result;
     }
 }

@@ -11,6 +11,9 @@ public class JdRequest extends JdObject {
     
     /** 操作人编号 */
     private Integer userCode;
+
+    /** 操作人ERP * */
+    private String operateUserErp;
     
     /** 操作人姓名 */
     private String userName;
@@ -93,7 +96,15 @@ public class JdRequest extends JdObject {
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
     }
-    
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
     @Override
     public String toString() {
         return "JdRequest [userCode=" + this.userCode + ", userName=" + this.userName

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
@@ -48,14 +51,13 @@ public class BoxResource {
      * */
     private static final int BOX_TYPE_LENGTH = 2;
 
+    private static final List<Integer> siteTypes = Arrays.asList(4,10);//营业部,自营京东派 显示特殊类型
+
     @Autowired
     private SysConfigService sysConfigService;
 
     @Autowired
     private BoxService boxService;
-
-    @Autowired
-    private SendMDao sendMDao;
 
     @Autowired
     private BaseService baseService;
@@ -68,6 +70,12 @@ public class BoxResource {
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Resource(name="specialBoxTypeMap")
+    private Map<String,String> specialBoxTypeMap;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -569,4 +577,35 @@ public class BoxResource {
         }
         return sign;
     }
+
+    /**
+     * 登录人ERP所属部门类型为 【营业部】或【自营京东派】 类型
+     * 箱子类型返回部分类型【文件，航空件，同城混包，快递混包，其他混包，退货普通，售后件】
+     * 其余登录人返回全部类型
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/boxes/getBoxType")
+    public BoxResponse getBoxType(BoxRequest request) {
+        Assert.notNull(request, "request must not be null");
+        Assert.notNull(request.getOperateUserErp(), "request receiveSiteCode must not be null");
+        BoxResponse response = this.ok();
+
+        //获取登录人信息
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(request.getOperateUserErp());
+        if (null == baseStaffSiteOrgDto){
+            log.warn("获取登录人信息失败，erp: " + request.getOperateUserErp());
+            return null;
+        }
+        //营业部,自营京东派 人员使用部分箱型
+        if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
+            response.setBoxTypes(specialBoxTypeMap);
+            return response;
+        }
+        //获取全部类型
+        response.setBoxTypes(BoxTypeEnum.getMap());
+        return response;
+    }
+
 }

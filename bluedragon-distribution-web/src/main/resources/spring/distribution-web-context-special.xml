@@ -66,4 +66,15 @@
 		</property>
 	</bean>
 
+	<!-- 营业部，自营京东派 使用的箱型 -->
+	<util:map id="specialBoxTypeMap" key-type="java.lang.String" value-type="java.lang.String">
+		<entry key="WJ" value="3" />
+		<entry key="ZH" value="3" />
+		<entry key="ZF" value="3" />
+		<entry key="ZK" value="3" />
+		<entry key="ZQ" value="3" />
+		<entry key="TC" value="3" />
+		<entry key="ZS" value="3" />
+	</util:map>
+
 </beans>
