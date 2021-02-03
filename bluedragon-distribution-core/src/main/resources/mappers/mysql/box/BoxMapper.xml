@@ -45,7 +45,7 @@
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{transportType,jdbcType=INTEGER}, #{mixBoxType,jdbcType=INTEGER},
 			 NOW(), NOW(), 1, #{status}, 1,#{predictSendTime,jdbcType=TIMESTAMP},
-			 #{router,jdbcType=VARCHAR},#{routerName,jdbcType=VARCHAR},#{currentNode})
+			 #{router,jdbcType=VARCHAR},#{routerName,jdbcType=VARCHAR},#{lastNodeType})
 	</insert>
 
 	<select id="findBoxByCode" resultMap="box" parameterType="String" >
@@ -98,7 +98,7 @@
 		UPDATE Box
 		SET
 			box_status = #{status},
-			last_node_type = #{currentNode},
+			last_node_type = #{lastNodeType},
 			update_time = #{updateTime}
 		WHERE
 			box_code = #{code,jdbcType=VARCHAR}
