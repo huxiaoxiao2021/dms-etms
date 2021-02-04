@@ -11,9 +11,6 @@ public class JdRequest extends JdObject {
     
     /** 操作人编号 */
     private Integer userCode;
-
-    /** 操作人ERP * */
-    private String operateUserErp;
     
     /** 操作人姓名 */
     private String userName;
@@ -32,6 +29,9 @@ public class JdRequest extends JdObject {
     
     /** PDA操作时间 */
     private String operateTime;
+
+    /** 操作人ERP * */
+    private String operateUserErp;
     
     public String getKey() {
 		return key;
