@@ -659,4 +659,8 @@
     <jsf:consumer id="boxOperateApi" interface="com.zhongyouex.order.api.box.BoxOperateApi"
                   protocol="jsf" alias="${jsf.zhongyouex.alias}" timeout="${jsf.zhongyouex.timeout}" >
     </jsf:consumer>
+
+    <jsf:consumer id="kaGenerateEdnDeliveryReceiptPdfService" interface="com.jd.jp.print.templet.center.sdk.service.KaGenerateEdnDeliveryReceiptPdfService"
+                  protocol="jsf" alias="${jsf.kaGenerateEdnDeliveryReceiptPdfService.alias}" timeout="${jsf.kaGenerateEdnDeliveryReceiptPdfService.timeout}" >
+    </jsf:consumer>
 </beans>
