@@ -54,17 +54,27 @@ public class DmsBoxUpsertServiceImpl implements DmsBoxUpsertService{
                 || null == req.getStartSiteCode()
                 || null == req.getDestSiteCode()
                 || null == req.getNum() || req.getNum() < 1 || req.getNum() > 100
-                || null == req.getBoxType()) {
+                || null == req.getBoxType()
+                || StringUtils.isBlank(req.getTenantCode())) {
             response.parameterError("参数校验失败!");
             return response;
         }
-
         if (BoxTypeEnum.getFromCode(req.getBoxType()) == null) {
             response.parameterError("不支持的箱号类型!");
             return response;
         }
+        BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(req.getStartSiteCode());
+        if (null == startSite) {
+            response.parameterError("始发站点不存在!");
+            return response;
+        }
+        BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(req.getDestSiteCode());
+        if (null == destSite) {
+            response.parameterError("目的站点不存在!");
+            return response;
+        }
 
-        BoxRequest request = convertParam(req);
+        BoxRequest request = convertParam(req, startSite, destSite);
         BoxResponse boxResponse = boxService.commonGenBox(request, req.getTenantCode(), true);
         if (!ObjectUtils.equals(JdResponse.CODE_OK, boxResponse.getCode())) {
             response.error(boxResponse.getMessage());
@@ -93,10 +103,8 @@ public class DmsBoxUpsertServiceImpl implements DmsBoxUpsertService{
         return dto;
     }
 
-    private BoxRequest convertParam(BoxGenReq request) {
+    private BoxRequest convertParam(BoxGenReq request, BaseStaffSiteOrgDto startSite, BaseStaffSiteOrgDto destSite) {
         BoxRequest param = new BoxRequest();
-        BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(request.getStartSiteCode());
-        BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(request.getDestSiteCode());
         param.setCreateSiteCode(request.getStartSiteCode());
         param.setCreateSiteName(startSite.getSiteName());
         param.setCreateSiteType(startSite.getSiteType().toString());
