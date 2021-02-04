@@ -76,10 +76,14 @@ public class RouterFilter implements Filter {
                 //将下一站由编码转换成名称，并进行截取，供pda提示
                 StringBuilder routerShortNames= new StringBuilder();
                 for(Integer dmsCode : routeNextDto.getNextSiteIdList()){
-                    if(StringHelper.isEmpty(siteService.getDmsShortNameByCode(dmsCode))){
+                    String siteName = siteService.getDmsShortNameByCode(dmsCode);
+                    if(StringHelper.isEmpty(siteName)){
                         continue;
                     }
-                    routerShortNames.append(siteService.getDmsShortNameByCode(dmsCode)).append(Constants.SEPARATOR_COMMA);
+                    routerShortNames.append(siteName).append(Constants.SEPARATOR_COMMA);
+                    if(Objects.equals(dmsCode,receiveSiteCode)){
+                        break;
+                    }
                 }
                 if(StringHelper.isNotEmpty(routerShortNames.toString())){
                     routerShortNames = new StringBuilder(routerShortNames.substring(0, routerShortNames.length() - 1));
