@@ -1562,7 +1562,7 @@
 		<dependency>
 			<groupId>com.jd.jp</groupId>
 			<artifactId>print-templet-center-sdk</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.5-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>
