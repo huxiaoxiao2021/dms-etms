@@ -29,9 +29,6 @@ public class JdRequest extends JdObject {
     
     /** PDA操作时间 */
     private String operateTime;
-
-    /** 操作人ERP * */
-    private String operateUserErp;
     
     public String getKey() {
 		return key;
@@ -95,14 +92,6 @@ public class JdRequest extends JdObject {
     
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
-    }
-
-    public String getOperateUserErp() {
-        return operateUserErp;
-    }
-
-    public void setOperateUserErp(String operateUserErp) {
-        this.operateUserErp = operateUserErp;
     }
 
     @Override
