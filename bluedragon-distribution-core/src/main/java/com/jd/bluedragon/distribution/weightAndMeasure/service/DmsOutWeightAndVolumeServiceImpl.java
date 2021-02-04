@@ -21,7 +21,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @param dmsOutWeightAndVolume
      * @return
      */
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     @Override
     public void saveOrUpdate(DmsOutWeightAndVolume dmsOutWeightAndVolume){
         List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);

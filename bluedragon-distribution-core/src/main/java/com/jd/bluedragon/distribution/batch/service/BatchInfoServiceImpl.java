@@ -45,7 +45,6 @@ class BatchInfoServiceImpl implements BatchInfoService {
     BaseMinorManager baseMinorManager;
 
     @JProfiler(jKey = "DMSWEB.BatchInfoService.addBatchInfo", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(BatchInfo batchInfo) {
         Assert.notNull(batchInfo, "batchInfo must not be null");
 

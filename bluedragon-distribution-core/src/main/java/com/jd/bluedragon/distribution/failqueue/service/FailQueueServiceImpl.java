@@ -50,7 +50,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
         return taskFailQueueDao.query(param);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void departureNewData(Departure departure, long shieldsCarId,
                                  boolean pushDeparture) {
         List<SendM> sendMs = departure.getSendMs();
@@ -128,7 +128,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
     /**
      * @see com.jd.bluedragon.distribution.failqueue.service.IFailQueueService#departure3PLData(java.util.List)
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void departure3PLData(List<TaskFailQueue> list) {
         if (list.size() == 0) {
             /**数据为空不处理*/
@@ -324,7 +324,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
         }
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW, rollbackFor = Exception.class)
     public void sendDatailBatchData(List<TaskFailQueue> sendDatailAl_batch) {
         /* 组织批次号 */
         try {
@@ -378,7 +378,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
         }
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void sendCodeNewData(String sendCode, Integer type) {
         ArrayList<String> al = new ArrayList<String>();
         al.add(sendCode);
@@ -386,7 +386,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
         sendCodeNewData(al, type);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void sendCodeNewData(List<String> sendCodeAl, Integer type) {
         for (String sendCode : sendCodeAl) {
             TaskFailQueue tmp = DataTranTool
@@ -425,7 +425,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
         return splitList.toArray(new List[0]);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void lock(List<TaskFailQueue> tasks) {
         for (TaskFailQueue task : tasks) {
             taskFailQueueDao.updateLock(task.getFailqueueId());

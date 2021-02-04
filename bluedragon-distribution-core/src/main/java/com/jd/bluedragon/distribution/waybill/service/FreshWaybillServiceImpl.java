@@ -21,7 +21,6 @@ public class FreshWaybillServiceImpl implements FreshWaybillService{
     private FreshWaybillDao freshWaybillDao;
 
     @Override
-    @Transactional
     public void updateFreshWaybill(FreshWaybill freshWaybill) {
         List<FreshWaybill> existedWaybill = freshWaybillDao.getFreshWaybillByID(freshWaybill);
         if(null != existedWaybill && existedWaybill.size() > 0) {

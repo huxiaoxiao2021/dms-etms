@@ -96,7 +96,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
         return this.reverseReceiveDao.findMCS(packageCode, sendCode, businessType, canReceive);
     }
     
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void aftersaleReceive(ReverseReceive source) {
         if (StringHelper.isEmpty(source.getPackageCode())) {
             this.log.info("数据不合法.");

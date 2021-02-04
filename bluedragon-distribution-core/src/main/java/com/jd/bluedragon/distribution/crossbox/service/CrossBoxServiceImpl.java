@@ -187,7 +187,6 @@ public class CrossBoxServiceImpl implements CrossBoxService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public String handleCrossBoxData(List<CrossBox> dataList, String userName) {
         String result = null;
 

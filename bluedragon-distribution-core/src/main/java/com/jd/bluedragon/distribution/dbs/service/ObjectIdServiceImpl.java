@@ -21,7 +21,7 @@ public class ObjectIdServiceImpl implements ObjectIdService{
      */
     private static int TRY_MAX_TIMES = 5;
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional(isolation = Isolation.SERIALIZABLE, rollbackFor = Exception.class)
     public Long getFirstId(String objectName, Integer count) {
         Integer rowCount = objectIdDao.updateFirstIdByName(objectName, count);
         if (rowCount == 0) {

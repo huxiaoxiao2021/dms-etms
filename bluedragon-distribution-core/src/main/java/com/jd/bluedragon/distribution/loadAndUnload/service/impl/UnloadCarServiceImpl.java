@@ -2007,7 +2007,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean distributeTask(DistributeTaskRequest request) {
 
         Map<String, Object> params = new HashMap<String, Object>();

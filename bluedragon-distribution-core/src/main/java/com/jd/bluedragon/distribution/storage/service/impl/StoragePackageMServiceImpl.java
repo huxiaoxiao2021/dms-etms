@@ -146,7 +146,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	 * @param performanceCodes
 	 * @return
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
 	public boolean forceSend(List<String> performanceCodes,PutawayDTO putawayDTO) {
 		//获取履约单下所有运单 当前不论是否已上架的全部更新成强制发货
@@ -219,7 +219,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		storagePackageMDao.insert(storagePackageM);
 	}
 
-	@Transactional(propagation = Propagation.SUPPORTS)
 	@Override
 	public PagerResult<StoragePackageM> queryByPagerCondition(PagerCondition pagerCondition) {
 		StoragePackageMCondition storagePackageMCondition = (StoragePackageMCondition)pagerCondition;
@@ -247,7 +246,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	 * @param putawayDTO
 	 * @return true 成功
 	 */
-	@Transactional(propagation = Propagation.REQUIRED)
 	@Override
 	public boolean putaway(PutawayDTO putawayDTO) {
 	    // 加锁防止并发导致多条相同数据

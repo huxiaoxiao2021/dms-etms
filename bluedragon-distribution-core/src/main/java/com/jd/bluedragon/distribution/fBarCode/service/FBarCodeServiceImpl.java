@@ -46,7 +46,6 @@ class FBarCodeServiceImpl implements FBarCodeService  {
     @Autowired
     BaseMinorManager baseMinorManager;
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(FBarCode fBarCode) {
         Assert.notNull(fBarCode, "fBarCode must not be null");
        // return 1;
@@ -54,7 +53,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
     }
 
     @JProfiler(jKey= "DMSWEB.FBarCodeService.batchAdd",mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public List<FBarCode> batchAdd(FBarCode param) {
         List<FBarCode> fBarCodees = Lists.newArrayList();
         String fBarCodeCodePrefix = this.generateFBarCodeCodePrefix(param);
@@ -91,7 +90,6 @@ class FBarCodeServiceImpl implements FBarCodeService  {
     }
 
     @JProfiler(jKey= "DMSWEB.FBarCodeService.findFBarCodeByCode", mState = {JProEnum.TP})
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public FBarCode findFBarCodeByCode(String code) {
         Assert.notNull(code, "code must not be null");
         CallerInfo info = Profiler.registerInfo("DMSWEB.FBarCodeService.findFBarCodeByCode.fromRedis", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -142,7 +140,6 @@ class FBarCodeServiceImpl implements FBarCodeService  {
         return this.fBarCodeDao.findFBarCodees(fBarCode);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer print(FBarCode fBarCode) {
         Assert.notNull(fBarCode.getUpdateUserCode(), "fBarCode updateUsercode must not be null");
         Assert.notNull(fBarCode.getUpdateUser(), "fBarCode updateUser must not be null");
@@ -150,7 +147,6 @@ class FBarCodeServiceImpl implements FBarCodeService  {
         return this.fBarCodeDao.print(fBarCode);
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(FBarCode fBarCode) {
         Assert.notNull(fBarCode.getUpdateUserCode(), "fBarCode updateUsercode must not be null");
         Assert.notNull(fBarCode.getUpdateUser(), "fBarCode updateUser must not be null");

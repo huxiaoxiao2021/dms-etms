@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.b2bRouter.service;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.B2BRouterRequest;
@@ -49,7 +50,6 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @param router
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean addRouter(B2BRouter router){
         try {
             //填充完整路径信息
@@ -161,7 +161,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @param router
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Boolean updateRouter(B2BRouter router)throws Exception{
         try{
             if(router != null) {
@@ -217,7 +217,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @param router
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Boolean deleteById(B2BRouter router) throws Exception{
         if(router == null || router.getId() == null){
             throw new RuntimeException("删除路由信息失败，id为空.");
@@ -321,7 +321,6 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @param routers
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public String handleRouterBatch(List<B2BRouter> routers){
         String errString = "";
         try {

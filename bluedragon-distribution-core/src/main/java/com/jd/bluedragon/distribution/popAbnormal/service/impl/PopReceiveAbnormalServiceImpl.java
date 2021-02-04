@@ -105,7 +105,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int add(PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail) {
 		Integer mainType = popReceiveAbnormal.getMainType();
@@ -167,7 +167,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 
 	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int update(PopReceiveAbnormal popReceiveAbnormal,
 			PopAbnormalDetail popAbnormalDetail, Boolean isSendPop) {
 		int result = this.popReceiveAbnormalDao.updateById(popReceiveAbnormal);
@@ -248,7 +248,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public PopReceiveAbnormal getWaybillByWaybillCode(String waybillCode) {
 		PopReceiveAbnormal popReceiveAbnormal = null;
 		try {
@@ -275,7 +274,6 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 	
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int delete(Long abnormalId) {
 		if (abnormalId == null || abnormalId <= 0) {
 			return 0;

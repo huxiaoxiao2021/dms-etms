@@ -121,7 +121,6 @@ public class PopPrintServiceImpl implements PopPrintService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int add(PopPrint popPrint) {
         if (popPrint == null) {
             log.info("传入popPrint 为空");
@@ -369,13 +368,11 @@ public class PopPrintServiceImpl implements PopPrintService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int updateByWaybillCode(PopPrint popPrint) {
         return popPrintDao.updateByWaybillCode(popPrint);
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int updateByWaybillOrPack(PopPrint popPrint) {
         return this.popPrintDao.updateByWaybillOrPack(popPrint);
     }

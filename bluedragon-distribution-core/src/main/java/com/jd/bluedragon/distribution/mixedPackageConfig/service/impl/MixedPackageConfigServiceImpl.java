@@ -73,7 +73,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
 
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<MixedPackageConfig> queryMixedPackageConfigs(MixedPackageConfigRequest mixedPackageConfigRequest, Pager pager) {
         List<MixedPackageConfig> mixedPackageConfigList = new ArrayList<MixedPackageConfig>();
         Integer count = mixedPackageConfigDao.queryMixedPackageConfigCountByRequest(mixedPackageConfigRequest);
@@ -92,7 +91,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateConfigYNById(Integer id, Integer userCode, String userName) {
         MixedPackageConfig mixedPackageConfig = new MixedPackageConfig();
         mixedPackageConfig.setId(id);
@@ -103,13 +101,11 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<MixedPackageConfig> querySelectedConfigs(MixedPackageConfigRequest mixedPackageConfigRequest) {
         return mixedPackageConfigDao.querySelectedConfigs(mixedPackageConfigRequest);
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer saveConfigs(MixedPackageConfigRequest request, Integer userCode, String userName) {
         List<MixedPackageConfig> mixedPackageConfigList = new ArrayList<MixedPackageConfig>();
         mixedPackageConfigList.addAll(getMixedPackageConfigList(request, userCode, userName));
@@ -117,7 +113,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer updateConfigs(MixedPackageConfigRequest mixedPackageConfigRequest, Integer userCode, String userName) {
         List<String> valueList = new ArrayList();
         for (String value : mixedPackageConfigRequest.getMixedSiteList()) {
@@ -131,7 +126,6 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     }
 
     @Override
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public List<MixedPackageConfig> queryConfigsForPrint(Integer createSiteCode, Integer receiveSiteCode, Integer transportType, Integer ruleType) {
         MixedPackageConfig mixedPackageConfig = new MixedPackageConfig();
         mixedPackageConfig.setCreateSiteCode(createSiteCode);
