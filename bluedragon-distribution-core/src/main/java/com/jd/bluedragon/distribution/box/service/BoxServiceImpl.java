@@ -8,32 +8,33 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
+import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.RandomUtils;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -96,6 +98,15 @@ public class BoxServiceImpl implements BoxService {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+    @Autowired
+    private CrossBoxService crossBoxService;
+
+    @Resource(name = "stableBoxPrefixSystem")
+    private Set<String> stableBoxPrefixSystem;
+
+    @Resource(name = "stableBoxPrefixType")
+    private Set<String> stableBoxPrefixType;
+
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -146,7 +157,7 @@ public class BoxServiceImpl implements BoxService {
 	 * @return
 	 */
 	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public List<Box> batchAddNew(Box param,BoxSystemTypeEnum systemType) {
+	public List<Box> batchAddNew(Box param, String systemType) {
 		return batchAddNewFromDMS(param, systemType);
 	}
     /**
@@ -155,7 +166,7 @@ public class BoxServiceImpl implements BoxService {
      * @param systemType 类型
      * @return 箱号集合
      */
-	private List<Box> batchAddNewFromDMS(Box param,BoxSystemTypeEnum systemType) {
+	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
@@ -197,13 +208,32 @@ public class BoxServiceImpl implements BoxService {
 	 * @return
 	 */
 
-	private String generateBoxCodePrefixNew(Box box, BoxSystemTypeEnum systemType,boolean isDB) {
+	private String generateBoxCodePrefixNew(Box box, String systemType,boolean isDB) {
 		StringBuilder preFix = new StringBuilder();
-		return preFix.append(box.getType())
-				.append("10").append(systemType.getCode())
+		if (!this.genStableBoxPrefix(box, systemType)) {
+            preFix.append(box.getType());
+        }
+		else {
+		    // 箱号固定BC开头，不再根据类型区域不同的前缀
+            preFix.append(BoxTypeEnum.TYPE_BC.getCode());
+        }
+		return preFix.append("10").append(systemType)
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
 				.append(isDB?"2":"1").toString();
 	}
+
+    /**
+     * 判断是否生成固定前缀的箱号
+     * @param box
+     * @param systemType
+     * @return
+     */
+	private boolean genStableBoxPrefix(Box box, String systemType) {
+	    if (CollectionUtils.isEmpty(stableBoxPrefixSystem) || CollectionUtils.isEmpty(stableBoxPrefixType)) {
+	        return false;
+        }
+        return stableBoxPrefixSystem.contains(systemType) || stableBoxPrefixType.contains(box.getType());
+    }
 
 	/**
 	 * 生成序列号
@@ -353,6 +383,7 @@ public class BoxServiceImpl implements BoxService {
 		} catch (Exception e) {
 			this.log.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , boxCode, e);
 		}
+
 		return null;
 
 	}
@@ -602,4 +633,113 @@ public class BoxServiceImpl implements BoxService {
 	private String getCacheKey(String code){
 		return prefixOfCache + code;
 	}
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxServiceImpl.commonGenBox", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew) {
+        Assert.notNull(request, "request must not be null");
+        Assert.notNull(request.getType(), "request type must not be null");
+        Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
+        Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
+        Assert.notNull(request.getQuantity(), "request quantity must not be null");
+        if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
+            Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
+        }
+        this.log.info("BoxRequest's {}", request.toString());
+        BoxResponse response = this.ok();
+        // 先生成路由信息
+        // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
+        CrossBoxResult<String[]> routInfoRes = null;
+        try {
+            routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(), request.getTransportType());
+            if (routInfoRes != null) {
+                this.log.info("BasicSaf getCrossDmsBox RouterInfo:{} ResultCode:{} Message:{}"
+                        ,routInfoRes.getData(), routInfoRes.getResultCode(), routInfoRes.getMessage());
+                if (log.isInfoEnabled()) {
+                    this.log.info("调用跨箱号中转获取箱号路由:{}", com.jd.bluedragon.utils.JsonHelper.toJson(routInfoRes));
+                }
+                if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
+                    // 没超过5个站点，用这个选择模板打印
+                    response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
+                    // 超过5个站点，打印系统直接用他打印
+                    response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
+                }
+            } else {
+                log.warn("获得站点路由信息结果为空,参数信息：{}", com.jd.bluedragon.utils.JsonHelper.toJson(request));
+            }
+        } catch (Exception e) {
+            this.log.error("获得站点路由信息失败： ", e);
+        }
+        // 生成箱号
+        List<Box> availableBoxes;
+        if (isNew) {
+            availableBoxes = this.batchAddNew(this.toBoxWithRouter(request, routInfoRes), systemType);
+        } else {
+            availableBoxes = this.batchAdd(this.toBoxWithRouter(request, routInfoRes));
+        }
+        response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
+
+        this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
+        return response;
+    }
+
+    /**
+     * 构建目的地打印属性
+     *
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param response
+     */
+    private void buildBoxPrintInfo(Integer createSiteCode, Integer receiveSiteCode, BoxResponse response) {
+        CrossPackageTagNew crossPackageTag = baseMinorManager.queryNonDmsSiteCrossPackageTagForPrint(receiveSiteCode, createSiteCode);
+        if (crossPackageTag != null) {
+            response.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
+            response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+        }
+        if (null != response) {
+            response.setBoxTypes(BoxTypeEnum.getMap());
+        }
+
+    }
+
+    private BoxResponse ok() {
+        return new BoxResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+    }
+
+    /**
+     * 对象转换，包括路由信息
+     * @param request
+     * @param crossBoxResult
+     * @return
+     */
+    private Box toBoxWithRouter(BoxRequest request, CrossBoxResult<String[]> crossBoxResult){
+        Box box = toBox(request);
+        if (crossBoxResult != null && CrossBoxResult.SUCCESS==crossBoxResult.getResultCode() && crossBoxResult.getData()!=null && crossBoxResult.getData().length==2){
+            box.setRouterName(crossBoxResult.getData()[0]);
+            box.setRouter(crossBoxResult.getData()[1]);
+        }
+        return box;
+    }
+
+    private Box toBox(BoxRequest request) {
+        Box box = new Box();
+        box.setType(request.getType());
+        box.setQuantity(request.getQuantity());
+        box.setCreateSiteCode(request.getCreateSiteCode());
+        box.setCreateSiteName(request.getCreateSiteName());
+        box.setReceiveSiteCode(request.getReceiveSiteCode());
+        box.setReceiveSiteName(request.getReceiveSiteName());
+        box.setCreateUser(request.getUserName());
+        box.setCreateUserCode(request.getUserCode());
+        box.setTransportType(request.getTransportType());
+        box.setMixBoxType(request.getMixBoxType());
+        box.setPredictSendTime(request.getPredictSendTime());
+        //临时占用字段处理站点商家重复
+        box.setStatuses(request.getCreateSiteType());
+        box.setUpdateUser(request.getReceiveSiteType());
+        //设置状态和当前节点
+        box.setStatus(com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.OPEN.getStatus());
+        box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
+        return box;
+    }
 }

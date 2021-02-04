@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
+import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 
 import java.util.List;
 
@@ -14,7 +15,7 @@ public interface BoxService {
     List<Box> batchAdd(Box box);
 
     /** 批量生成箱子信息 */
-    List<Box> batchAddNew(Box box, BoxSystemTypeEnum systemType);
+    List<Box> batchAddNew(Box box, String systemType);
 
     /**重打*/
     Integer reprint(Box box);
@@ -66,4 +67,13 @@ public interface BoxService {
      * @return
      */
     Boolean updateBoxStatus(BoxReq boxReq);
+
+    /**
+     * 箱号生成服务
+     * @param request
+     * @param systemType
+     * @param isNew
+     * @return
+     */
+    BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew);
 }
