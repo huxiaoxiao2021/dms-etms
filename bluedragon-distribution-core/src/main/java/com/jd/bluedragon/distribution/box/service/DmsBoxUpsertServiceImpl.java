@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxDto;
 import com.jd.bluedragon.distribution.box.domain.BoxGenReq;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -63,6 +64,12 @@ public class DmsBoxUpsertServiceImpl implements DmsBoxUpsertService{
             response.parameterError("不支持的箱号类型!");
             return response;
         }
+
+        if (BoxSystemTypeEnum.getFromCode(req.getTenantCode()) == null) {
+            response.parameterError("未注册的系统来源!");
+            return response;
+        }
+
         BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(req.getStartSiteCode());
         if (null == startSite) {
             response.parameterError("始发站点不存在!");
