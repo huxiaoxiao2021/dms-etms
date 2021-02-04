@@ -156,6 +156,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             return;
         }
         SendDetailMessage context = JsonHelper.fromJsonUseGson(message.getText(), SendDetailMessage.class);
+        log.info("消费发货明细-测试大件网络：context={}", JsonHelper.toJson(context));
         boolean isLock = false;
         try {
             Long operateTime = context.getOperateTime();
@@ -165,6 +166,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 if (lastOperateTime == null) {
                     isLock = true;
                     // 上次操作时间为null，表示缓存锁加入成功，执行消费逻辑
+                    log.info("消费发货明细-测试大件网络--开始消费：context={}", JsonHelper.toJson(context));
                     this.doConsume(context);
                 } else {
                     // 根据发货操作时间判断数据是否有效
@@ -237,6 +239,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      */
     private void doConsume(SendDetailMessage sendDetail) throws JMQException {
         String packageBarCode = sendDetail.getPackageBarcode();
+        log.info("消费发货明细-测试大件网络：packageBarCode={}", packageBarCode);
         if (SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
             String waybillCode = WaybillUtil.getWaybillCode(packageBarCode);
             BaseEntity<BigWaybillDto> baseEntity = this.getWaybillBaseEntity(waybillCode);
@@ -301,7 +304,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * @param waybill
      */
     private void dmsToVendorMQ(SendDetailMessage sendDetail, Waybill waybill) {
+        log.info("消费发货明细-测试大件网络：sendDetail={},waybill={}", JsonHelper.toJson(sendDetail), JsonHelper.toJson(waybill));
         BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
+        log.info("消费发货明细-测试大件网络：receiveSiteDto={},waybillCode={}", JsonHelper.toJson(receiveSiteDto), JsonHelper.toJson(waybill));
         // 发货目的地是车队，且是非城配运单，要通知调度系统
         if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
             log.info("isDmsToVendor判断大件网络:dmsToVendorMQ----waybillCode={}", waybill.getWaybillCode());
