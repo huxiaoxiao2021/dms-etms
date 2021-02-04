@@ -1907,34 +1907,33 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     private List<String> getSurplusPackageCodes(List<String> totalPackages, String sealCarCode, String waybillCode) {
         // 查询封车任务下指定运单下的所有包裹
-        List<String> taskPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
-        if (CollectionUtils.isEmpty(taskPackages)) {
+        List<String> sealPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
+        if (CollectionUtils.isEmpty(sealPackages)) {
             if (!sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
                 throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
             }
             return totalPackages;
         }
-        return getDifferenceList(totalPackages, taskPackages);
+        return getDifferenceList(totalPackages, sealPackages);
     }
 
     /**
      * 根据运单总包裹集合与封车任务下总包裹集合的差集，得到多货包裹集合
-     * @param totalPackages 运单总包裹集合
+     * @param totalPackages 运单有效包裹集合
      * @param sealPackages 封车任务下总包裹集合
      * @return 多货包裹集合
      */
     private List<String> getDifferenceList(List<String> totalPackages, List<String> sealPackages) {
         List<String> different = new ArrayList<>();
-
-        Map<String, String> map = new HashMap<>(totalPackages.size());
-        for (String packageCode : totalPackages) {
+        // 将应卸包裹放入map
+        Map<String, String> map = new HashMap<>(sealPackages.size());
+        for (String packageCode : sealPackages) {
             map.put(packageCode, packageCode);
         }
-        for (String packageCode : sealPackages) {
-            if (map.get(packageCode) != null) {
-                continue;
+        for (String packageCode : totalPackages) {
+            if (map.get(packageCode) == null) {
+                different.add(packageCode);
             }
-            different.add(packageCode);
         }
         return different;
     }
