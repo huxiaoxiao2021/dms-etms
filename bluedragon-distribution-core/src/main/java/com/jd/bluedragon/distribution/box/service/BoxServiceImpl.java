@@ -670,6 +670,10 @@ public class BoxServiceImpl implements BoxService {
             response.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
+        if (null != response) {
+			response.setBoxTypes(BoxTypeEnum.getMap());
+		}
+
     }
 
     private BoxResponse ok() {
