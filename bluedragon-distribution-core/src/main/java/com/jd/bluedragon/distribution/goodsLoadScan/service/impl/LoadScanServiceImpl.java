@@ -1554,6 +1554,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                                                Map<String, LoadScanDto> flowDisAccordMap, LoadScanDetailDto scanDetailDto) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
         BigDecimal totalWeight = new BigDecimal("0");
+        // 体积单位换算基数
+        BigDecimal cardinalNumber = new BigDecimal("1000000");
         BigDecimal totalVolume = new BigDecimal("0");
         BigDecimal weight;
         BigDecimal volume;
@@ -1602,8 +1604,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             goodsDetails.add(goodsDetailDto);
         }
-        scanDetailDto.setTotalWeight(totalWeight.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue());
-        scanDetailDto.setTotalVolume(totalVolume.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue());
+        scanDetailDto.setTotalWeight(totalWeight.doubleValue());
+        scanDetailDto.setTotalVolume(totalVolume.divide(cardinalNumber, 3, BigDecimal.ROUND_HALF_UP).doubleValue());
         scanDetailDto.setTotalPackageNum(totalPackageNum);
         return goodsDetails;
     }
