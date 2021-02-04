@@ -176,12 +176,13 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUser("Jone");
         parameter.setUpdateUserCode(368);
         parameter.setUpdateTime(new Date());
-        parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Jim");
-        parameter.setCreateSiteCode(596);
-        parameter.setReceiveSiteCode(204);
+        parameter.setOperateTime(new Date());
+
+        parameter.setPackageBarcode("JDVA66612663891-1-1-");
+        parameter.setCreateSiteCode(910);
+        parameter.setReceiveSiteCode(0);
         parameter.setInspectionType(40);
-        inspectionDao.update(InspectionDao.namespace, parameter);
+       inspectionDao.update(InspectionDao.namespace, parameter);
     }
 	
 	@Test
