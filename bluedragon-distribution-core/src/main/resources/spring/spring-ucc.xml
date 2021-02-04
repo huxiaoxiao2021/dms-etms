@@ -90,6 +90,7 @@
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite:-1}"/>
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
+		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
 
 	</bean>
 

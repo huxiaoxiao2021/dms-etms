@@ -28,4 +28,7 @@ public class BoxDao extends BaseDao<Box> {
         return super.getSqlSession().update(BoxDao.namespace + ".updateMessySiteNameByBoxCode", box);
     }
 
+    public Integer updateBoxStatus(Box box) {
+        return super.getSqlSession().update(BoxDao.namespace + ".updateBoxStatus", box);
+    }
 }
