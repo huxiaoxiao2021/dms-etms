@@ -754,7 +754,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 先保存正常的包裹集合
             if (CollectionUtils.isNotEmpty(normalPackages)) {
                 // 每一批次200条
-                List<List<String>> packageCodeList = ListUtils.partition(surplusPackages, 200);
+                List<List<String>> packageCodeList = ListUtils.partition(normalPackages, 200);
                 for (List<String> packList : packageCodeList) {
                     unloadScanRecord.setPackageCodeList(packList);
                     unloadScanRecordDao.batchInsertByWaybill(unloadScanRecord);
