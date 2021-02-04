@@ -1602,8 +1602,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             goodsDetails.add(goodsDetailDto);
         }
-        scanDetailDto.setTotalWeight(totalWeight.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
-        scanDetailDto.setTotalVolume(totalVolume.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue());
+        scanDetailDto.setTotalWeight(totalWeight.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue());
+        scanDetailDto.setTotalVolume(totalVolume.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue());
         scanDetailDto.setTotalPackageNum(totalPackageNum);
         return goodsDetails;
     }
