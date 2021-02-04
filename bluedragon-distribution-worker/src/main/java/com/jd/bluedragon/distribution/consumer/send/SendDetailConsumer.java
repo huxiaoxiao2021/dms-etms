@@ -304,6 +304,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
         // 发货目的地是车队，且是非城配运单，要通知调度系统
         if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
+            log.info("isDmsToVendor判断大件网络:dmsToVendorMQ----waybillCode={}", waybill.getWaybillCode());
             Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto, dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
             this.log.debug("非城配运单，发车队通知调度系统发送MQ[{}],业务ID[{}],消息主题: {}", message.getTopic(), message.getBusinessId(), message.getText());
             dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
