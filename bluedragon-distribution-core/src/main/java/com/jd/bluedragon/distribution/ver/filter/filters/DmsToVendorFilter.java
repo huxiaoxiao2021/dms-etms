@@ -48,7 +48,7 @@ public class DmsToVendorFilter implements Filter {
         if(SUBTYPE_6420.equals(createSiteCode.getSubType())
                 && BASE_SITE_MOTORCADE.equals(request.getReceiveSite().getType())
                 && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
-            logger.info("isDmsToVendor判断大件网络:doFilter----waybillCode={}", waybill.getWaybillCode());
+
             boolean result = this.dispatchToExpress(createSiteCode.getCode(), waybill.getBusiId(), waybill.getWaybillSign());
             //拦截校验住，给出提示信息
             if(result){
