@@ -264,11 +264,4 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!--  储位号对外生成服务  -->
-    <jsf:provider id="storageCodeExternalApi"
-                  interface="com.jd.bluedragon.distribution.external.sdk.api.storage.StorageCodeApi"
-                  alias="${jsf.storageCode.external.alias}"
-                  ref="storageCodeExternalService"
-                  server="dmsjsf">
-    </jsf:provider>
 </beans>
