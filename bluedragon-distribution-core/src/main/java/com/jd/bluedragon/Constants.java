@@ -1403,4 +1403,14 @@ public class Constants {
      * 抽检PDA来源标识
      */
     public static final Integer PDA_SOURCE = 1;
+
+    /**
+     * 暂存预约接口成功响应码
+     */
+    public static final Integer STAGING_CHECK_SUCCESS_CODE = 0;
+
+    /**
+     * 暂存预约提示语
+     */
+    public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
 }
