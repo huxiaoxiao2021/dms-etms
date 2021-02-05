@@ -136,8 +136,9 @@ public class WarmBoxInOutResource {
 
             long startTime = System.currentTimeMillis();
 
+            boolean saveFlow = true;
             JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
-                            .saveMaterialReceive(materialReceives, false);
+                            .saveMaterialReceive(materialReceives, saveFlow);
 
             long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
@@ -179,8 +180,9 @@ public class WarmBoxInOutResource {
             }
             long startTime = System.currentTimeMillis();
 
+            boolean saveFlow = true;
             JdResult<Boolean> ret = materialServiceFactory.findMaterialOperationService(SEND_MODE)
-                    .saveMaterialSend(materialSends, false);
+                    .saveMaterialSend(materialSends, saveFlow);
 
             long endTime = System.currentTimeMillis();
             response.setCode(ret.getCode());
