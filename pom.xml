@@ -20,7 +20,6 @@
    		<module>bluedragon-distribution-saf</module>
         <module>bluedragon-distribution-utils</module>
         <module>bluedragon-distribution-common-android</module>
-        <module>bluedragon-distribution-external-sdk</module>
     </modules>
 	
 	<properties>
