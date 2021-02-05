@@ -14,10 +14,6 @@ public class ServiceResult<T> implements Serializable {
 
     private static final long serialVersionUID = 6900545658811516638L;
 
-    private static final Integer SUCCESS_CODE = 200;
-
-    private static final String MESSAGE_SUCCESS = "请求成功";
-
     /**
      * 请求成功失败标识；true：成功；false：失败
      */
@@ -92,16 +88,6 @@ public class ServiceResult<T> implements Serializable {
     public Boolean retFail() {
         return !retSuccess();
     }
-
-    /**
-     *  请求成功编码设定方法
-     */
-    public void toSuccess(){
-        this.success =Boolean.TRUE;
-        this.code = SUCCESS_CODE;
-        this.message = MESSAGE_SUCCESS;
-    }
-
 
     /**
      *
