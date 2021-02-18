@@ -101,11 +101,11 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<String> combinationBoardNew(CombinationBoardRequest request) {
-        JdCResponse<String> jdcResponse = new JdCResponse<>();
+    public JdCResponse<BoardResponse> combinationBoardNew(CombinationBoardRequest request) {
+        JdCResponse<BoardResponse> jdcResponse = new JdCResponse<>();
 
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
-
+        jdcResponse.setData(response.getData());
         if (response.getCode() != 200) {
             jdcResponse.setMessage(convertMessage(response.getData().getStatusInfo()));
         } else {

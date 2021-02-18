@@ -144,6 +144,7 @@ public class BoardCombinationResource {
         // 参数校验
         String errStr = checkCombinationBoardParam(request);
         if (StringHelper.isNotEmpty(errStr)) {
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, errStr);
             result.toFail(errStr);
             return result;
         }
@@ -160,11 +161,13 @@ public class BoardCombinationResource {
                 // 调用接口生成板号
                 InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
                 if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, invokeResult.getMessage());
                     result.toFail(invokeResult.getMessage());
                     return result;
                 }
                 Board board = invokeResult.getData();
                 if (board == null || StringUtils.isEmpty(board.getCode())) {
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
                     result.toFail(LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
                     return result;
                 }
@@ -183,16 +186,20 @@ public class BoardCombinationResource {
                     try {
                         nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode, request.getCurrentOperate().getSiteCode());
                         if (nextSiteCode == null) {
+                            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此单路由信息获取失败，无法判断流向生成板号，是否强制组板?");
                             result.toConfirm("此单路由信息获取失败，无法判断流向生成板号，是否强制组板?");
                             return result;
                         }
                         if (!nextSiteCode.equals(request.getReceiveSiteCode())) {
+                            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "包裹流向与板号流向不一致，是否强制组板?");
                             result.toConfirm("包裹流向与板号流向不一致，是否强制组板?");
                             return result;
                         }
                     } catch (Exception e) {
                         log.error("运单号【{}】的路由下一跳和板号【{}】目的地校验异常,error=", waybillCode, request.getBoardCode(), e);
-                        throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+                        boardResponse.addStatusInfo(JdResponse.CODE_ERROR, "服务器执行异常");
+                        result.toError("服务器执行异常");
+                        return result;
                     }
                 }
             }
