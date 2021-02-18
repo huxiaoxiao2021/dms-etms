@@ -19,6 +19,8 @@ public interface SortBoardGatewayService {
 
     JdCResponse combinationBoard(CombinationBoardRequest request);
 
+    JdCResponse<String> combinationBoardNew(CombinationBoardRequest request);
+
     JdCResponse combinationBoardCancel(CombinationBoardRequest request);
 
     JdCResponse<BoardDetailDto> queryBoardDetail(String boardCode);

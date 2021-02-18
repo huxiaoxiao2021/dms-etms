@@ -97,6 +97,33 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     }
 
     /**
+     * 组板(自动生成板号)
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> combinationBoardNew(CombinationBoardRequest request) {
+        JdCResponse<String> jdcResponse = new JdCResponse<>();
+
+        JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
+
+        if (response.getCode() != 200) {
+            jdcResponse.setMessage(convertMessage(response.getData().getStatusInfo()));
+        } else {
+            jdcResponse.setMessage(response.getMessage());
+        }
+
+        // code转化
+        if (response.getCode() > 30000 && response.getCode() < 40000) {
+            jdcResponse.setCode(JdCResponse.CODE_CONFIRM);
+        } else {
+            jdcResponse.setCode(response.getCode());
+        }
+        jdcResponse.setCode(response.getCode());
+
+        return jdcResponse;
+    }
+
+    /**
      * 取消组板
      */
     @Override
