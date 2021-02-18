@@ -123,7 +123,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     public static final Integer EXPRESS_CENTER_SITE_ID = 6420;
 
-    @Value("${unload.board.bindings.count.max:50}")
+    @Value("${unload.board.bindings.count.max:100}")
     private Integer unloadBoardBindingsMaxCount;
 
     @Autowired

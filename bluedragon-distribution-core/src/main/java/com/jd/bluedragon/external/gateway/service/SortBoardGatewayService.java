@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
-import com.jd.bluedragon.distribution.api.response.BoardResponse;
 
 /**
  * SortBoardGatewayService
@@ -20,7 +19,7 @@ public interface SortBoardGatewayService {
 
     JdCResponse combinationBoard(CombinationBoardRequest request);
 
-    JdCResponse<BoardResponse> combinationBoardNew(CombinationBoardRequest request);
+    JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request);
 
     JdCResponse combinationBoardCancel(CombinationBoardRequest request);
 

@@ -23,11 +23,17 @@ public class BoardCheckDto implements Serializable {
      */
     private String receiveSiteName;
 
+    /**
+     * 板号
+     */
+    private String boardCode;
+
     @Override
     public String toString() {
         return "BoardCheckDto{" +
                 "receiveSiteCode=" + receiveSiteCode +
                 ", receiveSiteName='" + receiveSiteName + '\'' +
+                ", boardCode='" + boardCode + '\'' +
                 '}';
     }
 
@@ -45,5 +51,13 @@ public class BoardCheckDto implements Serializable {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }
