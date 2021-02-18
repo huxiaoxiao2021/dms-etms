@@ -49,7 +49,8 @@ public class WeightVolumeResource {
                 .height(condition.getHeight()).weight(condition.getWeight()).width(condition.getWidth()).length(condition.getLength()).volume(condition.getVolume())
                 .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
                 .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
-                .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage());
+                .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
+                .machineCode(condition.getMachineCode());
         InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
         result.setCode(invokeResult.getCode());
         result.setMessage(invokeResult.getMessage());

@@ -109,6 +109,10 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
+
+    public static final Integer CODE_30020 = 30020;
+    public static final String MESSAGE_30020 = "文件包裹未集包禁止发货";
+
     /**
      * 快运-拦截标识
      */
@@ -152,10 +156,6 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = "当前众邮箱号无分拣复重重量或复重体积，请复重量方后再发货";
 
     /**取消发货校验提示语 End*/
-
-    public static final Integer CODE_40100 = 40100;
-    public static final String MESSAGE_40100 = "文件包裹未集包禁止发货";
-
 
     /**
      * 单纯的提示语

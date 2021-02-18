@@ -158,7 +158,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @throws Exception 
 	 */
 	public Long moveTaskToDB(QueueKeyInfo queueKeyInfo) throws Exception {
-		Long results = 0l;
+		Long results = 0L;
 		
 		Map<String, ScheduleQueue> queueMap = redisTaskHelper.getQueueMap(queueKeyInfo);
 		if(queueMap==null||queueMap.size()==0) //如果无队列则直接返回空

@@ -3,9 +3,14 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -106,7 +111,16 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
     @Autowired
     private CycleBoxService cycleBoxService;
-	
+
+	@Autowired
+	private IEconomicNetService economicNetService;
+
+	@Autowired
+	private BoxService boxService;
+
+	@Autowired
+	private SiteService siteService;
+
 	/**
 	 * 收货
 	 * 
@@ -378,6 +392,10 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		if(!BusinessHelper.isBoxcode(receive.getBoxCode())){
 			saveCenConfirmAndSendTrack(taskContext, false);
 		}
+		//先加载箱包数据
+		if(!this.loadENetBox(receive.getBoxCode())){
+			throw new EconomicNetException("收箱验货时加载箱包关系失败！"+receive.getBoxCode());
+		}
 		List<SendDetail> sendDetails = deliveryService.getCancelSendByBox(receive
 				.getBoxCode());
 		if (sendDetails == null || sendDetails.isEmpty()) {
@@ -396,5 +414,25 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		}
 
 		return cenConfirmList;
+	}
+
+	/**
+	 * 加载箱包数据数据
+	 * @param boxCode
+	 * @return
+	 */
+	private boolean loadENetBox(String boxCode){
+		/* 获取箱号的信息 */
+		Box box = boxService.findBoxByCode(boxCode);
+		if(box == null){
+			log.error("loadENetBox box is null! {}",boxCode);
+			return true;
+		}
+		BaseStaffSiteOrgDto siteEntity = siteService.getSite(box.getCreateSiteCode());
+		if (siteEntity == null || siteEntity.getSiteType() != BaseContants.ECONOMIC_NET_SITE) {
+			log.info("loadENetBox siteEntity not satisfy! {}",boxCode);
+			return true;
+		}
+		return economicNetService.loadAndSaveBoxPackageData(box);
 	}
 }

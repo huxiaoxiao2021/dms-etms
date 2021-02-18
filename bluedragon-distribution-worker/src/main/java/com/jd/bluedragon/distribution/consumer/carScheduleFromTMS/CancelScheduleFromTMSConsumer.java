@@ -58,7 +58,7 @@ public class CancelScheduleFromTMSConsumer extends MessageBaseConsumer{
             throw new JMQException(e,400);
         }
 
-        if(bool == Boolean.FALSE){
+        if(Boolean.FALSE.equals(bool)){
             this.log.warn("取消发车的消息消费失败，请检查是否有发车记录:{}",body);
 //            throw new JMQException("can not deal with the cancel_car_message,maybe the send_car_info is on it's slow way.please check it the message:"+body,400);
         }

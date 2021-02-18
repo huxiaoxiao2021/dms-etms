@@ -329,7 +329,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.queryMain", mState = {JProEnum.TP})
     public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition,LoginUser loginUser) {
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
-        if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(userDto.getSiteType())) {
             abnormalDisposeCondition.setSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
         }
         //封装分页参数

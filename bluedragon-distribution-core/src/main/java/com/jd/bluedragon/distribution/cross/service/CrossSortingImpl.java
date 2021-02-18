@@ -272,6 +272,7 @@ public class CrossSortingImpl implements CrossSortingService {
 				}
 			}
 		}catch (NumberFormatException ex){
+			log.warn("getSiteByCode异常！siteCode:{}", siteCode, ex);
 		}
 		return null;
 	}

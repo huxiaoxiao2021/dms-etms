@@ -7,19 +7,6 @@ import net.sf.json.util.JSONStringer;
  */
 public class IntegerHelper {
 
-    public static boolean compare(Integer a, Integer b) {
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a == b) {
-            return true;
-        }
-        if (a.intValue() == b.intValue()) {
-            return true;
-        }
-        return false;
-    }
-
     public static int integerToInt(Integer value){
         if(value == null){
             return 0;

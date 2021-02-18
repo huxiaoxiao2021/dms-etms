@@ -90,17 +90,18 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	@Override
 	public WaybillResponse getWaybillPackageBarcode(String code,Integer siteCode, Integer receiveSiteCode) {
 		
-		WaybillResponse waybillResponse = new WaybillResponse();
+		WaybillResponse waybillResponse = null;
 
 		//根据规则查出是包裹还是运单
 		if(WaybillUtil.isPackageCode(code) || WaybillUtil.isSurfaceCode(code)){//如果是包裹或者取件单则调用getWaybillByPackCode方法查询
 			
-			waybillResponse = this.wssGetWaybillByPackCode(waybillResponse,code, siteCode, receiveSiteCode);
+			waybillResponse = this.wssGetWaybillByPackCode(code, siteCode, receiveSiteCode);
 			
 		}else if( WaybillUtil.isWaybillCode(code)){//如果是运单则调用getWaybillAndPackByWaybillCode方法查询
 
-			waybillResponse = this.getWaybillAndPackByWaybillCode(waybillResponse,code,siteCode,receiveSiteCode);
+			waybillResponse = this.getWaybillAndPackByWaybillCode(code,siteCode,receiveSiteCode);
 		}else{
+			waybillResponse = new WaybillResponse();
 			log.error("  getWaybillPackageBarcode 失败，因为参数code无法解析, code: {}",code);
 		}
 		return waybillResponse;
@@ -114,7 +115,8 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * @param receiveSiteCode
 	 * @return
 	 */
-	private WaybillResponse getWaybillAndPackByWaybillCode( WaybillResponse waybillResponse, String code, Integer siteCode, Integer receiveSiteCode ) {
+	private WaybillResponse getWaybillAndPackByWaybillCode(String code, Integer siteCode, Integer receiveSiteCode ) {
+		WaybillResponse waybillResponse = new WaybillResponse();
 		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity =  wssByWaybillCode(code);
 		if(null==entity)	return waybillResponse;
 		
@@ -153,7 +155,8 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * @param receiveSiteCode
 	 * @return
 	 */
-	private WaybillResponse wssGetWaybillByPackCode(WaybillResponse waybillResponse,String code, Integer siteCode, Integer receiveSiteCode) {
+	private WaybillResponse wssGetWaybillByPackCode(String code, Integer siteCode, Integer receiveSiteCode) {
+		WaybillResponse waybillResponse = new WaybillResponse();
 		BaseEntity<Waybill> entity = waybillQueryManager.getWaybillByPackCode(code);
 		if(null==entity){
 			log.warn(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail that entity is null . package barcode: {}",code);

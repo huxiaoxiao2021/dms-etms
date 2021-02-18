@@ -241,6 +241,7 @@ public class JsonHelper {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
+            log.warn("isJson异常！json:{}", json, e);
         }
         
         return Boolean.FALSE;

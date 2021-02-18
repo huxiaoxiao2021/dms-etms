@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -42,11 +43,16 @@ public class FilePackageSortingFilter implements Filter {
 
             if (waybillService.allowFilePackFilter(request.getCreateSite().getSubType(), request.getWaybillCache().getWaybillSign())) {
 
-                // 文件标识包裹必须集包
+                // 分拣时文件标识包裹必须集包
                 if (BusinessHelper.isBoxcode(request.getBoxCode())
                         && !(request.getBoxCode().startsWith(Box.TYPE_WJ) || request.getBoxCode().startsWith(Box.TYPE_TC))) {
 
                     throw new SortingCheckException(SortingResponse.CODE_29601, SortingResponse.MESSAGE_29601);
+                }
+
+                // 新发货按原包发货，文件包裹必须集包
+                if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
+                    throw new SortingCheckException(DeliveryResponse.CODE_30020, DeliveryResponse.MESSAGE_30020);
                 }
             }
         }

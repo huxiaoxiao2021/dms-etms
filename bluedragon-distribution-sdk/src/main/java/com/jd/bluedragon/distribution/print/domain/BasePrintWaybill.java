@@ -246,6 +246,17 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String popularizeMatrixCode;
 
+	/*
+	* 二维码描述
+	* */
+	private String popularizeMatrixCodeDesc;
+
+	/*
+	 * 运单增值服务标识
+	 * 规则：第一位：1：包裹有话说，0：无
+	 * */
+	private String waybillVasSign = "";
+
 	/**
 	 * 已验视
 	 */
@@ -1620,9 +1631,26 @@ public class BasePrintWaybill implements Serializable {
 		return bcSign;
 	}
 
+	public String getPopularizeMatrixCodeDesc() {
+		return popularizeMatrixCodeDesc;
+	}
+
+	public void setPopularizeMatrixCodeDesc(String popularizeMatrixCodeDesc) {
+		this.popularizeMatrixCodeDesc = popularizeMatrixCodeDesc;
+	}
+
 	public void setBcSign(String bcSign) {
 		this.bcSign = bcSign;
 	}
+
+	public String getWaybillVasSign() {
+		return waybillVasSign;
+	}
+
+	public void setWaybillVasSign(String waybillVasSign) {
+		this.waybillVasSign = waybillVasSign;
+	}
+
 	/**
 	 * @return the printAddressRemark
 	 */

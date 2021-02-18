@@ -49,6 +49,8 @@ import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -249,6 +251,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private IEconomicNetService economicNetService;
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -1985,48 +1990,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                         log.warn("文件包裹禁止按包裹发货. packageBarCode:{}", tSendM.getBoxCode());
                     }
 
-                    response.setCode(DeliveryResponse.CODE_40100);
-                    response.setMessage(DeliveryResponse.MESSAGE_40100);
+                    response.setCode(DeliveryResponse.CODE_30020);
+                    response.setMessage(DeliveryResponse.MESSAGE_30020);
 
                     return response;
                 }
             }
         }
 
-        return response;
-    }
-
-    /**
-     * 0重量和体积校验
-     * 目前指针对一下单子拦截：众邮
-     * @param tSendM
-     * @return
-     */
-    private DeliveryResponse zeroWeightAndVolumeCheck(SendM tSendM) {
-        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-        //限定范围
-        //实发网点类型为经济网 10000 为众邮箱号
-        if (null == tSendM || StringUtils.isEmpty(tSendM.getBoxCode())){
-            return response;
-        }
-        Box box = boxService.findBoxByCode(tSendM.getBoxCode());
-        if(null == box){
-            return response;
-        }
-        BaseStaffSiteOrgDto yrDto = this.baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
-        if (!SiteHelper.isEconomicNet(yrDto)){
-            return response;
-        }
-        //查询箱重量和体积
-        List<PackageWeighting> packageWeightings = packageWeightingDao.findWeightVolume(tSendM.getBoxCode(),tSendM.getBoxCode(),Arrays.asList(BusinessTypeEnum.DMS.getCode()));
-
-        //判断
-        if (CollectionUtils.isEmpty(packageWeightings) ||
-                packageWeightings.get(0).getWeight().compareTo(0.0) <= 0 ||
-                packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
-            response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
-            response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
-        }
         return response;
     }
 
@@ -4097,7 +4068,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 
         //发货目的地不是车队，返回true，不再校验
-        if(Constants.BASE_SITE_MOTORCADE != receiveSite.getSiteType()){
+        if(! Constants.BASE_SITE_MOTORCADE.equals(receiveSite.getSiteType())){
             return true;
         }
         String waybillCode = null;
@@ -4939,10 +4910,22 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     public List<SendDetail> getCancelSendByBoxFromThird(Box box) {
-
+        if(box == null) {
+            return null;
+        }
         BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
         if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
             return null;
+        }
+        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
+        if(!economicNetService.isReady(box)){
+            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
+            try{
+                Thread.sleep(1000);
+            }catch (Exception e){}
+            if(!economicNetService.isReady(box)){
+                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
+            }
         }
         List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
         if(CollectionUtils.isEmpty(thirdBoxDetails)){
