@@ -233,13 +233,14 @@ public class WarmBoxInOutOperationServiceImpl extends AbstractMaterialBaseServic
     public PagerResult<RecycleMaterialScanVO> queryByPagerCondition(RecycleMaterialScanQuery query) {
 
         PagerResult<RecycleMaterialScanVO> result = new PagerResult<>();
+        List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
+        result.setRows(scanVOS);
         MaterialFlowCondition condition = new MaterialFlowCondition();
         BeanUtils.copyProperties(query, condition);
         condition.setStartTime(DateUtil.format(query.getStartTime(), DateUtil.FORMAT_DATE_TIME));
         condition.setEndTime(DateUtil.format(query.getEndTime(), DateUtil.FORMAT_DATE_TIME));
         Pager<DmsMaterialFlowDto> pager = materialFlowJsfService.queryByPage(condition);
         if (null != pager && CollectionUtils.isNotEmpty(pager.getData())) {
-            List<RecycleMaterialScanVO> scanVOS = new ArrayList<>();
             for (DmsMaterialFlowDto item : pager.getData()) {
                 RecycleMaterialScanVO scanVO = new RecycleMaterialScanVO();
                 scanVO.setMaterialType(item.getMaterialType().byteValue());
