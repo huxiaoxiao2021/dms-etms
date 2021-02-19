@@ -257,7 +257,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private void setUnloadScanDetail(UnloadScanDetailDto unloadScanDetailDto, String sealCarCode) {
         CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.setUnloadScanDetail", false, true);
         try {
-            List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanByBySealCarCode(sealCarCode);
+            List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanBySealCarCode(sealCarCode);
             if (CollectionUtils.isEmpty(unloadScans)) {
                 unloadScanDetailDto.setTotalWaybillNum(0);
                 unloadScanDetailDto.setTotalPackageNum(0);
@@ -284,26 +284,26 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 totalPackageNum = totalPackageNum + unloadScan.getForceAmount();
                 // 转换数据
                 unloadScanDtoList.add(convertData(unloadScan));
-                if (unloadScan.getLoadAmount() == 0) {
+                if (unloadScan.getLoadAmount() == 0 && unloadScan.getSurplusAmount() == 0) {
                     continue;
                 }
                 // 统计已扫数据
-                loadPackageNum = loadPackageNum + unloadScan.getLoadAmount();
-                // 如果是空任务或者正常任务中的多扫运单
+                loadPackageNum = loadPackageNum + unloadScan.getLoadAmount() + unloadScan.getSurplusAmount();
+                // 如果是空任务
                 if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
-                    // 运单总包裹数 = 已卸数，则已卸单+1
-                    if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount())) {
+                    // 运单总包裹数 = 多卸数，则已卸单+1
+                    if (unloadScan.getPackageAmount().equals(unloadScan.getSurplusAmount())) {
                         loadWaybillNum = loadWaybillNum + 1;
                     }
                 } else {
                     // 正常任务有多扫
-                    if (unloadScan.getForceAmount() == 0) {
-                        // 运单总包裹数 = 已卸数，则已卸单+1
-                        if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount())) {
+                    if (unloadScan.getSurplusAmount() > 0) {
+                        // 运单总包裹数 = 已卸数+多卸数，则已卸单+1
+                        if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount() + unloadScan.getSurplusAmount())) {
                             loadWaybillNum = loadWaybillNum + 1;
                         }
                         // 统计正常任务下多扫的包裹数
-                        surplusPackageNum = surplusPackageNum + unloadScan.getLoadAmount();
+                        surplusPackageNum = surplusPackageNum + unloadScan.getSurplusAmount();
                         // 正常任务也没有多扫，应卸=已卸，已卸单+1
                     } else if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
                         loadWaybillNum = loadWaybillNum + 1;
@@ -683,7 +683,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 运单暂存
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            UnloadScan unloadScan = unloadScanDao.findUnloadBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
             // 运单之前操作过
             if (unloadScan != null) {
                 if (flowDisAccord) {
@@ -773,7 +773,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 保存运单暂存记录
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            UnloadScan unloadScan = unloadScanDao.findUnloadBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
             if (unloadScan == null) {
                 unloadScan = createUnloadScan(request.getBarCode(), request.getSealCarCode(), normalPackages.size(),
                         packageNum, request.getOperateUserName(), request.getOperateUserErp(), flowDisAccord);
