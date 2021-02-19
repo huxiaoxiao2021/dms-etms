@@ -39,7 +39,6 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -372,8 +371,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 验货校验
                 inspectionIntercept(request);
 
-                // 查询包裹所在批次号
-                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("原始包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -383,7 +380,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 是否多货包裹校验
                 isSurplusPackage = surfacePackageCheck(request,result);
                 // 保存包裹卸车记录和运单暂存
-                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+                saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
                 // 路由校验、生成板号
                 routerCheck(request,result);
@@ -477,8 +474,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 验货校验
                 inspectionIntercept(request);
 
-                // 查询包裹所在批次号
-                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -488,7 +483,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 是否多货包裹校验
                 isSurplusPackage = surfacePackageCheck(request,result);
                 // 保存包裹卸车记录和运单暂存
-                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+                saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
 
                 // 路由校验、生成板号
@@ -575,8 +570,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 验货校验
                 inspectionIntercept(request);
 
-                // 查询包裹所在批次号
-                String sendCode = null;
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -586,7 +579,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 是否多货包裹校验
                 isSurplusPackage = surfacePackageCheck(request,result);
                 // 保存包裹卸车记录和运单暂存
-                saveUnloadDetail(request, isSurplusPackage, sendCode, unloadCar);
+                saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
 
                 // 路由校验、生成板号
@@ -658,7 +651,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         dtoInvokeResult.setData(unloadScanDetailDto);
     }
 
-    private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, String sendCode, UnloadCar unloadCar) {
+    private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, UnloadCar unloadCar) {
         CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.saveUnloadDetail", false, true);
         try {
             // 转板时不再重复暂存
@@ -673,7 +666,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             // 包裹暂存
             UnloadScanRecord newUnloadRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                    request.getTransfer(), null, null, isSurplusPackage, sendCode, request, unloadCar);
+                    request.getTransfer(), null, null, isSurplusPackage, null, request, unloadCar);
             unloadScanRecordDao.insert(newUnloadRecord);
 
             boolean flowDisAccord = false;
@@ -720,14 +713,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("包裹卸车扫描--运单暂存和插入卸车包裹记录表发生异常,packageCode={},sendCode={},sealCarCode={},isSurplus={},e=",
-                    request.getBarCode(), sendCode, request.getSealCarCode(), isSurplusPackage, e);
+                    request.getBarCode(), null, request.getSealCarCode(), isSurplusPackage, e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
     }
 
     private void batchSaveUnloadDetail(List<String> packageList, List<String> surplusPackages, UnloadCarScanRequest request,
-                                       String sendCode, UnloadCar unloadCar, String waybillCode) {
+                                       UnloadCar unloadCar, String waybillCode) {
         CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.batchSaveUnloadDetail", false, true);
         try {
             boolean flowDisAccord = false;
@@ -744,7 +737,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 正常包裹集合 = 运单包裹总集合 - 多货包裹集合
             List<String> normalPackages = ListUtils.subtract(packageList, surplusPackages);
             UnloadScanRecord unloadScanRecord = createUnloadScanRecord(request.getBarCode(), request.getSealCarCode(),
-                    request.getTransfer(), nextSiteCode, nextSiteName, false, sendCode, request, unloadCar);
+                    request.getTransfer(), nextSiteCode, nextSiteName, false, null, request, unloadCar);
             // 先保存正常的包裹集合
             if (CollectionUtils.isNotEmpty(normalPackages)) {
                 // 每一批次200条
@@ -795,23 +788,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         } catch (Exception e) {
             Profiler.functionError(info);
             logger.error("大宗卸车扫描--运单暂存和批量插入卸车包裹记录表发生异常,waybillCode={},sendCode={},sealCarCode={},e=",
-                    waybillCode, sendCode, request.getSealCarCode(), e);
+                    waybillCode, null, request.getSealCarCode(), e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
     }
 
-    private String getBatchCode(String waybillCode, Integer createSiteCode) {
-        SendDetail sendDetail = new SendDetail();
-        sendDetail.setWaybillCode(waybillCode);
-        sendDetail.setCreateSiteCode(createSiteCode);
-        String sendCode = null;
-        SendDetail detail = sendDatailDao.findOneByWaybillCode(sendDetail);
-        if (detail != null) {
-            sendCode = detail.getSendCode();
-        }
-        return sendCode;
-    }
+
 
     /**
      * 获取运单状态
@@ -879,7 +862,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
             unloadScan.setForceAmount(0);
             unloadScan.setUnloadAmount(0);
-            flowDisAccord = true;
         }
         // 设置状态
         int status = getWaybillStatus(unloadScan);
@@ -986,7 +968,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return result;
             }
             // 过滤运单上的重复数据，筛选出有效的包裹
-            List<UnloadScanRecord> recordList =unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            List<UnloadScanRecord> recordList = unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
             List<String> loadPackages;
             if (CollectionUtils.isNotEmpty(recordList)) {
                 loadPackages = new ArrayList<>();
@@ -1009,10 +991,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             } else {
                 surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
-            // 查询运单所在批次号
-            String sendCode = null;
+
             // 批量保存卸车包裹明细和运单明细
-            batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
+            batchSaveUnloadDetail(packageList, surplusPackages, request, unloadCar, waybillCode);
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
@@ -1091,7 +1072,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             // 过滤运单上的重复数据，筛选出有效的包裹
-            List<UnloadScanRecord> recordList =unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
+            List<UnloadScanRecord> recordList = unloadScanRecordDao.findRecordsBySealAndWaybillCode(request.getSealCarCode(), waybillCode);
             List<String> loadPackages;
             if (CollectionUtils.isNotEmpty(recordList)) {
                 loadPackages = new ArrayList<>();
@@ -1115,11 +1096,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 surplusPackages = getSurplusPackageCodes(packageList, sealCarCode, waybillCode);
             }
 
-            // 查询运单所在批次号
-            String sendCode = null;
-
             // 批量保存卸车包裹明细和运单明细
-            batchSaveUnloadDetail(packageList, surplusPackages, request, sendCode, unloadCar, waybillCode);
+            batchSaveUnloadDetail(packageList, surplusPackages, request, unloadCar, waybillCode);
 
             // B网快运发货规则校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
