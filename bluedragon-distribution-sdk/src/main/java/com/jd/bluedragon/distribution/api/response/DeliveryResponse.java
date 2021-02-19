@@ -110,8 +110,8 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
 
-    public static final Integer CODE_30020 = 30020;
-    public static final String MESSAGE_30020 = "文件包裹未集包禁止发货";
+    public static final Integer CODE_20020 = 20020;
+    public static final String MESSAGE_20020 = "文件包裹未集包禁止发货";
 
     /**
      * 快运-拦截标识

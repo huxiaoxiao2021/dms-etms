@@ -45,14 +45,14 @@ public class FilePackageSortingFilter implements Filter {
 
                 // 分拣时文件标识包裹必须集包
                 if (BusinessHelper.isBoxcode(request.getBoxCode())
-                        && !(request.getBoxCode().startsWith(Box.TYPE_WJ) || request.getBoxCode().startsWith(Box.TYPE_TC))) {
+                        && !request.getBoxCode().startsWith(Box.TYPE_WJ)) {
 
                     throw new SortingCheckException(SortingResponse.CODE_29601, SortingResponse.MESSAGE_29601);
                 }
 
                 // 新发货按原包发货，文件包裹必须集包
                 if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
-                    throw new SortingCheckException(DeliveryResponse.CODE_30020, DeliveryResponse.MESSAGE_30020);
+                    throw new SortingCheckException(DeliveryResponse.CODE_20020, DeliveryResponse.MESSAGE_20020);
                 }
             }
         }

@@ -517,7 +517,7 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_C2C_SPWMS_29317 = "此单备件库已收货，禁止继续操作！";
 
     public static final Integer CODE_29601 = 29601;
-    public static final String MESSAGE_29601 = "文件标识运单请集包至WJ或TC开头箱号";
+    public static final String MESSAGE_29601 = "文件标识运单请集包至WJ开头箱号";
 
     public static final Integer CODE_29602 = 29602;
     public static final String MESSAGE_29602 = "集包数量超过WJ箱限制{0}个，请更换箱号!";

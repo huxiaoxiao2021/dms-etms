@@ -44,7 +44,7 @@ public class FilePackageSendingFilter implements Filter {
                 // 文件标识的不能按运单或者包裹发货
                 if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
 
-                    throw new SortingCheckException(DeliveryResponse.CODE_30020, DeliveryResponse.MESSAGE_30020);
+                    throw new SortingCheckException(DeliveryResponse.CODE_20020, DeliveryResponse.MESSAGE_20020);
                 }
             }
         }

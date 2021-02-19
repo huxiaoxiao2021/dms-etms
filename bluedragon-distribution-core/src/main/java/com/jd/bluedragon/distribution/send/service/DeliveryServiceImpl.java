@@ -1990,8 +1990,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         log.warn("文件包裹禁止按包裹发货. packageBarCode:{}", tSendM.getBoxCode());
                     }
 
-                    response.setCode(DeliveryResponse.CODE_30020);
-                    response.setMessage(DeliveryResponse.MESSAGE_30020);
+                    response.setCode(DeliveryResponse.CODE_20020);
+                    response.setMessage(DeliveryResponse.MESSAGE_20020);
 
                     return response;
                 }
