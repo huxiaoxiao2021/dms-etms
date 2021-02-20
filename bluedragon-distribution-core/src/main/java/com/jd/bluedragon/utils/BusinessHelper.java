@@ -249,25 +249,20 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isDmsToVendor(String waybillSign,String sendPay) {
-        log.info("isDmsToVendor判断大件网络:waybillSign={},sendPay={}", waybillSign, sendPay);
         boolean waybillSignFlag = false;
         boolean sendPayFlag = false;
         //waybill_sign 第36位等于1，表示为外单城配,waybillSignFlag置为true
         if(StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '1')) {
-            log.info("isDmsToVendor判断大件网络:是外单城配");
             waybillSignFlag = true;
         }
         //sendPay 第146位等于1，表示为自营城配
         if(StringHelper.isNotEmpty(sendPay) && BusinessUtil.isSignChar(sendPay, 146, '1')){
-            log.info("isDmsToVendor判断大件网络:是自营城配");
             sendPayFlag = true;
         }
         // waybill_sign 第36位等于4，表示为大件网络
         if (StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '4')) {
-            log.info("isDmsToVendor判断大件网络:是大件网络");
             waybillSignFlag = true;
         }
-        log.info("isDmsToVendor判断大件网络:waybillSignFlag={},sendPayFlag={}", waybillSignFlag, sendPayFlag);
         return waybillSignFlag || sendPayFlag;
     }
     /**
