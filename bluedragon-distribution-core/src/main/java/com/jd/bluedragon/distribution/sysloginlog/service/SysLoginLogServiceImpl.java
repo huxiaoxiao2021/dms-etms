@@ -30,7 +30,6 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
 
     @Override
     @JProfiler(jKey = "DMSWEB.SysLoginLogService.insert", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public SysLoginLog insert(PdaStaff siteInfo, ClientInfo clientInfo) {
         SysLoginLog sysLoginLog = toSysLoginLog(siteInfo, clientInfo);
         try {

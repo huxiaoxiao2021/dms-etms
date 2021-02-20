@@ -257,7 +257,7 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
      * @param list
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void batchInsert(List<MerchantWeightAndVolumeDetail> list) {
         int batchCount = BATCH_INSERT_COUNT; //每批插入数目
         int batchLastIndex = batchCount;
