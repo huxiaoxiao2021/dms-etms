@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;

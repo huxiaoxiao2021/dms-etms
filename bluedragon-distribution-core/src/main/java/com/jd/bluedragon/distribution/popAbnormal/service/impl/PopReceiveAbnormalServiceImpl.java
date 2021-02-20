@@ -248,6 +248,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	}
 
 	@Override
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
 	public PopReceiveAbnormal getWaybillByWaybillCode(String waybillCode) {
 		PopReceiveAbnormal popReceiveAbnormal = null;
 		try {

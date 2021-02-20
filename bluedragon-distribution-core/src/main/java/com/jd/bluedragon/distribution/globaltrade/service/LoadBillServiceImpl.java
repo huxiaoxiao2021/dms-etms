@@ -265,6 +265,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
         log.debug("更新装载单状态 reportId is {}, waybillCode is {}",report.getReportId(), report.getWaybillCode());
         //将waybillCode分割,长度不超过500

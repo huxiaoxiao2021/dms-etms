@@ -126,6 +126,7 @@ public class MixedPackageConfigServiceImpl implements MixedPackageConfigService 
     }
 
     @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public List<MixedPackageConfig> queryConfigsForPrint(Integer createSiteCode, Integer receiveSiteCode, Integer transportType, Integer ruleType) {
         MixedPackageConfig mixedPackageConfig = new MixedPackageConfig();
         mixedPackageConfig.setCreateSiteCode(createSiteCode);

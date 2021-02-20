@@ -90,6 +90,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
     }
 
     @JProfiler(jKey= "DMSWEB.FBarCodeService.findFBarCodeByCode", mState = {JProEnum.TP})
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public FBarCode findFBarCodeByCode(String code) {
         Assert.notNull(code, "code must not be null");
         CallerInfo info = Profiler.registerInfo("DMSWEB.FBarCodeService.findFBarCodeByCode.fromRedis", Constants.UMP_APP_NAME_DMSWEB,false, true);

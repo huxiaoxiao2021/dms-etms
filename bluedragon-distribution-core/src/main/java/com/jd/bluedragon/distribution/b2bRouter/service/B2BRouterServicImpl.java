@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.b2bRouter.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.B2BRouterRequest;
@@ -50,6 +49,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
      * @param router
      * @return
      */
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean addRouter(B2BRouter router){
         try {
             //填充完整路径信息

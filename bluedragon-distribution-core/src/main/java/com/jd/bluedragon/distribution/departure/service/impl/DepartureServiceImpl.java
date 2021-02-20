@@ -644,6 +644,7 @@ public class DepartureServiceImpl implements DepartureService {
 	 *            箱号/包裹号
 	 * @return
 	 */
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
 	public boolean checkCarBoxCodeMatch(String carCode, String boxCode) {
 		String errMsg = "检查发货单车号[" + carCode + "]以及箱号[" + boxCode + "]是否匹配失败: ";
 		SendDetail sendDatail;
@@ -678,6 +679,7 @@ public class DepartureServiceImpl implements DepartureService {
 	 *            箱号
 	 * @return
 	 */
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
 	public List<SendBox> getSendBoxInfo(String boxCode, Integer siteCode) {
 		String errMsg = "获得箱[" + boxCode + "]内包裹列表信息失败: ";
 
@@ -737,6 +739,7 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
 	public List<SendBox> getSendInfo(String sendCode) {
 		String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
 		List<SendBox> result = new ArrayList<SendBox>();
@@ -778,6 +781,7 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
     @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
     public PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto, String batchCode) {
         PageDto<SendBox> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
         List<SendM> sendMs = sendMDao.selectOneBySendCode(batchCode);
@@ -1037,6 +1041,7 @@ public class DepartureServiceImpl implements DepartureService {
 		return this.departureCarDao.findDepartureList(departurPrintRequest);
 	}
 	
+	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
 	public List<SendDetail> getWaybillsByDeparture(String code, Integer type) {
 
 		List<SendDetail> result = new ArrayList<SendDetail>();

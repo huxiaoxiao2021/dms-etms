@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.cross.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.cross.dao.CrossSortingDao;
 import com.jd.bluedragon.distribution.cross.dao.CrossSortingReadDao;
