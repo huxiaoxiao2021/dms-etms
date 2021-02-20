@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bk.common.util.string.StringUtils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
@@ -146,6 +147,24 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         return jdCResponse;
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardCancelNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoardCheckDto> combinationBoardCancelNew(CombinationBoardRequest request) {
+        JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
+        JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardCancelNew(request);
+        BoardCheckDto boardCheckDto = new BoardCheckDto();
+        if (response.getData() != null) {
+            boardCheckDto.setBoardCode(response.getData().getBoardCode());
+            boardCheckDto.setReceiveSiteName(response.getData().getReceiveSiteName());
+            boardCheckDto.setReceiveSiteCode(response.getData().getReceiveSiteCode());
+        }
+        jdcResponse.setData(boardCheckDto);
+        jdcResponse.setCode(response.getCode());
+        jdcResponse.setMessage(response.getMessage());
+
+        return jdcResponse;
+    }
+
     /**
      * 根据板号查询板号下的组板明细
      */
@@ -191,6 +210,19 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         jdCResponse.setMessage(response.getMessage());
 
         return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<Void> combinationBoardComplete(CombinationBoardRequest request) {
+        JdCResponse<Void> jdcResponse = new JdCResponse<>();
+        if (request == null || StringUtils.isBlank(request.getBoardCode())) {
+            jdcResponse.toFail("板号不能为空");
+            return jdcResponse;
+        }
+        JdResponse<Void> jdResponse = boardCombinationResource.combinationBoardComplete(request);
+        jdcResponse.setCode(jdResponse.getCode());
+        jdcResponse.setMessage(jdResponse.getMessage());
+        return jdcResponse;
     }
 
 

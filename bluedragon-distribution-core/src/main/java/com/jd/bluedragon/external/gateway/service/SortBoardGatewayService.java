@@ -23,8 +23,12 @@ public interface SortBoardGatewayService {
 
     JdCResponse combinationBoardCancel(CombinationBoardRequest request);
 
+    JdCResponse<BoardCheckDto> combinationBoardCancelNew(CombinationBoardRequest request);
+
     JdCResponse<BoardDetailDto> queryBoardDetail(String boardCode);
 
     JdCResponse<BoardInfoDto> queryBoardInfo(Integer siteCode, String packageOrBoxCode);
+
+    JdCResponse<Void> combinationBoardComplete(CombinationBoardRequest request);
 
 }

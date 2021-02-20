@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
@@ -259,6 +260,63 @@ public class BoardCombinationResource {
     }
 
     /**
+     * 取消组板(最新版)
+     */
+    public JdResponse<BoardResponse> combinationBoardCancelNew(CombinationBoardRequest request) {
+        JdResponse<BoardResponse> result = new JdResponse<>();
+        result.setData(new BoardResponse());
+        BoardResponse boardResponse = result.getData();
+        result.toSucceed("取消组板成功");
+
+        // 参数校验
+        String errStr = checkCancelCombinationBoardParam(request);
+        if (StringHelper.isNotEmpty(errStr)) {
+            result.toFail(errStr);
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
+            return result;
+        }
+        String boxCode = request.getBoxOrPackageCode();
+        Integer siteCode = request.getCurrentOperate().getSiteCode();
+        try {
+            // 获取包裹号所属板号
+            Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, boxCode);
+            if (tcResponse == null) {
+                result.toError("根据包裹号和操作站点查询板信息返回空");
+                return result;
+            }
+            if (!JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())) {
+                result.toFail(tcResponse.getMesseage());
+                return result;
+            }
+            if (tcResponse.getData() == null) {
+                result.toFail("此包裹号未组板！");
+                return result;
+            }
+            // 组装参数
+            Board board = tcResponse.getData();
+            request.setBoardCode(board.getCode());
+            request.setReceiveSiteName(board.getDestination());
+            request.setReceiveSiteCode(board.getDestinationId());
+            // 转换实体
+            BoardCombinationRequest combinationRequest = convertToBoardCombinationRequest(request);
+            // 取消组板
+            boardResponse = boardCombinationService.boardCombinationCancel(combinationRequest);
+            if (boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() > 0) {
+                result.toFail(boardResponse.buildStatusMessages());
+            }
+            boardResponse.setReceiveSiteName(board.getDestination());
+            boardResponse.setReceiveSiteCode(board.getDestinationId());
+            result.setData(boardResponse);
+        } catch (Exception e) {
+            log.error("取消组板失败!", e);
+            boardResponse.addStatusInfo(JdResponse.CODE_ERROR, "取消组板失败，系统异常！");
+            result.toError("取消组板失败，系统异常！");
+        }
+
+        return result;
+    }
+
+    /**
      * 查询箱子所属板号
      * @param boxCode
      * @return
@@ -475,7 +533,31 @@ public class BoardCombinationResource {
                 || StringUtils.isBlank(request.getUser().getUserName())) {
             return "用户erp和名称都不能为空";
         }
-        //箱号/包裹号/运单号是否合法
+        // 箱号/包裹号/运单号是否合法
+        if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
+                && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode()) && ! WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
+            this.log.warn("箱号/包裹号正则校验不通过：{}", request.getBoxOrPackageCode());
+            return "箱号/运单号/包裹号不合法.";
+        }
+        return null;
+    }
+
+    /**
+     * 取消组板参数校验
+     */
+    private String checkCancelCombinationBoardParam(CombinationBoardRequest request){
+        if (request == null) {
+            return "参数不能为空";
+        }
+        if (request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() == 0
+                || StringUtils.isBlank(request.getCurrentOperate().getSiteName())) {
+            return "操作站点编码和名称都不能为空";
+        }
+        if (request.getUser() == null || StringUtils.isBlank(request.getUser().getUserErp())
+                || StringUtils.isBlank(request.getUser().getUserName()) || request.getUser().getUserCode() == 0) {
+            return "用户erp和名称、编码都不能为空";
+        }
+        // 箱号/包裹号/运单号是否合法
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
                 && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode()) && ! WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
             this.log.warn("箱号/包裹号正则校验不通过：{}", request.getBoxOrPackageCode());
@@ -500,5 +582,24 @@ public class BoardCombinationResource {
 
         return boardCombinationRequest;
 
+    }
+
+    public JdResponse<Void> combinationBoardComplete(CombinationBoardRequest request) {
+        JdResponse<Void> jdResponse = new JdResponse<>();
+        try {
+            Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(request.getBoardCode());
+            // 关板失败
+            if (!JdResponse.CODE_SUCCESS.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()) {
+                log.warn("组板完成调用TC关板失败,板号：{}，关板结果：{}", request.getBoardCode(), JsonHelper.toJson(closeBoardResponse));
+                jdResponse.toFail(closeBoardResponse.getMesseage());
+                return jdResponse;
+            }
+            jdResponse.toSucceed();
+            return jdResponse;
+        } catch (Exception e) {
+            log.error("组板完成调用TC关板异常：板号={}" , request.getBoardCode(), e);
+            jdResponse.toError("组板完成发生异常");
+            return jdResponse;
+        }
     }
 }
