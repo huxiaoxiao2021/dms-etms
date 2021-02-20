@@ -663,4 +663,11 @@
     <jsf:consumer id="kaGenerateEdnDeliveryReceiptPdfService" interface="com.jd.jp.print.templet.center.sdk.service.KaGenerateEdnDeliveryReceiptPdfService"
                   protocol="jsf" alias="${jsf.kaGenerateEdnDeliveryReceiptPdfService.alias}" timeout="${jsf.kaGenerateEdnDeliveryReceiptPdfService.timeout}" >
     </jsf:consumer>
+
+    <jsf:consumer id="materialFlowJsfService"
+                  interface="com.jd.ql.dms.report.api.material.IMaterialFlowJsfService"
+                  alias="${jsf.reportExternalService.alias}"
+                  timeout="${jsf.reportExternalService.timeout}">
+    </jsf:consumer>
+
 </beans>
