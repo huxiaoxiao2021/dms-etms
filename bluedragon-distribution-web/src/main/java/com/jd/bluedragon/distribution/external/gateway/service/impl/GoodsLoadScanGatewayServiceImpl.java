@@ -323,7 +323,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
-            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadService.findLoadCarById(req.getTaskId());
             if(loadCar == null) {
                 if(log.isDebugEnabled()) {
                     log.debug("操作任务【{}】时，查不到该任务信息", req.getTaskId());
@@ -347,13 +347,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 return response;
             }
 //        }
-            // 装车任务必须绑定批次号才能发货
-            if (StringUtils.isBlank(loadCar.getBatchCode())) {
+
+            if(req.getSendCode() == null) {
                 response.toFail("发货批次号不能为空");
                 return response;
             }
-            // 使用装车任务绑定的批次号发货
-            req.setSendCode(loadCar.getBatchCode());
 
             if(req.getReceiveSiteCode() == null) {
                 response.toFail("收货单位编码不能为空");
