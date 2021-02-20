@@ -29,7 +29,7 @@ public class NeedCollectionCompletedInterceptHandler extends NeedPrepareDataInte
     WaybillTraceManager waybillTraceManager;
 
     /**
-     * 需要校验运单是否已经妥投的类型
+     * 需要校验运单是否 揽收时采集商品信息运单 的类型
      */
     private static Set<Integer> needCheckCollectWaybillFinished = new HashSet<Integer>();
     static {

@@ -81,6 +81,8 @@
 		<property name="loadScanTaskWaybillSize" value="${loadScanTaskWaybillSize:200}"/>
 		<property name="loadScanTaskPackageSize" value="${loadScanTaskPackageSize:100}"/>
 		<property name="loadScanTaskPackageMaxSize" value="${loadScanTaskPackageMaxSize:100}"/>
+		<property name="economicNetPushZTDRetry" value="${economicNetPushZTDRetry:true}"/>
+		<property name="eNetSyncWaybillCodeAndBoxCode" value="${eNetSyncWaybillCodeAndBoxCode:true}"/>
 
 	</bean>
 
@@ -133,6 +135,8 @@
 				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
+				<value>uccPropertyConfiguration.economicNetPushZTDRetry</value>
+				<value>uccPropertyConfiguration.eNetSyncWaybillCodeAndBoxCode</value>
 			</list>
 		</property>
 	</bean>

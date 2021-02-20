@@ -75,7 +75,8 @@ $(function() {
             title : '操作',
             formatter : function(value,row,index){
                 return '<a href="#" class="show-storage-view" onclick="printEdnPickingList(\''+row.scheduleBillCode+'\',event)">'+'打印拣货单</a>'
-                      +'<br/>'+'<a href="#" class="show-storage-view" onclick="printEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'打印配送单</a>';
+					  +'<br/>'+'<a href="#" class="show-storage-view" onclick="printEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'打印配送单</a>'
+					  +'<br/>'+'<a href="#" class="show-storage-view" onclick="printBatchEdnDeliveryReceipt(\''+row.scheduleBillCode+'\',event)">'+'批量打印配送单</a>';
             }
         },{
             field : 'scheduleBillCode',
@@ -323,6 +324,51 @@ function printEdnDeliveryReceipt(scheduleBillCode,event){
         $("#deliveryReceiptDetailTbody").html(tableBodyHtml);
     });
     event.stopPropagation();
+}
+function printBatchEdnDeliveryReceipt(scheduleBillCode, event){
+	// 批量打印配送单
+    // 获取明细
+	var queryUrl = '/schedule/dmsScheduleInfo/queryEdnPickingVo/'+scheduleBillCode;
+	var param = {};
+    $.ajaxHelper.doPostSync(queryUrl,
+		JSON.stringify(param),
+		function(data){
+			var ednBatchNums = []
+			if (data.code == 200) {
+				if(data.data==null||data.data.dmsScheduleInfoList==null||data.data.dmsScheduleInfoList.length == 0){
+					alert('未获取到明细数据')
+					return;
+				}
+				for(var i = 0 ; i<data.data.dmsScheduleInfoList.length ; i++ ){
+					var pojo = data.data.dmsScheduleInfoList[i];
+					ednBatchNums.push(pojo.businessBatchCode);
+				}
+				this.printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums)
+			} else {
+				alert(data.message);
+			}
+		}
+	);
+    event.stopPropagation();
+}
+// 开始批量打印
+function printBatchEdnDeliveryReceiptAction(scheduleBillCode, ednBatchNums){
+	var printBatchUrl = '/schedule/dmsScheduleInfo/generatePdfUrlByBatchList';
+	var param = {ednNos: ednBatchNums, scheduleBillCode: scheduleBillCode};
+    $.ajaxHelper.doPostSync(printBatchUrl,
+		JSON.stringify(param),
+		function(data){
+			if (data.code == 200) {
+				if(data.data.pdfUrl) {
+					window.open(data.data.pdfUrl);
+				} else {
+					alert(data.message);
+				}
+			} else {
+				alert(data.message);
+			}
+		}
+	);
 }
 function showView(scheduleBillCode,event){
     //获取明细

@@ -47,6 +47,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
+import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -274,6 +276,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private IEconomicNetService economicNetService;
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
@@ -3832,7 +3837,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
 
         //发货目的地不是车队，返回true，不再校验
-        if(Constants.BASE_SITE_MOTORCADE != receiveSite.getSiteType()){
+        if(! Constants.BASE_SITE_MOTORCADE.equals(receiveSite.getSiteType())){
             return true;
         }
         String waybillCode = null;
@@ -4674,10 +4679,22 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     public List<SendDetail> getCancelSendByBoxFromThird(Box box) {
-
+        if(box == null) {
+            return null;
+        }
         BaseStaffSiteOrgDto startSite = baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
         if(!Constants.THIRD_ENET_SITE_TYPE.equals(startSite.getSiteType())){
             return null;
+        }
+        //防止并发问题。处理中转发货时需要等待经济网想包关系完全存入后方可进行
+        if(!economicNetService.isReady(box)){
+            //当前箱子没有准备好时需要再次重试一次，仍未准备就绪则抛出异常
+            try{
+                Thread.sleep(1000);
+            }catch (Exception e){}
+            if(!economicNetService.isReady(box)){
+                throw new EconomicNetException("处理中转发货时需要等待经济网箱包关系未完全初始化，请稍后重试！"+box.getCode());
+            }
         }
         List<ThirdBoxDetail> thirdBoxDetails = thirdBoxDetailService.queryByBoxCode(Constants.TENANT_CODE_ECONOMIC, startSite.getSiteCode(), box.getCode());
         if(CollectionUtils.isEmpty(thirdBoxDetails)){

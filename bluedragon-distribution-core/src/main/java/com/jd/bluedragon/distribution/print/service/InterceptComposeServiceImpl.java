@@ -36,7 +36,7 @@ public class InterceptComposeServiceImpl implements ComposeService {
 
         if (cancelWaybill != null) {
             if (SortingResponse.CODE_29300.equals(cancelWaybill.getCode())) {
-                if (waybill.getStatusCode()==(SortingResponse.CODE_293040)) {
+                if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
                     waybill.setStatusCode(SortingResponse.CODE_29300);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_29300);
                 } else {
@@ -44,7 +44,7 @@ public class InterceptComposeServiceImpl implements ComposeService {
                     waybill.setStatusMessage(SortingResponse.MESSAGE_293000);
                 }
             } else if (SortingResponse.CODE_29302.equals(cancelWaybill.getCode())) {
-                if (waybill.getStatusCode()==(SortingResponse.CODE_293040)) {
+                if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
                     waybill.setStatusCode(SortingResponse.CODE_29302);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_29302);
                 } else {
@@ -52,7 +52,7 @@ public class InterceptComposeServiceImpl implements ComposeService {
                     waybill.setStatusMessage(SortingResponse.MESSAGE_293020);
                 }
             } else if (SortingResponse.CODE_29301.equals(cancelWaybill.getCode())) {
-                if (waybill.getStatusCode()==(SortingResponse.CODE_293040)) {
+                if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
                     waybill.setStatusCode(SortingResponse.CODE_29301);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_29301);
                 } else {

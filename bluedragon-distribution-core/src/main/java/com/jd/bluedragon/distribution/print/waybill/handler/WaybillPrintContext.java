@@ -56,6 +56,7 @@ public class WaybillPrintContext implements Context{
 	 * 商家标识位
 	 * */
 	private String traderSign;
+
 	/**
 	 * 获取waybillSign信息
 	 * @return
@@ -104,6 +105,11 @@ public class WaybillPrintContext implements Context{
 	 * 运单是否交接完成
 	 */
 	private Boolean isCollectComplete;
+
+	/**
+	 * 操作人所属场地是否为分拣中心
+	 */
+    private Boolean dmsCenter=Boolean.FALSE;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -234,5 +240,13 @@ public class WaybillPrintContext implements Context{
 
 	public void setCollectComplete(Boolean collectComplete) {
 		isCollectComplete = collectComplete;
+	}
+
+	public Boolean getDmsCenter() {
+		return dmsCenter;
+	}
+
+	public void setDmsCenter(Boolean dmsCenter) {
+		this.dmsCenter = dmsCenter;
 	}
 }

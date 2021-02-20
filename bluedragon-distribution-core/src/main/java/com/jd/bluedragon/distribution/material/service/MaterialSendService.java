@@ -13,6 +13,12 @@ import java.util.List;
  **/
 public interface MaterialSendService {
 
+    /**
+     *
+     * @param materialSends
+     * @param saveFlow 是否保存发货流水
+     * @return
+     */
     JdResult<Boolean> saveMaterialSend(List<DmsMaterialSend> materialSends, Boolean saveFlow);
 
     JdResult<List<DmsMaterialSend>> listMaterialSendBySendCode(String sendCode, Long createSiteCode);

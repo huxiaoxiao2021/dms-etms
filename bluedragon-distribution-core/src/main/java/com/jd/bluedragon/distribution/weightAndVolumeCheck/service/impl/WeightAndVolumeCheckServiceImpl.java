@@ -683,8 +683,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setReviewSecondLevelName(weightVolumeCollectDto.getReviewSiteName());
 
         abnormalResultMq.setDiffStandard(weightVolumeCollectDto.getDiffStandard());
-        abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
-        abnormalResultMq.setVolumeDiff(Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
+        abnormalResultMq.setWeightDiff(StringUtils.isEmpty(weightVolumeCollectDto.getWeightDiff())
+                ? null : Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
+        abnormalResultMq.setVolumeDiff(StringUtils.isEmpty(weightVolumeCollectDto.getVolumeWeightDiff())
+                ? null : Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
         abnormalResultMq.setIsExcess(weightVolumeCollectDto.getIsExcess());
         abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
         //默认值:认责不判责
@@ -776,7 +778,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setDiffStandard("");
             }else if(standardDto!=null && standardDto.getExcessFlag()){
                 //超标--- C抽B  临时不提示
-                if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_C)){
+                if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(),SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
                     result.customMessage(this.CHECK_OVER_STANDARD_CODE,standardDto.getWarnMessage());
                     result.setData(false);
                 }
@@ -1305,10 +1307,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getBillingVolumeWeight());
                 body.add(weightVolumeCollectDto.getBillingWeightDifference());
                 body.add(weightVolumeCollectDto.getDiffStandard());
-                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess().equals(1)?"超标":weightVolumeCollectDto.getIsExcess().equals(0)?"未超标":"");
                 body.add(weightVolumeCollectDto.getWeightDiff());
                 body.add(weightVolumeCollectDto.getVolumeWeightDiff());
-                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(1)?"超标":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(0)?"未超标":"");
                 body.add(getFromSource(weightVolumeCollectDto.getFromSource()));
                 body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
                 body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());

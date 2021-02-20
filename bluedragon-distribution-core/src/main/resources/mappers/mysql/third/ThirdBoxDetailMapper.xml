@@ -67,6 +67,43 @@
 			)
 	</insert>
 
+	<insert id="batchInsert" parameterType="List">
+		insert into third_box_detail
+			(
+				tenant_code,
+				start_site_id,
+				start_site_code,
+				end_site_id,
+				end_site_code,
+				operator_id,
+				operator_name,
+				operator_unit_name,
+				operator_time,
+				box_code,
+				package_code,
+				waybill_code,
+				create_time
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.tenantCode,jdbcType=VARCHAR},
+					#{item.startSiteId,jdbcType=BIGINT},
+					#{item.startSiteCode,jdbcType=VARCHAR},
+					#{item.endSiteId,jdbcType=BIGINT},
+					#{item.endSiteCode,jdbcType=VARCHAR},
+					#{item.operatorId,jdbcType=VARCHAR},
+					#{item.operatorName,jdbcType=VARCHAR},
+					#{item.operatorUnitName,jdbcType=VARCHAR},
+					#{item.operatorTime,jdbcType=TIMESTAMP},
+					#{item.boxCode,jdbcType=VARCHAR},
+					#{item.packageCode,jdbcType=VARCHAR},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					now()
+				)
+			</foreach>
+	</insert>
+
 	<update id="cancel" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail">
 		update third_box_detail
 			<set>
@@ -84,20 +121,79 @@
 			</set>
 		where start_site_id = #{startSiteId,jdbcType=BIGINT}
 		    and box_code = #{boxCode,jdbcType=VARCHAR}
-		    and package_code = #{packageCode,jdbcType=VARCHAR}
+			<if test="waybillCode != null">
+				and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="packageCode != null">
+				and package_code = #{packageCode,jdbcType=VARCHAR}
+			</if>
 		    and tenant_code = #{tenantCode,jdbcType=VARCHAR}
 		    and is_delete = 0
 	</update>
 
-	<select id="queryByBoxCode" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ThirdBoxDetail">
-		select 
-		 <include refid="Base_Column_List"/>
-		from 
-		  third_box_detail
+	<update id="cancelNoCareSite" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail">
+		update third_box_detail
+		<set>
+			<if test="updateUserId != null">
+				update_user_id = #{operatorId,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUserName != null">
+				update_user_name = #{operatorName,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUnitName != null">
+				update_unit_name = #{operatorUnitName,jdbcType=VARCHAR},
+			</if>
+			update_time = #{operatorTime,jdbcType=TIMESTAMP},
+			is_delete = 1
+		</set>
+		where
+		box_code = #{boxCode,jdbcType=VARCHAR}
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		and is_delete = 0
+	</update>
+
+	<select id="queryByBoxCode" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail" resultMap="ThirdBoxDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		third_box_detail
 		where start_site_id = #{startSiteId,jdbcType=BIGINT}
 		and box_code = #{boxCode,jdbcType=VARCHAR}
 		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
 		and is_delete = 0
+		order by operator_time desc
 	</select>
 
+
+	<select id="queryByWaybillOrPackage" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail" resultMap="ThirdBoxDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		  third_box_detail
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		<if test="packageCode != null">
+			and package_code = #{packageCode}
+		</if>
+		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		and is_delete = 0
+		order by operator_time desc
+	</select>
+
+	<select id="isExist" parameterType="com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail" resultMap="ThirdBoxDetail">
+
+		select
+			box_code
+		from
+		  	third_box_detail
+		where start_site_id = #{startSiteId,jdbcType=BIGINT}
+		and box_code = #{boxCode,jdbcType=VARCHAR}
+		and tenant_code = #{tenantCode,jdbcType=VARCHAR}
+		and is_delete = 0
+		limit 1
+
+	</select>
 </mapper>

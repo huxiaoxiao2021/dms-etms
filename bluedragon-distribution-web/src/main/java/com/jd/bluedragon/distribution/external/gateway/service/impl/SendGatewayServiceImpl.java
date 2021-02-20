@@ -127,10 +127,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
-            if(sendResult.getInterceptCode()!= null && sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
+            if(sendResult.getInterceptCode()!= null && (sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode() || sendResult.getInterceptCode().intValue()== ResponseCodeConstants.JdVerifyResponseMsgBox.CANCEL_LAST_SEND.getCode())){
                 JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
-                msgBox.setCode(sendResult.getKey());
+                msgBox.setCode(sendResult.getInterceptCode().intValue());
                 msgBox.setMsg(sendResult.getValue());
                 msgBox.setData(sendResult.getReceiveSiteCode());
                 jdVerifyResponse.addBox(msgBox);

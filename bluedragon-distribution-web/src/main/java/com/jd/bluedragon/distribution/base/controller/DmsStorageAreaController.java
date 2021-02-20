@@ -116,7 +116,7 @@ public class DmsStorageAreaController extends DmsBaseController{
     public Object getAllArea(String isDefault) {
         List<AreaNode> areas = new ArrayList<AreaNode>();
         LoginUser loginUser=getLoginUser();
-        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(loginUser.getSiteType())) {//分拣中心的人 只能看本地的
             return areas;
         } else {
             if (!"false".equals(isDefault)) {
@@ -144,7 +144,7 @@ public class DmsStorageAreaController extends DmsBaseController{
     public Object getCityList(Integer areaId, Integer provinceId, String isDefault) {
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
         LoginUser loginUser=getLoginUser();
-        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的的
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(loginUser.getSiteType())) {//分拣中心的人 只能看本地的的
             return cities;
         } else {
             if (!"false".equals(isDefault)) {
@@ -179,7 +179,7 @@ public class DmsStorageAreaController extends DmsBaseController{
     public Object getProvinceList(Integer areaId, String isDefault) {
         List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
         LoginUser loginUser=getLoginUser();
-        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(loginUser.getSiteType())) {//分拣中心的人 只能看本地的
             return provinces;
         } else {
             //区域不选，加载全国所有的省
@@ -215,7 +215,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             LoginUser loginUser=getLoginUser();
             BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(loginUser.getStaffNo());
-            if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
+            if (Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(dto.getSiteType())) {//分拣中心的人 只能看本地的
                 allDms.add(dto);
             } else {
                 if (!"false".equals(isDefault)) {
