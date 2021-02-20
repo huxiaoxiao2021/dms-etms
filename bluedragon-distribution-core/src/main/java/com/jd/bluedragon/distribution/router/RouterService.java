@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.router;
 
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
@@ -17,5 +18,13 @@ public interface RouterService {
      * @return
      */
     BaseStaffSiteOrgDto getRouterNextSite(Integer siteCode, String waybillCode);
+
+    /**
+     * 根据当前网点 匹配下一网点
+     * @param siteCode 当前网点
+     * @param waybillCode 运单号
+     * @return RouteNextDto 包括下一网点和当前网点后续所有网点
+     */
+    RouteNextDto matchRouterNextNode(Integer siteCode, String waybillCode);
 
 }

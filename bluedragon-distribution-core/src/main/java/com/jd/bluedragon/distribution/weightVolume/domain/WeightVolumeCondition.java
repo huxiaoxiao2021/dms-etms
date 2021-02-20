@@ -85,6 +85,11 @@ public class WeightVolumeCondition {
      * */
     private Integer longPackage;
 
+    /**
+     * 设备编码
+     */
+    private String machineCode;
+
     public Integer getLongPackage() {
         return longPackage;
     }
@@ -203,5 +208,13 @@ public class WeightVolumeCondition {
 
     public void setOperateTime(Long operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }
