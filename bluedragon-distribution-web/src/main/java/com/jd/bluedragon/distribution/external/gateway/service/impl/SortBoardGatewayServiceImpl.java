@@ -213,13 +213,13 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     }
 
     @Override
-    public JdCResponse<Void> combinationBoardComplete(CombinationBoardRequest request) {
+    public JdCResponse<Void> combinationComplete(CombinationBoardRequest request) {
         JdCResponse<Void> jdcResponse = new JdCResponse<>();
         if (request == null || StringUtils.isBlank(request.getBoardCode())) {
             jdcResponse.toFail("板号不能为空");
             return jdcResponse;
         }
-        JdResponse<Void> jdResponse = boardCombinationResource.combinationBoardComplete(request);
+        JdResponse<Void> jdResponse = boardCombinationResource.combinationComplete(request);
         jdcResponse.setCode(jdResponse.getCode());
         jdcResponse.setMessage(jdResponse.getMessage());
         return jdcResponse;

@@ -584,7 +584,7 @@ public class BoardCombinationResource {
 
     }
 
-    public JdResponse<Void> combinationBoardComplete(CombinationBoardRequest request) {
+    public JdResponse<Void> combinationComplete(CombinationBoardRequest request) {
         JdResponse<Void> jdResponse = new JdResponse<>();
         try {
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(request.getBoardCode());

@@ -29,6 +29,6 @@ public interface SortBoardGatewayService {
 
     JdCResponse<BoardInfoDto> queryBoardInfo(Integer siteCode, String packageOrBoxCode);
 
-    JdCResponse<Void> combinationBoardComplete(CombinationBoardRequest request);
+    JdCResponse<Void> combinationComplete(CombinationBoardRequest request);
 
 }
