@@ -172,16 +172,16 @@ public class InspectionDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testUpdate() {
         Inspection parameter = new Inspection();
-        parameter.setExceptionType("2");
-        parameter.setUpdateUser("Jone");
-        parameter.setUpdateUserCode(368);
+
         parameter.setUpdateTime(new Date());
-        parameter.setBoxCode("Stone");
-        parameter.setPackageBarcode("Jim");
-        parameter.setCreateSiteCode(596);
-        parameter.setReceiveSiteCode(204);
-        parameter.setInspectionType(40);
-        inspectionDao.update(InspectionDao.namespace, parameter);
+        parameter.setBizSource(222);
+
+        parameter.setPackageBarcode("JDVA66612663891-1-1-");
+        parameter.setCreateSiteCode(604804);
+        parameter.setReceiveSiteCode(0);
+        parameter.setInspectionType(10);
+       inspectionDao.update(InspectionDao.namespace, parameter);
+        System.out.printf("=====================11111");
     }
 	
 	@Test

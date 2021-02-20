@@ -46,7 +46,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     Gson gson = new Gson();
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void persistData(CarScheduleTo carScheduleTo) {
         this.log.info("CarScheduleService-->persistData方法begin...");
         if(null == carScheduleTo || null == carScheduleTo.getSendCarCode() || "".equals(carScheduleTo.getSendCarCode())){
@@ -69,7 +69,7 @@ public class CarScheduleServiceImpl implements CarScheduleService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Boolean cancelSchedule(CancelScheduleTo cancelScheduleTo) {
         Boolean bool = Boolean.FALSE;
         if(null != cancelScheduleTo && null != cancelScheduleTo.getSendCarCode() && !"".equals(cancelScheduleTo.getSendCarCode())) {

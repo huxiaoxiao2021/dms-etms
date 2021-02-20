@@ -345,7 +345,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         return true;
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_loadunload")
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED,value = "main_loadunload", rollbackFor = Exception.class)
     public boolean goodRemoveOper(GoodsLoadScanRecord goodsLoadScanRecord, GoodsLoadScan goodsLoadScan) {
 
         if(log.isDebugEnabled()) {
@@ -1355,7 +1355,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     /**
      * 校验批次号并绑定任务
      */
-    @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED)
+    @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public JdCResponse<Void> checkBatchCode(GoodsLoadingScanningReq req, JdCResponse<Void> response) {
 
@@ -1465,7 +1465,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param flowDisAccord 多扫标识
      * @param transfer      包裹号转板号标识
      */
-    @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED)
+    @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
                                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord,
                                                     User user, LoadCar loadCar) {
@@ -1997,7 +1997,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload")
+    @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload", rollbackFor = Exception.class)
     public void deleteLoadScanByTaskId(Long taskId) {
         if (CollectionUtils.isNotEmpty(goodsLoadScanDao.loadScanRecordIsExist(taskId))) {
             goodsLoadScanDao.deleteLoadScanByTaskId(taskId);

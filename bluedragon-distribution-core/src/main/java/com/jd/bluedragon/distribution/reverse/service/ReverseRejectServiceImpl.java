@@ -37,12 +37,10 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
     @Autowired
     private OperationLogService operationLogService;
     
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(ReverseReject reverseReject) {
         return this.reverseRejectDao.add(ReverseRejectDao.namespace, reverseReject);
     }
     
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer update(ReverseReject reverseReject) {
         return this.reverseRejectDao.update(ReverseRejectDao.namespace, reverseReject);
     }
@@ -55,7 +53,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         return this.reverseRejectDao.get(reverseReject);
     }
     
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void reject(ReverseReject source) {
         if (!this.check(source)) {
             return;
@@ -86,7 +84,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
     }
     
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void rejectInspect(Task task) {
         String body = task.getBody().substring(1, task.getBody().length() - 1);
         RejectRequest request = JsonHelper.fromJson(body, RejectRequest.class);

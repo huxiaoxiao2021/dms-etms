@@ -38,7 +38,7 @@ public class SealBoxServiceImpl implements SealBoxService {
 		return this.sealBoxDao.update(SealBoxDao.namespace, sealBox);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void saveOrUpdate(SealBox sealBox) {
 		if (Constants.NO_MATCH_DATA == this.update(sealBox)) {
 			this.add(sealBox);
@@ -64,7 +64,7 @@ public class SealBoxServiceImpl implements SealBoxService {
 		return this.sealBoxDao.findListByBoxCodes(boxCodeList);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public void doSealBox(Task task) {
 		this.taskToSealBox(task);
 	}

@@ -450,6 +450,9 @@
             <if test="bizSource != null and bizSource != '' ">
                 biz_source = #{bizSource, jdbcType=INTEGER},
             </if>
+            <if test="operateTime != null">
+                operate_time = #{operateTime,jdbcType=TIMESTAMP},
+            </if>
         </set>
         WHERE yn = 1
         <if test="null!=boxCode and ''!=boxCode">
