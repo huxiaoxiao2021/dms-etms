@@ -297,7 +297,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false,noRollbackFor = Exception.class)
     @JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.preLoadBill", mState = JProEnum.TP)
     public Integer preLoadBill(List<Long> id, String userCode, String trunkNo) throws Exception {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
