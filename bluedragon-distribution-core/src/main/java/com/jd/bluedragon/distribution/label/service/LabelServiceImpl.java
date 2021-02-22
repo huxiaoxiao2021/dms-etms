@@ -13,7 +13,6 @@ public class LabelServiceImpl implements LabelService {
     @Autowired
     private LabelDao labelDao;
  
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Label label) {
     	return labelDao.add(LabelDao.namespace, label);
 	}

@@ -90,7 +90,6 @@ public class SystemLogServiceImpl implements SystemLogService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int add(String keyword1, String keyword2, String keyword3, Long keyword4, String content, Long type) {
 		SystemLog systemLog = new SystemLog();
 		systemLog.setKeyword1(keyword1);

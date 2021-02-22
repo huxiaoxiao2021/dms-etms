@@ -43,7 +43,6 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer updateTaskById(Map<String, Object> params) {
 		log.info("WorkerMonitorServiceImpl.updateTaskById begin...");
 		TaskDao routerDao = taskDao;    	
@@ -51,7 +50,6 @@ public class WorkerMonitorServiceImpl implements WorkerMonitorService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer updateBatchTask(Map<String, Object> params) {
 		log.info("WorkerMonitorServiceImpl.updateBatchTask begin...");
 		TaskDao routerDao = taskDao;    	

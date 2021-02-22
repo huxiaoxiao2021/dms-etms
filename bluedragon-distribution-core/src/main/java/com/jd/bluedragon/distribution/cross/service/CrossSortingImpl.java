@@ -135,7 +135,7 @@ public class CrossSortingImpl implements CrossSortingService {
      * @throws Exception
      */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Deprecated
 	public void importCrossSortingRules(Sheet sheet0,String userName, String userCode) throws Exception{
 		log.info("start import crossing sorting rule file...");

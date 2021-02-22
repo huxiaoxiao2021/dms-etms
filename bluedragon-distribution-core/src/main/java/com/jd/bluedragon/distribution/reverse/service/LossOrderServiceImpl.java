@@ -13,7 +13,6 @@ public class LossOrderServiceImpl implements LossOrderService {
     @Autowired
 	private LossOrderDao lossOrderDao;
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(LossOrder lossOrder) {
 		return this.lossOrderDao.add(LossOrderDao.namespace, lossOrder);
     }

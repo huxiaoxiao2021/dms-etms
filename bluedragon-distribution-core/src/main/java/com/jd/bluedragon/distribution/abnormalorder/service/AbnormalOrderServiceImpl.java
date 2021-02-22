@@ -70,14 +70,12 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	}
 	
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public void updateResult(AbnormalOrder abnormalOrder){
 		abnormalOrderDao.updateResult(abnormalOrder);
 	}
 	
 	@Override
 	@JProfiler(jKey = "DMSWEB.AbnormalOrderService.pushNewDataFromPDA", mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public HashMap<String/*运单号*/,Integer/*操作结果*/> pushNewDataFromPDA(AbnormalOrder[] abnormalOrders) {
 		HashMap<String/*运单号*/,Integer/*操作结果*/> result = new HashMap<String, Integer>();
 		ArrayList<AbnormalOrderMq> mqList = new ArrayList<AbnormalOrderMq>();

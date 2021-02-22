@@ -40,7 +40,7 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 	/**
 	 * 添加运单关联包裹信息
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean doCreateWayBillCode(PartnerWaybill partnerWaybill) {
 		Date date = new Date();
 		partnerWaybill.setUpdateTime(date);

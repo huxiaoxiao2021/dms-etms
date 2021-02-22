@@ -77,7 +77,6 @@ public class ClientConfigServiceImpl implements ClientConfigService {
         return clientConfigHistory;
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean delete(Long id) {
 		Assert.notNull(id, "id must not be null");
         return this.clientConfigDao.delete(id);

@@ -33,7 +33,6 @@ public class GroupBoxServiceImpl implements GroupBoxService {
      * @param groupList
      * @return
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     @Override
     public Integer batchAdd(List<Box> groupList) {
         Assert.notNull(groupList, "groupList must not be null");

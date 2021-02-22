@@ -96,7 +96,7 @@ public class ExceptionScanServiceImpl implements ExceptionScanService {
 
     @Override
     // todo 事务增加 main_undiv
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, value = "main_undiv")
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, value = "main_undiv", rollbackFor = Exception.class)
     public boolean goodsCompulsoryDeliver(GoodsExceptionScanningReq req) {
         Long taskNo = req.getTaskId();
         List<String>  waybillList = req.getWaybillCode();

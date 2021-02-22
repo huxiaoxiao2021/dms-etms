@@ -144,7 +144,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int add(PopAbnormal popAbnormal) {
 		int flag = 0;
 		if (popAbnormal == null) {
@@ -183,7 +183,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int updatePopPackNum(PopAbnormal popAbnormal) {
 		int flag = 0;
 		if (popAbnormal == null || popAbnormal.getId() == null
