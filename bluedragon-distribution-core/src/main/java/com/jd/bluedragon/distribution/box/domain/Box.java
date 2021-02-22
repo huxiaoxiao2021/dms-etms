@@ -134,6 +134,11 @@ public class Box {
 	 */
 	private Integer packageNum = 0;
 
+    /**
+     * 箱号来源
+     */
+	private String boxSource;
+
 	public String getGroupSendCode() {
 		return groupSendCode;
 	}
@@ -410,4 +415,11 @@ public class Box {
 		this.packageNum = packageNum;
 	}
 
+    public String getBoxSource() {
+        return boxSource;
+    }
+
+    public void setBoxSource(String boxSource) {
+        this.boxSource = boxSource;
+    }
 }
