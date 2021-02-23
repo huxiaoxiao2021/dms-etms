@@ -245,6 +245,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybillAndPack/{startDmsCode}/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getWaybillAndPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public WaybillResponse<Waybill> getWaybillAndPack(@PathParam("startDmsCode") Integer startDmsCode,
     		@PathParam("waybillCode") String waybillCode) {
         // 判断传入参数
@@ -323,6 +324,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybillOrPack/{startDmsCode}/{waybillCodeOrPackage}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getWaybillOrPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public WaybillResponse<Waybill> getWaybillOrPack(@PathParam("startDmsCode") Integer startDmsCode,
     		@PathParam("waybillCodeOrPackage") String waybillCodeOrPackage) {
         // 判断传入参数
@@ -556,6 +558,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getwaybillPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 													  @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless) {
@@ -700,6 +703,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getWaybillPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage, @PathParam("localSchedule") Integer localSchedule
 			, @PathParam("paperless") Integer paperless, @PathParam("startSiteType") Integer startSiteType, @PathParam("packOpeFlowFlg") Integer packOpeFlowFlg) {
@@ -802,6 +806,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/reSchedule")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.PackageReschedule", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> PackageReschedule(WaybillRescheduleRequest request){
 		WaybillResponse<Waybill> response = new WaybillResponse<>();
 		if (null == request) {
@@ -985,6 +990,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybillinfo/{busiId}/{startDmsCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getAirConfigRest", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public String getAirConfigRest(@PathParam("busiId") Integer busiId,
 			@PathParam("startDmsCode") Integer startDmsCode,@PathParam("siteCode") Integer siteCode) {
     	Integer signs = this.airTransportService.getAirConfig(
@@ -1006,6 +1012,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/airSigns/{busiId}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getAirSigns", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public String getAirSigns(@PathParam("busiId") Integer busiId) {
     	boolean signs = this.airTransportService.getAirSigns(busiId);
 
@@ -1023,6 +1030,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/fbackwaybill/{fbackwaybillcode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getFBackWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Waybill> getFBackWaybill(@PathParam("fbackwaybillcode") String fwaybillcode){
         this.log.info("获取F返单商家信息:{}",fwaybillcode);
         InvokeResult<Waybill> result=new InvokeResult<Waybill>();
@@ -1047,6 +1055,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/getfwaybillcustomercode/{fWaybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getFWaybillCustomerCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> getFWaybillCustomerCode(@PathParam("fWaybillCode") String fWaybillCode){
         InvokeResult<String> result=new InvokeResult<String>();
         InvokeResult<Waybill> waybill=this.getFBackWaybill(fWaybillCode);
@@ -1072,6 +1081,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybill/getTargetDmsCenter/{startDmsCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getTargetDmsCenter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseResponse getTargetDmsCenter(@PathParam("startDmsCode") Integer startDmsCode, @PathParam("siteCode") Integer siteCode){
     	BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     	try{
@@ -1092,6 +1102,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybill/getBuildPackageRule/{startDmsCode}/{siteCode}/{receiveCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getBuildPackageRule", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseResponse getBuildPackageRule(@PathParam("startDmsCode") Integer startDmsCode, @PathParam("siteCode") Integer siteCode
     		, @PathParam("receiveCode") Integer receiveCode){
     	BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -1113,6 +1124,7 @@ public class WaybillResource {
 
 	@POST
 	@Path("/waybill/sendModifyWaybillMQ")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.sendModifyWaybillMq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse sendModifyWaybillMq(ModifyOrderInfo modifyOrderInfo)
 	{
 		JdResponse jdResponse=new JdResponse();
@@ -1133,6 +1145,7 @@ public class WaybillResource {
 
 	@POST
 	@Path("/waybill/sendTrace")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.sendBtTrace", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse sendBtTrace(TaskRequest request ){
 		JdResponse jdResponse=new JdResponse();
 		try {
@@ -1191,6 +1204,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/queryPackcode/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.queryPackcode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<PackageWeigh>> queryPackcode(@PathParam("waybillCode") String waybillCode){
 
 
@@ -1226,6 +1240,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/addPackState")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.addPackState", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> addPackState(PopAddPackStateRequest req){
 
 
@@ -1300,6 +1315,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/editWeight")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.editWeight", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean>editWeight(List<EditWeightRequest> req){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 
@@ -1373,6 +1389,7 @@ public class WaybillResource {
 	@POST
 	@Path("/waybill/weight")
 	@BusinessLog(sourceSys = 1,bizType = 1902,operateType = 1902001)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.saveWaybillWeight", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> saveWaybillWeight(WaybillWeightVO req){
 
 		InvokeResult<Boolean> checkResult = weighByWaybillController.verifyWaybillReality(req.getCodeStr());
@@ -1395,6 +1412,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/waybill/checkWeight/{codeStr}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWeight", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkWeight(@PathParam("codeStr") String codeStr){
 
        return weighByWaybillController.verifyWaybillReality(codeStr);
@@ -1409,6 +1427,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/preSortingSiteCodeAndNextRouter/{siteCode}/{packageCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getPreSortingSiteCodeAndNextRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> getPreSortingSiteCodeAndNextRouter(@PathParam("siteCode") Integer siteCode,
 																   @PathParam("packageCode") String packageCode) {
 		InvokeResult invokeResult =new InvokeResult();
@@ -1479,7 +1498,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/getBarCodeAllRouters")
-	@JProfiler(jKey = "DMS.WEB.WaybillResource.getBarCodeAllRouters")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getBarCodeAllRouters", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<Integer>> getBarCodeAllRouters(PdaOperateRequest request) {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 		/* 检查参数的有效性 */
@@ -1633,6 +1652,7 @@ public class WaybillResource {
 
 	@POST
 	@Path("/waybill/post/cancel")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.isCancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
 		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
@@ -1644,6 +1664,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/checkIsLPWaybill/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkIsLPWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> checkIsLPWaybill(@PathParam("waybillCode") String waybillCode){
 
 		InvokeResult invokeResult =new InvokeResult();
@@ -1678,6 +1699,7 @@ public class WaybillResource {
 	@GET
 	@Path("/dy/createReturnsWaybill/{waybillCode}/{operatorId}/{operatorName}/{operateTime}/{packageCount}/{orgId}/{createSiteCode}/{isTotal}")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.createReturnsWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillReverseResult> createReturnsWaybill(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
 													  @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
 		InvokeResult invokeResult =new InvokeResult();
@@ -1723,6 +1745,7 @@ public class WaybillResource {
 	@GET
 	@Path("/dy/getOldOrderMessage/{waybillCode}/{operatorId}/{operatorName}/{operateTime}/{packageCount}/{orgId}/{createSiteCode}/{isTotal}")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getOldOrderMessage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessage(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
 																   @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
 		InvokeResult invokeResult =new InvokeResult();
@@ -1759,6 +1782,7 @@ public class WaybillResource {
 	@POST
 	@Path("/dy/createReturnsWaybill")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.createReturnsWaybillNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
@@ -1802,6 +1826,7 @@ public class WaybillResource {
 	@POST
 	@Path("/dy/getOldOrderMessage")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getOldOrderMessageNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
@@ -1836,6 +1861,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/exchange/getTwiceExchangeInfo")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getTwiceExchangeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<TwiceExchangeResponse> getTwiceExchangeInfo(TwiceExchangeRequest twiceExchangeRequest){
 		return reversePrintService.getTwiceExchangeInfo(twiceExchangeRequest);
 	}
@@ -1846,6 +1872,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/twiceExchange/check/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.twiceExchangeCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<TwiceExchangeCheckDto> twiceExchangeCheck(@PathParam("waybillCode") String waybillCode){
 		InvokeResult<TwiceExchangeCheckDto> invokeResult = new InvokeResult<TwiceExchangeCheckDto>();
 		TwiceExchangeCheckDto twiceExchangeCheckDto = new TwiceExchangeCheckDto();
@@ -1891,6 +1918,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/eclpSpareSortingCheck/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.eclpSpareSortingCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> eclpSpareSortingCheck(@PathParam("waybillCode") String waybillCode){
 		InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
 		invokeResult.setData(true);
@@ -1930,6 +1958,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.findWaybillByBusiIdAndBusiCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Deprecated
 	public InvokeResult<String> findWaybillByBusiIdAndBusiCode(@PathParam("busiId") String busiId,@PathParam("busiCode") String busiCode){
 		InvokeResult<String> result = new InvokeResult<String>();
@@ -1952,6 +1981,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}/{isBusiBoxCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.findByBusiIdAndBusiCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> findByBusiIdAndBusiCode(@PathParam("busiId") Integer busiId,@PathParam("busiCode") String busiCode,@PathParam("isBusiBoxCode") boolean isBusiBoxCode){
 		InvokeResult<String> result = new InvokeResult<String>();
 		try{
@@ -1994,6 +2024,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/package/weight/{type}/{packageCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.findPackageWeight", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<PackWeightVO> findPackageWeight(@PathParam("type") String type,@PathParam("packageCode") String packageCode){
 		InvokeResult<PackWeightVO> result = new InvokeResult<PackWeightVO>();
 		try{
@@ -2042,6 +2073,7 @@ public class WaybillResource {
 	@POST
 	@Path("/package/weight")
 	@BusinessLog(sourceSys = 1,bizType = 1903,operateType = 1903001)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.savePackageWeight", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> savePackageWeight(PackWeightVO packWeightVO){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try{
@@ -2084,6 +2116,7 @@ public class WaybillResource {
     @POST
     @Path("/package/weight/warn/check")
     @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.packageWeightCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		return weightAndVolumeCheckService.dealSportCheck(packWeightVO,SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,result);
@@ -2097,6 +2130,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/isWaybillExistAndNotFinished/{barCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.isWaybillExistAndNotFinished", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> isWaybillExistAndNotFinished(@PathParam("barCode") String barCode){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try{
@@ -2153,6 +2187,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/exchange/weightAndVolume/limit/{oldWaybillCode}/{newWaybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.waybillExchangeCheckWeightAndVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Integer> waybillExchangeCheckWeightAndVolume(@PathParam("oldWaybillCode") String oldWaybillCode, @PathParam("newWaybillCode") String newWaybillCode ){
 		return receiveWeightCheckService.waybillExchangeCheckWeightAndVolume(oldWaybillCode,newWaybillCode);
 	}
@@ -2166,6 +2201,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/checkIsPureMatchOrWarehouse/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkIsPureMatchOrWarehouse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Integer> checkIsPureMatchOrWarehouse(@PathParam("waybillCode") String waybillCode){
 		InvokeResult<Integer> result = new InvokeResult<Integer>();
 		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
@@ -2240,6 +2276,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/getPackNum/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getPackNum", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Integer> getPackNum(@PathParam("waybillCode") String waybillCode){
 
 		return waybillCommonService.getPackNum(waybillCode);
@@ -2252,6 +2289,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/collection/uneven")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getWaybillNoCollectionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillNoCollectionResult> getWaybillNoCollectionInfo(WaybillNoCollectionRequest waybillNoCollectionRequest){
 
 		InvokeResult<WaybillNoCollectionResult> result = new InvokeResult<>();
@@ -2341,6 +2379,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/inspection/uneven")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getInspectionWaybillNoCollectionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<InspectionNoCollectionResult> getInspectionWaybillNoCollectionInfo(WaybillNoCollectionRequest waybillNoCollectionRequest) {
 
 		log.info("验货差异查询开始，参数：{}", JsonHelper.toJson(waybillNoCollectionRequest));
@@ -2380,6 +2419,7 @@ public class WaybillResource {
 
     @POST
     @Path("/waybill/cancelFeatherLetter")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.cancelFeatherLetter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> cancelFeatherLetter(CancelFeatherLetterRequest request){
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
@@ -2443,6 +2483,7 @@ public class WaybillResource {
      */
     @POST
     @Path("/waybill/getPackageCodeByThirdWaybill")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getPackageCodeByThirdWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> getPackageCodeByThirdWaybill(ThirdWaybillRequest request) {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();

@@ -14,6 +14,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jsf.gd.msg.ResponseFuture;
 import com.jd.jsf.gd.util.RpcContext;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +48,7 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/batchSummaryPrint")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.batchSummaryPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SummaryPrintResultResponse batchSummaryPrint(PrintQueryCriteria criteria) {
 		if(check(criteria)){
 			SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
@@ -59,6 +62,7 @@ public class SendPrintResource {
 
     @GET
     @Path("/sendprint/testasync")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.getBatchWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Map<String,BigWaybillDto> getBatchWaybill(){
         WChoice queryWChoice = new WChoice();
         queryWChoice.setQueryWaybillC(true);
@@ -255,6 +259,7 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/basicPrintQuery")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
 		if(check(criteria)){
 			BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -269,6 +274,7 @@ public class SendPrintResource {
     @POST
     @GZIP
     @Path("/sendprint/basicPrintQueryForPage")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintQueryForPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
         if (checkForPage(criteria)) {
             BasicQueryEntityResponse response = new BasicQueryEntityResponse();
@@ -282,6 +288,7 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/basicPrintQueryOffline")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintQueryOffline", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria) {
 		if(check(criteria)){
 			BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -297,6 +304,7 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/sopPrintQuery")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.sopPrintQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria) {
 		if(check(criteria)){
 			BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -347,6 +355,7 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/carrySendCarInfo")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.carrySendCarInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BatchSendInfoResponse carrySendCarInfo(List<BatchSend> batchSends) {
 
 		if(batchSends==null||batchSends.size()==0){
@@ -377,6 +386,7 @@ public class SendPrintResource {
     @POST
     @GZIP
     @Path("/sendprint/getSendCodePrintInfo")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.getSendCodePrintInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendCodePrintEntity> getSendCodePrintInfo(PrintQueryCriteria criteria) {
         InvokeResult<SendCodePrintEntity> result = new InvokeResult<>();
         if (criteria != null && criteria.getSiteCode() != null && criteria.getReceiveSiteCode() != null) {
@@ -392,6 +402,7 @@ public class SendPrintResource {
     @POST
     @GZIP
     @Path("/sendprint/newBasicPrintQuery")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.newBasicPrintQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria) {
         if(check(criteria)){
             BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -407,6 +418,7 @@ public class SendPrintResource {
     @POST
     @GZIP
     @Path("/sendprint/newBatchSummaryPrint")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.newBatchSummaryPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SummaryPrintResultResponse newBatchSummaryPrint(PrintQueryCriteria criteria) {
         if(check(criteria)){
             SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();

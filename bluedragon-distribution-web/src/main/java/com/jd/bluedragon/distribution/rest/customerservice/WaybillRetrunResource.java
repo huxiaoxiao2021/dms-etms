@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.rest.customerservice;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.CustomerServiceResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +28,7 @@ public class WaybillRetrunResource {
 
 	@GET
 	@Path("/waybillreturn/{oldBillCode}")
+	@JProfiler(jKey = "DMS.WEB.WaybillRetrunResource.getSurfaceCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CustomerServiceResponse getSurfaceCode(@PathParam("oldBillCode") String oldBillCode) {
 		CustomerServiceResponse response = new CustomerServiceResponse();
 		try {

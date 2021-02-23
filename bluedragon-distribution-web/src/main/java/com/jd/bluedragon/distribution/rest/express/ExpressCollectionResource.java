@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.express.service.ExpressCollectionService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,7 @@ public class ExpressCollectionResource {
      */
     @GET
     @Path("/express/queryPackageDetails/{paramQueryCode}/{statusQueryCode}/{createSiteCode}")
+    @JProfiler(jKey = "DMS.WEB.ExpressCollectionResource.queryPackageDetails", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ExpressPackageDetailsResponse queryPackageDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressPackageDetailsResponse expressPackageDetailsResponse = new ExpressPackageDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
@@ -74,6 +77,7 @@ public class ExpressCollectionResource {
      */
     @GET
     @Path("/express/queryBoxDetails/{paramQueryCode}/{statusQueryCode}/{createSiteCode}")
+    @JProfiler(jKey = "DMS.WEB.ExpressCollectionResource.queryBoxDetails", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ExpressBoxDetailsResponse queryBoxDetails(@PathParam("createSiteCode") Integer createSiteCode,@PathParam("paramQueryCode") String paramQueryCode, @PathParam("statusQueryCode") String statusQueryCode) {
         ExpressBoxDetailsResponse expressBoxDetailsResponse = new ExpressBoxDetailsResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
