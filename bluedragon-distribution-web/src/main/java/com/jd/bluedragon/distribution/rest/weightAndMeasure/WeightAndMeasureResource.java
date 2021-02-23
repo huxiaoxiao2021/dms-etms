@@ -56,7 +56,7 @@ public class WeightAndMeasureResource {
      */
     @POST
     @Path("/weightAndMeasure/getWeightAndVolume")
-    @JProfiler(jKey = "DMS.WEB.WeightAndMeasureResource.getStorageInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.WeightAndMeasureResource.getWeightAndVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<DmsOutWeightAndVolumeResponse> getWeightAndVolume(WeightMeasureRequest request) {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJsonUseGson(request));
