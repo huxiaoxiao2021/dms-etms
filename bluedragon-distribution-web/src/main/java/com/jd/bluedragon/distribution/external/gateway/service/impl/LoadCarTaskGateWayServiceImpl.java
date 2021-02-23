@@ -7,10 +7,12 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskR
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
@@ -21,6 +23,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -63,6 +66,9 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     /**
      * 添加装车任务协助人
@@ -121,21 +127,21 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         LoadCar lc = loadService.findLoadCarById(req.getId());
-        if(null==lc){
+        if (null == lc) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("该任务不存在!");
             return jdCResponse;
         }
-        if(GoodsLoadScanConstants.YN_N.equals(lc.getYn())){
+        if (GoodsLoadScanConstants.YN_N.equals(lc.getYn())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已被删除,不可重复操作!");
             return jdCResponse;
         }
-        if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(lc.getStatus())) {
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(lc.getStatus())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已开始,无法删除");
             return jdCResponse;
-        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(lc.getStatus())) {
+        } else if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(lc.getStatus())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已完成,无法删除");
             return jdCResponse;
@@ -418,6 +424,49 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         }
         jdCResponse.toSucceed();
         jdCResponse.setData(Constants.SITE_OPEN);
+        return jdCResponse;
+    }
+
+    /**
+     * 根据车牌获取车辆信息
+     *
+     * @param vehicleNum
+     * @return
+     */
+    @Override
+    public JdCResponse<LoadCarInfoDto> getCarInfoByVehicleNum(String vehicleNum) {
+        JdCResponse jdCResponse = new JdCResponse();
+        if (StringUtils.isBlank(vehicleNum)) {
+            jdCResponse.toFail("车牌号不能为空");
+            return jdCResponse;
+        }
+        boolean flag = false;
+        if (vehicleNum.length() == 9) {
+            String temp = vehicleNum;
+            vehicleNum = transferLicenseNumber(vehicleNum);
+            flag = temp.equals(vehicleNum);
+        }
+        if (vehicleNum.length() == 10) {
+            String temp = vehicleNum;
+            vehicleNum = transferLicenseNumber2(vehicleNum);
+            flag = temp.equals(vehicleNum);
+        }
+        if (flag) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("车牌号不合规,请检查后重试");
+            return jdCResponse;
+        }
+        BasicVehicleTypeDto dto = basicQueryWSManager.getVehicleTypeByVehicleNum(vehicleNum);
+        if (null == dto) {
+            jdCResponse.toFail("获取车辆配置信息失败");
+            return jdCResponse;
+        }
+        LoadCarInfoDto loadCarInfoDto = new LoadCarInfoDto();
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setVolume(dto.getVolume());
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        jdCResponse.toSucceed();
+        jdCResponse.setData(loadCarInfoDto);
         return jdCResponse;
     }
 

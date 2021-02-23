@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskR
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 
@@ -83,4 +84,14 @@ public interface LoadCarTaskGateWayService {
      * @return
      */
     JdCResponse<Integer> hideMenuCheck(Integer currentSiteCode);
+
+    /**
+     * 根据车牌获取车辆信息
+     *
+     * @param vehicleNum
+     * @return
+     */
+    JdCResponse<LoadCarInfoDto> getCarInfoByVehicleNum(String vehicleNum);
+
+
 }

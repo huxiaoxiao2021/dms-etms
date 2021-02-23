@@ -1404,4 +1404,19 @@ public class Constants {
      * 抽检PDA来源标识
      */
     public static final Integer PDA_SOURCE = 1;
+
+    /**
+     * 字典节点级别
+     */
+    public static final int DICT_LEVEL = 2;
+
+    /**
+     * 父节点编码
+     */
+    public static final String PARENT_CODE = "1019";
+
+    /**
+     * 字典分组
+     */
+    public static final String DICT_GROUP = "1019";
 }

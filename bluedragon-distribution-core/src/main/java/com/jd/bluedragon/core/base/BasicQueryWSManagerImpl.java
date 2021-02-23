@@ -4,10 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.tms.basic.dto.BasicDictDto;
-import com.jd.tms.basic.dto.BasicVehicleDto;
-import com.jd.tms.basic.dto.CommonDto;
-import com.jd.tms.basic.dto.ConfNodeCarrierDto;
+import com.jd.tms.basic.dto.*;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -81,6 +78,49 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
         } else {
             log.warn("[BASIC车辆/车型信息查询]获取车型查询接口，owner[{}]，type[{}]，code[{}]，message[{}]",
                     owner, type, commonDto.getCode(), commonDto.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * 根据车牌号获取车型配置信息
+     *
+     * @param vehicleNum
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleTypeByVehicleNum", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BasicVehicleTypeDto getVehicleTypeByVehicleNum(String vehicleNum) {
+        try {
+            CommonDto<BasicVehicleTypeDto> commonDto = basicQueryWS.getVehicleTypeByVehicleNum(vehicleNum);
+            if (commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+                log.warn("根据车牌号获取车型配置信息为空,vehicleNum={}", vehicleNum);
+                return null;
+            }
+            return commonDto.getData();
+        } catch (Exception e) {
+            log.error("根据车牌号获取车型配置信息异常,vehicleNum={}", vehicleNum, e);
+        }
+        return null;
+    }
+
+    /**
+     * 获取车型字段配置
+     *
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getDictList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public List<BasicDictDto> getDictList() {
+        try {
+            CommonDto<List<BasicDictDto>> commonDto = basicQueryWS.getDictList(Constants.PARENT_CODE, Constants.DICT_LEVEL, Constants.DICT_GROUP);
+            if (commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+                log.warn("数据字典查询返回结果为空");
+                return null;
+            }
+            return commonDto.getData();
+        } catch (Exception e) {
+            log.warn("数据字典查询异常:", e);
         }
         return null;
     }
