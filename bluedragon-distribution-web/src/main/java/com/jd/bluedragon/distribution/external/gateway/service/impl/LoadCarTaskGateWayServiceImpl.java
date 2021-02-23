@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -467,6 +468,23 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
         jdCResponse.toSucceed();
         jdCResponse.setData(loadCarInfoDto);
+        return jdCResponse;
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public JdCResponse<List<BasicDictDto>> getCarList() {
+        JdCResponse<List<BasicDictDto>> jdCResponse = new JdCResponse<>();
+        List<BasicDictDto> list = basicQueryWSManager.getDictList();
+        if (CollectionUtils.isEmpty(list)) {
+            jdCResponse.toFail("获取车辆信息异常");
+            return jdCResponse;
+        }
+        jdCResponse.toSucceed();
+        jdCResponse.setData(list);
         return jdCResponse;
     }
 
