@@ -35,7 +35,7 @@ public class DeviceResource {
 
     @POST
     @Path("/device/getDeviceInfo")
-    @JProfiler(jKey = "DMS.WEB.WaybillResource.getInspectionWaybillNoCollectionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.DeviceResource.getInspectionWaybillNoCollectionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<DeviceInfoDto>> getDeviceInfo (DeviceInfoDto deviceInfoDto) {
         InvokeResult<List<DeviceInfoDto>> result = new InvokeResult<>();
         if (null == deviceInfoDto || StringHelper.isEmpty(deviceInfoDto.getSiteCode())) {
