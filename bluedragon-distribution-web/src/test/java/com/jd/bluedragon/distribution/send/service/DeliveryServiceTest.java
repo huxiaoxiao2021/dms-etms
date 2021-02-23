@@ -1,8 +1,13 @@
 package com.jd.bluedragon.distribution.send.service;
+import java.util.Date;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.transboard.api.service.GroupBoardService;
 import org.junit.Assert;
 import org.junit.Test;
@@ -133,5 +138,75 @@ public class DeliveryServiceTest {
         sendM.setUpdaterUser("管理员");
         sendM.setUpdateUserCode(100001);
         deliveryService.updateScanActionByBatchCode(sendM);
+    }
+
+    @Test
+    public void packageSendByWaybillTest() {
+        String boxCode = "JDVA00119929460-1-200-";
+        String sendCode = "910-39-20200916155103192";
+        SendM sendM = initSendM(sendCode, boxCode);
+        SendResult sendResult = deliveryService.packageSendByWaybill(sendM);
+        System.out.println(JsonHelper.toJson(sendResult));
+    }
+
+    @Test
+    public void doWaybillSendDeliveryTest() {
+        String boxCode = "JDVA00119929280-1-1-";
+        String sendCode = "910-39-20200916155103192";
+        SendM sendM = initSendM(sendCode, boxCode);
+        Task task = new Task();
+        task.setBoxCode(boxCode);
+        task.setReceiveSiteCode(39);
+        task.setExecuteCount(0);
+        task.setExecuteTime(new Date());
+        task.setType(0);
+        task.setKeyword1("1");
+        task.setKeyword2("");
+        task.setBody(JsonHelper.toJson(sendM));
+        task.setCreateSiteCode(910);
+        task.setTableName("");
+        task.setFingerprint("");
+        task.setParsedObject(new Object());
+        task.setSequenceName("");
+        task.setOwnSign("");
+        task.setBusinessType(0);
+        task.setOperateType(0);
+        task.setOperateTime(new Date());
+        task.setQueueId(0);
+        task.setSubType(0);
+
+        deliveryService.doWaybillSendDelivery(task);
+    }
+
+    private SendM initSendM(String sendCode,String boxCode) {
+        SendM sendM = new SendM();
+        sendM.setSendMId(0L);
+        sendM.setSendCode(sendCode);
+        sendM.setThirdWaybillCode("");
+        sendM.setSendUser("bjxings");
+        sendM.setSendUserCode(0);
+        sendM.setCreateSiteCode(910);
+        sendM.setReceiveSiteCode(39);
+        sendM.setCarCode("");
+        sendM.setSendType(0);
+        sendM.setCreateUser("bjxings");
+        sendM.setCreateUserCode(0);
+        sendM.setUpdateUserCode(0);
+        sendM.setUpdaterUser("");
+        sendM.setUpdateTime(new Date());
+        sendM.setYn(1);
+        sendM.setShieldsCarId(0L);
+        sendM.setSendmStatus(0);
+        sendM.setBoxCode(boxCode);
+        sendM.setExcuteCount(0);
+        sendM.setExcuteTime(new Date());
+        sendM.setOperateTime(new Date());
+        sendM.setCreateTime(new Date());
+        sendM.setTurnoverBoxCode("");
+        sendM.setTransporttype(0);
+        sendM.setBoardCode("");
+        sendM.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
+
+        return sendM;
     }
 }
