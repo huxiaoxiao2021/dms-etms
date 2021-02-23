@@ -36,6 +36,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -883,4 +886,29 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         return siteCodes.contains(String.valueOf(siteCode));
     }
 
+    @Override
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".FuncSwitchConfigService.getFuncStatusByAllDimension", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.FunctionError })
+    public boolean getFuncStatusByAllDimension(Integer funcCode, Integer siteCode, String userErp) {
+
+        // 未配置的功能开关返回false
+        if (null == funcCode || null == FuncSwitchConfigEnum.getEnumByKey(funcCode)) {
+            return false;
+        }
+        // 按全国维度查开关，配置状态是有效
+        if (!this.getAllCountryFromCacheOrDb(funcCode)) {
+            return true;
+        }
+
+        // 按场地维度查开关，配置状态是有效
+        if (null != siteCode && !this.getSiteFlagFromCacheOrDb(funcCode, siteCode)) {
+            return true;
+        }
+
+        // 按个人维度查开关，配置状态是有效
+        if (StringUtils.isNotBlank(userErp) && !this.getErpFlagFromCacheOrDb(funcCode, userErp)) {
+            return true;
+        }
+
+        return false;
+    }
 }

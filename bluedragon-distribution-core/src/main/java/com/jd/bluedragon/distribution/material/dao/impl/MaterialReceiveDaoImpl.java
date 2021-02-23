@@ -2,16 +2,8 @@ package com.jd.bluedragon.distribution.material.dao.impl;
 
 import com.jd.bluedragon.distribution.material.dao.MaterialReceiveDao;
 import com.jd.bluedragon.distribution.material.domain.DmsMaterialReceive;
-import com.jd.bluedragon.distribution.material.domain.DmsMaterialSend;
-import com.jd.bluedragon.distribution.material.enums.MaterialOperationStatusEnum;
-import com.jd.bluedragon.distribution.material.enums.MaterialScanTypeEnum;
-import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanQuery;
-import com.jd.bluedragon.distribution.material.vo.RecycleMaterialScanVO;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
-import com.jd.serial.eclp.result.PageResult;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

@@ -935,4 +935,14 @@ public class BusinessHelper {
         }
         return spotCheckType.equals(0) ? 1 : spotCheckType.equals(1)? 2: 2;
     }
+
+    /**
+     * 判断包裹是文件包裹
+     * @param waybillSign
+     * @return 是：true 否：false
+     */
+    public static boolean fileTypePackage(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, 135, '1');
+    }
+
 }

@@ -245,6 +245,16 @@ public class UccPropertyConfiguration {
      */
     private boolean checkBoxSendedSwitchOn;
 
+    /**
+     * BC箱号绑定WJ数量限制
+     */
+    private int BCContainWJNumberLimit;
+
+    /**
+     * WJ装箱包裹数限制
+     */
+    private int WJPackageNumberLimit;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -675,5 +685,21 @@ public class UccPropertyConfiguration {
 
     public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public int getBCContainWJNumberLimit() {
+        return BCContainWJNumberLimit;
+    }
+
+    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
+        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
+    }
+
+    public int getWJPackageNumberLimit() {
+        return WJPackageNumberLimit;
+    }
+
+    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
+        this.WJPackageNumberLimit = WJPackageNumberLimit;
     }
 }

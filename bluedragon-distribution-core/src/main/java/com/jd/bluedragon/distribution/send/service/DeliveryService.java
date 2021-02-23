@@ -192,7 +192,7 @@ public interface DeliveryService {
      *
      * @param tSendM 发货相关数据
      */
-    DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend);
+    DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType);
 
     /**
      * 通过运单号来判断是否发货
@@ -459,4 +459,21 @@ public interface DeliveryService {
      * @return
      */
     boolean checkSendCodeIsSealed(String sendCode);
+
+    /**
+     * 批量处理BC箱号绑定的WJ箱号的发货逻辑
+     * @param bizSource
+     * @param BCSendM
+     * @return
+     */
+    SendResult dealFileBoxSingleCarSend(SendBizSourceEnum bizSource, SendM BCSendM);
+
+    /**
+     * 老发货处理WJ发货逻辑
+     * @param source
+     * @param sendMList
+     * @param fileSendMList
+     * @return
+     */
+    DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList);
 }

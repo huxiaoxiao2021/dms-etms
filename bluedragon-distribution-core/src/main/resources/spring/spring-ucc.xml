@@ -91,7 +91,8 @@
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
-
+        <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
+        <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -153,6 +154,8 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
+                <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
+                <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
 			</list>
 		</property>
 	</bean>

@@ -7,6 +7,7 @@
     http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <util:list id="proceedFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WJBoxSortingNumberLimitFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SortingNumberLimitFilter" />
     </util:list>
 
@@ -51,7 +52,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
-
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FilePackageSortingFilter" />
     </util:list>
 
     <bean id="forwardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain" scope="prototype" destroy-method="destory">
@@ -108,6 +109,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FilePackageSendingFilter" />
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
