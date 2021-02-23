@@ -264,4 +264,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <!--  箱号绑定JSF服务   -->
+    <jsf:provider id="dmsBoxRelationJsfService"
+                  interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="boxRelationJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
 </beans>
