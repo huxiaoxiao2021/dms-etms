@@ -179,30 +179,6 @@ public class BoardCombinationResource {
                 request.setBoardCode(board.getCode());
                 request.setReceiveSiteCode(board.getDestinationId());
                 request.setReceiveSiteName(board.getDestination());
-            } else {
-                // 非第一次则校验目的地是否一致
-                if (!request.isForceCombination()) {
-                    String waybillCode = WaybillUtil.getWaybillCode(request.getBoxOrPackageCode());
-                    Integer nextSiteCode;
-                    try {
-                        nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode, request.getCurrentOperate().getSiteCode());
-                        if (nextSiteCode == null) {
-                            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此单路由信息获取失败，无法判断流向生成板号，是否强制组板?");
-                            result.toConfirm("此单路由信息获取失败，无法判断流向生成板号，是否强制组板?");
-                            return result;
-                        }
-                        if (!nextSiteCode.equals(request.getReceiveSiteCode())) {
-                            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "包裹流向与板号流向不一致，是否强制组板?");
-                            result.toConfirm("包裹流向与板号流向不一致，是否强制组板?");
-                            return result;
-                        }
-                    } catch (Exception e) {
-                        log.error("运单号【{}】的路由下一跳和板号【{}】目的地校验异常,error=", waybillCode, request.getBoardCode(), e);
-                        boardResponse.addStatusInfo(JdResponse.CODE_ERROR, "服务器执行异常");
-                        result.toError("服务器执行异常");
-                        return result;
-                    }
-                }
             }
             // 对象转换
             BoardCombinationRequest combinationRequest = convertToBoardCombinationRequest(request);
@@ -579,6 +555,9 @@ public class BoardCombinationResource {
         boardCombinationRequest.setSiteName(param.getCurrentOperate().getSiteName());
         boardCombinationRequest.setUserCode(param.getUser().getUserCode());
         boardCombinationRequest.setUserName(param.getUser().getUserName());
+        if (param.getFlowDisaccord() != null) {
+            boardCombinationRequest.setFlowDisaccord(param.getFlowDisaccord());
+        }
 
         return boardCombinationRequest;
 

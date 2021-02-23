@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 
@@ -354,6 +355,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
             addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+            if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(request.getFlowDisaccord())) {
+                addBoardBox.setFlowDisaccord(request.getFlowDisaccord());
+            }
             tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         } catch (Exception e) {
             Profiler.functionError(info);

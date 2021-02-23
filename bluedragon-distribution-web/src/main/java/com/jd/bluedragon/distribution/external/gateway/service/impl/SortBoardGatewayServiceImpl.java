@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -121,6 +122,10 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
         // code转化
         if (response.getCode() > 30000 && response.getCode() < 40000) {
+            // 如果是错组
+            if (SortingResponse.CODE_CROUTER_ERROR.equals(response.getData().getStatusInfo().get(0).getStatusCode())) {
+                boardCheckDto.setFlowDisaccord(1);
+            }
             jdcResponse.setCode(JdCResponse.CODE_CONFIRM);
         } else {
             jdcResponse.setCode(response.getCode());

@@ -28,6 +28,11 @@ public class BoardCheckDto implements Serializable {
      */
     private String boardCode;
 
+    /**
+     * 错组标识: 1是错组，0是非错组
+     */
+    private Integer flowDisaccord;
+
     @Override
     public String toString() {
         return "BoardCheckDto{" +
@@ -59,5 +64,13 @@ public class BoardCheckDto implements Serializable {
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public Integer getFlowDisaccord() {
+        return flowDisaccord;
+    }
+
+    public void setFlowDisaccord(Integer flowDisaccord) {
+        this.flowDisaccord = flowDisaccord;
     }
 }
