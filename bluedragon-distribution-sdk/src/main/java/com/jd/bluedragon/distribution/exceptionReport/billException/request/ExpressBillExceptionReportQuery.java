@@ -48,6 +48,11 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     private BasePagerCondition basePagerCondition;
 
+    /**
+     * 包裹号
+     */
+    private String packageCode;
+
     public Integer getPageSize() {
         return pageSize;
     }
@@ -126,6 +131,14 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     public void setBasePagerCondition(BasePagerCondition basePagerCondition) {
         this.basePagerCondition = basePagerCondition;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 }
     

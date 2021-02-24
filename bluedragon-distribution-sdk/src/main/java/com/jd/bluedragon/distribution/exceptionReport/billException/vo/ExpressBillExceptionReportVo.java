@@ -103,6 +103,11 @@ public class ExpressBillExceptionReportVo implements Serializable {
      */
     private String remark;
 
+    /**
+     * 商城订单号
+     */
+    private String orderId;
+
     public Boolean getYn() {
         return yn;
     }
@@ -245,6 +250,14 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }
     

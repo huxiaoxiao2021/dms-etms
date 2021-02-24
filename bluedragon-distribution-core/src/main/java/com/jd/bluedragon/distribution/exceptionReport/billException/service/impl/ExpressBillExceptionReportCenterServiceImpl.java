@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.request.Expr
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportCenterService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.sdk.util.DateUtil;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -52,13 +53,13 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         // 数据集合
         List<ExpressBillExceptionReportVo> dataList = new ArrayList<>();
         long total = 0;
-        query.setYn(1);
         try {
             Response<Boolean> checkResult = this.checkParam(query);
             if(!checkResult.isSucceed()){
                 result.toError(checkResult.getMessage());
                 return result;
             }
+            query.setYn(1);
             total = expressBillExceptionReportDao.queryCount(query);
             if(total > 0){
                 List<ExpressBillExceptionReport> recordList = expressBillExceptionReportDao.queryList(query);
@@ -93,9 +94,20 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         return  vo;
     }
 
+    /**
+     * 检查、拼接查询参数
+     * @param query
+     * @return
+     */
     private Response<Boolean> checkParam(ExpressBillExceptionReportQuery query) {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
+        if(StringUtils.isNotEmpty(query.getPackageCode())&&!WaybillUtil.isPackageCode(query.getPackageCode())){
+            response.toError("包裹号填写异常");
+            return response;
+        }
+
+        // 查询时间字段转化
         if(StringUtils.isNotEmpty(query.getQueryStartTimeStr())){
             query.setQueryStartTime(DateUtil.parse(query.getQueryStartTimeStr(), DateUtil.FORMAT_DATE_TIME));
         }
