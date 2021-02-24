@@ -267,6 +267,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadScanDetailDto.setUnloadScanDtoList(Collections.<UnloadScanDto>emptyList());
                 return;
             }
+            // 空任务标识
+            boolean isEmptyTask = false;
+            if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+                isEmptyTask = true;
+            }
 
             unloadScanDetailDto.setTotalWaybillNum(unloadScans.size());
             // 已卸运单数
@@ -282,14 +287,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 所有应卸加起来就是总包裹数
                 totalPackageNum = totalPackageNum + unloadScan.getForceAmount();
                 // 转换数据
-                unloadScanDtoList.add(convertData(unloadScan));
+                unloadScanDtoList.add(convertData(unloadScan, isEmptyTask));
                 if (unloadScan.getLoadAmount() == 0 && unloadScan.getSurplusAmount() == 0) {
                     continue;
                 }
                 // 统计已扫数据
                 loadPackageNum = loadPackageNum + unloadScan.getLoadAmount() + unloadScan.getSurplusAmount();
                 // 如果是空任务
-                if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+                if (isEmptyTask) {
                     // 运单总包裹数 = 多卸数，则已卸单+1
                     if (unloadScan.getPackageAmount().equals(unloadScan.getSurplusAmount())) {
                         loadWaybillNum = loadWaybillNum + 1;
@@ -309,7 +314,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     }
                 }
             }
-            if (sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
+            if (isEmptyTask) {
                 unloadScanDetailDto.setTotalPackageNum(loadPackageNum);
                 unloadScanDetailDto.setUnloadWaybillAmount(0);
                 unloadScanDetailDto.setUnloadPackageAmount(0);
@@ -336,12 +341,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
     }
 
-    private UnloadScanDto convertData(UnloadScan unloadScan) {
+    private UnloadScanDto convertData(UnloadScan unloadScan, boolean isEmptyTask) {
         UnloadScanDto unloadScanDto = new UnloadScanDto();
         unloadScanDto.setWayBillCode(unloadScan.getWaybillCode());
         unloadScanDto.setPackageAmount(unloadScan.getPackageAmount());
         unloadScanDto.setForceAmount(unloadScan.getForceAmount());
-        unloadScanDto.setLoadAmount(unloadScan.getLoadAmount());
+        if (isEmptyTask) {
+            unloadScanDto.setLoadAmount(unloadScan.getSurplusAmount());
+        } else {
+            unloadScanDto.setLoadAmount(unloadScan.getLoadAmount());
+        }
         unloadScanDto.setUnloadAmount(unloadScan.getUnloadAmount());
         unloadScanDto.setStatus(unloadScan.getStatus());
         return unloadScanDto;
