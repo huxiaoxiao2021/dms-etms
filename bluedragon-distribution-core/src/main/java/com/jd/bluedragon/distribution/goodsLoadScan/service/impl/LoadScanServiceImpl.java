@@ -1083,7 +1083,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         /**新增扫描装车 车型最大核载校验**/
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode(), Constants.WAYBILL_PACKAGE_SCAN_TYPE)) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1240,7 +1240,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         /**新增扫描装车 车型最大核载校验**/
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode(), Constants.WAYBILL_PACKAGE_SCAN_TYPE)) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1950,10 +1950,9 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param totalVolume
      * @param taskId
      * @param waybillCode
-     * @param type
      * @return true限制扫描
      */
-    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode, int type) {
+    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode) {
         if (null == totalWeight || null == totalVolume) {
             return false;
         }
@@ -1965,15 +1964,8 @@ public class LoadScanServiceImpl implements LoadScanService {
         Waybill waybill = baseEntity.getData().getWaybill();
         Double waybillWeight = waybill.getGoodWeight();
         Double waybillVolume = waybill.getGoodVolume();
-        BigDecimal weight = new BigDecimal(0);
-        BigDecimal volume = new BigDecimal(0);
-        /**组板维度扫描**/
-        if (Constants.BOARD_SCAN_TYPE == type) {
-
-        } else {
-            weight = new BigDecimal(Double.toString(totalWeight)).add(new BigDecimal(Double.toString(waybillWeight)));
-            volume = new BigDecimal(Double.toString(totalVolume)).add(new BigDecimal(Double.toString(waybillVolume)));
-        }
+        BigDecimal weight = new BigDecimal(Double.toString(totalWeight)).add(new BigDecimal(Double.toString(waybillWeight)));
+        BigDecimal volume = new BigDecimal(Double.toString(totalVolume)).add(new BigDecimal(Double.toString(waybillVolume)));
         return compareWeightVolume(loadCar, weight, volume);
     }
 
