@@ -195,7 +195,7 @@
         <if test="queryEndTime != null">
             AND report_time <![CDATA[<]]> #{queryEndTime,jdbcType=TIMESTAMP}
         </if>
-        <if test="packageCode != null">
+        <if test="packageCode != null and packageCode !=''">
             AND package_code = #{packageCode,jdbcType=INTEGER}
         </if>
     </sql>
