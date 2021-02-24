@@ -18,6 +18,8 @@
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="Double"/>
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="Double"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -68,6 +70,12 @@
             <if test="createUserName !=null and createUserName !=''">
                 create_user_name,
             </if>
+            <if test="weight !=null ">
+                weight,
+            </if>
+            <if test="volume !=null ">
+                volume,
+            </if>
             yn
         </trim>
         )values (
@@ -110,6 +118,12 @@
             </if>
             <if test="createUserName !=null and createUserName !=''">
                 #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="weight !=null ">
+                #{weight,jdbcType=DOUBLE},
+            </if>
+            <if test="volume !=null ">
+                #{volume,jdbcType=DOUBLE},
             </if>
             1
         </trim>

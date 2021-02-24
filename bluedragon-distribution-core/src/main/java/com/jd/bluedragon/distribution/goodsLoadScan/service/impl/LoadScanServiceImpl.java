@@ -40,7 +40,10 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1078,6 +1081,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        /**新增扫描装车 车型最大核载校验**/
+        if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode(), Constants.WAYBILL_PACKAGE_SCAN_TYPE)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
+            return response;
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         }
@@ -1225,6 +1236,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("校验运单号--该装车任务已经结束，taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("该装车任务已经结束");
+            return response;
+        }
+        /**新增扫描装车 车型最大核载校验**/
+        if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode(), Constants.WAYBILL_PACKAGE_SCAN_TYPE)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
         }
 
@@ -1924,5 +1942,58 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.setData(unloadPackages);
         return response;
     }
+
+    /**
+     * 装车扫描防止包裹重量、体积超过车辆最大核载数
+     *
+     * @param totalWeight
+     * @param totalVolume
+     * @param taskId
+     * @param waybillCode
+     * @param type
+     * @return true限制扫描
+     */
+    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode, int type) {
+        if (null == totalWeight || null == totalVolume) {
+            return false;
+        }
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
+        if (null == baseEntity || null == baseEntity.getData() || null == baseEntity.getData().getWaybill()) {
+            return false;
+        }
+        Waybill waybill = baseEntity.getData().getWaybill();
+        Double waybillWeight = waybill.getGoodWeight();
+        Double waybillVolume = waybill.getGoodVolume();
+        BigDecimal weight = new BigDecimal(0);
+        BigDecimal volume = new BigDecimal(0);
+        /**组板维度扫描**/
+        if (Constants.BOARD_SCAN_TYPE == type) {
+
+        } else {
+            weight = new BigDecimal(Double.toString(totalWeight)).add(new BigDecimal(Double.toString(waybillWeight)));
+            volume = new BigDecimal(Double.toString(totalVolume)).add(new BigDecimal(Double.toString(waybillVolume)));
+        }
+        return compareWeightVolume(loadCar, weight, volume);
+    }
+
+
+    /**
+     * 最大核载重量、体积校验
+     *
+     * @param loadCar
+     * @param totalWeight 当前已装包裹总重量
+     * @param totalVolume 当前已装包裹总体积
+     * @return
+     */
+    public Boolean compareWeightVolume(LoadCar loadCar, BigDecimal totalWeight, BigDecimal totalVolume) {
+        BigDecimal maxWeight = new BigDecimal(loadCar.getWeight());
+        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume());
+        if (totalWeight.compareTo(maxWeight) > 0 || totalVolume.compareTo(maxVolume) > 0) {
+            return true;
+        }
+        return false;
+    }
+
 
 }

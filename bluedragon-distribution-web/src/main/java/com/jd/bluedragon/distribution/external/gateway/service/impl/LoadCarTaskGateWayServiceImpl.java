@@ -315,6 +315,8 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             loadCar.setCreateSiteCode(req.getCreateSiteCode());
             loadCar.setEndSiteCode(req.getEndSiteCode());
             loadCar.setLicenseNumber(req.getLicenseNumber());
+            loadCar.setWeight(convertWeightUnitToRequired(req.getWeight()));
+            loadCar.setVolume(convertVolumeUnit(req.getVolume()));
             List<LoadCar> taskList = loadService.selectByEndSiteCode(loadCar);
             Date now = new Date();
             //库中如果存在
@@ -502,6 +504,33 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.setData(loadCarInfoDto);
         jdCResponse.toSucceed();
         return jdCResponse;
+    }
+
+
+    /**
+     * 吨转kg
+     *
+     * @param weight 吨
+     * @return kg
+     */
+    private Double convertWeightUnitToRequired(Double weight) {
+        if (null == weight) {
+            return null;
+        }
+        return weight * 1000.0;
+    }
+
+    /**
+     * 体积单位 传入值为立方米 运单要求标准为立方厘米
+     *
+     * @param volume 立方米
+     * @return 体积 立方厘米
+     */
+    private Double convertVolumeUnit(Double volume) {
+        if (null == volume) {
+            return null;
+        }
+        return volume * 1000000.0;
     }
 
 }

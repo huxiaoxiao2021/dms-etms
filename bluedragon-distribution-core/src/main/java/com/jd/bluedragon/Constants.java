@@ -1419,4 +1419,14 @@ public class Constants {
      * 字典分组
      */
     public static final String DICT_GROUP = "1019";
+
+    /**
+     * 组板维度扫描
+     */
+    public static final int BOARD_SCAN_TYPE = 1;
+
+    /**
+     * 组板维度扫描
+     */
+    public static final int WAYBILL_PACKAGE_SCAN_TYPE = 2;
 }
