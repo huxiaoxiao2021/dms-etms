@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.tms.basic.dto.BasicDictDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 
 import java.util.List;
 
@@ -101,4 +102,11 @@ public interface LoadCarTaskGateWayService {
      */
     JdCResponse<List<BasicDictDto>> getCarList();
 
+    /**
+     * 根据车型获取车型配置信息
+     *
+     * @param vehicleType
+     * @return
+     */
+    JdCResponse<LoadCarInfoDto> getCarInfoByType(Integer vehicleType);
 }

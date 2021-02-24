@@ -472,19 +472,35 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
     }
 
     /**
-     *
      * @return
      */
     @Override
     public JdCResponse<List<BasicDictDto>> getCarList() {
         JdCResponse<List<BasicDictDto>> jdCResponse = new JdCResponse<>();
-        List<BasicDictDto> list = basicQueryWSManager.getDictList();
+        List<BasicDictDto> list = basicQueryWSManager.getDictList(Constants.PARENT_CODE, Constants.DICT_LEVEL, Constants.DICT_GROUP);
         if (CollectionUtils.isEmpty(list)) {
             jdCResponse.toFail("获取车辆信息异常");
             return jdCResponse;
         }
         jdCResponse.toSucceed();
         jdCResponse.setData(list);
+        return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<LoadCarInfoDto> getCarInfoByType(Integer vehicleType) {
+        JdCResponse<LoadCarInfoDto> jdCResponse = new JdCResponse<>();
+        BasicVehicleTypeDto dto = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+        if (null == dto) {
+            jdCResponse.toFail("查询操作异常");
+            return jdCResponse;
+        }
+        LoadCarInfoDto loadCarInfoDto = new LoadCarInfoDto();
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setVolume(dto.getVolume());
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        jdCResponse.setData(loadCarInfoDto);
+        jdCResponse.toSucceed();
         return jdCResponse;
     }
 

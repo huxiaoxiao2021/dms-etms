@@ -50,9 +50,10 @@ public interface BasicQueryWSManager {
     BasicVehicleTypeDto getVehicleTypeByVehicleNum(String vehicleNum);
 
     /**
-     * 获取车辆字典配置
+     * 根据车型获取车型配置信息
      *
+     * @param vehicleType
      * @return
      */
-    List<BasicDictDto> getDictList();
+    BasicVehicleTypeDto getVehicleTypeByVehicleType(Integer vehicleType);
 }
