@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.box.request.BoxCollectionReportRequest;
 import com.jd.bluedragon.common.dto.box.request.QueryBoxCollectionReportRequest;
 import com.jd.bluedragon.common.dto.box.response.QueryBoxCollectionReportResponse;
+import com.jd.bluedragon.common.dto.recyclematerial.request.ReflowPackageRequest;
 
 /**
  * 集包异常举报接口
@@ -28,4 +29,11 @@ public interface CollectionBagExceptionReportGatewayService {
      * @time 2020-09-23 21:26:39 周三
      */
     JdCResponse<Boolean> reportBagCollectionException(BoxCollectionReportRequest reportRequest);
+
+    /**
+     * 包裹回流扫描提交
+     * @param request
+     * @return
+     */
+    JdCResponse<Boolean> reflowPackageSubmit(ReflowPackageRequest request);
 }
