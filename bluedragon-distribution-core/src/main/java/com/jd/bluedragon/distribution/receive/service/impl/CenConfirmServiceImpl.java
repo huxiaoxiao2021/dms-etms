@@ -71,6 +71,12 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         }
     }
 
+	/**
+	 * 1.更新或者插入收货记录
+	 * 2.发验货消息
+	 * 3.发验货全程跟踪
+	 * @param cenConfirm
+	 */
 	public void saveOrUpdateCenConfirm(CenConfirm cenConfirm) {
         //取消同步方法，取消事务（上层调用方已经设置事务为required）
 
@@ -88,30 +94,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         }catch (Throwable throwable){
             log.error("推送验货MQ异常,WaybillCode:{}",inspectionMQBody.getWaybillCode(),throwable);
         }
-		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
-				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
-			if (WaybillUtil.isSurfaceCode(cenConfirm.getPackageBarcode())) {
-				cenConfirm = fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
-                /**
-                 * fix wtw 外部接口包装，及UMP
-                 */
-				cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
-			} else {
-				cenConfirm = fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
-			}
-		}else if(Constants.BUSSINESS_TYPE_SITE==cenConfirm.getType()){
-			cenConfirm.setOperateType(Constants.OPERATE_TYPE_PSY);
-		}else if(Constants.BUSSINESS_TYPE_InFactory==cenConfirm.getType()){
-            cenConfirm.setOperateType(Constants.OPERATE_TYPE_In);
-        }
-		if (Constants.NO_MATCH_DATA == cenConfirmDao
-				.updateFillField(cenConfirm)) {
-            /**
-             * Fix wtw
-             */
 
-			cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
-			// 插入回传运单状态任务表/全程跟踪任务表
+        if (this.saveOrUpdateCenConfirmOnly(cenConfirm) > 0){
+			// 插入回传运单状态任务表/全程跟踪任务表-提货（收货）的全程跟踪
 			syncWaybillStatusTask(cenConfirm);
 		}
 	}
@@ -526,4 +511,34 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 
         return cenConfirm;
     }
+
+
+	/**
+	 * 只是更新或者插入收货记录
+	 * @param cenConfirm
+	 * @return 插入数据的数量
+	 */
+	@Override
+	public Integer saveOrUpdateCenConfirmOnly(CenConfirm cenConfirm) {
+		Integer result = 0;
+
+		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
+				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
+			if (WaybillUtil.isSurfaceCode(cenConfirm.getPackageBarcode())) {
+				cenConfirm = fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
+				cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);
+			} else {
+				cenConfirm = fillOperateType(cenConfirm);// 根据运单号调用运单接口判断操作类型
+			}
+		}else if(Constants.BUSSINESS_TYPE_SITE==cenConfirm.getType()){
+			cenConfirm.setOperateType(Constants.OPERATE_TYPE_PSY);
+		}else if(Constants.BUSSINESS_TYPE_InFactory==cenConfirm.getType()){
+			cenConfirm.setOperateType(Constants.OPERATE_TYPE_In);
+		}
+		if (Constants.NO_MATCH_DATA == cenConfirmDao
+				.updateFillField(cenConfirm)) {
+			result = cenConfirmDao.add(CenConfirmDao.namespace, cenConfirm);// 不存在添加
+		}
+		return result;
+	}
 }
