@@ -1451,6 +1451,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadCar.setOperateUserName(user.getUserName());
         loadCar.setUpdateTime(new Date());
         loadCarDao.updateLoadCarById(loadCar);
+        loadScanCacheService.setTaskLoadScan(loadCar);
         response.setCode(JdCResponse.CODE_SUCCESS);
         return response;
     }

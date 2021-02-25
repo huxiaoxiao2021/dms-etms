@@ -37,9 +37,6 @@ public class RouterFilter implements Filter {
     private SiteService siteService;
 
     @Autowired
-    private WaybillCacheService waybillCacheService;
-
-    @Autowired
     private RouterService routerService;
 
     @Override
@@ -74,23 +71,9 @@ public class RouterFilter implements Filter {
                     waybillCode,routeNextDto.isRoutExistCurrentSite(),routeNextDto.getFirstNextSiteId());
             if(routeNextDto.isRoutExistCurrentSite() &&
                     !isRightReceiveSite(receiveSiteCode, routeNextDto)) {
-                //将下一站由编码转换成名称，并进行截取，供pda提示
-                StringBuilder routerShortNames= new StringBuilder();
-                for(Integer dmsCode : routeNextDto.getNextSiteIdList()){
-                    String siteName = siteService.getDmsShortNameByCode(dmsCode);
-                    if(StringHelper.isEmpty(siteName)){
-                        continue;
-                    }
-                    routerShortNames.append(siteName).append(Constants.SEPARATOR_COMMA);
-                    if(Objects.equals(dmsCode,receiveSiteCode)){
-                        break;
-                    }
-                }
-                if(StringHelper.isNotEmpty(routerShortNames.toString())){
-                    routerShortNames = new StringBuilder(routerShortNames.substring(0, routerShortNames.length() - 1));
-                }
+                String siteName = siteService.getDmsShortNameByCode(routeNextDto.getFirstNextSiteId());
                 throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
-                        SortingResponse.MESSAGE_CROUTER_ERROR + "路由下一站：" + routerShortNames);
+                        SortingResponse.MESSAGE_CROUTER_ERROR + "路由下一站：" + siteName);
             }
 
         }
@@ -100,6 +83,6 @@ public class RouterFilter implements Filter {
 
     private boolean isRightReceiveSite(Integer receiveSiteCode, RouteNextDto routeNextDto) {
         return CollectionUtils.isNotEmpty(routeNextDto.getNextSiteIdList())
-                && routeNextDto.getNextSiteIdList().contains(receiveSiteCode);
+                && Objects.equals(routeNextDto.getFirstNextSiteId(),receiveSiteCode);
     }
 }
