@@ -18,6 +18,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.common.util.MessageUtils;
 import com.jd.etms.api.common.enums.RequirementEnum;
@@ -231,6 +233,9 @@ public class WaybillResource {
 
 	@Autowired
 	private WaybillCacheService waybillCacheService;
+
+	@Autowired
+	private RouterService routerService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1552,18 +1557,9 @@ public class WaybillResource {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 
 		try {
-			String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
-			if(StringHelper.isNotEmpty(routerStr)){
-				String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
-				if(routers.length > 0) {
-					for (int i = 0; i < routers.length - 1; i++) {
-						/* 将当前分拣中心的下一跳路由站点设置进返回值，并跳出循环 */
-						if(operateSiteCode.equals(Integer.valueOf(routers[i]))){
-							nextRouters.add(Integer.valueOf(routers[i+1]));
-							break;
-						}
-					}
-				}
+			RouteNextDto routeNextDto = routerService.matchRouterNextNode(operateSiteCode,waybillCode);
+			if(routeNextDto.isRoutExistCurrentSite()){
+				nextRouters.add(routeNextDto.getFirstNextSiteId());
 			}
 		} catch (Exception e) {
 			log.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：{}" , waybillCode,e);

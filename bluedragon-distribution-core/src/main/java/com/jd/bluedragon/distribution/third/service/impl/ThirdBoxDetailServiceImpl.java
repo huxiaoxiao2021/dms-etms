@@ -49,7 +49,6 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	 * @param detail 箱-包关系
 	 * @return 结果
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public boolean sorting(ThirdBoxDetail detail) {
 		return thirdBoxDetailDao.insert(detail);
@@ -61,7 +60,6 @@ public class ThirdBoxDetailServiceImpl extends BaseService<ThirdBoxDetail> imple
 	 * @param detail 明细
 	 * @return 结果
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	@Override
 	public boolean cancel(ThirdBoxDetail detail) {
 		return thirdBoxDetailDao.cancel(detail);

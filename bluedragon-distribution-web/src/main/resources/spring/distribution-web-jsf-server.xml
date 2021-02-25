@@ -197,7 +197,7 @@
                   ref="dmsNoticeJsfService" server="dmsjsf">
     </jsf:provider>
 
-    <!--   箱号jsf：终端调用判断是否是经济网箱号     -->
+    <!--   箱号jsf     -->
     <jsf:provider id="dmsBoxQueryServiceJsf"
                   interface="com.jd.bluedragon.distribution.box.service.DmsBoxQueryService"
                   alias="${dms.jsf.alias}"

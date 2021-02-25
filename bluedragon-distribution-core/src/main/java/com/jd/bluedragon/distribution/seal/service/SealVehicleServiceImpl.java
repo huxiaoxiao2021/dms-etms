@@ -109,7 +109,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 
 	@Override
 	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehicle",mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int addSealVehicle(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
 		// 若不存在，则直接增加，增加成功后，返回成功；
@@ -181,7 +181,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	 */
 	@Override
 	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.addSealVehiclel2",mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int addSealVehicle2(SealVehicle sealVehicle) {
 		// 增加封车信息：先根据封车号、有效性查询封车信息是否存在
 		// 若不存在，则直接增加，增加成功后，返回成功；
@@ -274,7 +274,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 
 	@Override
 	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle", mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int updateSealVehicle(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
 		// 若更新成功，返回成功 1；
@@ -332,7 +332,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 
 	@Override
 	@JProfiler(jKey= "DMSWEB.SealVehicleServiceImpl.updateSealVehicle2",mState = {JProEnum.TP})
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int updateSealVehicle2(SealVehicle sealVehicle) {
 		// 增加解封车信息：先根据封车号、车牌号、创建站点（此参数是否存在）、有效性更新封车信息
 		// 若更新成功，返回成功 1；
@@ -458,7 +458,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	/******************* 封车与解封车:封车号与批次号多对多关系   ***************************/
 	
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean addSealVehicle3(List<SealVehicle> sealVehicleList) {
 		for(SealVehicle sealVehicle : sealVehicleList){
 			if (sealVehicle == null || StringUtils.isBlank(sealVehicle.getCode())
@@ -506,7 +506,7 @@ public class SealVehicleServiceImpl implements SealVehicleService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean updateSealVehicle3(SealVehicle sealVehicle, String sealCodes) {
 		if (sealVehicle == null 
 				|| StringUtils.isBlank(sealVehicle.getVehicleCode())

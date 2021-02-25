@@ -3,12 +3,14 @@ package com.jd.bluedragon.distribution.box.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.*;
@@ -32,6 +35,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,7 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -57,6 +62,12 @@ public class BoxServiceImpl implements BoxService {
 
     private static final String BOX_STATUS_REDIS_QUERY_SWITCH = PropertiesHelper.newInstance().getValue("box.status.redis.query.switch");
 
+    private static final String prefixOfCache = "DMS_BOX_SERVICE_";
+
+	public static final String prefixOfLock = "DMS_BOX_SERVICE_LOCK_";
+
+	public static final Integer LOCK_TTL = 2;
+
     @Autowired
     private BoxDao boxDao;
 
@@ -65,9 +76,6 @@ public class BoxServiceImpl implements BoxService {
 
     @Autowired
     private IGenerateObjectId genObjectId;
-
-	@Autowired
-	RedisManager redisManager;
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
@@ -86,6 +94,12 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	private SendMDao sendMDao;
 
+	@Autowired
+	@Qualifier(value = "changeBoxStatusLogProducer")
+	private DefaultJMQProducer changeBoxStatusLogProducer;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
     @Autowired
     private CrossBoxService crossBoxService;
 
@@ -98,14 +112,20 @@ public class BoxServiceImpl implements BoxService {
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
-        return this.boxDao.add(BoxDao.namespace, box);
+        //持久化
+		Integer result = this.boxDao.add(BoxDao.namespace, box);
+        //缓存
+		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+		if (!isCatched){
+			log.warn("box cache fail. the boxCode is " + box.getCode());
+		}
+        return result;
     }
 
     @JProfiler(jKey = "DMSWEB.BoxService.batchAdd",mState = {JProEnum.TP})
     public List<Box> batchAdd(Box param) {
     	List<Box> boxes = Lists.newArrayList();
         String boxCodePrefix = this.generateBoxCodePrefix(param);
-
         for (Integer loop = 0; loop < param.getQuantity(); loop++) {
             String boxCodeSuffix = StringHelper.padZero(this.genObjectId.getObjectId(this
                     .generateKey(param)));
@@ -118,17 +138,7 @@ public class BoxServiceImpl implements BoxService {
             boxes.add(box);
 
             this.add(box);
-            try {
-				//写入箱号之后添加缓存
-            	//key箱号
-            	box.setStatus(1);
-				redisManager.setex(box.getCode(), timeout,
-						JsonHelper.toJson(box));
-			} catch (Exception e) {
-				this.log.error("打印箱号写入缓存失败：{}",box.getCode(),e);
-			}
         }
-
         return boxes;
     }
 
@@ -152,43 +162,6 @@ public class BoxServiceImpl implements BoxService {
 	public List<Box> batchAddNew(Box param, String systemType) {
 		return batchAddNewFromDMS(param, systemType);
 	}
-
-    /**
-     * 是否启用中台创建箱号开关
-     * @return boolean
-     */
-	private boolean isCreateBoxFromSSC(){
-        boolean isCreateBoxFromSSC = false;
-        try{
-            SysConfig config = sysConfigService.findConfigContentByConfigName(Constants.CREATE_BOX_FROM_SSC_SWITCH);
-            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
-                isCreateBoxFromSSC = true;
-            }
-        }catch (Exception e){
-            log.error("查询箱号创建是否使用中台异常", e);
-        }
-
-        return isCreateBoxFromSSC;
-    }
-
-    /**
-     * 是否启用中台查询箱号开关
-     * @return boolean
-     */
-	private boolean isFindBoxFromSSC(){
-        boolean isFindBoxFromSSC = false;
-        try{
-            SysConfig config = sysConfigService.findConfigContentByConfigName(Constants.FIND_BOX_FROM_SSC_SWITCH);
-            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
-				isFindBoxFromSSC = true;
-            }
-        }catch (Exception e){
-            log.error("查询箱号查询是否使用中台异常", e);
-        }
-
-        return isFindBoxFromSSC;
-    }
-
     /**
      * 使用中台生产箱号
      * @param param 参数
@@ -221,18 +194,7 @@ public class BoxServiceImpl implements BoxService {
 			box.setBoxSource(systemType);
 			boxes.add(box);
 			this.add(box);
-
-			try {
-				//写入箱号之后添加缓存
-				//key箱号
-				box.setStatus(1);
-				redisManager.setex(box.getCode(), timeout,
-						JsonHelper.toJson(box));
-			} catch (Exception e) {
-				this.log.error("打印箱号写入缓存失败",e);
-			}
 		}
-
 		return boxes;
 	}
 
@@ -245,7 +207,6 @@ public class BoxServiceImpl implements BoxService {
 		 5-6	2位生产标识 01-打印客户端生成箱号 02-自动分拣机箱号
 		 7-12	6位日期（yyMMdd）
 		 13-14	2位随机数（0-99）随机数
-
 	 * @param box
 	 * @return
 	 */
@@ -380,46 +341,22 @@ public class BoxServiceImpl implements BoxService {
 	@JProfiler(jKey = "DMSWEB.BoxService.findBoxByCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
-		return findBoxByCodeFromDMS(code);
-	}
+		Box result = null;
 
-	private Box findBoxByCodeFromDMS(String code) {
-		Assert.notNull(code, "code must not be null");
-
-		try {
-			// 取出缓存
-			// key箱号
-			String boxJson = redisManager.getCache(code);
-			Box box = null;
-
-			if (boxJson != null && !boxJson.isEmpty()) {
-				box = JsonHelper.fromJson(boxJson, Box.class);
-				if (box != null) {
-					this.log.info("findBoxByCode缓存命中箱号为:{}" , code);
-					//如果箱号 目的地 始发地不为空的时候
-					if (box.getCode() != null && box.getCreateSiteCode() != null
-							&& box.getReceiveSiteCode() != null) {
-						this.log.info("通过redis缓存获取箱号信息成功(userRedisQueryBox),箱号信息为：{}",box.getCode());
-						return box;
-					}
-				} else {
-					this.log.info("findBoxByCode没有缓存命中箱号为:{}" , code);
-				}
-			} else {
-				this.log.info("findBoxByCode缓存命中,但是消息为null,箱号为:{}" , code);
-			}
-
-
-		} catch (Exception e) {
-			this.log.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , code, e);
+		String boxJson = jimdbCacheService.get(getCacheKey(code));
+		if (StringUtils.isNotEmpty(boxJson)){
+			result = JsonHelper.fromJson(boxJson,Box.class);
+			return result;
 		}
-
-		Box box = this.boxDao.findBoxByCode(code);
-		if(box != null){
-			this.log.info("通过数据库获取箱号信息成功(userMysqlQueryBox),箱号信息为：{}",JsonHelper.toJson(box));
+		result = this.boxDao.findBoxByCode(code);
+		if (null == result){
+			return result;
 		}
-
-		return box;
+		Boolean isCatched = jimdbCacheService.setEx(getCacheKey(result.getCode()),JsonHelper.toJson(result), timeout);
+		if (!isCatched){
+			log.warn("box cache fail. the boxCode is " + result.getCode());
+		}
+		return result;
 	}
 
     public Box findBoxByBoxCode(Box box) {
@@ -436,30 +373,19 @@ public class BoxServiceImpl implements BoxService {
 
 	@Override
 	public Box findBoxCacheByCode(String boxCode) {
-
 		Assert.notNull(boxCode, "boxCode must not be null");
-
 		try {
 			// 取出缓存
-			// key箱号
-			String boxJson = redisManager.getCache(boxCode);
+			String boxJson = jimdbCacheService.get(getCacheKey(boxCode));
 			Box box = null;
-
-			if (boxJson != null && !boxJson.isEmpty()) {
-				box = JsonHelper.fromJson(boxJson, Box.class);
-				if (box != null) {
-					this.log.info("findBoxByCode缓存命中箱号为:{}" , boxCode);
-					if (box.getCode() != null && box.getCreateSiteCode() != null
-							&& box.getReceiveSiteCode() != null) {
-						return box;
-					}
-				}
+			if (StringUtils.isEmpty(boxJson)){
+				return box;
 			}
-
+			box = JsonHelper.fromJson(boxJson, Box.class);
+			return box;
 		} catch (Exception e) {
 			this.log.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , boxCode, e);
 		}
-
 		return null;
 
 	}
@@ -467,13 +393,14 @@ public class BoxServiceImpl implements BoxService {
 	public Long delboxCodeCache(String boxCode) {
 		Long resulte = 0L;
 		try {
-			resulte = redisManager.del(boxCode);
+			resulte = jimdbCacheService.del(getCacheKey(boxCode)) ? 1L : 0L;
 		} catch (Exception e) {
 			this.log.error("delboxCodeCache删除缓存失败，箱号为:{}" , boxCode, e);
 		}
 		return resulte;
 	}
 
+	@Deprecated
     @Override
 	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatusRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp) {
@@ -502,7 +429,7 @@ public class BoxServiceImpl implements BoxService {
 		return result;
 	}
 
-
+	@Deprecated
 	@Override
 	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {
 		Integer result = null;
@@ -530,34 +457,12 @@ public class BoxServiceImpl implements BoxService {
 	@Override
 	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
 		Boolean result = false;
-		Integer boxStatus = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.checkBoxIsSent",Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-			if ("1".equals(BOX_STATUS_REDIS_QUERY_SWITCH)) {
-				boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
-			}
-			if (boxStatus != null) {
-				if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
-					log.info("箱号状态缓存命中，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
-					result = true;
-				}
-			} else {
-				SendM sendM = new SendM();
-				sendM.setBoxCode(boxCode);
-				sendM.setCreateSiteCode(operateSiteCode);
-				List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
-
-				//sendm不为空，说明已发货，否则视为初始状态
-				if (sendMList != null && ! sendMList.isEmpty()) {
-					log.info("查询SendM表成功，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
-					//更新箱号状态缓存为已发货
-					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendMList.get(0).getCreateUser());
-					result = true;
-				} else {
-					log.info("查询SendM表成功，箱号：{} 在站点编号为：{}时未发货！", boxCode, operateSiteCode);
-					//更新箱号状态缓存为初始状态
-					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode(), null);
-				}
+			if (uccPropertyConfiguration.getCheckBoxSendedSwitchOn()){
+				result = oldCheckBoxIsSent(boxCode,operateSiteCode);
+			}else{
+				result = newCheckBoxIsSent(boxCode);
 			}
 		} catch (Exception e) {
             Profiler.functionError(info);
@@ -566,7 +471,57 @@ public class BoxServiceImpl implements BoxService {
 		}finally {
             Profiler.registerInfoEnd(info);
         }
+		return result;
+	}
 
+	/**
+	 * 老逻辑 - 判断箱是否已发货
+	 * @param boxCode
+	 * @param operateSiteCode
+	 * @return
+	 */
+	@Deprecated
+	private Boolean oldCheckBoxIsSent(String boxCode, Integer operateSiteCode){
+		Boolean result = Boolean.FALSE;
+		Integer boxStatus = null;
+		if ("1".equals(BOX_STATUS_REDIS_QUERY_SWITCH)) {
+			boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
+		}
+		if (boxStatus != null) {
+			if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
+				log.info("箱号状态缓存命中，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
+				result = true;
+			}
+		} else {
+			SendM sendM = new SendM();
+			sendM.setBoxCode(boxCode);
+			sendM.setCreateSiteCode(operateSiteCode);
+			List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
+
+			//sendm不为空，说明已发货，否则视为初始状态
+			if (sendMList != null && ! sendMList.isEmpty()) {
+				log.info("查询SendM表成功，箱号：{} 在站点编号为：{}时已发货！", boxCode, operateSiteCode);
+				//更新箱号状态缓存为已发货
+				this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendMList.get(0).getCreateUser());
+				result = true;
+			} else {
+				log.info("查询SendM表成功，箱号：{} 在站点编号为：{}时未发货！", boxCode, operateSiteCode);
+				//更新箱号状态缓存为初始状态
+				this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode(), null);
+			}
+		}
+		return result;
+	}
+
+	private Boolean newCheckBoxIsSent(String boxCode){
+		Boolean result = Boolean.FALSE;
+		//获取箱状态信息
+		Box box = this.findBoxByCode(boxCode);
+		if (null == box){
+			return Boolean.FALSE;
+		}
+		result = com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.CLOSE.getStatus().equals(box.getStatus())
+				&& OpBoxNodeEnum.SEND.equals(box.getLastNodeType()) ? Boolean.TRUE : Boolean.FALSE;
 		return result;
 	}
 
@@ -592,6 +547,94 @@ public class BoxServiceImpl implements BoxService {
 		}
 	}
 
+
+	/**
+	 * 更新箱状态
+	 * @param boxReq
+	 * @return
+	 */
+	@Override
+	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatus", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public Boolean updateBoxStatus(BoxReq boxReq) {
+		Boolean result = Boolean.FALSE;
+		try{
+			Box boxSaved = findBoxByCode(boxReq.getBoxCode());
+			if (null == boxSaved){
+				return Boolean.FALSE;
+			}
+			boxSaved.setStatus(boxReq.getBoxStatus());
+			boxSaved.setLastNodeType(boxReq.getOpNodeCode());
+			try{
+				if (lock(boxReq.getBoxCode())){
+					//更新数据库状态
+					Box box = new Box();
+					box.setCode(boxReq.getBoxCode());
+					box.setStatus(boxReq.getBoxStatus());
+					box.setUpdateTime(boxReq.getOpTime());
+					box.setLastNodeType(boxReq.getOpNodeCode());
+					this.boxDao.updateBoxStatus(box);
+				}else{
+					log.warn("updateBoxStatus获取锁失败，boxCode={}",boxReq.getBoxCode());
+				}
+			}finally {
+				unLock(boxReq.getBoxCode());
+			}
+			//删除缓存
+			delboxCodeCache(boxReq.getBoxCode());
+			//记录流水
+			changeBoxStatusLogProducer.sendOnFailPersistent(boxReq.getBoxCode(),JsonHelper.toJson(boxReq));
+			result = Boolean.TRUE;
+		}catch (Exception ex){
+			log.error("updateBoxStatus has error. The error is " +ex.getMessage(),ex);
+		}
+		return result;
+	}
+
+
+	/**
+	 * 获取锁
+	 * @param boxCode
+	 * @return
+	 */
+	private boolean lock(String boxCode) {
+		String lockKey = getLockCashKey(boxCode);
+		log.info("开始获取锁lockKey={}", lockKey);
+		try {
+			for(int i =0;i < 4;i++){
+				if (jimdbCacheService.setNx(lockKey, StringUtils.EMPTY, LOCK_TTL, TimeUnit.SECONDS)){
+					return Boolean.TRUE;
+				}else{
+					Thread.sleep(100);
+				}
+			}
+		} catch (Exception e) {
+			log.error("箱状态修改Lock异常:boxCode={},e=", boxCode , e);
+			jimdbCacheService.del(lockKey);
+		}
+		return Boolean.FALSE;
+	}
+
+	private void unLock(String boxCode) {
+		try {
+			String lockKey = getLockCashKey(boxCode);
+			jimdbCacheService.del(lockKey);
+		} catch (Exception e) {
+			log.error("箱状态修改unLock异常:boxCode={},e=", boxCode, e);
+		}
+	}
+
+	private String getLockCashKey(String boxCode){
+		return  prefixOfLock + boxCode;
+	}
+
+	/**
+	 * 构造缓存的key
+	 * @param code
+	 * @return
+	 */
+	private String getCacheKey(String code){
+		return prefixOfCache + code;
+	}
 	public static void main(String[] args) {
         Box box = new Box();
         box.setCode("BC010F002010Y04200062058");
@@ -712,6 +755,9 @@ public class BoxServiceImpl implements BoxService {
         //临时占用字段处理站点商家重复
         box.setStatuses(request.getCreateSiteType());
         box.setUpdateUser(request.getReceiveSiteType());
+        //设置状态和当前节点
+        box.setStatus(com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.OPEN.getStatus());
+        box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
         return box;
     }
 }

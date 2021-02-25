@@ -27,6 +27,7 @@
 		<result column="predict_send_time" property="predictSendTime" />
 		<result column="router" property="router" />
 		<result column="router_name" property="routerName" />
+		<result column="last_node_type" property="lastNodeType" />
         <result column="box_source" property="boxSource" />
 	</resultMap>
 	
@@ -35,7 +36,8 @@
 			box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, create_user,
 			update_user_code, update_user, transport_type,mix_box_type,
-			create_time, update_time, times, box_status, yn,predict_send_time,router,router_name
+			create_time, update_time, times, box_status, yn,predict_send_time,
+			router,router_name,last_node_type
             ,box_source
         )
 		VALUES (
@@ -45,7 +47,8 @@
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{transportType,jdbcType=INTEGER}, #{mixBoxType,jdbcType=INTEGER},
-			 NOW(), NOW(), 1, 1, 1,#{predictSendTime,jdbcType=TIMESTAMP}, #{router,jdbcType=VARCHAR},#{routerName,jdbcType=VARCHAR}
+			 NOW(), NOW(), 1, #{status}, 1,#{predictSendTime,jdbcType=TIMESTAMP},
+			 #{router,jdbcType=VARCHAR},#{routerName,jdbcType=VARCHAR},#{lastNodeType}
             ,#{boxSource,jdbcType=VARCHAR}
        )
 	</insert>
@@ -64,7 +67,7 @@
 	<select id="findBoxByBoxCode" resultMap="box" parameterType="box" >
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
-			transport_type,mix_box_type,predict_send_time,router,router_name
+			transport_type,mix_box_type,predict_send_time,router,router_name,last_node_type
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code} AND create_site_code = #{createSiteCode}
 		 LIMIT 1
@@ -92,6 +95,16 @@
 		SET
 			create_site_name = #{createSiteName,jdbcType=VARCHAR},
 			receive_site_name = #{receiveSiteName,jdbcType=VARCHAR}
+		WHERE
+			box_code = #{code,jdbcType=VARCHAR}
+	</update>
+
+	<update id="updateBoxStatus"   parameterType="box">
+		UPDATE Box
+		SET
+			box_status = #{status},
+			last_node_type = #{lastNodeType},
+			update_time = #{updateTime}
 		WHERE
 			box_code = #{code,jdbcType=VARCHAR}
 	</update>

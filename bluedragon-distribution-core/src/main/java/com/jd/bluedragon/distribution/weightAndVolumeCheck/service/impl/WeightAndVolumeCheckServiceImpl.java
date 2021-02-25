@@ -1307,10 +1307,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getBillingVolumeWeight());
                 body.add(weightVolumeCollectDto.getBillingWeightDifference());
                 body.add(weightVolumeCollectDto.getDiffStandard());
-                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess().equals(1)?"超标":weightVolumeCollectDto.getIsExcess().equals(0)?"未超标":"");
                 body.add(weightVolumeCollectDto.getWeightDiff());
                 body.add(weightVolumeCollectDto.getVolumeWeightDiff());
-                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(1)?"超标":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(0)?"未超标":"");
                 body.add(getFromSource(weightVolumeCollectDto.getFromSource()));
                 body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
                 body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());

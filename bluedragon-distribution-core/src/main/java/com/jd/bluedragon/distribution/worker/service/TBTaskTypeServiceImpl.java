@@ -48,7 +48,7 @@ public class TBTaskTypeServiceImpl implements TBTaskTypeService{
      * @param domain
      * @return
      */
-    @Transactional(readOnly = false,propagation = Propagation.REQUIRED, value="worker")
+    @Transactional(readOnly = false,propagation = Propagation.REQUIRED, value="worker", rollbackFor = Exception.class)
     @Override
     public int inserSingle(TBTaskType domain) throws Exception{
         if(domain.getTaskQueueNumber()>100){

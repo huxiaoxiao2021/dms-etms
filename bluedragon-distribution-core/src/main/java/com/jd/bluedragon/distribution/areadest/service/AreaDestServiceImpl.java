@@ -267,7 +267,6 @@ public class AreaDestServiceImpl implements AreaDestService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Map<RouteType, Integer> importForExcel(Map<RouteType, Sheet> sheets, AreaDestRequest request, String userName, Integer userCode) throws Exception {
         Map<RouteType, Integer> result = new HashMap<RouteType, Integer>();
         Set<AreaDest> importData = new HashSet<AreaDest>();
