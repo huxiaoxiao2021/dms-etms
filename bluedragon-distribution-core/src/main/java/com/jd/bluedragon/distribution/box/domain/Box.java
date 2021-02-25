@@ -139,6 +139,11 @@ public class Box {
 	 */
 	private Integer lastNodeType;
 
+    /**
+     * 箱号来源
+     */
+	private String boxSource;
+
 	public String getGroupSendCode() {
 		return groupSendCode;
 	}
@@ -422,4 +427,11 @@ public class Box {
 	public void setLastNodeType(Integer lastNodeType) {
 		this.lastNodeType = lastNodeType;
 	}
+    public String getBoxSource() {
+        return boxSource;
+    }
+
+    public void setBoxSource(String boxSource) {
+        this.boxSource = boxSource;
+    }
 }
