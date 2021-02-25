@@ -348,4 +348,13 @@
                   ref="spotCheckGateWayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--包裹回流扫描，给pda 安卓用-->
+    <bean id="reflowPackageGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ReflowPackageGatewayServiceImpl" />
+    <jsf:provider id="reflowPackageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ReflowPackageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="reflowPackageGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
