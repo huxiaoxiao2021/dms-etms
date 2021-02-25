@@ -372,6 +372,8 @@
         <!-- 功能开关配置 -->
         <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
 
+        <mapper resource="mappers/mysql/box/BoxRelationMapper.xml" />
+
 <!--        &lt;!&ndash; 装卸车业务 &ndash;&gt;-->
 <!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />-->
 <!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />-->

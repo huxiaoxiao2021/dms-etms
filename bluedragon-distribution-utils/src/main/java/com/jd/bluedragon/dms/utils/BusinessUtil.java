@@ -1856,6 +1856,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 特定开头的箱号
+     * @param boxCode
+     * @param codePrefix
+     * @return
+     */
+    public static boolean boxCodeMatchPrefix(String boxCode, String codePrefix) {
+        if (StringUtils.isBlank(boxCode) || StringUtils.isBlank(codePrefix)) {
+            return false;
+        }
+        return isBoxcode(boxCode) && boxCode.trim().toUpperCase().startsWith(codePrefix);
+    }
+
+    /**
      *  判断是否为C 网
      *  40 位为0:C网,   非0:B网
      */

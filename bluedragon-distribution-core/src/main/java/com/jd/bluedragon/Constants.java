@@ -105,6 +105,16 @@ public class Constants {
     /** 经济网网点类型 **/
     public static final Integer THIRD_ENET_SITE_TYPE= 10000;
 
+    /**
+     * 二级分拣中心
+     */
+    public static final Integer SITE_SUBTYPE_SECOND = 6409;
+
+    /**
+     * 三级分拣中心
+      */
+    public static final Integer SITE_SUBTYPE_THIRD = 6410;
+
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
     public static final int WAREHOUSE_HANDOVER_OPERATE_TYPE = 2;
@@ -1413,4 +1423,9 @@ public class Constants {
      * 暂存预约提示语
      */
     public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
+
+    /**
+     * 快运发货标识
+     */
+    public static final Integer KY_DELIVERY = 1;
 }

@@ -102,6 +102,13 @@ public class InvokeResult<T> implements Serializable {
         this.message= SERVER_ERROR_MESSAGE;
     }
 
+    /**
+     * 发生异常
+     */
+    public void error() {
+        this.code = SERVER_ERROR_CODE;
+        this.message= SERVER_ERROR_MESSAGE;
+    }
 
     /**
      * 发生异常
@@ -129,5 +136,13 @@ public class InvokeResult<T> implements Serializable {
     public void customMessage(int code,String message){
         this.code=code;
         this.message=message;
+    }
+
+    /**
+     * 成功
+     * @return
+     */
+    public boolean codeSuccess() {
+        return this.code == RESULT_SUCCESS_CODE;
     }
 }
