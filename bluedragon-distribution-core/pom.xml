@@ -1565,11 +1565,6 @@
 			<version>1.0.5-SNAPSHOT</version>
 		</dependency>
 
-        <dependency>
-            <groupId>com.jd.bluedragon</groupId>
-            <artifactId>bluedragon-distribution-external-sdk</artifactId>
-        </dependency>
-
 		<dependency>
 			<groupId>com.zhongyouex.order</groupId>
 			<artifactId>zhongyouex-order-api</artifactId>
