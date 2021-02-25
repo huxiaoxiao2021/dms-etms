@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.collect.service.CollectGoodsPlaceService;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +59,7 @@ public class CollectGoodsResource {
      */
     @GET
     @Path("/collect/areas/{siteCode}")
+    @JProfiler(jKey = "DMS.WEB.CollectGoodsResource.findAreas", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<CollectGoodsDTO>> findAreas(@PathParam("siteCode") Integer siteCode) {
         InvokeResult<List<CollectGoodsDTO>> result = new InvokeResult<>();
 
@@ -92,6 +95,7 @@ public class CollectGoodsResource {
      */
     @POST
     @Path("/collect/put")
+    @JProfiler(jKey = "DMS.WEB.CollectGoodsResource.put", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectGoodsDTO> put(CollectGoodsDTO req) {
         InvokeResult<CollectGoodsDTO> result = new InvokeResult<>();
         try{
@@ -120,6 +124,7 @@ public class CollectGoodsResource {
      */
     @POST
     @Path("/collect/find")
+    @JProfiler(jKey = "DMS.WEB.CollectGoodsResource.find", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CollectGoodsDTO> find(CollectGoodsDTO req) {
         InvokeResult<CollectGoodsDTO> result = new InvokeResult<>();
         if(StringUtils.isBlank(req.getPackageCode()) && StringUtils.isBlank(req.getCollectGoodsPlaceCode())&& StringUtils.isBlank(req.getCollectGoodsAreaCode())){
@@ -171,6 +176,7 @@ public class CollectGoodsResource {
      */
     @POST
     @Path("/collect/clean")
+    @JProfiler(jKey = "DMS.WEB.CollectGoodsResource.clean", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> clean(CollectGoodsDTO req) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         try{
@@ -199,6 +205,7 @@ public class CollectGoodsResource {
      */
     @POST
     @Path("/collect/transfer")
+    @JProfiler(jKey = "DMS.WEB.CollectGoodsResource.transfer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> transfer(CollectGoodsDTO req) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         try{

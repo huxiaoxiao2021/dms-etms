@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -57,6 +59,7 @@ public class MaterialBatchSendResource {
 
     @POST
     @Path("/material/batchSend/send")
+    @JProfiler(jKey = "DMS.WEB.MaterialBatchSendResource.materialBatchSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> materialBatchSend(MaterialBatchSendRequest request) {
         JdResult<Boolean> response = new JdResult<>();
         response.toSuccess();
@@ -86,6 +89,7 @@ public class MaterialBatchSendResource {
 
     @POST
     @Path("/material/batchSend/cancel")
+    @JProfiler(jKey = "DMS.WEB.MaterialBatchSendResource.cancelMaterialBatchSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> cancelMaterialBatchSend(MaterialBatchSendRequest request) {
         JdResult<Boolean> response = new JdResult<>();
         response.toSuccess();
@@ -139,6 +143,7 @@ public class MaterialBatchSendResource {
 
     @POST
     @Path("/material/batchSend/typeList")
+    @JProfiler(jKey = "DMS.WEB.MaterialBatchSendResource.listMaterialType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<List<MaterialTypeResponse>> listMaterialType(MaterialBatchSendRequest request) {
         JdResult<List<MaterialTypeResponse>> response = new JdResult<>();
         response.toSuccess();
@@ -163,6 +168,7 @@ public class MaterialBatchSendResource {
 
     @GET
     @Path("/material/batchSend/{sendCode}")
+    @JProfiler(jKey = "DMS.WEB.MaterialBatchSendResource.getSendCodeDestination", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<AbstractMap.Entry<Integer, String>> getSendCodeDestination(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);

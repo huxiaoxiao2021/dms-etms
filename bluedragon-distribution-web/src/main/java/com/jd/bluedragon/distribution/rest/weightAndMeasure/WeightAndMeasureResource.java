@@ -17,6 +17,8 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.transboard.api.dto.BoardMeasureRequest;
 import com.jd.transboard.api.dto.Response;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +56,7 @@ public class WeightAndMeasureResource {
      */
     @POST
     @Path("/weightAndMeasure/getWeightAndVolume")
+    @JProfiler(jKey = "DMS.WEB.WeightAndMeasureResource.getWeightAndVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<DmsOutWeightAndVolumeResponse> getWeightAndVolume(WeightMeasureRequest request) {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJsonUseGson(request));
@@ -123,6 +126,7 @@ public class WeightAndMeasureResource {
      */
     @POST
     @Path("/weightAndMeasure/dmsOutVolumeAdd")
+    @JProfiler(jKey = "DMS.WEB.WeightAndMeasureResource.dmsOutVolumeAdd", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult dmsOutVolumeAdd(WeightMeasureRequest request) {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJsonUseGson(request));

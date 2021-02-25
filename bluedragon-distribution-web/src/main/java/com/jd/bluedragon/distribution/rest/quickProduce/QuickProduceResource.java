@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.preseparate.util.LableType;
 import com.jd.preseparate.util.OriginalType;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ public class QuickProduceResource {
      */
     @GET
     @Path("/quickProduce/getwaybillPrePack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{waybillOrLabel}")
+    @JProfiler(jKey = "DMS.WEB.QuickProduceResource.getwaybillPrePack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Waybill getwaybillPrePack(@PathParam("startDmsCode") Integer startDmsCode,
                                                       @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage, @PathParam("localSchedule") Integer localSchedule
             , @PathParam("paperless") Integer paperless,@PathParam("waybillOrLabel") Integer waybillOrLabel) {

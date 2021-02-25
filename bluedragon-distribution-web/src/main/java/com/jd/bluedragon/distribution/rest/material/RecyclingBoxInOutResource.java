@@ -14,6 +14,8 @@ import com.jd.bluedragon.distribution.material.enums.MaterialTypeEnum;
 import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -53,6 +55,7 @@ public class RecyclingBoxInOutResource {
 
     @POST
     @Path("/recyclingBox/inbound")
+    @JProfiler(jKey = "DMS.WEB.RecyclingBoxInOutResource.recyclingBoxInbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<RecyclingBoxInOutResponse> recyclingBoxInbound(RecyclingBoxInOutboundRequest request) {
 
         JdResult<RecyclingBoxInOutResponse> response = new JdResult<>();
@@ -89,6 +92,7 @@ public class RecyclingBoxInOutResource {
 
     @POST
     @Path("/recyclingBox/outbound")
+    @JProfiler(jKey = "DMS.WEB.RecyclingBoxInOutResource.recyclingBoxOutbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<RecyclingBoxInOutResponse> recyclingBoxOutbound(RecyclingBoxInOutboundRequest request) {
         JdResult<RecyclingBoxInOutResponse> response = new JdResult<>();
         response.toSuccess();

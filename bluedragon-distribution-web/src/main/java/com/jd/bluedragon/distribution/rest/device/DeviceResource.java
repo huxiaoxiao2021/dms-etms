@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -33,6 +35,7 @@ public class DeviceResource {
 
     @POST
     @Path("/device/getDeviceInfo")
+    @JProfiler(jKey = "DMS.WEB.DeviceResource.getInspectionWaybillNoCollectionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<DeviceInfoDto>> getDeviceInfo (DeviceInfoDto deviceInfoDto) {
         InvokeResult<List<DeviceInfoDto>> result = new InvokeResult<>();
         if (null == deviceInfoDto || StringHelper.isEmpty(deviceInfoDto.getSiteCode())) {
