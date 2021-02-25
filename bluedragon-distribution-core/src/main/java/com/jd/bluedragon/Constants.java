@@ -1414,4 +1414,10 @@ public class Constants {
      * 暂存预约提示语
      */
     public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
+
+    /**
+     * 数字：0
+     */
+    public static final Integer NUMBER_ZERO = 0;
+
 }
