@@ -1193,6 +1193,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        BigDecimal totalWeight = new BigDecimal(Double.toString(req.getTotalWeight()));
+        BigDecimal totalVolume = new BigDecimal(Double.toString(req.getTotalVolume()));
+        //校验车辆最大核载限制
+        if (checkBoardWeightVolume(loadCar, result.getData(), totalWeight, totalVolume, taskId)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
+            return response;
+        }
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
         msgBox.setType(MsgBoxTypeEnum.CONFIRM);
@@ -1982,6 +1990,70 @@ public class LoadScanServiceImpl implements LoadScanService {
         BigDecimal maxWeight = new BigDecimal(loadCar.getWeight());
         BigDecimal maxVolume = new BigDecimal(loadCar.getVolume());
         if (totalWeight.compareTo(maxWeight) > 0 || totalVolume.compareTo(maxVolume) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 组板维度扫描车辆最大核载校验
+     *
+     * @param loadCar
+     * @param packageList
+     * @param totalWeight
+     * @param totalVolume
+     * @return
+     */
+    public Boolean checkBoardWeightVolume(LoadCar loadCar, List<String> packageList, BigDecimal totalWeight, BigDecimal totalVolume, Long taskId) {
+        Set<String> waybillSet = new HashSet<>(packageList);
+        List<String> waybillList = new ArrayList<>();
+        for (String packageCode : waybillSet) {
+            waybillList.add(WaybillUtil.getWaybillCode(packageCode));
+        }
+        //通过load_scan表查询板上运单扫描记录
+        List<String> recordList = goodsLoadScanDao.checkWaybillIsExist(waybillList, taskId);
+        //板上包裹部分被扫描，取差集;否则直接计算板上运单
+        if (CollectionUtils.isNotEmpty(recordList)) {
+            Set<String> recordSet = new HashSet<>(recordList);
+            Set<String> set = new HashSet<String>();
+            set.addAll(waybillSet);
+            set.removeAll(recordSet);
+            for (String waybillCode : set) {
+                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
+                    return true;
+                }
+            }
+        } else {
+            for (String waybillCode : recordList) {
+                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 校验扫描本次运单是否超过最大核载限制
+     *
+     * @param waybillCode
+     * @param totalWeight
+     * @param totalVolume
+     * @param loadCar
+     * @return
+     */
+    public Boolean checkWaybillCodeWeightVolume(String waybillCode, BigDecimal totalWeight, BigDecimal totalVolume, LoadCar loadCar) {
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
+        if (null == baseEntity || null == baseEntity.getData() || null == baseEntity.getData().getWaybill()) {
+            return false;
+        }
+        //取每个运单的重量、体积如果此次累加重量、体积大于车辆最大核载直接返回
+        Waybill waybill = baseEntity.getData().getWaybill();
+        Double waybillWeight = waybill.getGoodWeight();
+        Double waybillVolume = waybill.getGoodVolume();
+        totalWeight = totalWeight.add(new BigDecimal(Double.toString(waybillWeight)));
+        totalVolume = totalVolume.add(new BigDecimal(Double.toString(waybillVolume)));
+        if (compareWeightVolume(loadCar, totalWeight, totalVolume)) {
             return true;
         }
         return false;
