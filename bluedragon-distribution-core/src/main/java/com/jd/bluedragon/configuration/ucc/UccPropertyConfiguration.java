@@ -239,6 +239,11 @@ public class UccPropertyConfiguration {
     * */
     private boolean preSortOnSiteSwitchOn;
 
+    /**
+     * 是否走老逻辑检查箱是否发货开关
+     */
+    private boolean checkBoxSendedSwitchOn;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -661,5 +666,13 @@ public class UccPropertyConfiguration {
 
     public void setDeliverHideSites(String deliverHideSites) {
         this.deliverHideSites = deliverHideSites;
+    }
+
+    public boolean getCheckBoxSendedSwitchOn() {
+        return checkBoxSendedSwitchOn;
+    }
+
+    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
+        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 }

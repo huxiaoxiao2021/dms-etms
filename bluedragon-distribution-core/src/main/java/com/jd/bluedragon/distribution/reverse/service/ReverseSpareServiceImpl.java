@@ -66,7 +66,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
     private SpareSortingRecordDao spareSortingRecordDao;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int batchAddSorting(List<Sorting> sortings,
 			List<ReverseSpare> reverseSpares) {
 		if (sortings == null || sortings.size() <= 0) {
@@ -84,7 +84,7 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public int batchAddOrUpdate(List<ReverseSpare> reverseSpares) {
 		if (reverseSpares == null || reverseSpares.size() <= 0) {
 			this.log

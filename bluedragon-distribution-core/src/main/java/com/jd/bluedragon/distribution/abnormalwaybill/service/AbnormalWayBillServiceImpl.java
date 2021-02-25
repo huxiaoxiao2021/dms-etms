@@ -41,7 +41,6 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.insertAbnormalWayBill", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int insertAbnormalWayBill(AbnormalWayBill abnormalWayBill) {
         return abnormalWayBillDao.insert(abnormalWayBill);
     }
@@ -53,7 +52,6 @@ public class AbnormalWayBillServiceImpl implements AbnormalWayBillService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalWayBillService.insertBatchAbnormalWayBill", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int insertBatchAbnormalWayBill(List<AbnormalWayBill> wayBillList) {
         return abnormalWayBillDao.addBatch(wayBillList);
     }

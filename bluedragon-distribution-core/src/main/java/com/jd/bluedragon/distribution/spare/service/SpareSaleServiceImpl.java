@@ -18,7 +18,7 @@ public class SpareSaleServiceImpl implements SpareSaleService {
     private SpareSaleDao spareSaleDao;
     
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public int addOrUpdate(SpareSale spareSale) {
         Assert.notNull(spareSale, "spareSale must not be null");
         if (this.spareSaleDao.update(SpareSaleDao.namespace, spareSale) <= 0) {

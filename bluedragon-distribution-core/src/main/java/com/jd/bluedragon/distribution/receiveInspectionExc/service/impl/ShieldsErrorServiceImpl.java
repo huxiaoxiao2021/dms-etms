@@ -30,7 +30,6 @@ public class ShieldsErrorServiceImpl implements ShieldsErrorService {
 	 * @param shieldsError
 	 * @return
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doAddShieldsError(ShieldsError shieldsError) {
 		return shieldsErrorDao.add(ShieldsErrorDao.namespace, shieldsError) > 0;
 	}

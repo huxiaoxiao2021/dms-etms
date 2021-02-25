@@ -13,5 +13,11 @@ import java.util.List;
  **/
 public interface MaterialReceiveService {
 
+    /**
+     *
+     * @param materialReceives
+     * @param saveFlow 是否保存收货流水
+     * @return
+     */
     JdResult<Boolean> saveMaterialReceive(List<DmsMaterialReceive> materialReceives, Boolean saveFlow);
 }

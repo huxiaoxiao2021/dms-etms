@@ -105,7 +105,6 @@ public class LoadBillServiceImpl implements LoadBillService {
     private GlobalTradeBusinessManager globalTradeBusinessManager;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED)
     @JProfiler(jKey = "DMSWEB.LoadBillServiceImpl.initialLoadBill",mState = JProEnum.TP)
     public int initialLoadBill(String sendCode, Integer userId, String userCode, String userName) {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
@@ -266,7 +265,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
         log.debug("更新装载单状态 reportId is {}, waybillCode is {}",report.getReportId(), report.getWaybillCode());
         //将waybillCode分割,长度不超过500
@@ -298,7 +297,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false,noRollbackFor = Exception.class)
     @JProfiler(jKey = "DMSCORE.LoadBillServiceImpl.preLoadBill", mState = JProEnum.TP)
     public Integer preLoadBill(List<Long> id, String userCode, String trunkNo) throws Exception {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
@@ -571,7 +570,6 @@ public class LoadBillServiceImpl implements LoadBillService {
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("waybillCode", WaybillUtil.getWaybillCode(report.getWaybillCode()));

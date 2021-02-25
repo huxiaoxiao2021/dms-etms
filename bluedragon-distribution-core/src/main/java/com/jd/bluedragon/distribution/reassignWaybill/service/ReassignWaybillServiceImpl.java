@@ -155,7 +155,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public JdResult<Boolean> backScheduleAfter(ReassignWaybillRequest reassignWaybillRequest) {
     	JdResult<Boolean> jdResult = new JdResult<Boolean>();
 		jdResult.setData(Boolean.FALSE);

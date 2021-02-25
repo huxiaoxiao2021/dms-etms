@@ -84,6 +84,11 @@ public class WeightVolumeJSFEntity {
      */
     private Date operateTime;
 
+    /**
+     * 设备编码
+     */
+    private String machineCode;
+
     public String getBarCode() {
         return barCode;
     }
@@ -194,5 +199,13 @@ public class WeightVolumeJSFEntity {
 
     public void setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

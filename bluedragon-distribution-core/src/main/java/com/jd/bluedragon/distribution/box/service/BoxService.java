@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.box.service;
 
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -58,6 +59,14 @@ public interface BoxService {
      * @return
      */
     Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode);
+
+
+    /**
+     * 更新箱状态
+     * @param boxReq
+     * @return
+     */
+    Boolean updateBoxStatus(BoxReq boxReq);
 
     /**
      * 箱号生成服务

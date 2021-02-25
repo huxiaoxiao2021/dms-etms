@@ -75,7 +75,6 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean updateByCondition(WaybillConsumableRecord record) {
         if(record == null || (record.getId() == null && StringUtils.isEmpty(record.getWaybillCode()))){
             log.info("Bw网耗材数据更新失败，参数非法：{}" , JsonHelper.toJson(record));
@@ -96,7 +95,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "DMSWEB.WaybillConsumableRecordService.confirmByIds", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public int confirmByIds(List<WaybillConsumableRecord> confirmRecords) {
 	    if(confirmRecords == null || confirmRecords.isEmpty()){

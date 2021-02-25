@@ -9,6 +9,7 @@ import java.util.TreeMap;
  * 由于箱号状态的取值无从查证，该枚举类不具备任何指导意义，只用于更新箱号发货状态缓存
  *
  */
+@Deprecated
 public enum BoxStatusEnum {
 
     INIT_STATUS(1, "初始状态"),
