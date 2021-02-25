@@ -76,8 +76,11 @@ public class BoxResource {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Resource(name="specialBoxTypeMap")
-    private Map<String,String> specialBoxTypeMap;
+    @Resource(name="siteBoxTypeMap")
+    private Map<String,String> siteBoxTypeMap;
+
+    @Resource(name="sortingBoxTypeMap")
+    private Map<String,String> sortingBoxTypeMap;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -585,7 +588,7 @@ public class BoxResource {
     /**
      * 登录人ERP所属部门类型为 【营业部】或【自营京东派】 类型
      * 箱子类型返回部分类型【文件，航空件，同城混包，快递混包，其他混包，退货普通，售后件】
-     * 其余登录人返回全部类型
+     * 分拣中心使用
      * @param request
      * @return
      */
@@ -604,11 +607,11 @@ public class BoxResource {
         }
         //营业部,自营京东派 人员使用部分箱型
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
-            response.setBoxTypes(specialBoxTypeMap);
+            response.setBoxTypes(siteBoxTypeMap);
             return response;
         }
-        //获取全部类型
-        response.setBoxTypes(BoxTypeEnum.getMap());
+        //分拣中心使用
+        response.setBoxTypes(sortingBoxTypeMap);
         return response;
     }
 
