@@ -527,22 +527,19 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendByWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSendByWaybill(SendM domain) {
         if (log.isInfoEnabled()) {
-            if (domain != null) {
-                log.info("按运单发货接口处理开始 boxCode={}", domain.getBoxCode());
-            }
+            log.info("按运单发货接口处理开始 boxCode={}", domain.getBoxCode());
         }
         SendResult result = new SendResult();
         result.init(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         // 校验参数
         checkSendByWaybillParam(domain, result);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货接口处理,基本参数校验结果: result={}", JsonHelper.toJson(result));
-        }
+
         if (!SendResult.CODE_OK.equals(result.getKey())) {
             return result;
         }
+        String waybillCode  = WaybillUtil.getWaybillCode(domain.getBoxCode());
         // 按运单号校验
-        domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        domain.setBoxCode(waybillCode);
         // 发货验证
         result = this.beforeSendVerification(domain, true, false);
         if (log.isInfoEnabled()) {
@@ -552,9 +549,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
         // 防止拦截器链路修改boxCode
-        domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        domain.setBoxCode(waybillCode);
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if (waybill == null) {
+            log.error("按运单发货任务处理,查询运单不存在:waybillCode={}", waybillCode);
+            result.init(SendResult.CODE_SENDED, "查询运单不存在:" + waybillCode);
+            return result;
+        }
         // 锁定运单发货
-        if (!lockWaybillSend(domain)) {
+        if (!lockWaybillSend(domain,waybill.getGoodNumber())) {
             result.init(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
             return result;
         }
@@ -601,11 +604,11 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 锁定运单发货
      * @param domain 发货数据
      */
-    private boolean lockWaybillSend(SendM domain) {
+    private boolean lockWaybillSend(SendM domain,int totalPackNum) {
         String redisKey = getSendByWaybillLockKey(domain.getBoxCode(), domain.getCreateSiteCode());
 
         // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
-        Boolean set = redisClientCache.set(redisKey, "1", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
+        Boolean set = redisClientCache.set(redisKey, "" + totalPackNum, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
         if (log.isInfoEnabled()) {
             log.info("按运单发货接口处理,锁定运单[{}]结果:{}", domain.getBoxCode(), set);
         }
@@ -646,10 +649,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     private void checkSendByWaybillParam(SendM domain, SendResult result) {
-        if (domain == null) {
-            result.init(SendResult.CODE_SENDED, "服务端未获取到任何参数!");
-            return;
-        }
         if (StringUtils.isEmpty(domain.getSendCode())) {
             result.init(SendResult.CODE_SENDED, "批次号不能为空!");
             return;
@@ -660,10 +659,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
-            return;
-        }
-        if (WaybillUtil.getPackNumByPackCode(domain.getBoxCode()) < SEND_BY_WAYBILL_MIN_PACKS_NUM) {
-            result.init(SendResult.CODE_SENDED, "此运单包裹总数小于" + SEND_BY_WAYBILL_MIN_PACKS_NUM + "非大宗订单，请扫描包裹号");
             return;
         }
     }
@@ -800,7 +795,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
-        // TODO SETNX 运单和包裹互斥 按运单发货正在处理中( 按运单/包裹 SETNX 互相校验)
+        // 运单和包裹互斥 按运单发货正在处理中( 按运单/包裹 SETNX 互相校验)
         if (isSendByWaybillProcessing(domain)) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING);
             return result;
@@ -5658,10 +5653,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-        if (waybill == null) {
-            log.error("按运单发货任务处理,查询运单不存在:waybillCode={}", waybillCode);
-            return false;
-        }
         // 按运单补分拣任务
         pushSorting(domain);
         log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", domain.getBoxCode());
@@ -5690,18 +5681,23 @@ public class DeliveryServiceImpl implements DeliveryService {
             return false;
         }
 
-        // 按包裹锁定
-        lockWaybillByPack(waybillCode, domain.getCreateSiteCode(),waybillCodeOfPage.getData());
+        // 提前设置 按包裹锁定 的时间，避免循环调用 redis
+        String lockWaybillByPackKey = getSendByWaybillPackLockKey(waybillCode, domain.getCreateSiteCode());
+        redisClientCache.expire(lockWaybillByPackKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
+
         // 循环调用按包裹发货逻辑
         for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
             SendM packSendM = new SendM();
             BeanUtils.copyProperties(domain, packSendM);
             packSendM.setBoxCode(pack.getPackageBarcode());
-            // 一车一单发货逻辑,其中 补分拣逻辑已移除(while循环外已按运单补分拣逻辑)
-            if(log.isInfoEnabled()){
-                log.info("按运单发货拆分任务处理,开始调用一车一单逻辑：packSendM={}" ,JsonHelper.toJson(packSendM));
+            // 按包裹锁定
+            if(lockWaybillByPack(lockWaybillByPackKey, pack.getPackageBarcode())){
+                // 一车一单发货逻辑,其中 补分拣逻辑已移除(while循环外已按运单补分拣逻辑)
+                if(log.isInfoEnabled()){
+                    log.info("按运单发货拆分任务处理,锁定包裹完成,开始调用一车一单逻辑：packSendM={}" ,JsonHelper.toJson(packSendM));
+                }
+                doPackageSendByWaybill(packSendM);
             }
-            doPackageSendByWaybill(packSendM);
         }
         if (log.isInfoEnabled()) {
             log.info("按运单发货逐单发货处理完成 waybillCode={},pageNo={},pageSize={}", waybillCode, Integer.parseInt(split[0]), Integer.parseInt(split[1]));
@@ -5737,19 +5733,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     /**
      * 按运单发货，将对应的包裹数据缓存，以便判断所有包裹始发均执行完成
-     * @param createSiteCode 操作站点
+     * 以当前是第几个包裹 设置 redis值 中 对应的 位置的 bit 位
      */
-    private void lockWaybillByPack(String waybillCode, Integer createSiteCode, List<DeliveryPackageD> packageDList) {
-        Set<String> packSet = new HashSet<>();
-        for (DeliveryPackageD packageD : packageDList) {
-            packSet.add(packageD.getPackageBarcode());
-        }
-        String key = getSendByWaybillPackLockKey(waybillCode, createSiteCode);
-        redisClientCache.sAdd(key, packSet.toArray(new String[]{}));
-        redisClientCache.expire(key, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货拆分任务处理,锁定包裹完成,包裹号={}", packSet);
-        }
+    private boolean lockWaybillByPack(String key, String packageCode) {
+        int num = WaybillUtil.getCurrentPackageNum(packageCode);
+
+        return redisClientCache.setBit(key, num - 1, true);
     }
 
     /**
@@ -5758,14 +5747,16 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private void unlockWaybillByPack(Integer createSiteCode, String packNo) {
         String waybillCode = WaybillUtil.getWaybillCode(packNo);
-        String key = getSendByWaybillPackLockKey(waybillCode, createSiteCode);
-        redisClientCache.sRem(key, packNo);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货,移除已完成的包裹成功,剩余锁定包裹数:{},包裹号={}", redisClientCache.sCard(key).intValue(), packNo);
+        String packLockKey = getSendByWaybillPackLockKey(waybillCode, createSiteCode);
+        String waybillLockKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
+
+        String s = redisClientCache.get(waybillLockKey);
+        if (StringUtils.isEmpty(s)) {
+            return;
         }
-        if (redisClientCache.sCard(key).intValue() == 0) {
-            redisClientCache.del(getSendByWaybillLockKey(waybillCode, createSiteCode));
-            redisClientCache.del(key);
+        if (redisClientCache.bitCount(packLockKey).intValue() == Integer.parseInt(s)) {
+            redisClientCache.del(waybillLockKey);
+            redisClientCache.del(packLockKey);
             log.info("按运单发货所有包裹处理完成,移除运单锁:packNo={}", packNo);
         }
     }
