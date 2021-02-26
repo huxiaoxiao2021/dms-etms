@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
 import com.jd.bluedragon.distribution.newseal.service.DmsSendRelationService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
 import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
+import com.jd.bluedragon.utils.SqlUtils;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
@@ -67,7 +70,15 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
      */
     @Value("${beans.DmsSendRelationServiceImpl.saveFrequency:1800}")
 	private int saveFrequency;
-
+    /**
+     * 页面字段对应sql字段关系
+     */
+    private static Map<String,String> COLUM_MAPPING_QUERYPASSPRESEALDATA = new HashMap<String,String>();
+    static{
+    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("jobCreateTime", "s.depart_time");
+    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("departTime", "s.job_create_time");
+    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("preSealStatus", "pre_seal_status");
+    }
 	@Override
 	public boolean saveOrUpdate(DmsSendRelation dmsSendRelation) {
 		DmsSendRelation oldData = dmsSendRelationDao.queryByBusinessKey(dmsSendRelation);
@@ -133,12 +144,13 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 			}
 		}
 		//加载线路信息
-		JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(startNodeCode, endNodeCode);
+		JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(startNodeCode, endNodeCode, Constants.CUAN_BAI_LINE_TYPES);
 		if(transportResult != null && CollectionUtils.isNotEmpty(transportResult.getData())) {
 			TransportResource transportResource = transportResult.getData().get(0);
-			dmsSendRelation.setLineType(transportResource.getRouteType());
+			dmsSendRelation.setLineType(transportResource.getTransType());
 		}else {
-			logger.warn("加载线路信息为空！{0}->{1}", dmsSendRelation.getOriginalSiteCode(),dmsSendRelation.getDestinationSiteCode());
+			dmsSendRelation.setLineType(Constants.LINE_TYPE_DEFAULT);
+			logger.warn("加载线路信息为空！{}->{}", dmsSendRelation.getOriginalSiteCode(),dmsSendRelation.getDestinationSiteCode());
 		}
 		//加载大全表信息
 		JdResult<CrossPackageTagNew> crossResult =  baseMinorManager.queryCrossPackageTag(null, dmsSendRelation.getDestinationSiteCode(), dmsSendRelation.getOriginalSiteCode(), Constants.ORIGINAL_CROSS_TYPE_GENERAL);
@@ -148,17 +160,16 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 			dmsSendRelation.setOriginalCrossCode(crossResult.getData().getOriginalCrossCode());
 			dmsSendRelation.setDestinationCrossCode(crossResult.getData().getDestinationCrossCode());
 		}else {
-			logger.warn("加载大全表信息为空！{0}->{1}", dmsSendRelation.getOriginalSiteCode(),dmsSendRelation.getDestinationSiteCode());
+			logger.warn("加载大全表信息为空！{}->{}", dmsSendRelation.getOriginalSiteCode(),dmsSendRelation.getDestinationSiteCode());
 		}
 	}
 
 	@Override
-	public List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation) {
-		return dmsSendRelationDao.queryByCondition(dmsSendRelation);
-	}
-
-	@Override
 	public List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		//处理排序信息
+		if(queryCondition.getOrders() != null) {
+			queryCondition.setOrderBy(SqlUtils.genOrderBySql(queryCondition.getOrders(), COLUM_MAPPING_QUERYPASSPRESEALDATA));
+		}
 		return dmsSendRelationDao.queryPassPreSealData(queryCondition);
 	}
 

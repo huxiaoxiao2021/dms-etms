@@ -29,13 +29,6 @@ public interface DmsSendRelationService {
 	boolean saveWithFrequency(DmsSendRelation dmsSendRelation);
 
 	/**
-	 * 查询发货关系表
-	 * @param dmsSendRelation
-	 * @return
-	 */
-	List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation);
-	
-	/**
 	 * 查询封车看板信息
 	 * @param dmsSendRelation
 	 * @return
