@@ -2520,9 +2520,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
 
-            //无重量禁止发货判断
-            if(!isTrust && isB2BPure){
-                if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0) {
+            // 返单标识
+            boolean isRefund = BusinessUtil.isRefund(waybillSign);
+
+            // 无重量禁止发货判断
+            if (!isTrust && isB2BPure && !isRefund) {
+                if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0 ) {
                     logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
                     result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                     result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
@@ -2562,10 +2565,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
             if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
                     || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
-                logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}",waybillCode);
-                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
-                return result;
+                // 非返单才提示
+                if (!isRefund) {
+                    logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
+                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                    result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                    return result;
+                }
             }
 
             //有包装服务

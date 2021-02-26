@@ -1879,4 +1879,8 @@ public class BusinessUtil {
     public static boolean isFYWZ(String waybillSign) {
         return isSignChar(waybillSign, 82, '6');
     }
+
+    public static boolean isRefund(String waybillSign) {
+        return isSignChar(waybillSign, 1, '7');
+    }
 }
