@@ -1880,6 +1880,9 @@ public class BusinessUtil {
         return isSignChar(waybillSign, 82, '6');
     }
 
+    /**
+     * 判断是否是返单
+     */
     public static boolean isRefund(String waybillSign) {
         return isSignChar(waybillSign, 1, '7');
     }
