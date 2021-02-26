@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -8,12 +9,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
-import com.jd.bluedragon.core.base.DmsInterturnManager;
-import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -41,6 +37,7 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
@@ -74,28 +71,11 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
-import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendTaskCategoryEnum;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -117,7 +97,6 @@ import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.eclp.bbp.co.constant.enumImpl.BizSourceEnum;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.vos.dto.CommonDto;
@@ -129,7 +108,6 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -141,7 +119,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -152,23 +129,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 @Service("deliveryService")
@@ -3132,7 +3096,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	        }
 	        updateWaybillStatus(sendDetailList);
 	        //如果是按运单发货，解除按运单发货的redis锁
-	        unlockSendByWaybill(tSendM);
+	        unlockWaybillByPack(tSendM);
         }catch(Exception e){
         	Profiler.functionError(info);
         	log.error("发货任务处理异常！", e);
@@ -3143,13 +3107,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    private void unlockSendByWaybill(List<SendM> tSendM) {
+    private void unlockWaybillByPack(List<SendM> tSendM) {
         if (CollectionUtils.isEmpty(tSendM)) {
             return;
         }
         for (SendM sendM : tSendM) {
             if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sendM.getBizSource())) {
-                unlockWaybillByPack(sendM.getCreateSiteCode(),sendM.getBoxCode());
+                String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
+                String packLockKey = getSendByWaybillPackLockKey(waybillCode, sendM.getCreateSiteCode());
+                String waybillLockKey = getSendByWaybillLockKey(waybillCode, sendM.getCreateSiteCode());
+
+                String s = redisClientCache.get(waybillLockKey);
+                if (StringUtils.isEmpty(s)) {
+                    return;
+                }
+                if (redisClientCache.bitCount(packLockKey).intValue() == Integer.parseInt(s)) {
+                    redisClientCache.del(waybillLockKey);
+                    redisClientCache.del(packLockKey);
+                    log.info("按运单发货所有包裹处理完成,移除运单锁:packNo={}", sendM.getBoxCode());
+                }
             }
         }
     }
@@ -5683,7 +5659,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // 提前设置 按包裹锁定 的时间，避免循环调用 redis
         String lockWaybillByPackKey = getSendByWaybillPackLockKey(waybillCode, domain.getCreateSiteCode());
-        redisClientCache.expire(lockWaybillByPackKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
+        redisClientCache.set(lockWaybillByPackKey, "", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
 
         // 循环调用按包裹发货逻辑
         for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
@@ -5746,19 +5722,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 若所有包裹均已处理，解锁按运单发货
      */
     private void unlockWaybillByPack(Integer createSiteCode, String packNo) {
-        String waybillCode = WaybillUtil.getWaybillCode(packNo);
-        String packLockKey = getSendByWaybillPackLockKey(waybillCode, createSiteCode);
-        String waybillLockKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
 
-        String s = redisClientCache.get(waybillLockKey);
-        if (StringUtils.isEmpty(s)) {
-            return;
-        }
-        if (redisClientCache.bitCount(packLockKey).intValue() == Integer.parseInt(s)) {
-            redisClientCache.del(waybillLockKey);
-            redisClientCache.del(packLockKey);
-            log.info("按运单发货所有包裹处理完成,移除运单锁:packNo={}", packNo);
-        }
     }
 
     /**
