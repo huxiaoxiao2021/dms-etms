@@ -582,6 +582,9 @@ public class BoxServiceImpl implements BoxService {
 			}
 			//删除缓存
 			delboxCodeCache(boxReq.getBoxCode());
+			//更新老的缓存
+			updateBoxStatusRedis(boxReq.getBoxCode(),boxReq.getOpSiteCode(), com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.CLOSE.getStatus().equals(boxReq.getBoxStatus())?
+					BoxStatusEnum.SENT_STATUS.getCode():BoxStatusEnum.INIT_STATUS.getCode(),boxReq.getOpErp());
 			//记录流水
 			changeBoxStatusLogProducer.sendOnFailPersistent(boxReq.getBoxCode(),JsonHelper.toJson(boxReq));
 			result = Boolean.TRUE;
