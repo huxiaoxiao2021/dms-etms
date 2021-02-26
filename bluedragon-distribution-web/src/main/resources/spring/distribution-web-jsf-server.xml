@@ -18,6 +18,12 @@
                   ref="dmsExternalService" server="dmsjsf">
     </jsf:provider>
 
+    <jsf:provider id="jsfSortingRuleService"
+                  interface="com.jd.bluedragon.distribution.rule.service.SortingRuleJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="sortingRuleJsfService" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 对接jos平台接口 -->
     <jsf:provider id="jsfJosService"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosService"

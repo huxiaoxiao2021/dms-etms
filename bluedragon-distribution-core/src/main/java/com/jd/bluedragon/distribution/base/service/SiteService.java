@@ -56,6 +56,16 @@ public interface SiteService {
 	 * @return
 	 */
 	Set<Integer> getCRouterAllowedList();
+
+	Set<Integer> getCRouterAllowedListNoCache();
+
+	/**
+	 * 修改sysconfig表里查出来开放C网路由校验的分拣中心列表
+	 * @param siteCode
+	 * @param openFlag
+	 * @return
+	 */
+	boolean changeRouterConfig(Integer siteCode,boolean openFlag);
 	/**
 	 * 从sysconfig表里查出来需要通过中台生产箱号的分拣中心列表
 	 * @return
