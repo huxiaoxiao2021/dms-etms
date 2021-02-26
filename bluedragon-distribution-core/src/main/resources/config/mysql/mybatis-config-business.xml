@@ -16,11 +16,15 @@
     <typeAliases>
         <!-- 箱号与集包袋绑定 -->
         <typeAlias type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" alias="BoxMaterialRelation"/>
+        <!-- 包裹回流扫描 -->
+        <typeAlias type="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage" alias="ReflowPackage"/>
     </typeAliases>
 
     <mappers>
         <!-- 箱号与集包袋绑定 -->
         <mapper resource="mappers/mysql/boxmaterialrelation/BoxMaterialRelationMapper.xml"/>
+        <!-- 包裹回流扫描 -->
+        <mapper resource="mappers/mysql/reflowPackage/ReflowPackageMapper.xml"/>
 
     </mappers>
 </configuration>
