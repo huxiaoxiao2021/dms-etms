@@ -255,4 +255,12 @@
                   server="dmsjsf">
         <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
+
+    <!-- 包裹回流扫描 提供给分拣工作台 -->
+    <jsf:provider id="dmsReflowPackageJsfService"
+                  interface="com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="reflowPackageJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

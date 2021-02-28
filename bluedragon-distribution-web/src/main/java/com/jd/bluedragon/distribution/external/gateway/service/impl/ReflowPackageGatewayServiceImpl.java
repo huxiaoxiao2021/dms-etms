@@ -4,13 +4,12 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.recyclematerial.request.ReflowPackageRequest;
-import com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage;
+import com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage;
 import com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageService;
 import com.jd.bluedragon.external.gateway.service.ReflowPackageGatewayService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 public class ReflowPackageGatewayServiceImpl implements ReflowPackageGatewayService {

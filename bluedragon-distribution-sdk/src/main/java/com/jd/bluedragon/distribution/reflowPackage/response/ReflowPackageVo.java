@@ -1,13 +1,19 @@
-package com.jd.bluedragon.distribution.reflowPackage.domain;
+package com.jd.bluedragon.distribution.reflowPackage.response;
+
+import java.io.Serializable;
 import java.util.Date;
 
 /**
- * @author biyubo
- * @Description 回流包裹表
- * @ClassName ReflowPackage
- * @date 2021/2/24
+ * 包裹回流扫描对象
+ *
+ * @author fanggang7
+ * @copyright jd.com 京东物流JDL
+ * @time 2021-02-28 15:51:16 周日
  */
-public class ReflowPackage {
+public class ReflowPackageVo implements Serializable {
+
+    private static final long serialVersionUID = 1444149349410909386L;
+
     /**
      * 自增主键
      */
@@ -73,6 +79,8 @@ public class ReflowPackage {
      * 时间戳
      */
     private Date ts;
+
+    private String createTimeFormative;
 
     public Long getId() {
         return id;
@@ -176,5 +184,33 @@ public class ReflowPackage {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public String getCreateTimeFormative() {
+        return createTimeFormative;
+    }
+
+    public void setCreateTimeFormative(String createTimeFormative) {
+        this.createTimeFormative = createTimeFormative;
+    }
+
+    @Override
+    public String toString() {
+        return "ReflowPackageVo{" +
+                "id=" + id +
+                ", packageCode='" + packageCode + '\'' +
+                ", chuteCode='" + chuteCode + '\'' +
+                ", cageCarCode='" + cageCarCode + '\'' +
+                ", operatorCode=" + operatorCode +
+                ", operatorErp='" + operatorErp + '\'' +
+                ", operatorName='" + operatorName + '\'' +
+                ", siteCode=" + siteCode +
+                ", siteName='" + siteName + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", isDelete=" + isDelete +
+                ", ts=" + ts +
+                ", createTimeFormative='" + createTimeFormative + '\'' +
+                '}';
     }
 }

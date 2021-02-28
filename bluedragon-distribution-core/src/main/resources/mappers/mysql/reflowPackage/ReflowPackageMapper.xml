@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.jd.bluedragon.distribution.reflowPackage.dao.ReflowPackageDao">
-    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage">
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage">
         <id column="id" jdbcType="BIGINT" property="id" />
         <result column="package_code" jdbcType="VARCHAR" property="packageCode" />
         <result column="chute_code" jdbcType="VARCHAR" property="chuteCode" />
@@ -22,7 +22,7 @@
        id, package_code, chute_code, cagecar_code, operator_code,operator_erp,operator_name,site_code,site_name, create_time, update_time,is_delete, ts
     </sql>
 
-    <insert id="add" parameterType="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage">
+    <insert id="add" parameterType="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage">
         insert into reflow_package (package_code, chute_code,cagecar_code,operator_code,operator_erp,operator_name,
                     site_code, site_name,create_time, update_time, is_delete)
         values (#{packageCode,jdbcType=VARCHAR}, #{chuteCode,jdbcType=VARCHAR},#{cageCarCode,jdbcType=VARCHAR},
@@ -30,7 +30,7 @@
         NOW(), NOW(), 0)
     </insert>
 
-    <update id="update" parameterType="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage">
+    <update id="update" parameterType="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage">
         update reflow_package
         <set>
             <if test="chuteCode != null">
@@ -58,7 +58,7 @@
         where package_code = #{packageCode,jdbcType=VARCHAR} AND site_code = #{siteCode,jdbcType=INTEGER}
     </update>
 
-    <select id="getDataByBean" parameterType="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage" resultMap="BaseResultMap">
+    <select id="getDataByBean" parameterType="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from  reflow_package
@@ -81,10 +81,57 @@
            AND is_delete = 0
     </select>
 
-    <select id="getCount" parameterType="com.jd.bluedragon.distribution.reflowPackage.domain.ReflowPackage" resultType="Integer">
+    <select id="getCount" parameterType="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage" resultType="Integer">
         select count(1)
         from reflow_package
         WHERE package_code = #{packageCode} AND site_code = #{siteCode}
     </select>
+
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="siteCode != null">
+            and site_code >= #{siteCode}
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND package_code = #{packageCode}
+        </if>
+        <if test="createTimeFrom != null">
+            and create_time >= #{createTimeFrom}
+        </if>
+        <if test="createTimeTo != null">
+            and create_time &lt;= #{createTimeTo}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+
+    </sql>
+
+    <!-- 查询行数 -->
+    <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.reflowPackage.request.ReflowPackageQuery">
+        SELECT count(1) FROM `reflow_package`
+        <include refid="where"/>
+    </select>
+
+    <!-- 查询列表 -->
+    <select id="selectList" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.reflowPackage.request.ReflowPackageQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `reflow_package`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
 
 </mapper>
