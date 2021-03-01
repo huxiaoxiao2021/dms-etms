@@ -211,7 +211,7 @@ public class ReflowPackageImpl implements ReflowPackageService {
                 for (ReflowPackage reflowPackage : rawDataList) {
                     ReflowPackageVo vo = new ReflowPackageVo();
                     BeanUtils.copyProperties(reflowPackage, vo);
-                    vo.setCreateTimeFormative(DateUtil.formatDateTime(reflowPackage.getCreateTime()));
+                    vo.setUpdateTimeFormative(DateUtil.formatDateTime(reflowPackage.getUpdateTime()));
                     dataList.add(vo);
                 }
             }

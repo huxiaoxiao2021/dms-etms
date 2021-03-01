@@ -80,7 +80,7 @@ public class ReflowPackageVo implements Serializable {
      */
     private Date ts;
 
-    private String createTimeFormative;
+    private String updateTimeFormative;
 
     public Long getId() {
         return id;
@@ -186,12 +186,12 @@ public class ReflowPackageVo implements Serializable {
         this.ts = ts;
     }
 
-    public String getCreateTimeFormative() {
-        return createTimeFormative;
+    public String getUpdateTimeFormative() {
+        return updateTimeFormative;
     }
 
-    public void setCreateTimeFormative(String createTimeFormative) {
-        this.createTimeFormative = createTimeFormative;
+    public void setUpdateTimeFormative(String updateTimeFormative) {
+        this.updateTimeFormative = updateTimeFormative;
     }
 
     @Override
@@ -210,7 +210,7 @@ public class ReflowPackageVo implements Serializable {
                 ", updateTime=" + updateTime +
                 ", isDelete=" + isDelete +
                 ", ts=" + ts +
-                ", createTimeFormative='" + createTimeFormative + '\'' +
+                ", updateTimeFormative='" + updateTimeFormative + '\'' +
                 '}';
     }
 }
