@@ -247,4 +247,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 箱号对外修改服务 -->
+    <jsf:provider id="dmsBoxUpsertJsfService"
+                  interface="com.jd.bluedragon.distribution.box.service.DmsBoxUpsertService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsBoxUpsertService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

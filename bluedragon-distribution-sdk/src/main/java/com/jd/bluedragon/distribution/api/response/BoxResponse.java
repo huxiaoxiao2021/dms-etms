@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.api.response;
 import com.jd.bluedragon.distribution.api.JdResponse;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class BoxResponse extends JdResponse {
 
@@ -121,6 +123,20 @@ public class BoxResponse extends JdResponse {
      * 是否众邮箱号
      * */
     private boolean whetherZyBoxCode;
+
+    /**
+     * 箱号类型
+     */
+    private Map<String,String> boxTypes;
+
+
+    public Map<String, String> getBoxTypes() {
+        return boxTypes;
+    }
+
+    public void setBoxTypes(Map<String, String> boxTypes) {
+        this.boxTypes = boxTypes;
+    }
 
     public String getRouterText() {
         return routerText;
