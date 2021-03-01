@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -38,10 +39,10 @@ public class RouterServiceImplTest {
 
     @Test
     public void testmatchRouterNextNode(){
-        when(waybillCacheService.getRouterByWaybillCode(anyString())).thenReturn("4444|555|666|777|888");
-        RouteNextDto routeNextDto1 = routerService.matchRouterNextNode(555,"111");
+        when(waybillCacheService.getRouterByWaybillCode(anyString())).thenReturn("761806|866046|1489738|755380|1366370|58175|830824");
+        RouteNextDto routeNextDto1 = routerService.matchRouterNextNode(755380,"111");
         System.out.println(JsonHelper.toJson(routeNextDto1));
-        Assert.assertEquals(routeNextDto1.getFirstNextSiteId(),new Integer(666));
+        Assert.assertEquals(routeNextDto1.getFirstNextSiteId(),new Integer(1366370));
         Assert.assertEquals(routeNextDto1.isRoutExistCurrentSite(),Boolean.TRUE);
 
         when(waybillCacheService.getRouterByWaybillCode(anyString())).thenReturn("4444|555|666|777|888");
@@ -65,6 +66,30 @@ public class RouterServiceImplTest {
         RouteNextDto routeNextDto5 = routerService.matchRouterNextNode(9999,"111");
         System.out.println(JsonHelper.toJson(routeNextDto5));
         Assert.assertEquals(routeNextDto5.isRoutExistCurrentSite(),Boolean.FALSE);
+    }
+
+    public static void main(String[] args) {
+        List routerShow = new ArrayList<>();
+        boolean getCurNodeFlag =false;
+        boolean verifyPass =false;
+        String[] routerNodes = "761806|866046|1489738|755380|1366370|58175|830824".split("\\|");
+        for (int i = 0; i < routerNodes.length - 1; i++) {
+            int curNode = Integer.parseInt(routerNodes[i]);
+            int nexNode = Integer.parseInt(routerNodes[i + 1]);
+            if(curNode == 755380){
+                getCurNodeFlag = true;
+                routerShow.add(nexNode);
+                if(nexNode == 58175){
+                    verifyPass = true;
+                    break;
+                }
+            }
+        }
+
+        System.out.println((getCurNodeFlag));
+        System.out.println((verifyPass));
+        System.out.println((getCurNodeFlag && !verifyPass));
+        System.out.println(routerShow);
     }
 
 }
