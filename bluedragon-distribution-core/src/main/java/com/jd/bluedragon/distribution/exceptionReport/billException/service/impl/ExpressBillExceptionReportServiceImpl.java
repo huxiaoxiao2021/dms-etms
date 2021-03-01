@@ -105,6 +105,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         String orderId =  waybillQueryManager.getOrderCodeByWaybillCode(waybillCode,true);
         if(StringUtils.isNotEmpty(orderId)){
             record.setOrderId(orderId);
+        }else {
+            log.warn("面单异常举报获取运单订单号为空 waybillCode:{}",waybillCode);
         }
     }
 
