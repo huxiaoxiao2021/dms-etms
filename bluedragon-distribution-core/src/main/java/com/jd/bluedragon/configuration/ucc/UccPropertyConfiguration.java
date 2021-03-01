@@ -249,6 +249,11 @@ public class UccPropertyConfiguration {
      */
     private int WJPackageNumberLimit;
 
+    /**
+     * 是否走老逻辑检查箱是否发货开关
+     */
+    private boolean checkBoxSendedSwitchOn;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -687,5 +692,13 @@ public class UccPropertyConfiguration {
 
     public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
         this.WJPackageNumberLimit = WJPackageNumberLimit;
+    }
+
+    public boolean getCheckBoxSendedSwitchOn() {
+        return checkBoxSendedSwitchOn;
+    }
+
+    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
+        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 }

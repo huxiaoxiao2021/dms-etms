@@ -509,4 +509,9 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--  修改箱状态记录 -->
+    <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.status.change.log}"/>
+    </bean>
+
 </beans>

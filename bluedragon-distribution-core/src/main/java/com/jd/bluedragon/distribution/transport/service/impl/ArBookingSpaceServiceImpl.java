@@ -126,7 +126,6 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 	}
 
 
-	@Transactional(propagation = Propagation.REQUIRED)
 	public boolean saveOrUpdate(ArBookingSpace arBookingSpace,String userCode,String userName,Long createSiteCode,String createSiteName) {
 
 
@@ -155,7 +154,7 @@ public class ArBookingSpaceServiceImpl extends BaseService<ArBookingSpace> imple
 	 * @return
 	 */
 	@Override
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean importExcel(List<ArBookingSpace> list,String userCode,String userName,Long createSiteCode,String createSiteName) {
 		List<ArBookingSpace> bufferList = new ArrayList<ArBookingSpace>();
 		for(ArBookingSpace arBookingSpace : list){

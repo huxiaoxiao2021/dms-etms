@@ -58,7 +58,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 	private static final Logger log = LoggerFactory.getLogger(FastRefundServiceImpl.class);
 	
     @JProfiler(jKey = "DMSWEB.FastRefundServiceImpl.execRefundMq.fastRefundRequest", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public String execRefund(FastRefundRequest fastRefundRequest) throws Exception{
     	FastRefund fastRefund = toFastRefund(fastRefundRequest);
     	
@@ -112,7 +111,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 	
 	
     @JProfiler(jKey= "DMSWEB.FastRefundServiceImpl.execRefund.waybillCode", mState = {JProEnum.TP})
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public String execRefund(String waybillCode) throws Exception{
 			log.debug("FastRefundServiceImpl.execRefund 开始查询运单[{}]",waybillCode);
 			 BigWaybillDto waybill = queryWaybillByCode(waybillCode);

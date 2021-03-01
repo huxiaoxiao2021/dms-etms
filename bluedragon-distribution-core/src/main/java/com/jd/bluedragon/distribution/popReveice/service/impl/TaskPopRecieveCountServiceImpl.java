@@ -50,13 +50,11 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
     private DefaultJMQProducer bdPopReceivecountMQ;
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int insert(TaskPopRecieveCount taskPopRecieveCount) {
 		return this.taskPopRecieveCountDao.insert(taskPopRecieveCount);
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.SUPPORTS)
 	public int update(TaskPopRecieveCount taskPopRecieveCount) {
 		return this.taskPopRecieveCountDao.update(taskPopRecieveCount);
 	}

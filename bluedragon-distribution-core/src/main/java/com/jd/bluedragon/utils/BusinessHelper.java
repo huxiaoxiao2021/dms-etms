@@ -252,12 +252,16 @@ public class BusinessHelper {
         boolean waybillSignFlag = false;
         boolean sendPayFlag = false;
         //waybill_sign 第36位等于1，表示为外单城配,waybillSignFlag置为true
-        if(StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '1')){
+        if(StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '1')) {
             waybillSignFlag = true;
         }
         //sendPay 第146位等于1，表示为自营城配
         if(StringHelper.isNotEmpty(sendPay) && BusinessUtil.isSignChar(sendPay, 146, '1')){
             sendPayFlag = true;
+        }
+        // waybill_sign 第36位等于4，表示为大件网络
+        if (StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '4')) {
+            waybillSignFlag = true;
         }
         return waybillSignFlag || sendPayFlag;
     }

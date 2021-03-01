@@ -92,6 +92,8 @@
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
+		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>

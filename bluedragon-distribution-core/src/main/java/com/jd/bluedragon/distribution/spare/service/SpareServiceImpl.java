@@ -40,12 +40,10 @@ public class SpareServiceImpl implements SpareService {
 		return this.spareDao.add(SpareDao.namespace, spare);
 	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer update(Spare spare) {
 		return this.spareDao.update(SpareDao.namespace, spare);
 	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public synchronized List<Spare> print(Spare spare) {
 		return this.batchAdd(spare);
 	}
@@ -87,7 +85,6 @@ public class SpareServiceImpl implements SpareService {
 		return this.spareDao.findSpares(spare);
 	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer reprint(Spare spare) {
 		Assert.notNull(spare.getUpdateUserCode(), "spare update user code must not be null");
 		Assert.notNull(spare.getUpdateUser(), "spare update user must not be null");
@@ -101,7 +98,7 @@ public class SpareServiceImpl implements SpareService {
      * @return
      */
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public InvokeResult<List<Spare>> genCodes(SpareRequest spareReq) {
 		InvokeResult<List<Spare>> rest = new InvokeResult<List<Spare>>();
         Spare spare = new Spare();

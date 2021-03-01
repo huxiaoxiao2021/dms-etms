@@ -528,7 +528,7 @@ public class SortingResponse extends JdResponse {
 
     //
     public static final Integer CODE_CROUTER_ERROR =40007;
-    public static final String MESSAGE_CROUTER_ERROR="批次目的地与运单路由不一致，是否继续？";
+    public static final String MESSAGE_CROUTER_ERROR="批次目的地与路由下一网点不一致，是否继续？";
     public static final String MESSAGE_BOARD_ROUTER_ERROR="组板目的地与运单路由不一致，是否继续？";
     public static final String MESSAGE_BOARD_ROUTER_EMPTY_ERROR="未查询到路由请核查是否错发，是否强制组板？";
     public static final String MESSAGE_BOARD_ERROR="组板目的地与此订单预分拣站点不一致，是否继续？";

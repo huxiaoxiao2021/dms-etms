@@ -19,7 +19,6 @@ public class PickWareServiceImpl implements PickWareService {
 	private PickWareDao pickWareDao;
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(PickWare pickWare) {
 		this.initFingerPrint(pickWare);
 		if (!this.has(pickWare)) {
