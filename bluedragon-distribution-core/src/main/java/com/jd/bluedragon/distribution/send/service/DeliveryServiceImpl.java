@@ -5160,10 +5160,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){//半退 不验证包裹是否集齐
                         return 0;
                     }
-                    if (BusinessUtil.preSellAndUnpaidBalance(waybill.getSendPay())){//预售到仓且未付尾款的运单，不做集齐校验
-                        return 0;
-                    }
-
                     if(receiveSiteCode!=null){
                         BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
                         if(site!=null){
@@ -5171,6 +5167,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                             if(BusinessUtil.isPurematch(waybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())
                                     && !BusinessHelper.isC2c(waybill.getWaybillSign())){
                                 //纯配非C2C的可半退至备件库 不验证集齐
+                                return 0;
+                            }
+                            Integer wmsType = Integer.valueOf(PropertiesHelper.newInstance().getValue("wms_type"));
+                            if (BusinessUtil.preSellAndUnpaidBalance(waybill.getSendPay())
+                                    && wmsType.equals(site.getSiteType())){//预售到仓且未付尾款的运单(到仓)，不做集齐校验
                                 return 0;
                             }
                         }
