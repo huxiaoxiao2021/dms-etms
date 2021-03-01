@@ -78,8 +78,11 @@ public class BoxResource {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Resource(name="specialBoxTypeMap")
-    private Map<String,String> specialBoxTypeMap;
+    @Resource(name="siteBoxTypeMap")
+    private Map<String,String> siteBoxTypeMap;
+
+    @Resource(name="sortingBoxTypeMap")
+    private Map<String,String> sortingBoxTypeMap;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -621,11 +624,11 @@ public class BoxResource {
         }
         //营业部,自营京东派 人员使用部分箱型
         if (siteTypes.contains(baseStaffSiteOrgDto.getSubType())){
-            response.setBoxTypes(specialBoxTypeMap);
+            response.setBoxTypes(siteBoxTypeMap);
             return response;
         }
-        //获取全部类型
-        response.setBoxTypes(BoxTypeEnum.getMap());
+        //分拣中心
+        response.setBoxTypes(sortingBoxTypeMap);
         return response;
     }
 
