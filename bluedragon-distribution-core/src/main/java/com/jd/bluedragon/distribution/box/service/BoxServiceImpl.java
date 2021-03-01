@@ -191,6 +191,7 @@ public class BoxServiceImpl implements BoxService {
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
 			box.setCode(boxCodePrefix +RandomUtils.generateString(1)+ StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
+			box.setBoxSource(systemType);
 			boxes.add(box);
 			this.add(box);
 		}
