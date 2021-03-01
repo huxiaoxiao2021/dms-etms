@@ -205,6 +205,7 @@ public class ReflowPackageImpl implements ReflowPackageService {
                 return result;
             }
             long total = reflowPackageDao.selectCount(query);
+            pageDto.setTotalRow(new Long(total).intValue());
             if (total > 0) {
                 List<ReflowPackage> rawDataList = reflowPackageDao.selectList(query);
                 for (ReflowPackage reflowPackage : rawDataList) {
