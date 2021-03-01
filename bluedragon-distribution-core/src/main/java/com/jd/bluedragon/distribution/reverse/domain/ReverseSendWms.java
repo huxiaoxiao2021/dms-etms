@@ -81,6 +81,9 @@ public class ReverseSendWms {
 	 * sendPay判断业务用
 	 */
 	private String sendPay;
+
+	//预售暂存类型
+	private Integer storeType;
 	
 	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
@@ -292,5 +295,13 @@ public class ReverseSendWms {
 
 	public void setSendPay(String sendPay) {
 		this.sendPay = sendPay;
+	}
+
+	public Integer getStoreType() {
+		return storeType;
+	}
+
+	public void setStoreType(Integer storeType) {
+		this.storeType = storeType;
 	}
 }

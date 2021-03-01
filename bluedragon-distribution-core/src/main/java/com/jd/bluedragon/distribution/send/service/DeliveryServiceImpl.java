@@ -5160,6 +5160,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){//半退 不验证包裹是否集齐
                         return 0;
                     }
+                    if (BusinessUtil.preSellAndUnpaidBalance(waybill.getSendPay())){//预售到仓且未付尾款的运单，不做集齐校验
+                        return 0;
+                    }
+
                     if(receiveSiteCode!=null){
                         BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
                         if(site!=null){

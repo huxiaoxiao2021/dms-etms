@@ -268,4 +268,39 @@ public class DmsConstants {
 
     /*车牌号正则表达式*/
     public static final String NUMBERPLATE_CODE = "^([\\u4e00-\\u9fa5]{1}|[0-9]{3,4})[0-9A-Za-z]{6,7}$";
+
+
+    /**
+     * 暂存类型枚举值
+     */
+    public enum StoreTypeEnum {
+        NOTHING(0,"不确定"),
+        TOWAREHOUSE(1,"预售暂存到仓"),
+        TODELIVERY(2,"预售暂存到配");
+        //值
+        private Integer value;
+        //名
+        private String name;
+
+        StoreTypeEnum(Integer value, String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public void setValue(Integer value) {
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 }
