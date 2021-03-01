@@ -95,7 +95,7 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 		            	tmsVehicleRoute.setOriginalSiteCode(transResult.getData().getStartNodeId());
 		            	tmsVehicleRoute.setDestinationSiteCode(transResult.getData().getEndNodeId());
 		            	//根据线路创建时间和运力编码对应的发车时间计算标准发车时间
-		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getCreateTime(),transResult.getData());
+		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getJobCreateTime(),transResult.getData());
 		            	if(departTime != null) {
 	            			tmsVehicleRoute.setDepartTime(departTime);
 		            	}
@@ -108,7 +108,7 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 					if(transportResult != null 
 							&& CollectionUtils.isNotEmpty(transportResult.getData())) {
 		            	//根据线路创建时间和运力编码对应的发车时间计算标准发车时间
-		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getCreateTime(),transportResult.getData());
+		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getJobCreateTime(),transportResult.getData());
 		            	if(departTime != null) {
 	            			tmsVehicleRoute.setDepartTime(departTime);
 		            	}

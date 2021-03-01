@@ -6,10 +6,6 @@ import com.jd.bluedragon.distribution.api.request.SealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
-import com.jd.bluedragon.distribution.sealVehicle.DmsSealVehicleService;
-import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
-import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
-import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -288,12 +284,5 @@ public class SealVehicleResource {
 			this.log.error("SealVehicleResource.cancel-error", e);
 		}
 		return sealVehicleResponse;
-	}
-	@Autowired
-	DmsSealVehicleService dmsSealVehicleService;
-	@POST
-	@Path("/seal/queryPassPreSealData")
-	public com.jd.ql.dms.common.domain.JdResponse<PageDto<PassPreSealRecord>> queryPassPreSealData(PassPreSealQueryRequest queryCondition){
-		return dmsSealVehicleService.queryPassPreSealData(queryCondition);
 	}
 }

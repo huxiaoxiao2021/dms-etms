@@ -87,10 +87,14 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     		}
     		TransportResourceDto parameter=new TransportResourceDto();
     		PageDto<TransportResourceDto> page = new PageDto<TransportResourceDto>();
-	        page.setPageSize(20);
+    		page.setCurrentPage(1);
+    		page.setPageSize(20);
 	        parameter.setStartNodeCode(startNodeCode);
 	        parameter.setEndNodeCode(endNodeCode);
 	        CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page,parameter);
+	        if(log.isDebugEnabled()) {
+	        	log.debug("查询运输接口getTransportResourceByPage，入参：{},{} 返回结果：{}", startNodeCode,endNodeCode,JsonHelper.toJson(rest));
+	        }
 	        if(null != rest 
 	        		&& rest.getData() != null 
 	        		&& rest.getData().getResult() != null){
