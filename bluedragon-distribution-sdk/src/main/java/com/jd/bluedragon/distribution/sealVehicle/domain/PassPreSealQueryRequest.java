@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.sealVehicle.domain;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 /**
@@ -54,9 +56,29 @@ public class PassPreSealQueryRequest extends BasePagerCondition implements Seria
 	 */
 	private Date departStartTime;
 	/**
-	 * 发车时间
+	 * 发车时间-结束
 	 */
 	private Date departEndTime;
+	/**
+	 * 任务创建时间-开始
+	 */
+	private Date jobCreateStartTime;
+	/**
+	 * 任务创建时间-结束
+	 */
+	private Date jobCreateEndTime;	
+	/**
+	 * 排序信息
+	 */
+	private List<Map<String,String>> orders;
+	/**
+	 * 过滤线路类型
+	 */
+	private List<Integer> lineTypes;
+	/**
+	 * 排序信息
+	 */
+	private String orderBy;
 	
 	public String getVehicleNumber() {
 		return vehicleNumber;
@@ -123,5 +145,35 @@ public class PassPreSealQueryRequest extends BasePagerCondition implements Seria
 	}
 	public void setDepartEndTime(Date departEndTime) {
 		this.departEndTime = departEndTime;
+	}
+	public Date getJobCreateStartTime() {
+		return jobCreateStartTime;
+	}
+	public void setJobCreateStartTime(Date jobCreateStartTime) {
+		this.jobCreateStartTime = jobCreateStartTime;
+	}
+	public Date getJobCreateEndTime() {
+		return jobCreateEndTime;
+	}
+	public void setJobCreateEndTime(Date jobCreateEndTime) {
+		this.jobCreateEndTime = jobCreateEndTime;
+	}
+	public List<Map<String, String>> getOrders() {
+		return orders;
+	}
+	public void setOrders(List<Map<String, String>> orders) {
+		this.orders = orders;
+	}
+	public List<Integer> getLineTypes() {
+		return lineTypes;
+	}
+	public void setLineTypes(List<Integer> lineTypes) {
+		this.lineTypes = lineTypes;
+	}
+	public String getOrderBy() {
+		return orderBy;
+	}
+	public void setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
 	}
 }

@@ -52,16 +52,6 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
      */
     @Value("${beans.DmsSealVehicleServiceImpl.effectDays:7}")
     private Integer effectDays;
-    /**
-     * 传摆线路类型列表
-     */
-    private static List<Integer> SITE_LINE_TYPES = new ArrayList<Integer>();
-    
-    static{
-    	SITE_LINE_TYPES.add(30);
-    	SITE_LINE_TYPES.add(31);
-    	SITE_LINE_TYPES.add(40);
-    }
     /*
      * 获取未封车信息列表
      *
@@ -432,7 +422,7 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 	public JdResponse<PageDto<PassPreSealRecord>> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
 		JdResponse<PageDto<PassPreSealRecord>> result = new JdResponse<PageDto<PassPreSealRecord>>();
 		result.toSucceed();
-		
+		queryCondition.setLineTypes(Constants.CUAN_BAI_LINE_TYPES);
 		//数字按站点编码查询，否则按名称处理
 		String destinationSiteCodeOrName = queryCondition.getDestinationSiteCodeOrName();
 		if(NumberHelper.isNumber(destinationSiteCodeOrName)) {
@@ -447,10 +437,16 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 			Date now = new Date();
 			queryCondition.setDepartStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -recentHours));
 			queryCondition.setDepartEndTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, recentHours));
+		}else {
+			//没有传发货时间，默认只展示创建时间在24小时内的数据
+			Date now = new Date();
+			queryCondition.setJobCreateStartTime(DateHelper.add(now, Calendar.HOUR_OF_DAY, -DateHelper.ONE_DAY_HOURS));
 		}
 		Integer total = dmsSendRelationService.countPassPreSealData(queryCondition);
 		PageDto<PassPreSealRecord> pageResult = new PageDto<PassPreSealRecord>();
 		if(total > 0) {
+			pageResult.setPageSize(queryCondition.getLimit());
+			pageResult.setCurrentPage(queryCondition.getPageNumber());
 			pageResult.setTotalRow(total);
 			List<PassPreSealRecord> dataList = dmsSendRelationService.queryPassPreSealData(queryCondition);
 			if(CollectionUtils.isNotEmpty(dataList)) {
@@ -471,20 +467,10 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
 	 * @return
 	 */
 	private void loadPreSealInfo(PassPreSealRecord passPreSealRecord) {
-		passPreSealRecord.setPreSealStatus(TextConstants.TEXT_FLAG_NO);
-		if(StringHelper.isNotEmpty(passPreSealRecord.getTransportCode())
-				&& StringHelper.isNotEmpty(passPreSealRecord.getVehicleNumber())) {
-			//存在运力编码信息，按运力编码+车牌查询预封车信息
-			Integer preNum = preSealVehicleService.countPreSealNumByTransportInfo(passPreSealRecord.getTransportCode(), passPreSealRecord.getVehicleNumber());
-			if(NumberHelper.gt0(preNum)) {
-				passPreSealRecord.setPreSealStatus(TextConstants.TEXT_FLAG_YES);
-			}
+		if(Constants.STRING_FLG_TRUE.equals(passPreSealRecord.getPreSealStatus())) {
+			passPreSealRecord.setPreSealStatus(TextConstants.TEXT_FLAG_YES);
 		}else {
-			//不存在车次信息，按始发和目的查询预封车信息
-			Integer preNum = preSealVehicleService.countPreSealNumBySendRelation(passPreSealRecord.getOriginalSiteCode(), passPreSealRecord.getDestinationSiteCode());
-			if(NumberHelper.gt0(preNum)) {
-				passPreSealRecord.setPreSealStatus(TextConstants.TEXT_FLAG_YES);
-			}
+			passPreSealRecord.setPreSealStatus(TextConstants.TEXT_FLAG_NO);
 		}
 	}
 	/**

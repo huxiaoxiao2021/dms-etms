@@ -23,12 +23,6 @@ public interface DmsSendRelationDao {
 	int update(DmsSendRelation dmsSendRelation);
 	
 	DmsSendRelation queryByBusinessKey(DmsSendRelation dmsSendRelation);
-	/**
-	 * 根据条件查询列表
-	 * @param dmsSendRelation
-	 * @return
-	 */
-	List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation);
 
 	List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition);
 

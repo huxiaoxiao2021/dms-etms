@@ -61,6 +61,10 @@ public class DateHelper {
      * 一天的毫秒数
      */
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
+    /**
+     * 一天的小时数
+     */
+    public static final int ONE_DAY_HOURS = 24;
 
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS = "yyyyMMddHHmmssSSS";
 

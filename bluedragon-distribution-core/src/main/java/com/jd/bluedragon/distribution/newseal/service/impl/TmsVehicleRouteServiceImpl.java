@@ -1,9 +1,13 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +21,6 @@ import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.dao.TmsVehicleRouteDao;
 import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
 import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -91,16 +94,27 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 		            	loadTransport = true;
 		            	tmsVehicleRoute.setOriginalSiteCode(transResult.getData().getStartNodeId());
 		            	tmsVehicleRoute.setDestinationSiteCode(transResult.getData().getEndNodeId());
-		            	if(tmsVehicleRoute.getCreateTime() != null) {
-		            		//先获取线路创建时间，根据运力编码对应的时间计算发车时间
-		            		String dayStr = DateHelper.formatDate(tmsVehicleRoute.getCreateTime());
-		            		String sendCarTimeStr = transResult.getData().getSendCarTimeStr();
-		            		Date departTime = DateHelper.parseTmsCarTime(dayStr,sendCarTimeStr);
+		            	//根据线路创建时间和运力编码对应的发车时间计算标准发车时间
+		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getJobCreateTime(),transResult.getData());
+		            	if(departTime != null) {
 	            			tmsVehicleRoute.setDepartTime(departTime);
 		            	}
 		            }else {
 		            	logger.warn("加载运力信息失败！transportCode={}", tmsVehicleRoute.getTransportCode());
 		            }
+				}else {
+					//加载线路信息
+					JdResult<List<TransportResource>> transportResult = tmsServiceManager.loadTransportResources(beginNodeCode, endNodeCode, Constants.CUAN_BAI_LINE_TYPES);
+					if(transportResult != null 
+							&& CollectionUtils.isNotEmpty(transportResult.getData())) {
+		            	//根据线路创建时间和运力编码对应的发车时间计算标准发车时间
+		            	Date departTime = calculateDepartTime(tmsVehicleRoute.getJobCreateTime(),transportResult.getData());
+		            	if(departTime != null) {
+	            			tmsVehicleRoute.setDepartTime(departTime);
+		            	}
+					}else {
+						logger.warn("加载线路信息为空！{}->{}", beginNodeCode,endNodeCode);
+					}
 				}
 				//加载运力失败，通过始发和目的加载站点信息
 				if(!loadTransport) {
@@ -127,9 +141,68 @@ public class TmsVehicleRouteServiceImpl implements TmsVehicleRouteService {
 			return this.insert(tmsVehicleRoute);
 		}
 	}
-
-	@Override
-	public List<TmsVehicleRoute> queryByCondition(TmsVehicleRouteCondition condition) {
-		return tmsVehicleRouteDao.queryByCondition(condition);
+	/**
+	 * 根据运力及创建时间计算距离最近的发车时间
+	 * @param createTime
+	 * @param transportResources
+	 * @return
+	 */
+	private Date calculateDepartTime(Date createTime, List<TransportResource> transportResources) {
+    	if(createTime != null) {
+    		//只有一个运力
+    		if(transportResources.size() == 1) {
+    			return calculateDepartTime(createTime,transportResources.get(0));
+    		}
+    		List<Date> sendCarTimes = new ArrayList<Date>();
+    		String dayStr = DateHelper.formatDate(createTime);
+    		for(TransportResource transportResource : transportResources) {
+    			Date departTime = DateHelper.parseTmsCarTime(dayStr,transportResource.getSendCarTimeStr());
+    			if(departTime != null) {
+    				sendCarTimes.add(departTime);
+    			}
+    		}
+    		//按发车时间排序
+    		Collections.sort(sendCarTimes, new Comparator<Date>() {
+				@Override
+				public int compare(Date o1, Date o2) {
+					return DateHelper.compare(o1, o2);
+				}
+    		});
+    		Date departTime = null;
+    		for(Date sendCarTime : sendCarTimes) {
+        		if(DateHelper.compare(sendCarTime, createTime) >= 0) {
+        			departTime = sendCarTime;
+        			break;
+        		}
+    		}
+    		if(departTime == null && !sendCarTimes.isEmpty()) {
+    			departTime = DateHelper.addDate(sendCarTimes.get(0), 1);
+    		}
+    		return departTime;
+    	}
+		return null;
+	}
+	/**
+	 * 根据运力及创建时间计算发车时间
+	 * @param createTime
+	 * @param transportResource
+	 * @return
+	 */
+	private Date calculateDepartTime(Date createTime, TransportResource transportResource) {
+    	if(createTime != null) {
+    		//先获取线路创建时间，根据运力编码对应的时间计算发车时间
+    		String dayStr = DateHelper.formatDate(createTime);
+    		String sendCarTimeStr = transportResource.getSendCarTimeStr();
+    		Date departTime = DateHelper.parseTmsCarTime(dayStr,sendCarTimeStr);
+    		if(departTime == null) {
+    			return null;
+    		}
+    		//发车时间小于创建时间，增加一天
+    		if(DateHelper.compare(departTime, createTime) < 0) {
+    			departTime = DateHelper.addDate(departTime, 1);
+    		}
+    		return departTime;
+    	}
+		return null;
 	}
 }
