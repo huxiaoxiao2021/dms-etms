@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -52,6 +53,9 @@ public class BoxRelationServiceImpl implements BoxRelationService {
 
     @Autowired
     private BoxService boxService;
+
+    @Autowired
+    private SortingDao sortingDao;
 
     @Override
     @JProfiler(jKey = "dms.web.BoxRelationService.queryBoxRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.FunctionError })
@@ -169,7 +173,11 @@ public class BoxRelationServiceImpl implements BoxRelationService {
             return result;
         }
 
-        // TODO 是否校验WJ箱号里的包裹是文件
+        // WJ是空箱不允许绑定
+        if (sortingDao.findPackCount(relation.getCreateSiteCode().intValue(), relation.getRelationBoxCode()) == 0) {
+            result.customMessage(DmsMessageConstants.CODE_50005, DmsMessageConstants.MESSAGE_50005);
+            return result;
+        }
 
         return result;
     }

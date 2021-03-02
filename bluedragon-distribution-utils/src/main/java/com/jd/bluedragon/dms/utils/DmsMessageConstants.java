@@ -26,4 +26,7 @@ public interface DmsMessageConstants {
 
     Integer CODE_50004 = 50004 ;
     String MESSAGE_50004 = "箱号{0}正在由他人操作绑定，请稍后再试!";
+
+    Integer CODE_50005 = 50005 ;
+    String MESSAGE_50005 = "箱子未集包禁止绑定!";
 }
