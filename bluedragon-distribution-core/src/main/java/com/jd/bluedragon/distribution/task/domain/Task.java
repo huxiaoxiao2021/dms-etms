@@ -833,7 +833,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }else if(TASK_TYPE_PUSH_MQ.equals(type)){
             return "PushMQ2ArteryBillingSysTask";
         }else if(TASK_TYPE_WAYBILL_SEND.equals(type)){
-            return "waybillSendDeliveryTaskkN";
+            return "waybillSendDeliveryTaskN";
         }
         else if (TASK_TYPE_WAYBILL_SEND_SPLIT.equals(type)) {
             return "waybillSendDeliverySplitTaskN";

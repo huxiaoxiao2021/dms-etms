@@ -42,7 +42,7 @@
     <bean id="waybillSendDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.WaybillSendDeliveryTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="waybillSendDeliveryTaskkN"/>
+        <property name="taskType" value="waybillSendDeliveryTaskN"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1322"/>
