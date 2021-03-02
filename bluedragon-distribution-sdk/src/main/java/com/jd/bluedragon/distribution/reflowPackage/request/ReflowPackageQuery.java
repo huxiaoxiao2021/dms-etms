@@ -40,6 +40,20 @@ public class ReflowPackageQuery extends BasePagerCondition implements Serializab
 
     private Date createTimeTo;
 
+    /**
+     * 创建开始时间
+     */
+    private String scanTimeFromStr;
+
+    /**
+     * 创建结束时间
+     */
+    private String scanTimeToStr;
+
+    private Date scanTimeFrom;
+
+    private Date scanTimeTo;
+
     private String currentUserErp;
 
     private Integer pageSize;
@@ -121,6 +135,38 @@ public class ReflowPackageQuery extends BasePagerCondition implements Serializab
         this.pageSize = pageSize;
     }
 
+    public String getScanTimeFromStr() {
+        return scanTimeFromStr;
+    }
+
+    public void setScanTimeFromStr(String scanTimeFromStr) {
+        this.scanTimeFromStr = scanTimeFromStr;
+    }
+
+    public String getScanTimeToStr() {
+        return scanTimeToStr;
+    }
+
+    public void setScanTimeToStr(String scanTimeToStr) {
+        this.scanTimeToStr = scanTimeToStr;
+    }
+
+    public Date getScanTimeFrom() {
+        return scanTimeFrom;
+    }
+
+    public void setScanTimeFrom(Date scanTimeFrom) {
+        this.scanTimeFrom = scanTimeFrom;
+    }
+
+    public Date getScanTimeTo() {
+        return scanTimeTo;
+    }
+
+    public void setScanTimeTo(Date scanTimeTo) {
+        this.scanTimeTo = scanTimeTo;
+    }
+
     @Override
     public String toString() {
         return "ReflowPackageQuery{" +
@@ -130,6 +176,11 @@ public class ReflowPackageQuery extends BasePagerCondition implements Serializab
                 ", createTimeToStr='" + createTimeToStr + '\'' +
                 ", createTimeFrom=" + createTimeFrom +
                 ", createTimeTo=" + createTimeTo +
+                ", scanTimeFromStr='" + scanTimeFromStr + '\'' +
+                ", scanTimeToStr='" + scanTimeToStr + '\'' +
+                ", scanTimeFrom=" + scanTimeFrom +
+                ", scanTimeTo=" + scanTimeTo +
+                ", currentUserErp='" + currentUserErp + '\'' +
                 ", pageSize=" + pageSize +
                 ", isAsyncExport=" + isAsyncExport +
                 '}';

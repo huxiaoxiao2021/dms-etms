@@ -107,6 +107,12 @@
         <if test="createTimeTo != null">
             and create_time &lt;= #{createTimeTo}
         </if>
+        <if test="scanTimeFrom != null">
+            and update_time >= #{scanTimeFrom}
+        </if>
+        <if test="scanTimeTo != null">
+            and update_time &lt;= #{scanTimeTo}
+        </if>
             and is_delete = 0
     </sql>
 
