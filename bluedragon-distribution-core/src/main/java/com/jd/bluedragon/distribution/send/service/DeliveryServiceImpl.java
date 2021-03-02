@@ -353,15 +353,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private static final String SEND_BY_WAYBILL_REDIS_PREFIX = "SEND_BY_WAYBILL_REDIS_PREFIX_";
     private static final String SEND_BY_WAYBILL_PACK_REDIS_PREFIX = "SEND_BY_WAYBILL_PACK_REDIS_PREFIX";
-    /**
-     * 按运单发货 缓存锁定时间 单位: 分钟
-     */
-    private static final long SEND_BY_WAYBILL_REDIS_LOCK_TIME = 60;
-    /**
-     * 按运单发货 最小包裹数量
-     */
-    private static final long SEND_BY_WAYBILL_MIN_PACKS_NUM = 100;
-
 
     @Autowired
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
