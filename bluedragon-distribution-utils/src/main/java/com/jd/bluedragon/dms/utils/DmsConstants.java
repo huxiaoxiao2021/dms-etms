@@ -273,8 +273,7 @@ public class DmsConstants {
     /**
      * 暂存类型枚举值
      */
-    public enum StoreTypeEnum {
-        NOTHING(0,"不确定"),
+    public enum PreSellTypeEnum {
         TOWAREHOUSE(1,"预售暂存到仓"),
         TODELIVERY(2,"预售暂存到配");
         //值
@@ -282,7 +281,7 @@ public class DmsConstants {
         //名
         private String name;
 
-        StoreTypeEnum(Integer value, String name) {
+        PreSellTypeEnum(Integer value, String name) {
             this.value = value;
             this.name = name;
         }

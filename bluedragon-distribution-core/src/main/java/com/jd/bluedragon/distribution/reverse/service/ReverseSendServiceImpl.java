@@ -1128,7 +1128,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         //处理预售暂存类型
         BigWaybillDto bigWaybillDto = waybillService.getWaybillState(wallBillCode);
         if(null != bigWaybillDto){
-            send.setStoreType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
+            send.setPreSellType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
         }else{
             log.warn("sendWMS-获取运单信息失败，运单号：" + wallBillCode);
         }
@@ -2111,7 +2111,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sendModel.setPackageCodeList(Arrays.asList(send.getPackageCodes()));
         }
         //暂存类型
-        sendModel.setStoreType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
+        sendModel.setPreSellType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
         return sendModel;
     }
 

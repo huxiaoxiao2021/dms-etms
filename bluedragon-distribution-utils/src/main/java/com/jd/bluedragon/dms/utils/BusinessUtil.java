@@ -1888,14 +1888,14 @@ public class BusinessUtil {
      * 如果sendPay 228位等于4或5，表示预售暂存到配
      */
     public static Integer getStoreTypeBySendPay(String sendPay){
-        Integer result = StoreTypeEnum.NOTHING.getValue();
+        Integer result = null;
         if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
                 BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_2)){
-            result = StoreTypeEnum.TOWAREHOUSE.getValue();
+            result = PreSellTypeEnum.TOWAREHOUSE.getValue();
         }
         if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4) ||
                 BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_5)){
-            result = StoreTypeEnum.TODELIVERY.getValue();
+            result = PreSellTypeEnum.TODELIVERY.getValue();
         }
         return result;
     }

@@ -41,7 +41,7 @@ public class ReverseSendMQToECLP {
 	private List<String> packageCodeList;
 
 	//暂存类型 ，其值见 StoreTypeEnum
-    private Integer storeType;
+    private Integer preSellType;
 
     public String getJdOrderCode() {
         return jdOrderCode;
@@ -155,11 +155,11 @@ public class ReverseSendMQToECLP {
         this.packageCodeList = packageCodeList;
     }
 
-    public Integer getStoreType() {
-        return storeType;
+    public Integer getPreSellType() {
+        return preSellType;
     }
 
-    public void setStoreType(Integer storeType) {
-        this.storeType = storeType;
+    public void setPreSellType(Integer preSellType) {
+        this.preSellType = preSellType;
     }
 }

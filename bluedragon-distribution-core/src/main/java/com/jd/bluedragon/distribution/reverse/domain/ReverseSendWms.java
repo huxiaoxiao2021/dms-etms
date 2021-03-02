@@ -83,7 +83,7 @@ public class ReverseSendWms {
 	private String sendPay;
 
 	//预售暂存类型
-	private Integer storeType;
+	private Integer preSellType;
 	
 	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
@@ -297,11 +297,11 @@ public class ReverseSendWms {
 		this.sendPay = sendPay;
 	}
 
-	public Integer getStoreType() {
-		return storeType;
+	public Integer getPreSellType() {
+		return preSellType;
 	}
 
-	public void setStoreType(Integer storeType) {
-		this.storeType = storeType;
+	public void setPreSellType(Integer preSellType) {
+		this.preSellType = preSellType;
 	}
 }
