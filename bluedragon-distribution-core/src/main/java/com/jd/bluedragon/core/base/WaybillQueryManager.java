@@ -10,6 +10,8 @@ import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.List;
+import java.util.Map;
+
 public interface WaybillQueryManager{
 	
 	/**
@@ -287,5 +289,12 @@ public interface WaybillQueryManager{
 	 */
 	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill,
 																							Integer attachmentType);
+
+	/**
+	 * 根据运单号，包裹号获取包裹增值信息
+	 * @param wayBillCode
+	 * @return
+	 */
+	Map<String,String> doGetPackageVasInfo(String wayBillCode);
 
 }
