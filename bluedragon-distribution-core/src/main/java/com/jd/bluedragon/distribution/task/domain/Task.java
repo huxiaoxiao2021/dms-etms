@@ -110,6 +110,15 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_BOARD_SEND_CANCEL = 1321;
 
+    /**
+     * 按运单发货
+     */
+    public static final Integer TASK_TYPE_WAYBILL_SEND = 1322;
+    /**
+     * 按运单发货分页拆分任务
+     */
+    public static final Integer TASK_TYPE_WAYBILL_SEND_SPLIT = 1323;
+
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
 
     public static final Integer TASK_TYPE_SCANNER_FRAME=7779;//龙门架自动发货
@@ -205,7 +214,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**
      * 整板发货任务表
      */
-    public static final String TABLE_NAME_BOARD_SEND="task_board_send";
+    public static final String TABLE_NAME_BOARD_SEND = "task_board_send";
+    /**
+     * 按运单发货任务表
+     */
+    public static final String TABLE_NAME_WAYBILL_SEND="task_waybill_send";
     /**
      * 整板取消发货任务表
      */
@@ -605,6 +618,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_BOARD_SEND_CANCEL;
         }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return Task.TABLE_NAME_CYCLE_BOX_STATUS;
+        }else if(Task.TASK_TYPE_WAYBILL_SEND.equals(type)){
+            return Task.TABLE_NAME_SEND;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -817,7 +832,13 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "ShieldsCarErrorTask";
         }else if(TASK_TYPE_PUSH_MQ.equals(type)){
             return "PushMQ2ArteryBillingSysTask";
-        }else if(TASK_TYPE_INSPECTION.equals(type)){
+        }else if(TASK_TYPE_WAYBILL_SEND.equals(type)){
+            return "waybillSendDeliveryTaskkN";
+        }
+        else if (TASK_TYPE_WAYBILL_SEND_SPLIT.equals(type)) {
+            return "waybillSendDeliverySplitTaskN";
+        }
+        else if(TASK_TYPE_INSPECTION.equals(type)){
             return "InspectionTaskN";
         }
         else if (TASK_TYPE_INSPECTION_SPLIT.equals(type)) {

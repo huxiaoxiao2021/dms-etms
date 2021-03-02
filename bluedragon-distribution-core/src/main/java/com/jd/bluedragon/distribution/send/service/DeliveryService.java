@@ -38,11 +38,22 @@ public interface DeliveryService {
     SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend);
 
     /**
+     * 按运单批量发货,校验数据并写入异步任务:运单下的包裹数量需大于 100
+     * @param domain 发货数据
+     */
+    SendResult packageSendByWaybill(SendM domain);
+
+    /**
      * 一车一单发货数据落库，写相关的异步任务
      *
      * @param domain
      */
     void packageSend(SendBizSourceEnum sourceEnum, SendM domain);
+
+    /**
+     * 按运单发货异步任务处理
+     */
+    void doPackageSendByWaybill(SendM domain);
 
     /**
      * 推分拣任务
@@ -179,7 +190,7 @@ public interface DeliveryService {
     /**
      * 发货主表数据查询，验证是否重复发货
      *
-     * @param SendM 发货相关数据
+     * @param tSendM 发货相关数据
      */
     DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend);
 
@@ -384,6 +395,13 @@ public interface DeliveryService {
      * @return
      */
     boolean doBoardDelivery(Task task);
+
+    /**
+     * 处理按运单发货任务
+     */
+    boolean doWaybillSendDelivery(Task task);
+
+    boolean doSendByWaybillSplitTask(Task task);
 
     /**
      * 按板取消发货任务
