@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.send.service;
+import java.lang.reflect.Method;
 import java.util.Date;
 
 import com.google.common.collect.Lists;
@@ -8,17 +9,21 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.transboard.api.service.GroupBoardService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by xumigen on 2019/4/12.
@@ -33,6 +38,9 @@ public class DeliveryServiceTest {
 
     @Autowired
     private GroupBoardService groupBoardService;
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
 
     @Test
     public void testdeliveryService(){
@@ -177,6 +185,31 @@ public class DeliveryServiceTest {
 
         deliveryService.doWaybillSendDelivery(task);
     }
+    @Test
+    public void doWaybillSendDeliveryTest02() {
+        String taskJson = "\t{\n" +
+                "\t\t\"taskId\" : 152422,\n" +
+                "\t\t\"createTime\" : \"2021-03-01 14:46:48\",\n" +
+                "\t\t\"updateTime\" : \"2021-03-01 14:46:48\",\n" +
+                "\t\t\"keyword1\" : \"1\",\n" +
+                "\t\t\"keyword2\" : \"10\",\n" +
+                "\t\t\"createSiteCode\" : 910,\n" +
+                "\t\t\"receiveSiteCode\" : 39,\n" +
+                "\t\t\"boxCode\" : \"JD0003358121191\",\n" +
+                "\t\t\"body\" : \"{\\r\\n  \\\"sendMId\\\" : 1366275560185106432,\\r\\n  \\\"sendCode\\\" : \\\"910-39-20210301143251786\\\",\\r\\n  \\\"boxCode\\\" : \\\"JD0003358121191\\\",\\r\\n  \\\"turnoverBoxCode\\\" : \\\"\\\",\\r\\n  \\\"createSiteCode\\\" : 910,\\r\\n  \\\"receiveSiteCode\\\" : 39,\\r\\n  \\\"sendType\\\" : 10,\\r\\n  \\\"createUser\\\" : \\\"吴有德\\\",\\r\\n  \\\"createUserCode\\\" : 17331,\\r\\n  \\\"operateTime\\\" : 1614580452712,\\r\\n  \\\"createTime\\\" : 1614580452712,\\r\\n  \\\"yn\\\" : 1,\\r\\n  \\\"transporttype\\\" : 0,\\r\\n  \\\"bizSource\\\" : 2,\\r\\n  \\\"handleCategory\\\" : 4\\r\\n}\",\n" +
+                "\t\t\"executeCount\" : 1,\n" +
+                "\t\t\"taskType\" : 1300,\n" +
+                "\t\t\"taskStatus\" : 2,\n" +
+                "\t\t\"yn\" : 1,\n" +
+                "\t\t\"ownSign\" : \"DMS\",\n" +
+                "\t\t\"fingerprint\" : \"C15748B91942ABDB809EB0493CCB7187\",\n" +
+                "\t\t\"executeTime\" : \"2021-03-01 15:01:53\",\n" +
+                "\t\t\"queueId\" : 0\n" +
+                "\t}";
+
+        Task task = JsonHelper.fromJson(taskJson, Task.class);
+        deliveryService.doWaybillSendDelivery(task);
+    }
 
     private SendM initSendM(String sendCode,String boxCode) {
         SendM sendM = new SendM();
@@ -208,5 +241,25 @@ public class DeliveryServiceTest {
         sendM.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode());
 
         return sendM;
+    }
+
+    @Test
+    public void cacheTest() {
+        String key = "sendByWaybill-bitmap001";
+        Boolean set = redisClientCache.set(key, "", 2, TimeUnit.HOURS, false);
+        System.out.println("设置Key完成:set=" + set);
+
+        Long bitCount = redisClientCache.bitCount(key);
+        System.out.println("空字符bitCount=" + bitCount);
+
+        Boolean setBit = redisClientCache.setBit(key, 1, true);
+        System.out.println("第一次设置结果setBit=" + setBit);
+
+        bitCount = redisClientCache.bitCount(key);
+        System.out.println("第一次设置后bitCount=" + bitCount);
+
+        setBit = redisClientCache.setBit(key, 1, true);
+        System.out.println("第二次设置结果setBit=" + setBit);
+
     }
 }

@@ -5633,7 +5633,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         pushSorting(domain);
         log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", domain.getBoxCode());
         // 按包裹分页 拆分任务调用一车一单发货逻辑
-        for (int i = 1; i <= waybill.getGoodNumber() / pageSize; i++) {
+        int splitSize = (waybill.getGoodNumber() / pageSize) + 1;
+        for (int i = 1; i <= splitSize; i++) {
             pushWaybillSendSplitTask(domain, Task.TASK_TYPE_WAYBILL_SEND_SPLIT, i, pageSize);
         }
         log.info("按运单发货任务处理,完成 waybillCode={}", waybillCode);
