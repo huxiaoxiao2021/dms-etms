@@ -43,8 +43,8 @@ public class BoxRelationServiceImplTest {
     public void saveBoxRelationTest() {
         BoxRelationRequest request = new BoxRelationRequest();
         request.setUserErp("master");
-        request.setBoxCode("BC010F002010Y10000126006");
-        request.setRelationBoxCode("WJ1001201228180000000101");
+        request.setBoxCode("BC010F002010Y10000126001");
+        request.setRelationBoxCode("WJ1001201228180000000102");
         request.setUserName("master");
         request.setSiteCode(910);
         request.setOperateTime(DateUtil.format(new Date(), DateUtil.FORMAT_DATE_TIME));
