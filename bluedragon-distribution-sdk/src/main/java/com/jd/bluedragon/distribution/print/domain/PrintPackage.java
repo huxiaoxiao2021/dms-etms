@@ -45,6 +45,18 @@ public class PrintPackage implements Serializable {
      */
     public Integer packageIndexNum;
 
+    /**
+     * 包裹增值服务信息
+     */
+    public String packageSpecialRequirement;
+
+    public String getPackageSpecialRequirement() {
+        return packageSpecialRequirement;
+    }
+
+    public void setPackageSpecialRequirement(String packageSpecialRequirement) {
+        this.packageSpecialRequirement = packageSpecialRequirement;
+    }
 
     public String getPackageCode() {
         return packageCode;
@@ -139,4 +151,6 @@ public class PrintPackage implements Serializable {
 	public void setPackageIndexNum(Integer packageIndexNum) {
 		this.packageIndexNum = packageIndexNum;
 	}
+
+
 }

@@ -670,4 +670,9 @@
                   timeout="${jsf.reportExternalService.timeout}">
     </jsf:consumer>
 
+
+    <jsf:consumer id="stagingServiceWS" interface="com.jd.merchant.api.staging.ws.StagingServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
+    </jsf:consumer>
+
 </beans>
