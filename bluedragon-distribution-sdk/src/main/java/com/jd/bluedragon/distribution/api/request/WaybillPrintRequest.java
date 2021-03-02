@@ -148,6 +148,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private String userERP;
 
+	/**
+	 * 拦截提示时，是否确认
+	 */
+	private Boolean confirm;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -436,5 +441,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setBarCodeType(Integer barCodeType) {
 		this.barCodeType = barCodeType;
+	}
+
+	public Boolean getConfirm() {
+		return confirm;
+	}
+
+	public void setConfirm(Boolean confirm) {
+		this.confirm = confirm;
 	}
 }

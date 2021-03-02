@@ -110,6 +110,7 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="abnormalWeightForCHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -201,6 +202,7 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="abnormalWeightForCHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -221,6 +223,7 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="abnormalWeightForCHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -294,6 +297,7 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+				<ref bean="abnormalWeightForCHandler"/>
 			</list>
 		</property>
 	</bean>
