@@ -103,7 +103,7 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         if(StringUtils.isNotEmpty(query.getPackageCode())&&!WaybillUtil.isPackageCode(query.getPackageCode())){
-            response.toError("包裹号填写异常");
+            response.toError("请正确输入包裹号");
             return response;
         }
 
