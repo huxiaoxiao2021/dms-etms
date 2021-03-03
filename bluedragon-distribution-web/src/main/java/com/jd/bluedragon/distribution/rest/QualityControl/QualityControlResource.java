@@ -65,6 +65,7 @@ public class QualityControlResource {
 
     @POST
     @Path("/qualitycontrol/exceptioninfo")
+    @JProfiler(jKey = "DMS.WEB.QualityControlResource.exceptionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public QualityControlResponse exceptionInfo(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
         if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
@@ -94,6 +95,7 @@ public class QualityControlResource {
      */
     @POST
     @Path("/qualitycontrol/exceptioninfos")
+    @JProfiler(jKey = "DMS.WEB.QualityControlResource.exceptionInfos", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public QualityControlResponse exceptionInfos(QualityControlRequest request) {
         QualityControlResponse response = new QualityControlResponse();
         String waybillCodes=request.getQcValue();

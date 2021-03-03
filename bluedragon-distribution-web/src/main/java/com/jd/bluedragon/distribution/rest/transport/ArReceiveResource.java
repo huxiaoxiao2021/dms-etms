@@ -14,6 +14,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -62,6 +64,7 @@ public class ArReceiveResource {
      */
     @POST
     @Path("/arreceive/getARWaitReceive")
+    @JProfiler(jKey = "DMS.WEB.ArReceiveResource.getARWaitReceive", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
@@ -259,6 +262,7 @@ public class ArReceiveResource {
     @POST
     @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
+    @JProfiler(jKey = "DMS.WEB.ArReceiveResource.getArSendRegisterByBarcode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
         JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
         if (StringHelper.isEmpty(barcode)) {

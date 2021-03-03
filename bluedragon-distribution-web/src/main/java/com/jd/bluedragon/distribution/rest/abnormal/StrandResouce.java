@@ -13,6 +13,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ public class StrandResouce {
      */
     @POST
     @Path("strand/report")
+    @JProfiler(jKey = "DMS.WEB.StrandResouce.report", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> report(StrandReportRequest request){
         InvokeResult<Boolean> invokeResult = checkParam(request);
         if(RESULT_SUCCESS_CODE != invokeResult.getCode()){

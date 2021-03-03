@@ -36,6 +36,8 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -135,6 +137,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal/transportCode")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101101)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.getTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public RouteTypeResponse getTransportCode(NewSealVehicleRequest request) {
         RouteTypeResponse response = new RouteTypeResponse();
         if (StringUtils.isEmpty(request.getTransportCode()) || !NumberHelper.isPositiveNumber(request.getSiteCode())) {
@@ -246,6 +249,7 @@ public class NewSealVehicleResource {
     @GET
     @Path("/new/vehicle/seal/workitem/{simpleCode}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101102)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.getVehicleNumBySimpleCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TransWorkItemResponse getVehicleNumBySimpleCode(@PathParam("simpleCode") String simpleCode) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -275,6 +279,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal/workitem/query")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101104)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.getVehicleNumberOrItemCodeByParam", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TransWorkItemResponse getVehicleNumberOrItemCodeByParam(NewSealVehicleRequest request) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -317,6 +322,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal/workitem/check")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101104)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TransWorkItemResponse checkTransportCode(NewSealVehicleRequest request) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -350,6 +356,7 @@ public class NewSealVehicleResource {
      */
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.checkTranCodeAndBatchCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse checkTranCodeAndBatchCode(
             @PathParam("transportCode") String transportCode, @PathParam("batchCode") String batchCode) {
         return newCheckTranCodeAndBatchCode(transportCode, batchCode, Constants.SEAL_TYPE_TRANSPORT);
@@ -362,6 +369,7 @@ public class NewSealVehicleResource {
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101103)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.check", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(
             @PathParam("transportCode") String transportCode, @PathParam("batchCode") String batchCode, @PathParam("sealCarType") Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -409,6 +417,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal/check")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101103)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newCheckTranCodeAndBatchCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         String sendCode = sealCarPreRequest.getSendCode();
@@ -476,6 +485,7 @@ public class NewSealVehicleResource {
     @GET
     @Path("/new/vehicle/seal/verifyVehicleJobByVehicleNumber/{transportCode}/{vehicleNumber}/{sealCarType}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.verifyVehicleJobByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse verifyVehicleJobByVehicleNumber(
             @PathParam("transportCode") String transportCode, @PathParam("vehicleNumber") String vehicleNumber, @PathParam("sealCarType") Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -511,6 +521,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal/newVerifyVehicleJobByVehicleNumber")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newVerifyVehicleJobByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -544,6 +555,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/seal/verifySealVehicleVolume")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.verifySendVolume", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SealVehicleVolumeVerifyResponse verifySendVolume(SealVehicleVolumeVerifyRequest request){
 
         SealVehicleVolumeVerifyResponse response = new SealVehicleVolumeVerifyResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -625,6 +637,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/seal")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1011)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.seal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -679,6 +692,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/doSealCarWithVehicleJob")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1011,operateType = 101102)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.doSealCarWithVehicleJob", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarWithVehicleJob(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -719,6 +733,7 @@ public class NewSealVehicleResource {
     bizType = 11011,
     operateType = 1101101
   )
+  @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.cancelSeal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
   public NewSealVehicleResponse cancelSeal(cancelSealRequest request) {
     NewSealVehicleResponse sealVehicleResponse =
         new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -753,6 +768,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/findSealInfo")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012 ,operateType = 101202)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.findSealInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse findSealInfo(NewSealVehicleRequest request) {
 
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -836,6 +852,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/unseal/check")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012,operateType = 101201)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.unsealCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse unsealCheck(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
@@ -861,6 +878,7 @@ public class NewSealVehicleResource {
     @POST
     @Path("/new/vehicle/unseal")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.unseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
