@@ -521,7 +521,7 @@ public class BoxServiceImpl implements BoxService {
 			return Boolean.FALSE;
 		}
 		result = com.jd.bluedragon.distribution.external.constants.BoxStatusEnum.CLOSE.getStatus().equals(box.getStatus())
-				&& OpBoxNodeEnum.SEND.equals(box.getLastNodeType()) ? Boolean.TRUE : Boolean.FALSE;
+				&& OpBoxNodeEnum.SEND.getNodeCode().equals(box.getLastNodeType()) ? Boolean.TRUE : Boolean.FALSE;
 		return result;
 	}
 
