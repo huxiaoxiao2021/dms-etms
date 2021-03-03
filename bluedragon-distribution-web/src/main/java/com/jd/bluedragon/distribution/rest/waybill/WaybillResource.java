@@ -558,7 +558,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
-	@JProfiler(jKey = "DMS.WEB.WaybillResource.getwaybillPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.waybillPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 													  @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless) {
