@@ -13,6 +13,17 @@
         <setting name="defaultStatementTimeout" value="30"/>
     </settings>
 
+    <plugins>
+        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
+            <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
+            <property name="interceptTableSettings" value="
+                reflow_package=id:id,
+             "/>
+            <property name="replaceNextValue" value="true"/>
+            <property name="replaceExistsNewId" value="true"/>
+        </plugin>
+    </plugins>
+
     <typeAliases>
         <!-- 箱号与集包袋绑定 -->
         <typeAlias type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" alias="BoxMaterialRelation"/>
