@@ -1451,4 +1451,10 @@ public class Constants {
     	//34-长途传站返回
     	CUAN_BAI_LINE_TYPES.add(34);
     }
+
+    /**
+     * 数字：0
+     */
+    public static final Integer NUMBER_ZERO = 0;
+
 }

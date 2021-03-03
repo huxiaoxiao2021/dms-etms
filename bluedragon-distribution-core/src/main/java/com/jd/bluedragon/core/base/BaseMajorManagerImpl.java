@@ -34,6 +34,8 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
+import com.jd.ql.dms.report.SiteQueryService;
+import com.jd.ql.dms.report.domain.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -89,6 +91,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Autowired
     private BasicSiteUpdateService basicSiteUpdateService;
+
+    @Autowired
+    private SiteQueryService siteQueryService;
 
     /**
      * 站点ID
@@ -797,5 +802,45 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }else {
             return false;
         }
+    }
+
+    /**
+     * 根据条件查询站点
+     * @param siteQueryCondition
+     * @param limit
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.querySiteByConditionFromEs", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public List<BasicSite> querySiteByConditionFromEs(SiteQueryCondition siteQueryCondition, Integer limit) {
+        return siteQueryService.querySiteByConditionFromEs(siteQueryCondition, limit);
+    }
+
+    /**
+     * 根据条件查询站点
+     * 		<p>
+     * 		    查询精简站点数据
+     * 		</p>
+     * @param siteQueryCondition
+     * @param limit
+     * @return
+     */
+    @Override
+    public List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.querySiteByConditionFromStreamlinedSite",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try{
+            BaseEntity<List<StreamlinedBasicSite>> baseEntity = siteQueryService.querySiteByConditionFromStreamlinedSite(siteQueryCondition, limit);
+            if(baseEntity == null || !baseEntity.isSuccess()){
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            log.error("根据条件查询站点异常！",e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
     }
 }
