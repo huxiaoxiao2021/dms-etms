@@ -28,4 +28,5 @@ public interface CollectionBagExceptionReportGatewayService {
      * @time 2020-09-23 21:26:39 周三
      */
     JdCResponse<Boolean> reportBagCollectionException(BoxCollectionReportRequest reportRequest);
+
 }

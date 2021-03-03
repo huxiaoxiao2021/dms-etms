@@ -197,7 +197,7 @@
                   ref="dmsNoticeJsfService" server="dmsjsf">
     </jsf:provider>
 
-    <!--   箱号jsf     -->
+    <!--   箱号jsf：终端调用判断是否是经济网箱号     -->
     <jsf:provider id="dmsBoxQueryServiceJsf"
                   interface="com.jd.bluedragon.distribution.box.service.DmsBoxQueryService"
                   alias="${dms.jsf.alias}"
@@ -262,7 +262,14 @@
                   alias="${dms.jsf.alias}"
                   ref="boxRelationJsfService"
                   server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
 
-
+    <!-- 包裹回流扫描 提供给分拣工作台 -->
+    <jsf:provider id="dmsReflowPackageJsfService"
+                  interface="com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="reflowPackageJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
