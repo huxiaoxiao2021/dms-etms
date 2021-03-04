@@ -5647,6 +5647,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         String waybillCode = domain.getBoxCode();
         int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if (waybill.getGoodNumber() == null) {
+            log.error("获取运单中的包裹数量异常!{}", JsonHelper.toJsonMs(task));
+            return false;
+        }
         // 按运单补分拣任务
         pushSorting(domain);
         log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", waybillCode);
@@ -5727,16 +5731,18 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 以当前是第几个包裹 设置 redis值 中 对应的 位置的 bit 位
      */
     private boolean lockWaybillByPack(Integer createSiteCode, String packageCode) {
+        Boolean locked = false;
         try {
             int num = WaybillUtil.getCurrentPackageNum(packageCode);
             String lockWaybillByPackKey = getSendByWaybillPackLockKey(packageCode, createSiteCode);
 
-            redisClientCache.set(lockWaybillByPackKey, "", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
-            return redisClientCache.setBit(lockWaybillByPackKey, num - 1, true);
+            // 返回值为false 表示 设置之前 当前offset的值为 false 即 之前没设置过
+            locked = !redisClientCache.setBit(lockWaybillByPackKey, num - 1, true);
+            redisClientCache.expire(lockWaybillByPackKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
         } catch (Exception e) {
             log.error("锁定包裹异常:createSiteCode:{},packageCode:{}", createSiteCode, packageCode);
         }
-        return false;
+        return locked;
     }
 
     /**
