@@ -46,6 +46,7 @@
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
+        <property name="keyType" value="10"/>
         <property name="desc" value="分拣中心按运单发货任务"/>
     </bean>
 
@@ -56,6 +57,7 @@
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
+        <property name="keyType" value="11"/>
         <property name="desc" value="分拣中心按运单发货多包裹拆分任务"/>
     </bean>
 
