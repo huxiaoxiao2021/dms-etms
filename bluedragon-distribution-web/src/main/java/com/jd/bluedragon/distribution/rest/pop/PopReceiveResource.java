@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,7 @@ public class PopReceiveResource {
 
 	@POST
 	@Path("/popReceive/save")
+	@JProfiler(jKey = "DMS.WEB.PopReceiveResource.savePopReceive", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopReceiveResponse savePopReceive(PopReceiveRequest request) {
 		if (request == null || StringUtils.isBlank(request.getWaybillCode())
 				|| request.getCreateSiteCode() == null

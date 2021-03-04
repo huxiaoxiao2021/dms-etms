@@ -7,6 +7,7 @@
 	<properties>
 		<property name="dialect" value="MYSQL"/>
 	</properties>
+
     <settings>
         <setting name="lazyLoadingEnabled" value="false"/>
         <setting name="autoMappingBehavior" value="FULL"/>
@@ -16,11 +17,26 @@
     <typeAliases>
         <!-- 箱号与集包袋绑定 -->
         <typeAlias type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" alias="BoxMaterialRelation"/>
+        <!-- 包裹回流扫描 -->
+        <typeAlias type="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage" alias="ReflowPackage"/>
     </typeAliases>
+
+    <plugins>
+        <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
+            <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
+            <property name="interceptTableSettings" value="
+                reflow_package=id:id,
+             "/>
+            <property name="replaceNextValue" value="true"/>
+            <property name="replaceExistsNewId" value="true"/>
+        </plugin>
+    </plugins>
 
     <mappers>
         <!-- 箱号与集包袋绑定 -->
         <mapper resource="mappers/mysql/boxmaterialrelation/BoxMaterialRelationMapper.xml"/>
+        <!-- 包裹回流扫描 -->
+        <mapper resource="mappers/mysql/reflowPackage/ReflowPackageMapper.xml"/>
 
     </mappers>
 </configuration>

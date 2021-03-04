@@ -53,6 +53,9 @@ public class BoxRequest extends JdRequest {
 	/** 分组箱号组名 */
 	private String groupName;
 
+	/** 操作人ERP * */
+	private String operateUserErp;
+
 	public String getGroupName() {
 		return groupName;
 	}
@@ -172,6 +175,14 @@ public class BoxRequest extends JdRequest {
 
 	public void setMixBoxType(Integer mixBoxType) {
 		this.mixBoxType = mixBoxType;
+	}
+
+	public String getOperateUserErp() {
+		return operateUserErp;
+	}
+
+	public void setOperateUserErp(String operateUserErp) {
+		this.operateUserErp = operateUserErp;
 	}
 
 	@Override

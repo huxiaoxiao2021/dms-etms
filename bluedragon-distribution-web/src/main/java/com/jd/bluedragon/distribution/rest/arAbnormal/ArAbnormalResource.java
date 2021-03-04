@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,7 @@ public class ArAbnormalResource {
     ArAbnormalService arAbnormalService;
     @POST
     @Path("/arAbnormal/pushArAbnormal")
+    @JProfiler(jKey = "DMS.WEB.ArAbnormalResource.pushArAbnormal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest request){
         ArAbnormalResponse response = new ArAbnormalResponse();
         try{
@@ -46,6 +49,7 @@ public class ArAbnormalResource {
 
     @GET
     @Path("/arAbnormal/getArContrabandReason")
+    @JProfiler(jKey = "DMS.WEB.ArAbnormalResource.getArContrabandReasonList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<ArContrabandReason>> getArContrabandReasonList(){
         InvokeResult<List<ArContrabandReason>> result = new InvokeResult<>();
         try{
@@ -62,6 +66,7 @@ public class ArAbnormalResource {
 
     @GET
     @Path("/arAbnormal/getArContrabandReasonNew/{transpondType}")
+    @JProfiler(jKey = "DMS.WEB.ArAbnormalResource.getArContrabandReasonListNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<ArContrabandReason>> getArContrabandReasonListNew(@PathParam("transpondType") Integer transpondType){
         InvokeResult<List<ArContrabandReason>> result = new InvokeResult<>();
         try{

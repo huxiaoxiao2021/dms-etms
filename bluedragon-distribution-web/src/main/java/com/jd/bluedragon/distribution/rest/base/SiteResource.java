@@ -20,6 +20,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ql.dms.report.domain.StreamlinedSiteQueryCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -59,6 +61,7 @@ public class SiteResource {
 	@GET
 	@GZIP
 	@Path("/site/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getSite(@PathParam("siteCode") Integer siteCode) {
 		return this.siteService.getSite(siteCode);
 	}
@@ -72,6 +75,7 @@ public class SiteResource {
 	 * */
 	@GET
 	@Path("/bases/capacityCode/{capacityCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getCapacityCodeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public RouteTypeResponse getCapacityCodeInfo(@PathParam("capacityCode") String capacityCode) {
 		this.log.info("capacityCode is :{}", capacityCode);
         RouteTypeResponse response = new RouteTypeResponse();
@@ -93,6 +97,7 @@ public class SiteResource {
 	 * */
 	@POST
 	@Path("/bases/querycapacitylist")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.queryCapacityCodeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CapacityCodeResponse queryCapacityCodeInfo(CapacityCodeRequest request) {
 		
 		CapacityCodeResponse response = new CapacityCodeResponse();
@@ -116,6 +121,7 @@ public class SiteResource {
      */
     @GET
     @Path("/bases/siteString/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteString", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getSiteString(@PathParam("siteCode") String siteCode) {
         return this.baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCode);
     }
@@ -128,6 +134,7 @@ public class SiteResource {
      */
     @GET
     @Path("/site/siteWareHourceMerchantByPage/{category}/{pageNo}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteByPageNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSiteByPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
 		CallerInfo info = Profiler.registerInfo("DMS.siteResource.getSiteByPageNo", Constants.UMP_APP_NAME_DMSWEB,false, true);
     	InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
@@ -150,6 +157,7 @@ public class SiteResource {
      */
     @GET
     @Path("/site/getSitesWithPageNo/{category}/{pageNo}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSitesWithPageNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSitesWithPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
         InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
         //按站点类型添加监控
@@ -170,6 +178,7 @@ public class SiteResource {
 	@GET
 	@GZIP
 	@Path("/site/getSitesBySendCode/{sendCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSitesInfoBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<CreateAndReceiveSiteInfo> getSitesInfoBySendCode(@PathParam("sendCode") String sendCode){
 		InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
 
@@ -227,6 +236,7 @@ public class SiteResource {
      */
 	@GET
 	@Path("/bases/getSiteByCodeOrName/{siteCodeOrName}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteByCodeOrName", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<BaseStaffSiteOrgDto>> getSiteByCodeOrName(@PathParam("siteCodeOrName") String siteCodeOrName) {
 		InvokeResult<List<BaseStaffSiteOrgDto>> result = new InvokeResult<>();
 		if (StringHelper.isEmpty(siteCodeOrName)) {

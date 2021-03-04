@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillArgs;
 import com.jd.bluedragon.distribution.waybill.domain.FWaybillResult;
 import com.jd.bluedragon.distribution.waybill.service.FWaybillExchangeService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class FWaybillExchangeResource {
      */
     @Path("/fwaybill/exchange")
     @POST
+    @JProfiler(jKey = "DMS.WEB.FWaybillExchangeResource.exchange", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<FWaybillResult> exchange(FWaybillArgs fWaybillArgs){
         //String[] arr=new String[]{"123","dfsa"};
         //fWaybillArgs.setFWaybills(arr);
@@ -50,22 +53,4 @@ public class FWaybillExchangeResource {
         }
         return exchangeService.exchange(fWaybillArgs);
     }
-
-    /*
-    public static void main(String args[]){
-        //{"businessId":1,"userId":1,"siteId":1,"siteName":"a","fwaybills":["123","dfsa"]}
-        String str="{\"businessId\":1,\"userId\":1,\"siteId\":1,\"siteName\":\"a\",\"fwaybills\":[\"123\",\"dfsa\"]}";
-        FWaybillArgs fWaybillArgs = new FWaybillArgs();
-        String[] arr=new String[]{"123","dfsa"};
-        fWaybillArgs.setFWaybills(arr);
-        fWaybillArgs.setSiteName("a");
-        fWaybillArgs.setSiteId(1);
-        fWaybillArgs.setUserId(1L);
-        fWaybillArgs.setBusinessId(1);
-        System.out.print(JsonUtil.getInstance().object2Json(fWaybillArgs));
-        FWaybillArgs argss=(FWaybillArgs) JsonUtil.getInstance().json2Object(str,FWaybillArgs.class);
-        System.out.print(JsonUtil.getInstance().object2Json(fWaybillArgs));
-    }
-*/
-
 }

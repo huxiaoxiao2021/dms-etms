@@ -23,6 +23,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,6 +72,7 @@ public class ReversePrintResource {
      */
     @POST
     @Path("/reverse/exchange/print")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.handlePrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> handlePrint(ReversePrintRequest request){
         if(log.isInfoEnabled()) {
             log.info("【逆向换单处理打印数据】:{}", request.toString());
@@ -102,6 +105,7 @@ public class ReversePrintResource {
      */
     @GET
     @Path("/reverse/exchange/getNewWaybillCode/{oldWaybillCode}")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.getNewWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> getNewWaybillCode(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<String> result=new InvokeResult<String>();
         try {
@@ -121,6 +125,7 @@ public class ReversePrintResource {
      */
     @GET
     @Path("/reverse/exchange/getNewWaybillCode1/{oldWaybillCode}")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.getNewWaybillCode1", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<RepeatPrint> getNewWaybillCode1(@PathParam("oldWaybillCode") String oldWaybillCode){
         InvokeResult<RepeatPrint> result=new InvokeResult<RepeatPrint>();
         try {
@@ -140,6 +145,7 @@ public class ReversePrintResource {
      */
     @POST
     @Path("/reverse/exchange/getNewWaybillCode")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.getNewWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<RepeatPrint> getNewWaybillCode(ExchangePrintRequest request){
         JdResult<RepeatPrint> result=new JdResult<RepeatPrint>();
         if(StringUtils.isEmpty(request.getOldWaybillCode())){
@@ -184,6 +190,7 @@ public class ReversePrintResource {
      */
     @POST
     @Path("reverse/exchange/ownWaybill")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.exchangeOwnWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> exchangeOwnWaybill(OwnReverseTransferDomain domain){
         InvokeResult<Boolean> result;
         try{
@@ -208,6 +215,7 @@ public class ReversePrintResource {
      */
     @POST
     @Path("reverse/exchange/check")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.exchangeCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> exchangeCheck(OwnReverseTransferDomain domain){
         InvokeResult<Boolean> result;
         try{
@@ -229,6 +237,7 @@ public class ReversePrintResource {
      */
     @POST
     @Path("/reverse/printAfter")
+    @JProfiler(jKey = "DMS.WEB.ReversePrintResource.reversePrintAfter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> reversePrintAfter(ReversePrintRequest request) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);

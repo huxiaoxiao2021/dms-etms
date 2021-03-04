@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.api.response.ElectronSiteResponse;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.electron.service.ElectronSiteService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class ElectronResource {
 	 */
 	@GET
 	@Path("/electronictag/{dmsID}/{waybillorPackCode}")
+	@JProfiler(jKey = "DMS.WEB.ElectronResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public ElectronSiteResponse get(@PathParam("dmsID") Integer dmsID,
 			@PathParam("waybillorPackCode") String waybillorPackCode) {
 		Assert.notNull(dmsID, "dmsID must not be null");
@@ -70,6 +73,7 @@ public class ElectronResource {
 	 */
 	@GET
 	@Path("/taskAreaNo/{dmsID}/{taskAreaNo}")
+	@JProfiler(jKey = "DMS.WEB.ElectronResource.getTaskAreaNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public ElectronSiteResponse getTaskAreaNo(@PathParam("dmsID") Integer dmsID,
 			@PathParam("taskAreaNo") Integer taskAreaNo) {
 		Assert.notNull(dmsID, "dmsID must not be null");

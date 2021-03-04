@@ -151,6 +151,11 @@ public class PopPrintRequest extends JdObject {
 	 */
 	public Integer interfaceType;
 
+	//是否回传揽收
+	private boolean sendPickup = true;
+	//是否回传站点装箱
+	private boolean sendBoxing = true;
+
 	public Integer getInterfaceType() {
 		return interfaceType;
 	}
@@ -354,4 +359,20 @@ public class PopPrintRequest extends JdObject {
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
+
+	public boolean isSendPickup() {
+		return sendPickup;
+	}
+
+	public void setSendPickup(boolean sendPickup) {
+		this.sendPickup = sendPickup;
+	}
+
+	public boolean isSendBoxing() {
+		return sendBoxing;
+	}
+
+	public void setSendBoxing(boolean sendBoxing) {
+		this.sendBoxing = sendBoxing;
+	}
 }

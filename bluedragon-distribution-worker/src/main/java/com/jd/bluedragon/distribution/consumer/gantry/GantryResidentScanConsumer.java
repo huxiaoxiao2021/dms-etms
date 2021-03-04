@@ -59,7 +59,7 @@ public class GantryResidentScanConsumer extends MessageBaseConsumer {
             logger.warn("龙门架驻厂扫描消息转换对象为空!");
             return true;
         }
-        if(StringUtils.isEmpty(dto.getBoxCode())){
+        if(dto.isSendBoxing() && StringUtils.isEmpty(dto.getBoxCode())){
             logger.warn("龙门架驻厂扫描消息【扫描箱号为空】");
             return true;
         }

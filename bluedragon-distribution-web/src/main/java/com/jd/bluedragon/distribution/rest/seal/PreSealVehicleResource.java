@@ -65,6 +65,7 @@ public class PreSealVehicleResource {
     @POST
     @Path("/new/preSeal")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @JProfiler(jKey = "DMS.WEB.PreSealVehicleResource.preSeal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse<Boolean> preSeal(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSeal", Constants.UMP_APP_NAME_DMSWEB, false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>();
@@ -91,6 +92,7 @@ public class PreSealVehicleResource {
     @POST
     @Path("/new/preSealFerry")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10101)
+    @JProfiler(jKey = "DMS.WEB.PreSealVehicleResource.preSealFerry", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse<Boolean> preSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.preSealFerry", Constants.UMP_APP_NAME_DMSWEB, false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -223,6 +225,7 @@ public class PreSealVehicleResource {
     @POST
     @Path("/new/updatePreSeal")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
+    @JProfiler(jKey = "DMS.WEB.PreSealVehicleResource.updatePreSeal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse<Boolean> updatePreSeal(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.updatePreSeal", Constants.UMP_APP_NAME_DMSWEB,false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -246,6 +249,7 @@ public class PreSealVehicleResource {
     @POST
     @Path("/new/updatePreSealFerry")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010, operateType = 10102)
+    @JProfiler(jKey = "DMS.WEB.PreSealVehicleResource.updatePreSealFerry", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse<Boolean> updatePreSealFerry(NewSealVehicleRequest request) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleResource.updatePreSealFerry", Constants.UMP_APP_NAME_DMSWEB,false, true);
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse<>(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
