@@ -201,6 +201,15 @@
 					<entry key="task_board_send_cancel_1321_DMS" value="${jmq.task.topic.boardSendCancel.dms}"/>
 					<entry key="task_board_send_cancel_1321_PRE" value="${jmq.task.topic.boardSendCancel.pre}"/>
 					<entry key="task_board_send_cancel_1321_UAT" value="${jmq.task.topic.boardSendCancel.uat}"/>
+
+					<!-- 按运单发货任务 -->
+					<entry key="task_send_by_waybill_1322_DMS" value="${jmq.task.topic.sendByWaybill.dms}" />
+					<entry key="task_send_by_waybill_1322_PRE" value="${jmq.task.topic.sendByWaybill.split.pre}" />
+					<entry key="task_send_by_waybill_1322_UAT" value="${jmq.task.topic.sendByWaybill.split.uat}" />
+					<!-- 按运单发货拆分任务 -->
+					<entry key="task_send_by_waybill_split_1323_DMS" value="${jmq.task.topic.sendByWaybillSplit.split.dms}" />
+					<entry key="task_send_by_waybill_split_1323_PRE" value="${jmq.task.topic.sendByWaybillSplit.split.pre}" />
+					<entry key="task_send_by_waybill_split_1323_UAT" value="${jmq.task.topic.sendByWaybillSplit.split.uat}" />
 				</map>
 	    	</constructor-arg>
 	    </bean>
