@@ -39,7 +39,7 @@ public class AbnormalWeightForCHandler implements InterceptHandler<WaybillPrintC
 	private String printOperateTypes;
 
 	// 重量的阈值范围
-	@Value("${print.abnormal.weight.weightThresholds:60,1000}")
+	@Value("${print.abnormal.weight.weightThresholds:50,1000}")
 	private String weightThresholds;
 
 	@Override
