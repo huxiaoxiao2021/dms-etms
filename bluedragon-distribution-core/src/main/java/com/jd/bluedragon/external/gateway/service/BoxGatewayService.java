@@ -20,4 +20,5 @@ public interface BoxGatewayService {
 
     JdCResponse<BoxDto> getBoxInfo(String boxCode);
 
+    JdCResponse<Boolean> getInterceptStatus(Integer siteCode);
 }

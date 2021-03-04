@@ -146,4 +146,12 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto);
+
+    /**
+     * 获取BC箱号是否强制绑定循环集包袋校验
+     * @param menuCode
+     * @param siteCode
+     * @return  false 不拦截校验   true 拦截校验
+     */
+    boolean  getBcBoxFilterStatus(Integer menuCode,Integer siteCode);
 }

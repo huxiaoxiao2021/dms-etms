@@ -8,6 +8,8 @@ import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
@@ -34,6 +36,10 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
 
     @Autowired
     private BaseService baseService;
+
+
+    @Autowired
+    private FuncSwitchConfigServiceImpl  funcSwitchConfigService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -102,6 +108,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
      */
     private BoxDto packageBoxDto(BoxResponse boxResponse) {
         BoxDto boxDto = new BoxDto();
+        boxDto.setBoxType(boxResponse.getType());
         boxDto.setBoxCode(boxResponse.getBoxCode());
         boxDto.setCreateSiteCode(boxResponse.getCreateSiteCode());
         boxDto.setCreateSiteName(boxResponse.getCreateSiteName());
@@ -111,4 +118,18 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         boxDto.setTransportType(boxResponse.getTransportType());
         return boxDto;
     }
+
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.getInterceptStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean>  getInterceptStatus(Integer siteCode){
+        JdCResponse<Boolean> jdResponse = new JdCResponse<>();
+        try {
+            Boolean flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+            jdResponse.toSucceed();
+            jdResponse.setData(flag);
+        }catch (Exception e){
+            jdResponse.toError("获取站点拦截状态异常");
+        }
+        return jdResponse;
+    }
+
 }

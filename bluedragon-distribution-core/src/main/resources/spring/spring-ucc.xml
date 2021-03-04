@@ -91,6 +91,7 @@
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
+		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
 
 	</bean>
 
@@ -152,6 +153,7 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
+				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
 			</list>
 		</property>
 	</bean>
