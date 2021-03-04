@@ -555,7 +555,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // TB 调度防止重复
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + "_" + domain.getBoxCode()));
-        log.info("按运单发货任务推送成功：批次号={}，运单号={}" ,domain.getSendCode(), domain.getBoxCode());
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货写入异步任务：task={}" ,JsonHelper.toJsonMs(tTask));
+        }
         tTaskService.add(tTask, true);
     }
 
@@ -569,7 +571,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
         Boolean set = redisClientCache.set(redisKey, "" + totalPackNum, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
         if (log.isInfoEnabled()) {
-            log.info("按运单发货接口处理,锁定运单[{}]结果:{}", waybillCode, set);
+            log.info("按运单发货接口处理,锁定运单:key={}结果:{}", redisKey, set);
         }
         return set;
     }
@@ -581,6 +583,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private void unlockWaybillSend(String waybillCode, Integer createSiteCode) {
         String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
         redisClientCache.del(redisKey);
+        log.info("按运单发货移除运单锁:key={}",redisKey);
     }
 
     // 按运单发货，锁定整个运单，防止重复处理
@@ -3116,6 +3119,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     private void unlockWaybillByPack(List<SendM> tSendM) {
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货解锁运单中的包裹:{}", JsonHelper.toJsonMs(tSendM));
+        }
         if (CollectionUtils.isEmpty(tSendM)) {
             return;
         }
@@ -3128,12 +3134,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                     String s = redisClientCache.get(waybillLockKey);
                     if (StringUtils.isEmpty(s)) {
+                        log.warn("按运单发货解锁运单中的包裹,key={}运单总包裹数获取为空!", waybillLockKey);
                         return;
                     }
-                    if (redisClientCache.bitCount(packLockKey).intValue() == Integer.parseInt(s)) {
+                    int packCount = redisClientCache.bitCount(packLockKey).intValue();
+                    int totalPack = Integer.parseInt(s);
+                    log.info("按运单发货解锁运单中的包裹,key={}运单总包裹数:{},已处理包裹数:{}", tSendM, s, packCount);
+                    if (packCount == totalPack) {
                         redisClientCache.del(waybillLockKey);
                         redisClientCache.del(packLockKey);
-                        log.info("按运单发货所有包裹处理完成,移除运单锁:packNo={}", sendM.getBoxCode());
+                        log.info("按运单发货所有包裹处理完成,移除运单锁:packLockKey={}", packLockKey);
                     }
                 }
             }
@@ -5722,7 +5732,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // TB 调度防止重复
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + "_" + domain.getBoxCode() + "_" + tTask.getKeyword2()));
-        log.info("按运单发货任务处理,拆分任务推送成功：批次号={}，运单号={},pageNo={},pageSize={}", domain.getSendCode(), domain.getBoxCode(), pageNo, pageSize);
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货任务处理,开始写入拆分任务：task={}", JsonHelper.toJsonMs(tTask));
+        }
+
         tTaskService.add(tTask, true);
     }
 
@@ -5742,6 +5755,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         } catch (Exception e) {
             log.error("锁定包裹异常:createSiteCode:{},packageCode:{}", createSiteCode, packageCode);
         }
+        log.info("lockWaybillByPack锁定包裹-locked={}:createSiteCode={},packageCode={}", locked, createSiteCode, packageCode);
         return locked;
     }
 
