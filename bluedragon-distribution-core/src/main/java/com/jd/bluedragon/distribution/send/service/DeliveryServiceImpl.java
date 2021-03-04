@@ -562,7 +562,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
 
         // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
-        Boolean set = redisClientCache.set(redisKey, "" + totalPackNum, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
+        Boolean set = redisClientCache.set(redisKey, "" + totalPackNum, REDIS_CACHE_EXPIRE_TIME, TimeUnit.MINUTES, false);
         if (log.isInfoEnabled()) {
             log.info("按运单发货接口处理,锁定运单[{}]结果:{}", waybillCode, set);
         }
