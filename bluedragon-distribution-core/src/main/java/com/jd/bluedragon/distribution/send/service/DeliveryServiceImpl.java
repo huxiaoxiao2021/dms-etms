@@ -513,12 +513,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         // 校验是否已有包裹操作过发货
         if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
-            result.init(DeliveryResponse.CODE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK);
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK);
             return result;
         }
         // 锁定运单发货
         if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
-            result.init(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
             return result;
         }
         try {
