@@ -49,7 +49,7 @@
         <property name="desc" value="分拣中心按运单发货任务"/>
     </bean>
 
-    <bean id="waybillSendDeliverySplitTask" class="com.jd.bluedragon.distribution.worker.delivery.WaybillSendDeliveryTask"
+    <bean id="waybillSendDeliverySplitTask" class="com.jd.bluedragon.distribution.worker.delivery.WaybillSendDeliverySplitTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="taskType" value="waybillSendDeliverySplitTaskN"/>
