@@ -2138,6 +2138,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return true;
     }
 
+    @Override
+    public UnloadCar selectBySealCarCode(String sealCarCode) {
+        return unloadCarDao.selectBySealCarCode(sealCarCode);
+    }
+
     private boolean batchSaveUnloadScan(TmsSealCar tmsSealCar, UnloadCar unloadCar) {
         CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.batchSaveUnloadScan", false, true);
         try {
