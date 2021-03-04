@@ -87,7 +87,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest cRequest) {
         // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
-        request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
+        request.setBizSource(SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource()) ? SendBizSourceEnum.WAYBILL_SEND.getCode() : SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         request.setIsForceSend(cRequest.isForceSend());
         request.setIsCancelLastSend(cRequest.isCancelLastSend());
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
