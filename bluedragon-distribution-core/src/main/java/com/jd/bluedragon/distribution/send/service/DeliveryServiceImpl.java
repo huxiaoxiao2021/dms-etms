@@ -523,7 +523,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         try {
             // 写入按运单发货任务
-            pushWaybillSendTask(domain, Task.TASK_TYPE_WAYBILL_SEND);
+            pushWaybillSendTask(domain, Task.TASK_TYPE_SEND_DELIVERY);
         } catch (Throwable e) {
             unlockWaybillSend(waybillCode, createSiteCode);
             log.error("写入按运单发货任务出错:waybill={}", waybillCode, e);
@@ -5667,7 +5667,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 按包裹分页 拆分任务调用一车一单发货逻辑
         int splitSize = (waybill.getGoodNumber() / pageSize) + 1;
         for (int i = 1; i <= splitSize; i++) {
-            pushWaybillSendSplitTask(domain, Task.TASK_TYPE_WAYBILL_SEND_SPLIT, i, pageSize);
+            pushWaybillSendSplitTask(domain, Task.TASK_TYPE_SEND_DELIVERY, i, pageSize);
         }
         log.info("按运单发货任务处理,完成 waybillCode={}", waybillCode);
 
