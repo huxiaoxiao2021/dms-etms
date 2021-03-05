@@ -202,6 +202,12 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_RE_PRINT_REPEAT = 30122;
     public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
+    public static final Integer CODE_PRINT_WEIGHT_WARNING = 30123;
+    public static final String MESSAGE_CODE_PRINT_WEIGHT_WARNING = "包裹重量为{0}，是否确定称重打印？";
+
+    public static final Integer CODE_PRINT_WEIGHT_ALTER = 30124;
+    public static final String MESSAGE_CODE_PRINT_WEIGHT_ALTER = "重量错误，请重新称重！";
+
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";
 
