@@ -80,6 +80,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //封装记录
             ExpressBillExceptionReport record = this.assembleRecord(reportRequest);
+
+            //封装商城订单号
+            this.assembleWayBillOrderId(reportRequest.getPackageCode(),record);
+
             //3.数据增加
             expressBillExceptionReportDao.insertReport(record);
             result.toSucceed("举报成功");
@@ -90,6 +94,20 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.setData(false);
         }
         return result;
+    }
+
+    /**
+     * 活动包裹订单号
+     * @param packageCode
+     */
+    private void assembleWayBillOrderId(String packageCode,ExpressBillExceptionReport record) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        String orderId =  waybillQueryManager.getOrderCodeByWaybillCode(waybillCode,true);
+        if(StringUtils.isNotEmpty(orderId)){
+            record.setOrderId(orderId);
+        }else {
+            log.warn("面单异常举报获取运单订单号为空 waybillCode:{}",waybillCode);
+        }
     }
 
     /**
