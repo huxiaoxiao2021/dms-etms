@@ -281,27 +281,27 @@
                     </dependency>
                 </dependencies>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<reportPlugins>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>findbugs-maven-plugin</artifactId>
-							<version>2.3.1</version>
-						</plugin>
-						<plugin>
-							<artifactId>maven-pmd-plugin</artifactId>
-							<version>2.7.1</version>
-							<configuration>
-								<targetJdk>1.6</targetJdk>
-							</configuration>
-						</plugin>
-					</reportPlugins>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-site-plugin</artifactId>-->
+<!--				<version>3.0</version>-->
+<!--				<configuration>-->
+<!--					<reportPlugins>-->
+<!--						<plugin>-->
+<!--							<groupId>org.codehaus.mojo</groupId>-->
+<!--							<artifactId>findbugs-maven-plugin</artifactId>-->
+<!--							<version>2.3.1</version>-->
+<!--						</plugin>-->
+<!--						<plugin>-->
+<!--							<artifactId>maven-pmd-plugin</artifactId>-->
+<!--							<version>2.7.1</version>-->
+<!--							<configuration>-->
+<!--								<targetJdk>1.6</targetJdk>-->
+<!--							</configuration>-->
+<!--						</plugin>-->
+<!--					</reportPlugins>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.sonarsource.scanner.maven</groupId>
 				<artifactId>sonar-maven-plugin</artifactId>

@@ -346,7 +346,7 @@ public class InspectionResource {
 	 */
 	@GET
 	@Path("/inspection/getWaybillPackage/{packageOrWaybillCode}/{siteCode}/{receiveSiteCodeORBoxCode}")
-	@JProfiler(jKey = "DMS.WEB.InspectionResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.getWaybillPackage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse get(
 			@PathParam("packageOrWaybillCode") String code,
 			@PathParam("siteCode") Integer siteCode,
@@ -395,7 +395,7 @@ public class InspectionResource {
 
 	@GET
 	@Path("/inspection")
-	@JProfiler(jKey = "DMS.WEB.InspectionResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.inspection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public HandoverResponse get(@QueryParam("type") String type,
 			@QueryParam("createSiteCode") int createSiteCode,
 			@QueryParam("startTime") String startTime,

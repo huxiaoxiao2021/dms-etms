@@ -357,7 +357,7 @@ public class NewSealVehicleResource {
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 101103)
-    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newCheckTranCodeAndBatchCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.check", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(
             @PathParam("transportCode") String transportCode, @PathParam("batchCode") String batchCode, @PathParam("sealCarType") Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
