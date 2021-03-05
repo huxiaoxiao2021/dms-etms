@@ -58,7 +58,7 @@ public class FastRefundResource {
 	
 	@POST
 	@Path("/fastrefundmq")
-	@JProfiler(jKey = "DMS.WEB.FastRefundResource.fastRefund", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jKey = "DMS.WEB.FastRefundResource.fastrefundmq", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse fastRefund(FastRefundRequest fastRefundRequest) {
 		try{
 			String result = fastRefundService.execRefund(fastRefundRequest);

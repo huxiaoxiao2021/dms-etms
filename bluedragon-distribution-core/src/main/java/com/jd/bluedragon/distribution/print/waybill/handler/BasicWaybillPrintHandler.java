@@ -315,21 +315,21 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.appendRemark(scheduleCode);
         }
 
-        //sendpay的第153位为“1”，remark追加【合并送】
-        if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
-            commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
-        }
-
-        //路区-为空尝试从运单里获取
-        if(StringHelper.isEmpty(roadCode)){
-            if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
-                roadCode = tmsWaybill.getRoadCode();
-            }else{
-                roadCode = "0";
+            //sendpay的第153位为“1”，remark追加【合并送】
+            if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
+                commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
-        }
-        commonWaybill.setRoad(roadCode);
-        commonWaybill.setRoadCode(roadCode);
+
+        	//路区-为空尝试从运单里获取
+        	if(StringHelper.isEmpty(roadCode)){
+        		if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
+        			roadCode = tmsWaybill.getRoadCode();
+        		}else{
+        			roadCode = "0";
+        		}
+        	}
+        	commonWaybill.setRoad(roadCode);
+        	commonWaybill.setRoadCode(roadCode);
 
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
@@ -443,11 +443,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param context
      */
     private final void loadPrintedData(WaybillPrintContext context){
-        WaybillPrintResponse printWaybill = context.getResponse();
-        printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
+    	WaybillPrintResponse printWaybill = context.getResponse();
+    	printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
         for (int i = 0; i < printWaybill.getPackList().size(); i++) {
-            printWaybill.getPackList().get(i).setIsPrintPack(
-                    context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);
+        	printWaybill.getPackList().get(i).setIsPrintPack(
+        			context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);
         }
     }
     /**
@@ -464,11 +464,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
                 && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
-            JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
+        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
             if(jdResult.isSucceed()) {
                 tag=jdResult.getData();
             }else{
-                log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
+            	log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
             }
         }
         log.info("loadBasicData-waybillCode[{}]tag[{}]baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]",waybill.getWaybillCode(), JsonHelper.toJson(tag),
@@ -485,7 +485,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setPrintAddress(tag.getPrintAddress());
             }
             if (BusinessUtil.isZiTiByWaybillSign(waybill.getWaybillSign())
-                    || BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())
+            		|| BusinessUtil.isZiTiGuiByWaybillSign(waybill.getWaybillSign())
                     || BusinessUtil.isZiTiDianByWaybillSign(waybill.getWaybillSign())
                     || BusinessUtil.isWrcps(waybill.getSendPay())) {
                 if (StringHelper.isNotEmpty(tag.getPrintAddress()) && !BusinessUtil.isBusinessNet(waybill.getWaybillSign())) {
