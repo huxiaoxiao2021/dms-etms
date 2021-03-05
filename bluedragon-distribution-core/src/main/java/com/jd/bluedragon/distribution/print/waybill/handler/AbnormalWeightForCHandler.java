@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -64,7 +65,7 @@ public class AbnormalWeightForCHandler implements InterceptHandler<WaybillPrintC
 					// 强拦截状态，提示确认重量
 					if (weight > thresholdLow && weight <= thresholdHigh) {
 						if (!Objects.equals(Boolean.TRUE, request.getConfirm())) {
-							context.getResult().toNeedConfirmStatus(JdResponse.CODE_PRINT_WEIGHT_WARNING, JdResponse.MESSAGE_CODE_PRINT_WEIGHT_WARNING);
+							context.getResult().toNeedConfirmStatus(JdResponse.CODE_PRINT_WEIGHT_WARNING, MessageFormat.format(JdResponse.MESSAGE_CODE_PRINT_WEIGHT_WARNING, weight));
 						}
 					}
 					// 强制拦截状态，不通过
