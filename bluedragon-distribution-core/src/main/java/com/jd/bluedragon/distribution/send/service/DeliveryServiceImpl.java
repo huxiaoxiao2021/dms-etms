@@ -5661,6 +5661,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             log.error("获取运单中的包裹数量异常!{}", JsonHelper.toJsonMs(task));
             return false;
         }
+        lockWaybillSend(waybillCode, domain.getCreateSiteCode(), waybill.getGoodNumber());
         // 按运单补分拣任务
         pushSorting(domain);
         log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", waybillCode);
