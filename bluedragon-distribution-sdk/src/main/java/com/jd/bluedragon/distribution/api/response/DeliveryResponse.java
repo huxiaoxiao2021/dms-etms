@@ -116,6 +116,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_20020 = 20020;
     public static final String MESSAGE_20020 = "文件包裹未集包禁止发货";
 
+    public static final Integer CODE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = 30013;
+    public static final String MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = "该单号下已有包裹发货，请继续按包裹发货";
+
     /**
      * 快运-拦截标识
      */
