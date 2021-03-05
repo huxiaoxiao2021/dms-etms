@@ -387,12 +387,14 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             //如果有预发时间
             if (predictSendTime!=null && transportType!=null){
                 if (getRemoteRouter(result,originalDmsId,destinationDmsId,predictSendTime,transportType)){
+                    log.info("查询CrossRouter-originalDmsId[{}]destinationDmsId[{}]predictSendTime[{}]transportType[{}]result[{}]",originalDmsId,destinationDmsId,DateHelper.formatDate(predictSendTime),transportType,JsonHelper.toJson(result));
                     return result;
                 }
             }
             //路由系统没返回路由信息  查本地
             if(transportType!=null && (Box.BOX_TRANSPORT_TYPE_HIGHWAY.equals(transportType)|| Box.BOX_TRANSPORT_TYPE_CITY.equals(transportType))){
                 getCrossRouter(originalDmsId, destinationDmsId, result);
+                log.info("查询CrossRouter-originalDmsId[{}]destinationDmsId[{}]result[{}]",originalDmsId,destinationDmsId,JsonHelper.toJson(result));
             }
         } catch (Exception e) {
             Profiler.functionError(info);
