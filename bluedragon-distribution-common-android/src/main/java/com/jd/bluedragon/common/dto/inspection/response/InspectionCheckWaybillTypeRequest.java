@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.api.request.material;
+package com.jd.bluedragon.common.dto.inspection.response;
 
 import java.io.Serializable;
 
