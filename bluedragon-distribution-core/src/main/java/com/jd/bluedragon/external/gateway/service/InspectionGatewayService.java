@@ -1,11 +1,13 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
+import com.jd.bluedragon.distribution.api.request.material.InspectionCheckWaybillTypeRequest;
 
 /**
  * 验货相关
@@ -20,4 +22,6 @@ public interface InspectionGatewayService {
     JdCResponse<InspectionCheckResultDto> hintCheck(HintCheckRequest request);
 
     JdCResponse<String> getThirdWaybillPackageCode(ThirdWaybillReq request);
+
+    JdVerifyResponse checkWaybillType(InspectionCheckWaybillTypeRequest request);
 }
