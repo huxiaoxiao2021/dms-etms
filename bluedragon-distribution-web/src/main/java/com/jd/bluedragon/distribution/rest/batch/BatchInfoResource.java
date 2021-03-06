@@ -35,6 +35,7 @@ public class BatchInfoResource {
 
     @POST
     @Path("/batchInfo/addbatchinfo")
+    @JProfiler(jKey = "DMS.WEB.BatchInfoResource.addBatchInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BatchInfoResponse addBatchInfo(BatchInfoRequest request) {
         Assert.notNull(request.getCreateSiteCode(), "波次创建站点号不能为空");
         Assert.notNull(request.getCreateUser(), "波次创建人");
@@ -50,6 +51,7 @@ public class BatchInfoResource {
 
     @POST
     @Path("/batchInfo/updatebatchinfo")
+    @JProfiler(jKey = "DMS.WEB.BatchInfoResource.updateBatchInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BatchInfoResponse updateBatchInfo(BatchInfoRequest request) {
         Assert.notNull(request.getCreateSiteCode(), "波次创建站点号不能为空");
         Assert.notNull(request.getCreateUser(), "波次创建人");
@@ -65,6 +67,7 @@ public class BatchInfoResource {
 
     @GET
     @Path("/batchinfo/findMaxCreqteTimeBatchInfo/{createSiteCode}")
+    @JProfiler(jKey = "DMS.WEB.BatchInfoResource.findMaxCreqteTimeBatchInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BatchInfoResponse findMaxCreqteTimeBatchInfo(@PathParam("createSiteCode") Integer createSiteCode) {
         Assert.notNull(createSiteCode, "站点号不能为空!");
         BatchInfo batchInfo = new BatchInfo();
@@ -85,6 +88,7 @@ public class BatchInfoResource {
 
     @GET
     @Path("/batch/findBatchInfo/{createSiteCode}")
+    @JProfiler(jKey = "DMS.WEB.BatchInfoResource.findBatchInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BatchInfoResponse findBatchInfo(@PathParam("createSiteCode") Integer createSiteCode) {
         Assert.notNull(createSiteCode, "createSiteCode must not be null");
         BatchInfo batchInfo = new BatchInfo();

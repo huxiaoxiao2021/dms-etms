@@ -13,6 +13,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
@@ -69,6 +71,7 @@ public class PopQueueResource {
 	@GET
 	@POST
 	@Path("/popQueue/add")
+	@JProfiler(jKey = "DMS.WEB.PopQueueResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopQueueResponse add(PopQueueRequest popQueueRequest) {
 		PopQueueResponse response = new PopQueueResponse();
 		try {
@@ -147,6 +150,7 @@ public class PopQueueResource {
 	@GET
 	@POST
 	@Path("/popQueue/start/{queueNo}")
+	@JProfiler(jKey = "DMS.WEB.PopQueueResource.update", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopQueueResponse update(@PathParam("queueNo") String queueNo) {
 		PopQueueResponse response = new PopQueueResponse();
 		response.setQueueNo(queueNo);
@@ -206,6 +210,7 @@ public class PopQueueResource {
 	@GET
 	@POST
 	@Path("/popQueue/finish/{queueNo}")
+	@JProfiler(jKey = "DMS.WEB.PopQueueResource.updateReicieveFinishState", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopQueueResponse updateReicieveFinishState(@PathParam("queueNo") String queueNo) {
 		PopQueueResponse response = new PopQueueResponse();
 		try {
@@ -255,6 +260,7 @@ public class PopQueueResource {
 	 */
 	@POST
 	@Path("/popQueue/getExpressList")
+	@JProfiler(jKey = "DMS.WEB.PopQueueResource.getExpressList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public ExpressResponse getExpressList(PopQueueRequest popQueueRequest) {
 		ExpressResponse response = new ExpressResponse();
 		response.setCode(response.CODE_OK);

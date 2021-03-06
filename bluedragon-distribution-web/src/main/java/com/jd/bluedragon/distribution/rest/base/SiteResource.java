@@ -5,7 +5,9 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.BasicSiteDto;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
+import com.jd.bluedragon.distribution.api.request.SiteQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -16,18 +18,25 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
+import com.jd.ql.dms.report.domain.StreamlinedSiteQueryCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -36,17 +45,23 @@ import java.util.List;
 @Produces({ MediaType.APPLICATION_JSON })
 public class SiteResource {
 
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+	/**
+	 * 站点查询数量最大限制
+	 */
+	private static final int MAX_QUERY_LIMIT = 100;
+
 	@Autowired
 	private SiteService siteService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-
 	@GET
 	@GZIP
 	@Path("/site/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseStaffSiteOrgDto getSite(@PathParam("siteCode") Integer siteCode) {
 		return this.siteService.getSite(siteCode);
 	}
@@ -60,6 +75,7 @@ public class SiteResource {
 	 * */
 	@GET
 	@Path("/bases/capacityCode/{capacityCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getCapacityCodeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public RouteTypeResponse getCapacityCodeInfo(@PathParam("capacityCode") String capacityCode) {
 		this.log.info("capacityCode is :{}", capacityCode);
         RouteTypeResponse response = new RouteTypeResponse();
@@ -81,6 +97,7 @@ public class SiteResource {
 	 * */
 	@POST
 	@Path("/bases/querycapacitylist")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.queryCapacityCodeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CapacityCodeResponse queryCapacityCodeInfo(CapacityCodeRequest request) {
 		
 		CapacityCodeResponse response = new CapacityCodeResponse();
@@ -104,6 +121,7 @@ public class SiteResource {
      */
     @GET
     @Path("/bases/siteString/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteString", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffSiteOrgDto getSiteString(@PathParam("siteCode") String siteCode) {
         return this.baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCode);
     }
@@ -116,6 +134,7 @@ public class SiteResource {
      */
     @GET
     @Path("/site/siteWareHourceMerchantByPage/{category}/{pageNo}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteByPageNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSiteByPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
 		CallerInfo info = Profiler.registerInfo("DMS.siteResource.getSiteByPageNo", Constants.UMP_APP_NAME_DMSWEB,false, true);
     	InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
@@ -138,6 +157,7 @@ public class SiteResource {
      */
     @GET
     @Path("/site/getSitesWithPageNo/{category}/{pageNo}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSitesWithPageNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSitesWithPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
         InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
         //按站点类型添加监控
@@ -158,6 +178,7 @@ public class SiteResource {
 	@GET
 	@GZIP
 	@Path("/site/getSitesBySendCode/{sendCode}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSitesInfoBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<CreateAndReceiveSiteInfo> getSitesInfoBySendCode(@PathParam("sendCode") String sendCode){
 		InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
 
@@ -215,6 +236,7 @@ public class SiteResource {
      */
 	@GET
 	@Path("/bases/getSiteByCodeOrName/{siteCodeOrName}")
+	@JProfiler(jKey = "DMS.WEB.SiteResource.getSiteByCodeOrName", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<BaseStaffSiteOrgDto>> getSiteByCodeOrName(@PathParam("siteCodeOrName") String siteCodeOrName) {
 		InvokeResult<List<BaseStaffSiteOrgDto>> result = new InvokeResult<>();
 		if (StringHelper.isEmpty(siteCodeOrName)) {
@@ -230,6 +252,95 @@ public class SiteResource {
 		}
 		result.setData(resList);
 		return result;
+	}
+
+	/**
+	 * 根据条件查询站点
+	 * @param request
+	 * @return
+	 */
+	@POST
+	@Path("/bases/querySiteFromStreamlinedSite")
+	public InvokeResult<List<BasicSiteDto>> querySiteFromStreamlinedSite(SiteQueryRequest request) {
+		InvokeResult<List<BasicSiteDto>> result = new InvokeResult<>();
+		if(request == null || request.getFetchNum() == null){
+			result.parameterError(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+		// 查询数量限制：100
+		if(request.getFetchNum() > MAX_QUERY_LIMIT){
+			request.setFetchNum(MAX_QUERY_LIMIT);
+		}
+		List<StreamlinedBasicSite> streamlinedBasicSites
+				= baseMajorManager.querySiteByConditionFromStreamlinedSite(convertToQueryCondition(request), request.getFetchNum());
+		result.setData(convertToBasicSite(streamlinedBasicSites));
+		return result;
+	}
+
+	/**
+	 * 转换为客户端站点对象
+	 * @param streamlinedBasicSiteList
+	 * @return
+	 */
+	private List<BasicSiteDto> convertToBasicSite(List<StreamlinedBasicSite> streamlinedBasicSiteList) {
+		List<BasicSiteDto> list = new ArrayList<>();
+		if(CollectionUtils.isNotEmpty(streamlinedBasicSiteList)){
+			for (StreamlinedBasicSite site : streamlinedBasicSiteList){
+				BasicSiteDto basicSiteDto = new BasicSiteDto();
+				BeanUtils.copyProperties(site,basicSiteDto);
+				basicSiteDto.setId(site.getSiteCode());
+				basicSiteDto.setName(site.getSiteName());
+				basicSiteDto.setDmsCode(site.getDmsSiteCode());
+				basicSiteDto.setType(site.getSiteType());
+				basicSiteDto.setPinyinCode(site.getSiteNamePym());
+				basicSiteDto.setSortingCenterId(site.getDmsId());
+				basicSiteDto.setSortingCenterName(site.getDmsName());
+				basicSiteDto.setParentId(site.getParentSiteCode());
+				basicSiteDto.setParentName(site.getParentSiteName());
+				list.add(basicSiteDto);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 查询条件转换
+	 * @param request
+	 * @return
+	 */
+	private StreamlinedSiteQueryCondition convertToQueryCondition(SiteQueryRequest request) {
+		StreamlinedSiteQueryCondition queryCondition = new StreamlinedSiteQueryCondition();
+		if(request.getSiteId() != null && request.getSiteId() > Constants.NUMBER_ZERO){
+			queryCondition.setSiteCodes(Collections.singletonList(request.getSiteId()));
+		}
+		if(StringUtils.isNotEmpty(request.getSiteName())){
+			queryCondition.setSiteName(request.getSiteName());
+		}
+		if(StringUtils.isNotEmpty(request.getDmsCode())){
+			queryCondition.setDmsCode(request.getDmsCode());
+		}
+		if(StringUtils.isNotEmpty(request.getSiteNamePym())){
+			queryCondition.setSiteNamePym(request.getSiteNamePym());
+		}
+		if(CollectionUtils.isNotEmpty(request.getSiteTypeList())){
+			queryCondition.setSiteTypes(request.getSiteTypeList());
+		}
+		if(CollectionUtils.isNotEmpty(request.getSubTypeList())){
+			queryCondition.setSubTypes(request.getSubTypeList());
+		}
+		if(request.getOrgId() != null && request.getOrgId() > Constants.NUMBER_ZERO){
+			queryCondition.setOrgIds(Collections.singletonList(request.getOrgId()));
+		}
+		if(request.getProvinceId() != null && request.getProvinceId() > Constants.NUMBER_ZERO){
+			queryCondition.setProvinceIds(Collections.singletonList(request.getProvinceId()));
+		}
+		if(request.getCityId() != null && request.getCityId() > Constants.NUMBER_ZERO){
+			queryCondition.setCityIds(Collections.singletonList(request.getCityId()));
+		}
+		if(request.getCountryId() != null && request.getCountryId() > Constants.NUMBER_ZERO){
+			queryCondition.setCountryIds(Collections.singletonList(request.getCountryId()));
+		}
+		return queryCondition;
 	}
 
 }

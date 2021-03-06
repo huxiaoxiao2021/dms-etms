@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,7 @@ public class BoxPackResource {
 	 */
 	@GET
 	@Path("/boxPackList/{createSiteCode}/{code}/{type}")
+	@JProfiler(jKey = "DMS.WEB.BoxPackResource.getBoxPackList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BoxPackResponse getBoxPackList(
 			@PathParam("createSiteCode") Integer createSiteCode,
 			@PathParam("code") String code, @PathParam("type") Integer type) {
@@ -90,6 +93,7 @@ public class BoxPackResource {
 	 */
 	@GET
 	@Path("/boxPack/{createSiteCode}/{boxCode}")
+	@JProfiler(jKey = "DMS.WEB.BoxPackResource.getBoxPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BoxPackResponse getBoxPack(
 			@PathParam("createSiteCode") Integer createSiteCode,
 			@PathParam("boxCode") String boxCode) {

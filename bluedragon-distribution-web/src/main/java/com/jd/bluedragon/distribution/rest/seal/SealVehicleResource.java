@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.api.request.SealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
 import com.jd.bluedragon.distribution.seal.service.SealVehicleService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +35,7 @@ public class SealVehicleResource {
 
 	@GET
 	@Path("/seal/vehicle/{sealCode}")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.findSealByCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse findSealByCode(
 			@PathParam("sealCode") String sealCode) {
 		if (StringUtils.isBlank(sealCode)) {
@@ -60,6 +63,7 @@ public class SealVehicleResource {
 
 	@POST
 	@Path("/seal/vehicle")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse add(SealVehicleRequest request) {
 		if (request == null || StringUtils.isBlank(request.getSealCode())
 				|| StringUtils.isBlank(request.getVehicleCode())
@@ -88,6 +92,7 @@ public class SealVehicleResource {
 	 */
 	@POST
 	@Path("/seal/vehicle2")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.add2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse add2(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{
@@ -114,6 +119,7 @@ public class SealVehicleResource {
 
 	@PUT
 	@Path("/seal/vehicle")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.update", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse update(SealVehicleRequest request) {
 		if (request == null || StringUtils.isBlank(request.getSealCode())
 				|| StringUtils.isBlank(request.getVehicleCode())
@@ -137,6 +143,7 @@ public class SealVehicleResource {
 
 	@PUT
 	@Path("/seal/vehicle2")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.update2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse update2(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{
@@ -171,6 +178,7 @@ public class SealVehicleResource {
 	 */
 	@POST
 	@Path("/seal/vehicle3")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.add3", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse add3(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{
@@ -197,6 +205,7 @@ public class SealVehicleResource {
 	
 	@PUT
 	@Path("/seal/vehicle3")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.update3", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse update3(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{
@@ -221,7 +230,8 @@ public class SealVehicleResource {
 	}
 	
 	@GET
-	@Path("/seal/{vehicleCode}")   
+	@Path("/seal/{vehicleCode}")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.findByVehicleCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse findByVehicleCode(@PathParam("vehicleCode") String vehicleCode) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		if (StringUtils.isBlank(vehicleCode)) {
@@ -264,6 +274,7 @@ public class SealVehicleResource {
 	
 	@POST
 	@Path("/seal/vehicle/cancel")
+	@JProfiler(jKey = "DMS.WEB.SealVehicleResource.cancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SealVehicleResponse cancel(SealVehicleRequest request) {
 		SealVehicleResponse sealVehicleResponse = new SealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
 		try{

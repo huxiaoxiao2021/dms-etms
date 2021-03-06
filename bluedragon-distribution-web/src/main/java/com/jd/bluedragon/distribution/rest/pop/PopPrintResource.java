@@ -73,6 +73,7 @@ public class PopPrintResource {
 	 */
 	@GET
 	@Path("/popPrint/findByWaybillCode/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.findByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopPrintResponse findByWaybillCode(
 			@PathParam("waybillCode") String waybillCode) {
 		if (!WaybillUtil.isWaybillCode(waybillCode)) {
@@ -108,6 +109,7 @@ public class PopPrintResource {
 	 */
 	@POST
 	@Path("/popPrint/savePopPrint")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.savePopPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopPrintResponse savePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
 				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
@@ -217,6 +219,7 @@ public class PopPrintResource {
 	
 	@POST
 	@Path("/popPrint/forceSavePopPrint/for")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.forceSavePopPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopPrintResponse forceSavePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
 				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
@@ -265,6 +268,7 @@ public class PopPrintResource {
 	
 	@GET
 	@Path("/popPrint/redisMode/on")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.redisModeOn", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String redisModeOn() {
 		isRedisModeAllowed = true;
 		return "Success";
@@ -272,6 +276,7 @@ public class PopPrintResource {
 
 	@GET
 	@Path("/popPrint/redisMode/off")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.redisModeOff", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String redisModeOff() {
 		isRedisModeAllowed = false;
 		return "Success";
@@ -279,6 +284,7 @@ public class PopPrintResource {
 	
 	@GET
 	@Path("/popPrint/redisMode/info")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.redisModeInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String redisModeInfo() {
 		if(isRedisModeAllowed){
 			return "开";
@@ -289,6 +295,7 @@ public class PopPrintResource {
 	
 	@POST
 	@Path("/popPrint/move2DB")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.moveRedisToDB", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String moveRedisToDB() {
 		try {
 			long len = redisManager
@@ -312,6 +319,7 @@ public class PopPrintResource {
 	
 	@GET
 	@Path("/popPrint/redis/len")
+	@JProfiler(jKey = "DMS.WEB.PopPrintResource.getRedisLen", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String getRedisLen() {
 		try {
 			long len = redisManager
