@@ -258,4 +258,15 @@ public class DmsBaseDictServiceImpl extends BaseService<DmsBaseDict> implements 
 	public List<DmsBaseDict> queryAllGroups() {
 		return dmsBaseDictDao.queryAllGroups();
 	}
+
+
+	/**
+	 * 根据条件查询带顺所有节点
+	 * @param dmsBaseDictCondition
+	 * @return
+	 */
+	@Override
+	public List<DmsBaseDict> queryOrderByCondition(DmsBaseDictCondition dmsBaseDictCondition){
+		return  dmsBaseDictDao.queryOrderByCondition(dmsBaseDictCondition);
+	}
 }

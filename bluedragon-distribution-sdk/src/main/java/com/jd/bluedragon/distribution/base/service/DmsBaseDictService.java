@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
@@ -114,4 +115,11 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
      * @return
      */
 	List<DmsBaseDict> queryAllGroups();
+
+    /**
+     * 根据条件查询排序节点
+     * @param dmsBaseDictCondition
+     * @return
+     */
+	List<DmsBaseDict> queryOrderByCondition(DmsBaseDictCondition dmsBaseDictCondition);
 }
