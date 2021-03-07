@@ -45,7 +45,7 @@ public class DmsBaseDictDaoImpl extends BaseDao<DmsBaseDict> implements DmsBaseD
      */
     @Override
     public List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition) {
-        return this.sqlSession.selectList(getNameSpace()+".queryOrderByCondition");
+        return this.sqlSession.selectList(getNameSpace()+".queryOrderByCondition",pagerCondition);
     }
 
 
