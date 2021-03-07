@@ -31,5 +31,5 @@ public interface DmsBaseDictDao extends Dao<DmsBaseDict> {
 
 
 	//排序查询
-    List<DmsBaseDict> queryOrderByCondition(DmsBaseDictCondition dmsBaseDictCondition);
+    List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition);
 }

@@ -118,8 +118,8 @@ public interface DmsBaseDictService extends Service<DmsBaseDict> {
 
     /**
      * 根据条件查询排序节点
-     * @param dmsBaseDictCondition
+     * @param pagerCondition
      * @return
      */
-	List<DmsBaseDict> queryOrderByCondition(DmsBaseDictCondition dmsBaseDictCondition);
+	List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition);
 }
