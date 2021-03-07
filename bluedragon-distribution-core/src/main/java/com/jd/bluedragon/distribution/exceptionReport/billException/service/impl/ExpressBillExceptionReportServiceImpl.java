@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressB
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
@@ -199,8 +200,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     }
 
     private Map<Integer,String > getDictMap(){
-        List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
-        Map<Integer, String> map = new HashMap<Integer, String>();
+        DmsBaseDictCondition condition = new DmsBaseDictCondition();
+        condition.setParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
+        List<DmsBaseDict> list = dmsBaseDictService.queryOrderByCondition(condition);
+        Map<Integer, String> map = new LinkedHashMap<>();
         for (int i = 0; i < list.size(); i++) {
             map.put(list.get(i).getTypeCode(), list.get(i).getMemo());
         }
