@@ -40,11 +40,11 @@ public class DmsBaseDictDaoImpl extends BaseDao<DmsBaseDict> implements DmsBaseD
 
     /**
      * 带顺查询
-     * @param dmsBaseDictCondition
+     * @param pagerCondition
      * @return
      */
     @Override
-    public List<DmsBaseDict> queryOrderByCondition(DmsBaseDictCondition dmsBaseDictCondition) {
+    public List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition) {
         return this.sqlSession.selectList(getNameSpace()+".queryOrderByCondition");
     }
 
