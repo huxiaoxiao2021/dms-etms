@@ -1549,6 +1549,7 @@ public class WaybillResource {
 			if(selfSite != null ){
 				receiveSite = selfSite;
 			}
+			log.info("调用发货方案-request[{}]operateSiteCode[{}]receiveSite[{}],operateTime[{}],nextRouters[{}]",JsonHelper.toJson(request),operateSiteCode,receiveSite,operateTime,nextRouters);
 			/* 通过发货配置jsf接口调用 */
 			result = getSiteRoutersFromDMSAutoJsf(request.getMachineCode(),operateSiteCode,receiveSite,operateTime,waybillCode,nextRouters);
 		}
@@ -1594,6 +1595,7 @@ public class WaybillResource {
 		try {
 				/* 调用发货配置jsf接口 */
 			jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
+			log.info("调用findAreaDest-jsfRequest[{}]jsfResponse[{}]",JsonHelper.toJson(jsfRequest),JsonHelper.toJson(jsfResponse));
 		} catch (Exception e) {
 			Profiler.functionError(info);
 			log.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：{}" , waybillCode,e);
