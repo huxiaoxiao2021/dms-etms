@@ -179,6 +179,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillM(true);
+        wChoice.setQueryWaybillC(Boolean.TRUE);
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode,
                 wChoice);
 

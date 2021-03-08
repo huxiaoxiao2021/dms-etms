@@ -1917,4 +1917,33 @@ public class BusinessUtil {
     public static boolean isRefund(String waybillSign) {
         return isSignChar(waybillSign, 1, '7');
     }
+
+
+
+    /**
+     * 根据sendPay表位判断预售暂存类型
+     * 如果sendPay 228位等于1或2，表示预售暂存到仓
+     * 如果sendPay 228位等于4或5，表示预售暂存到配
+     */
+    public static Integer getStoreTypeBySendPay(String sendPay){
+        Integer result = null;
+        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
+                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_2)){
+            result = PreSellTypeEnum.TOWAREHOUSE.getValue();
+        }
+        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4) ||
+                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_5)){
+            result = PreSellTypeEnum.TODELIVERY.getValue();
+        }
+        return result;
+    }
+
+    //预售到仓且未付尾款
+    public static boolean preSellAndUnpaidBalance(String sendPay){
+        return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
+                isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
+                ) &&
+                isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
+                ?Boolean.TRUE:Boolean.FALSE;
+    }
 }
