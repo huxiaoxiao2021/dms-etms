@@ -13,7 +13,6 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
-import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
@@ -34,7 +33,6 @@ import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
-import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
@@ -60,7 +58,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
-import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -1192,20 +1189,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             throw new LoadIllegalException(e.getMessage());
         }
 
-        int unScanPackageCount = 0;
         boolean isSurfacePackage = false;
         try {
-            // 获取未扫包裹
-            unScanPackageCount = getUnScanPackageCount(sealCarCode);
             // 是否多货包裹
             isSurfacePackage = isSurfacePackage(sealCarCode, packageCode);
         }catch (LoadIllegalException e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(unScanPackageCount <= 0 && !isSurfacePackage){
-            // 未扫包裹小于0提示拦截
-            throw new LoadIllegalException(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE,sealCarCode));
-        }
+
         if(StringUtils.isEmpty(request.getBoardCode())){
             return;
         }
