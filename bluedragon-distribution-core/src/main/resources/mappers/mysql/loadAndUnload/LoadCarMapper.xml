@@ -18,8 +18,8 @@
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
-        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="Double"/>
-        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="Double"/>
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE"/>
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE"/>
     </resultMap>
 
     <sql id="Base_Column_List">
