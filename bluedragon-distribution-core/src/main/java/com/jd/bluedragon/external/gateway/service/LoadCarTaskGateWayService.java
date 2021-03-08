@@ -5,11 +5,10 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskR
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.BasicDictDataDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.tms.basic.dto.BasicDictDto;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 
 import java.util.List;
 
@@ -100,7 +99,7 @@ public interface LoadCarTaskGateWayService {
      *
      * @return
      */
-    JdCResponse<List<BasicDictDto>> getCarList();
+    JdCResponse<List<BasicDictDataDto>> getCarList();
 
     /**
      * 根据车型获取车型配置信息

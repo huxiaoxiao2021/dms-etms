@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskR
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.BasicDictDataDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
@@ -23,7 +24,6 @@ import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -477,12 +477,18 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
      * @return
      */
     @Override
-    public JdCResponse<List<BasicDictDto>> getCarList() {
-        JdCResponse<List<BasicDictDto>> jdCResponse = new JdCResponse<>();
-        List<BasicDictDto> list = basicQueryWSManager.getDictList(Constants.PARENT_CODE, Constants.DICT_LEVEL, Constants.DICT_GROUP);
-        if (CollectionUtils.isEmpty(list)) {
+    public JdCResponse<List<BasicDictDataDto>> getCarList() {
+        JdCResponse<List<BasicDictDataDto>> jdCResponse = new JdCResponse<>();
+        List<BasicDictDataDto> list = new ArrayList<>();
+        List<com.jd.tms.basic.dto.BasicDictDto> result = basicQueryWSManager.getDictList(Constants.PARENT_CODE, Constants.DICT_LEVEL, Constants.DICT_GROUP);
+        if (CollectionUtils.isEmpty(result)) {
             jdCResponse.toFail("获取车辆信息异常");
             return jdCResponse;
+        }
+        for (com.jd.tms.basic.dto.BasicDictDto basicDictDto : result) {
+            BasicDictDataDto dataDto = new BasicDictDataDto();
+            BeanUtils.copyProperties(basicDictDto, dataDto);
+            list.add(dataDto);
         }
         jdCResponse.toSucceed();
         jdCResponse.setData(list);
