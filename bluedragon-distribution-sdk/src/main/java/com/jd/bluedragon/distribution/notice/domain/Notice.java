@@ -51,6 +51,11 @@ public class Notice {
     private Integer isTopDisplay;
 
     /**
+     * 接收对象范围类型 0-所有人、1-仅分拣工作台，2-仅安卓PDA
+     */
+    private Integer receiveScopeType;
+
+    /**
      * 文字内容
      */
     private String content;
@@ -144,6 +149,14 @@ public class Notice {
 
     public void setIsTopDisplay(Integer isTopDisplay) {
         this.isTopDisplay = isTopDisplay;
+    }
+
+    public Integer getReceiveScopeType() {
+        return receiveScopeType;
+    }
+
+    public void setReceiveScopeType(Integer receiveScopeType) {
+        this.receiveScopeType = receiveScopeType;
     }
 
     public String getContent() {

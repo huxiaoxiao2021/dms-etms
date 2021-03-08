@@ -13,19 +13,15 @@ import com.jd.bluedragon.distribution.notice.service.NoticeService;
 import com.jd.bluedragon.distribution.notice.utils.NoticeLevelEnum;
 import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author lixin39
@@ -36,7 +32,7 @@ import java.util.Random;
 @Service
 public class NoticeServiceImpl implements NoticeService {
 
-    private final Logger logger = Logger.getLogger(NoticeServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private NoticeDao noticeDao;

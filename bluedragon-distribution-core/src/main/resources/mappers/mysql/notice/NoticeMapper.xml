@@ -11,6 +11,7 @@
         <result column="is_display" property="isDisplay"/>
         <result column="is_top_display" property="isTopDisplay"/>
         <result column="content" property="content"/>
+        <result column="receive_scope_type" property="receiveScopeType"/>
         <result column="create_user" property="createUser"/>
         <result column="update_user" property="updateUser"/>
         <result column="create_time" property="createTime"/>
@@ -26,6 +27,7 @@
         upload_time,
         is_display,
         is_top_display,
+        receive_scope_type,
         content,
         create_user,
         update_user,
@@ -43,6 +45,7 @@
 		    upload_time,
 		    is_display,
 		    is_top_display,
+            receive_scope_type,
 		    content,
 		    create_user,
 		    update_user,
@@ -58,6 +61,7 @@
 			#{uploadTime, jdbcType=TIMESTAMP},
 			#{isDisplay, jdbcType=TINYINT},
 			#{isTopDisplay, jdbcType=TINYINT},
+			#{receiveScopeType, jdbcType=TINYINT},
 			#{content, jdbcType=VARCHAR},
 			#{createUser, jdbcType=VARCHAR},
 			#{updateUser, jdbcType=VARCHAR},
@@ -87,15 +91,22 @@
         </if>
     </select>
 
-    <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
-        SELECT count(1)
-        FROM notice
-        WHERE is_delete = 0
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            and id = #{id}
+        </if>
         <if test="title != null and title != ''">
             and theme like concat(#{title}, '%')
         </if>
         <if test="type != null and type != ''">
             and type = #{type}
+        </if>
+        <if test="typeList != null">
+            and type in
+            <foreach collection="typeList" item="type" open="(" close=")" separator=",">
+                #{type}
+            </foreach>
         </if>
         <if test="level != null and level != ''">
             and level = #{level}
@@ -103,7 +114,31 @@
         <if test="isDisplay != null">
             and is_display = #{isDisplay}
         </if>
-        ORDER BY is_top_display desc, create_time desc
+        <if test="receiveScopeType != null">
+            and receive_scope_type = #{receiveScopeType}
+        </if>
+        <if test="createTimeStart != null">
+            and create_time >= #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null">
+            and create_time &lt;= #{createTimeEnd}
+        </if>
+    </sql>
+
+    <select id="selectOne" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice
+        WHERE is_delete = 0
+        <include refid="sql_if_not_null"/>
+        LIMIT 1
+    </select>
+
+    <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT count(1)
+        FROM notice
+        WHERE is_delete = 0
+        <include refid="sql_if_not_null"/>
     </select>
 
     <select id="queryList" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
@@ -111,18 +146,7 @@
         <include refid="Base_Column_List"/>
         FROM notice
         WHERE is_delete = 0
-        <if test="title != null and title != ''">
-            and theme like concat(#{title}, '%')
-        </if>
-        <if test="type != null and type != ''">
-            and type = #{type}
-        </if>
-        <if test="level != null and level != ''">
-            and level = #{level}
-        </if>
-        <if test="isDisplay != null">
-            and is_display = #{isDisplay}
-        </if>
+        <include refid="sql_if_not_null"/>
         ORDER BY is_top_display desc, create_time desc
         <if test="offset != null and offset >= 0">
             LIMIT #{offset}, #{limit}
@@ -175,6 +199,9 @@
             </if>
             <if test="isTopDisplay != null">
                 is_top_display = #{isTopDisplay},
+            </if>
+            <if test="receiveScopeType != null">
+                receive_scope_type = #{receiveScopeType},
             </if>
             <if test="content != null and content != ''">
                 content = #{content},
