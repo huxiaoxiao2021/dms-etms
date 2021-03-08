@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponse
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTypeRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillStagingCheckManager;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -34,6 +36,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.Objects;
+
+import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.EXPRESS_CENTER_SITE_ID;
 
 /**
  * 验货相关接口 发布物流网关
@@ -65,6 +69,9 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     @Resource
     private WaybillStagingCheckManager waybillStagingCheckManager;
+
+    @Autowired
+    protected BaseMajorManager baseMajorManager;
 
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
@@ -194,12 +201,29 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             return jdVerifyResponse;
         }
         /**暂存校验逻辑**/
-        if (waybillStagingCheckManager.stagingCheck(request.getWaybillCode(), request.getCurrentSiteCode())) {
+        if (isExpressCenterSite(request.getCurrentSiteCode()) && waybillStagingCheckManager.stagingCheck(request.getWaybillCode(), request.getCurrentSiteCode())) {
             jdVerifyResponse.toSuccess();
             jdVerifyResponse.addInterceptBox(0, Constants.PDA_STAGING_CONFIRM_MESSAGE);
             return jdVerifyResponse;
         }
         jdVerifyResponse.toSuccess(result.getMessage());
         return jdVerifyResponse;
+    }
+
+    /**
+     * 判断是否是快运站点
+     *
+     * @param dmsSiteId
+     * @return
+     */
+    private boolean isExpressCenterSite(Integer dmsSiteId) {
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dmsSiteId);
+        if (siteOrgDto == null) {
+            return false;
+        }
+        if (EXPRESS_CENTER_SITE_ID.equals(siteOrgDto.getSubType())) {
+            return true;
+        }
+        return false;
     }
 }
