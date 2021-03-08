@@ -14,6 +14,10 @@ public class RuleDao extends BaseDao<Rule> {
         return super.getSqlSession().selectOne(RuleDao.NAMESPACE + ".get", map);
     }
 
+    public List<Rule> getByTypes(Map map){
+        return super.getSqlSession().selectList(RuleDao.NAMESPACE + ".getByTypes", map);
+    }
+
     public Rule queryById(long id) {
         return super.getSqlSession().selectOne(RuleDao.NAMESPACE + ".queryById", id);
     }

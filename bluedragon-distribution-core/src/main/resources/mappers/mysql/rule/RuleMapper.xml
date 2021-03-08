@@ -30,6 +30,20 @@
         LIMIT 1
     </select>
 
+    <select id="getByTypes" resultMap="rule" parameterType="java.util.Map">
+        SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts
+        FROM Rules
+        WHERE yn = 1
+
+        AND site_code = #{siteCode}
+
+        AND rule_type in
+         <foreach collection="types" close=")" open="(" index="i" item="item" separator=",">
+             #{item}
+         </foreach>
+
+    </select>
+
     <select id="queryById" resultMap="rule" parameterType="Long">
 		SELECT rule_id, rule_type, content, in_out, site_code, memo, create_time, update_time, ts
 		FROM Rules

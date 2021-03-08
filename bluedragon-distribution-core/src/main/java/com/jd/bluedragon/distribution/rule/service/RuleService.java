@@ -9,7 +9,7 @@ public interface RuleService {
 
     List<Rule> select(Map map);
 
-    void add(Rule rule);
+    boolean add(Rule rule);
 
     void del(long id);
 
@@ -17,11 +17,14 @@ public interface RuleService {
 
     Rule queryById(long id);
 
-    void update(Rule rule);
+    boolean update(Rule rule);
 
     List<Rule>  queryByParamNoPage(Integer createSiteCode);
 
     Integer addRuleByReferSite(Integer siteCode, Integer referSiteCode);
 
     Rule get(Integer siteCode,String type) throws Exception;
+
+    List<Rule> getByTypes(Integer siteCode,List<String> type);
+
 }
