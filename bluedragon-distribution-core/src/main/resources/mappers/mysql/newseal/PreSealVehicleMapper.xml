@@ -503,5 +503,32 @@
 			and (transport_code != #{transportCode,jdbcType=VARCHAR}
 				or vehicle_number != #{vehicleNumber,jdbcType=VARCHAR}
 			)
-	</select>	
+	</select>
+    <select id="queryUnSealVehicleInfo" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition" resultMap="PreSealVehicle">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        pre_seal_vehicle
+        where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		<if test="vehicleNumber != null">
+			and vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
+        <if test="createUserErp != null and createUserErp != '' ">
+            AND create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+        </if>
+        <if test="receive_site_code != null">
+            AND receive_site_code = #{receiveSiteCode,jdbcType=BIGINT}
+        </if>
+        <if test="receiveSiteName != null and receiveSiteName != '' ">
+            <![CDATA[   AND receive_site_name like CONCAT('%',#{receiveSiteName,jdbcType=VARCHAR},'%')    ]]>
+        </if>
+        <if test="sendCarStartTime != null and sendCarStartTime != '' ">
+            AND send_car_time <![CDATA[ >= ]]> #{sendCarStartTime,jdbcType=VARCHAR}
+        </if>
+        <if test="sendCarEndTime != null and sendCarEndTime != '' ">
+            AND send_car_time <![CDATA[ <= ]]> #{sendCarEndTime,jdbcType=VARCHAR}
+        </if>                        
+        and status = #{status,jdbcType=TINYINT}
+        and is_delete=0
+    </select>	
 </mapper>

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sealVehicle.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleSourceEnum;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
@@ -96,15 +97,24 @@ public class DmsSealVehicleServiceImpl implements DmsSealVehicleService {
     	Integer createSiteCode = queryRequest.getCreateSiteCode();
         try {
             //获取该场地所有预封车信息
-            PreSealVehicle param = new PreSealVehicle();
+            PreSealVehicleCondition param = new PreSealVehicleCondition();
             param.setCreateSiteCode(createSiteCode);
+            param.setSendCarStartTime(queryRequest.getSendCarStartTime());
+            param.setSendCarEndTime(queryRequest.getSendCarEndTime());
             if (StringUtils.isNotBlank(queryRequest.getCreateUserErp())) {
                 param.setCreateUserErp(queryRequest.getCreateUserErp());
             }
             if (StringUtils.isNotBlank(queryRequest.getVehicleNumber())) {
                 param.setVehicleNumber(queryRequest.getVehicleNumber());
             }
-            List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryByParam(param);
+    		//数字按站点编码查询，否则按名称处理
+    		String receiveSiteCodeOrName = queryRequest.getReceiveSiteCodeOrName();
+    		if(NumberHelper.isNumber(receiveSiteCodeOrName)) {
+    			param.setReceiveSiteCode(NumberHelper.convertToInteger(receiveSiteCodeOrName));
+    		}else {
+    			param.setReceiveSiteName(receiveSiteCodeOrName);
+    		}
+            List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryUnSealVehicleInfo(param);
             Map<String, UnSealVehicleInfo> unSealVehicleInfoMap = new HashMap<>();
             /**
              * 存放uuid
