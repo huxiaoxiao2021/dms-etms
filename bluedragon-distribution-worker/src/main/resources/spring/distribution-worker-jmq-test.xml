@@ -303,6 +303,10 @@
     <!--tms线路数据消费-->
     <jmq:consumer id="jmq.tmsVehicleRouteStatusConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tmsVehicleRouteStatus}" listener="tmsVehicleRouteStatusConsumer"/>
-    </jmq:consumer>     
+    </jmq:consumer>
+    <!--tms任务取消消费-->
+    <jmq:consumer id="jmq.tmsVehicleJobCancelConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tmsVehicleJobCancel}" listener="tmsVehicleJobCancelConsumer"/>
+    </jmq:consumer>          
 </beans>
 

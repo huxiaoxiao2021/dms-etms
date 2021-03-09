@@ -134,25 +134,92 @@
 		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
 		and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 	</select>
-
-	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition" resultMap="DmsSendRelation">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			dms_send_relation 
-		where yn = 1 
-		and original_site_code = #{originalSiteCode,jdbcType=INTEGER}
-		and ts <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}		
+	
+	<resultMap id="PassPreSealRecordMap" type="com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord" >
+		<result column="original_site_code" property="originalSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="original_site_name" property="originalSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="destination_site_code" property="destinationSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="destination_site_name" property="destinationSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="destination_cross_code" property="destinationCrossCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="vehicle_job_code" property="vehicleJobCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="depart_time" property="departTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="carrier_team_name" property="carrierTeamName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="job_create_time" property="jobCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="pre_seal_status" property="preSealStatus" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+	<sql id="queryPassPreSeal_condition">
+			left outer join tms_vehicle_route s on 
+			s.yn = 1 
+			and s.original_site_code = #{originalSiteCode,jdbcType=INTEGER}
+			and t.destination_site_code = s.destination_site_code
+			left outer join (select p.receive_site_code,count(1) as preNum from pre_seal_vehicle p where 
+				p.is_delete = 0
+				and p.status = 0
+				and p.create_site_code = #{originalSiteCode,jdbcType=INTEGER}
+				group by p.receive_site_code) seal on 
+			seal.receive_site_code= t.destination_site_code
+		where t.yn = 1 
+		and t.original_site_code = #{originalSiteCode,jdbcType=INTEGER} 
+		and t.ts <![CDATA[ >= ]]> #{effectStartTime,jdbcType=TIMESTAMP}
 		<if test="destinationSiteCode != null and destinationSiteCode != ''" >
-			and destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+			and t.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="lineTypes != null" >
+			and t.line_type in 
+		    <foreach collection="lineTypes" item="lineType" index="index" separator="," open="(" close=")">
+		    	#{lineType,jdbcType=INTEGER}
+		    </foreach>
+		</if>		
+		<if test="destinationSiteCode != null and destinationSiteCode != ''" >
+			and t.destination_site_code = #{destinationSiteCode,jdbcType=INTEGER}
 		</if>
 		<if test="destinationSiteName != null and destinationSiteName != ''" >
-			and destination_site_name = #{destinationSiteName,jdbcType=VARCHAR}
-		</if>		
-		<if test="destinationCrossCode != null and destinationCrossCode != ''" >
-			and destination_cross_code = #{destinationCrossCode,jdbcType=VARCHAR}
+			<![CDATA[ and t.destination_site_name like CONCAT('%',#{destinationSiteName,jdbcType=VARCHAR},'%') ]]>
 		</if>
-		limit #{limitNum,jdbcType=INTEGER}
+		<if test="destinationCrossCode != null and destinationCrossCode != ''" >
+			and t.destination_cross_code = #{destinationCrossCode,jdbcType=VARCHAR}
+		</if>
+		<if test="vehicleNumber != null and vehicleNumber != ''" >
+			and s.vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
+		</if>
+		<if test="departStartTime != null" >
+			and s.depart_time <![CDATA[ >= ]]> #{departStartTime,jdbcType=TIMESTAMP}
+		</if>		
+		<if test="departEndTime != null" >
+			and s.depart_time <![CDATA[ <= ]]> #{departEndTime,jdbcType=TIMESTAMP}
+		</if>
+		<if test="jobCreateStartTime != null" >
+			and s.job_create_time <![CDATA[ >= ]]> #{jobCreateStartTime,jdbcType=TIMESTAMP}
+		</if>		
+		<if test="jobCreateEndTime != null" >
+			and s.job_create_time <![CDATA[ <= ]]> #{jobCreateEndTime,jdbcType=TIMESTAMP}
+		</if>				
+	</sql>	
+	<select id="queryPassPreSealData" parameterType="com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest" resultMap="PassPreSealRecordMap">
+		select
+			t.original_site_code,t.original_site_name,t.destination_site_code,t.destination_site_name,
+			t.destination_cross_code,s.vehicle_job_code,s.vehicle_route_code,s.transport_code,
+			s.depart_time,s.carrier_team_name,s.vehicle_number,s.job_create_time,case when seal.preNum > 0 then 1 else 0 end as pre_seal_status
+		from
+			dms_send_relation t 
+			<include refid="queryPassPreSeal_condition"/>
+			<choose>
+				<when test="orderBy != null and orderBy != ''" >
+					order by #{orderBy,jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					order by s.depart_time desc, s.job_create_time desc
+				</otherwise>
+			</choose>
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
-
+	<select id="countPassPreSealData" parameterType="com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest" resultType="Integer">
+		select 
+		 count(1) as num
+		from
+			dms_send_relation t 
+			<include refid="queryPassPreSeal_condition"/>
+	</select>	
 </mapper>
