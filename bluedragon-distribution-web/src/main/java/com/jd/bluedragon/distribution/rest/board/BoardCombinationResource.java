@@ -152,6 +152,16 @@ public class BoardCombinationResource {
         try {
             // 第一次则生成板号
             if (StringUtils.isBlank(request.getBoardCode())) {
+                // 查询之前是否组过板
+                JdResponse<Board> response = getBoardByBoxCode(request.getCurrentOperate().getSiteCode(), request.getBoxOrPackageCode());
+                if (response != null && JdResponse.CODE_SUCCESS.equals(response.getCode())) {
+                    if (response.getData() != null) {
+                        boardResponse.setBoardCode(response.getData().getCode());
+                        boardResponse.setReceiveSiteCode(response.getData().getDestinationId());
+                        boardResponse.setReceiveSiteName(response.getData().getDestination());
+                        return result;
+                    }
+                }
                 // 组装参数
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
                 boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());

@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -371,6 +372,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             if (tcResponse.getCode() == 500) {
                 //提示是否组到新板
                 if (!request.getIsForceCombination()) {
+                    // 如果要绑定的板就是现在的板，提示重复
+                    String board= tcResponse.getMesseage().replace("该箱已绑定板", "");
+                    if (board.equals(request.getBoardCode())) {
+                        boardResponse.addStatusInfo(JdResponse.CODE_FAIL, String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,
+                                request.getBoxOrPackageCode(), boardCode));
+                        return JdResponse.CODE_FAIL;
+                    }
                     boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CHANGE, tcResponse.getMesseage() + BoardResponse.Message_BOARD_CHANGE);
                     return JdResponse.CODE_CONFIRM;
                 }
