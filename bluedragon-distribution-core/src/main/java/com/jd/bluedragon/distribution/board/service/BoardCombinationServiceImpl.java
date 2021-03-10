@@ -600,10 +600,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         Response<Integer> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
-            // 调用组板接口生成一个新的板号
-            Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
-            if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
-                return responseCode;
+            if (StringUtils.isBlank(request.getBoardCode())) {
+                // 调用组板接口生成一个新的板号
+                Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
+                if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
+                    return responseCode;
+                }
             }
             AddBoardBox addBoardBox = new AddBoardBox();
             addBoardBox.setBoardCode(request.getBoardCode());
