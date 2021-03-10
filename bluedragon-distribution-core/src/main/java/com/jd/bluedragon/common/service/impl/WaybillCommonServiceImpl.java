@@ -1138,8 +1138,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
     		//13\14-京准达
     		transportMode = TextConstants.PRODUCT_NAME_JZD;
-    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_T)){
-            //31 = T  特惠小件
+    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_F)){
+            //31 = F  特惠小件
             transportMode = TextConstants.PRODUCT_NAME_THXJ;
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
     			 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
