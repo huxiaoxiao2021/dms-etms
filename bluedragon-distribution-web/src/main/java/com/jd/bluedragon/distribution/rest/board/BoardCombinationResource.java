@@ -166,33 +166,7 @@ public class BoardCombinationResource {
                     boardResponse.setReceiveSiteName(oldBoard.getDestination());
                     return result;
                 }
-                // 组装参数
-                BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-                boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
-                boardCommonRequest.setOperateUserName(request.getUser().getUserName());
-                boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
-                boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
-                boardCommonRequest.setBarCode(request.getBoxOrPackageCode());
-                // 调用接口生成板号
-                InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
-                if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, invokeResult.getMessage());
-                    result.toFail(invokeResult.getMessage());
-                    return result;
-                }
-                Board board = invokeResult.getData();
-                if (board == null || StringUtils.isEmpty(board.getCode())) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
-                    result.toFail(LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
-                    return result;
-                }
-                // 设置回传参数
-                boardResponse.setBoardCode(board.getCode());
-                boardResponse.setReceiveSiteCode(board.getDestinationId());
-                boardResponse.setReceiveSiteName(board.getDestination());
-                request.setBoardCode(board.getCode());
-                request.setReceiveSiteCode(board.getDestinationId());
-                request.setReceiveSiteName(board.getDestination());
+
             } else {
                 // 如果之前已经组板，并且就是现在的板，则提示请勿重复扫描
                 if (oldBoard != null && request.getBoardCode().equals(oldBoard.getCode())) {
@@ -206,7 +180,7 @@ public class BoardCombinationResource {
             // 对象转换
             BoardCombinationRequest combinationRequest = convertToBoardCombinationRequest(request);
             // 操作组板，返回状态码
-            Integer statusCode = boardCombinationService.sendBoardBindings(combinationRequest, boardResponse);
+            Integer statusCode = boardCombinationService.sendBoardBindingsNew(combinationRequest, boardResponse, oldBoard, request);
             if (JdResponse.CODE_FAIL.equals(statusCode)) {
                 result.toFail(boardResponse.buildStatusMessages());
             } else if (JdResponse.CODE_CONFIRM.equals(statusCode)) {
