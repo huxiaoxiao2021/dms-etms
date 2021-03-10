@@ -41,7 +41,7 @@ public interface DeliveryService {
      * 按运单批量发货,校验数据并写入异步任务:运单下的包裹数量需大于 100
      * @param domain 发货数据
      */
-    SendResult packageSendByWaybill(SendM domain);
+    SendResult packageSendByWaybill(SendM domain, Boolean isForceSend, Boolean isCancelLastSend);
 
     /**
      * 一车一单发货数据落库，写相关的异步任务
