@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.notice.domain;
 import com.jd.bluedragon.distribution.notice.utils.NoticeLevelEnum;
 import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -11,7 +12,9 @@ import java.util.Date;
  * @ClassName Notice
  * @date 2019/4/16
  */
-public class Notice {
+public class Notice implements Serializable {
+
+    private static final long serialVersionUID = 3369396510742159911L;
 
     /**
      * 主键id
@@ -59,6 +62,10 @@ public class Notice {
      * 文字内容
      */
     private String content;
+    /**
+     * 内容摘要
+     */
+    private String contentBrief;
 
     /**
      * 创建人ERP
@@ -167,6 +174,14 @@ public class Notice {
         this.content = content;
     }
 
+    public String getContentBrief() {
+        return contentBrief;
+    }
+
+    public void setContentBrief(String contentBrief) {
+        this.contentBrief = contentBrief;
+    }
+
     public String getCreateUser() {
         return createUser;
     }
@@ -221,5 +236,28 @@ public class Notice {
 
     public void setLevelText(String levelText) {
         this.levelText = levelText;
+    }
+
+    @Override
+    public String toString() {
+        return "Notice{" +
+                "id=" + id +
+                ", theme='" + theme + '\'' +
+                ", level=" + level +
+                ", type=" + type +
+                ", uploadTime=" + uploadTime +
+                ", isDisplay=" + isDisplay +
+                ", isTopDisplay=" + isTopDisplay +
+                ", receiveScopeType=" + receiveScopeType +
+                ", content='" + content + '\'' +
+                ", contentBrief='" + contentBrief + '\'' +
+                ", createUser='" + createUser + '\'' +
+                ", updateUser='" + updateUser + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", isDelete=" + isDelete +
+                ", typeText='" + typeText + '\'' +
+                ", levelText='" + levelText + '\'' +
+                '}';
     }
 }

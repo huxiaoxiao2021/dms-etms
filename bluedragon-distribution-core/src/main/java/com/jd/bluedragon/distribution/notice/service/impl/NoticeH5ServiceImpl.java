@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.notice.response.NoticeH5Dto;
 import com.jd.bluedragon.distribution.notice.service.NoticeH5Service;
 import com.jd.bluedragon.distribution.notice.utils.NoticeConstants;
 import com.jd.bluedragon.distribution.notice.utils.NoticeReceiveScopeTypeEnum;
+import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -150,7 +151,9 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         noticeH5Dto.setTitle(notice.getTheme());
         noticeH5Dto.setLevel(notice.getLevel());
         noticeH5Dto.setType(notice.getType());
+        noticeH5Dto.setCategoryName(NoticeTypeEnum.getEnumNameByCode(notice.getType()) != null ? NoticeTypeEnum.getEnumNameByCode(notice.getType()) : "未知类型");
         noticeH5Dto.setIsTopDisplay(notice.getIsTopDisplay());
+        noticeH5Dto.setContentBrief(notice.getContentBrief());
         noticeH5Dto.setContent(notice.getContent());
         noticeH5Dto.setPublishTime(notice.getCreateTime() != null ? notice.getCreateTime().getTime() : 0L);
         noticeH5Dto.setPublishDateFormative(DateUtil.format(notice.getCreateTime(), DateUtil.FORMAT_DATE));

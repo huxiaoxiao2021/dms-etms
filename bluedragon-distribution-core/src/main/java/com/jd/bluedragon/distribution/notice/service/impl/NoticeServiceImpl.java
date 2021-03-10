@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.notice.service.NoticeAttachmentService;
 import com.jd.bluedragon.distribution.notice.service.NoticeService;
 import com.jd.bluedragon.distribution.notice.utils.NoticeLevelEnum;
 import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +87,7 @@ public class NoticeServiceImpl implements NoticeService {
      */
     @Override
     public PageDto<Notice> queryPageList(NoticeQuery query){
+        log.info("NoticeServiceImpl.queryPageList param {}", JsonHelper.toJson(query));
         PageDto<Notice> noticePageDto = new PageDto<>();
         List<Notice> noticeList = new ArrayList<>();
         Long total = noticeDao.queryCount(query);

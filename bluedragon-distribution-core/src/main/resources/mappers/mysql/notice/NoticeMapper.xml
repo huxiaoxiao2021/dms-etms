@@ -10,6 +10,7 @@
         <result column="upload_time" property="uploadTime"/>
         <result column="is_display" property="isDisplay"/>
         <result column="is_top_display" property="isTopDisplay"/>
+        <result column="content_brief" property="contentBrief"/>
         <result column="content" property="content"/>
         <result column="receive_scope_type" property="receiveScopeType"/>
         <result column="create_user" property="createUser"/>
@@ -29,6 +30,7 @@
         is_top_display,
         receive_scope_type,
         content,
+        content_brief,
         create_user,
         update_user,
         create_time,
@@ -47,6 +49,7 @@
 		    is_top_display,
             receive_scope_type,
 		    content,
+            content_brief,
 		    create_user,
 		    update_user,
 		    create_time,
@@ -63,6 +66,7 @@
 			#{isTopDisplay, jdbcType=TINYINT},
 			#{receiveScopeType, jdbcType=TINYINT},
 			#{content, jdbcType=VARCHAR},
+			#{contentBrief, jdbcType=VARCHAR},
 			#{createUser, jdbcType=VARCHAR},
 			#{updateUser, jdbcType=VARCHAR},
 			NOW(),
@@ -205,6 +209,9 @@
             </if>
             <if test="content != null and content != ''">
                 content = #{content},
+            </if>
+            <if test="contentBrief != null and contentBrief != ''">
+                content_brief = #{contentBrief},
             </if>
             <if test="updateUser != null">
                 update_user = #{updateUser},
