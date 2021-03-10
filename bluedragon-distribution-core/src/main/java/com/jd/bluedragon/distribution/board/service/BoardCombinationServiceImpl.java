@@ -2,18 +2,17 @@ package com.jd.bluedragon.distribution.board.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -47,6 +46,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -55,6 +55,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +133,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private BoardCommonManager boardCommonManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+
 
     /**
      * 板号校验，如果校验成功则返回目的地信息
@@ -481,6 +487,25 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             return JdResponse.CODE_FAIL;
         }
 
+        if (StringUtils.isBlank(request.getBoardCode())) {
+            String waybillCode = WaybillUtil.getWaybillCode(request.getBoxOrPackageCode());
+            Integer nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode, request.getSiteCode());
+            if (nextSiteCode == null) {
+                log.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!", waybillCode, request.getSiteCode());
+                boardResponse.addStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE,
+                        "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
+                return JdResponse.CODE_FAIL;
+            }
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
+            if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
+                log.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
+                boardResponse.addStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
+                return JdResponse.CODE_FAIL;
+            }
+            request.setReceiveSiteCode(nextSiteCode);
+            request.setReceiveSiteName(baseSite.getSiteName());
+        }
+
         //调Ver的接口进行组板拦截
         //如果是箱号则取其中任一包裹进行校验
         BoardCombinationJsfResponse response = null;
@@ -535,22 +560,28 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 return JdResponse.CODE_CONFIRM;
                 // 如果用户选择强制转板
             } else {
-                // 先生成一个新板，组装参数
-                BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
                 User user = combinationBoardRequest.getUser();
-                CurrentOperate currentOperate = combinationBoardRequest.getCurrentOperate();
-                boardCommonRequest.setOperateUserErp(user.getUserErp());
-                boardCommonRequest.setOperateUserName(user.getUserName());
-                boardCommonRequest.setOperateSiteCode(currentOperate.getSiteCode());
-                boardCommonRequest.setOperateSiteName(currentOperate.getSiteName());
-                boardCommonRequest.setBarCode(request.getBoxOrPackageCode());
+                // 先生成一个新板，组装参数
+                AddBoardRequest addBoardRequest = new AddBoardRequest();
+                addBoardRequest.setDestination(baseSite.getSiteName());
+                addBoardRequest.setDestinationId(nextSiteCode);
+                addBoardRequest.setBoardCount(1);
+                addBoardRequest.setSiteCode(request.getSiteCode());
+                addBoardRequest.setSiteName(request.getSiteName());
+                addBoardRequest.setOperatorErp(user.getUserErp());
+                addBoardRequest.setOperatorName(user.getUserName());
                 // 调用接口生成板号
-                InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
+                InvokeResult<List<BoardDto>> invokeResult = createBoard(addBoardRequest);
                 if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                     boardResponse.addStatusInfo(JdResponse.CODE_FAIL, invokeResult.getMessage());
                     return JdResponse.CODE_FAIL;
                 }
-                Board board = invokeResult.getData();
+                List<BoardDto> boardDtoList = invokeResult.getData();
+                if (CollectionUtils.isEmpty(boardDtoList)) {
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
+                    return JdResponse.CODE_FAIL;
+                }
+                BoardDto board = boardDtoList.get(0);
                 if (board == null || StringUtils.isEmpty(board.getCode())) {
                     boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
                     return JdResponse.CODE_FAIL;
