@@ -784,7 +784,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                             for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
                                 Map<String,Object> vasExtMap = waybillPickupVasDto.getVasExt();
                                 if(vasExtMap != null && !vasExtMap.isEmpty()){
-                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(vasExtMap.get("vasName"));
+                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(simpleValues(vasExtMap.get("vasName")));
                                 }
                             }
                         }
@@ -807,5 +807,27 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
         log.info("获取商品增值信息成功,运单号:{},返回增值信息:{}",wayBillCode,packageUpVasMap);
         return packageUpVasMap;
+    }
+
+    private static String simpleValues(Object vasName){
+
+        Map<String,String> map = new HashMap<>(16,0.75f);
+        map.put("保价金额","保价");
+        map.put("代收货款","代收");
+        map.put("重货上楼","上楼");
+        map.put("包装服务","包装");
+        map.put("暂存服务","预约");
+        map.put("特安服务","特安");
+        map.put("大件开箱通电","通电");
+        map.put("大件送装一体","送装");
+        map.put("取旧服务","取旧");
+
+        String newVasName = vasName.toString().trim();
+        String simpleValues = map.get(newVasName);
+        if(StringUtils.isNotBlank(simpleValues)){
+            return simpleValues;
+        }else {
+            return newVasName;
+        }
     }
 }
