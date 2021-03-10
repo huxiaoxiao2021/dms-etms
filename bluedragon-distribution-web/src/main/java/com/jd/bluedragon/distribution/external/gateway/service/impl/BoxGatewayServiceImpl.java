@@ -37,10 +37,6 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     @Autowired
     private BaseService baseService;
 
-
-    @Autowired
-    private FuncSwitchConfigServiceImpl  funcSwitchConfigService;
-
     @Override
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdVerifyResponse<BoxDto> boxValidation(String boxCode, Integer operateType) {
@@ -123,7 +119,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     public JdCResponse<Boolean>  getInterceptStatus(Integer siteCode){
         JdCResponse<Boolean> jdResponse = new JdCResponse<>();
         try {
-            Boolean flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+            boolean flag = boxResource.getInterceptStatus(siteCode);
             jdResponse.toSucceed();
             jdResponse.setData(flag);
         }catch (Exception e){

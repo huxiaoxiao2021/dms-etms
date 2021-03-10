@@ -21,6 +21,8 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -81,6 +83,9 @@ public class BoxResource {
 
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
+
+    @Autowired
+    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -613,6 +618,25 @@ public class BoxResource {
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         return response;
+    }
+
+
+    /**
+     * 获取BC箱号类型强制绑定循环集包袋拦截状态
+     * @param siteCode
+     * @return
+     */
+    @POST
+    @Path("/boxes/getInterceptStatus")
+    public Boolean  getInterceptStatus(Integer siteCode){
+        //默认拦截
+        Boolean flag = Boolean.TRUE;
+        try{
+             flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+        }catch (Exception e){
+            log.error("获取站点{}循环集包袋绑定拦截开关异常",siteCode,e);
+        }
+        return  flag;
     }
 
 }
