@@ -160,7 +160,7 @@ public class BoardCombinationResource {
             // 第一次则生成板号
             if (StringUtils.isBlank(request.getBoardCode())) {
                 // 如果之前组过，并且板没有关闭则返回继续使用
-                if (oldBoard != null && oldBoard.getStatus().equals(BoardStatus.CLOSED.getIndex())) {
+                if (oldBoard != null && !oldBoard.getStatus().equals(BoardStatus.CLOSED.getIndex())) {
                     boardResponse.setBoardCode(oldBoard.getCode());
                     boardResponse.setReceiveSiteCode(oldBoard.getDestinationId());
                     boardResponse.setReceiveSiteName(oldBoard.getDestination());
