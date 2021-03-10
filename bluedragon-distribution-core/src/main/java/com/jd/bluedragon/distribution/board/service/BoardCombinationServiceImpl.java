@@ -563,8 +563,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 User user = combinationBoardRequest.getUser();
                 // 先生成一个新板，组装参数
                 AddBoardRequest addBoardRequest = new AddBoardRequest();
-                addBoardRequest.setDestination(baseSite.getSiteName());
-                addBoardRequest.setDestinationId(nextSiteCode);
+                addBoardRequest.setDestination(request.getReceiveSiteName());
+                addBoardRequest.setDestinationId(request.getReceiveSiteCode());
                 addBoardRequest.setBoardCount(1);
                 addBoardRequest.setSiteCode(request.getSiteCode());
                 addBoardRequest.setSiteName(request.getSiteName());
