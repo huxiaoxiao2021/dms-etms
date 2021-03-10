@@ -75,6 +75,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     private static final String SWITCH_ON = "1";
 
+    private static Map<String,String> mapValues = new HashMap<>(16,0.75f);
+    static {
+        mapValues.put("保价金额","保价");
+        mapValues.put("代收货款","代收");
+        mapValues.put("重货上楼","上楼");
+        mapValues.put("包装服务","包装");
+        mapValues.put("暂存服务","预约");
+        mapValues.put("特安服务","特安");
+        mapValues.put("大件开箱通电","通电");
+        mapValues.put("大件送装一体","送装");
+        mapValues.put("取旧服务","取旧");
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByReturnWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -811,19 +824,8 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     private static String simpleValues(Object vasName){
 
-        Map<String,String> map = new HashMap<>(16,0.75f);
-        map.put("保价金额","保价");
-        map.put("代收货款","代收");
-        map.put("重货上楼","上楼");
-        map.put("包装服务","包装");
-        map.put("暂存服务","预约");
-        map.put("特安服务","特安");
-        map.put("大件开箱通电","通电");
-        map.put("大件送装一体","送装");
-        map.put("取旧服务","取旧");
-
         String newVasName = vasName.toString().trim();
-        String simpleValues = map.get(newVasName);
+        String simpleValues = mapValues.get(newVasName);
         if(StringUtils.isNotBlank(simpleValues)){
             return simpleValues;
         }else {
