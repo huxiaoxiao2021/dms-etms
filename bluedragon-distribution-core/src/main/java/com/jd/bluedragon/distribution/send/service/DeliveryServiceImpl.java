@@ -482,9 +482,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendByWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult packageSendByWaybill(SendM domain) {
+    public SendResult packageSendByWaybill(SendM domain, Boolean isForceSend, Boolean isCancelLastSend) {
         if (log.isInfoEnabled()) {
-            log.info("按运单发货接口处理开始 boxCode={}", domain.getBoxCode());
+            log.info("按运单发货接口处理开始 boxCode={},isForceSend={},isCancelLastSend={}", domain.getBoxCode(), isForceSend, isCancelLastSend);
         }
         SendResult result = new SendResult();
         result.init(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -494,13 +494,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!SendResult.CODE_OK.equals(result.getKey())) {
             return result;
         }
-        // 发货验证
-        result = this.beforeSendVerification(domain, true, false);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货接口处理,拦截器链路校验结果: result={}", JsonHelper.toJson(result));
-        }
-        if (!SendResult.CODE_OK.equals(result.getKey())) {
-            return result;
+        if (!Boolean.TRUE.equals(isForceSend)) {
+            // 发货验证
+            result = this.beforeSendVerification(domain, true, isCancelLastSend);
+            if (log.isInfoEnabled()) {
+                log.info("按运单发货接口处理,拦截器链路校验结果: result={}", JsonHelper.toJson(result));
+            }
+            if (!SendResult.CODE_OK.equals(result.getKey())) {
+                return result;
+            }
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(domain.getBoxCode());
@@ -520,6 +522,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
             return result;
+        }
+        if (Boolean.TRUE.equals(isCancelLastSend)) {
+            this.doCancelLastSend(domain);
         }
         try {
             // 写入按运单发货任务

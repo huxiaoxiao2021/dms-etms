@@ -153,7 +153,7 @@ public class DeliveryServiceTest {
         String boxCode = "JDVA00119929460-1-200-";
         String sendCode = "910-39-20200916155103192";
         SendM sendM = initSendM(sendCode, boxCode);
-        SendResult sendResult = deliveryService.packageSendByWaybill(sendM);
+        SendResult sendResult = deliveryService.packageSendByWaybill(sendM, false, false);
         System.out.println(JsonHelper.toJson(sendResult));
     }
 
