@@ -560,39 +560,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 return JdResponse.CODE_CONFIRM;
                 // 如果用户选择强制转板
             } else {
-                User user = combinationBoardRequest.getUser();
-                // 先生成一个新板，组装参数
-                AddBoardRequest addBoardRequest = new AddBoardRequest();
-                addBoardRequest.setDestination(request.getReceiveSiteName());
-                addBoardRequest.setDestinationId(request.getReceiveSiteCode());
-                addBoardRequest.setBoardCount(1);
-                addBoardRequest.setSiteCode(request.getSiteCode());
-                addBoardRequest.setSiteName(request.getSiteName());
-                addBoardRequest.setOperatorErp(user.getUserErp());
-                addBoardRequest.setOperatorName(user.getUserName());
-                // 调用接口生成板号
-                InvokeResult<List<BoardDto>> invokeResult = createBoard(addBoardRequest);
-                if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, invokeResult.getMessage());
-                    return JdResponse.CODE_FAIL;
+                // 调用组板接口生成一个新的板号
+                Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
+                if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
+                    return responseCode;
                 }
-                List<BoardDto> boardDtoList = invokeResult.getData();
-                if (CollectionUtils.isEmpty(boardDtoList)) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
-                    return JdResponse.CODE_FAIL;
-                }
-                BoardDto board = boardDtoList.get(0);
-                if (board == null || StringUtils.isEmpty(board.getCode())) {
-                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
-                    return JdResponse.CODE_FAIL;
-                }
-                // 设置回传参数
-                boardResponse.setBoardCode(board.getCode());
-                boardResponse.setReceiveSiteCode(board.getDestinationId());
-                boardResponse.setReceiveSiteName(board.getDestination());
-                request.setBoardCode(board.getCode());
-                request.setReceiveSiteCode(board.getDestinationId());
-                request.setReceiveSiteName(board.getDestination());
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
                 if(boardMoveResponse == null){
@@ -628,6 +600,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         Response<Integer> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
         try {
+            // 调用组板接口生成一个新的板号
+            Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
+            if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
+                return responseCode;
+            }
             AddBoardBox addBoardBox = new AddBoardBox();
             addBoardBox.setBoardCode(request.getBoardCode());
             addBoardBox.setBoxCode(request.getBoxOrPackageCode());
@@ -673,6 +650,44 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         //发送全称跟踪
         sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
+        return JdResponse.CODE_SUCCESS;
+    }
+
+    private Integer createNewBoard(BoardCombinationRequest request, BoardResponse boardResponse,
+                                   CombinationBoardRequest combinationBoardRequest) {
+        User user = combinationBoardRequest.getUser();
+        // 先生成一个新板，组装参数
+        AddBoardRequest addBoardRequest = new AddBoardRequest();
+        addBoardRequest.setDestination(request.getReceiveSiteName());
+        addBoardRequest.setDestinationId(request.getReceiveSiteCode());
+        addBoardRequest.setBoardCount(1);
+        addBoardRequest.setSiteCode(request.getSiteCode());
+        addBoardRequest.setSiteName(request.getSiteName());
+        addBoardRequest.setOperatorErp(user.getUserErp());
+        addBoardRequest.setOperatorName(user.getUserName());
+        // 调用接口生成板号
+        InvokeResult<List<BoardDto>> invokeResult = createBoard(addBoardRequest);
+        if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, invokeResult.getMessage());
+            return JdResponse.CODE_FAIL;
+        }
+        List<BoardDto> boardDtoList = invokeResult.getData();
+        if (CollectionUtils.isEmpty(boardDtoList)) {
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
+            return JdResponse.CODE_FAIL;
+        }
+        BoardDto board = boardDtoList.get(0);
+        if (board == null || StringUtils.isEmpty(board.getCode())) {
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, LoadIllegalException.BOARD_CREATE_FAIL_INTERCEPT_MESSAGE);
+            return JdResponse.CODE_FAIL;
+        }
+        // 设置回传参数
+        boardResponse.setBoardCode(board.getCode());
+        boardResponse.setReceiveSiteCode(board.getDestinationId());
+        boardResponse.setReceiveSiteName(board.getDestination());
+        request.setBoardCode(board.getCode());
+        request.setReceiveSiteCode(board.getDestinationId());
+        request.setReceiveSiteName(board.getDestination());
         return JdResponse.CODE_SUCCESS;
     }
 
