@@ -485,7 +485,7 @@ public class PreSealVehicleResource {
         }else {
             preSealVehicle.setSealCodes("");
         }
-        preSealVehicle.setSendCarTime(vtrd.getSendCarTimeStr());
+        preSealVehicle.setSendCarTime(DateHelper.subTmsCarTime(vtrd.getSendCarTimeStr()));
         preSealVehicle.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
         if(isUpdate){
             preSealVehicle.setUpdateUserErp(sealCarDto.getSealUserCode());
