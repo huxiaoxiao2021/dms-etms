@@ -75,6 +75,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     private static final String SWITCH_ON = "1";
 
+    private static Map<String,String> mapValues = new HashMap<>(16,0.75f);
+    static {
+        mapValues.put("保价金额","保价");
+        mapValues.put("代收货款","代收");
+        mapValues.put("重货上楼","上楼");
+        mapValues.put("包装服务","包装");
+        mapValues.put("暂存服务","预约");
+        mapValues.put("特安服务","特安");
+        mapValues.put("大件开箱通电","通电");
+        mapValues.put("大件送装一体","送装");
+        mapValues.put("取旧服务","取旧");
+    }
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByReturnWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -807,7 +820,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                             for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
                                 Map<String,Object> vasExtMap = waybillPickupVasDto.getVasExt();
                                 if(vasExtMap != null && !vasExtMap.isEmpty()){
-                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(vasExtMap.get("vasName"));
+                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(simpleValues(vasExtMap.get("vasName")));
                                 }
                             }
                         }
@@ -830,5 +843,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
         log.info("获取商品增值信息成功,运单号:{},返回增值信息:{}",wayBillCode,packageUpVasMap);
         return packageUpVasMap;
+    }
+
+    private static String simpleValues(Object vasName){
+
+        String newVasName = vasName.toString().trim();
+        String simpleValues = mapValues.get(newVasName);
+        if(StringUtils.isNotBlank(simpleValues)){
+            return simpleValues;
+        }else {
+            return newVasName;
+        }
     }
 }
