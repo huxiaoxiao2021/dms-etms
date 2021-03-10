@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.dao.impl;
 
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import org.springframework.stereotype.Repository;
 
@@ -36,4 +37,16 @@ public class DmsBaseDictDaoImpl extends BaseDao<DmsBaseDict> implements DmsBaseD
 	public List<DmsBaseDict> queryAllGroups() {
 		return this.sqlSession.selectList(getNameSpace()+".queryAllGroups");
 	}
+
+    /**
+     * 带顺查询
+     * @param pagerCondition
+     * @return
+     */
+    @Override
+    public List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition) {
+        return this.sqlSession.selectList(getNameSpace()+".queryOrderByCondition",pagerCondition);
+    }
+
+
 }
