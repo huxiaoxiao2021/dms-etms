@@ -19,6 +19,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BoardStatus;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -150,8 +151,21 @@ public class BoardCombinationResource {
             return result;
         }
         try {
+            Board oldBoard = null;
+            // 查询之前是否组过板
+            JdResponse<Board> response = getBoardByBoxCode(request.getCurrentOperate().getSiteCode(), request.getBoxOrPackageCode());
+            if (response != null && JdResponse.CODE_SUCCESS.equals(response.getCode())) {
+                oldBoard = response.getData();
+            }
             // 第一次则生成板号
             if (StringUtils.isBlank(request.getBoardCode())) {
+                // 如果之前组过，并且板没有关闭则返回继续使用
+                if (oldBoard != null && oldBoard.getStatus().equals(BoardStatus.CLOSED.getIndex())) {
+                    boardResponse.setBoardCode(oldBoard.getCode());
+                    boardResponse.setReceiveSiteCode(oldBoard.getDestinationId());
+                    boardResponse.setReceiveSiteName(oldBoard.getDestination());
+                    return result;
+                }
                 // 组装参数
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
                 boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
@@ -179,6 +193,15 @@ public class BoardCombinationResource {
                 request.setBoardCode(board.getCode());
                 request.setReceiveSiteCode(board.getDestinationId());
                 request.setReceiveSiteName(board.getDestination());
+            } else {
+                // 如果之前已经组板，并且就是现在的板，则提示请勿重复扫描
+                if (oldBoard != null && request.getBoardCode().equals(oldBoard.getCode())) {
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,
+                            request.getBoxOrPackageCode(), request.getBoardCode()));
+                    result.toFail(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,
+                            request.getBoxOrPackageCode(), request.getBoardCode()));
+                    return result;
+                }
             }
             // 对象转换
             BoardCombinationRequest combinationRequest = convertToBoardCombinationRequest(request);
@@ -280,6 +303,7 @@ public class BoardCombinationResource {
             if (boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() > 0) {
                 result.toFail(boardResponse.buildStatusMessages());
             }
+            boardResponse.setBoardCode(board.getCode());
             boardResponse.setReceiveSiteName(board.getDestination());
             boardResponse.setReceiveSiteCode(board.getDestinationId());
             result.setData(boardResponse);
