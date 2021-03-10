@@ -237,6 +237,10 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_JZD = "京准达";
     /**
+     * 产品名-特惠小件
+     */
+    public static final String PRODUCT_NAME_THXJ = "特惠小件";
+    /**
      * 产品名-特惠包裹
      */
     public static final String PRODUCT_NAME_THBG = "特惠包裹";
