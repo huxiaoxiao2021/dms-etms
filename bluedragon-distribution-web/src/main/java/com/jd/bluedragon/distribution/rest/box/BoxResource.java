@@ -28,6 +28,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -624,15 +626,16 @@ public class BoxResource {
     /**
      * 获取BC箱号类型强制绑定循环集包袋拦截状态
      * @param siteCode
-     * @return
+     * @return ture 拦截 false 不拦截
      */
-    @POST
+    @GET
     @Path("/boxes/getInterceptStatus")
-    public Boolean  getInterceptStatus(Integer siteCode){
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Boolean  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
         //默认拦截
         Boolean flag = Boolean.TRUE;
         try{
-             flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+            flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
         }catch (Exception e){
             log.error("获取站点{}循环集包袋绑定拦截开关异常",siteCode,e);
         }
