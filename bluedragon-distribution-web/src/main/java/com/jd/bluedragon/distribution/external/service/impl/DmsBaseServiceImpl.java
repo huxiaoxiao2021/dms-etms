@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>
@@ -55,6 +56,21 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLogin", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public LoginUserResponse clientLogin(LoginRequest request) {
         return userService.jsfLogin(request);
+    }
+    /**
+     * 客户端登录获取登录信息接口(安卓PDA)，增加erp认证
+     *
+     * @param request
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLoginNew", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public LoginUserResponse clientLoginNew(LoginRequest request) {
+        LoginUserResponse loginUserResponse = userService.jsfLogin(request);
+        loginUserResponse.setToken(UUID.randomUUID().toString());
+        return loginUserResponse;
     }
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)

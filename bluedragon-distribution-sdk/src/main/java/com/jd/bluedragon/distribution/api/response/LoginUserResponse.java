@@ -99,6 +99,8 @@ public class LoginUserResponse extends JdResponse {
 	  *  客户端配置信息
 	  */
 	private DmsClientConfigInfo dmsClientConfigInfo;
+
+	private String token;
 	
 	/**
 	 * @return the dmsSiteCode
@@ -295,6 +297,15 @@ public class LoginUserResponse extends JdResponse {
 	public void setDmsClientConfigInfo(DmsClientConfigInfo dmsClientConfigInfo) {
 		this.dmsClientConfigInfo = dmsClientConfigInfo;
 	}
+
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
@@ -332,6 +343,11 @@ public class LoginUserResponse extends JdResponse {
 				", dmsSiteName='" + dmsSiteName + '\'' +
 				", runningMode='" + runningMode + '\'' +
 				", dmsId=" + dmsId +
+				", loginId=" + loginId +
+				", needUpdate=" + needUpdate +
+				", forceUpdate=" + forceUpdate +
+				", dmsClientConfigInfo=" + dmsClientConfigInfo +
+				", token='" + token + '\'' +
 				'}';
 	}
 }
