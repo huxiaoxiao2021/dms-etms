@@ -207,7 +207,7 @@
 			<include refid="queryPassPreSeal_condition"/>
 			<choose>
 				<when test="orderBy != null and orderBy != ''" >
-					order by #{orderBy,jdbcType=VARCHAR}
+					order by ${orderBy}
 				</when>
 				<otherwise>
 					order by s.depart_time desc, s.job_create_time desc
