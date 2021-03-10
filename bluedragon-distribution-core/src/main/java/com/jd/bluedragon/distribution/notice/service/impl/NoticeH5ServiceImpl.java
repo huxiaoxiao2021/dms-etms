@@ -323,6 +323,10 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             NoticeQuery noticeQuery = new NoticeQuery();
             noticeQuery.setId(noticePdaQuery.getNoticeId());
             Notice noticeExist = noticeDao.selectOne(noticeQuery);
+            if(noticeExist == null){
+                result.toError("未查询到数据");
+                return result;
+            }
             NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(noticeExist);
             // 2. 查询是否已读
             NoticeToUserQuery noticeToUserQuery = new NoticeToUserQuery();
@@ -332,7 +336,20 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             NoticeToUser noticeToUser = noticeToUserDao.selectOne(noticeToUserQuery);
             this.judgeIsRead4NoticeH5Dto(noticeH5Dto, noticeToUser);
 
-            // 3. 查询附件
+            // 3. 如果未读，设置为已读
+            if(noticeToUser == null){
+                NoticeToUser noticeToUserInsert = new NoticeToUser();
+                noticeToUserInsert.setNoticeId(noticeExist.getId());
+                noticeToUserInsert.setCreateUser(noticePdaQuery.getUserErp());
+                noticeToUserInsert.setCreateTime(new Date());
+                noticeToUserInsert.setUpdateTime(noticeToUserInsert.getCreateTime());
+                noticeToUserInsert.setReceiveUserErp(noticePdaQuery.getUserErp());
+                noticeToUserInsert.setIsRead(Constants.YN_YES);
+                noticeToUserInsert.setYn(Constants.YN_YES);
+                noticeToUserDao.add(noticeToUserInsert);
+            }
+
+            // 4. 查询附件 待定
 
             result.setData(noticeH5Dto);
         } catch (Exception e) {

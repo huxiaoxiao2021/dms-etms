@@ -83,7 +83,7 @@ public class NoticeToUserDao extends BaseDao<NoticeToUser> {
      * @time 2021-02-26 14:27:46 周五
      */
     public int add(NoticeToUser noticeToUser) {
-        return this.getSqlSession().insert(NoticeToUserDao.NAMESPACE + ".add", noticeToUser);
+        return this.getSqlSession().insert(NoticeToUserDao.NAMESPACE + ".insertSelective", noticeToUser);
     }
 
     /**

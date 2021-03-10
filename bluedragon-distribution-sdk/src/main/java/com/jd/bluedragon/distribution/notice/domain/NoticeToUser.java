@@ -31,7 +31,7 @@ public class NoticeToUser implements Serializable{
     /**
      * 是否已读，0-未读，1-已读  db_column: is_read
      */
-    private Byte isRead;
+    private Integer isRead;
     /**
      * 创建人ERP  db_column: create_user
      */
@@ -51,7 +51,7 @@ public class NoticeToUser implements Serializable{
     /**
      * 逻辑删除标志,1-删除,0-正常  db_column: yn
      */
-    private Byte yn;
+    private Integer yn;
     /**
      * 数据库时间  db_column: ts
      */
@@ -83,11 +83,11 @@ public class NoticeToUser implements Serializable{
         this.receiveUserErp = receiveUserErp;
     }
 
-    public Byte getIsRead() {
+    public Integer getIsRead() {
         return isRead;
     }
 
-    public void setIsRead(Byte isRead) {
+    public void setIsRead(Integer isRead) {
         this.isRead = isRead;
     }
 
@@ -123,11 +123,11 @@ public class NoticeToUser implements Serializable{
         this.updateTime = updateTime;
     }
 
-    public Byte getYn() {
+    public Integer getYn() {
         return yn;
     }
 
-    public void setYn(Byte yn) {
+    public void setYn(Integer yn) {
         this.yn = yn;
     }
 
