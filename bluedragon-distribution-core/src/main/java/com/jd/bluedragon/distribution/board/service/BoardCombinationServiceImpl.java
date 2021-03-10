@@ -560,10 +560,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 return JdResponse.CODE_CONFIRM;
                 // 如果用户选择强制转板
             } else {
-                // 调用组板接口生成一个新的板号
-                Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
-                if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
-                    return responseCode;
+                if (StringUtils.isBlank(request.getBoardCode())) {
+                    // 调用组板接口生成一个新的板号
+                    Integer responseCode = createNewBoard(request, boardResponse, combinationBoardRequest);
+                    if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
+                        return responseCode;
+                    }
                 }
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
