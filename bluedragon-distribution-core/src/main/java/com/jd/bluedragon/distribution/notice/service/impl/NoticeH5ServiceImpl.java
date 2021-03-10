@@ -49,6 +49,8 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    private final int maxPageSize = 1000;
+
     /**
      * 查询未读通知数
      *
@@ -197,7 +199,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
 
         try {
             // 0. 校验必要参数
-            Response<Void> checkResult = this.checkParamForGetNoticeList(noticePdaQuery);
+            Response<Void> checkResult = this.checkParamForGetNoticeListAndPage(noticePdaQuery);
             if(!checkResult.isSucceed()){
                 result.toError(result.getMessage());
                 return result;
@@ -215,6 +217,8 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 return result;
             }
             noticePageDto.setTotalRow((int)total);
+            noticeQuery.setPageNumber(noticePdaQuery.getPageNumber());
+            noticeQuery.setPageSize(noticePdaQuery.getPageSize());
             List<Notice> noticeExistList = noticeDao.queryList(noticeQuery);
             if(CollectionUtils.isEmpty(noticeExistList)){
                 return result;
@@ -260,6 +264,35 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             }
         } catch (Exception e){
             log.error("NoticeH5ServiceImpl.checkParamForGetNoticeList exception ", e);
+            result.toError(e.getMessage());
+        }
+        return result;
+    }
+
+    private Response<Void> checkParamForGetNoticeListAndPage(NoticePdaQuery noticePdaQuery){
+        Response<Void> result = new Response<>();
+        result.toSucceed();
+
+        try {
+
+            Response<Void> checkResult = this.checkParamForGetNoticeList(noticePdaQuery);
+            if(!checkResult.isSucceed()){
+                return checkResult;
+            }
+            if(noticePdaQuery.getPageNumber() == null){
+                result.toError("参数错误，pageNumber不能为空");
+                return result;
+            }
+            if(noticePdaQuery.getPageSize() == null){
+                result.toError("参数错误，pageSize不能为空");
+                return result;
+            }
+            if(noticePdaQuery.getPageSize() > maxPageSize){
+                result.toError(String.format("参数错误，pageSize不能超过%s", maxPageSize));
+                return result;
+            }
+        } catch (Exception e){
+            log.error("NoticeH5ServiceImpl.checkParamForGetNoticeListAndPage exception ", e);
             result.toError(e.getMessage());
         }
         return result;
@@ -325,7 +358,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         result.toSucceed();
         try {
             // 0. 校验必要参数
-            Response<Void> checkResult = this.checkParamForGetNoticeList(noticePdaQuery);
+            Response<Void> checkResult = this.checkParamForGetNoticeListAndPage(noticePdaQuery);
             if(!checkResult.isSucceed()){
                 result.toError(result.getMessage());
                 return result;
