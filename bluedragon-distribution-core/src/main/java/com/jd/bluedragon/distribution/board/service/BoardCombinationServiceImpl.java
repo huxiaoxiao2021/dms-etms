@@ -7,7 +7,6 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
@@ -24,6 +23,8 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -132,10 +133,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private SortingCheckService sortingCheckService;
 
     @Autowired
-    private BoardCommonManager boardCommonManager;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
+    private RouterService routerService;
 
 
 
@@ -489,7 +490,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         if (StringUtils.isBlank(request.getBoardCode())) {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBoxOrPackageCode());
-            Integer nextSiteCode = boardCommonManager.getNextSiteCodeByRouter(waybillCode, request.getSiteCode());
+            // 根据当前网点匹配下一网点
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getSiteCode(), waybillCode);
+            Integer nextSiteCode = routeNextDto.getFirstNextSiteId();
             if (nextSiteCode == null) {
                 log.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!", waybillCode, request.getSiteCode());
                 boardResponse.addStatusInfo(InvokeResult.RESULT_INTERCEPT_CODE,
