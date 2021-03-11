@@ -1167,7 +1167,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
         		//8-生鲜特快
         		transportMode = TextConstants.PRODUCT_NAME_SXTK;
-        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
+                // 8.1 - 生鲜特快下运营类型
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
+                    transportMode += TextConstants.PRODUCT_NAME_SXTK_JR;
+                }
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)) {
+                    transportMode += TextConstants.PRODUCT_NAME_SXTK_CC;
+                }
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
         		//16-特惠包裹
         		transportMode = TextConstants.PRODUCT_NAME_THBG;
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
