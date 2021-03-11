@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -124,6 +125,22 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
             jdResponse.setData(flag);
         }catch (Exception e){
             jdResponse.toError("获取站点拦截状态异常");
+        }
+        return jdResponse;
+    }
+
+
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.checkGroupBingResult",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<BoxDto> groupList){
+        JdCResponse<BoxCodeGroupBinDingDto> jdResponse = new JdCResponse<>();
+        try {
+           InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = boxResource.checkGroupBingResult(groupList);
+           if(invokeResult.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+               jdResponse.toSucceed();
+               jdResponse.setData(invokeResult.getData());
+           }
+        }catch (Exception e){
+            jdResponse.toError("获取分组箱号绑定循环集包袋异常");
         }
         return jdResponse;
     }
