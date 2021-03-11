@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface BoxGatewayService {
     JdCResponse<BoxDto> getBoxInfo(String boxCode);
 
     JdCResponse<Boolean> getInterceptStatus(Integer siteCode);
+
+    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<BoxDto> groupList);
 }
