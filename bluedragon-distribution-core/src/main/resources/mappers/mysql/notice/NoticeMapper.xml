@@ -118,6 +118,9 @@
         <if test="isDisplay != null">
             and is_display = #{isDisplay}
         </if>
+        <if test="isTopDisplay != null">
+            and is_top_display = #{isTopDisplay}
+        </if>
         <if test="receiveScopeType != null">
             and receive_scope_type = #{receiveScopeType}
         </if>

@@ -55,6 +55,18 @@ public enum NoticeReceiveScopeTypeEnum {
         return ENUM_MAP.get(code);
     }
 
+    /**
+     * 根据编码通知返回
+     */
+    public static NoticeReceiveScopeTypeEnum getEnum(int code) {
+        for (NoticeReceiveScopeTypeEnum typeEnum : NoticeReceiveScopeTypeEnum.values()) {
+            if (typeEnum.getCode() == code) {
+                return typeEnum;
+            }
+        }
+        return null;
+    }
+
     NoticeReceiveScopeTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;

@@ -78,6 +78,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(noticePdaQuery.getUserErp());
             NoticeQuery noticeQuery = new NoticeQuery();
             noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.WORKBENCH.getCode(), NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode())));
+            noticeQuery.setReceiveScopeType(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode());
             noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
             long totalCount = noticeDao.queryCount(noticeQuery);
 
@@ -212,6 +213,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.WORKBENCH.getCode(), NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode())));
             noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
             noticeQuery.setKeyword(noticePdaQuery.getKeyword());
+            noticeQuery.setReceiveScopeType(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode());
             long total = noticeDao.queryCount(noticeQuery);
             if(total == 0){
                 return result;
@@ -219,6 +221,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             noticePageDto.setTotalRow((int)total);
             noticeQuery.setPageNumber(noticePdaQuery.getPageNumber());
             noticeQuery.setPageSize(noticePdaQuery.getPageSize());
+            noticeQuery.setReceiveScopeType(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode());
             List<Notice> noticeExistList = noticeDao.queryList(noticeQuery);
             if(CollectionUtils.isEmpty(noticeExistList)){
                 return result;
@@ -322,6 +325,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             // 1. 查询详情
             NoticeQuery noticeQuery = new NoticeQuery();
             noticeQuery.setId(noticePdaQuery.getNoticeId());
+            noticeQuery.setReceiveScopeType(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode());
             Notice noticeExist = noticeDao.selectOne(noticeQuery);
             if(noticeExist == null){
                 result.toError("未查询到数据");
