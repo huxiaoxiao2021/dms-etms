@@ -32,5 +32,11 @@ public class SqlUtilsTest {
 		String orderBy = SqlUtils.genOrderBySql(orderByList, columNameMap);
 		Assert.assertTrue("db_column1 desc,column2 asc".equals(orderBy));
 		System.out.println("----:" + orderBy);
+		
+		List<Map<String,String>> formatOrderByList = SqlUtils.formatOrderByList(orderByList, columNameMap);
+		System.out.println("----:" + JsonHelper.toJson(formatOrderByList));
+		
+		List<Map<String,String>> formatOrderByList1 = SqlUtils.formatOrderByList(orderByList, null);
+		System.out.println("----:" + JsonHelper.toJson(formatOrderByList1));
 	}
 }
