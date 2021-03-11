@@ -268,7 +268,6 @@
                   alias="${dms.jsf.alias}"
                   ref="boxRelationJsfService"
                   server="dmsjsf">
-        <jsf:parameter key="token" value="${dms.jsf.sendCode.external.token}" hide="true"/>
     </jsf:provider>
 
     <!-- 包裹回流扫描 提供给分拣工作台 -->
