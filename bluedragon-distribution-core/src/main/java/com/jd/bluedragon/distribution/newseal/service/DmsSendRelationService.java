@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
 
 /**
  * @ClassName: DmsSendRelationService
@@ -27,9 +29,15 @@ public interface DmsSendRelationService {
 	boolean saveWithFrequency(DmsSendRelation dmsSendRelation);
 
 	/**
-	 * 保存发货关系表
+	 * 查询封车看板信息
 	 * @param dmsSendRelation
 	 * @return
 	 */
-	List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation);
+	List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition);
+	/**
+	 * 查询封车看板数量
+	 * @param dmsSendRelation
+	 * @return
+	 */
+	Integer countPassPreSealData(PassPreSealQueryRequest queryCondition);
 }
