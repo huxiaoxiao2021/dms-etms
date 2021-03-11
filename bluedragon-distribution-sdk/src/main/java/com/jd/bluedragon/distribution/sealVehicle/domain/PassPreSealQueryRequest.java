@@ -75,10 +75,6 @@ public class PassPreSealQueryRequest extends BasePagerCondition implements Seria
 	 * 过滤线路类型
 	 */
 	private List<Integer> lineTypes;
-	/**
-	 * 排序信息
-	 */
-	private String orderBy;
 	
 	public String getVehicleNumber() {
 		return vehicleNumber;
@@ -169,11 +165,5 @@ public class PassPreSealQueryRequest extends BasePagerCondition implements Seria
 	}
 	public void setLineTypes(List<Integer> lineTypes) {
 		this.lineTypes = lineTypes;
-	}
-	public String getOrderBy() {
-		return orderBy;
-	}
-	public void setOrderBy(String orderBy) {
-		this.orderBy = orderBy;
 	}
 }
