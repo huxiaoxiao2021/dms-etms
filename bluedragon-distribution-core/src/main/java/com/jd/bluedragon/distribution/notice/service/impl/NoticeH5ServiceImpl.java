@@ -369,7 +369,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      */
     @Override
     public Response<PageDto<NoticeH5Dto>> searchByKeyword(NoticePdaQuery noticePdaQuery) {
-        log.info("NoticeH5ServiceImpl.getNoticeDetail {}", JsonHelper.toJson(noticePdaQuery));
+        log.info("NoticeH5ServiceImpl.searchByKeyword {}", JsonHelper.toJson(noticePdaQuery));
 
         Response<PageDto<NoticeH5Dto>> result = new Response<>();
         result.toSucceed();
@@ -388,7 +388,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             return listResult;
 
         } catch (Exception e) {
-            log.error("NoticeH5ServiceImpl.getNoticeDetail exception ", e);
+            log.error("NoticeH5ServiceImpl.searchByKeyword exception ", e);
             result.toError("系统发生异常，请联系分拣小秘");
         }
         return result;
