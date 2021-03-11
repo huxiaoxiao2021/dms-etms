@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.CarrierQueryWS;
@@ -27,6 +28,9 @@ public class CarrierQueryWSMangerImpl implements CarrierQueryWSManager{
         CallerInfo info = Profiler.registerInfo("DMS.BASE.CarrierQueryWSMangerImpl.getTransportResourceByTransCode", false, true);
         try {
             CommonDto<TransportResourceDto>  result =  carrierQueryWS.getTransportResourceByTransCode(capacityCode);
+            if(logger.isDebugEnabled()) {
+            	logger.debug("调用运力查询信息接口结果:{} 入参capacityCode:{}",JsonHelper.toJson(result),capacityCode);
+            }
             if(result == null || result.getData()==null ){
                 logger.error("调用运力查询信息接口结果为空 入参capacityCode:{}",capacityCode);
                 return null;

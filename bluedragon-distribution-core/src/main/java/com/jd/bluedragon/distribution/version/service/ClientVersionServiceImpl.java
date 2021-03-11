@@ -44,19 +44,16 @@ public class ClientVersionServiceImpl implements ClientVersionService {
         return clientVersionDao.exists(clientVersion);
 	}
 	
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean add(ClientVersion clientVersion) {
 		Assert.notNull(clientVersion, "clientVersion must not be null");
         return clientVersionDao.add(clientVersion);
 	}
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean update(ClientVersion clientVersion) {
 		Assert.notNull(clientVersion, "clientVersion must not be null");
         return clientVersionDao.update(clientVersion);
 	}
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean delete(Long id) {
 		Assert.notNull(id, "id must not be null");
         return clientVersionDao.delete(id);

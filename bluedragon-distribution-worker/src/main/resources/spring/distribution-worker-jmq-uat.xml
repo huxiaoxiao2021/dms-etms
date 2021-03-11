@@ -223,5 +223,9 @@
     <jmq:consumer id="jmq.dmsWeightVolumeFlowConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dms.weight.volume.flow}" listener="dmsWeightVolumeFlowConsumer"/>
     </jmq:consumer>
+    <!--tms任务取消消费-->
+    <jmq:consumer id="jmq.tmsVehicleJobCancelConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.tmsVehicleJobCancel}" listener="tmsVehicleJobCancelConsumer"/>
+    </jmq:consumer>         
 </beans>
 

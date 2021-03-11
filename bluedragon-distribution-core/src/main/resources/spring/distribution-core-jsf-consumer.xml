@@ -442,7 +442,10 @@
     <jsf:consumer id="vosVehicleJobBusinessWS" interface="com.jd.etms.vos.ws.VosVehicleJobBusinessWS"
                   protocol="jsf" alias="${vos.vehicleJobBusiness.jsf.alias}" timeout="${vos.vehicleJobBusiness.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-
+    <!-- 传摆车次任务 运输系统 蔡长宇  -->
+    <jsf:consumer id="vosVehicleJobQueryWS" interface="com.jd.etms.vos.ws.VosVehicleJobQueryWS"
+                  protocol="jsf" alias="${vos.vosVehicleJobQueryWS.jsf.alias}" timeout="${vos.vosVehicleJobQueryWS.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- ICENTER系统 智能园区 园区叫号 何双（heshuang10）-->
     <jsf:consumer id="iPdaDispatchJsfService" interface="com.jd.intelligent.center.api.service.IPdaDispatchJsfService" protocol="jsf"
                   alias="${icenter.jsf.alias}" timeout="${icenter.jsf.timeout}" retries="0">
@@ -659,4 +662,20 @@
     <jsf:consumer id="boxOperateApi" interface="com.zhongyouex.order.api.box.BoxOperateApi"
                   protocol="jsf" alias="${jsf.zhongyouex.alias}" timeout="${jsf.zhongyouex.timeout}" >
     </jsf:consumer>
+
+    <jsf:consumer id="kaGenerateEdnDeliveryReceiptPdfService" interface="com.jd.jp.print.templet.center.sdk.service.KaGenerateEdnDeliveryReceiptPdfService"
+                  protocol="jsf" alias="${jsf.kaGenerateEdnDeliveryReceiptPdfService.alias}" timeout="${jsf.kaGenerateEdnDeliveryReceiptPdfService.timeout}" >
+    </jsf:consumer>
+
+    <jsf:consumer id="materialFlowJsfService"
+                  interface="com.jd.ql.dms.report.api.material.IMaterialFlowJsfService"
+                  alias="${jsf.reportExternalService.alias}"
+                  timeout="${jsf.reportExternalService.timeout}">
+    </jsf:consumer>
+
+
+    <jsf:consumer id="stagingServiceWS" interface="com.jd.merchant.api.staging.ws.StagingServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
+    </jsf:consumer>
+
 </beans>

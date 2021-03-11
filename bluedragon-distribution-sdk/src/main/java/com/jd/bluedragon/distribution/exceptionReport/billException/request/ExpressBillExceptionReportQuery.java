@@ -44,17 +44,22 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     private Integer yn;
 
-    private Integer pageSize;
-
     private BasePagerCondition basePagerCondition;
 
-    public Integer getPageSize() {
-        return pageSize;
-    }
+    /**
+     * 包裹号
+     */
+    private String packageCode;
 
-    public void setPageSize(Integer pageSize) {
-        this.pageSize = pageSize;
-    }
+    /**
+     * 当前登录人erp
+     */
+    private String currentUserErp;
+
+    /**
+     * 是否异步导出标识
+     */
+    private Integer isAsyncExport;
 
     public Integer getYn() {
         return yn;
@@ -126,6 +131,30 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     public void setBasePagerCondition(BasePagerCondition basePagerCondition) {
         this.basePagerCondition = basePagerCondition;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public String getCurrentUserErp() {
+        return currentUserErp;
+    }
+
+    public void setCurrentUserErp(String currentUserErp) {
+        this.currentUserErp = currentUserErp;
+    }
+
+    public Integer getIsAsyncExport() {
+        return isAsyncExport;
+    }
+
+    public void setIsAsyncExport(Integer isAsyncExport) {
+        this.isAsyncExport = isAsyncExport;
     }
 }
     

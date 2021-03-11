@@ -121,7 +121,6 @@ public class PopPrintServiceImpl implements PopPrintService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int add(PopPrint popPrint) {
         if (popPrint == null) {
             log.info("传入popPrint 为空");
@@ -259,22 +258,24 @@ public class PopPrintServiceImpl implements PopPrintService {
                     if(BusinessHelper.isSiteType(bDto.getSiteType())){
                         Date operatorTime=new Date(System.currentTimeMillis()-30000L);
                         //操作站点类型符合 是站点
-                        toTask(popPrintRequest, WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",operatorTime);
-                        toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",operatorTime);
-                        //驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
-                        Map<String,Object> msgBody= Maps.newHashMap();
-                        msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
-                        msgBody.put("packageCode",popPrintRequest.getPackageBarcode());
-                        msgBody.put("goods",popPrintRequest.getCategoryName());
-                        msgBody.put("operatorErp",userDto.getErp());
-                        msgBody.put("operatorTime",operatorTime.getTime());
-                        msgBody.put("operatorSource",PRINT_SOURCE);
-                        zhuchangPrintToTerminalProducer.sendOnFailPersistent(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
+                        if (popPrintRequest.isSendPickup()){
+                            toTask(popPrintRequest, WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",operatorTime);
+                            toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",operatorTime);
+                            //驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
+                            Map<String,Object> msgBody= Maps.newHashMap();
+                            msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
+                            msgBody.put("packageCode",popPrintRequest.getPackageBarcode());
+                            msgBody.put("goods",popPrintRequest.getCategoryName());
+                            msgBody.put("operatorErp",userDto.getErp());
+                            msgBody.put("operatorTime",operatorTime.getTime());
+                            msgBody.put("operatorSource",PRINT_SOURCE);
+                            zhuchangPrintToTerminalProducer.sendOnFailPersistent(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
+                        }
                     }
                 }
             }
 
-            if(isNeedSendMQ){
+            if(isNeedSendMQ&&popPrintRequest.isSendBoxing()){
                 PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
                 BeanUtils.copyProperties(popPrint, popPrintSmsMsg);
                 popPrintToSmsProducer.sendOnFailPersistent(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
@@ -369,13 +370,11 @@ public class PopPrintServiceImpl implements PopPrintService {
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int updateByWaybillCode(PopPrint popPrint) {
         return popPrintDao.updateByWaybillCode(popPrint);
     }
 
     @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public int updateByWaybillOrPack(PopPrint popPrint) {
         return this.popPrintDao.updateByWaybillOrPack(popPrint);
     }

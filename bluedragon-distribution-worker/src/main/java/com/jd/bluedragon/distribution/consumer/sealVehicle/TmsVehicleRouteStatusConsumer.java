@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteMq;
 import com.jd.bluedragon.distribution.newseal.service.TmsVehicleRouteService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.dms.common.cache.CacheService;
 
 @Service("tmsVehicleRouteStatusConsumer")
 public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
@@ -23,9 +22,6 @@ public class TmsVehicleRouteStatusConsumer extends MessageBaseConsumer {
      * 取消标识
      */
     private static final Integer OPERATE_CANCEL = 20;
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
 
     @Autowired
     @Qualifier("tmsVehicleRouteService")

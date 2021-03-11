@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.whiteList.dao.WhiteListDao;
 import com.jd.bluedragon.distribution.whitelist.WhiteList;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class PdaAuthorityResource {
 
     @POST
     @Path("/pdaAuthority/inspectionAuthority")
+    @JProfiler(jKey = "DMS.WEB.PdaAuthorityResource.inspectionAuthority", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> inspectionAuthority(WhiteList whiteListrequest){
 
         JdResult<Boolean> result = new JdResult<>();

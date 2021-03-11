@@ -244,7 +244,9 @@
     select
         <include refid="Base_Column_List"/>
     from load_scan_record where yn = 1 and  waybill_code = #{wayBillCode,jdbcType=VARCHAR}
-    and package_code = #{packageCode,jdbcType=VARCHAR} and create_site_code =  #{createSiteCode,jdbcType=BIGINT} limit 1
+    and package_code = #{packageCode,jdbcType=VARCHAR} and create_site_code =  #{createSiteCode,jdbcType=BIGINT}
+    order by id desc
+    limit 1
     </select>
 
 

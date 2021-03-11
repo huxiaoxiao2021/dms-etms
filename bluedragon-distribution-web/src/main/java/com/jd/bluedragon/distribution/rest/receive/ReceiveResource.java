@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.receive.service.impl.ReceiveServiceImpl;
 import com.jd.bluedragon.distribution.rest.pop.PopJoinResource.PopJoinQuery;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class ReceiveResource {
 	@SuppressWarnings("unchecked")
 	@POST
 	@Path("/receiveJoin/queryReceiveJoinList")
+	@JProfiler(jKey = "DMS.WEB.ReceiveResource.queryPopJoinList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopJoinResponse<PopJoinQuery> queryPopJoinList(
 			ReceiveJoinQuery receiveJoinQuery) {
 		Boolean checkParam = Boolean.FALSE;
@@ -129,6 +132,7 @@ public class ReceiveResource {
      * */
     @GET
     @Path("/receiveresource/queryarterybillinfo/{type}/{code}/{dmsID}/{dmsName}/{userCode}/{userName}")
+	@JProfiler(jKey = "DMS.WEB.ReceiveResource.queryArteryBillInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeparturePrintResponse queryArteryBillInfo(@PathParam("type") String type,@PathParam("code") String code,
     		@PathParam("dmsID")Integer dmsID,@PathParam("dmsName")String dmsName,
     		@PathParam("userCode")String userCode, @PathParam("userName")String userName){

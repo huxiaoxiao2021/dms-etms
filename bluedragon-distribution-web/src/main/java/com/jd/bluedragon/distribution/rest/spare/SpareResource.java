@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,7 @@ public class SpareResource {
     
     @GET
     @Path("/spares/{spareCode}")
+    @JProfiler(jKey = "DMS.WEB.SpareResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SpareResponse get(@PathParam("spareCode") String spareCode) {
         Assert.notNull(spareCode, "spareCode must not be null");
         this.log.info("spare code's {}" , spareCode);
@@ -43,6 +46,7 @@ public class SpareResource {
     
     @POST
     @Path("/spares/reprint")
+    @JProfiler(jKey = "DMS.WEB.SpareResource.reprint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SpareResponse reprint(SpareRequest request) {
         Assert.notNull(request.getSpareCode(), "SpareRequest's code must not be null");
         this.log.info("SpareRequest's {}", request);
@@ -56,6 +60,7 @@ public class SpareResource {
      */
     @POST
     @Path("/spares/genCodes")
+    @JProfiler(jKey = "DMS.WEB.SpareResource.genCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SpareResponse genCodes(SpareRequest request) {
         Assert.notNull(request, "request must not be null");
         this.log.info("SpareRequest's {}", request);
@@ -73,6 +78,7 @@ public class SpareResource {
     }    
     @POST
     @Path("/spares")
+    @JProfiler(jKey = "DMS.WEB.SpareResource.print", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public SpareResponse print(SpareRequest request) {
         Assert.notNull(request, "request must not be null");
         this.log.info("SpareRequest's {}", request);

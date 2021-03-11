@@ -34,7 +34,7 @@ public class ArExcpRegisterServiceImpl extends BaseService<ArExcpRegister> imple
 	}
 
 	@Override
-	@Transactional(propagation = Propagation.REQUIRED)
+	@Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public boolean saveOrUpdate(ArExcpRegister arExcpRegister, String userCode, String userName) {
 		ArExcpRegister oldData = this.find(arExcpRegister);
 

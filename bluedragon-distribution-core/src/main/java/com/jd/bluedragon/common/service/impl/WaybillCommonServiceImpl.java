@@ -1138,7 +1138,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
     		//13\14-京准达
     		transportMode = TextConstants.PRODUCT_NAME_JZD;
-    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
+    	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_F)){
+            //31 = F  特惠小件
+            transportMode = TextConstants.PRODUCT_NAME_THXJ;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
     			 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
     		if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
         		//4-同城速配
@@ -1164,7 +1167,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
         		//8-生鲜特快
         		transportMode = TextConstants.PRODUCT_NAME_SXTK;
-        	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
+                // 8.1 - 生鲜特快下运营类型
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
+                    transportMode += TextConstants.PRODUCT_NAME_SXTK_JR;
+                }
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)) {
+                    transportMode += TextConstants.PRODUCT_NAME_SXTK_CC;
+                }
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
         		//16-特惠包裹
         		transportMode = TextConstants.PRODUCT_NAME_THBG;
         	}else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)

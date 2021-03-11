@@ -37,11 +37,13 @@ public class TmsVehicleRouteDaoTest extends AbstractCoreDaoH2Test {
     	String vehicleRouteCode = "vehicleRouteCode";
     	Integer originalSiteCode = 910;
     	TmsVehicleRoute dbData = new TmsVehicleRoute();
+    	dbData.setOriginalSiteCode(originalSiteCode);
+    	dbData.setDestinationSiteCode(39);
     	dbData.setVehicleRouteCode(vehicleRouteCode);
     	dbData.setVehicleJobCode("vehicleJobCode");
     	dbData.setJobCreateTime(new Date());
     	dbData.setCancelTime(new Date());
-    	dbData.setCreateTime(new Date());
+    	dbData.setCreateTime(new Date()); 
     	dbData.setCarrierTeamCode("carrierTeamCode");
     	
         int insert = tmsVehicleRouteDao.insert(dbData);
@@ -50,11 +52,6 @@ public class TmsVehicleRouteDaoTest extends AbstractCoreDaoH2Test {
         TmsVehicleRoute queryByVehicleRouteCode = tmsVehicleRouteDao.queryByVehicleRouteCode(vehicleRouteCode);
         Assert.assertTrue(queryByVehicleRouteCode != null);
         logger.info("tmsVehicleRouteDao.queryByVehicleRouteCode:结果",JsonHelper.toJson(queryByVehicleRouteCode));
-        
-        TmsVehicleRouteCondition condition = new TmsVehicleRouteCondition();
-        condition.setOriginalSiteCode(originalSiteCode);
-        List<TmsVehicleRoute> queryByCondition = tmsVehicleRouteDao.queryByCondition(condition);
-        Assert.assertTrue(queryByCondition.size()==1);
         
         int logicalDeleteById = tmsVehicleRouteDao.logicalDeleteById(queryByVehicleRouteCode.getId());
         Assert.assertTrue(logicalDeleteById==1);

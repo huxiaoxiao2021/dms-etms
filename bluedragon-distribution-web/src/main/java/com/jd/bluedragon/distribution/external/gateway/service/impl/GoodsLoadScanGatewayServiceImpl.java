@@ -323,7 +323,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             }
 
             //防止PDA-1用户在发货页面停留过久，期间PDA-2用户操作了发货，此时发货状态已经改变为已完成，PDA不能再进行发货动作
-            LoadCar loadCar = loadScanService.findTaskStatus(req.getTaskId());
+            LoadCar loadCar = loadService.findLoadCarById(req.getTaskId());
             if(loadCar == null) {
                 if(log.isDebugEnabled()) {
                     log.debug("操作任务【{}】时，查不到该任务信息", req.getTaskId());

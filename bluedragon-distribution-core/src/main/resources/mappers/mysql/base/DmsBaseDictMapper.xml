@@ -230,4 +230,13 @@
 				select 1 from dms_base_dict s where s.id = t.parent_id and s.parent_id = 101)
 		) order by node_level,parent_id,order_num
 	</select>
+
+	<select id="queryOrderByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsBaseDict">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_base_dict
+		<include refid="where_condition"/>
+		order by node_level,parent_id,order_num
+	</select>
 </mapper>
