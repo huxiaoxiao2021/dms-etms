@@ -9,6 +9,7 @@
 		<result column="package_amount" property="packageAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="force_amount" property="forceAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="load_amount" property="loadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="surplus_amount" property="surplusAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="unload_amount" property="unloadAmount" javaType="java.lang.Integer" jdbcType="INTEGER" />
         <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
@@ -24,7 +25,7 @@
     </resultMap>
 
     <sql id="Base_Column_List" >
-		id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
+		id,seal_car_code,waybill_code,package_amount,force_amount,load_amount,surplus_amount,unload_amount,
 		status,weight,volume,create_user_erp,create_user_name,update_user_erp,update_user_name
 	</sql>
 
@@ -50,6 +51,9 @@
             </if>
             <if test="loadAmount != null">
                 load_amount,
+            </if>
+            <if test="surplusAmount != null">
+                surplus_amount,
             </if>
             <if test="unloadAmount != null">
                 unload_amount,
@@ -102,6 +106,9 @@
             </if>
             <if test="loadAmount != null">
                 #{loadAmount,jdbcType=INTEGER},
+            </if>
+            <if test="surplusAmount != null">
+                #{surplusAmount,jdbcType=INTEGER},
             </if>
             <if test="unloadAmount != null">
                 #{unloadAmount,jdbcType=INTEGER},
@@ -171,6 +178,7 @@
             <if test="packageAmount != null">package_amount = #{packageAmount,jdbcType=INTEGER},</if>
             <if test="forceAmount != null">force_amount = #{forceAmount,jdbcType=INTEGER},</if>
             <if test="loadAmount != null">load_amount = #{loadAmount,jdbcType=INTEGER},</if>
+            <if test="surplusAmount != null">surplus_amount = #{surplusAmount,jdbcType=INTEGER},</if>
             <if test="unloadAmount != null">unload_amount = #{unloadAmount,jdbcType=INTEGER},</if>
             <if test="status != null">status = #{status,jdbcType=INTEGER},</if>
             <if test="weight != null">weight = #{weight,jdbcType=DOUBLE},</if>
@@ -186,7 +194,7 @@
     </update>
 
     <insert id="batchInsert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan">
-        insert into unload_scan (seal_car_code,waybill_code,package_amount,force_amount,load_amount,unload_amount,
+        insert into unload_scan (seal_car_code,waybill_code,package_amount,force_amount,load_amount,surplus_amount,unload_amount,
         status,weight,volume,create_user_erp,create_user_name,update_user_erp,update_user_name,
         create_time,update_time,yn,ts)  VALUES
         <foreach collection="waybillPackageNumInfoList" item="item" separator=",">
@@ -195,6 +203,7 @@
              #{item.packageAmount,jdbcType=INTEGER},
              #{item.forceAmount,jdbcType=INTEGER},
              #{loadAmount,jdbcType=INTEGER},
+             #{surplusAmount,jdbcType=INTEGER},
              #{item.forceAmount,jdbcType=INTEGER},
              #{status,jdbcType=INTEGER},
              #{weight,jdbcType=DOUBLE},

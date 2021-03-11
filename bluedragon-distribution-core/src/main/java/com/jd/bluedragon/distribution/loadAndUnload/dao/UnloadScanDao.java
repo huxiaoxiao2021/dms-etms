@@ -11,11 +11,11 @@ public class UnloadScanDao extends BaseDao<UnloadScan> {
     private static final String NAMESPACE = UnloadScanDao.class.getName();
 
 
-    public List<UnloadScan> findUnloadScanByBySealCarCode(String sealCarCode) {
+    public List<UnloadScan> findUnloadScanBySealCarCode(String sealCarCode) {
         return super.getSqlSession().selectList(NAMESPACE + ".selectUnloadScanBySealCarCode", sealCarCode);
     }
 
-    public UnloadScan findUnloadByBySealAndWaybillCode(String sealCarCode, String waybillCode) {
+    public UnloadScan findUnloadBySealAndWaybillCode(String sealCarCode, String waybillCode) {
         UnloadScan unloadScan = new UnloadScan();
         unloadScan.setWaybillCode(waybillCode);
         unloadScan.setSealCarCode(sealCarCode);
