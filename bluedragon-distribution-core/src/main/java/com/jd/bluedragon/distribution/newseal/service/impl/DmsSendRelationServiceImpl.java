@@ -75,8 +75,8 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
      */
     private static Map<String,String> COLUM_MAPPING_QUERYPASSPRESEALDATA = new HashMap<String,String>();
     static{
-    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("jobCreateTime", "s.depart_time");
-    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("departTime", "s.job_create_time");
+    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("jobCreateTime", "s.job_create_time");
+    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("departTime", "s.depart_time");
     	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("preSealStatus", "pre_seal_status");
     }
 	@Override
