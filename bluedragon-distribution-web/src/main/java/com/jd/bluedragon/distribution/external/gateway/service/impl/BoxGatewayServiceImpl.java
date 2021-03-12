@@ -118,9 +118,9 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     public JdCResponse<Boolean>  getInterceptStatus(Integer siteCode){
         JdCResponse<Boolean> jdResponse = new JdCResponse<>();
         try {
-            boolean flag = boxResource.getInterceptStatus(siteCode);
+            InvokeResult<Boolean> result = boxResource.getInterceptStatus(siteCode);
+            jdResponse.setData(result.getData());
             jdResponse.toSucceed();
-            jdResponse.setData(flag);
         }catch (Exception e){
             jdResponse.toError("获取站点拦截状态异常");
         }

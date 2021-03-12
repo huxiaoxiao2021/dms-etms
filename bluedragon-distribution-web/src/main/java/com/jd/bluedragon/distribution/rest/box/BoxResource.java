@@ -34,6 +34,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.sleepycat.je.tree.IN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -637,15 +638,19 @@ public class BoxResource {
     @GET
     @Path("/boxes/getInterceptStatus")
     @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Boolean  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
-        //默认拦截
+    public InvokeResult<Boolean>  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.success();
         Boolean flag = Boolean.TRUE;
         try{
+            //默认拦截
             flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
         }catch (Exception e){
             log.error("获取站点{}循环集包袋绑定拦截开关异常",siteCode,e);
+            result.error("获取站点拦截开关异常");
         }
-        return  flag;
+        result.setData(flag);
+        return  result;
     }
 
 
