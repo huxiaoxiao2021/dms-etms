@@ -145,6 +145,12 @@
         <if test="receiveScopeType != null">
             and receive_scope_type = #{receiveScopeType}
         </if>
+        <if test="receiveScopeTypeList != null">
+            and receive_scope_type in
+            <foreach collection="receiveScopeTypeList" item="type" open="(" close=")" separator=",">
+                #{type}
+            </foreach>
+        </if>
         <if test="createTimeStart != null">
             and create_time >= #{createTimeStart}
         </if>
