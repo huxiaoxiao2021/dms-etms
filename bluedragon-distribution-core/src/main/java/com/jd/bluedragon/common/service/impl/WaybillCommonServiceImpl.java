@@ -1426,8 +1426,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
 
             //判断有没有揽收站点
-            if (!isVaildDms(dmsCode)) {
-                dmsCode = getPickDmsCode(printWaybill,waybillPickup);
+            if (!isVaildDms(dmsCode) && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
+                if (dto != null) {
+                    dmsCode = dto.getDmsId();
+                }
+                log.debug("运单号:{}.揽收站点:{}对应的分拣中心:{}" ,waybillCode,waybillPickup.getPickupSiteId(), dmsCode);
             }
 
             //判断有没有寄件城市
