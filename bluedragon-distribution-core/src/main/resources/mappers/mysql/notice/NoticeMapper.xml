@@ -38,6 +38,24 @@
         is_delete
     </sql>
 
+    <!-- 不查长字段content的字段 -->
+    <sql id="Base_Column_No_Content_List">
+        id,
+        theme,
+        level,
+        type,
+        upload_time,
+        is_display,
+        is_top_display,
+        receive_scope_type,
+        content_brief,
+        create_user,
+        update_user,
+        create_time,
+        update_time,
+        is_delete
+    </sql>
+
     <insert id="add" parameterType="Notice" useGeneratedKeys="true" keyProperty="id">
 		INSERT INTO notice(
 		    id,
@@ -100,6 +118,9 @@
         <if test="id != null">
             and id = #{id}
         </if>
+        <if test="keyword != null and keyword != ''">
+            and theme like concat('%', #{keyword}, '%')
+        </if>
         <if test="title != null and title != ''">
             and theme like concat(#{title}, '%')
         </if>
@@ -150,7 +171,7 @@
 
     <select id="queryList" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
         SELECT
-        <include refid="Base_Column_List"/>
+        <include refid="Base_Column_No_Content_List"/>
         FROM notice
         WHERE is_delete = 0
         <include refid="sql_if_not_null"/>
@@ -226,4 +247,4 @@
         AND id = #{id}
     </update>
 
-</mapper>	
+</mapper>
