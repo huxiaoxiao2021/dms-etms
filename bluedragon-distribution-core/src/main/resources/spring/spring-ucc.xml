@@ -93,6 +93,7 @@
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
+		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
 
 	</bean>
 
@@ -157,6 +158,7 @@
 				<value>uccPropertyConfiguration.deliverHideSites</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
+				<value>uccPropertyConfiguration.siteQueryLimit</value>
 			</list>
 		</property>
 	</bean>

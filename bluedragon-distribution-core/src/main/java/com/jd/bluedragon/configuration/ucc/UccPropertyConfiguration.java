@@ -255,6 +255,11 @@ public class UccPropertyConfiguration {
      */
     private int WJPackageNumberLimit;
 
+    /**
+     * 站点查询数量最大限制
+     */
+    private Integer siteQueryLimit;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -701,5 +706,13 @@ public class UccPropertyConfiguration {
 
     public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
         this.WJPackageNumberLimit = WJPackageNumberLimit;
+    }
+
+    public Integer getSiteQueryLimit() {
+        return siteQueryLimit;
+    }
+
+    public void setSiteQueryLimit(Integer siteQueryLimit) {
+        this.siteQueryLimit = siteQueryLimit;
     }
 }
