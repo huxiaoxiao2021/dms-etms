@@ -190,4 +190,24 @@ public class NoticeH5Dto implements Serializable {
     public void setNoticeAttachmentList(List<NoticeAttachmentH5Dto> noticeAttachmentList) {
         this.noticeAttachmentList = noticeAttachmentList;
     }
+
+    @Override
+    public String toString() {
+        return "NoticeH5Dto{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", level=" + level +
+                ", type=" + type +
+                ", isTopDisplay=" + isTopDisplay +
+                ", content='" + content + '\'' +
+                ", contentBrief='" + contentBrief + '\'' +
+                ", publishTime=" + publishTime +
+                ", publishDateFormative='" + publishDateFormative + '\'' +
+                ", publishTimeFormative='" + publishTimeFormative + '\'' +
+                ", isRead=" + isRead +
+                ", categoryId=" + categoryId +
+                ", categoryName='" + categoryName + '\'' +
+                ", noticeAttachmentList=" + noticeAttachmentList +
+                '}';
+    }
 }

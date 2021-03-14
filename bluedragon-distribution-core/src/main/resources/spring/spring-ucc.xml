@@ -91,6 +91,7 @@
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
+		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 
 	</bean>
 
@@ -152,6 +153,7 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
+				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 			</list>
 		</property>
 	</bean>

@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.notice.request.NoticePdaQuery;
-import com.jd.bluedragon.distribution.notice.response.NoticeH5Dto;
+import com.jd.bluedragon.distribution.notice.response.NoticeLastNewDto;
 import com.jd.bluedragon.distribution.notice.service.NoticeH5Service;
 import com.jd.bluedragon.external.gateway.service.NoticeGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +51,9 @@ public class NoticeGatewayServiceImpl implements NoticeGatewayService {
      * @date 2021-02-24 20:25:38 周三
      */
     @Override
-    public JdCResponse<NoticeH5Dto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
-        JdCResponse<NoticeH5Dto> result = new JdCResponse<>(JdCResponse.CODE_SUCCESS, "");
-        Response<NoticeH5Dto> rawResult = noticeH5Service.getLastNewNotice(noticePdaQuery);
+    public JdCResponse<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
+        JdCResponse<NoticeLastNewDto> result = new JdCResponse<>(JdCResponse.CODE_SUCCESS, "");
+        Response<NoticeLastNewDto> rawResult = noticeH5Service.getLastNewNotice(noticePdaQuery);
         if(rawResult.isSucceed()){
             result.setData(rawResult.getData());
         } else {

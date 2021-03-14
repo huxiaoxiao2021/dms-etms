@@ -157,13 +157,16 @@
         <if test="createTimeEnd != null">
             and create_time &lt;= #{createTimeEnd}
         </if>
+        <if test="isDelete != null">
+            and is_delete = #{isDelete}
+        </if>
     </sql>
 
     <select id="selectOne" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
         SELECT
         <include refid="Base_Column_List"/>
         FROM notice
-        WHERE is_delete = 0
+        WHERE 1 = 1
         <include refid="sql_if_not_null"/>
         LIMIT 1
     </select>
@@ -171,7 +174,7 @@
     <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
         SELECT count(1)
         FROM notice
-        WHERE is_delete = 0
+        WHERE 1 = 1
         <include refid="sql_if_not_null"/>
     </select>
 
@@ -179,7 +182,7 @@
         SELECT
         <include refid="Base_Column_No_Content_List"/>
         FROM notice
-        WHERE is_delete = 0
+        WHERE 1 = 1
         <include refid="sql_if_not_null"/>
         ORDER BY is_top_display desc, create_time desc
         <if test="offset != null and offset >= 0">

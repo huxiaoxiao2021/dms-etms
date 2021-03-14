@@ -244,6 +244,11 @@ public class UccPropertyConfiguration {
      */
     private boolean checkBoxSendedSwitchOn;
 
+    /**
+     * PDA通知自动拉取间隔时间(单位秒)
+     */
+    private Integer pdaNoticePullIntervalTime;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -674,5 +679,13 @@ public class UccPropertyConfiguration {
 
     public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public Integer getPdaNoticePullIntervalTime() {
+        return pdaNoticePullIntervalTime;
+    }
+
+    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
+        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
     }
 }

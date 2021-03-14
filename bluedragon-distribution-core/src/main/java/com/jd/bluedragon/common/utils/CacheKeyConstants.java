@@ -92,4 +92,41 @@ public class CacheKeyConstants {
      * 缓存key-发货关系
      */
     public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
+
+    // ------------------------ S 通知相关
+    /**
+     * 全局最新通知数据缓存
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_GLOBAL_LAST_NEW_NOTICE = "dmsWeb:client:notice:lastNewNotice";
+
+    /**
+     * 用户最新通知数据缓存，形如 dmsWeb:client:notice:lastNewNotice:fanggang7 格式
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_USER_LAST_NEW_NOTICE = "dmsWeb:client:notice:lastNewNotice:%s";
+
+    /**
+     * 全局通知更新记录
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_NOTICE_GLOBAL_CHANGE_INFO = "dmsWeb:client:notice:global:changeInfo";
+
+    /**
+     * 用户总通知个数缓存
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_TOTAL_COUNT = "dmsWeb:client:notice:totalCount:%s";
+    // 用户总通知数过期时间，单位小时
+    public static final int CACHE_KEY_CLIENT_NOTICE_TOTAL_COUNT_TIME_EXPIRE = 24;
+
+    /**
+     * 用户已读通知个数缓存，形如 dmsWeb:client:notice:readCount:fanggang7 格式
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT = "dmsWeb:client:notice:readCount:%s";
+    public static final int CACHE_KEY_CLIENT_NOTICE_READ_COUNT_TIME_EXPIRE = 24;
+
+    /**
+     * 用户搜索时间缓存，防止刷搜索，形如 dmsWeb:client:notice:lastSearch:fanggang7 格式
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_LAST_SEARCH_TIME = "dmsWeb:client:notice:lastSearch:%s";
+    public static final Integer CACHE_KEY_CLIENT_NOTICE_USER_LAST_SEARCH_TIME_EXPIRE = 60;
+
+    // ------------------------ E 通知相关
 }

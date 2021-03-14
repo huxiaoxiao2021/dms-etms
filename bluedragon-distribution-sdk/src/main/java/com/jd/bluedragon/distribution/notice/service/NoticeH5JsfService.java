@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.notice.service;
 
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.notice.domain.Notice;
 import com.jd.bluedragon.distribution.notice.request.NoticePdaQuery;
 import com.jd.bluedragon.distribution.notice.response.NoticeH5Dto;
+import com.jd.bluedragon.distribution.notice.response.NoticeLastNewDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -31,7 +31,7 @@ public interface NoticeH5JsfService {
      * @author fanggang7
      * @date 2021-02-24 20:25:38 周三
      */
-    Response<NoticeH5Dto> getLastNewNotice(NoticePdaQuery noticePdaQuery);
+    Response<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery);
 
     /**
      * 查询通知列表

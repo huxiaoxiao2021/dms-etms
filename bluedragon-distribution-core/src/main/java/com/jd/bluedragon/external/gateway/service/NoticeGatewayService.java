@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.notice.request.NoticePdaQuery;
 import com.jd.bluedragon.distribution.notice.response.NoticeH5Dto;
+import com.jd.bluedragon.distribution.notice.response.NoticeLastNewDto;
 
 /**
  * description
@@ -29,5 +30,5 @@ public interface NoticeGatewayService {
      * @author fanggang7
      * @date 2021-02-24 20:25:38 周三
      */
-    JdCResponse<NoticeH5Dto> getLastNewNotice(NoticePdaQuery noticePdaQuery);
+    JdCResponse<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery);
 }

@@ -46,6 +46,8 @@ public class NoticeQuery extends BasePagerCondition implements Serializable {
 
     private Date createTimeEnd;
 
+    private Integer isDelete;
+
     private Integer pageSize;
 
     private String keyword;
@@ -154,6 +156,14 @@ public class NoticeQuery extends BasePagerCondition implements Serializable {
         this.createTimeEnd = createTimeEnd;
     }
 
+    public Integer getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(Integer isDelete) {
+        this.isDelete = isDelete;
+    }
+
     public Integer getPageSize() {
         return pageSize;
     }
@@ -187,6 +197,7 @@ public class NoticeQuery extends BasePagerCondition implements Serializable {
                 ", createTimeEndStr='" + createTimeEndStr + '\'' +
                 ", createTimeStart=" + createTimeStart +
                 ", createTimeEnd=" + createTimeEnd +
+                ", isDelete=" + isDelete +
                 ", pageSize=" + pageSize +
                 ", keyword='" + keyword + '\'' +
                 '}';

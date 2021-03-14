@@ -38,6 +38,11 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
      */
     private List<Long> noticeIdList;
 
+    /**
+     * 通知范围
+     */
+    private List<Integer> receiveScopeTypeList;
+
     private Integer pageSize;
 
     public Long getNoticeId() {
@@ -80,6 +85,14 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
         this.noticeIdList = noticeIdList;
     }
 
+    public List<Integer> getReceiveScopeTypeList() {
+        return receiveScopeTypeList;
+    }
+
+    public void setReceiveScopeTypeList(List<Integer> receiveScopeTypeList) {
+        this.receiveScopeTypeList = receiveScopeTypeList;
+    }
+
     public Integer getPageSize() {
         return pageSize;
     }
@@ -97,6 +110,8 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
                 ", isRead=" + isRead +
                 ", yn=" + yn +
                 ", noticeIdList=" + noticeIdList +
+                ", receiveScopeTypeList=" + receiveScopeTypeList +
+                ", pageSize=" + pageSize +
                 '}';
     }
 }

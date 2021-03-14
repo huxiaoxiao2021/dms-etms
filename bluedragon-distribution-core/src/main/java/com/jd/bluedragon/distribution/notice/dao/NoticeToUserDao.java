@@ -40,6 +40,16 @@ public class NoticeToUserDao extends BaseDao<NoticeToUser> {
     public Long queryCount(NoticeToUserQuery query) {
         return this.getSqlSession().selectOne(NoticeToUserDao.NAMESPACE + ".queryCount", query);
     }
+    /**
+     * 查询用户已读通知数
+     * @param query 查询参数
+     * @return 已读通知数
+     * @author fanggang7
+     * @date 2021-03-14 21:06:00 周日
+     */
+    public Long queryReadCountByUserExcludeDeleteNotice(NoticeToUserQuery query) {
+        return this.getSqlSession().selectOne(NoticeToUserDao.NAMESPACE + ".queryReadCountByUserExcludeDeleteNotice", query);
+    }
 
     /**
      * 按条件查询列表

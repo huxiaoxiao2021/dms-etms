@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.notice.jsf.impl;
 
 import com.jd.bluedragon.distribution.api.Response;
-import com.jd.bluedragon.distribution.notice.domain.Notice;
 import com.jd.bluedragon.distribution.notice.request.NoticePdaQuery;
 import com.jd.bluedragon.distribution.notice.response.NoticeH5Dto;
+import com.jd.bluedragon.distribution.notice.response.NoticeLastNewDto;
 import com.jd.bluedragon.distribution.notice.service.NoticeH5JsfService;
 import com.jd.bluedragon.distribution.notice.service.NoticeH5Service;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -49,7 +49,7 @@ public class NoticeH5JsfServiceImpl implements NoticeH5JsfService {
      * @date 2021-02-24 20:25:38 周三
      */
     @Override
-    public Response<NoticeH5Dto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
+    public Response<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
         return noticeH5Service.getLastNewNotice(noticePdaQuery);
     }
 

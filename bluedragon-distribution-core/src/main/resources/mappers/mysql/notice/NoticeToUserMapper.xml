@@ -252,6 +252,21 @@
             LIMIT #{offset}, #{limit}
         </if>
     </select>
+    <!-- 查询已读通知数 -->
+    <select id="queryReadCountByUserExcludeDeleteNotice" resultType="long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT count(1) FROM `notice_to_user`
+        where `receive_user_erp` = #{userErp}
+          and `is_read` = #{isRead}
+          and `notice_id` not in (
+            select `id` from `notice` where `is_delete` = 1
+            <if test="receiveScopeTypeList != null">
+                and receive_scope_type in
+                <foreach collection="receiveScopeTypeList" item="type" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+        )
+    </select>
     <!-- 伪删除（更新删除行的识别码） -->
     <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
         UPDATE `notice_to_user` SET yn = 1
