@@ -662,7 +662,7 @@ public class BoxResource {
     @POST
     @Path("/boxes/checkGroupBingResult")
     @JProfiler(jKey = "DMS.WEB.BoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(List<BoxDto> groupList){
+    public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(List<String> groupList){
         InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
         invokeResult.success();
         try {
@@ -671,8 +671,7 @@ public class BoxResource {
             List<BoxDto> noBinDingList = new ArrayList<BoxDto>(); // 没绑定的
             List<BoxDto> bingDingList = new ArrayList<BoxDto>(); // 绑定的
 
-            for (BoxDto  boxdto: groupList){
-                String boxCode = boxdto.getBoxCode();
+            for (String  boxCode: groupList){
                 Box box = this.boxService.findBoxByCode(boxCode);
                 if(box==null){
                     log.error("箱号:{}详细获取失败",boxCode);
@@ -681,6 +680,8 @@ public class BoxResource {
 
                 // 只统计BC 箱号类型
                 if(box.getType().equals(BoxTypeEnum.TYPE_BC.getCode())){
+                    BoxDto boxdto = new BoxDto();
+                    boxdto.setBoxCode(boxCode);
                     boxdto.setBoxType(box.getType());
                     String materialCode =  cycleBoxService.getBoxMaterialRelation(boxCode);
                     if(StringUtils.isEmpty(materialCode)){

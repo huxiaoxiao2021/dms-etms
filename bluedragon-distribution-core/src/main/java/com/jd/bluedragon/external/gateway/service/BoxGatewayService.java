@@ -23,5 +23,5 @@ public interface BoxGatewayService {
 
     JdCResponse<Boolean> getInterceptStatus(Integer siteCode);
 
-    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<BoxDto> groupList);
+    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<String> groupList);
 }

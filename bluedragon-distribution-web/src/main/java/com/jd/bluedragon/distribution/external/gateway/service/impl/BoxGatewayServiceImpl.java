@@ -129,7 +129,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
 
 
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.checkGroupBingResult",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<BoxDto> groupList){
+    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<String> groupList){
         JdCResponse<BoxCodeGroupBinDingDto> jdResponse = new JdCResponse<>();
         try {
            InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = boxResource.checkGroupBingResult(groupList);
