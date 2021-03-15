@@ -756,18 +756,10 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         String cacheKeyFormatClientGlobalLastNewNotice = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_GLOBAL_LAST_NEW_NOTICE;
         String globalLastNewNoticeValueStr = jimdbCacheService.get(cacheKeyFormatClientGlobalLastNewNotice);
         // 如果全局未读通知为空，则查一遍数据库
-        LastNewNoticeGlobalDto lastNewNoticeGlobalDto;
-        if(StringUtils.isBlank(globalLastNewNoticeValueStr)){
-            NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
-            long currentTimeMillis = System.currentTimeMillis();
-            lastNewNoticeGlobalDto = this.genLastNewNoticeGlobalDto(noticeH5Dto, currentTimeMillis);
-            jimdbCacheService.set(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
-        } else {
-            lastNewNoticeGlobalDto = JsonHelper.fromJson(globalLastNewNoticeValueStr, LastNewNoticeGlobalDto.class);
-            if(lastNewNoticeGlobalDto == null){
-                jimdbCacheService.del(cacheKeyFormatClientGlobalLastNewNotice);
-            }
-        }
+        NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
+        long currentTimeMillis = System.currentTimeMillis();
+        LastNewNoticeGlobalDto lastNewNoticeGlobalDto = this.genLastNewNoticeGlobalDto(noticeH5Dto, currentTimeMillis);
+        jimdbCacheService.set(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
 
         // 更新全局通知变更缓存
         this.updateNoticeGlobalChangeInfoCache();
@@ -794,22 +786,8 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         if(!this.checkIsMatchPdaNotice(notice)){
             return response;
         }
-        // 最新通知：只更新内容，不变更ID
-        String cacheKeyFormatClientGlobalLastNewNotice = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_GLOBAL_LAST_NEW_NOTICE;
-        String globalLastNewNoticeValueStr = jimdbCacheService.get(cacheKeyFormatClientGlobalLastNewNotice);
-        // 如果全局未读通知为空，则查一遍数据库
-        LastNewNoticeGlobalDto lastNewNoticeGlobalDto;
-        if(StringUtils.isBlank(globalLastNewNoticeValueStr)){
-            NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
-            long currentTimeMillis = System.currentTimeMillis();
-            lastNewNoticeGlobalDto = this.genLastNewNoticeGlobalDto(noticeH5Dto, currentTimeMillis);
-            jimdbCacheService.set(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
-        } else {
-            lastNewNoticeGlobalDto = JsonHelper.fromJson(globalLastNewNoticeValueStr, LastNewNoticeGlobalDto.class);
-            if(lastNewNoticeGlobalDto == null){
-                jimdbCacheService.del(cacheKeyFormatClientGlobalLastNewNotice);
-            }
-        }
+        // 最新通知：重新查询一条
+        this.getGlobalLastNewWithCache();
 
         // 更新全局通知变更缓存
         this.updateNoticeGlobalChangeInfoCache();
