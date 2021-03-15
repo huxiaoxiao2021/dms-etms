@@ -200,11 +200,33 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         // 查询全局总数缓存
         String cacheKeyFormatClientUserReadCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT, noticePdaQuery.getUserErp());
         String clientUserReadCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserReadCount);
+        log.info("NoticeH5ServiceImpl.getUserReadCountWithCache clientUserReadCountValStr val {}", clientUserReadCountValStr);
         if(StringUtils.isBlank(clientUserReadCountValStr)){
             readCount = this.getUserReadCountNoCache(noticePdaQuery);
-            jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, readCount + "", CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_READ_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
+            NoticeCountDto noticeCountDto = new NoticeCountDto(readCount, System.currentTimeMillis());
+            jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, JsonHelper.toJson(noticeCountDto), CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_READ_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
         } else {
-            readCount = new Long(clientUserReadCountValStr);
+            // 判断是否已过时
+            String cacheKeyNoticeGlobalChangeInfo = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_GLOBAL_CHANGE_INFO;
+            String noticeGlobalChangeInfoValStr = jimdbCacheService.get(cacheKeyNoticeGlobalChangeInfo);
+            log.info("NoticeH5ServiceImpl.getUserReadCountWithCache noticeGlobalChangeInfoValStr val {}", noticeGlobalChangeInfoValStr);
+            NoticeChangeInfoDto noticeChangeInfoDto = null;
+            if(StringUtils.isNotBlank(noticeGlobalChangeInfoValStr)){
+                noticeChangeInfoDto = JsonHelper.fromJson(noticeGlobalChangeInfoValStr, NoticeChangeInfoDto.class);
+            }
+
+            NoticeCountDto noticeCountDto = JsonHelper.fromJson(clientUserReadCountValStr, NoticeCountDto.class);
+            if(noticeChangeInfoDto != null && noticeChangeInfoDto.getCacheTime() != null && noticeCountDto != null && noticeCountDto.getCacheTime() != null){
+                // 如果已过时，则重新查询并设置缓存
+                if(noticeChangeInfoDto.getCacheTime() > noticeCountDto.getCacheTime()){
+                    readCount = this.getUserReadCountNoCache(noticePdaQuery);
+                    noticeCountDto = new NoticeCountDto(readCount, System.currentTimeMillis());
+                    jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, JsonHelper.toJson(noticeCountDto), CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_READ_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
+                }
+            }
+            if(noticeCountDto != null && noticeCountDto.getCount() != null){
+                readCount = noticeCountDto.getCount();
+            }
         }
         return readCount;
     }
@@ -236,6 +258,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         long totalCount = 0;
         String cacheKeyFormatClientUserTotalCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_TOTAL_COUNT, noticePdaQuery.getUserErp());
         String clientUserTotalCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserTotalCount);
+        log.info("NoticeH5ServiceImpl.getUserTotalCountWithCache clientUserTotalCountValStr val {}", clientUserTotalCountValStr);
         if(StringUtils.isBlank(clientUserTotalCountValStr)){
             totalCount = this.getUserTotalCountNoCache(noticePdaQuery);
             NoticeCountDto noticeCountDto = new NoticeCountDto(totalCount, System.currentTimeMillis());
@@ -244,6 +267,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             // 判断是否已过时
             String cacheKeyNoticeGlobalChangeInfo = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_GLOBAL_CHANGE_INFO;
             String noticeGlobalChangeInfoValStr = jimdbCacheService.get(cacheKeyNoticeGlobalChangeInfo);
+            log.info("NoticeH5ServiceImpl.getUserTotalCountWithCache noticeGlobalChangeInfoValStr val {}", noticeGlobalChangeInfoValStr);
             NoticeChangeInfoDto noticeChangeInfoDto = null;
             if(StringUtils.isNotBlank(noticeGlobalChangeInfoValStr)){
                 noticeChangeInfoDto = JsonHelper.fromJson(noticeGlobalChangeInfoValStr, NoticeChangeInfoDto.class);
@@ -342,6 +366,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                         && Objects.equals(lastNewNoticeForUserDto.getIsFetched(), Constants.YN_YES)){
                     lastNewNoticeForUserDto = null;
                 } else {
+                    lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
                     lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
                     jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
                 }
