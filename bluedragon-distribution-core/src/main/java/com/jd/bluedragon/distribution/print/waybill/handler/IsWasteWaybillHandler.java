@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -32,9 +33,12 @@ public class IsWasteWaybillHandler implements InterceptHandler<WaybillPrintConte
         InterceptResult<String> interceptResult = context.getResult();
         try {
             String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
-
+            if (waybillTraceManager.isWaybillWaste(waybillCode)){
+                interceptResult.toFail(SortingResponse.CODE_29320,SortingResponse.MESSAGE_29320);
+                log.info("IsWasteWaybillHandler-->弃件不允许换单。原单号:{}", waybillCode);
+            }
         }catch (Exception e){
-            log.error("查询商家、站点对应白名单异常!");
+            log.error("运单弃件拦截异常!");
         }
         return interceptResult;
     }
