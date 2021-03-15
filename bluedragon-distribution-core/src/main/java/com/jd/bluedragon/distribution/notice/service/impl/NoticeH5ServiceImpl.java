@@ -759,7 +759,6 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         }
         // 最新通知：变为新的一条
         String cacheKeyFormatClientGlobalLastNewNotice = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_GLOBAL_LAST_NEW_NOTICE;
-        String globalLastNewNoticeValueStr = jimdbCacheService.get(cacheKeyFormatClientGlobalLastNewNotice);
         // 如果全局未读通知为空，则查一遍数据库
         NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
         long currentTimeMillis = System.currentTimeMillis();
@@ -775,7 +774,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
     private void updateNoticeGlobalChangeInfoCache(){
         String cacheKeyNoticeGlobalChangeInfo = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_GLOBAL_CHANGE_INFO;
         NoticeChangeInfoDto noticeChangeInfoDto = new NoticeChangeInfoDto(System.currentTimeMillis());
-        jimdbCacheService.set(cacheKeyNoticeGlobalChangeInfo, noticeChangeInfoDto);
+        jimdbCacheService.set(cacheKeyNoticeGlobalChangeInfo, JsonHelper.toJson(noticeChangeInfoDto));
     }
 
     /**
