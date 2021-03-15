@@ -475,6 +475,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
             noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
             noticeQuery.setKeyword(noticePdaQuery.getKeyword());
+            noticeQuery.setIsDelete(Constants.YN_NO);
             long total = noticeDao.queryCount(noticeQuery);
             if(total == 0){
                 return result;
@@ -496,7 +497,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             NoticeToUserQuery noticeToUserQuery = new NoticeToUserQuery();
             noticeToUserQuery.setNoticeIdList(noticeIds);
             noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
-            noticeToUserQuery.setYn(Constants.YN_YES);
+            noticeToUserQuery.setYn(Constants.YN_NO);
             List<NoticeToUser> noticeToUsers = noticeToUserDao.queryList(noticeToUserQuery);
             Map<Long, NoticeToUser> noticeToUserGBNoticeIdMap = new HashMap<>();
             for (NoticeToUser noticeToUser : noticeToUsers) {
@@ -611,21 +612,22 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 noticeToUserInsert.setIsRead(Constants.YN_YES);
                 noticeToUserInsert.setYn(Constants.YN_YES);
                 noticeToUserDao.add(noticeToUserInsert);
+
+                // 5. 更新缓存
+                long readCount = 0;
+                // 查询全局总数缓存
+                String cacheKeyFormatClientUserReadCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT, noticePdaQuery.getUserErp());
+                String clientUserReadCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserReadCount);
+                if(StringUtils.isBlank(clientUserReadCountValStr)){
+                    readCount = this.getUserReadCountNoCache(noticePdaQuery);
+                } else {
+                    readCount = new Long(clientUserReadCountValStr);
+                    readCount++;
+                }
+                jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, readCount + "", CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_TOTAL_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
             }
 
             // 4. 查询附件 待定
-            // 5. 更新缓存
-            long readCount = 0;
-            // 查询全局总数缓存
-            String cacheKeyFormatClientUserReadCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT, noticePdaQuery.getUserErp());
-            String clientUserReadCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserReadCount);
-            if(StringUtils.isBlank(clientUserReadCountValStr)){
-                readCount = this.getUserReadCountNoCache(noticePdaQuery);
-            } else {
-                readCount = new Long(clientUserReadCountValStr);
-                readCount++;
-            }
-            jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, readCount + "", CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_TOTAL_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
 
             result.setData(noticeH5Dto);
         } catch (Exception e) {
