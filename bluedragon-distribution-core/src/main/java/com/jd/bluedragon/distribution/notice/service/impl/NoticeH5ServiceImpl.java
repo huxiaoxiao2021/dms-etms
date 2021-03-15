@@ -497,7 +497,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             NoticeToUserQuery noticeToUserQuery = new NoticeToUserQuery();
             noticeToUserQuery.setNoticeIdList(noticeIds);
             noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
-            noticeToUserQuery.setYn(Constants.YN_NO);
+            noticeToUserQuery.setYn(Constants.YN_YES);
             List<NoticeToUser> noticeToUsers = noticeToUserDao.queryList(noticeToUserQuery);
             Map<Long, NoticeToUser> noticeToUserGBNoticeIdMap = new HashMap<>();
             for (NoticeToUser noticeToUser : noticeToUsers) {
