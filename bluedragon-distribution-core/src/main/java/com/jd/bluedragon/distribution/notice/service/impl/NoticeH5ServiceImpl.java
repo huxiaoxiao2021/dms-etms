@@ -614,7 +614,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             // 5. 更新缓存
             long readCount = 0;
             // 查询全局总数缓存
-            String cacheKeyFormatClientUserReadCount = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT;
+            String cacheKeyFormatClientUserReadCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT, noticePdaQuery.getUserErp());
             String clientUserReadCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserReadCount);
             if(StringUtils.isBlank(clientUserReadCountValStr)){
                 readCount = this.getUserReadCountNoCache(noticePdaQuery);
