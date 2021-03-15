@@ -227,6 +227,12 @@
         <if test="noticeId != null">
         AND notice_id = #{noticeId}
         </if>
+        <if test="noticeIdList != null">
+            AND notice_id in
+            <foreach collection="noticeIdList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
         <if test="userErp != null and userErp != ''">
         AND receive_user_erp = #{userErp}
         </if>
