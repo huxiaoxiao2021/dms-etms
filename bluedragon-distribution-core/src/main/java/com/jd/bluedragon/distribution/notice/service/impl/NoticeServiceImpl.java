@@ -93,7 +93,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public PageDto<Notice> queryPageList(NoticeQuery query){
         log.info("NoticeServiceImpl.queryPageList param {}", JsonHelper.toJson(query));
-        query.setIsDelete(Constants.YN_YES);
+        query.setIsDelete(Constants.YN_NO);
         PageDto<Notice> noticePageDto = new PageDto<>();
         List<Notice> noticeList = new ArrayList<>();
         Long total = noticeDao.queryCount(query);
