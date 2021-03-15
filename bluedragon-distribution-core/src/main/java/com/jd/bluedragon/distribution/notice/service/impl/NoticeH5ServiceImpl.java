@@ -338,7 +338,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
             } else {
                 if(lastNewNoticeForUserDto.getCacheTime() != null && lastNewNoticeForUserDto.getCacheTime() > lastNewNoticeGlobalDto.getCacheTime()
-                        && lastNewNoticeForUserDto.getPublishTime() != null && lastNewNoticeForUserDto.getPublishTime() > lastNewNoticeGlobalDto.getPublishTime()
+                        && lastNewNoticeForUserDto.getPublishTime() != null && lastNewNoticeForUserDto.getPublishTime() >= lastNewNoticeGlobalDto.getPublishTime()
                         && Objects.equals(lastNewNoticeForUserDto.getIsFetched(), Constants.YN_YES)){
                     lastNewNoticeForUserDto = null;
                 } else {
