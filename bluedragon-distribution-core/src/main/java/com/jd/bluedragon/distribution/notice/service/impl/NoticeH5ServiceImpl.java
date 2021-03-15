@@ -323,6 +323,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         if(StringUtils.isBlank(userLastNewNoticeValueStr)){
             lastNewNoticeForUserDto = new LastNewNoticeForUserDto();
             lastNewNoticeForUserDto.setId(lastNewNoticeGlobalDto.getId());
+            lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
             lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
             lastNewNoticeForUserDto.setIsFetched(Constants.YN_YES);
             jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
@@ -331,11 +332,13 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             if(lastNewNoticeForUserDto == null){
                 lastNewNoticeForUserDto = new LastNewNoticeForUserDto();
                 lastNewNoticeForUserDto.setId(lastNewNoticeGlobalDto.getId());
+                lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
                 lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
                 lastNewNoticeForUserDto.setIsFetched(Constants.YN_YES);
                 jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
             } else {
                 if(lastNewNoticeForUserDto.getCacheTime() != null && lastNewNoticeForUserDto.getCacheTime() > lastNewNoticeGlobalDto.getCacheTime()
+                        && lastNewNoticeForUserDto.getPublishTime() != null && lastNewNoticeForUserDto.getPublishTime() > lastNewNoticeGlobalDto.getPublishTime()
                         && Objects.equals(lastNewNoticeForUserDto.getIsFetched(), Constants.YN_YES)){
                     lastNewNoticeForUserDto = null;
                 } else {

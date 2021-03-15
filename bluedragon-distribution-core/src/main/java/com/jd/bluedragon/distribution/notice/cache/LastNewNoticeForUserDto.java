@@ -20,6 +20,8 @@ public class LastNewNoticeForUserDto implements Serializable {
      */
     private Integer isFetched;
 
+    private Long publishTime;
+
     /**
      * 缓存时间
      */
@@ -41,6 +43,14 @@ public class LastNewNoticeForUserDto implements Serializable {
         this.isFetched = isFetched;
     }
 
+    public Long getPublishTime() {
+        return publishTime;
+    }
+
+    public void setPublishTime(Long publishTime) {
+        this.publishTime = publishTime;
+    }
+
     public Long getCacheTime() {
         return cacheTime;
     }
@@ -54,6 +64,7 @@ public class LastNewNoticeForUserDto implements Serializable {
         return "LastNewNoticeForUserDto{" +
                 "id=" + id +
                 ", isFetched=" + isFetched +
+                ", publishTime=" + publishTime +
                 ", cacheTime=" + cacheTime +
                 '}';
     }
