@@ -318,6 +318,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         String cacheKeyFormatClientUserLastNewNotice = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_USER_LAST_NEW_NOTICE, noticePdaQuery.getUserErp());
         // 如果用户未读通知为空，则查一遍库，查询已读记录，存在已读，则说明已推送
         String userLastNewNoticeValueStr = jimdbCacheService.get(cacheKeyFormatClientUserLastNewNotice);
+        log.info("NoticeH5ServiceImpl.getUserLastNewNoticeWithCache val {}", userLastNewNoticeValueStr);
         LastNewNoticeForUserDto lastNewNoticeForUserDto;
         if(StringUtils.isBlank(userLastNewNoticeValueStr)){
             lastNewNoticeForUserDto = new LastNewNoticeForUserDto();
@@ -354,6 +355,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         // 查看缓存
         String cacheKeyFormatClientGlobalLastNewNotice = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_GLOBAL_LAST_NEW_NOTICE;
         String globalLastNewNoticeValueStr = jimdbCacheService.get(cacheKeyFormatClientGlobalLastNewNotice);
+        log.info("NoticeH5ServiceImpl.getGlobalLastNewWithCache val {}", globalLastNewNoticeValueStr);
         // 如果全局未读通知为空，则查一遍数据库
         LastNewNoticeGlobalDto lastNewNoticeGlobalDto;
         if(StringUtils.isBlank(globalLastNewNoticeValueStr)){
