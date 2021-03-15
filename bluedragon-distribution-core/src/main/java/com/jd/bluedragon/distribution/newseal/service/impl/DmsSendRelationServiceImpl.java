@@ -70,15 +70,7 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
      */
     @Value("${beans.DmsSendRelationServiceImpl.saveFrequency:1800}")
 	private int saveFrequency;
-    /**
-     * 页面字段对应sql字段关系
-     */
-    private static Map<String,String> COLUM_MAPPING_QUERYPASSPRESEALDATA = new HashMap<String,String>();
-    static{
-    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("jobCreateTime", "s.depart_time");
-    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("departTime", "s.job_create_time");
-    	COLUM_MAPPING_QUERYPASSPRESEALDATA.put("preSealStatus", "pre_seal_status");
-    }
+
 	@Override
 	public boolean saveOrUpdate(DmsSendRelation dmsSendRelation) {
 		DmsSendRelation oldData = dmsSendRelationDao.queryByBusinessKey(dmsSendRelation);
@@ -168,7 +160,7 @@ public class DmsSendRelationServiceImpl implements DmsSendRelationService {
 	public List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
 		//处理排序信息
 		if(queryCondition.getOrders() != null) {
-			queryCondition.setOrderBy(SqlUtils.genOrderBySql(queryCondition.getOrders(), COLUM_MAPPING_QUERYPASSPRESEALDATA));
+			queryCondition.setOrders(SqlUtils.formatOrderByList(queryCondition.getOrders(), null));
 		}
 		return dmsSendRelationDao.queryPassPreSealData(queryCondition);
 	}

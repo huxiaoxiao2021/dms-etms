@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BasicSiteDto;
@@ -57,6 +58,9 @@ public class SiteResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@GET
 	@GZIP
@@ -268,8 +272,10 @@ public class SiteResource {
 			return result;
 		}
 		// 查询数量限制：100
-		if(request.getFetchNum() > MAX_QUERY_LIMIT){
-			request.setFetchNum(MAX_QUERY_LIMIT);
+		Integer siteQueryLimit = uccPropertyConfiguration.getSiteQueryLimit() == null
+				? MAX_QUERY_LIMIT : uccPropertyConfiguration.getSiteQueryLimit();
+		if(request.getFetchNum() > siteQueryLimit){
+			request.setFetchNum(siteQueryLimit);
 		}
 		List<StreamlinedBasicSite> streamlinedBasicSites
 				= baseMajorManager.querySiteByConditionFromStreamlinedSite(convertToQueryCondition(request), request.getFetchNum());

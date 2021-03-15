@@ -1,5 +1,7 @@
 package com.jd.bluedragon.utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,5 +77,38 @@ public class SqlUtils {
 			return sf.toString();
 		}
 		return null;
+	}
+	/**
+	 * 格式化orderByList列表,示例：[{orderColumn:"column1",orderState:"descending"},{orderColumn:"column2",orderState:"asc"}],{"column1":"db_column1","column2":"db_column2"}，返回结果 [{orderColumn:"column1",orderState:"desc"},{orderColumn:"column2",orderState:"asc"}]
+	 * @param orderByList 排序列表
+	 * @param columNameMap 字段映射关系
+	 * @return
+	 */
+	public static List<Map<String,String>> formatOrderByList(List<Map<String,String>> orderByList,Map<String,String> columNameMap) {
+		if(CollectionUtils.isEmpty(orderByList)) {
+			return null;
+		}
+		List<Map<String,String>> formatOrderByList = new ArrayList<Map<String,String>>();
+		for(Map<String,String> item : orderByList) {
+			String orderColumn = item.get(KEY_ORDER_COLUMN);
+			if(!CollectionUtils.isEmpty(columNameMap) && columNameMap.containsKey(orderColumn)) {
+				orderColumn = columNameMap.get(orderColumn);
+			}
+			String orderState = item.get(KEY_ORDER_STATE);
+			if(ORDER_DESC.equalsIgnoreCase(orderState) || ORDER_DESCENDING.equalsIgnoreCase(orderState)) {
+				orderState = ORDER_DESC;
+			}else if (ORDER_ASC.equalsIgnoreCase(orderState) || ORDER_ASCENDING.equalsIgnoreCase(orderState)) {
+				orderState = ORDER_ASC;
+			}else {
+				orderState = null;
+			}
+			if(StringHelper.isNotEmpty(orderColumn) && StringHelper.isNotEmpty(orderState)) {
+				Map<String,String> newItem = new HashMap<String,String>();
+				newItem.put(KEY_ORDER_COLUMN, orderColumn);
+				newItem.put(KEY_ORDER_STATE, orderState);
+				formatOrderByList.add(newItem);
+			}
+		}
+		return formatOrderByList;
 	}
 }

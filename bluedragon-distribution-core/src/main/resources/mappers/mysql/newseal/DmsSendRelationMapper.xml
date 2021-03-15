@@ -206,8 +206,22 @@
 			dms_send_relation t 
 			<include refid="queryPassPreSeal_condition"/>
 			<choose>
-				<when test="orderBy != null and orderBy != ''" >
-					order by #{orderBy,jdbcType=VARCHAR}
+				<when test="orders != null and orders.size() > 0" >
+					order by
+					<foreach collection="orders" item="item" index="index" separator="," open="" close="">
+				    	<if test="item.orderColumn != null and item.orderColumn == 'departTime'" >
+							s.depart_time
+						</if>
+				    	<if test="item.orderColumn != null and item.orderColumn == 'jobCreateTime'" >
+							s.job_create_time
+						</if>
+				    	<if test="item.orderColumn != null and item.orderColumn == 'preSealStatus'" >
+							pre_seal_status
+						</if>
+				    	<if test="item.orderState == 'desc'" >
+							desc
+						</if>
+				    </foreach>
 				</when>
 				<otherwise>
 					order by s.depart_time desc, s.job_create_time desc

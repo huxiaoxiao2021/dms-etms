@@ -210,6 +210,12 @@ public class TextConstants {
      * 产品名-生鲜特快
      */
     public static final String PRODUCT_NAME_SXTK = "生鲜特快";
+
+    // --- start 生鲜特快下运营类型
+    public static final String PRODUCT_NAME_SXTK_JR = "即日";
+    public static final String PRODUCT_NAME_SXTK_CC = "次晨";
+    // --- end 生鲜特快下运营类型
+
     /**
      * 产品名-生鲜专送
      */
@@ -230,6 +236,10 @@ public class TextConstants {
      * 产品名-京准达
      */
     public static final String PRODUCT_NAME_JZD = "京准达";
+    /**
+     * 产品名-特惠小件
+     */
+    public static final String PRODUCT_NAME_THXJ = "特惠小件";
     /**
      * 产品名-特惠包裹
      */
