@@ -139,7 +139,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      */
     @Override
     public Response<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
-        log.info("NoticeH5ServiceImpl.getLastNewNotice {}", JsonHelper.toJson(noticePdaQuery));
+        log.info("NoticeH5ServiceImpl.getLastNewNotice param {}", JsonHelper.toJson(noticePdaQuery));
 
         Response<NoticeLastNewDto> result = new Response<>();
         result.toSucceed();
@@ -159,6 +159,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
 
             // 2. 查询未读通知数
             noticeLastNewDto.setUnreadCount(this.getUserUnreadCount(noticePdaQuery));
+            log.info("NoticeH5ServiceImpl.getLastNewNotice result {}", JsonHelper.toJson(noticeLastNewDto));
 
         } catch (Exception e) {
             log.error("NoticeH5ServiceImpl.getLastNewNotice exception ", e);
