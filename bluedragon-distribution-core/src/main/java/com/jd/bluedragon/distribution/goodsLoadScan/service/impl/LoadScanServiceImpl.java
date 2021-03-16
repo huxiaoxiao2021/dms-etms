@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -1083,7 +1084,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         /**新增扫描装车 车型最大核载校验**/
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
+                checkPackageWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1965,13 +1966,23 @@ public class LoadScanServiceImpl implements LoadScanService {
             return false;
         }
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
-        if (null == baseEntity || null == baseEntity.getData() || null == baseEntity.getData().getWaybill()) {
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        log.info("运单维度");
+        if (null == waybill) {
             return false;
         }
-        Waybill waybill = baseEntity.getData().getWaybill();
-        Double waybillWeight = waybill.getGoodWeight();
-        Double waybillVolume = waybill.getGoodVolume();
+        Double waybillWeight = 0D;
+        Double waybillVolume = 0D;
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            waybillWeight = waybill.getAgainWeight();
+        } else {
+            waybillWeight = waybill.getGoodWeight();
+        }
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            waybillVolume = Double.valueOf(waybill.getSpareColumn2());
+        } else {
+            waybillVolume = Double.valueOf(waybill.getSpareColumn2());
+        }
         BigDecimal weight = new BigDecimal(Double.toString(totalWeight)).add(new BigDecimal(Double.toString(waybillWeight)));
         BigDecimal volume = new BigDecimal(Double.toString(totalVolume)).add(new BigDecimal(Double.toString(waybillVolume)));
         return compareWeightVolume(loadCar, weight, volume);
@@ -2000,35 +2011,49 @@ public class LoadScanServiceImpl implements LoadScanService {
      *
      * @param loadCar
      * @param packageList
-     * @param totalWeight
-     * @param totalVolume
+     * @param totalWeight 当前最新总重
+     * @param totalVolume 当前最新总体积
      * @return
      */
     public Boolean checkBoardWeightVolume(LoadCar loadCar, List<String> packageList, BigDecimal totalWeight, BigDecimal totalVolume, Long taskId) {
-        Set<String> waybillSet = new HashSet<>(packageList);
-        List<String> waybillList = new ArrayList<>();
-        for (String packageCode : waybillSet) {
-            waybillList.add(WaybillUtil.getWaybillCode(packageCode));
+        //根据运单号分组,key运单号，value运单下包裹数量
+        Map<String, Integer> groupMap = Maps.newHashMapWithExpectedSize(packageList.size());
+        for (String waybillCode : packageList) {
+            Integer i = 1;
+            if (groupMap.get(waybillCode) != null) {
+                i = groupMap.get(waybillCode) + 1;
+            }
+            groupMap.put(waybillCode, i);
         }
-        //通过load_scan表查询板上运单扫描记录
-        List<String> recordList = goodsLoadScanDao.checkWaybillIsExist(waybillList, taskId);
-        //板上包裹部分被扫描，取差集;否则直接计算板上运单
-        if (CollectionUtils.isNotEmpty(recordList)) {
-            Set<String> recordSet = new HashSet<>(recordList);
-            Set<String> set = new HashSet<String>();
-            set.addAll(waybillSet);
-            set.removeAll(recordSet);
-            for (String waybillCode : set) {
-                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
-                    return true;
+        for (String waybillCode : groupMap.keySet()) {
+            //计算运单下平均包裹数量
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            if (waybill != null) {
+                BigDecimal avgWeight = new BigDecimal(0);
+                BigDecimal avgVolume = new BigDecimal(0);
+                if (null == waybill.getGoodNumber() || waybill.getGoodNumber() <= 0) {
+                    continue;
                 }
-            }
-        } else {
-            for (String waybillCode : recordList) {
-                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
-                    return true;
+                //复重不为0 直接取;反之取原重
+                if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+                    avgWeight = new BigDecimal(waybill.getAgainWeight()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+                } else {
+                    avgWeight = new BigDecimal(waybill.getGoodWeight() == null ? 0 : waybill.getGoodWeight()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
                 }
+                totalWeight = totalWeight.add(avgWeight.multiply(BigDecimal.valueOf(groupMap.get(waybillCode))));
+
+                //复体积不为0 直接取;反之取原体积
+                if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+                    avgVolume = new BigDecimal(Double.valueOf(waybill.getSpareColumn2())).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+                } else {
+                    avgVolume = new BigDecimal(waybill.getGoodVolume() == null ? 0 : waybill.getGoodVolume()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+                }
+                log.info("运单号={}，运单上包裹数量={}，平均重量={}，平均体积={}，当前计算总重量={},当前计算总体积={}", waybillCode, groupMap.get(waybillCode), avgWeight, avgVolume, totalWeight, totalVolume);
+                totalVolume = totalVolume.add(avgVolume.multiply(BigDecimal.valueOf(groupMap.get(waybillCode))));
             }
+        }
+        if (compareWeightVolume(loadCar, totalWeight, totalVolume)) {
+            return true;
         }
         return false;
     }
@@ -2043,20 +2068,71 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return
      */
     public Boolean checkWaybillCodeWeightVolume(String waybillCode, BigDecimal totalWeight, BigDecimal totalVolume, LoadCar loadCar) {
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
-        if (null == baseEntity || null == baseEntity.getData() || null == baseEntity.getData().getWaybill()) {
+        log.info("运单维度当前总重量={},总体积={}", totalWeight, totalVolume);
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        if (null == waybill) {
             return false;
         }
         //取每个运单的重量、体积如果此次累加重量、体积大于车辆最大核载直接返回
-        Waybill waybill = baseEntity.getData().getWaybill();
-        Double waybillWeight = waybill.getGoodWeight();
-        Double waybillVolume = waybill.getGoodVolume();
-        totalWeight = totalWeight.add(new BigDecimal(Double.toString(waybillWeight)));
-        totalVolume = totalVolume.add(new BigDecimal(Double.toString(waybillVolume)));
+        BigDecimal waybillWeight = new BigDecimal(0);
+        BigDecimal waybillVolume = new BigDecimal(0);
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            waybillWeight = new BigDecimal(waybill.getAgainWeight());
+        } else {
+            waybillWeight = new BigDecimal(waybill.getGoodWeight());
+        }
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            waybillVolume = new BigDecimal(waybill.getSpareColumn2());
+        } else {
+            waybillVolume = new BigDecimal(waybill.getGoodVolume());
+        }
+        totalWeight = totalWeight.add(waybillWeight);
+        totalVolume = totalVolume.add(waybillVolume);
         if (compareWeightVolume(loadCar, totalWeight, totalVolume)) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 包裹维度校验，每次累加单个包裹重量体积
+     *
+     * @param totalWeight
+     * @param totalVolume
+     * @param taskId
+     * @param waybillCode
+     * @return
+     */
+    public Boolean checkPackageWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode) {
+        if (null == totalWeight || null == totalVolume) {
+            return false;
+        }
+        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        log.info("运单维度");
+        if (null == waybill || null == waybill.getGoodNumber() || waybill.getGoodNumber() <= 0) {
+            return false;
+        }
+        BigDecimal weight = new BigDecimal(totalWeight);
+        BigDecimal volume = new BigDecimal(totalVolume);
+        BigDecimal avgWeight = new BigDecimal(0);
+        BigDecimal avgVolume = new BigDecimal(0);
+        //复重不为0 直接取;反之取原重
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            avgWeight = new BigDecimal(waybill.getAgainWeight()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+        } else {
+            avgWeight = new BigDecimal(waybill.getGoodWeight() == null ? 0 : waybill.getGoodWeight()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+        }
+        weight = weight.add(avgWeight);
+
+        //复体积不为0 直接取;反之取原体积
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            avgVolume = new BigDecimal(Double.valueOf(waybill.getSpareColumn2())).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+        } else {
+            avgVolume = new BigDecimal(waybill.getGoodVolume() == null ? 0 : waybill.getGoodVolume()).divide(new BigDecimal(waybill.getGoodNumber()), 4, BigDecimal.ROUND_HALF_UP);
+        }
+        volume = volume.add(avgVolume);
+        return compareWeightVolume(loadCar, weight, volume);
     }
 
 
