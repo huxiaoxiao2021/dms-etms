@@ -691,6 +691,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 GoodsLoadScan loadScan = new GoodsLoadScan();
                 loadScan.setTaskId(taskId);
                 loadScan.setWayBillCode(scanDto.getWayBillCode());
+                loadScan.setPackageAmount(scanDto.getPackageAmount());
                 // 取出板子上该运单下的要装车包裹数量
                 Integer packageNum = map.get(scanDto.getWayBillCode());
                 // 计算已装、未装
@@ -828,6 +829,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             GoodsLoadScan loadScan = new GoodsLoadScan();
             loadScan.setTaskId(taskId);
             loadScan.setWayBillCode(waybillCode);
+            loadScan.setPackageAmount(loadScanDto.getPackageAmount());
             // 计算已装、未装
             loadScan.setLoadAmount(insertPackageCodes.size() + updateRecordIds.size());
             // 按运单暂存，库存有多少就装多少，未装永远等于0
@@ -1727,6 +1729,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
         goodsLoadScan.setLoadAmount(1);
+        // 运单上截取总包裹数
+        int packageAmount = WaybillUtil.getPackNumByPackCode(packageCode);
+        goodsLoadScan.setPackageAmount(packageAmount);
         // 未装：库存包裹数 – 装车已扫包裹数
         goodsLoadScan.setUnloadAmount(goodsAmount - goodsLoadScan.getLoadAmount());
         goodsLoadScan.setForceAmount(0);
