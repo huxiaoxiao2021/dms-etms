@@ -645,14 +645,9 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 long readCount = 0;
                 // 查询全局总数缓存
                 String cacheKeyFormatClientUserReadCount = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_USER_READ_COUNT, noticePdaQuery.getUserErp());
-                String clientUserReadCountValStr = jimdbCacheService.get(cacheKeyFormatClientUserReadCount);
-                if(StringUtils.isBlank(clientUserReadCountValStr)){
-                    readCount = this.getUserReadCountNoCache(noticePdaQuery);
-                } else {
-                    readCount = new Long(clientUserReadCountValStr);
-                    readCount++;
-                }
-                jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, readCount + "", CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_TOTAL_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
+                readCount = this.getUserReadCountNoCache(noticePdaQuery);
+                NoticeCountDto noticeCountDto = new NoticeCountDto(readCount, System.currentTimeMillis());
+                jimdbCacheService.setEx(cacheKeyFormatClientUserReadCount, JsonHelper.toJson(noticeCountDto), CacheKeyConstants.CACHE_KEY_CLIENT_NOTICE_READ_COUNT_TIME_EXPIRE, TimeUnit.HOURS);
             }
 
             // 4. 查询附件 待定
