@@ -468,6 +468,7 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
         loadCarInfoDto.setVolume(dto.getVolume());
         loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setWeight(dto.getWeight());
         jdCResponse.toSucceed();
         jdCResponse.setData(loadCarInfoDto);
         return jdCResponse;
