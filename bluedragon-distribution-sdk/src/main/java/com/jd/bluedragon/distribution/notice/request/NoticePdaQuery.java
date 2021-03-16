@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.notice.request;
 
+import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
+
 import java.io.Serializable;
 
 /**
@@ -9,7 +11,7 @@ import java.io.Serializable;
  * @copyright jd.com 京东物流JDL
  * @time 2020-07-01 16:01:29 周三
  */
-public class NoticePdaQuery implements Serializable {
+public class NoticePdaQuery extends LoginWithTokenVerifyRequest implements Serializable {
 
     private static final long serialVersionUID = 1236612962511867597L;
 

@@ -2,10 +2,12 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -37,6 +40,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -57,6 +63,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Autowired
 	@Qualifier("baseService")
 	protected LoginService baseService;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -96,6 +106,88 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     	}
 		return baseService.clientLoginIn(request);
 	}
+
+    /**
+     * 客户端登录获取登录信息接口(安卓PDA)，增加token信息
+     *
+     * @param request
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    @Override
+    public LoginUserResponse jsfLoginWithToken(LoginRequest request) {
+        //安卓pda登录，不校验版本号并设置默认底包版本
+        if (request != null) {
+            request.setCheckVersion(Boolean.FALSE);
+            request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
+        }
+        LoginUserResponse loginUserResponse = baseService.clientLoginIn(request);
+        boolean saveTokenResult = this.getAndSaveToken(request, loginUserResponse);
+        if(!saveTokenResult){
+            return loginUserResponse;
+        }
+
+        return loginUserResponse;
+    }
+
+    private boolean getAndSaveToken(LoginRequest request, LoginUserResponse loginUserResponse) {
+        try {
+            if(request == null || StringUtils.isEmpty(request.getClientInfo())){
+                loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return false;
+            }
+            ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+            if(clientInfo == null){
+                loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return false;
+            }
+            String deviceId = clientInfo.getDeviceId();
+            String token = UUID.randomUUID().toString();
+            loginUserResponse.setToken(token);
+            // 保存缓存
+            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
+            jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
+        } catch (Exception e) {
+            log.error("UserServiceImpl.getAndSaveToken exception ", e);
+            loginUserResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            loginUserResponse.setMessage("保存登录token数据异常");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 客户端登录token验证
+     *
+     * @param loginWithTokenVerifyRequest
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    @Override
+    public JdResult<Boolean> verifyClientLoginToken(LoginWithTokenVerifyRequest loginWithTokenVerifyRequest) {
+        JdResult<Boolean> result = new JdResult<>();
+        result.toSuccess("success");
+        try {
+            String deviceId = loginWithTokenVerifyRequest.getDeviceId();
+            String token = loginWithTokenVerifyRequest.getToken();
+            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
+            String tokenExistVal = jimdbCacheService.get(clientLoginDeviceIdKey);
+            log.info("UserServiceImpl.verifyClientLoginToken tokenExistVal {}", tokenExistVal);
+            if(!Objects.equals(token, tokenExistVal)){
+                result.toFail("token不合法");
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("UserServiceImpl.verifyClientLoginToken exception ", e);
+            result.toFail("验证登录信息异常 " + e.getMessage());
+            return result;
+        }
+        return result;
+    }
 
 	@Override
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {

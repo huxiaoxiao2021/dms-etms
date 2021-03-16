@@ -129,4 +129,13 @@ public class CacheKeyConstants {
     public static final Integer CACHE_KEY_CLIENT_NOTICE_USER_LAST_SEARCH_TIME_EXPIRE = 60;
 
     // ------------------------ E 通知相关
+
+    /**
+     * 用户登录设备记录缓存key
+     */
+    public static final String CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID = "dmsWeb:client:login:deviceId:%s";
+    /**
+     * 用户登录设备记录缓存过期时间
+     */
+    public static final int CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME = 24;
 }
