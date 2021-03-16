@@ -202,7 +202,7 @@ public class CycleBoxResource {
      * @return ture 拦截 false 不拦截
      */
     @GET
-    @Path("/boxes/getInterceptStatus")
+    @Path("/cycleBox/getInterceptStatus")
     @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean>  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -225,7 +225,7 @@ public class CycleBoxResource {
      * @return
      */
     @POST
-    @Path("/boxes/checkGroupBingResult")
+    @Path("/cycleBox/checkGroupBingResult")
     @JProfiler(jKey = "DMS.WEB.BoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(List<String> groupList){
         InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
