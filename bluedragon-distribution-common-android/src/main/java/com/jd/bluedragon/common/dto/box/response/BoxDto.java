@@ -52,6 +52,11 @@ public class BoxDto implements Serializable{
      */
     private String  boxType;
 
+    /**
+     * 循环集包袋
+     */
+    private String materialCode;
+
 
     public String getBoxCode() {
         return boxCode;
@@ -115,5 +120,13 @@ public class BoxDto implements Serializable{
 
     public void setBoxType(String boxType) {
         this.boxType = boxType;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
     }
 }

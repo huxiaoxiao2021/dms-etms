@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
-import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -13,7 +11,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -21,26 +18,19 @@ import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
-import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
-import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.sleepycat.je.tree.IN;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.ws.rs.*;
@@ -89,12 +79,6 @@ public class BoxResource {
 
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
-
-    @Autowired
-    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
-
-    @Autowired
-    private CycleBoxService cycleBoxService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -628,77 +612,4 @@ public class BoxResource {
         response.setBoxTypes(sortingBoxTypeMap);
         return response;
     }
-
-
-    /**
-     * 获取BC箱号类型强制绑定循环集包袋拦截状态
-     * @param siteCode
-     * @return ture 拦截 false 不拦截
-     */
-    @GET
-    @Path("/boxes/getInterceptStatus")
-    @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<Boolean>  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
-        InvokeResult<Boolean> result = new InvokeResult<>();
-        result.success();
-        Boolean flag = Boolean.TRUE;
-        try{
-            //默认拦截
-            flag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
-        }catch (Exception e){
-            log.error("获取站点{}循环集包袋绑定拦截开关异常",siteCode,e);
-            result.error("获取站点拦截开关异常");
-        }
-        result.setData(flag);
-        return  result;
-    }
-
-
-    /**
-     * 获取BC 同组箱号 绑定和未绑定循环集包袋集合
-     * @param groupList
-     * @return
-     */
-    @POST
-    @Path("/boxes/checkGroupBingResult")
-    @JProfiler(jKey = "DMS.WEB.BoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(List<String> groupList){
-        InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
-        invokeResult.success();
-        try {
-            BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
-            boxCodeGroupBinDingDto.setGroupTotal(groupList.size());
-            List<BoxDto> noBinDingList = new ArrayList<BoxDto>(); // 没绑定的
-            List<BoxDto> bingDingList = new ArrayList<BoxDto>(); // 绑定的
-
-            for (String  boxCode: groupList){
-                Box box = this.boxService.findBoxByCode(boxCode);
-                if(box==null){
-                    log.error("箱号:{}详细获取失败",boxCode);
-                    continue;
-                }
-
-                // 只统计BC 箱号类型
-                if(box.getType().equals(BoxTypeEnum.TYPE_BC.getCode())){
-                    BoxDto boxdto = new BoxDto();
-                    boxdto.setBoxCode(boxCode);
-                    boxdto.setBoxType(box.getType());
-                    String materialCode =  cycleBoxService.getBoxMaterialRelation(boxCode);
-                    if(StringUtils.isEmpty(materialCode)){
-                        noBinDingList.add(boxdto);
-                    }else {
-                        bingDingList.add(boxdto);
-                    }
-                }
-            }
-            boxCodeGroupBinDingDto.setNoBinDingList(noBinDingList);
-            boxCodeGroupBinDingDto.setBinDingList(bingDingList);
-            invokeResult.setData(boxCodeGroupBinDingDto);
-        }catch (Exception e){
-            log.error("获取同组箱号绑定循环集包袋状态异常",e);
-            invokeResult.error("获取同组箱号绑定循环集包袋状态异常");
-        }
-        return invokeResult;
-    }
-
 }

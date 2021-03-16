@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.cyclebox.CycleBoxResource;
 import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResource;
 import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
@@ -18,6 +20,9 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * @author : xumigen
@@ -121,6 +126,45 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
         res.setMessage(result.getMessage());
 
         return res;
+    }
+
+    /**
+     * 获取BC箱号绑定循环集包袋 拦截开关状态
+     * @param siteCode
+     * @return  true:拦截  false:不拦截
+     */
+    @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.getInterceptStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean>  getInterceptStatus(Integer siteCode){
+        JdCResponse<Boolean> jdResponse = new JdCResponse<>();
+        try {
+            InvokeResult<Boolean> result = cycleBoxResource.getInterceptStatus(siteCode);
+            jdResponse.setData(result.getData());
+            jdResponse.toSucceed();
+        }catch (Exception e){
+            jdResponse.toError("获取站点拦截状态异常");
+        }
+        return jdResponse;
+    }
+
+
+    /**
+     * 获取一组箱号 绑定循环集包袋状态
+     * @param groupList
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.checkGroupBingResult",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<String> groupList){
+        JdCResponse<BoxCodeGroupBinDingDto> jdResponse = new JdCResponse<>();
+        try {
+            InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = cycleBoxResource.checkGroupBingResult(groupList);
+            if(invokeResult.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+                jdResponse.toSucceed();
+                jdResponse.setData(invokeResult.getData());
+            }
+        }catch (Exception e){
+            jdResponse.toError("获取分组箱号绑定循环集包袋异常");
+        }
+        return jdResponse;
     }
 
 }

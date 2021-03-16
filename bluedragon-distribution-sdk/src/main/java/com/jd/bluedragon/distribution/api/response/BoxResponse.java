@@ -25,6 +25,10 @@ public class BoxResponse extends JdResponse {
     public static final Integer CODE_BOX_ROUTER = 20106;
     public static final String MESSAGE_BOX_ROUTER = "获取路由信息异常";
 
+    public static final Integer CODE_BC_BOX_NO_BINDING = 20107;
+    public static final String MESSAGE_BC_NO_BINDING = "此箱号未绑定循环集包袋";
+
+
     /**
      * 全局唯一ID
      */
