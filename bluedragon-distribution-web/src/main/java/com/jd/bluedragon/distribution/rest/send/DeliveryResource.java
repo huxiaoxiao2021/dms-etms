@@ -209,7 +209,11 @@ public class DeliveryResource {
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+            if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
+                // 按运单发货
+                domain.setBoxCode(request.getBoxCode());
+                result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+            }else if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 log.warn("组板发货newpackagesend：{}" , JsonHelper.toJson(request));
@@ -259,6 +263,8 @@ public class DeliveryResource {
         domain.setCreateUserCode(request.getUserCode());
         domain.setSendType(request.getBusinessType());
         domain.setTransporttype(request.getTransporttype());
+
+        domain.setBizSource(request.getBizSource());
 
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
