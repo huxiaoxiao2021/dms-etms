@@ -29,9 +29,9 @@ public class NoticeToUser implements Serializable{
      */
     private String receiveUserErp;
     /**
-     * 是否已读，0-未读，1-已读  db_column: is_read
+     * 是否已读，0-未读，1-已读  db_column: has_read
      */
-    private Integer isRead;
+    private Integer hasRead;
     /**
      * 创建人ERP  db_column: create_user
      */
@@ -83,12 +83,12 @@ public class NoticeToUser implements Serializable{
         this.receiveUserErp = receiveUserErp;
     }
 
-    public Integer getIsRead() {
-        return isRead;
+    public Integer getHasRead() {
+        return hasRead;
     }
 
-    public void setIsRead(Integer isRead) {
-        this.isRead = isRead;
+    public void setHasRead(Integer hasRead) {
+        this.hasRead = hasRead;
     }
 
     public String getCreateUser() {
@@ -145,7 +145,7 @@ public class NoticeToUser implements Serializable{
                 "id=" + id +
                 ", noticeId=" + noticeId +
                 ", receiveUserErp='" + receiveUserErp + '\'' +
-                ", isRead=" + isRead +
+                ", hasRead=" + hasRead +
                 ", createUser='" + createUser + '\'' +
                 ", updateUser='" + updateUser + '\'' +
                 ", createTime=" + createTime +

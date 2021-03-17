@@ -29,7 +29,7 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
     /**
      * 是否已读
      */
-    private Integer isRead;
+    private Integer hasRead;
 
     private Integer yn;
 
@@ -61,12 +61,12 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
         this.userErp = userErp;
     }
 
-    public Integer getIsRead() {
-        return isRead;
+    public Integer getHasRead() {
+        return hasRead;
     }
 
-    public void setIsRead(Integer isRead) {
-        this.isRead = isRead;
+    public void setHasRead(Integer hasRead) {
+        this.hasRead = hasRead;
     }
 
     public Integer getYn() {
@@ -107,7 +107,7 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
         return "NoticeToUserQuery{" +
                 "noticeId=" + noticeId +
                 ", userErp='" + userErp + '\'' +
-                ", isRead=" + isRead +
+                ", hasRead=" + hasRead +
                 ", yn=" + yn +
                 ", noticeIdList=" + noticeIdList +
                 ", receiveScopeTypeList=" + receiveScopeTypeList +

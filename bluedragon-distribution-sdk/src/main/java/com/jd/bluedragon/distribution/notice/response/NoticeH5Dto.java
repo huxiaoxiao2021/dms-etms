@@ -62,7 +62,7 @@ public class NoticeH5Dto implements Serializable {
     /**
      * 是否已读 0-未读；1-已读
      */
-    private Integer isRead;
+    private Integer hasRead;
 
     /**
      * 类型ID
@@ -159,12 +159,12 @@ public class NoticeH5Dto implements Serializable {
         this.publishTimeFormative = publishTimeFormative;
     }
 
-    public Integer getIsRead() {
-        return isRead;
+    public Integer getHasRead() {
+        return hasRead;
     }
 
-    public void setIsRead(Integer isRead) {
-        this.isRead = isRead;
+    public void setHasRead(Integer hasRead) {
+        this.hasRead = hasRead;
     }
 
     public Long getCategoryId() {
@@ -204,7 +204,7 @@ public class NoticeH5Dto implements Serializable {
                 ", publishTime=" + publishTime +
                 ", publishDateFormative='" + publishDateFormative + '\'' +
                 ", publishTimeFormative='" + publishTimeFormative + '\'' +
-                ", isRead=" + isRead +
+                ", hasRead=" + hasRead +
                 ", categoryId=" + categoryId +
                 ", categoryName='" + categoryName + '\'' +
                 ", noticeAttachmentList=" + noticeAttachmentList +
