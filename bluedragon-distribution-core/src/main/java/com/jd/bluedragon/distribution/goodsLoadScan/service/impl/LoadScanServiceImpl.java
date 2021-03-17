@@ -1080,10 +1080,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-
+        String waybillCode=WaybillUtil.getWaybillCode(packageCode);
         /**新增扫描装车 车型最大核载校验**/
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(),waybillCode)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1092,7 +1092,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (log.isDebugEnabled()) {
             log.debug("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         }
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
         // 根据运单号和包裹号查询已验未发的唯一一条记录
         LoadScanDto loadScan = new LoadScanDto();
@@ -1247,14 +1246,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         /**新增扫描装车 车型最大核载校验**/
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), req.getWayBillCode())) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
         }
 
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
