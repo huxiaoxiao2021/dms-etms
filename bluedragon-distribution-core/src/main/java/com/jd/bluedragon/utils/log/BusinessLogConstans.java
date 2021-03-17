@@ -141,6 +141,8 @@ public class BusinessLogConstans {
         SEND_REVERSE_SPWMS_SEND(BizTypeEnum.SEND,1021,"逆向发货SPWMS"),
         SEND_PARTNER_WAY_BILL(BizTypeEnum.SEND,1011,"运单号关联包裹信息"),
         SEND_COLDCHAIN_SMS(BizTypeEnum.SEND,1022,"冷链卡班暂存计费发短信"),
+        SEND_FILE_BOX(BizTypeEnum.SEND,1023,"文件箱号发货"),
+        SEND_FILE_BOX_CANCEL(BizTypeEnum.SEND,1024,"文件箱号取消发货"),
 
         OUTER_WAYBILL_EXCHANGE_WAYBILL(BizTypeEnum.OUTER_WAYBILL_EXCHANGE,1900002,"触发外单换单"),
         TASK_CONSUME_FAIL(BizTypeEnum.TASK,20062,"消费失败落库"),
