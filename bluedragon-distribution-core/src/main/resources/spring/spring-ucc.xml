@@ -94,6 +94,7 @@
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
+		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 
 	</bean>
 
@@ -159,6 +160,7 @@
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
+				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 			</list>
 		</property>
 	</bean>

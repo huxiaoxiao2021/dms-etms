@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.notice.dao.NoticeToUserDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_NoticeToUser" type="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
+        <result property="id" column="id"/>
+        <result property="noticeId" column="notice_id"/>
+        <result property="receiveUserErp" column="receive_user_erp"/>
+        <result property="isRead" column="is_read"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `notice_id`, `receive_user_erp`, `is_read`, `create_user`, `update_user`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
+        insert into `notice_to_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="noticeId != null">
+                notice_id,
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+                receive_user_erp,
+            </if>
+            <if test="isRead != null">
+                is_read,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="noticeId != null">
+                #{noticeId},
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+                #{receiveUserErp},
+            </if>
+            <if test="isRead != null">
+                #{isRead},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `notice_to_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            notice_id,
+            receive_user_erp,
+            is_read,
+            create_user,
+            update_user,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.noticeId},
+                    #{item.receiveUserErp},
+                    #{item.isRead},
+                    #{item.createUser},
+                    #{item.updateUser},
+                    #{item.createTime},
+                    #{item.updateTime},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
+        UPDATE `notice_to_user`
+        <set>
+            <if test="noticeId != null ">
+            notice_id = #{noticeId},
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+            receive_user_erp = #{receiveUserErp},
+            </if>
+            <if test="isRead != null ">
+            is_read = #{isRead},
+            </if>
+            <if test="createUser != null and createUser != ''">
+            create_user = #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+            update_user = #{updateUser},
+            </if>
+            <if test="createTime != null ">
+            create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+            update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+            yn = #{yn},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `notice_to_user`
+            <set>
+                <if test="item.noticeId != null">
+                notice_id = #{item.noticeId},
+                </if>
+                <if test="item.receiveUserErp != null and item.receiveUserErp != ''">
+                receive_user_erp = #{item.receiveUserErp},
+                </if>
+                <if test="item.isRead != null">
+                is_read = #{item.isRead},
+                </if>
+                <if test="item.createUser != null and item.createUser != ''">
+                create_user = #{item.createUser},
+                </if>
+                <if test="item.updateUser != null and item.updateUser != ''">
+                update_user = #{item.updateUser},
+                </if>
+                <if test="item.createTime != null">
+                create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                update_time = #{item.updateTime},
+                </if>
+                <if test="item.yn != null">
+                yn = #{item.yn},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_NoticeToUser" parameterType="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `notice_to_user`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_NoticeToUser" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice_to_user`
+        <include refid="where"/>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_NoticeToUser" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice_to_user`
+        <include refid="where"/>
+        LIMIT 1
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="noticeId != null">
+        AND notice_id = #{noticeId}
+        </if>
+        <if test="noticeIdList != null">
+            AND notice_id in
+            <foreach collection="noticeIdList" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="userErp != null and userErp != ''">
+        AND receive_user_erp = #{userErp}
+        </if>
+        <if test="isRead != null">
+        AND is_read = #{isRead}
+        </if>
+        <if test="yn != null">
+        AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT count(1) FROM `notice_to_user`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_NoticeToUser" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `notice_to_user`
+        <include refid="where"/>
+        <if test="offset != null and offset >= 0">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+    <!-- 查询已读通知数 -->
+    <select id="queryReadCountByUserExcludeDeleteNotice" resultType="long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
+        SELECT count(1) FROM `notice_to_user`
+        where `receive_user_erp` = #{userErp}
+          and `is_read` = #{isRead}
+          and `notice_id` not in (
+            select `id` from `notice` where `is_delete` = 1
+            <if test="receiveScopeTypeList != null">
+                and receive_scope_type in
+                <foreach collection="receiveScopeTypeList" item="type" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+        )
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.notice.domain.NoticeToUser">
+        UPDATE `notice_to_user` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+</mapper>
+
