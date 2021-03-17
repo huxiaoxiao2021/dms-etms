@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -9,17 +10,13 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.api.WaybillUpdateApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.domain.SkuSn;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExtPro;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
@@ -832,4 +829,46 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             return newVasName;
         }
     }
+
+    @Override
+    public Map<String, String> doGetPackageGoodsVasInfo(String wayBillCode) {
+        WChoice wChoice = new WChoice();
+        //只查询运单下的商品列表
+        wChoice.setQueryGoodList(true);
+        try {
+            BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(wayBillCode, wChoice);
+            log.info("调用运单明细自定义查询接口成功,运单号:{},返回数据:{}",wayBillCode, JsonUtils.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+                BigWaybillDto waybillDto = baseEntity.getData();
+                //商品明细
+                List<Goods> goodsList = waybillDto.getGoodsList();
+                //获取商品信息
+                if(CollectionUtils.isNotEmpty(goodsList)){
+                    Map<String,String> packageNameVasMap = new HashMap<>(goodsList.size());
+                    //保存商品名称明细list
+                    for(Goods good : goodsList){
+                        StringBuilder sbString = new StringBuilder();
+                        String packageName = packageNameVasMap.get(good.getPackBarcode());
+                        if(StringUtils.isNotBlank(good.getGoodName())) sbString.append(good.getGoodName());
+                        //说明该包裹下不止一个商品 获取其他商品信息并拼接
+                        if(StringUtils.isNotBlank(packageName)){
+                            packageNameVasMap.put(good.getPackBarcode(),new StringBuilder(packageName).append(" ").append(sbString).toString());
+                        }else{//该包裹下目前为止仅一个商品
+                            packageNameVasMap.put(good.getPackBarcode(),sbString.toString());
+                        }
+                    }
+                    log.info("WaybillQueryManagerImpl-doGetPackageGoodsVasInfo-运单号:{},返回map:{}",wayBillCode,packageNameVasMap);
+                    return packageNameVasMap;
+                }else {
+                    log.warn("调用运单明细自定义查询接口查询出goods信息为空");
+                }
+            }else{
+                log.warn("调用运单明细自定义查询接口失败,运单号:{},返回信息:{}",wayBillCode,JsonUtils.toJson(baseEntity));
+            }
+        }catch (Exception ex){
+            log.error("WaybillQueryManagerImpl-doGetPackageGoodsVasInfo异常,运单号:{},异常信息",wayBillCode,ex);
+        }
+        return new HashMap<>();
+    }
+
 }
