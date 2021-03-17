@@ -27,6 +27,8 @@ import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,6 +94,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @date 2021-02-24 20:21:42 周三
      */
     @Override
+    @Deprecated
     public Response<Long> getNoticeUnreadCount(NoticePdaQuery noticePdaQuery) {
         log.info("NoticeH5ServiceImpl.getNoticeUnreadCount {}", JsonHelper.toJson(noticePdaQuery));
 
@@ -137,6 +140,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @author fanggang7
      * @date 2021-02-24 20:25:38 周三
      */
+    @JProfiler(jKey = "DMSWEB.NoticeH5ServiceImpl.getLastNewNotice", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public Response<NoticeLastNewDto> getLastNewNotice(NoticePdaQuery noticePdaQuery) {
         log.info("NoticeH5ServiceImpl.getLastNewNotice param {}", JsonHelper.toJson(noticePdaQuery));
@@ -312,7 +316,9 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
         noticeQuery.setIsDisplay(Constants.YN_YES);
         noticeQuery.setIsDelete(Constants.YN_NO);
-        noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
+        if (baseStaff != null) {
+            noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
+        }
         return noticeDao.queryCount(noticeQuery);
     }
 
@@ -422,6 +428,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
         // noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
         noticeQuery.setIsDelete(Constants.YN_NO);
+        noticeQuery.setIsDisplay(Constants.YN_YES);
         Notice noticeExist = noticeDao.selectOne(noticeQuery);
         if(noticeExist == null){
             return null;
@@ -472,6 +479,8 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         LastNewNoticeGlobalDto lastNewNoticeGlobalDto = new LastNewNoticeGlobalDto();
         BeanUtils.copyProperties(noticeH5Dto, lastNewNoticeGlobalDto);
         lastNewNoticeGlobalDto.setCacheTime(cacheTimeMillSeconds);
+        // 缓存里不存长值
+        lastNewNoticeGlobalDto.setContent(null);
         return lastNewNoticeGlobalDto;
     }
 
@@ -483,6 +492,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @author fanggang7
      * @date 2021-02-24 20:30:10 周三
      */
+    @JProfiler(jKey = "DMSWEB.NoticeH5ServiceImpl.getNoticeList", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public Response<PageDto<NoticeH5Dto>> getNoticeList(NoticePdaQuery noticePdaQuery) {
         log.info("NoticeH5ServiceImpl.getNoticeList {}", JsonHelper.toJson(noticePdaQuery));
@@ -606,6 +616,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @author fanggang7
      * @date 2021-02-24 20:33:49 周三
      */
+    @JProfiler(jKey = "DMSWEB.NoticeH5ServiceImpl.getNoticeDetail", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public Response<NoticeH5Dto> getNoticeDetail(NoticePdaQuery noticePdaQuery) {
         log.info("NoticeH5ServiceImpl.getNoticeDetail {}", JsonHelper.toJson(noticePdaQuery));
@@ -676,6 +687,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @author fanggang7
      * @date 2021-02-24 20:33:49 周三
      */
+    @JProfiler(jKey = "DMSWEB.NoticeH5ServiceImpl.searchByKeyword", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public Response<PageDto<NoticeH5Dto>> searchByKeyword(NoticePdaQuery noticePdaQuery) {
         log.info("NoticeH5ServiceImpl.searchByKeyword {}", JsonHelper.toJson(noticePdaQuery));

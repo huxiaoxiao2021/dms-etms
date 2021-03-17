@@ -123,16 +123,15 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             request.setBaseVersionCode(JSF_LOGIN_DEFAULT_BASE_VERSION_CODE);
         }
         LoginUserResponse loginUserResponse = baseService.clientLoginIn(request);
-        boolean saveTokenResult = this.getAndSaveToken(request, loginUserResponse);
-        if(!saveTokenResult){
-            return loginUserResponse;
-        }
-
+        this.getAndSaveToken(request, loginUserResponse);
         return loginUserResponse;
     }
 
     private boolean getAndSaveToken(LoginRequest request, LoginUserResponse loginUserResponse) {
         try {
+            if (loginUserResponse == null || !Objects.equals(loginUserResponse.getCode(), JdResponse.CODE_OK)) {
+                return false;
+            }
             if(request == null || StringUtils.isEmpty(request.getClientInfo())){
                 loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
@@ -146,6 +145,11 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             }
             String deviceId = clientInfo.getDeviceId();
             String token = UUID.randomUUID().toString();
+            if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
+                loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return false;
+            }
             loginUserResponse.setToken(token);
             // 保存缓存
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
@@ -174,6 +178,11 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         try {
             String deviceId = loginWithTokenVerifyRequest.getDeviceId();
             String token = loginWithTokenVerifyRequest.getToken();
+            if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
+                result.setCode(JdResponse.CODE_PARAM_ERROR);
+                result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return result;
+            }
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
             String tokenExistVal = jimdbCacheService.get(clientLoginDeviceIdKey);
             log.info("UserServiceImpl.verifyClientLoginToken tokenExistVal {}", tokenExistVal);

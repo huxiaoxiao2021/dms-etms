@@ -82,6 +82,7 @@ public class DmsBaseServiceImpl implements DmsBaseService {
      * @time 2021-03-09 19:32:02 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.verifyClientLoginToken", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResult verifyClientLoginToken(LoginWithTokenVerifyRequest loginWithTokenVerifyRequest) {
         return userService.verifyClientLoginToken(loginWithTokenVerifyRequest);
     }
