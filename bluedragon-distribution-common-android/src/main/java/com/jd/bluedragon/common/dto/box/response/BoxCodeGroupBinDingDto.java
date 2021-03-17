@@ -13,31 +13,57 @@ public class BoxCodeGroupBinDingDto implements Serializable {
     private static final long serialVersionUID = -1L;
 
     /**
-     * 没绑定循环集包袋的BC箱号集合
+     * 当前箱号绑定的集包袋号
      */
-    private List<BoxDto> noBinDingList;
+    private String binDingMaterialCode;
 
     /**
-     * 绑定循环集包袋的BC箱号集合
+     * 同组有效箱号总数量
+     */
+    private Integer groupTotal;
+
+    /**
+     * 同组的箱信息(BC类型和非BC类型均有)
+     */
+    private List<BoxDto> groupList;
+
+    /**
+     * 绑定了循环集包袋的BC箱号集合(只有BC类型)
      */
     private List<BoxDto> binDingList;
 
     /**
-     * 同组箱号总数量
+     * 没绑定循环集包袋的BC箱号集合(只有BC类型)
      */
-    private Integer groupTotal;
-
+    private List<BoxDto>  noBinDingList;
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }
 
-    public List<BoxDto> getNoBinDingList() {
-        return noBinDingList;
+    public Integer getGroupTotal() {
+        return groupTotal;
     }
 
-    public void setNoBinDingList(List<BoxDto> noBinDingList) {
-        this.noBinDingList = noBinDingList;
+    public void setGroupTotal(Integer groupTotal) {
+        this.groupTotal = groupTotal;
+    }
+
+    public String getBinDingMaterialCode() {
+        return binDingMaterialCode;
+    }
+
+    public void setBinDingMaterialCode(String binDingMaterialCode) {
+        this.binDingMaterialCode = binDingMaterialCode;
+    }
+
+
+    public List<BoxDto> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(List<BoxDto> groupList) {
+        this.groupList = groupList;
     }
 
     public List<BoxDto> getBinDingList() {
@@ -48,12 +74,12 @@ public class BoxCodeGroupBinDingDto implements Serializable {
         this.binDingList = binDingList;
     }
 
-    public Integer getGroupTotal() {
-        return groupTotal;
+    public List<BoxDto> getNoBinDingList() {
+        return noBinDingList;
     }
 
-    public void setGroupTotal(Integer groupTotal) {
-        this.groupTotal = groupTotal;
+    public void setNoBinDingList(List<BoxDto> noBinDingList) {
+        this.noBinDingList = noBinDingList;
     }
 }
     
