@@ -61,11 +61,11 @@ public class NoticeToUserQuery extends BasePagerCondition implements Serializabl
         this.userErp = userErp;
     }
 
-    public Integer getIsRead() {
+    public Integer getHasRead() {
         return hasRead;
     }
 
-    public void setIsRead(Integer hasRead) {
+    public void setHasRead(Integer hasRead) {
         this.hasRead = hasRead;
     }
 

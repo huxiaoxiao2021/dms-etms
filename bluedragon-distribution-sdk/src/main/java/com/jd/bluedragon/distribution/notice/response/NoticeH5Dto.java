@@ -159,11 +159,11 @@ public class NoticeH5Dto implements Serializable {
         this.publishTimeFormative = publishTimeFormative;
     }
 
-    public Integer getIsRead() {
+    public Integer getHasRead() {
         return hasRead;
     }
 
-    public void setIsRead(Integer hasRead) {
+    public void setHasRead(Integer hasRead) {
         this.hasRead = hasRead;
     }
 

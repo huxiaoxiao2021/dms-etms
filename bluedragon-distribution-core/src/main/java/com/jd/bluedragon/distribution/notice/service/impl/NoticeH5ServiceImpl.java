@@ -118,7 +118,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             // 2. 按用户查询所有已读计数
             NoticeToUserQuery noticeToUserQuery = new NoticeToUserQuery();
             noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
-            noticeToUserQuery.setIsRead(NoticeConstants.IS_READ_YES);
+            noticeToUserQuery.setHasRead(NoticeConstants.IS_READ_YES);
             long readCount = noticeToUserDao.queryCount(noticeToUserQuery);
             // 3. 得到未读数
             unreadCount = totalCount - readCount;
@@ -254,7 +254,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         NoticeToUserQuery noticeToUserQuery = new NoticeToUserQuery();
         noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
         noticeToUserQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
-        noticeToUserQuery.setIsRead(NoticeConstants.IS_READ_YES);
+        noticeToUserQuery.setHasRead(NoticeConstants.IS_READ_YES);
         return noticeToUserDao.queryReadCountByUserExcludeDeleteNotice(noticeToUserQuery);
     }
 
@@ -440,7 +440,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
         noticeToUserQuery.setYn(Constants.YN_YES);
         NoticeToUser noticeToUser = noticeToUserDao.selectOne(noticeToUserQuery);
-        this.judgeIsRead4NoticeH5Dto(noticeH5Dto, noticeToUser);*/
+        this.judgeHasRead4NoticeH5Dto(noticeH5Dto, noticeToUser);*/
 
         return noticeH5Dto;
     }
@@ -466,11 +466,11 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
      * @param noticeH5Dto 通知数据
      * @param noticeToUser 已读记录
      */
-    private void judgeIsRead4NoticeH5Dto(NoticeH5Dto noticeH5Dto, NoticeToUser noticeToUser){
+    private void judgeHasRead4NoticeH5Dto(NoticeH5Dto noticeH5Dto, NoticeToUser noticeToUser){
         if(noticeToUser != null){
-            noticeH5Dto.setIsRead(Constants.YN_YES);
+            noticeH5Dto.setHasRead(Constants.YN_YES);
         } else {
-            noticeH5Dto.setIsRead(Constants.YN_NO);
+            noticeH5Dto.setHasRead(Constants.YN_NO);
         }
     }
 
@@ -552,7 +552,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             for (Notice notice : noticeExistList) {
                 NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
                 NoticeToUser noticeToUser = noticeToUserGBNoticeIdMap.get(notice.getId());
-                this.judgeIsRead4NoticeH5Dto(noticeH5Dto, noticeToUser);
+                this.judgeHasRead4NoticeH5Dto(noticeH5Dto, noticeToUser);
                 noticeH5List.add(noticeH5Dto);
             }
         } catch (Exception e) {
@@ -645,7 +645,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             noticeToUserQuery.setUserErp(noticePdaQuery.getUserErp());
             noticeToUserQuery.setYn(Constants.YN_YES);
             NoticeToUser noticeToUser = noticeToUserDao.selectOne(noticeToUserQuery);
-            this.judgeIsRead4NoticeH5Dto(noticeH5Dto, noticeToUser);
+            this.judgeHasRead4NoticeH5Dto(noticeH5Dto, noticeToUser);
 
             // 3. 如果未读，设置为已读
             if(noticeToUser == null){
