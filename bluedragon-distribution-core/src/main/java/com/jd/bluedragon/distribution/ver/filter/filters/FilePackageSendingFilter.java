@@ -36,8 +36,8 @@ public class FilePackageSendingFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        // 文件包裹默认全国拦截，未配置白名单，执行拦截逻辑
-        if (!funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION_WHITELIST.getCode(), request.getCreateSiteCode(), null)) {
+        // 配置有效开关，文件包裹执行拦截逻辑
+        if (funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION.getCode(), request.getCreateSiteCode(), null)) {
 
             if (waybillService.allowFilePackFilter(request.getCreateSite().getSubType(), request.getWaybillCache().getWaybillSign())) {
 

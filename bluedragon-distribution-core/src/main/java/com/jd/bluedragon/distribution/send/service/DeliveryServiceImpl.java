@@ -1949,7 +1949,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operateRequest.put("wjBoxCodes", fileBoxCodes);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEAL_SEAL)
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_FILE_BOX_CANCEL)
                 .operateRequest(operateRequest)
                 .operateResponse(result)
                 .processTime(endTime, startTime)
@@ -2147,8 +2147,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DeliveryResponse filePackSendByBox(SendM tSendM) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
-        // 配置白名单不拦截
-        if (funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION_WHITELIST.getCode(),
+        // 未配置不拦截
+        if (! funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION.getCode(),
                 tSendM.getCreateSiteCode(), null)) {
             return response;
         }

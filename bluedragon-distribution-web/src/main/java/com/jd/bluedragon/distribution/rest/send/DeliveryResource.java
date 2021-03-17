@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.send;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -23,10 +24,6 @@ import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
-import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
-import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
-import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
-import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -39,6 +36,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.*;
@@ -52,7 +50,10 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -156,6 +157,9 @@ public class DeliveryResource {
 
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
+
+    @Autowired
+    private LogEngine logEngine;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -373,13 +377,17 @@ public class DeliveryResource {
 
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
-            tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(toSendM(request), true);
+            SendM sendMDomain = toSendM(request);
+            tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendMDomain, true);
 
             // BC箱号取消成功后，同步取消WJ箱号的发货
             if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
                 List<SendM> relationSendList = new DeliveryCancelSendMGen().createBoxRelationSendM(Collections.singletonList(request));
                 for (SendM sendM : relationSendList) {
+                    long startTime = System.currentTimeMillis();
                     tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendM, true);
+                    long endTime = System.currentTimeMillis();
+                    this.addFileSendingBizLog(sendMDomain, sendM, JsonHelper.toJson(tDeliveryResponse), startTime, endTime);
                 }
             }
 
@@ -392,6 +400,30 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    /**
+     * 文件发货添加Business Log
+     * @param BCSendM
+     * @param fileSendM
+     * @param result
+     * @param startTime
+     * @param endTime
+     */
+    private void addFileSendingBizLog(SendM BCSendM, SendM fileSendM, String result, Long startTime, Long endTime) {
+        JSONObject operateRequest = new JSONObject();
+        operateRequest.put("bcSendM", JsonHelper.toJson(BCSendM));
+        operateRequest.put("wjSendM", JsonHelper.toJson(fileSendM));
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_FILE_BOX_CANCEL)
+                .operateRequest(operateRequest)
+                .operateResponse(result)
+                .processTime(endTime, startTime)
+                .methodName("DeliveryResource#cancelDeliveryInfo")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
     }
 
     @POST
