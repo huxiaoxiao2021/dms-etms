@@ -24,7 +24,7 @@
 
     <sql id="Base_Column_List">
         id, license_number, end_site_code, end_site_name, status, operate_user_erp, operate_user_name, create_user_erp, create_site_name,
-        create_site_code, batch_code, create_user_name, create_time, update_time, yn
+        create_site_code, batch_code, create_user_name, create_time, update_time, yn, weight, volume
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" useGeneratedKeys="true"
