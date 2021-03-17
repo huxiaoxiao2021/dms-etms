@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.service;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -187,7 +188,7 @@ public interface WaybillCommonService {
 	 * @param printWaybill
 	 * @param bigWaybillDto
 	 */
-	void loadOriginalDmsInfo(BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto);
+	void loadOriginalDmsInfo(WaybillPrintContext context,BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto);
 
 	/**
 	 * B网面单获取路由

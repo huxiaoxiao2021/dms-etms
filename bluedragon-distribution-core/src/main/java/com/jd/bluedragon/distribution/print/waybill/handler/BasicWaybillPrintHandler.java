@@ -420,7 +420,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //打标增值服务
         markingWaybillVasSign(context);
         //加载始发站点信息
-        waybillCommonService.loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
+        waybillCommonService.loadOriginalDmsInfo(context,commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
