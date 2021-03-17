@@ -123,6 +123,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         }
         jdVerifyResponse.toSuccess();
         BoxDto boxDto = packageBoxDto(boxResponse);
+
         // 获取循环集包袋绑定信息
         JdCResponse<String> response = recycleMaterialGatewayService.getBoxMaterialRelation(boxCode);
         if(response.isSucceed()){
@@ -133,6 +134,10 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
                 jdVerifyResponse.setData(boxDto);
                 return jdVerifyResponse;
             }
+        }else{
+            jdVerifyResponse.toError("获取箱号绑定循环集包袋关系异常");
+            jdVerifyResponse.setData(boxDto);
+            return jdVerifyResponse;
         }
 
         jdVerifyResponse.setData(boxDto);
