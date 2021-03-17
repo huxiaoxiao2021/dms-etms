@@ -1949,7 +1949,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         operateRequest.put("wjBoxCodes", fileBoxCodes);
 
         BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_FILE_BOX_CANCEL)
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_FILE_BOX)
                 .operateRequest(operateRequest)
                 .operateResponse(result)
                 .processTime(endTime, startTime)
