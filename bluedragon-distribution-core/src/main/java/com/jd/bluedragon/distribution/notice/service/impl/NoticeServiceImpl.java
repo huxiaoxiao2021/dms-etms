@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.notice.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
 import com.jd.bluedragon.distribution.basic.FileUtils;
@@ -9,23 +10,21 @@ import com.jd.bluedragon.distribution.notice.domain.Notice;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
 import com.jd.bluedragon.distribution.notice.request.NoticeQuery;
 import com.jd.bluedragon.distribution.notice.service.NoticeAttachmentService;
+import com.jd.bluedragon.distribution.notice.service.NoticeH5Service;
 import com.jd.bluedragon.distribution.notice.service.NoticeService;
 import com.jd.bluedragon.distribution.notice.utils.NoticeLevelEnum;
 import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author lixin39
@@ -36,7 +35,7 @@ import java.util.Random;
 @Service
 public class NoticeServiceImpl implements NoticeService {
 
-    private final Logger logger = Logger.getLogger(NoticeServiceImpl.class);
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private NoticeDao noticeDao;
@@ -49,6 +48,9 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Value("${jss.notice.bucket}")
     private String bucket;
+
+    @Autowired
+    private NoticeH5Service noticeH5Service;
 
     @Override
     public List<Notice> getAll(Integer limit) {
@@ -90,6 +92,8 @@ public class NoticeServiceImpl implements NoticeService {
      */
     @Override
     public PageDto<Notice> queryPageList(NoticeQuery query){
+        log.info("NoticeServiceImpl.queryPageList param {}", JsonHelper.toJson(query));
+        query.setIsDelete(Constants.YN_NO);
         PageDto<Notice> noticePageDto = new PageDto<>();
         List<Notice> noticeList = new ArrayList<>();
         Long total = noticeDao.queryCount(query);
@@ -122,6 +126,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Override
     public void add(Notice notice) {
         noticeDao.add(notice);
+        noticeH5Service.updatePdaNoticeCache(notice, NoticeH5Service.OPERATE_TYPE_INSERT);
     }
 
     @Override
@@ -217,9 +222,13 @@ public class NoticeServiceImpl implements NoticeService {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         response.setData(false);
+        Notice noticeExist = noticeDao.getByPrimaryKey(notice.getId());
         int updateCount = noticeDao.updateByPrimaryKey(notice);
         if(updateCount == 1){
             response.setData(true);
+        }
+        if(noticeH5Service.checkIsMatchPdaNotice(noticeExist)){
+            noticeH5Service.updatePdaNoticeCache(noticeExist, NoticeH5Service.OPERATE_TYPE_UPDATE);
         }
         return response;
     }
@@ -241,6 +250,7 @@ public class NoticeServiceImpl implements NoticeService {
         if(updateCount == 1){
             response.setData(true);
         }
+        noticeH5Service.updatePdaNoticeCache(notice, NoticeH5Service.OPERATE_TYPE_DELETE);
         return response;
     }
 }
