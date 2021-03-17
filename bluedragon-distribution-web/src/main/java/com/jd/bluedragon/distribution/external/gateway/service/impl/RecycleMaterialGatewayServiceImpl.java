@@ -148,15 +148,28 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
 
 
     /**
-     * 获取一组箱号 绑定循环集包袋状态
-     * @param groupList
+     * 查询箱号绑定集包袋关系，或一组箱号绑定关系
+     * @param request
      * @return
      */
     @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.checkGroupBingResult",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<String> groupList){
+    public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationJSFRequest request){
         JdCResponse<BoxCodeGroupBinDingDto> jdResponse = new JdCResponse<>();
         try {
-            InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = cycleBoxResource.checkGroupBingResult(groupList);
+            BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
+            if (null != request.getUser()) {
+                req.setUserCode(request.getUser().getUserCode());
+                req.setUserName(request.getUser().getUserName());
+                req.setOperatorERP(request.getUser().getUserErp());
+            }
+            if (null != request.getCurrentOperate()) {
+                req.setSiteCode(request.getCurrentOperate().getSiteCode());
+                req.setSiteName(request.getCurrentOperate().getSiteName());
+            }
+
+            req.setBoxCode(request.getBoxCode());
+            req.setGroupSearch(request.getGroupSearch());
+            InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = cycleBoxResource.checkGroupBingResult(req);
             if(invokeResult.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
                 jdResponse.toSucceed();
                 jdResponse.setData(invokeResult.getData());

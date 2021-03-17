@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.cyclebox;
 
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
@@ -7,18 +8,20 @@ import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.box.BCGroupBinDingDto;
+import com.jd.bluedragon.distribution.api.response.box.GroupBoxDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
+import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +32,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -41,10 +45,10 @@ public class CycleBoxResource {
     CycleBoxService cycleBoxService;
 
     @Autowired
-    private BoxService boxService;
+    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
 
     @Autowired
-    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+    private BoxResource boxResource;
 
     /**
      * 快运发货获取青流箱数量
@@ -221,48 +225,104 @@ public class CycleBoxResource {
 
     /**
      * 获取BC 同组箱号 绑定和未绑定循环集包袋集合
-     * @param groupList
+     * @param request
      * @return
      */
     @POST
     @Path("/cycleBox/checkGroupBingResult")
     @JProfiler(jKey = "DMS.WEB.BoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(List<String> groupList){
+    public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(BoxMaterialRelationRequest request){
         InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
         invokeResult.success();
         try {
-            BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
-            boxCodeGroupBinDingDto.setGroupTotal(groupList.size());
-            List<BoxDto> noBinDingList = new ArrayList<BoxDto>(); // 没绑定的
-            List<BoxDto> bingDingList = new ArrayList<BoxDto>(); // 绑定的
+            // 1.校验单个箱号绑定情况
+            invokeResult = cycleBoxService.checkBingResult(request);
+            if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+                return invokeResult;
+            }
 
-            for (String  boxCode: groupList){
-                Box box = boxService.findBoxByCode(boxCode);
-                if(box==null){
-                    log.error("箱号:{}详细获取失败",boxCode);
-                    continue;
-                }
+            // 2.开启同组扫描的
+            if(request.getGroupSearch()){
+                // 获取一组箱号有效的去判断
+                InvokeResult<List<String>> result = boxResource.getAllGroupBoxes(request.getBoxCode());
 
-                // 只统计BC 箱号类型
-                if(box.getType().equals(BoxTypeEnum.TYPE_BC.getCode())){
-                    BoxDto boxdto = new BoxDto();
-                    boxdto.setBoxCode(boxCode);
-                    boxdto.setBoxType(box.getType());
-                    String materialCode =  cycleBoxService.getBoxMaterialRelation(boxCode);
-                    if(org.springframework.util.StringUtils.isEmpty(materialCode)){
-                        noBinDingList.add(boxdto);
-                    }else {
-                        bingDingList.add(boxdto);
+                if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE && CollectionUtils.isNotEmpty(result.getData()) ){
+
+                    List<String> boxLists = result.getData();
+                    List<GroupBoxDto> groupBoxDtoList = new ArrayList<>();
+                    for(String item : boxLists){
+                        BoxResponse boxResponse = boxResource.validation(item,2);
+                        if(Objects.equals(boxResponse.getCode(),BoxResponse.CODE_OK)){
+                            groupBoxDtoList.add(packageGroupBoxDto(boxResponse));
+                        }
                     }
+                    invokeResult.getData().setGroupList(getBoxList(groupBoxDtoList));
+                    invokeResult.getData().setGroupTotal(groupBoxDtoList.size());
+
+                    //当绑定开关开启校验一组箱号绑定情况
+                    if(CollectionUtils.isNotEmpty(groupBoxDtoList) && getBCBoxFilterFlag(request.getSiteCode())){
+                        request.setGroupList(groupBoxDtoList);
+                        InvokeResult<BCGroupBinDingDto> groupBingResult  = cycleBoxService.checkGroupBingResult(request);
+                        if(groupBingResult.getCode()!= InvokeResult.RESULT_SUCCESS_CODE){
+                            invokeResult.customMessage(groupBingResult.getCode(),groupBingResult.getMessage());
+                            return invokeResult;
+                        }
+
+                        if(groupBingResult.getData()!=null){
+                            invokeResult.getData().setBinDingList(getBoxList(groupBingResult.getData().getBinDingList()));
+                            invokeResult.getData().setNoBinDingList(getBoxList(groupBingResult.getData().getNoBingDingList()));
+                        }
+                    }
+
+                }else {
+                    invokeResult.customMessage(InvokeResult.RESULT_NO_GROUP_CODE,InvokeResult.RESULT_NO_GROUP_MESSAGE);
                 }
             }
-            boxCodeGroupBinDingDto.setNoBinDingList(noBinDingList);
-            boxCodeGroupBinDingDto.setBinDingList(bingDingList);
-            invokeResult.setData(boxCodeGroupBinDingDto);
         }catch (Exception e){
             log.error("获取同组箱号绑定循环集包袋状态异常",e);
             invokeResult.error("获取同组箱号绑定循环集包袋状态异常");
         }
         return invokeResult;
     }
+
+    //封装后台查询用的对象
+    private GroupBoxDto packageGroupBoxDto(BoxResponse boxResponse) {
+        GroupBoxDto groupBoxDto = new GroupBoxDto();
+        groupBoxDto.setBoxType(boxResponse.getType());
+        groupBoxDto.setBoxCode(boxResponse.getBoxCode());
+        groupBoxDto.setCreateSiteCode(boxResponse.getCreateSiteCode());
+        groupBoxDto.setCreateSiteName(boxResponse.getCreateSiteName());
+        groupBoxDto.setReceiveSiteCode(boxResponse.getReceiveSiteCode());
+        groupBoxDto.setReceiveSiteName(boxResponse.getReceiveSiteName());
+        groupBoxDto.setSiteType(boxResponse.getSiteType());
+        groupBoxDto.setTransportType(boxResponse.getTransportType());
+        return groupBoxDto;
+    }
+
+    private boolean getBCBoxFilterFlag(Integer siteCode){
+       return funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+    }
+
+    private List<BoxDto> getBoxList(List<GroupBoxDto> boxDtoList) {
+        List<BoxDto> list = new ArrayList<>();
+        for(GroupBoxDto boxDto :boxDtoList){
+            list.add(packageBoxDto(boxDto));
+        }
+        return list;
+    }
+
+    // 给安卓返回使用的对象
+    private BoxDto packageBoxDto(GroupBoxDto groupBoxDto){
+        BoxDto boxDto = new BoxDto();
+        boxDto.setBoxType(groupBoxDto.getBoxType());
+        boxDto.setBoxCode(groupBoxDto.getBoxCode());
+        boxDto.setCreateSiteCode(groupBoxDto.getCreateSiteCode());
+        boxDto.setCreateSiteName(groupBoxDto.getCreateSiteName());
+        boxDto.setReceiveSiteCode(groupBoxDto.getReceiveSiteCode());
+        boxDto.setReceiveSiteName(groupBoxDto.getReceiveSiteName());
+        boxDto.setSiteType(groupBoxDto.getSiteType());
+        boxDto.setTransportType(groupBoxDto.getTransportType());
+        return boxDto;
+    }
+
 }

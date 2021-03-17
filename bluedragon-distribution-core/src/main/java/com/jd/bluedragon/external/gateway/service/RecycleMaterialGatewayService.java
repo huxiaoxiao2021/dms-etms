@@ -5,8 +5,6 @@ import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 
-import java.util.List;
-
 /**
  * 循环物资实操装态更新 发布物流网关
  * 发布到物流网关 由安卓调用
@@ -23,5 +21,5 @@ public interface RecycleMaterialGatewayService {
 
     JdCResponse<Boolean> getInterceptStatus(Integer siteCode);
 
-    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(List<String> groupList);
+    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationJSFRequest request);
 }
