@@ -29,7 +29,6 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -656,7 +655,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 noticeToUserInsert.setCreateTime(new Date());
                 noticeToUserInsert.setUpdateTime(noticeToUserInsert.getCreateTime());
                 noticeToUserInsert.setReceiveUserErp(noticePdaQuery.getUserErp());
-                noticeToUserInsert.setIsRead(Constants.YN_YES);
+                noticeToUserInsert.setHasRead(Constants.YN_YES);
                 noticeToUserInsert.setYn(Constants.YN_YES);
                 noticeToUserDao.add(noticeToUserInsert);
 

@@ -6,7 +6,7 @@
         <result property="id" column="id"/>
         <result property="noticeId" column="notice_id"/>
         <result property="receiveUserErp" column="receive_user_erp"/>
-        <result property="isRead" column="is_read"/>
+        <result property="hasRead" column="has_read"/>
         <result property="createUser" column="create_user"/>
         <result property="updateUser" column="update_user"/>
         <result property="createTime" column="create_time"/>
@@ -17,7 +17,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `notice_id`, `receive_user_erp`, `is_read`, `create_user`, `update_user`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `notice_id`, `receive_user_erp`, `has_read`, `create_user`, `update_user`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 增加 -->
@@ -33,8 +33,8 @@
             <if test="receiveUserErp != null and receiveUserErp != ''">
                 receive_user_erp,
             </if>
-            <if test="isRead != null">
-                is_read,
+            <if test="hasRead != null">
+                has_read,
             </if>
             <if test="createUser != null and createUser != ''">
                 create_user,
@@ -65,8 +65,8 @@
             <if test="receiveUserErp != null and receiveUserErp != ''">
                 #{receiveUserErp},
             </if>
-            <if test="isRead != null">
-                #{isRead},
+            <if test="hasRead != null">
+                #{hasRead},
             </if>
             <if test="createUser != null and createUser != ''">
                 #{createUser},
@@ -95,7 +95,7 @@
             id,
             notice_id,
             receive_user_erp,
-            is_read,
+            has_read,
             create_user,
             update_user,
             create_time,
@@ -109,7 +109,7 @@
                     #{item.id},
                     #{item.noticeId},
                     #{item.receiveUserErp},
-                    #{item.isRead},
+                    #{item.hasRead},
                     #{item.createUser},
                     #{item.updateUser},
                     #{item.createTime},
@@ -129,8 +129,8 @@
             <if test="receiveUserErp != null and receiveUserErp != ''">
             receive_user_erp = #{receiveUserErp},
             </if>
-            <if test="isRead != null ">
-            is_read = #{isRead},
+            <if test="hasRead != null ">
+            has_read = #{hasRead},
             </if>
             <if test="createUser != null and createUser != ''">
             create_user = #{createUser},
@@ -165,8 +165,8 @@
                 <if test="item.receiveUserErp != null and item.receiveUserErp != ''">
                 receive_user_erp = #{item.receiveUserErp},
                 </if>
-                <if test="item.isRead != null">
-                is_read = #{item.isRead},
+                <if test="item.hasRead != null">
+                has_read = #{item.hasRead},
                 </if>
                 <if test="item.createUser != null and item.createUser != ''">
                 create_user = #{item.createUser},
@@ -236,8 +236,8 @@
         <if test="userErp != null and userErp != ''">
         AND receive_user_erp = #{userErp}
         </if>
-        <if test="isRead != null">
-        AND is_read = #{isRead}
+        <if test="hasRead != null">
+        AND has_read = #{hasRead}
         </if>
         <if test="yn != null">
         AND yn = #{yn}
@@ -262,7 +262,7 @@
     <select id="queryReadCountByUserExcludeDeleteNotice" resultType="long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeToUserQuery">
         SELECT count(1) FROM `notice_to_user`
         where `receive_user_erp` = #{userErp}
-          and `is_read` = #{isRead}
+          and `has_read` = #{hasRead}
           and `notice_id` not in (
             select `id` from `notice` where `is_delete` = 1
             <if test="receiveScopeTypeList != null">
