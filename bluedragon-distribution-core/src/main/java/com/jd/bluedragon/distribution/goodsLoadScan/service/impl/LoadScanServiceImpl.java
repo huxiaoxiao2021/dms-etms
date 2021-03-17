@@ -1192,9 +1192,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
-        BigDecimal totalWeight = new BigDecimal(Double.toString(req.getTotalWeight()));
-        BigDecimal totalVolume = new BigDecimal(Double.toString(req.getTotalVolume()));
-        //校验车辆最大核载限制
+        BigDecimal totalWeight = new BigDecimal(Double.toString(req.getTotalWeight() == null ? 0D : req.getTotalWeight()));
+        BigDecimal totalVolume = new BigDecimal(Double.toString(req.getTotalVolume() == null ? 0D : req.getTotalVolume()));
+        //校验车辆最大核载限制D
         if (checkBoardWeightVolume(loadCar, result.getData(), totalWeight, totalVolume, taskId)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
@@ -2059,10 +2059,17 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (waybill == null || waybill.getAgainWeight() == null || StringUtils.isBlank(waybill.getSpareColumn2())) {
             return false;
         }
-        Double waybillWeight = waybill.getGoodWeight();
-        Double waybillVolume = waybill.getGoodVolume();
-        totalWeight = totalWeight.add(new BigDecimal(Double.toString(waybillWeight)));
-        totalVolume = totalVolume.add(new BigDecimal(Double.toString(waybillVolume)));
+        //先取复重、复量方,不存在取原重、原体积
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            totalWeight = totalWeight.add(new BigDecimal(waybill.getAgainWeight()));
+        } else {
+            totalWeight=totalWeight.add(new BigDecimal(waybill.getGoodWeight()));
+        }
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            totalVolume=totalVolume.add(new BigDecimal(waybill.getSpareColumn2()));
+        } else {
+            totalVolume = totalVolume.add(new BigDecimal(waybill.getGoodVolume()));
+        }
         if (compareWeightVolume(loadCar, totalWeight, totalVolume)) {
             return true;
         }
