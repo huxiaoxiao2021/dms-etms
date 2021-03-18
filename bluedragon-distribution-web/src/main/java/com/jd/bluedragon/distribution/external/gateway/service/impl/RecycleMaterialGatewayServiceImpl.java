@@ -155,6 +155,7 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.checkGroupBingResult",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationJSFRequest request){
         JdCResponse<BoxCodeGroupBinDingDto> jdResponse = new JdCResponse<>();
+        jdResponse.toSucceed();
         try {
             BoxMaterialRelationRequest req = new BoxMaterialRelationRequest();
             if (null != request.getUser()) {
@@ -170,10 +171,14 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
             req.setBoxCode(request.getBoxCode());
             req.setGroupSearch(request.getGroupSearch());
             InvokeResult<BoxCodeGroupBinDingDto>  invokeResult = cycleBoxResource.checkGroupBingResult(req);
-            if(invokeResult.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
-                jdResponse.toSucceed();
-                jdResponse.setData(invokeResult.getData());
+            if (invokeResult.getCode()==InvokeResult.RESULT_SUCCESS_CODE){
+                jdResponse.setCode(JdCResponse.CODE_SUCCESS);
             }
+            else {
+                jdResponse.setCode(invokeResult.getCode());
+            }
+            jdResponse.setMessage(invokeResult.getMessage());
+            jdResponse.setData(invokeResult.getData());
         }catch (Exception e){
             jdResponse.toError("获取分组箱号绑定循环集包袋异常");
         }
