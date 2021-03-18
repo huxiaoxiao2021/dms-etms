@@ -1083,7 +1083,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         String waybillCode=WaybillUtil.getWaybillCode(packageCode);
         /**新增扫描装车 车型最大核载校验**/
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(),waybillCode)) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(),waybillCode,loadCar)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1248,7 +1248,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         /**新增扫描装车 车型最大核载校验**/
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode)) {
+                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode,loadCar)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1959,18 +1959,14 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param waybillCode
      * @return true限制扫描
      */
-    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode) {
-        if (null == totalWeight || null == totalVolume) {
+    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode,LoadCar loadCar) {
+        //兼容历史任务
+        if (null == loadCar.getVolume() || null == loadCar.getWeight() || null == totalWeight || null == totalVolume) {
             return false;
         }
         //查询该运单是否已经扫描过
         GoodsLoadScan goodsLoadScan = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);
         if (null != goodsLoadScan) {
-            return false;
-        }
-        LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
-        //兼容历史任务
-        if (null == loadCar.getVolume() || null == loadCar.getWeight()) {
             return false;
         }
         Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
