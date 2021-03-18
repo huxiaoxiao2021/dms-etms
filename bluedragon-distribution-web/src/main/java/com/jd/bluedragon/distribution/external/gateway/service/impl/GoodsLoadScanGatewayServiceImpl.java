@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
@@ -570,6 +571,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdVerifyResponse<Void> checkWaybillIsFinish(String scanBarString) {
         JdVerifyResponse<Void> response = new JdVerifyResponse<>();
         response.setCode(JdCResponse.CODE_SUCCESS);
+        //返回信息的类型 共4种，便于app匹配接下来的动作.
         //参数校验缺一不可.
         if(StringUtils.isEmpty(scanBarString)){
             response.setCode(JdCResponse.CODE_FAIL);
@@ -597,8 +599,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         }
         Boolean isFinished = waybillTraceManager.isWaybillFinished(waybillCode);
         if(isFinished){
-            response.setCode(JdCResponse.CODE_CONFIRM);
-            response.setMessage("运单已妥投,请确认是否继续操作.传入信息:"+scanBarString);
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+//            response.setCode(JdCResponse.CODE_CONFIRM);
+            msgBox.setMsg("运单已妥投,请确认是否继续操作.传入信息:"+scanBarString);
+            response.addBox(msgBox);
         }
         return response;
     }
