@@ -2,25 +2,29 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTypeRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillStagingCheckManager;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.rest.allianceBusi.AllianceBusiResouse;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -30,7 +34,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import javax.annotation.Resource;
 import java.util.Objects;
+
+import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.EXPRESS_CENTER_SITE_ID;
 
 /**
  * 验货相关接口 发布物流网关
@@ -56,6 +63,16 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     @Autowired
     @Qualifier("waybillResource")
     private WaybillResource waybillResource;
+
+    @Resource
+    private AllianceBusiResouse allianceBusiResouse;
+
+    @Resource
+    private WaybillStagingCheckManager waybillStagingCheckManager;
+
+    @Autowired
+    protected BaseMajorManager baseMajorManager;
+
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
@@ -163,5 +180,50 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         result.setData(invokeResult.getData());
 
         return result;
+    }
+
+    @Override
+    public JdVerifyResponse checkWaybillType(InspectionCheckWaybillTypeRequest request) {
+        JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
+        if (StringUtils.isEmpty(request.getWaybillCode())) {
+            jdVerifyResponse.toError("参数不能为空！");
+            return jdVerifyResponse;
+        }
+        com.jd.bluedragon.distribution.wss.dto.BaseEntity<Boolean> result = allianceBusiResouse.checkMoney(request.getWaybillCode());
+        if (result.getCode() != BaseEntity.CODE_SUCCESS) {
+            jdVerifyResponse.toError(result.getMessage());
+            return jdVerifyResponse;
+        }
+        //不充足就是需要拦截
+        if (!result.getData()) {
+            jdVerifyResponse.toSuccess();
+            jdVerifyResponse.addInterceptBox(0, "加盟商预付款余额不足，请联系加盟商处理！");
+            return jdVerifyResponse;
+        }
+        /**暂存校验逻辑**/
+        if (isExpressCenterSite(request.getCurrentSiteCode()) && waybillStagingCheckManager.stagingCheck(request.getWaybillCode(), request.getCurrentSiteCode())) {
+            jdVerifyResponse.toSuccess();
+            jdVerifyResponse.addInterceptBox(0, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+            return jdVerifyResponse;
+        }
+        jdVerifyResponse.toSuccess(result.getMessage());
+        return jdVerifyResponse;
+    }
+
+    /**
+     * 判断是否是快运站点
+     *
+     * @param dmsSiteId
+     * @return
+     */
+    private boolean isExpressCenterSite(Integer dmsSiteId) {
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dmsSiteId);
+        if (siteOrgDto == null) {
+            return false;
+        }
+        if (EXPRESS_CENTER_SITE_ID.equals(siteOrgDto.getSubType())) {
+            return true;
+        }
+        return false;
     }
 }
