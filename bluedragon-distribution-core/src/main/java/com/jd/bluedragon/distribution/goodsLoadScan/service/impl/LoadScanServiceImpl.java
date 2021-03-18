@@ -1969,6 +1969,10 @@ public class LoadScanServiceImpl implements LoadScanService {
             return false;
         }
         LoadCar loadCar = loadCarDao.findLoadCarByTaskId(taskId);
+        //兼容历史任务
+        if (null == loadCar.getVolume() || null == loadCar.getWeight()) {
+            return false;
+        }
         Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
         BigDecimal waybillWeight = new BigDecimal(0);
         BigDecimal waybillVolume = new BigDecimal(0);
