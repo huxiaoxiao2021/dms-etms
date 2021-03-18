@@ -2002,8 +2002,11 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return
      */
     public Boolean compareWeightVolume(LoadCar loadCar, BigDecimal totalWeight, BigDecimal totalVolume) {
-        BigDecimal maxWeight = new BigDecimal(loadCar.getWeight() == null ? 0 : loadCar.getWeight());
-        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume() == null ? 0 : loadCar.getVolume());
+        if (null == loadCar.getVolume() || null == loadCar.getWeight()) {
+            return false;
+        }
+        BigDecimal maxWeight = new BigDecimal(loadCar.getWeight());
+        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume());
         if (totalWeight.compareTo(maxWeight) > 0 || totalVolume.compareTo(maxVolume) > 0) {
             return true;
         }
@@ -2020,6 +2023,9 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @return
      */
     public Boolean checkBoardWeightVolume(LoadCar loadCar, List<String> packageList, BigDecimal totalWeight, BigDecimal totalVolume, Long taskId) {
+        if (null == loadCar.getWeight() || null == loadCar.getVolume()) {
+            return false;
+        }
         Set<String> waybillSet = new HashSet<>(packageList);
         List<String> waybillList = new ArrayList<>();
         for (String packageCode : waybillSet) {
