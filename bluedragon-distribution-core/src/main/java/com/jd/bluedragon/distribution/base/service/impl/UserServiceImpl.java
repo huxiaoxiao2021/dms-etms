@@ -144,12 +144,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
                 return false;
             }
             String deviceId = clientInfo.getDeviceId();
-            String token = UUID.randomUUID().toString();
-            if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
+            if(StringUtils.isBlank(deviceId)){
                 loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return false;
             }
+            String token = UUID.randomUUID().toString();
             loginUserResponse.setToken(token);
             // 保存缓存
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
