@@ -235,6 +235,13 @@ public class CycleBoxResource {
         InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
         invokeResult.success();
         try {
+            //参数校验
+            if (request == null || StringUtils.isBlank(request.getBoxCode())  || null == request.getSiteCode()) {
+                invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                invokeResult.setMessage(InvokeResult.PARAM_ERROR);
+                return invokeResult;
+            }
+
             // 1.校验单个箱号绑定情况
             invokeResult = cycleBoxService.checkBingResult(request);
             if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){

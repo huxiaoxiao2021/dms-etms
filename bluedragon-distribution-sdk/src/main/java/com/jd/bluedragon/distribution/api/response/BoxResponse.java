@@ -69,6 +69,9 @@ public class BoxResponse extends JdResponse {
      */
     private String receiveSiteName;
 
+    /**
+     * 箱号类型
+     */
     private String type;
 
     /**
@@ -132,6 +135,20 @@ public class BoxResponse extends JdResponse {
      * 箱号类型
      */
     private Map<String,String> boxTypes;
+
+    /**
+     * 循环集包袋
+     */
+    private String materialCode;
+
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
+    }
 
 
     public Map<String, String> getBoxTypes() {

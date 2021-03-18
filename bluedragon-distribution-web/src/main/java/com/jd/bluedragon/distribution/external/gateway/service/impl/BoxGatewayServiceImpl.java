@@ -8,13 +8,11 @@ import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
 import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -39,13 +37,6 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
 
     @Autowired
     private BaseService baseService;
-
-    @Autowired
-    private RecycleMaterialGatewayService recycleMaterialGatewayService;
-
-    @Autowired
-    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
-
 
     @Override
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -115,7 +106,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     @Override
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidationAndCheck",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdVerifyResponse<BoxDto> boxValidationAndCheck(String boxCode, Integer operateType,Integer siteCode) {
-        BoxResponse boxResponse = boxResource.validation(boxCode,operateType);
+        BoxResponse boxResponse = boxResource.validationAndCheck(boxCode,operateType,siteCode);
         JdVerifyResponse<BoxDto> jdVerifyResponse = new JdVerifyResponse<>();
         if(!Objects.equals(boxResponse.getCode(),BoxResponse.CODE_OK)){
             jdVerifyResponse.toError(boxResponse.getMessage());
@@ -123,23 +114,6 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         }
         jdVerifyResponse.toSuccess();
         BoxDto boxDto = packageBoxDto(boxResponse);
-
-        // 获取循环集包袋绑定信息
-        JdCResponse<String> response = recycleMaterialGatewayService.getBoxMaterialRelation(boxCode);
-        if(response.isSucceed()){
-            boxDto.setMaterialCode(response.getData());
-            // 决定是否提示没绑定的
-            if(!checkHaveBinDing(response.getData(),boxDto.getBoxType(),siteCode)){
-                jdVerifyResponse.addWarningBox(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
-                jdVerifyResponse.setData(boxDto);
-                return jdVerifyResponse;
-            }
-        }else{
-            jdVerifyResponse.toError("获取箱号绑定循环集包袋关系异常");
-            jdVerifyResponse.setData(boxDto);
-            return jdVerifyResponse;
-        }
-
         jdVerifyResponse.setData(boxDto);
         //判断加盟 给页面返回提示类型信息
         BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(boxDto.getReceiveSiteCode()));
@@ -147,32 +121,6 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
-    }
-
-
-    /**
-     * true 绑定  false 未绑定
-     * @param materialCode
-     * @param boxType
-     * @param siteCode
-     * @return
-     */
-    private boolean checkHaveBinDing(String materialCode,String boxType,Integer siteCode){
-        // 不是BC类型的
-        if(!BusinessHelper.isBCBoxType(boxType)){
-            return true;
-        }
-
-        // 开关不拦截
-        if(!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode)){
-            return  true;
-        }
-
-        //不是空的不拦截
-       if(!StringUtils.isEmpty(materialCode)){
-           return true;
-       }
-       return false;
     }
 
     /**
@@ -190,6 +138,9 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         boxDto.setReceiveSiteName(boxResponse.getReceiveSiteName());
         boxDto.setSiteType(boxResponse.getSiteType());
         boxDto.setTransportType(boxResponse.getTransportType());
+        if(!StringUtils.isEmpty(boxResponse.getMaterialCode())){
+            boxDto.setMaterialCode(boxResponse.getMaterialCode());
+        }
         return boxDto;
     }
 }
