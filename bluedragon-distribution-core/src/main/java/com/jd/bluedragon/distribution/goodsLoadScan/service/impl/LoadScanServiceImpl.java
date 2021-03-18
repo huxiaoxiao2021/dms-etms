@@ -1999,7 +1999,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     public Boolean compareWeightVolume(LoadCar loadCar, BigDecimal totalWeight, BigDecimal totalVolume) {
         BigDecimal maxWeight = new BigDecimal(loadCar.getWeight() == null ? 0 : loadCar.getWeight());
-        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume() == null ? 0 : loadCar.getWeight());
+        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume() == null ? 0 : loadCar.getVolume());
         if (totalWeight.compareTo(maxWeight) >= 0 || totalVolume.compareTo(maxVolume) >= 0) {
             return true;
         }
