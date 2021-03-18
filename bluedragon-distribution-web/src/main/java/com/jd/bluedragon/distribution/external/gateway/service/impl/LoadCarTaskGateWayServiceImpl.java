@@ -342,8 +342,8 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 }
             }
             BeanUtils.copyProperties(req, loadCar);
-            Double weight = req.getWeight() == null ? 0 : this.convertWeightUnitToRequired(req.getWeight());
-            Double volume = req.getVolume() == null ? 0 : this.convertVolumeUnit(req.getVolume());
+            Double weight = req.getWeight() == null ? null : this.convertWeightUnitToRequired(req.getWeight());
+            Double volume = req.getVolume() == null ? null : this.convertVolumeUnit(req.getVolume());
             log.info("转换后重量={},体积={}", weight, volume);
             loadCar.setWeight(weight);
             loadCar.setVolume(volume);
