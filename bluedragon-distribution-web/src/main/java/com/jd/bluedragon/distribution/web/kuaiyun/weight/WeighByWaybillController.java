@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -22,6 +23,7 @@ import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -64,6 +66,7 @@ public class WeighByWaybillController {
 
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
+    private final Integer KAWAYBILL_NEEDPACKAGE_WEIGHT=203;
 
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
@@ -239,6 +242,10 @@ public class WeighByWaybillController {
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
                     log.warn("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException)){
+                    //KA运单 必须按包裹维度录入重量体积
+                    result.setCode(KAWAYBILL_NEEDPACKAGE_WEIGHT);
+                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
@@ -367,6 +374,7 @@ public class WeighByWaybillController {
                     return new JdResponse(JdResponse.CODE_FAIL,errorString);
                 }
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
+                //for(int i=0;i<resultMessages.size())
                 for(String resultMessage :resultMessages){
                     WaybillWeightVO waybillWeightVO = dataList.get(0);
                     if(resultMessage.equals(JdResponse.CODE_SUCCESS.toString())){
@@ -611,6 +619,265 @@ public class WeighByWaybillController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
+    @RequestMapping(value = "/uploadExcelByPackage", method = RequestMethod.POST)
+    public @ResponseBody JdResponse uploadExcelByPackage(@RequestParam("importbyPackageExcelFile") MultipartFile file){
+        log.debug("uploadExcelByPackage begin...");
+        String errorString = "";
+        try {
+            //提前获取一次
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            BaseStaffSiteOrgDto bssod = null;
+            String userCode = "";
+            if(erpUser!=null){
+                userCode = erpUser.getUserCode();
+                bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+                if(bssod == null){
+                    service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
+                    if(service.isOpenIntercept()) {
+                        return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人机构信息，请在青龙基础资料维护员工信息");
+                    }
+                }
+            }else {
+                service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
+                if(service.isOpenIntercept()) {
+                    return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人信息，请在青龙基础资料维护员工信息");
+                }
+            }
+            //解析excel
+            DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(file.getOriginalFilename());
+            List<WaybillWeightVO> dataList = null;
+            List<String> resultMessages = new ArrayList<String>();
+            List<WaybillWeightVO> successList = new ArrayList<WaybillWeightVO>();
+            List<WaybillWeightVO> errorList = new ArrayList<WaybillWeightVO>(); //校验失败的数据
+            List<WaybillWeightVO> warnList = new ArrayList<>();
+            WaybillWeightImportResponse waybillWeightImportResponse =  new WaybillWeightImportResponse();
+            waybillWeightImportResponse.setErrorList(errorList);
+            waybillWeightImportResponse.setSuccessList(successList);
+            waybillWeightImportResponse.setWarnList(warnList);
+            dataList = dataResolver.resolver(file.getInputStream(), WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
+            log.info("WeighByWaybillController-uploadExcelByPackage转成WaybillWeightVO-List参数:{}", JsonUtils.toJSONString(dataList));
+            if (dataList != null && dataList.size() > 0) {
+                if (dataList.size() > 1000) {
+                    errorString = "导入数据超出1000条";
+                    return new JdResponse(JdResponse.CODE_FAIL,errorString);
+                }
+                //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
+                for(int i=0;i<resultMessages.size();i++){
+                //for(String resultMessage :resultMessages){
+                    WaybillWeightVO waybillWeightVO = dataList.get(i);
+                    String resultMessage = resultMessages.get(i);
+                    if(resultMessage.equals(JdResponse.CODE_SUCCESS.toString())){
+                        // 按照前台JS逻辑编写此校验逻辑
+                        if(checkOfImportPackage(waybillWeightVO,erpUser,bssod)){
+                            //校验通过
+                            successList.add(waybillWeightVO);
+                            //判断是否有提示信息
+                            if(InvokeResult.RESULT_INTERCEPT_CODE.equals(waybillWeightVO.getErrorCode())) {
+                                warnList.add(waybillWeightVO);
+                            }
+                        }else{
+                            errorList.add(waybillWeightVO);
+                        }
 
+                    }else{
+                        waybillWeightVO.setErrorMessage(resultMessage);
+                        errorList.add(waybillWeightVO);
+                    }
+                    //dataList.remove(0);
+                }
+
+                //拼装返回数据
+                waybillWeightImportResponse.setSuccessCount(successList.size());
+                waybillWeightImportResponse.setErrorCount(errorList.size());
+                waybillWeightImportResponse.setWarnCount(warnList.size());
+                waybillWeightImportResponse.setCount(errorList.size()+successList.size());
+
+                JdResponse response = new JdResponse();
+                //有拦截提示的数据
+                if(warnList.size() > 0){
+                    response.setData(waybillWeightImportResponse);
+                }
+
+                //存在失败的数据
+                if(errorList.size()>0){
+                    int key = 0 ;
+                    for(WaybillWeightVO errorVo :errorList){
+                        errorVo.setKey(key++);
+                    }
+                    response.setCode(JdResponse.CODE_PARTIAL_SUCCESS);
+                    response.setMessage(JdResponse.MESSAGE_PARTIAL_SUCCESS);
+                    response.setData(waybillWeightImportResponse);
+                }
+
+                return response;
+
+            } else {
+                errorString = "导入数据表格为空，请检查excel数据";
+                return new JdResponse(JdResponse.CODE_FAIL,errorString);
+            }
+
+        } catch (Exception e) {
+            if (e instanceof IllegalArgumentException) {
+                errorString = e.getMessage();
+            } else {
+                log.error("导入异常信息：", e);
+                errorString = "导入出现异常";
+            }
+            return new JdResponse(JdResponse.CODE_FAIL,errorString);
+        }
+    }
+
+    private boolean checkOfImportPackage(WaybillWeightVO waybillWeightVO,ErpUserClient.ErpUser erpUser, BaseStaffSiteOrgDto baseStaffSiteOrgDto){
+        //默认设置不可进行强制提交
+        waybillWeightVO.setCanSubmit(0);
+        //默认设置存在
+        waybillWeightVO.setStatus(VALID_EXISTS_STATUS_CODE);
+        waybillWeightVO.setErrorCode(0);
+        //必输项检查 这校验全在JS。。后台还得在来一遍
+        String codeStr = waybillWeightVO.getCodeStr();
+        Double weight = waybillWeightVO.getWeight();
+        //Double volume = waybillWeightVO.getVolume();
+        //长
+        Double length = waybillWeightVO.getPackageLength();
+        //宽
+        Double width = waybillWeightVO.getPackageWidth();
+        //高
+        Double high = waybillWeightVO.getPackageHigh();
+        if(StringUtils.isBlank(codeStr)){
+            waybillWeightVO.setErrorMessage("包裹号必输");
+            return false;
+        }else if(weight == null || weight.equals(new Double(0))){
+            waybillWeightVO.setErrorMessage("重量必输,并且大于0");
+            return false;
+        }else if(length == null || length.equals(new Double(0))){
+            waybillWeightVO.setErrorMessage("长必输,并且大于0");
+            return false;
+        }else if(width == null || width.equals(new Double(0))){
+            waybillWeightVO.setErrorMessage("宽必输,并且大于0");
+            return false;
+        }else if(high == null || high.equals(new Double(0))){
+            waybillWeightVO.setErrorMessage("高必输,并且大于0");
+            return false;
+        }
+        //设置体积
+        Double volume = MathUtils.mul(length,width,high,6);
+        waybillWeightVO.setVolume(volume);
+        //存在性校验
+        InvokeResult<Boolean> verifyWaybillRealityResult = verifyPackageReality(waybillWeightVO.getCodeStr());
+        if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){
+            //不存在
+            waybillWeightVO.setErrorMessage(verifyWaybillRealityResult.getMessage());
+            waybillWeightVO.setStatus(VALID_NOT_EXISTS_STATUS_CODE);
+            //可让前台强制提交
+            waybillWeightVO.setCanSubmit(1);
+            return false;
+        }else if(InvokeResult.RESULT_SUCCESS_CODE != verifyWaybillRealityResult.getCode()){
+            //失败
+            waybillWeightVO.setErrorMessage(verifyWaybillRealityResult.getMessage());
+            return false;
+        }else{
+
+            boolean isValid = this.validateParam(waybillWeightVO);
+            if (!isValid) {
+                //没通过
+                waybillWeightVO.setErrorMessage(InvokeResult.PARAM_ERROR);
+                waybillWeightVO.setErrorCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                return false;
+            }
+
+            //校验重量体积是否超标
+            InvokeResult invokeResult = checkIsExcess(codeStr, weight.toString(), volume.toString());
+            if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
+                //没通过
+                waybillWeightVO.setErrorMessage(invokeResult.getMessage());
+                waybillWeightVO.setErrorCode(invokeResult.getCode());
+                //可让前台强制提交
+                waybillWeightVO.setCanSubmit(1);
+                return false;
+            }
+
+            //校验重泡比
+            if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
+                //没通过
+                waybillWeightVO.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
+                waybillWeightVO.setErrorCode(Constants.CBM_DIV_KG_CODE);
+                //可让前台强制提交
+                waybillWeightVO.setCanSubmit(1);
+                return false;
+            }
+
+            //存在
+            //校验成功 执行插入
+            InvokeResult<Boolean> insertWaybillWeightResult = insertWaybillWeight(waybillWeightVO,erpUser,baseStaffSiteOrgDto);
+            if(InvokeResult.RESULT_INTERCEPT_CODE == insertWaybillWeightResult.getCode()){
+                waybillWeightVO.setErrorMessage(insertWaybillWeightResult.getMessage());
+                waybillWeightVO.setErrorCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                return true;
+            } else if(InvokeResult.RESULT_SUCCESS_CODE != insertWaybillWeightResult.getCode()){
+                //插入失败
+                waybillWeightVO.setErrorMessage(insertWaybillWeightResult.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**校验是否是包裹号 且包裹号是否存在运单中*/
+    public InvokeResult<Boolean> verifyPackageReality(String codeStr) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.setData(true);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+
+        try {
+            /*1 将包裹号正则校验*/
+            //String waybillCode = service.convertToWaybillCode(codeStr);
+            String packageCode = service.checkPackageCode(codeStr);
+            /*2 对包裹进行存在进行校验*/
+            //boolean isExist = service.validateWaybillCodeReality(packageCode);
+            boolean isExist = service.validatePackageCodeReality(packageCode);
+            result.setData(isExist);
+            if (isExist) {
+                result.setMessage("存在该运单相关信息，可以录入！");
+            }
+        } catch (WeighByWaybillExcpetion weighByWaybillExcpetion) {
+            result.setData(false);
+
+            WeightByWaybillExceptionTypeEnum exceptionType = weighByWaybillExcpetion.exceptionType;
+            if (exceptionType.shouldBeThrowToTop) {
+                if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    log.warn("运单称重：{}", exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
+                    //不称重
+                    result.setCode(NO_NEED_WEIGHT);
+                    log.warn("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException)){
+                    //KA运单 必须按包裹维度录入重量体积
+                    result.setCode(KAWAYBILL_NEEDPACKAGE_WEIGHT);
+                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
+                    //运单已经妥投，不允许录入
+                    result.setCode(WAYBILL_STATE_FINISHED);
+                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
+                }
+                result.setData(false);
+                result.setMessage(exceptionType.exceptionMessage);
+            } else {
+                if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.UnknownCodeException)) {
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setMessage(exceptionType.exceptionMessage);
+                }
+
+                if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNotFindException)) {
+                    result.setCode(InvokeResult.RESULT_NULL_CODE);
+                    result.setMessage(exceptionType.exceptionMessage);
+                }
+
+            }
+        }
+        return result;
+    }
 
 }

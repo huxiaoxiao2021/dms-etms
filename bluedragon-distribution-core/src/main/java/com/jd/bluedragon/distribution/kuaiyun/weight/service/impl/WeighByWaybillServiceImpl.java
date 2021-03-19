@@ -50,9 +50,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -223,6 +221,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
+        }else if(waybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(waybill.getWaybillSign())){
+            //waybillsign66=3
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
         }
 
         //校验是否已经妥投
@@ -489,6 +490,84 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         }
 
         return flag;
+    }
+
+    @Override
+    public String checkPackageCode(String codeStr) throws WeighByWaybillExcpetion{
+
+        String packageCode = null;
+        log.debug("包裹号正则校验:{}",codeStr);
+
+        if (WaybillUtil.isPackageCode(codeStr))
+        {
+            packageCode = WaybillUtil.getWaybillCode(codeStr);
+        } else
+        {
+            log.warn("所输入的编码格式有误：不符合包裹号编码规则:{}",codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        if (null == packageCode)
+        {
+            log.warn("所输入的编码格式有误：不符合包裹号编码规则:{}",codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        return packageCode;
+
+    }
+
+    /***
+     * 校验包裹号是否存在
+     * @param packageCode
+     * @return
+     * @throws WeighByWaybillExcpetion
+     */
+    private Map<String,Boolean> packageMap = new HashMap<>();
+    @Override
+    public boolean validatePackageCodeReality(String packageCode) throws WeighByWaybillExcpetion {
+
+        BaseEntity<Waybill> waybillBaseEntity = null;
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        if(null != packageMap.get(waybillCode)){
+            return packageMap.get(waybillCode);
+        }
+        try {
+            waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+        } catch (Exception e) {
+            log.error("waybillQueryManager.getWaybillByWaybillCode 异常：{}",packageCode,e);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
+        }
+
+        int resultCode = waybillBaseEntity.getResultCode();
+        Waybill waybill = waybillBaseEntity.getData();
+
+        if (waybill == null) {
+            packageMap.put(waybillCode,false);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
+        }
+
+        //是否需要称重逻辑校验  2018 07 27  update 刘铎
+
+        if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
+            packageMap.put(waybillCode,false);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
+        }else if(waybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(waybill.getWaybillSign())){
+            //waybillsign66=3
+            packageMap.put(waybillCode,false);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
+        }
+
+        //校验是否已经妥投
+        if(waybillTraceManager.isWaybillFinished(waybillCode)){
+            packageMap.put(waybillCode,false);
+            //弹出提示
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
+        }
+        packageMap.put(waybillCode,true);
+        return true;
     }
 
     /**
