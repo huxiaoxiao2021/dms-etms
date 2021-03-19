@@ -2326,7 +2326,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             if(ReverseStockInDetailStatusEnum.SUCCESS.getCode().equals(reverseStockInDetail.getStatus())){
                 //此时需要调用取消接口
 
-                if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),inboundOrder.getTargetDeptNo(),reverseStockInDetail.getExternalCode(),inboundOrder.getSource().getCode())){
+                if(eclpItemManager.cancelInboundOrder(inboundOrder.getWaybillNo(),
+                        inboundOrder.getTargetDeptNo(),reverseStockInDetail.getExternalCode(),
+                        inboundOrder.getSource().getCode())){
                     //更新上次记录状态 更新至取消成功状态
                     ReverseStockInDetail updateReverseStockInDetail = new ReverseStockInDetail();
                     updateReverseStockInDetail.setExternalCode(reverseStockInDetail.getExternalCode());
