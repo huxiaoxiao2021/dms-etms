@@ -374,6 +374,30 @@
 		  ar_receive 
 		where 1=1 
 		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limWeightVolumeFilterit,jdbcType=INTEGER}
+	</select>
+	<select id="queryArReceiveCountForWorking" parameterType="com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition" resultType="Integer">
+		select
+			count(1)
+		from
+		  ar_receive
+		where
+			create_site_code = #{createSiteCode}
+		<if test="createUserCodeList !=null and createUserCodeList.size() > 0">
+			and create_user_code IN
+			<foreach collection="createUserCodeList" item="userCodeItem" separator="," open="(" close=")">
+				#{userCodeItem}
+			</foreach>
+		</if>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<select id="queryArReceiveDetailForWorking" parameterType="com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition" resultMap="ArReceive">
+		select
+		 <include refid="Base_Column_List"/>
+		from
+		  ar_receive
+		where 1=1
+		 <include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

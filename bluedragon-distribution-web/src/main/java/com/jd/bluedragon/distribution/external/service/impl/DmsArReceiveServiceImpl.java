@@ -3,9 +3,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import com.jd.bluedragon.distribution.rest.transport.ArReceiveResource;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
 import com.jd.ump.annotation.JProEnum;
@@ -51,6 +49,16 @@ public class DmsArReceiveServiceImpl implements DmsArReceiveService {
     @JProfiler(jKey = "DMSWEB.DmsArReceiveServiceImpl.getArSendRegisterListByParam", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate) {
         return arReceiveResource.getArSendRegisterListByParam(transType, transName, siteOrder, sendDate);
+    }
+
+    @Override
+    public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
+        return null;
+    }
+
+    @Override
+    public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
+        return null;
     }
 
 }
