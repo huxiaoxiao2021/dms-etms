@@ -265,11 +265,6 @@ public class UccPropertyConfiguration {
      */
     private Integer pdaNoticePullIntervalTime;
 
-    /**
-     * 站点查询数量最大限制
-     */
-    private Integer siteQueryLimit;
-
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
