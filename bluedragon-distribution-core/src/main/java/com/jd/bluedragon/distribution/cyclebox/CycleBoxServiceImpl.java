@@ -401,7 +401,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     }
 
     /**
-     * 判断一组箱号的
+     * 判断单个箱号绑定情况
      * @param request
      * @return
      */
@@ -470,7 +470,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         result.setData(bcGroupBinDingDto);
 
         if(CollectionUtils.isNotEmpty(noBinDingList)){
-            result.customMessage(InvokeResult.RESULT_BC_BOX_GROUP_NO_BINDING_CODE,"同组箱号"+noBinDingList.get(0)+"未绑定循环集包袋,分组共"+noBinDingList.size()+"个未绑定");
+            result.customMessage(InvokeResult.RESULT_BC_BOX_GROUP_NO_BINDING_CODE,"同组箱号"+noBinDingList.get(0).getBoxCode()+"未绑定循环集包袋,分组共"+noBinDingList.size()+"个未绑定");
             return result;
         }
         return result;

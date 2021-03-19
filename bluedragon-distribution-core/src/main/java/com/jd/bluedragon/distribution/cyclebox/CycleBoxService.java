@@ -74,7 +74,7 @@ public interface CycleBoxService {
     InvokeResult cycleBoxBindToWD(OrderBindMessageRequest request) throws Exception;
 
   /**
-   * 获取箱号绑定状态和一组箱号绑定状态
+   * 获取箱号绑定状态
    * @param request
    * @return
    */
