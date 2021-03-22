@@ -449,12 +449,12 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         boolean flag = false;
-        if (vehicleNum.length() == 9) {
+        if (vehicleNum.length() == Constants.VEHICLE_NUMBER_LENGTH_9) {
             String temp = vehicleNum;
             vehicleNum = transferLicenseNumber(vehicleNum);
             flag = temp.equals(vehicleNum);
         }
-        if (vehicleNum.length() == 10) {
+        if (vehicleNum.length() == Constants.VEHICLE_NUMBER_LENGTH_10) {
             String temp = vehicleNum;
             vehicleNum = transferLicenseNumber2(vehicleNum);
             flag = temp.equals(vehicleNum);

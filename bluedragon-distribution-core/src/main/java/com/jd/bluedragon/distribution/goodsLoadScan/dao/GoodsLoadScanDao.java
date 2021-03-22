@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -79,11 +83,36 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     }
 
     //批量查询运单号是否存在
-    public List<String> checkWaybillIsExist(List<String>waybillList,Long taskId){
+    public List<String> checkWaybillIsExist(List<String> waybillList, Long taskId) {
         Map<String, Object> map = Maps.newHashMap();
-        map.put("taskId",taskId);
-        map.put("waybillList",waybillList);
-        return super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+        map.put("taskId", taskId);
+        List<String> result = new ArrayList<>();
+        List<String> splitList = new ArrayList<>();
+        List<String> splitResult = new ArrayList<>();
+        int batchAmount = Constants.QUERY_LOAD_SCAN_MAX;
+        for (int i = 0; i < waybillList.size() / batchAmount + 1; ) {
+            //<=50一次查完
+            if (waybillList.size() <= batchAmount) {
+                map.put("waybillList", waybillList);
+                return super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+            } else {
+                splitList = waybillList.subList(i, batchAmount);
+                map.put("waybillList", splitList);
+                splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+                result.addAll(splitResult);
+                i = batchAmount + 1;
+                batchAmount = batchAmount + i;
+                //最后一次不足50
+                if (batchAmount >= waybillList.size()) {
+                    splitList = waybillList.subList(i, waybillList.size());
+                    map.put("waybillList", splitList);
+                    splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+                    result.addAll(splitResult);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
 

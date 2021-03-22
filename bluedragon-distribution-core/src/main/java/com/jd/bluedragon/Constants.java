@@ -1474,4 +1474,19 @@ public class Constants {
     	//34-长途传站返回
     	CUAN_BAI_LINE_TYPES.add(34);
     }
+
+    /**
+     * 车牌长度9位 ex:010A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_9 = 9;
+
+    /**
+     * 车牌长度10位 ex:0371A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_10 = 10;
+
+    /**
+     * 查询已扫包裹最大数限制单次IN50
+     */
+    public static final int QUERY_LOAD_SCAN_MAX = 50;
 }

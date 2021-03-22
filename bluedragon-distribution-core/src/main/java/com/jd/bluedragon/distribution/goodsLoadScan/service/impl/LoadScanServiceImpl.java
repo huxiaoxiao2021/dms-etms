@@ -1127,8 +1127,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         String waybillCode=WaybillUtil.getWaybillCode(packageCode);
         /**新增扫描装车 车型最大核载校验**/
-        if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(),waybillCode,loadCar)) {
+        if (checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode, loadCar)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
@@ -1320,8 +1319,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         /**新增扫描装车 车型最大核载校验**/
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        if (null == goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(req.getTaskId(), req.getWayBillCode()) &&
-                checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode,loadCar)) {
+        if (checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode, loadCar)) {
             response.setCode(JdCResponse.CODE_CONFIRM);
             response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
             return response;
