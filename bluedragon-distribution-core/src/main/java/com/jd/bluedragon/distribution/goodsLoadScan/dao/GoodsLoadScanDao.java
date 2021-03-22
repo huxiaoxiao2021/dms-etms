@@ -87,10 +87,11 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         map.put("taskId", taskId);
         List<String> result = new ArrayList<>();
         List<String> splitResult = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(waybillList)) {
-            map.put("waybillList", ListUtils.partition(waybillList, Constants.QUERY_LOAD_SCAN_MAX));
+        List<List<String>> splitList =  ListUtils.partition(waybillList,  Constants.QUERY_LOAD_SCAN_MAX);
+        for (List<String> list : splitList) {
+            map.put("waybillList", splitList);
             splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
-            if (CollectionUtils.isNotEmpty(splitResult)){
+            if (CollectionUtils.isNotEmpty(splitResult)) {
                 result.addAll(splitResult);
             }
         }
