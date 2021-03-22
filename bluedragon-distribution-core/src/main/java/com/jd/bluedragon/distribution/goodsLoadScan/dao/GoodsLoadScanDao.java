@@ -8,10 +8,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import org.apache.commons.collections.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
@@ -102,8 +99,8 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
                 result.addAll(splitResult);
                 i = batchAmount + 1;
                 batchAmount = batchAmount + i;
-                //最后一次不足50
-                if (batchAmount > waybillList.size()) {
+                //最后一次<=50
+                if (batchAmount >= waybillList.size()) {
                     splitList = waybillList.subList(i, waybillList.size());
                     map.put("waybillList", splitList);
                     splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
