@@ -254,6 +254,11 @@ public class UccPropertyConfiguration {
      */
     private boolean checkBoxSendedSwitchOn;
 
+    /**
+     * 站点查询数量最大限制
+     */
+    private Integer siteQueryLimit;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -700,5 +705,13 @@ public class UccPropertyConfiguration {
 
     public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public Integer getSiteQueryLimit() {
+        return siteQueryLimit;
+    }
+
+    public void setSiteQueryLimit(Integer siteQueryLimit) {
+        this.siteQueryLimit = siteQueryLimit;
     }
 }

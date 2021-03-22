@@ -12,6 +12,8 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class SiteRetakeResource {
 
     @GET
     @Path("/siteRetake/queryBasicTraderInfoByKey/{key}")
+    @JProfiler(jKey = "DMS.WEB.SiteRetakeResource.queryBasicTraderInfoByKey", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(@PathParam("key") String key) {
         List<BasicTraderQueryDTO> result = Lists.newArrayList();
         if (StringHelper.isEmpty(key)) {
@@ -56,6 +59,7 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
+    @JProfiler(jKey = "DMS.WEB.SiteRetakeResource.queryWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Page<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
@@ -68,6 +72,7 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/updateOrderStatus")
+    @JProfiler(jKey = "DMS.WEB.SiteRetakeResource.updateOrderStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1013, operateType = 101301)
     public JdResponse<String> updateOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         Assert.notNull(siteRetakeOperation, "siteRetakeOperation must not be null");

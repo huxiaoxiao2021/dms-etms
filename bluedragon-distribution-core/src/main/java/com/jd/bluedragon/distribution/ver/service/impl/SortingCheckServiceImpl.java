@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.IllegalWayBillCodeException;
@@ -262,7 +264,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             try {
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
-                DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
+                DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } catch (IllegalWayBillCodeException e) {
                 logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
@@ -645,6 +647,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     private DeliveryFilterChain getDeliveryFilterChain(){
         return (DeliveryFilterChain) beanFactory.getBean("deliveryFilterChain");
+    }
+    /**
+     * 获取按运单发货校验链
+     */
+    private DeliveryFilterChain getDeliveryByWaybillFilterChain(){
+        return (DeliveryFilterChain) beanFactory.getBean("deliveryByWaybillFilterChain");
     }
 
     /**

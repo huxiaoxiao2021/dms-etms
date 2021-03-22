@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.send.domain.SendQuery;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
 import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class SendQueryResource {
      */
     @POST
     @Path("/sendquery/put")
+    @JProfiler(jKey = "DMS.WEB.SendQueryResource.put", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> put(SendQuery domain,@Context HttpServletRequest servletRequest){
         InvokeResult<Boolean> result=new InvokeResult<Boolean>();
         String realIP = servletRequest.getHeader("X-Forwarded-For");
@@ -64,6 +67,7 @@ public class SendQueryResource {
      */
     @GET
     @Path("/sendquery/get")
+    @JProfiler(jKey = "DMS.WEB.SendQueryResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<SendQuery>> get(@QueryParam("sendCode") String sendCode){
         InvokeResult<List<SendQuery>> result=new InvokeResult<List<SendQuery>>();
         result.success();
@@ -82,6 +86,7 @@ public class SendQueryResource {
      */
     @GET
     @Path("/sendquery/getthirdwaybillpaper/{packagecode}")
+    @JProfiler(jKey = "DMS.WEB.SendQueryResource.getThirdWaybillPaper", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ExpressInfo> getThirdWaybillPaper(@PathParam("packagecode") String packageCode){
         InvokeResult<ExpressInfo> result=null;
         try {

@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 
 import junit.framework.Assert;
@@ -300,5 +301,29 @@ public class WaybillCommonServiceImplTestCase {
 						&& context.getBasePrintWaybill().getBcSign().equals("预"));
 				Assert.assertEquals(hasFlag,checkResult);
 		}
+    }
+	/**
+	 * 打印显示预
+	 * @throws Exception
+	 */
+    @Test
+    public void testLoadOriginalDmsInfo() throws Exception{
+    	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+    	BaseStaffSiteOrgDto pickSite = new BaseStaffSiteOrgDto();
+    	pickSite.setCollectionDmsId(50);
+    	when(baseMajorManager.getBaseSiteBySiteId(5)).thenReturn(pickSite);
+    	
+    	BaseStaffSiteOrgDto userSite = new BaseStaffSiteOrgDto();
+    	userSite.setCollectionDmsId(390);
+    	userSite.setSiteType(4);
+    	when(baseMajorManager.getBaseSiteBySiteId(39)).thenReturn(userSite);
+    	
+    	
+    	context.getBigWaybillDto().getWaybill().setWaybillSign(UtilsForTestCase.getSignString(500,29,'8'));
+    	context.getBigWaybillDto().getWaybillPickup().setPickupSiteId(5);
+    	context.getBasePrintWaybill().setPrepareSiteCode(10);
+    	context.getRequest().setSiteCode(39);
+    	waybillCommonServiceImpl.loadOriginalDmsInfo(context, context.getBasePrintWaybill(), context.getBigWaybillDto());
+    	Assert.assertEquals(new Integer(50),context.getBasePrintWaybill().getOriginalDmsCode());
     }
 }

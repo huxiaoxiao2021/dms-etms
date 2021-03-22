@@ -87,6 +87,7 @@ public class TaskResource {
 
     @POST
     @Path("/tasks/add")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer add(Task task) {
         task.setTableName("task_waybill");
         return taskService.add(task, false);
@@ -94,6 +95,7 @@ public class TaskResource {
 
     @GET
     @Path("/tasks/{taskId}")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse get(@PathParam("taskId") Long taskId) {
         Assert.notNull(taskId, "taskId must not be null");
         return this.toTaskResponse(new Task());
@@ -412,6 +414,7 @@ public class TaskResource {
 
     @GET
     @Path("/checktasks/checkPendingTaskStatus")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.checkPendingTaskStatusHealth", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse checkPendingTaskStatusHealth(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -428,6 +431,7 @@ public class TaskResource {
 
     @GET
     @Path("/task/findFailTasksNumsByType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.findFailTasksNumsByType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse findFailTasksNumsByType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -447,6 +451,7 @@ public class TaskResource {
 
     @GET
     @Path("/checktasks/checkPendingTaskStatusIgnoreType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.checkPendingTaskStatusHealthIgnoreType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse checkPendingTaskStatusHealthIgnoreType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -463,6 +468,7 @@ public class TaskResource {
 
     @GET
     @Path("/task/findFailTasksNumsIgnoreType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.findFailTasksNumsIgnoreType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse findFailTasksNumsIgnoreType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -482,6 +488,7 @@ public class TaskResource {
 
     @GET
     @Path("/systemDate")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.getSYSDate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse getSYSDate() {
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
@@ -493,6 +500,7 @@ public class TaskResource {
      */
     @POST
     @Path("/astasks")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.addASTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse addASTask(TaskRequest request) {
         Assert.notNull(request, "autosorting task request must not be null");
         //加入监控，开始
@@ -529,6 +537,7 @@ public class TaskResource {
      */
     @POST
     @Path("/InspectSortingTask")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.addInspectSortingTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse addInspectSortingTask(AutoSortingPackageDto packageDtos) {
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.addInspectSortingTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
@@ -555,6 +564,7 @@ public class TaskResource {
      */
     @POST
     @Path("/task/saveTask")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.saveTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult saveTask(@Context HttpServletRequest request, UploadData domain) {
         Integer source = domain.getSource();
         // 判断请求来源 2-分拣机 其他来源目前均为走龙门架逻辑

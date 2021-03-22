@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.coldchain.service.ColdChainOperationServic
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class ColdChainOperationResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101601)
     @POST
     @Path("/coldChain/operation/addUpload")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.addUpload", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse<Boolean> addUpload(ColdChainUnloadDto unloadDto) {
         ColdChainOperationResponse<Boolean> response = new ColdChainOperationResponse<>();
         try {
@@ -121,6 +124,7 @@ public class ColdChainOperationResource {
      */
     @POST
     @Path("/coldChain/operation/queryUnload")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.queryUnload", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> queryUnload(ColdChainQueryUnloadTaskRequest request) {
         ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> response = new ColdChainOperationResponse<>();
         try {
@@ -168,6 +172,7 @@ public class ColdChainOperationResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101602)
     @POST
     @Path("/coldChain/operation/unloadComplete")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.unloadComplete", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse<Boolean> unloadComplete(ColdChainUnloadCompleteRequest request) {
         ColdChainOperationResponse<Boolean> response = new ColdChainOperationResponse<>();
         try {
@@ -210,6 +215,7 @@ public class ColdChainOperationResource {
 
     @GET
     @Path("/coldChain/getVehicleTypeByType")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.getVehicleModelList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse<List<VehicleTypeDict>> getVehicleModelList() {
         ColdChainOperationResponse<List<VehicleTypeDict>> response = new ColdChainOperationResponse<>();
         try {
@@ -233,6 +239,7 @@ public class ColdChainOperationResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1016, operateType = 101603)
     @POST
     @Path("/coldChain/operation/inAndOutBound")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.inAndOutBound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse inAndOutBound(ColdChainInAndOutBoundRequest request) {
         ColdChainOperationResponse response = new ColdChainOperationResponse<>();
         try {
@@ -304,6 +311,7 @@ public class ColdChainOperationResource {
      */
     @POST
     @Path("/coldChain/operation/boundThermometer")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.boundThermometer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainOperationResponse boundThermometer(ThermometerRequest request) {
         ColdChainOperationResponse response = new ColdChainOperationResponse<>();
         try {

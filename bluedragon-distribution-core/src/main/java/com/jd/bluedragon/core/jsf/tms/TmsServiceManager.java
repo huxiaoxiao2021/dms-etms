@@ -23,7 +23,8 @@ public interface TmsServiceManager {
      * 调用运输系统获取运力资源
      * @param createSiteCode        始发站点
      * @param receiveSiteCode       结束站点
+     * @param filterTransTypes      过滤运力类型
      * @return
      */
-	JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode);
+	JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode, List<Integer> filterTransTypes);
 }

@@ -47,10 +47,4 @@ public interface TmsVehicleRouteService {
 	 * @return
 	 */
 	boolean syncToDb(TmsVehicleRoute tmsVehicleRoute,String beginNodeCode,String endNodeCode);
-	/**
-	 * 查询满足条件的数据
-	 * @param dmsSendRelation
-	 * @return
-	 */
-	List<TmsVehicleRoute> queryByCondition(TmsVehicleRouteCondition condition);
 }

@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +41,7 @@ public class CycleBoxResource {
     @POST
     @Path("/cycleBox/getCycleBoxNum")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101501)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.getCycleBoxNum", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CycleBox> getCycleBoxNum(List<DeliveryRequest> request) {
         if(log.isInfoEnabled()){
             this.log.info("快运发货获取青流箱数量:{}", JsonHelper.toJson(request));
@@ -56,6 +59,7 @@ public class CycleBoxResource {
     @POST
     @Path("/cycleBox/pushClearBoxStatus")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101502)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.pushClearBoxStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult pushClearBoxStatus(WaybillCodeListRequest request) {
         InvokeResult result = new InvokeResult();
         try {
@@ -83,6 +87,7 @@ public class CycleBoxResource {
     @GET
     @Path("/cycleBox/getCycleBoxByBatchCode/{batchCode}")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101503)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.getCycleBoxByBatchCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CycleBox> getCycleBoxByBatchCode(@PathParam("batchCode") String batchCode) {
         this.log.info("通过流水号获取青流箱明细，流水号:{}", batchCode);
         InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();
@@ -108,6 +113,7 @@ public class CycleBoxResource {
     @GET
     @Path("/cycleBox/getBoxMaterialRelation/{boxCode}")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101504)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.getBoxMaterialRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> getBoxMaterialRelation(@PathParam("boxCode") String boxCode) {
         InvokeResult<String> result = new InvokeResult<String>();
         result.success();
@@ -133,6 +139,7 @@ public class CycleBoxResource {
     @POST
     @Path("/cycleBox/boxMaterialRelationAlter")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101505)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.boxMaterialRelationAlter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request) {
         InvokeResult result = new InvokeResult();
         result.success();
@@ -161,6 +168,7 @@ public class CycleBoxResource {
     @POST
     @Path("/cycleBox/cycleBoxBindToWD")
     @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101506)
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.cycleBoxBindToWD", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult cycleBoxBindToWD(OrderBindMessageRequest request) {
         InvokeResult result = new InvokeResult();
         result.success();
