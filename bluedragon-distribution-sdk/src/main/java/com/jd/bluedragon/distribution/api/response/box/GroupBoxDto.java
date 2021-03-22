@@ -57,6 +57,9 @@ public class GroupBoxDto implements Serializable {
      */
     private String materialCode;
 
+    public GroupBoxDto() {
+    }
+
     public String getBoxCode() {
         return boxCode;
     }
