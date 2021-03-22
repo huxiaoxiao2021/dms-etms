@@ -26,6 +26,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -84,6 +86,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.log.info("box code's {}", boxCode);
@@ -127,6 +130,7 @@ public class BoxResource {
 	 */
 	@POST
     @Path("/boxes/getBoxByBoxCode")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getBoxByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse getBoxByBoxCode(BoxRequest request) {
 
 		Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
@@ -144,6 +148,7 @@ public class BoxResource {
 
     @POST
     @Path("/boxes/reprint")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.reprint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse reprint(BoxRequest request) {
         Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
         this.log.info("BoxRequest's {}", request);
@@ -153,6 +158,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/validation")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.validation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse validation(@QueryParam("boxCode") String boxCode, @QueryParam("operateType") Integer operateType) {
         Assert.notNull(boxCode, "boxCode must not be null");
         Assert.notNull(operateType, "operateType must not be null");
@@ -202,6 +208,7 @@ public class BoxResource {
 
     @POST
     @Path("/boxes")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Deprecated
     public BoxResponse add(BoxRequest request) {
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),false);
@@ -214,6 +221,7 @@ public class BoxResource {
      */
     @POST
     @Path("/printClient/boxes")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.printClientBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse printClientBoxes(BoxRequest request) {
         return boxService.commonGenBox(request, BoxSystemTypeEnum.PRINT_CLIENT.getCode(),true);
     }
@@ -261,6 +269,7 @@ public class BoxResource {
      */
     @POST
     @Path("/groupBoxes/batchAdd")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.batch", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void batch(List<BoxRequest> list) {
 
         List<Box> groupList = new ArrayList<Box>();
@@ -282,6 +291,7 @@ public class BoxResource {
      */
     @GET
     @Path("/groupBoxes/getAllGroupBoxes/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getAllGroupBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<String>> getAllGroupBoxes(@PathParam("boxCode") String boxCode) {
 
         this.log.info("boxCode is {}", boxCode);
@@ -306,6 +316,7 @@ public class BoxResource {
      */
     @POST
     @Path("/boxes/create")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.create", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Deprecated
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
         return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),false);
@@ -319,6 +330,7 @@ public class BoxResource {
      */
     @POST
     @Path("/autoSorting/boxes")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.autoSortingBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingBoxes(BoxRequest request) {
         return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
     }
@@ -393,6 +405,7 @@ public class BoxResource {
 
     @POST
     @Path("/boxes/getRouterInfo")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getRouterInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse getRouterInfo(BoxRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -428,6 +441,7 @@ public class BoxResource {
      */
     @POST
     @Path("/addBox")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.addBox", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse addBox(BoxRequest request) {
         Box box = new Box();
         box.setCode(request.getBoxCode());
@@ -521,6 +535,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/cache/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.getboxCodeCache", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse getboxCodeCache(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.log.info("box code's {}", boxCode);
@@ -537,6 +552,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/delcache/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.delboxCodeCache", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Long delboxCodeCache(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.log.info("box code's {}", boxCode);
@@ -548,6 +564,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/availability/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.statusValidation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> statusValidation(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.log.info("boxCode's {}", boxCode);

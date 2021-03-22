@@ -7,6 +7,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -30,6 +32,7 @@ public class ClientLogResource {
 
     @POST
     @Path("/clientLog/save")
+    @JProfiler(jKey = "DMS.WEB.ClientLogResource.save", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse save(ClientRequest request) {
         request.setOperateTime(DateHelper.formatDate(new Date(), Constants.DATE_TIME_FORMAT));
         JdResponse response = new JdResponse();

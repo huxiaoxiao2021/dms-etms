@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,7 @@ public class ArBaseResource {
      */
     @GET
     @Path("/arbase/getARCommonDictionaryInfo/")
+    @JProfiler(jKey = "DMS.WEB.ArBaseResource.getARCommonDictionaryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<DictionaryInfoModel> getARCommonDictionaryInfo() {
         this.log.debug("获取空铁项目城市信息和摆渡车信息列表");
 

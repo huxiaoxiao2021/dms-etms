@@ -67,6 +67,7 @@ public class DepartureResource {
 	 */
 	@GET
 	@Path("/departure/sendmeasure/{siteCode}/{sendCode}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SendMeasureResponse get(@PathParam("siteCode") Integer siteCode,
 			@PathParam("sendCode") String sendCode) {
 
@@ -91,6 +92,7 @@ public class DepartureResource {
 
 	@GET
 	@Path("/departure/sendbox/{boxCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.getSendBoxInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SendBoxResponse getSendBoxInfo(@PathParam("boxCode") String boxCode,
 			@PathParam("siteCode") Integer siteCode) {
 		List<SendBoxDetailResponse> detail = new ArrayList<SendBoxDetailResponse>();
@@ -126,6 +128,7 @@ public class DepartureResource {
 	 */
 	@GET
 	@Path("/departure/checkSendStatus/{siteCode}/{sendCode}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.checkSendStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse checkSendStatus(@PathParam("siteCode") Integer siteCode,
 			@PathParam("sendCode") String sendCode) {
 		JdResponse response = new JdResponse();
@@ -151,6 +154,7 @@ public class DepartureResource {
 
 	@POST
 	@Path("/departure/createDepartue")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.createDepartue", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse createDepartue(DepartureRequest request) {
 		if (null == request) {
 			log.warn("发车接口：/departure/createDepartue ,DepartureRequest为空");
@@ -348,6 +352,7 @@ public class DepartureResource {
 	@SuppressWarnings("rawtypes")
 	@POST
 	@Path("/departure/queryDeparture")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.queryDeparture", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List queryDeparture(DeparturePrintRequest departurPrintRequest) {
 		departurPrintRequest.setDepartType(3);
 		List<DepartureCar> dataList = this.departureService
@@ -469,6 +474,7 @@ public class DepartureResource {
 	 */
 	@GET
 	@Path("/departure/waybills/{type}/{code}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.getWaybillsByDeparture", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<SendDetail> getWaybillsByDeparture(
 			@PathParam("type") Integer type, @PathParam("code") String code) {
 		List<SendDetail> details = departureService.getWaybillsByDeparture(
@@ -485,6 +491,7 @@ public class DepartureResource {
 	 */
 	@GET
 	@Path("/departure/print/{departureCarId}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.checkSendStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse checkSendStatus(@PathParam("departureCarId") long departureCarId) {
 		departureService.updatePrintTime(departureCarId);
 		JdResponse response = new JdResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
@@ -500,6 +507,7 @@ public class DepartureResource {
     @GET
     @GZIP
     @Path("/departure/deliveryinfo/{orderCode}")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.deliveryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DepartureResponse deliveryInfo(@PathParam("orderCode") String orderCode){
         log.info("the ordercode is {}", orderCode);
 		DepartureResponse dpResponse = new DepartureResponse();
@@ -566,6 +574,7 @@ public class DepartureResource {
 	@SuppressWarnings("rawtypes")
 	@POST
 	@Path("/departure/queryCarryDeparture")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.queryCarryDeparture", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CarryDeparturePrintResponse queryCarryDeparture(CarryDeparturePrintRequest departurPrintRequest) {
 
 		CarryDeparturePrintResponse response = new CarryDeparturePrintResponse();
@@ -619,6 +628,7 @@ public class DepartureResource {
 	@POST
 	@GZIP
 	@Path("/departure/departuresendtemp")
+	@JProfiler(jKey = "DMS.WEB.DepartureResource.departureSendTemp", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
  	public DepartureTmpResponse departureSendTemp(DepartureTmpRequest request){
 		if(null == request || StringHelper.isEmpty(request.getBatchCode())
 				|| StringHelper.isEmpty(request.getSendCode())){

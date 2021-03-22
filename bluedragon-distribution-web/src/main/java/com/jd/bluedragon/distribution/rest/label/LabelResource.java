@@ -5,6 +5,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.jd.bluedragon.Constants;
@@ -24,6 +27,7 @@ public class LabelResource {
 
 	@POST
 	@Path("/reverse/label")
+	@JProfiler(jKey = "DMS.WEB.LabelResource.reprint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse reprint(Label request) {
 		this.labelService.add(request);
 		return this.ok();

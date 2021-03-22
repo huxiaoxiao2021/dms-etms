@@ -95,6 +95,9 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
      */
     private void pushPopPickup(GantryResidentDto dto, Waybill waybill) {
         try {
+            if (!dto.isSendPickup()){
+                return;
+            }
             String waybillCode = WaybillUtil.getWaybillCode(dto.getBarCode());
             PopPickupRequest popPickup = new PopPickupRequest();
             popPickup.setWaybillCode(waybillCode);
@@ -123,6 +126,9 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
      */
     private void dealWeightAndVolume(GantryResidentDto dto) {
         try {
+            if (!dto.isSendPickup()){
+                return;
+            }
             WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
             weightVolumeEntity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE);
             weightVolumeEntity.setBarCode(dto.getBarCode());
@@ -155,6 +161,9 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
      */
     private void addPopReceiveTask(GantryResidentDto gantryResidentDto, Waybill waybill) {
         try {
+            if (!gantryResidentDto.isSendPickup()){
+                return;
+            }
             Task task = new Task();
             task.setTableName(Task.getTableName(Task.TASK_TYPE_POP));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
@@ -234,6 +243,8 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
             popPrintRequest.setCategoryName(dto.getConsignGood());
             popPrintRequest.setInterfaceType(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());
             popPrintRequest.setOperateType(PopPrintRequest.NOT_PRINT_PACK_TYPE);
+            popPrintRequest.setSendBoxing(dto.isSendBoxing());
+            popPrintRequest.setSendPickup(dto.isSendPickup());
 
             PopPrintResponse popPrintResponse
                     = popPrintService.dealPopPrintLogic(popPrintRequest, ResidentTypeEnum.RESIDENT_GANTRY.getType());

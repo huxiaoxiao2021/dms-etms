@@ -169,6 +169,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/packagesend")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.packageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<AbstractMap.Entry<Integer, String>> packageSend(PackageSendRequest request) {
         InvokeResult<SendResult> res = this.newPackageSend(request);
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
@@ -184,6 +185,7 @@ public class DeliveryResource {
     // 新发货
     @POST
     @Path("/delivery/newpackagesend")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if (log.isInfoEnabled()) {
@@ -193,7 +195,11 @@ public class DeliveryResource {
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+            if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
+                // 按运单发货
+                domain.setBoxCode(request.getBoxCode());
+                result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+            }else if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 log.warn("组板发货newpackagesend：{}" , JsonHelper.toJson(request));
@@ -244,6 +250,8 @@ public class DeliveryResource {
         domain.setSendType(request.getBusinessType());
         domain.setTransporttype(request.getTransporttype());
 
+        domain.setBizSource(request.getBizSource());
+
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
@@ -252,6 +260,7 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/checksendcodestatus/{sendCode}")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.checkSendCodeStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
@@ -341,6 +350,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/cancel")
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.cancelDeliveryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
         if(log.isDebugEnabled()){
             log.debug("取消发货JSON" + JsonHelper.toJson(request));
@@ -419,6 +429,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/cancel/last")
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1004)
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.cancelLastDeliveryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
         if(log.isDebugEnabled()){
             log.debug("取消最近的一次发货JSON" , JsonHelper.toJson(request));
@@ -445,6 +456,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/recyclableboxsend")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.recyclableBoxSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult recyclableBoxSend(RecyclableBoxRequest request) {
         InvokeResult result = new InvokeResult();
         try {
@@ -788,6 +800,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/sortingdiff")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.checkSortingDiff", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ThreeDeliveryResponse checkSortingDiff(DeliveryRequest request) {
         String boxCode = request.getBoxCode();
         Integer createSiteCode = request.getSiteCode();
@@ -820,6 +833,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/appendpackagenum")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.appendPackageNum", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeliveryResponse appendPackageNum(@QueryParam("createSiteCode") Integer createSiteCode,
                                              @QueryParam("receiveSiteCode") Integer receiveSiteCode, @QueryParam("boxCode") String boxCode) {
         this.log.debug("开始补全发货明细表包裹数量,,createSiteCode[{}],receiveSiteCode[{}],boxCode[{}]",createSiteCode,receiveSiteCode,boxCode);
@@ -855,7 +869,7 @@ public class DeliveryResource {
      */
     @GET
     @Path("/delivery/check")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkDeliveryInfo", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.checkDeliveryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
@@ -996,6 +1010,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/toEmsServer")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.toEmsServer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public WhemsWaybillResponse toEmsServer(List<String> request) {
         if (request == null || request.isEmpty()) {
             return new WhemsWaybillResponse(JdResponse.CODE_PARAM_ERROR,
@@ -1007,6 +1022,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/whBcrsQuery")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.whBcrsQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public WhBcrsQueryResponse whBcrsQuery(DeliveryRequest request) {
         String sendCode = request.getSendCode();
         if (sendCode == null || sendCode.isEmpty()) {
@@ -1258,6 +1274,7 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/findWaybillStatus/{id}")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.findWaybillStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public String findWaybillStatus(@PathParam("id") String id) {
         String result = null;
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
@@ -1283,6 +1300,7 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/updateWaybillStatus/{sendCode}/{createSiteCode}/{receiveSiteCode}/{senddStatus}")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.updateWaybillStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse updateWaybillStatus(@PathParam("sendCode") String sendCode,
                                       @PathParam("createSiteCode") Integer createSiteCode,
                                       @PathParam("receiveSiteCode") Integer receiveSiteCode,
@@ -1438,6 +1456,7 @@ public class DeliveryResource {
     }
     @POST
     @Path("/delivery/reSendBySendM")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.reSendBySendM", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Map<String,Object>> reSendBySendM(SendM condition) {
     	InvokeResult<Map<String,Object>> res = new InvokeResult<Map<String,Object>>();
     	Map<String,Object> restData = new HashMap<String,Object>();
@@ -1452,6 +1471,7 @@ public class DeliveryResource {
     }
     @POST
     @Path("/delivery/pushStatusTask")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.pushStatusTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> pushStatusTask(SendM sendM) {
     	InvokeResult<Boolean> res = new InvokeResult<Boolean>();
     	deliveryService.pushStatusTask(sendM);
@@ -1459,6 +1479,7 @@ public class DeliveryResource {
     }
     @POST
     @Path("/delivery/querySendMListByCondition")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.querySendMListByCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<SendM>> querySendMListByCondition(SendM condition) {
     	InvokeResult<List<SendM>> res = new InvokeResult<List<SendM>>();
     	res.setData(sendMDao.queryListByCondition(condition));
@@ -1466,6 +1487,7 @@ public class DeliveryResource {
     }
     @POST
     @Path("/delivery/querySendDListByCondition")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.querySendDListByCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<SendDetail>> querySendDListByCondition(SendDetail condition) {
     	InvokeResult<List<SendDetail>> res = new InvokeResult<List<SendDetail>>();
     	res.setData(sendDatailDao.queryListByCondition(condition));
@@ -1480,6 +1502,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/packageSortSend")
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.packageSortSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult packageSortSend(PackageCodeRequest request){
         InvokeResult result = new InvokeResult();
         try {
@@ -1635,7 +1658,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/packageSend/check")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.packageSendCheck", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.packageSendCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeliveryResponse packageSendCheck(DeliveryRequest deliveryRequest) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
@@ -1669,7 +1692,7 @@ public class DeliveryResource {
      */
     @POST
     @Path("/delivery/packageSend/checkBeforeSend")
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkBeforeSend", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMS.WEB.DeliveryResource.checkBeforeSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest deliveryRequest) {
     	JdResult<CheckBeforeSendResponse> result = new JdResult<CheckBeforeSendResponse>();
     	CheckBeforeSendResponse checkResponse = new CheckBeforeSendResponse();
