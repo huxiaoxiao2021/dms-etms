@@ -6,7 +6,9 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.utils.ListUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 
 import java.util.*;
 
@@ -84,30 +86,12 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         Map<String, Object> map = Maps.newHashMap();
         map.put("taskId", taskId);
         List<String> result = new ArrayList<>();
-        List<String> splitList = new ArrayList<>();
         List<String> splitResult = new ArrayList<>();
-        int batchAmount = Constants.QUERY_LOAD_SCAN_MAX;
-        for (int i = 0; i < waybillList.size() / batchAmount + 1; ) {
-            //<=50一次查完
-            if (waybillList.size() <= batchAmount) {
-                map.put("waybillList", waybillList);
-                return super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
-            } else {
-                splitList = waybillList.subList(i, batchAmount);
-                map.put("waybillList", splitList);
-                splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
-                result.addAll(splitResult);
-                i = batchAmount + 1;
-                batchAmount = batchAmount + i;
-                //最后一次<=50
-                if (batchAmount >= waybillList.size()) {
-                    splitList = waybillList.subList(i, waybillList.size());
-                    map.put("waybillList", splitList);
-                    splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
-                    result.addAll(splitResult);
-                    break;
-                }
-            }
+        if (CollectionUtils.isNotEmpty(waybillList)) {
+            ListUtils.partition(waybillList, Constants.QUERY_LOAD_SCAN_MAX);
+            map.put("waybillList", waybillList);
+            splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+            result.addAll(splitResult);
         }
         return result;
     }
