@@ -82,7 +82,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         mapValues.put("特安服务","特安");
         mapValues.put("大件开箱通电","通电");
         mapValues.put("大件送装一体","送装");
-        mapValues.put("取旧服务","取旧");
+        mapValues.put("大件取旧服务","取旧");
     }
 
     @Override

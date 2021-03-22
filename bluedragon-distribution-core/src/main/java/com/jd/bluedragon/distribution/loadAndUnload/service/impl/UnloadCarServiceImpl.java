@@ -53,6 +53,7 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -2504,6 +2505,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Override
     public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+        logger.info("UnloadCarServiceImpl-interceptValidateUnloadCar-barCode:{}",barCode);
         InvokeResult<String> result = new InvokeResult<String>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -2539,6 +2541,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             boolean isBnet = BusinessUtil.isBusinessHall(waybillSign);
             //waybillsign66位为3 增加新的拦截校验
             if(isNewWeightLogic){
+                logger.info("waybillsign66为3增加新的拦截校验,barcode:{},waybillSin:{},result:{}",barCode,waybillSign, JsonUtils.toJson(result));
                 result = kaWaybillCheck(barCode,waybillSign,result);
                 //如果reusltcode不为200 说明已经被上面方法改变 校验不通过
                 if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
@@ -2631,7 +2634,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param result
      * @return
      */
-    private InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result) {
+    @Override
+    public InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result)  {
         DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if(deliveryPackageD != null){
             //非信任重量  信任重量不做重量体积拦截

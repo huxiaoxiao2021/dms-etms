@@ -17,7 +17,6 @@
     var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
     var waybill_weight_improt_url      = '/b2b/express/weight/uploadExcel'; //批量导入
-    var waybill_weight_improtbypackage_url='/b2b/express/weight/uploadExcelByPackage'; //包裹维度批量导入
     var SERVER_ERROR_CODE = 500;
     var ERROR_PARAM_RESULT_CODE = 400;
     var ERROR_HALF_RESULT_CODE = 600; //部分成功
@@ -29,7 +28,6 @@
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
     var NO_NEED_WEIGHT = 201; //不需要称重
     var WAYBILL_STATES_FINISHED=202; //
-    var KAWAYBILL_NEEDPACKAGE_WEIGHT=203;//KA 需要包裹维度称重量方
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
@@ -772,75 +770,6 @@ function checkFileInput(input) {
 	} 
 	return flag;
    }
-
-   /******************************************按包裹维度批量录入数据********************************************************/
-   /*批量导入按钮*/
-   $('#waybill-weight-improtbypackage-btn').linkbutton({
-       iconCls: 'icon-add',
-       onClick:function(){
-           forcedToSubmitCount = 0 ; //初始化强制提交数量
-           errorData = [] ; //初始化失败记录数据
-           $("#waybill-weight-importbypackage-dialog").dialog('open');
-
-       }
-
-   });
-
-
-   /*确定导入按钮*/
-   $("#waybill-weight-improtbypackage-form-submit").click(function () {
-
-       $("#waybill-weight-improtbypackage-form-submit").linkbutton('disable'); //锁住导入按钮
-       $("#waybill-weight-improtbypackage-fail-message").html("");
-       $("#waybill-weight-improtbypackage-fail-submit-message").html("");
-       var fileInput = $("#importbyPackageExcelFile");
-       if(!checkFileInput(fileInput)) { //其他操作
-        $("#waybill-weight-improtbypackage-form-submit").linkbutton('enable'); //解锁导入按钮
-        return;
-       }
-       $('#waybill-weight-improtbypackage-form').form('submit', {
-           url:waybill_weight_improtbypackage_url,
-           success:function(data){
-               $("#waybill-weight-improtbypackage-form-submit").linkbutton('enable'); //解锁导入按钮
-
-               var data = eval('('+data+')');
-
-               if(data.code==SERVER_SUCCESS_CODE){
-                   $("#waybill-weight-improtbypackage-dialog").dialog('close');
-                   $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
-                   showWarnData(data.data.warnList);
-               }else if(data.code==ERROR_HALF_RESULT_CODE){
-                  //部分成功
-                   $("#waybill-weight-improtbypackage-dialog").dialog('close');
-                   $("#waybill-weight-improtbypackage-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
-                   showWarnData(data.data.warnList);
-                   showFailData(data.data.errorList);
-               }else{
-                   $.messager.alert('导入异常',data.message);
-               }
-               //展示成功数据
-               if(data.data.successList && data.data.successList.length >0){
-                   //
-                   var successRows = data.data.successList;
-                   for(var i in successRows){
-                       $('#waybill-weight-success-datagrid').datagrid('appendRow',{
-                           waybillCode:successRows[i].codeStr,
-                           weight:successRows[i].weight,
-                           volume:successRows[i].volume,
-                           statusText:'批量导入',
-                           memo:successRows[i].errorMessage
-                       });
-                   }
-               }
-           }
-       });
-   });
-
-
-   $("#waybill-weight-improtbypackage-form-close").click(function () {
-       $("#waybill-weight-improtbypackage-dialog").dialog('close');
-   });
-    /******************************************按包裹维度批量录入数据********************************************************/
 /*
 });*/
 
