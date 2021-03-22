@@ -120,6 +120,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			//User user = userVerifyManager.baseVerify(userid, password);
 			//调用sso的SsoService验证用户
 			InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password, loginVersion);
+			log.info("userVerifyManager.baseVerify-userid[{}]password[{}]loginVersion[{}]result[{}]",userid, password, loginVersion,JsonHelper.toJson(result));
 			if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
 				basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
 				basePdaUserDto.setMessage(result.getMessage());

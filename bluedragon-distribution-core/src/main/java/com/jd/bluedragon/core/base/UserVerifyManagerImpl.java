@@ -75,6 +75,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
     public InvokeResult<UserInfo> baseVerify(String name, String password, Byte loginVersion) {
         try {
             InvokeResult<UserInfo> result = newDeptWebService.verify(name, password, loginVersion);
+            log.info("newDeptWebService.verify-name[{}]password[{}]loginVersion[{}]result[{}]",name, password, loginVersion,JsonHelper.toJson(result));
             return result;
         } catch (Exception ex) {
             log.error("deptWebService verify error", ex);
@@ -132,6 +133,8 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
+            log.info("userInfoRpc.login-loginParam[{}]loginResult[{}]",
+                    JsonHelper.toJson(loginParam),JsonHelper.toJson(loginResult));
             if (loginResult == null) {
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_JSF_FAILUE);
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_JSF_FAILUE_MSG);

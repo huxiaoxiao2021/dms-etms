@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.service.AbstractClient;
 import com.jd.bluedragon.distribution.base.service.ErpValidateService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,8 @@ public class ThirdValidateServiceImpl implements ErpValidateService {
             String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
             // 京东用户组接口验证
             BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo, loginVersion);
+            log.info("userVerifyManager.passportVerify-thirdUserId[{}]password[{}]clientInfo[{}]loginVersion[{}]basePdaUserDtoNew[{}]",
+                    thirdUserId, password, JsonHelper.toJson(clientInfo),loginVersion,JsonHelper.toJson(basePdaUserDtoNew));
             if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
                 // 用户组接口验证通过后，从基础资料获取具体信息
                 BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);

@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 
 public interface LoginService {
-
     /**
      * 新登录接口，同时返回用户的站点和分拣中心
      *

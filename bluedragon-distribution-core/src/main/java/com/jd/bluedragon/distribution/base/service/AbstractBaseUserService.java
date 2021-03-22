@@ -185,7 +185,8 @@ public abstract class AbstractBaseUserService implements LoginService {
         LoginClientService loginClient = selectLoginClient();
         loginClient.selectErpValidateService(erpAccount);
         PdaStaff loginResult = loginClient.login(erpAccount, erpAccountPwd, clientInfo, request.getLoginVersion());
-
+        log.info("登录返回-erpAccount[{}]erpAccountPwd[{}]clientInfo[{}]request[{}]loginResult[{}]loginClient[{}]",
+                erpAccount, erpAccountPwd, JsonHelper.toJson(clientInfo), JsonHelper.toJson(request),JsonHelper.toJson(loginResult),loginClient.getClass());
         // 处理返回结果
         if (loginResult.isError()) {
             // 异常处理-验证失败，返回错误信息
