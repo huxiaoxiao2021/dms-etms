@@ -90,6 +90,7 @@
 		<entry key="BX" value="正向虚拟" />
 		<entry key="TW" value="逆向内配" />
 		<entry key="LP" value="理赔完成" />
+        <entry key="WJ" value="文件" />
 	</util:map>
 
 </beans>

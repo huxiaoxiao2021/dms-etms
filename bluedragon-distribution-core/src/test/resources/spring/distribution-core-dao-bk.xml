@@ -649,6 +649,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!--  分拣箱号关联  -->
+    <bean id="boxRelationDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
+
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
         <property name="sqlSession" ref="sessionTemplate"/>

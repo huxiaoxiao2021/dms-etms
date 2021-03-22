@@ -1,13 +1,20 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.box.request.BoxRelationReq;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
+import com.jd.bluedragon.common.dto.box.response.BoxRelationDto;
+import com.jd.bluedragon.distribution.api.request.box.BoxRelationRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.rest.box.BoxRelationResource;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
@@ -34,6 +41,9 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
 
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    private BoxRelationResource boxRelationResource;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -110,5 +120,61 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         boxDto.setSiteType(boxResponse.getSiteType());
         boxDto.setTransportType(boxResponse.getTransportType());
         return boxDto;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.getBoxRelations",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<BoxRelationDto>> getBoxRelations(BoxRelationReq req) {
+        JdCResponse<List<BoxRelationDto>> response = new JdCResponse<>();
+        response.toSucceed();
+        if (null == req) {
+            response.toError("参数为空！");
+            return response;
+        }
+
+        BoxRelationRequest request = makeBoxRelationReq(req);
+        JdResult<List<BoxRelation>> result = boxRelationResource.getBoxRelation(request);
+        if (result.isFailed()) {
+            response.toError(result.getMessage());
+            return response;
+        }
+        response.setData(JSON.parseArray(JSON.toJSONString(result.getData()), BoxRelationDto.class));
+        response.toSucceed(result.getMessage());
+
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.submitBoxBinding",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> submitBoxBinding(BoxRelationReq req) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed();
+        if (null == req) {
+            response.toError("参数为空！");
+            return response;
+        }
+
+        BoxRelationRequest request = makeBoxRelationReq(req);
+        JdResult<Boolean> result = boxRelationResource.boxBind(request);
+        if (result.isFailed()) {
+            response.toError(result.getMessage());
+            return response;
+        }
+        response.toSucceed(result.getMessage());
+
+        return response;
+    }
+
+    private BoxRelationRequest makeBoxRelationReq(BoxRelationReq req) {
+        BoxRelationRequest request = new BoxRelationRequest();
+        request.setBoxCode(req.getBoxCode());
+        request.setRelationBoxCode(req.getRelationBoxCode());
+        request.setUserErp(req.getUser().getUserErp());
+        request.setUserCode(req.getUser().getUserCode());
+        request.setUserName(req.getUser().getUserName());
+        request.setSiteCode(req.getCurrentOperate().getSiteCode());
+        request.setSiteName(req.getCurrentOperate().getSiteName());
+
+        return request;
     }
 }

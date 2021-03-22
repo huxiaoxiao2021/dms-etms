@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.SiteHelper;
@@ -736,6 +737,17 @@ public class WaybillServiceImpl implements WaybillService {
             }
         }
         return nextSiteCode;
+    }
+
+    @Override
+    public boolean allowFilePackFilter(Integer subType, String waybillSign) {
+        if (!(Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(subType)
+                || Constants.SITE_SUBTYPE_SECOND.equals(subType)
+                || Constants.SITE_SUBTYPE_THIRD.equals(subType))) {
+            return false;
+        }
+
+        return BusinessHelper.fileTypePackage(waybillSign);
     }
 
     /**
