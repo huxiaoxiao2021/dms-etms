@@ -1449,10 +1449,6 @@ public class Constants {
     public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
 
     /**
-     * 快运发货标识
-     */
-    public static final Integer KY_DELIVERY = 1;
-    /**
      * 线路类型-默认值0
      */
     public static Integer LINE_TYPE_DEFAULT = 0;
