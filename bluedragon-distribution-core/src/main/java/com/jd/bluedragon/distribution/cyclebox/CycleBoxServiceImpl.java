@@ -461,6 +461,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                 if(StringUtils.isEmpty(materialCode)){
                     noBinDingList.add(groupBoxDto);
                 }else {
+                    groupBoxDto.setMaterialCode(materialCode);
                     binDingList.add(groupBoxDto);
                 }
             }
