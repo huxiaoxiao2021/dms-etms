@@ -53,12 +53,12 @@ public class DmsArReceiveServiceImpl implements DmsArReceiveService {
 
     @Override
     public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
-        return null;
+        return arReceiveResource.queryArReceiveCountForWorking(request);
     }
 
     @Override
     public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
-        return null;
+        return arReceiveResource.queryArReceiveDetailForWorking(request);
     }
 
 }

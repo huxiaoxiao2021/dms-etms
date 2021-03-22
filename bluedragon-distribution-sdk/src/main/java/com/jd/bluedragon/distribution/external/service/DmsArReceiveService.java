@@ -53,13 +53,13 @@ public interface DmsArReceiveService {
     JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate);
 
     /**
-     * 计提查询空铁提货数据
+     * 计提查询空铁提货总数
      */
 
     JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request);
 
     /**
-     *
+     * 计提查询空铁提货明细
      */
     JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request);
 }

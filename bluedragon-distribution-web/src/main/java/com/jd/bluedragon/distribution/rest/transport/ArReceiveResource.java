@@ -286,4 +286,16 @@ public class ArReceiveResource {
         return rest;
     }
 
+    public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
+        JdResponse<Integer> rest = new JdResponse<>();
+        rest.setData(arReceiveService.queryArReceiveCountForWorking(request));
+        return rest;
+    }
+
+    public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
+        JdResponse<List<ArReceiveVo>> rest = new JdResponse<>();
+        rest.setData(arReceiveService.queryArReceiveDetailForWorking(request));
+        return rest;
+    }
+
 }

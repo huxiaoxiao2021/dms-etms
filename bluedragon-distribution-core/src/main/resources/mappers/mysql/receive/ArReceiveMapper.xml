@@ -389,16 +389,45 @@
 				#{userCodeItem}
 			</foreach>
 		</if>
-		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+		<if test="barCodeList !=null and barCodeList.size() > 0">
+			and box_code IN
+			<foreach collection="barCodeList" item="barCodeItem" separator="," open="(" close=")">
+				#{barCodeItem}
+			</foreach>
+		</if>
+		<if test="operateTimeStart !=null">
+			and operate_time &gt; #{operateTimeStart}
+		</if>
+		<if test="operateTimeEnd !=null">
+			and operate_time &lt; #{operateTimeEnd}
+		</if>
 	</select>
 	<select id="queryArReceiveDetailForWorking" parameterType="com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition" resultMap="ArReceive">
 		select
 		 <include refid="Base_Column_List"/>
 		from
 		  ar_receive
-		where 1=1
-		 <include refid="Base_Condition_Sql"/>
-		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+		where
+		create_site_code = #{createSiteCode}
+		<if test="createUserCodeList !=null and createUserCodeList.size() > 0">
+			and create_user_code IN
+			<foreach collection="createUserCodeList" item="userCodeItem" separator="," open="(" close=")">
+				#{userCodeItem}
+			</foreach>
+		</if>
+		<if test="barCodeList !=null and barCodeList.size() > 0">
+			and box_code IN
+			<foreach collection="barCodeList" item="barCodeItem" separator="," open="(" close=")">
+				#{barCodeItem}
+			</foreach>
+		</if>
+		<if test="operateTimeStart !=null">
+			and operate_time &gt; #{operateTimeStart}
+		</if>
+		<if test="operateTimeEnd !=null">
+			and operate_time &lt; #{operateTimeEnd}
+		</if>
+		limit #{offset},#{size}
 	</select>
 
 </mapper>
