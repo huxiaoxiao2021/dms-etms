@@ -52,11 +52,13 @@ public class DmsArReceiveServiceImpl implements DmsArReceiveService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsArReceiveServiceImpl.queryArReceiveCountForWorking", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
         return arReceiveResource.queryArReceiveCountForWorking(request);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsArReceiveServiceImpl.queryArReceiveDetailForWorking", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
         return arReceiveResource.queryArReceiveDetailForWorking(request);
     }
