@@ -18,9 +18,6 @@ public enum WeightByWaybillExceptionTypeEnum
     //不需要称重
     WaybillNoNeedWeightException(true,WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightExceptionMessage),
 
-    //KA运单 必须按包裹维度录入重量体积
-    WaybillNeedPackageWeightException(true,WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightMessage),
-
     //运单称重对象转换json失败
     WaybillWeightVOConvertExcetion(true,WeightByWaybillExceptionTypeEnum.WaybillWeightVOConvertExcetionMessage),
 
@@ -41,7 +38,7 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String InvalidMethodInvokeExceptionMessage = "遭遇非界面操作方式调用运单称重录入方法";
     public static final String WaybillNoNeedWeightExceptionMessage = "此单为信任商家运单，不进行称重量方";
     public static final String WaybillFinishedExceptionMessage = "此运单为妥投状态，禁止操作此功能，请检查单号是否正确";
-    public static final String WaybillNeedPackageWeightMessage ="此运单为大件KA运单，请按包裹维度批量录入重量体积";
+
 
 
     public boolean shouldBeThrowToTop = false;
