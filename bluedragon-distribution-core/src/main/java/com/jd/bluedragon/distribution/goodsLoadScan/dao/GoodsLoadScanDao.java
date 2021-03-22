@@ -103,7 +103,7 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
                 i = batchAmount + 1;
                 batchAmount = batchAmount + i;
                 //最后一次不足50
-                if (batchAmount >= waybillList.size()) {
+                if (batchAmount > waybillList.size()) {
                     splitList = waybillList.subList(i, waybillList.size());
                     map.put("waybillList", splitList);
                     splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
