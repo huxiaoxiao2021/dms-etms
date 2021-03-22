@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.sealVehicle.domain.UnSealVehicleDetail;
 import com.jd.bluedragon.distribution.sealVehicle.domain.UnSealVehicleInfo;
 import com.jd.bluedragon.distribution.sealVehicle.domain.VehicleBaseInfo;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.List;
 
@@ -51,5 +52,5 @@ public interface DmsSealVehicleService {
      * @param queryCondition
      * @return
      */
-    JdResponse<List<PassPreSealRecord>> queryPassPreSealData(PassPreSealQueryRequest queryCondition);
+    JdResponse<PageDto<PassPreSealRecord>> queryPassPreSealData(PassPreSealQueryRequest queryCondition);
 }

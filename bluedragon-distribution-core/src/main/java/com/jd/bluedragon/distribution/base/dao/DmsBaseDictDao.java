@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.base.dao;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 
@@ -28,4 +28,8 @@ public interface DmsBaseDictDao extends Dao<DmsBaseDict> {
      * @return
      */
 	public List<DmsBaseDict> queryAllGroups();
+
+
+	//排序查询
+    List<DmsBaseDict> queryOrderByCondition(PagerCondition pagerCondition);
 }

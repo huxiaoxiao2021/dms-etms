@@ -20,6 +20,8 @@ import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -64,6 +66,7 @@ public class WarmBoxInOutResource {
 
     @POST
     @Path("/warmBox/relations")
+    @JProfiler(jKey = "DMS.WEB.WarmBoxInOutResource.listBoxBoardRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<WarmBoxInOutResponse> listBoxBoardRelation(WarmBoxBoardRelationRequest request) {
 
         JdResult<WarmBoxInOutResponse> response = new JdResult<>();
@@ -112,6 +115,7 @@ public class WarmBoxInOutResource {
 
     @POST
     @Path("/warmBox/inbound")
+    @JProfiler(jKey = "DMS.WEB.WarmBoxInOutResource.warmBoxInbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<WarmBoxInOutResponse> warmBoxInbound(WarmBoxInboundRequest request) {
 
         JdResult<WarmBoxInOutResponse> response = new JdResult<>();
@@ -159,6 +163,7 @@ public class WarmBoxInOutResource {
 
     @POST
     @Path("/warmBox/outbound")
+    @JProfiler(jKey = "DMS.WEB.WarmBoxInOutResource.warmBoxOutbound", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<WarmBoxInOutResponse> warmBoxOutbound(WarmBoxOutboundRequest request) {
         JdResult<WarmBoxInOutResponse> response = new JdResult<>();
         response.toSuccess();

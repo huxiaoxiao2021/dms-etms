@@ -66,4 +66,31 @@
 		</property>
 	</bean>
 
+	<!-- 营业部，自营京东派 使用的箱型 -->
+	<util:map id="siteBoxTypeMap" key-type="java.lang.String" value-type="java.lang.String">
+		<entry key="WJ" value="文件" />
+		<entry key="ZH" value="航空件" />
+		<entry key="ZF" value="同城混包" />
+		<entry key="ZK" value="特快混包" />
+		<entry key="ZQ" value="其他混包" />
+		<entry key="TC" value="退货普通" />
+		<entry key="ZS" value="售后件" />
+	</util:map>
+
+	<!-- 分拣中心使用 -->
+	<util:map id="sortingBoxTypeMap" key-type="java.lang.String" value-type="java.lang.String">
+		<entry key="BC" value="正向普通" />
+		<entry key="TC" value="退货普通" />
+		<entry key="GC" value="取件普通" />
+		<entry key="FC" value="返调度再投普通" />
+		<entry key="BS" value="正向奢侈品" />
+		<entry key="TS" value="退货奢侈品" />
+		<entry key="GS" value="取件奢侈品" />
+		<entry key="FS" value="返调度再投奢侈品" />
+		<entry key="BX" value="正向虚拟" />
+		<entry key="TW" value="逆向内配" />
+		<entry key="LP" value="理赔完成" />
+        <entry key="WJ" value="文件" />
+	</util:map>
+
 </beans>

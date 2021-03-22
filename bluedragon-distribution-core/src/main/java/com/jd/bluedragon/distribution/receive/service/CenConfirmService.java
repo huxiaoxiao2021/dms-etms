@@ -35,4 +35,11 @@ public interface CenConfirmService {
      * @return
      */
     CenConfirm commonGenCenConfirmFromInspection(Inspection inspection);
+
+	/**
+	 * 只是更新或者插入收货记录
+	 * @param cenConfirm
+	 * @return 插入数据的数量
+	 */
+	public Integer  saveOrUpdateCenConfirmOnly(CenConfirm cenConfirm);
 }

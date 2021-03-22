@@ -549,6 +549,11 @@
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
     </bean>
 
+    <!-- 回流包裹 -->
+    <bean id="reflowPackageDao" class="com.jd.bluedragon.distribution.reflowPackage.dao.ReflowPackageDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
     <!-- 商家称重量方白名单 -->
     <bean id="merchantWeightAndVolumeWhiteListDao" class="com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -643,6 +648,10 @@
     <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!--  分拣箱号关联  -->
+    <bean id="boxRelationDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">

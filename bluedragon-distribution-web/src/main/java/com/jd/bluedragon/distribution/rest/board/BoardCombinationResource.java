@@ -14,6 +14,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ public class BoardCombinationResource {
 
     @GET
     @Path("/boardCombination/barCodeValidation")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.validation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> validation(@QueryParam("boardCode") String boardCode) {
         JdResponse<BoardResponse> result =new JdResponse<BoardResponse>();
         result.setData(new BoardResponse());
@@ -72,6 +75,7 @@ public class BoardCombinationResource {
      */
     @POST
     @Path("/boardCombination/combination")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.combination", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> combination(BoardCombinationRequest request) {
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
           result.setData(new BoardResponse());
@@ -94,6 +98,7 @@ public class BoardCombinationResource {
      */
     @POST
     @Path("/boardCombination/combination/new")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.combinationNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> combinationNew(BoardCombinationRequest request) {
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
         result.setData(new BoardResponse());
@@ -133,6 +138,7 @@ public class BoardCombinationResource {
      */
     @POST
     @Path("/boardCombination/combination/cancel")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.cancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> cancel(BoardCombinationRequest request){
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
         result.setData(new BoardResponse());
@@ -169,6 +175,7 @@ public class BoardCombinationResource {
      */
     @GET
     @Path("/boardCombination/belong/{siteCode}/{boxCode}")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.getBoardByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<Board> getBoardByBoxCode(@PathParam("siteCode") Integer siteCode, @PathParam("boxCode") String boxCode){
         JdResponse<Board> result = new JdResponse<Board>();
         result.toSucceed("查询箱子所属板号成功!");
@@ -204,6 +211,7 @@ public class BoardCombinationResource {
 
     @POST
     @Path("/boardLablePrint/createBoard")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.createBoard", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<BoardDto>> createBoard(AddBoardRequest request){
 
         InvokeResult<List<BoardDto>> invokeResult = new InvokeResult<>();
@@ -219,6 +227,7 @@ public class BoardCombinationResource {
 
     @GET
     @Path("/boardLablePrint/getBoard/{boardCode}")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.getBoard", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoardDto> getBoard(@PathParam("boardCode") String boardCode){
         if(boardCode == null){
             this.log.warn("请求的板号为空");
@@ -239,6 +248,7 @@ public class BoardCombinationResource {
      */
     @GET
     @Path("/boardCombination/detail/{boardCode}")
+    @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.getBoxCodesByBoardCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> getBoxCodesByBoardCode(@PathParam("boardCode") String boardCode){
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
         result.toSucceed("查询箱子所属板号成功!");

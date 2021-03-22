@@ -239,6 +239,26 @@ public class UccPropertyConfiguration {
     * */
     private boolean preSortOnSiteSwitchOn;
 
+    /**
+     * BC箱号绑定WJ数量限制
+     */
+    private int BCContainWJNumberLimit;
+
+    /**
+     * WJ装箱包裹数限制
+     */
+    private int WJPackageNumberLimit;
+
+    /**
+     * 是否走老逻辑检查箱是否发货开关
+     */
+    private boolean checkBoxSendedSwitchOn;
+
+    /**
+     * 站点查询数量最大限制
+     */
+    private Integer siteQueryLimit;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -661,5 +681,37 @@ public class UccPropertyConfiguration {
 
     public void setDeliverHideSites(String deliverHideSites) {
         this.deliverHideSites = deliverHideSites;
+    }
+
+    public int getBCContainWJNumberLimit() {
+        return BCContainWJNumberLimit;
+    }
+
+    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
+        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
+    }
+
+    public int getWJPackageNumberLimit() {
+        return WJPackageNumberLimit;
+    }
+
+    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
+        this.WJPackageNumberLimit = WJPackageNumberLimit;
+    }
+
+    public boolean getCheckBoxSendedSwitchOn() {
+        return checkBoxSendedSwitchOn;
+    }
+
+    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
+        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public Integer getSiteQueryLimit() {
+        return siteQueryLimit;
+    }
+
+    public void setSiteQueryLimit(Integer siteQueryLimit) {
+        this.siteQueryLimit = siteQueryLimit;
     }
 }
