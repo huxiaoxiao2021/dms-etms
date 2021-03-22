@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import java.util.List;
 
 public class DeliveryResponse extends JdResponse {
-
+    
     private static final long serialVersionUID = 6917841719620008189L;
     public static final Integer CODE_Delivery_SEND_SUCCESS = 1;
     public static final Integer CODE_Delivery_SEND_FAIL = 2;
@@ -16,10 +16,10 @@ public class DeliveryResponse extends JdResponse {
 
     public static final Integer CODE_Delivery_ERROR = 40001;
     public static final String MESSAGE_Delivery_ERROR = "发货处理异常";
-
+    
     public static final Integer CODE_Delivery_NO_CHECK = 30001;
     public static final String MESSAGE_Delivery_NO_CHECK = "该箱号还没有验货，是否发货？";
-
+    
     public static final Integer CODE_Delivery_ALL_CHECK = 40002;
     public static final String MESSAGE_Delivery_ALL_CHECK = "该箱号还没有完验";
 
@@ -37,13 +37,13 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
     public static final String MESSAGE_DELIVERY_NO_SENDCODE = "无该批次号的发货记录";
-
+    
     public static final Integer CODE_Delivery_NO_DEPART = 40004;
     public static final String MESSAGE_Delivery_NO_DEPART = "该箱号已经发车";
-
+    
     public static final Integer CODE_Delivery_IS_SEND = 40005;
     public static final String MESSAGE_Delivery_IS_SEND = "该箱号已经发货";
-
+    
     public static final Integer CODE_Delivery_IS_SITE = 40006;
     public static final String MESSAGE_Delivery_IS_SITE = "箱号与目的地不一致";
 
@@ -71,7 +71,7 @@ public class DeliveryResponse extends JdResponse {
 
     public static final Integer CODE_Delivery_NO_SORTING = 30002;
     public static final String MESSAGE_Delivery_NO_SORTING = "包裹没有分拣记录，是否发货？";
-
+    
     public static final Integer CODE_Delivery_THREE_SORTING = 30003;
     public static final String MESSAGE_Delivery_THREE_SORTING = "有不全运单，请处理后再发货";
 
@@ -83,10 +83,10 @@ public class DeliveryResponse extends JdResponse {
 
     public static final Integer CODE_Delivery_LACK_ORDER = 30004;
     public static final String MESSAGE_Delivery_LACK_ORDER = "该箱有跨箱订单，不能取消发货";
-
+    
     public static final Integer CODE_Delivery_SORTING_DIFF = 30005;
     public static final String MESSAGE_Delivery_SORTING_DIFF = "该箱或者站点一单多件包裹不全";
-
+    
     public static final Integer CODE_Delivery_TRANSIT = 30006;
     public static final String MESSAGE_Delivery_TRANSIT = "箱号与目的地不一致，是否发货？";
 
@@ -97,13 +97,16 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_DELIVERY_EXIST_PROCESSING = "部分发货成功，存在[{0}]个单号正在发货处理中，请等待处理完成后再查看或操作";
 
     public static final Integer CODE_DELIVERY_ALL_PROCESSING = 30010;
-    public static final String MESSAGE_DELIVERY_ALL_PROCESSING = "操作的所有单号正在发货处理中，请等待处理完成后再查看或操作";
+    public static final String MESSAGE_DELIVERY_ALL_PROCESSING = "该运单正在处理中，请等待处理完成";
 
     public static final Integer CODE_DELIVERY_SEND_CODE_IS_COMMITTED = 30011;
     public static final String MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED = "该批次的发货操作已提交，请勿重复操作";
 
     public static final Integer CODE_DELIVERY_BY_WAYBILL_PROCESSING = 30012;
-    public static final String MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING = "该单号下的所有包裹正在按运单发货处理中，请等待处理完成";;
+    public static final String MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING = "该单号下的所有包裹正在按运单发货处理中，请等待处理完成";
+
+    public static final Integer CODE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = 30013;
+    public static final String MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = "该单号下已有包裹发货，请继续按包裹发货";
 
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
@@ -115,9 +118,6 @@ public class DeliveryResponse extends JdResponse {
 
     public static final Integer CODE_20020 = 20020;
     public static final String MESSAGE_20020 = "文件包裹未集包禁止发货";
-
-    public static final Integer CODE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = 30013;
-    public static final String MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = "该单号下已有包裹发货，请继续按包裹发货";
 
     /**
      * 快运-拦截标识

@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.dao;
 
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
+import com.jd.bluedragon.utils.ListUtil;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
@@ -76,6 +79,26 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     //删除包裹和任务关系时,先查有没有记录
     public List<GoodsLoadScan> loadScanRecordIsExist(Long taskId) {
         return super.getSqlSession().selectList(NAMESPACE + ".loadScanRecordIsExist", taskId);
+    }
+
+    //批量查询运单号是否存在
+    public List<String> checkWaybillIsExist(List<String> waybillList, Long taskId) {
+        Map<String, Object> map = Maps.newHashMap();
+        map.put("taskId", taskId);
+        List<String> result = new ArrayList<>();
+        List<String> splitResult = new ArrayList<>();
+        if(CollectionUtils.isEmpty(waybillList)){
+            return result;
+        }
+        List<List<String>> splitList =  ListUtils.partition(waybillList,  Constants.QUERY_LOAD_SCAN_MAX);
+        for (List<String> list : splitList) {
+            map.put("waybillList", list);
+            splitResult = super.getSqlSession().selectList(NAMESPACE + ".checkWaybillIsExist", map);
+            if (CollectionUtils.isNotEmpty(splitResult)) {
+                result.addAll(splitResult);
+            }
+        }
+        return result;
     }
 }
 

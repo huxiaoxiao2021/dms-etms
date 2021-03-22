@@ -252,4 +252,13 @@
         where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 limit 1
     </select>
 
+    <select id="checkWaybillIsExist" parameterType="java.util.Map" resultType="String">
+    select waybill_code
+    from load_scan
+    where  task_id = #{taskId,jdbcType=BIGINT} and yn=1 and waybill_code IN
+        <foreach collection="waybillList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
 </mapper>

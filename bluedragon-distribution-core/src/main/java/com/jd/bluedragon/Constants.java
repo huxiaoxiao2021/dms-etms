@@ -1418,6 +1418,27 @@ public class Constants {
     public static final Integer PDA_SOURCE = 1;
 
     /**
+     * 字典节点级别
+     */
+    public static final int DICT_LEVEL = 2;
+
+    /**
+     * 父节点编码
+     */
+    public static final String PARENT_CODE = "1019";
+
+    /**
+     * 字典分组
+     */
+    public static final String DICT_GROUP = "1019";
+
+
+    /**
+     * 快运发货标识
+     */
+    public static final Integer KY_DELIVERY = 1;
+
+    /**
      * 暂存预约接口成功响应码
      */
     public static final Integer STAGING_CHECK_SUCCESS_CODE = 0;
@@ -1459,4 +1480,19 @@ public class Constants {
 
     //DeliveryPackageD信任包裹称重
     public static Integer isTrust = 1;
+
+    /**
+     * 车牌长度9位 ex:010A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_9 = 9;
+
+    /**
+     * 车牌长度10位 ex:0371A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_10 = 10;
+
+    /**
+     * 查询已扫包裹最大数限制单次IN50
+     */
+    public static final int QUERY_LOAD_SCAN_MAX = 50;
 }

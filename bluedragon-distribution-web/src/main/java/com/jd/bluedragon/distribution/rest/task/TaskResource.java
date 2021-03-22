@@ -241,7 +241,9 @@ public class TaskResource {
 
                 Integer innerTaskType = null;
                 try {
-                    innerTaskType = Integer.valueOf(String.valueOf(itemTask.get("taskType")));
+                    if (null != itemTask.get("taskType")) {
+                        innerTaskType = Integer.valueOf(String.valueOf(itemTask.get("taskType")));
+                    }
                 }
                 catch (Exception ex) {
                     log.error("转换taskType失败.", ex);

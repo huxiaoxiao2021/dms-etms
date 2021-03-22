@@ -157,6 +157,7 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
+				<value>uccPropertyConfiguration.siteQueryLimit</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
