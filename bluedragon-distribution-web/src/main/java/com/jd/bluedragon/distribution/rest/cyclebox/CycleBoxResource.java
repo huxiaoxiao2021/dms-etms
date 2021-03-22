@@ -321,8 +321,8 @@ public class CycleBoxResource {
     // 给安卓返回使用的对象
     private BoxDto packageBoxDto(GroupBoxDto groupBoxDto){
         BoxDto boxDto = new BoxDto();
-        boxDto.setBoxType(groupBoxDto.getBoxType());
         boxDto.setBoxCode(groupBoxDto.getBoxCode());
+        boxDto.setBoxType(groupBoxDto.getBoxType());
         boxDto.setCreateSiteCode(groupBoxDto.getCreateSiteCode());
         boxDto.setCreateSiteName(groupBoxDto.getCreateSiteName());
         boxDto.setReceiveSiteCode(groupBoxDto.getReceiveSiteCode());

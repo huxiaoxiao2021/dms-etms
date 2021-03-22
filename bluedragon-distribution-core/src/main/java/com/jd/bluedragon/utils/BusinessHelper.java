@@ -930,7 +930,7 @@ public class BusinessHelper {
             return Boolean.FALSE;
         }
 
-        if(BoxTypeEnum.TYPE_BC.equals(boxType)){
+        if(BoxTypeEnum.TYPE_BC.getCode().equals(boxType)){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
