@@ -128,6 +128,7 @@ public class WeightVolumeFilter implements Filter {
                 //如果reusltcode不为200 说明已经被上面方法改变 校验不通过
                 if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
                     //return result;
+                    logger.info("WeighVolumeFilter-doFilter,判断是否KA校验,66位为3,但校验不通过,package:{},waybillSin:{}",packageCode,waybillSign);
                     throw  new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
