@@ -57,6 +57,8 @@ public class BoxDto implements Serializable{
      */
     private String materialCode;
 
+    public BoxDto() {
+    }
 
     public String getBoxCode() {
         return boxCode;
