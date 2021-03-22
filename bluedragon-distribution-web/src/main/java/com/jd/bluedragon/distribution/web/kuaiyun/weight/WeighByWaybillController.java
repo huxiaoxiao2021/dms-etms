@@ -14,7 +14,6 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,7 +22,6 @@ import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -66,7 +64,6 @@ public class WeighByWaybillController {
 
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
-    private final Integer KAWAYBILL_NEEDPACKAGE_WEIGHT=203;
 
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
@@ -242,10 +239,6 @@ public class WeighByWaybillController {
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
                     log.warn("运单称重：{}-{} " ,codeStr, exceptionType.exceptionMessage);
-                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException)){
-                    //KA运单 必须按包裹维度录入重量体积
-                    result.setCode(KAWAYBILL_NEEDPACKAGE_WEIGHT);
-                    log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
@@ -374,7 +367,6 @@ public class WeighByWaybillController {
                     return new JdResponse(JdResponse.CODE_FAIL,errorString);
                 }
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
-                //for(int i=0;i<resultMessages.size())
                 for(String resultMessage :resultMessages){
                     WaybillWeightVO waybillWeightVO = dataList.get(0);
                     if(resultMessage.equals(JdResponse.CODE_SUCCESS.toString())){
@@ -618,5 +610,7 @@ public class WeighByWaybillController {
 
         return result;
     }
+
+
 
 }

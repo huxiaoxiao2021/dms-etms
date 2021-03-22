@@ -258,13 +258,6 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                     $.messager.alert('提示',res.message,'warning');
                     return ;
                 }
-                //KA运单
-                if(res.code == KAWAYBILL_NEEDPACKAGE_WEIGHT){
-                    $.messager.alert('提示',res.message,'error');
-                    $('#waybill-weight-btn').linkbutton('disable');
-                    $('#waybill-weight-import-btn').linkbutton('disable');
-                    return ;
-                }
                 if(res.code == WAYBILL_STATES_FINISHED){
                     $.messager.alert('提示',res.message,'error');
                     return ;
@@ -280,7 +273,6 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                         }
                     }
                 );
-
                 /*******************************************************************************/
             }
         });

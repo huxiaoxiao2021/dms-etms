@@ -50,7 +50,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -221,9 +223,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
-        }else if(waybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(waybill.getWaybillSign())){
-            //waybillsign66=3
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
         }
 
         //校验是否已经妥投

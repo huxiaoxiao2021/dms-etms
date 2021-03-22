@@ -27,10 +27,4 @@ public interface WeighByWaybillService
     boolean isOpenIntercept();
 
     boolean waybillTransferB2C(WaybillWeightVO vo);
-   /* *//**校验是否是包裹号*//*
-    String checkPackageCode(String codeStr) throws WeighByWaybillExcpetion;
-    *//**校验包裹号是否存在 需要同时校验运单号是否存在*//*
-    boolean validatePackageCodeReality(String packageCode) throws WeighByWaybillExcpetion;
-
-    void insertPackageWeightEntry(WaybillWeightVO vo) throws WeighByWaybillExcpetion;*/
 }
