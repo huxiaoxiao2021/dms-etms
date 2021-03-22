@@ -1457,4 +1457,6 @@ public class Constants {
      */
     public static final Integer NUMBER_ZERO = 0;
 
+    //DeliveryPackageD信任包裹称重
+    public static Integer isTrust = 1;
 }

@@ -167,5 +167,10 @@ public interface UnloadCarService {
      */
     InvokeResult<String> interceptValidateUnloadCar(String barCode);
 
+    /***
+     * KA运单拦截
+     */
+    InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
+
 
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
@@ -51,9 +52,13 @@ import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.coo.ucc.common.utils.JsonUtils;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -197,6 +202,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Resource
     private WaybillStagingCheckManager waybillStagingCheckManager;
+
+    @Autowired
+    WaybillPackageApi waybillPackageApi;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -1059,6 +1067,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         request.setWaybillCode(waybillCode);
 
         try {
+            //校验是否为KA运单 如果是不支持按大宗操作 66为3 强制拦截
+            JdVerifyResponse jdVerifyResponse = loadScanService.checkIsKaWaybillOrNo(waybillCode,packageCode);
+            if(!Objects.equals(JdVerifyResponse.CODE_SUCCESS,jdVerifyResponse.getCode())){
+                invokeResult.setCode(jdVerifyResponse.getCode());
+                invokeResult.setMessage(jdVerifyResponse.getMessage());
+                return invokeResult;
+            }
+
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
             if (unloadCar == null) {
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
@@ -2489,6 +2505,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Override
     public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+        logger.info("UnloadCarServiceImpl-interceptValidateUnloadCar-barCode:{}",barCode);
         InvokeResult<String> result = new InvokeResult<String>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -2516,24 +2533,47 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             //信任运单标识
             boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
-
+            //是否是KA的重量逻辑校验 66->3
+            boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
-
             // 返单标识
             boolean isRefund = BusinessUtil.isRefund(waybillSign);
 
-            // 无重量禁止发货判断
-            if (!isTrust && isB2BPure && !isRefund) {
-                if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0 ) {
-                    logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
-                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                    result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
-                    return result;
-                }
-            }
             //B网营业厅
             boolean isBnet = BusinessUtil.isBusinessHall(waybillSign);
+            //waybillsign66位为3 增加新的拦截校验
+            if(isNewWeightLogic){
+                logger.info("waybillsign66为3增加新的拦截校验,barcode:{},waybillSin:{},result:{}",barCode,waybillSign, JsonUtils.toJson(result));
+                result = kaWaybillCheck(barCode,waybillSign,result);
+                //如果reusltcode不为200 说明已经被上面方法改变 校验不通过
+                if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
+                    return result;
+                }
+            }else{
+                //无重量禁止发货判断
+                if(!isTrust && isB2BPure && !isRefund){
+                    if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0) {
+                        logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
+                        result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                        result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+                        return result;
+                    }
+                }
+                //寄付临欠
+                boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
+                if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
+                    // 非返单才提示
+                    if (!isRefund) {
+                        logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
+                        result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                        result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        return result;
+                    }
+                }
+            }
+
             //寄付
             boolean isSendPay = BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
             //B网营业厅（原单作废，逆向单不计费）
@@ -2561,18 +2601,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return result;
             }
 
-            //寄付临欠
-            boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
-            if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
-                    || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
-                // 非返单才提示
-                if (!isRefund) {
-                    logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
-                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                    result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
-                    return result;
-                }
-            }
+
 
             //有包装服务
             boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
@@ -2597,12 +2626,48 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
                 return result;
             }
+
         }catch (Exception e){
             logger.error("判断包裹拦截异常 {}",barCode,e);
         }
         return result;
     }
 
+    /***
+     * ka货物重量校验逻辑
+     * @param barCode     包裹编号
+     * @param waybillSign
+     * @param result
+     * @return
+     */
+    @Override
+    public InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result)  {
+        DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
+        if(deliveryPackageD != null){
+            //非信任重量  信任重量不做重量体积拦截
+            if(!Objects.equals(Constants.isTrust,deliveryPackageD.getTrustType())){
+                //是否需要校验体重 业务类型1
+                if(BusinessUtil.isNeedCheckWeightOrNo(waybillSign)){
+                    if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
+                        logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
+                        result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        return result;
+                    }
+                }
+                //是否需要校验体重 业务类型2
+                if(BusinessUtil.isNeedCheckWeightBusiness2OrNo(waybillSign)){
+                    if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
+                        logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
+                        result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        return result;
+                    }
+                }
+            }
+        }
+        return result;
+    }
 
 
     /**

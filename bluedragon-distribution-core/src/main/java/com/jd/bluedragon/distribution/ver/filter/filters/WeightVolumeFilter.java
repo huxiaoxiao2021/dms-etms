@@ -4,9 +4,11 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -17,6 +19,11 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.coo.ucc.common.utils.JsonUtils;
+import com.jd.etms.waybill.constant.WaybillCodePattern;
+import com.jd.etms.waybill.util.UniformValidateUtil;
+import com.jd.jddl.executor.function.scalar.filter.In;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -24,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * 漏称重量方校验
@@ -49,6 +59,9 @@ public class WeightVolumeFilter implements Filter {
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private UnloadCarService unloadCarService;
 
     private static final String RULE_WEIGHT_VOLUMN_SWITCH = "1123";
     private static final String SWITCH_OFF = "1";
@@ -99,11 +112,26 @@ public class WeightVolumeFilter implements Filter {
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
-            JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-            if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
-            }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+            //是否是KA的重量逻辑校验 66->3
+            boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
+            if(isNewWeightLogic){
+                logger.info("waybillsign66为3增加新的拦截校验,package:{},waybillSin:{}",packageCode,waybillSign);
+                InvokeResult<String> result = new InvokeResult<String>();
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result = unloadCarService.kaWaybillCheck(packageCode,waybillSign,result);
+                //如果reusltcode不为200 说明已经被上面方法改变 校验不通过
+                if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
+                    //return result;
+                    logger.info("WeighVolumeFilter-doFilter,判断是否KA校验,66位为3,但校验不通过,package:{},waybillSin:{}",packageCode,waybillSign);
+                    throw  new SortingCheckException(result.getCode(),result.getMessage());
+                }
+            }else {//原来逻辑
+                JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+                if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
+                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
+                }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
+                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                }
             }
         }else if (isNeedWeight) {
             //查询重量体积信息

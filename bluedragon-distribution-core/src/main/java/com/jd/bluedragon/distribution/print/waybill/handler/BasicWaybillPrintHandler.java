@@ -360,6 +360,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(isPackageHavePickUpOrNo){
                 pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
             }
+            //包裹维度商品信息展示 waybillsign 66=3 展示;否则不展示
+            Map<String,String> packageNameMap = new HashMap<>();
+            boolean isPrintPackageNameOrNo = BusinessUtil.isKaPackageOrNo(tmsWaybill.getWaybillSign());
+            if(isPrintPackageNameOrNo){
+                packageNameMap = waybillQueryManager.doGetPackageGoodsVasInfo(waybillCode);
+            }
             List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
                 for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
@@ -367,6 +373,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageCode(item.getPackageBarcode());
                     //设置包裹增值服务信息
                     pack.setPackageSpecialRequirement(pickUpMap.get(item.getPackageBarcode()));
+                    //设置包裹商品名称
+                    pack.setPackageGoodsName(packageNameMap.get(item.getPackageBarcode()));
                     //设置包裹序号和包裹号后缀
                     pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
