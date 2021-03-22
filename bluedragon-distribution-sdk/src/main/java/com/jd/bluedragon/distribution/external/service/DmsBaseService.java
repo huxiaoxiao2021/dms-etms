@@ -43,13 +43,11 @@ public interface DmsBaseService {
     /**
      * 客户端登录token验证
      *
-     * @param loginWithTokenVerifyRequest
      * @return
      * @author fanggang7
      * @time 2021-03-09 19:32:02 周二
      */
-    JdResult verifyClientLoginToken(LoginWithTokenVerifyRequest loginWithTokenVerifyRequest);
-
+    JdResult verifyClientLoginToken(String deviceId, String token);
     /**
      * web页面，cookies自动登录后，调用该接口获取用户登录信息
      * @param request

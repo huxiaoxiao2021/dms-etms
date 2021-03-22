@@ -51,7 +51,7 @@ public interface UserService {
 	 * @author fanggang7
 	 * @time 2021-03-09 19:32:02 周二
 	 */
-	JdResult verifyClientLoginToken(LoginWithTokenVerifyRequest loginWithTokenVerifyRequest);
+	JdResult verifyClientLoginToken(String deviceId, String token);
 
 	/**
 	 * 通过jsf调用,获取当前登录账户信息

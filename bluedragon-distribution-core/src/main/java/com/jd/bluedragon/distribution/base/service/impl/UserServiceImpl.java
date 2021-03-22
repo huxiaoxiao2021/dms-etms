@@ -144,12 +144,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
                 return false;
             }
             String deviceId = clientInfo.getDeviceId();
-            String token = UUID.randomUUID().toString();
-            if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
+            if(StringUtils.isBlank(deviceId)){
                 loginUserResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 loginUserResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return false;
             }
+            String token = UUID.randomUUID().toString();
             loginUserResponse.setToken(token);
             // 保存缓存
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
@@ -166,18 +166,15 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     /**
      * 客户端登录token验证
      *
-     * @param loginWithTokenVerifyRequest
      * @return
      * @author fanggang7
      * @time 2021-03-09 19:32:02 周二
      */
     @Override
-    public JdResult<Boolean> verifyClientLoginToken(LoginWithTokenVerifyRequest loginWithTokenVerifyRequest) {
+    public JdResult<Boolean> verifyClientLoginToken(String deviceId, String token) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess("success");
         try {
-            String deviceId = loginWithTokenVerifyRequest.getDeviceId();
-            String token = loginWithTokenVerifyRequest.getToken();
             if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
                 result.setCode(JdResponse.CODE_PARAM_ERROR);
                 result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);

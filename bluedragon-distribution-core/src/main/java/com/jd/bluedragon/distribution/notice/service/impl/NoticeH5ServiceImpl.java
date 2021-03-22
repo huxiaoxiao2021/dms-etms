@@ -112,6 +112,10 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(noticePdaQuery.getUserErp());
             NoticeQuery noticeQuery = new NoticeQuery();
             noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
+            if (baseStaff == null) {
+                result.toError(String.format("用户\"%s\"不存在", noticePdaQuery.getUserErp()));
+                return result;
+            }
             noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
             long totalCount = noticeDao.queryCount(noticeQuery);
 
@@ -518,6 +522,10 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(noticePdaQuery.getUserErp());
             NoticeQuery noticeQuery = new NoticeQuery();
             noticeQuery.setReceiveScopeTypeList(new ArrayList<>(Arrays.asList(NoticeReceiveScopeTypeEnum.PDA_ANDROID.getCode(), NoticeReceiveScopeTypeEnum.ALL.getCode())));
+            if (baseStaff == null) {
+                result.toError(String.format("用户\"%s\"不存在", noticePdaQuery.getUserErp()));
+                return result;
+            }
             noticeQuery.setCreateTimeStart(baseStaff.getCreateTime());
             noticeQuery.setKeyword(noticePdaQuery.getKeyword());
             noticeQuery.setIsDelete(Constants.YN_NO);
