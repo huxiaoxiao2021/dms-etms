@@ -2117,15 +2117,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            response = zeroWeightAndVolumeCheck(tSendM);
-        }
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            response = deliveryCheckTransit(tSendM, isTransferSend);
-        }
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            response = threeDeliveryCheck(tSendM);
-        }
 
         // 文件包裹必须装箱才能发货
         if (JdResponse.CODE_OK.equals(response.getCode())) {
@@ -2134,6 +2125,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 response = this.filePackSendByBox(tSendM);
             }
+        }
+
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = zeroWeightAndVolumeCheck(tSendM);
+        }
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = deliveryCheckTransit(tSendM, isTransferSend);
+        }
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = threeDeliveryCheck(tSendM);
         }
 
         return response;
