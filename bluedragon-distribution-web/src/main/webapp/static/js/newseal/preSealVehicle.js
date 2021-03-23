@@ -272,7 +272,10 @@ $(function() {
             field : 'sendCarTime',
             title : '标准发车时间',
             formatter: function (value, row, index) {
-                return value.substring(value.length-5);
+            	if(value.length > 5){
+			        return value.substring(value.length - 5);
+			    }
+			    return value;
             }
         }, {
             field : 'preSealSource',

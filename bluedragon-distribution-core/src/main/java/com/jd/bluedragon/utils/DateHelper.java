@@ -492,4 +492,16 @@ public class DateHelper {
 		}
 		return null;
     }
+    /**
+     * 运输时间截取时间
+     * @param sendCarTimeStr 1D10:10
+     * @return
+     */
+    public static String subTmsCarTime(String sendCarTimeStr) {
+		if(StringHelper.isNotEmpty(sendCarTimeStr)
+				&& sendCarTimeStr.length() >= SEND_CAR_TIME_LENGTH) {
+			return sendCarTimeStr.substring(sendCarTimeStr.length() - SEND_CAR_TIME_LENGTH);
+		}
+		return null;
+    }
 }
