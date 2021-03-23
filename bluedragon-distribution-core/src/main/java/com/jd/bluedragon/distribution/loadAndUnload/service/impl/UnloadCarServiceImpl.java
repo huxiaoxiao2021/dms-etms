@@ -2,17 +2,6 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
-import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
@@ -20,20 +9,18 @@ import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
-import com.jd.bluedragon.distribution.loadAndUnload.*;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
@@ -48,6 +35,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -60,7 +48,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
-import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -199,6 +186,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Resource
     private WaybillStagingCheckManager waybillStagingCheckManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2498,6 +2488,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try{
             logger.info("interceptValidate卸车根据包裹号：{}",barCode);
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            if(StringUtils.isNotBlank(waybillCode)) {
+                //取消拦截校验
+                JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
+                if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+                    logger.info("包裹【{}】所在运单已被拦截【{}】", barCode, jdResponse.getMessage());
+                    result.setCode(jdResponse.getCode());
+                    result.setMessage(jdResponse.getMessage());
+                    return result;
+                }
+            }
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(true);
