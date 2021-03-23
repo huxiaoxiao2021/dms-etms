@@ -51,6 +51,50 @@ public class WaybillWeightVO implements Serializable
     /*是否可强制提交 0否 1是*/
     private Integer canSubmit;
 
+    /**批量新增包裹维度批量录入新增字段**/
+    /**包裹号*/
+    //private String packageCode;
+    /**包裹长cm**/
+    private Double packageLength;
+    /**包裹宽cm**/
+    private Double packageWidth;
+    /**包裹高cm**/
+    private Double packageHigh;
+
+   /* public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }*/
+
+    public Double getPackageLength() {
+        return packageLength;
+    }
+
+    public void setPackageLength(Double packageLength) {
+        this.packageLength = packageLength;
+    }
+
+    public Double getPackageWidth() {
+        return packageWidth;
+    }
+
+    public void setPackageWidth(Double packageWidth) {
+        this.packageWidth = packageWidth;
+    }
+
+    public Double getPackageHigh() {
+        return packageHigh;
+    }
+
+    public void setPackageHigh(Double packageHigh) {
+        this.packageHigh = packageHigh;
+    }
+
+    /**批量新增包裹维度批量录入新增字段**/
+
     @Override
     public String toString()
     {
