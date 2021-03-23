@@ -2493,7 +2493,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
                 if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
                     logger.info("包裹【{}】所在运单已被拦截【{}】", barCode, jdResponse.getMessage());
-                    result.setCode(jdResponse.getCode());
+                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                     result.setMessage(jdResponse.getMessage());
                     return result;
                 }
