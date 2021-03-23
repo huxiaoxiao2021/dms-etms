@@ -263,6 +263,11 @@ public class CycleBoxResource {
                             groupBoxDtoList.add(packageGroupBoxDto(boxResponse));
                         }
                     }
+                    //当单个箱号未绑定不需要拦截时创建对象分组数据对象
+                    if(invokeResult.getData() == null){
+                        invokeResult.setData(new BoxCodeGroupBinDingDto());
+                    }
+
                     invokeResult.getData().setGroupList(getBoxList(groupBoxDtoList));
                     invokeResult.getData().setGroupTotal(groupBoxDtoList.size());
 
