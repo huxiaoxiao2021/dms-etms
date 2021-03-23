@@ -367,7 +367,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
             lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
             lastNewNoticeForUserDto.setIsFetched(Constants.YN_YES);
-            jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
+            jimdbCacheService.setNoEx(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
         } else {
             lastNewNoticeForUserDto = JsonHelper.fromJson(userLastNewNoticeValueStr, LastNewNoticeForUserDto.class);
             if(lastNewNoticeForUserDto == null){
@@ -376,16 +376,16 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
                 lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
                 lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
                 lastNewNoticeForUserDto.setIsFetched(Constants.YN_YES);
-                jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
+                jimdbCacheService.setNoEx(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
             } else {
-                if(lastNewNoticeForUserDto.getCacheTime() != null && lastNewNoticeForUserDto.getCacheTime() > lastNewNoticeGlobalDto.getCacheTime()
+                if(lastNewNoticeForUserDto.getCacheTime() != null && lastNewNoticeForUserDto.getCacheTime() >= lastNewNoticeGlobalDto.getCacheTime()
                         && lastNewNoticeForUserDto.getPublishTime() != null && lastNewNoticeForUserDto.getPublishTime() >= lastNewNoticeGlobalDto.getPublishTime()
                         && Objects.equals(lastNewNoticeForUserDto.getIsFetched(), Constants.YN_YES)){
                     lastNewNoticeForUserDto = null;
                 } else {
                     lastNewNoticeForUserDto.setPublishTime(lastNewNoticeGlobalDto.getPublishTime());
                     lastNewNoticeForUserDto.setCacheTime(System.currentTimeMillis());
-                    jimdbCacheService.set(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
+                    jimdbCacheService.setNoEx(cacheKeyFormatClientUserLastNewNotice, JsonHelper.toJson(lastNewNoticeForUserDto));
                 }
             }
         }
@@ -407,7 +407,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             NoticeH5Dto noticeH5Dto = this.getLastNewNoticeNoCache();
             long currentTimeMillis = System.currentTimeMillis();
             lastNewNoticeGlobalDto = this.genLastNewNoticeGlobalDto(noticeH5Dto, currentTimeMillis);
-            jimdbCacheService.set(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
+            jimdbCacheService.setNoEx(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
         } else {
             lastNewNoticeGlobalDto = JsonHelper.fromJson(globalLastNewNoticeValueStr, LastNewNoticeGlobalDto.class);
             if(lastNewNoticeGlobalDto == null){
@@ -810,7 +810,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
         NoticeH5Dto noticeH5Dto = this.generateNoticeH5Dto(notice);
         long currentTimeMillis = System.currentTimeMillis();
         LastNewNoticeGlobalDto lastNewNoticeGlobalDto = this.genLastNewNoticeGlobalDto(noticeH5Dto, currentTimeMillis);
-        jimdbCacheService.set(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
+        jimdbCacheService.setNoEx(cacheKeyFormatClientGlobalLastNewNotice, JsonHelper.toJson(lastNewNoticeGlobalDto));
 
         // 更新全局通知变更缓存
         this.updateNoticeGlobalChangeInfoCache();
@@ -821,7 +821,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
     private void updateNoticeGlobalChangeInfoCache(){
         String cacheKeyNoticeGlobalChangeInfo = CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_NOTICE_GLOBAL_CHANGE_INFO;
         NoticeChangeInfoDto noticeChangeInfoDto = new NoticeChangeInfoDto(System.currentTimeMillis());
-        jimdbCacheService.set(cacheKeyNoticeGlobalChangeInfo, JsonHelper.toJson(noticeChangeInfoDto));
+        jimdbCacheService.setNoEx(cacheKeyNoticeGlobalChangeInfo, JsonHelper.toJson(noticeChangeInfoDto));
     }
 
     /**
