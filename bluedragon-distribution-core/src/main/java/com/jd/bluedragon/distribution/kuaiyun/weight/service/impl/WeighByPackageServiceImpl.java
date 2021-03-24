@@ -40,6 +40,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -146,6 +147,9 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NoPackageException)){
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
                     result.setMessage(exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException)){
+                    result.setCode(InvokeResult.RESULT_NULL_CODE);
+                    result.setMessage(exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);
@@ -153,12 +157,14 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.UnknownCodeException)) {
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                     result.setMessage(exceptionType.exceptionMessage);
-                }
-
-                if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNotFindException)) {
+                }else if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNotFindException)) {
+                    result.setCode(InvokeResult.RESULT_NULL_CODE);
+                    result.setMessage(exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NotPackageCodeException)){
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
                     result.setMessage(exceptionType.exceptionMessage);
                 }
+
 
             }
         }
@@ -212,30 +218,10 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
         }
-        try{
-            if(WaybillUtil.isWaybillCode(codeStr)){
-                int packNum = 0;
-                BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(codeStr, true, true, true, false);
-                if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
-                    packNum = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
-                    if(Double.parseDouble(weight) > 200*packNum || Double.parseDouble(volume) > packNum){
-                        result.setCode(EXCESS_CODE);
-                        result.setMessage(WAYBILL_WEIGHT_VOLUME_EXCESS_HIT);
-                    }
-                }else{
-                    result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-                    result.setMessage("运单信息为空!");
-                }
-            }else{
-                if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
-                    result.setCode(EXCESS_CODE);
-                    result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
-                }
-            }
-        }catch (Exception e){
-            log.error("通过运单号:{}获取运单信息失败!",codeStr, e);
+        if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
+            result.setCode(EXCESS_CODE);
+            result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
         }
-
         return result;
     }
 
@@ -303,12 +289,19 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
         if(dto != null){
             weightVolumeEntity.setOperatorCode(dto.getAccountNumber());
         }
-        InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(weightVolumeEntity);
-        if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
-            log.info("包裹回传运单称重信息成功:{}",JsonHelper.toJson(weightVolumeEntity));
-            return true;
-        }else{
-            log.error("包裹回传运单称重信息失败：{}，返回信息：{}",JsonHelper.toJson(weightVolumeEntity),result==null ? "null" : result.getMessage());
+        log.info("调用dmsWeightVolumeService#dealWeightAndVolume参数:{}", JsonUtils.toJSONString(weightVolumeEntity));
+        try {
+            InvokeResult<Boolean> result = dmsWeightVolumeService.dealWeightAndVolume(weightVolumeEntity);
+            if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
+                log.info("包裹回传运单称重信息成功:{}",JsonHelper.toJson(weightVolumeEntity));
+                return true;
+            }else{
+                log.error("包裹回传运单称重信息失败：{}，返回信息：{}",JsonHelper.toJson(weightVolumeEntity),result==null ? "null" : result.getMessage());
+                return false;
+            }
+        }catch (Exception ex){
+            log.error("调用dmsWeightVolumeService.dealWeightAndVolume异常,参数信息为:{},异常为:",
+                    JsonUtils.toJSONString(weightVolumeEntity),ex);
             return false;
         }
     }
@@ -350,7 +343,7 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
         {
             log.warn("所输入的编码格式有误：不符合包裹号编码规则:{}",codeStr);
 
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotPackageCodeException);
         }
         return packageCode;
 
@@ -368,26 +361,27 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
 
         BaseEntity<BigWaybillDto> baseEntity = null;
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        //包裹号存在
-        if(Objects.equals(packageMap.get(packageCode),0)){
-            return true;
-        }else if(Objects.equals(packageMap.get(packageCode),1)){//包裹不存在
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
-            //return false;
-        }
-        //运单通过校验,但是该包裹没有在map中说明运单下没有该包裹
+        //运单通过校验
         if(Objects.equals(packageMap.get(waybillCode),2)) {
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
+            //包裹号存在
+            if(Objects.equals(packageMap.get(packageCode),0)){
+                return true;
+            }else if(Objects.equals(packageMap.get(packageCode),1)){//包裹不存在
+                throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
+                //return false;
+            }
         }else if(Objects.equals(packageMap.get(waybillCode),3)){//运单没有通过校验,说明该包裹所属运单不需要称重,或者包裹所属运单没有信息
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
         }else if(Objects.equals(packageMap.get(waybillCode),4)){
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
         }else if(Objects.equals(packageMap.get(waybillCode),5)){
 
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException);
         }else if(Objects.equals(packageMap.get(waybillCode),6)){
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }
+
+
         WChoice wChoice = new WChoice();
         //只查询运单下的包裹
         wChoice.setQueryPackList(true);
@@ -412,11 +406,16 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
         if (baseWaybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(baseWaybill.getWaybillSign())) {
             packageMap.put(waybillCode,4);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
-        }else if(baseWaybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(baseWaybill.getWaybillSign())){
+        }else if(baseWaybill.getWaybillSign() != null && BusinessUtil.isNotSupportUpWeightByPackage(baseWaybill.getWaybillSign())){
+            packageMap.put(waybillCode,5);
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException);
+        }
+
+        /*else if(baseWaybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(baseWaybill.getWaybillSign())){
             //waybillsign66=3
             packageMap.put(waybillCode,5);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
-        }
+        }*/
 
         //校验是否已经妥投
         if(waybillTraceManager.isWaybillFinished(waybillCode)){

@@ -88,8 +88,8 @@ public class WeighByPackageController {
             //todo 临时设置
             /*ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
             erpUser.setUserCode("wuyoude");
-            erpUser.setUserName("吴有德");
-            BaseStaffSiteOrgDto bssod = null;*/
+            erpUser.setUserName("吴有德");*/
+
             //todo 临时值
             String userCode = "";
             //todo 暂时注销erp
@@ -268,7 +268,7 @@ public class WeighByPackageController {
         Double volume = MathUtils.mul(length,width,high,6);
         waybillWeightVO.setVolume(volume);
         //存在性校验
-        InvokeResult<Boolean> verifyWaybillRealityResult = this.verifyPackageReality(waybillWeightVO.getCodeStr());
+        InvokeResult<Boolean> verifyWaybillRealityResult = service.verifyPackageReality(waybillWeightVO.getCodeStr());
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){
             //不存在
             waybillWeightVO.setErrorMessage(verifyWaybillRealityResult.getMessage());

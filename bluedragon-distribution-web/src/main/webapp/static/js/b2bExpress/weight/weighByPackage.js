@@ -112,7 +112,7 @@
          * @param volume
          * @param index
          */
-        function forcedToSubmitPackage(waybillCode,weight,volume,index,status){
+        function forcedToSubmitPackage(waybillCode,weight,volume,index,packageLength,packageWidth,packageHigh,status){
             //存在标识获取
             var isExist = status==VALID_EXISTS_STATUS_CODE;
             //组装提交数据
@@ -120,6 +120,9 @@
                 codeStr:waybillCode,
                 weight:weight,
                 volume:volume,
+                packageLength:packageLength,
+                packageWidth:packageWidth,
+                packageHigh:packageHigh,
                 status:status
             };
 
@@ -353,16 +356,19 @@
                                 {field:'codeStr',title:'包裹号',width:150},
                                 {field:'weight',title:'总重量/千克',width:100},
                                 {field:'volume',title:'总体积/立方米',width:100},
+                                {field:'packageLength',title:'长(cm)',width:100,hidden:true},
+                                {field:'packageWidth',title:'宽(cm)',width:100,hidden:true},
+                                {field:'packageHigh',title:'高(cm)',width:100,hidden:true},
                                 {field:'errorMessage',title:'失败原因',width:330},
                                 {field:'operate',title:'操作',align:'center',width:100,
                                     formatter:function(value, row, index){
                                         var str = '';
                                         if(row.canSubmit == 1){
                                             if(row.errorCode && CBM_DIV_KG_CODE == row.errorCode){
-                                                str = '<a href="javascript:eval(\'forcedToSubmitPackage(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton all-submit-data" ></a>';
+                                                str = '<a href="javascript:eval(\'forcedToSubmitPackage(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.packageLength+'\\\',\\\''+row.packageWidth+'\\\',\\\''+row.packageHigh+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton all-submit-data" ></a>';
 
                                             }else{
-                                                str = '<a href="javascript:eval(\'forcedToSubmitPackage(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton" ></a>';
+                                                str = '<a href="javascript:eval(\'forcedToSubmitPackage(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.packageLength+'\\\',\\\''+row.packageWidth+'\\\',\\\''+row.packageHigh+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton" ></a>';
 
                                             }
                                         }
@@ -493,7 +499,7 @@
                         for(var i = 0 ; i < errorData.length ; i++){
                             var myRow = errorData[i];
                             if(myRow.errorCode && CBM_DIV_KG_CODE == myRow.errorCode){
-                                forcedToSubmitPackage(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
+                                forcedToSubmitPackage(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.packageLength,myRow.packageWidth,myRow.packageHigh,myRow.status);
                                 allSubmitRemovePackage();
                                 break;
                             }

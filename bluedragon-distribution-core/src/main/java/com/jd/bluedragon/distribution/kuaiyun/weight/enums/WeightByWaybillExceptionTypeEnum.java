@@ -8,6 +8,8 @@ public enum WeightByWaybillExceptionTypeEnum
 {
     //输入未知编码
     UnknownCodeException(false,WeightByWaybillExceptionTypeEnum.UnknownCodeExceptionMessage),
+    //输入编码非包裹号
+    NotPackageCodeException(false,WeightByWaybillExceptionTypeEnum.NotPackageCodeMessage),
 
     //运单验证服务不可用
     WaybillServiceNotAvailableException(true,WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableExceptionMessage),
@@ -34,7 +36,10 @@ public enum WeightByWaybillExceptionTypeEnum
     WaybillFinishedException(true,WeightByWaybillExceptionTypeEnum.WaybillFinishedExceptionMessage),
 
     //包裹号不存在
-    NoPackageException(true,WeightByWaybillExceptionTypeEnum.NoPackageMessage);
+    NoPackageException(true,WeightByWaybillExceptionTypeEnum.NoPackageMessage),
+
+    //不支持按包裹维度批量导入
+    NotSupportUpWeightByPackageException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageMessage);
 
     public static final String UnknownCodeExceptionMessage = "所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则";
     public static final String WaybillServiceNotAvailableExceptionMessage = "调取运单系统失败，运单查询接口不可用";
@@ -45,9 +50,9 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String WaybillNoNeedWeightExceptionMessage = "此单为信任商家运单，不进行称重量方";
     public static final String WaybillFinishedExceptionMessage = "此运单为妥投状态，禁止操作此功能，请检查单号是否正确";
     public static final String WaybillNeedPackageWeightMessage ="此运单为大件KA运单，请按包裹维度批量录入重量体积";
-
     public static final String NoPackageMessage ="没有包裹信息";
-
+    public static final String NotSupportUpWeightByPackageMessage ="不支持按包裹维度批量导入";
+    public static final String NotPackageCodeMessage ="所输入的编码格式有误:不符合包裹号编码规则";
 
     public boolean shouldBeThrowToTop = false;
     public String exceptionMessage = null;
