@@ -243,7 +243,11 @@ public class TextConstants {
     /**
      * 产品名-特惠包裹
      */
-    public static final String PRODUCT_NAME_THBG = "特惠包裹";      
+    public static final String PRODUCT_NAME_THBG = "特惠包裹";
+    /**
+     * 产品名-特快包裹
+     */
+    public static final String PRODUCT_NAME_TKBG = "特快包裹";
     /**
      * 无人车配送标识-车
      */
