@@ -238,7 +238,7 @@ public class WaybillStatus {
     /**
      * 弃件暂存全程跟踪
      */
-    public static final Integer WAYBILL_TRACK_WASTE_WAYBILL = -1990;
+    public static final Integer WAYBILL_TRACK_WASTE_WAYBILL = 16800;
     public static final String WAYBILL_TRACK_WASTE_WAYBILL_MSG = "已操作弃件暂存";
 
 
