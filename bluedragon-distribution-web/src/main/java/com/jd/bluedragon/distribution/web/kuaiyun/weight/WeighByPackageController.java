@@ -83,14 +83,15 @@ public class WeighByPackageController {
         String errorString = "";
         try {
             //提前获取一次
-            //ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            BaseStaffSiteOrgDto bssod = null;
             //todo 临时设置
-            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+            /*ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
             erpUser.setUserCode("wuyoude");
             erpUser.setUserName("吴有德");
-            BaseStaffSiteOrgDto bssod = null;
+            BaseStaffSiteOrgDto bssod = null;*/
             //todo 临时值
-            String userCode = "wuyoude";
+            String userCode = "";
             //todo 暂时注销erp
             if(erpUser!=null){
                 userCode = erpUser.getUserCode();
@@ -343,7 +344,7 @@ public class WeighByPackageController {
             return result;
         }
         //todo 临时测试数据 删掉
-        erpUser = new ErpUserClient.ErpUser();
+        /*erpUser = new ErpUserClient.ErpUser();
         erpUser.setUserCode("wuyoude");
         erpUser.setUserName("吴有德");
 
@@ -351,7 +352,7 @@ public class WeighByPackageController {
         baseStaffSiteOrgDto.setSiteCode(910);
         baseStaffSiteOrgDto.setSiteName("北京马驹桥分拣中心");
         baseStaffSiteOrgDto.setStaffName("吴有德");
-        baseStaffSiteOrgDto.setStaffNo(17331);
+        baseStaffSiteOrgDto.setStaffNo(17331);*/
         /*插入记录*/
         try {
             try {
@@ -359,7 +360,7 @@ public class WeighByPackageController {
                     //入参自带操作人时不需要查操作人信息
                     if(erpUser==null || baseStaffSiteOrgDto==null){
                         //todo 为了测试临时删除
-                        //erpUser = ErpUserClient.getCurrUser();
+                        erpUser = ErpUserClient.getCurrUser();
                         if (erpUser != null) {
                             vo.setOperatorId(erpUser.getStaffNo());
                             vo.setOperatorName(erpUser.getUserName());
