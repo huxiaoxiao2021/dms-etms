@@ -208,7 +208,7 @@ public class CycleBoxResource {
     @GET
     @Path("/cycleBox/getInterceptStatus/{siteCode}")
     @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<Boolean>  getInterceptStatus(@QueryParam("siteCode") Integer siteCode){
+    public InvokeResult<Boolean>  getInterceptStatus(@PathParam("siteCode") Integer siteCode){
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
         Boolean flag = Boolean.TRUE;
