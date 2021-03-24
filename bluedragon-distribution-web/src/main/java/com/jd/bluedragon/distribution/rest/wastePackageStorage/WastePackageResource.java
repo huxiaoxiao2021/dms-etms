@@ -90,11 +90,11 @@ public class WastePackageResource {
 //                return result;
 //            }
 
-            List<String> packageList = getPackageCodesByWaybillCode(request.getWaybillCode());
-            if (CollectionUtils.isEmpty(packageList)) {
-                result.error("没有查询到运单号内包裹信息");
-                return result;
-            }
+//            List<String> packageList = getPackageCodesByWaybillCode(request.getWaybillCode());
+//            if (CollectionUtils.isEmpty(packageList)) {
+//                result.error("没有查询到运单号内包裹信息");
+//                return result;
+//            }
 
             log.info("发送弃件全程跟踪。运单号：{}",request.getWaybillCode());
             BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(request);
