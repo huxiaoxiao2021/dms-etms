@@ -20,10 +20,12 @@ import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
@@ -48,6 +50,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -205,6 +208,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2515,6 +2521,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try{
             logger.info("interceptValidate卸车根据包裹号：{}",barCode);
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            if(StringUtils.isNotBlank(waybillCode)) {
+                //取消拦截校验
+                JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
+                if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+                    logger.info("包裹【{}】所在运单已被拦截【{}】", barCode, jdResponse.getMessage());
+                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                    result.setMessage(jdResponse.getMessage());
+                    return result;
+                }
+            }
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(true);
