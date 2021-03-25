@@ -1,15 +1,15 @@
-package com.jd.bluedragon.common.dto.box.response;
+package com.jd.bluedragon.distribution.api.response.box;
 
 import java.io.Serializable;
 
 /**
- * @author : xumigen
- * @date : 2019/6/22
+ * @Author: liming522
+ * @Description: 组中箱号信息
+ * @Date: create in 2021/3/17 19:45
  */
-public class BoxDto implements Serializable{
+public class GroupBoxDto implements Serializable {
 
     private static final long serialVersionUID = -1L;
-
 
     /**
      * 箱号
@@ -57,7 +57,7 @@ public class BoxDto implements Serializable{
      */
     private String materialCode;
 
-    public BoxDto() {
+    public GroupBoxDto() {
     }
 
     public String getBoxCode() {
@@ -131,4 +131,7 @@ public class BoxDto implements Serializable{
     public void setMaterialCode(String materialCode) {
         this.materialCode = materialCode;
     }
+
+
 }
+    

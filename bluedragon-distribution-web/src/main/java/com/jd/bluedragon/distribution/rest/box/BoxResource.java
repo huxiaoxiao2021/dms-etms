@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -11,7 +12,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -19,9 +19,12 @@ import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import javax.ws.rs.*;
@@ -83,6 +87,12 @@ public class BoxResource {
 
     @Resource(name="sortingBoxTypeMap")
     private Map<String,String> sortingBoxTypeMap;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
+
+    @Autowired
+    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -476,6 +486,9 @@ public class BoxResource {
         }
         response.setMixBoxType(box.getMixBoxType());
         response.setPackageNum(box.getPackageNum());
+        if(!StringUtils.isEmpty(box.getMaterialCode())){
+            response.setMaterialCode(box.getMaterialCode());
+        }
         return response;
     }
 
@@ -512,6 +525,11 @@ public class BoxResource {
     private BoxResponse boxNoFound() {
         return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
     }
+
+    private BoxResponse boxNoBingDing(){
+        return  new BoxResponse(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
+    }
+
 
     private BoxResponse boxHasBeanSended() {
         return new BoxResponse(BoxResponse.CODE_BOX_SENDED, BoxResponse.MESSAGE_BOX_SENDED);
@@ -630,6 +648,84 @@ public class BoxResource {
         //分拣中心
         response.setBoxTypes(sortingBoxTypeMap);
         return response;
+    }
+
+    @GET
+    @Path("/boxes/validationAndCheck")
+    public BoxResponse validationAndCheck(@QueryParam("boxCode") String boxCode, @QueryParam("operateType") Integer operateType,@QueryParam("siteCode")Integer siteCode) {
+        Assert.notNull(boxCode, "boxCode must not be null");
+        Assert.notNull(operateType, "operateType must not be null");
+        Assert.notNull(siteCode, "siteCode must not be null");
+
+        this.log.info("boxCode's {}", boxCode);
+        this.log.info("operateType's {}", operateType);
+        this.log.info("siteCode's {}", siteCode);
+
+        // 始发地类型
+        Integer siteCodeType = 0;
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if (Constants.OPERATE_TYPE_SORTING.equals(operateType) || Constants.OPERATE_TYPE_INSPECTION.equals(operateType)) {
+            if (box == null) {
+                return this.boxNoFound();
+            } else if (Box.STATUS_DEFALUT.intValue() == box.getStatus().intValue()) {
+                return this.boxNoPrint();
+            }
+
+            //判断箱子是否已发货
+            if (boxService.checkBoxIsSent(boxCode, box.getCreateSiteCode())) {
+                return this.boxHasBeanSended();
+            } else {
+                try{
+                    BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(box.getReceiveSiteCode().toString());
+                    if (dto == null) {
+                        log.info("boxes/validation :{} baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL",box.getReceiveSiteCode().toString());
+                        return this.paramSiteError();
+                    } else {
+                        siteCodeType = dto != null && dto.getSiteType() != null ? dto.getSiteType() : null;
+                        box.setSiteType(siteCodeType);
+                        log.info("boxes = {} 目的地：{} siteType={}",boxCode,box.getReceiveSiteCode().toString(),siteCodeType);
+                    }
+
+                    // 获取循环集包袋绑定信息
+                    String materialCode =  cycleBoxService.getBoxMaterialRelation(boxCode);
+                    // 决定是否绑定循环集包袋
+                    if(!checkHaveBinDing(materialCode,box.getType(),siteCode)){
+                        return this.boxNoBingDing();
+                    }
+                    box.setMaterialCode(materialCode);
+                    return this.toBoxResponse(box);
+                }
+                catch (Exception ex){
+                    log.error("validation:{}",boxCode, ex);
+                }
+            }
+        }
+        return this.paramError();
+    }
+
+    /**
+     * true 绑定了  false 未绑定
+     * @param materialCode
+     * @param boxType
+     * @param siteCode
+     * @return
+     */
+    private boolean checkHaveBinDing(String materialCode,String boxType,Integer siteCode){
+        // 不是BC类型的不拦截
+        if(!BusinessHelper.isBCBoxType(boxType)){
+            return true;
+        }
+
+        // 开关关闭不拦截
+        if(!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode)){
+            return  true;
+        }
+
+        //有集包袋不拦截
+        if(!StringUtils.isEmpty(materialCode)){
+            return true;
+        }
+        return false;
     }
 
 }

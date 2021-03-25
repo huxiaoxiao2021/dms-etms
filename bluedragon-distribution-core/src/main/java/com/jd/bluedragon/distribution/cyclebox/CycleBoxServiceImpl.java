@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
+
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
@@ -10,10 +12,18 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
+import com.jd.bluedragon.distribution.api.response.box.BCGroupBinDingDto;
+import com.jd.bluedragon.distribution.api.response.box.GroupBoxDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -27,6 +37,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
@@ -70,6 +78,15 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
     @Autowired
     BoxMaterialRelationService boxMaterialRelationService;
+
+    @Autowired
+    private BoxService boxService;
+
+    @Autowired
+    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+
+    @Autowired
+    private GroupBoxService groupBoxService;
 
     @Autowired
     private SendMManager sendMManager;
@@ -383,6 +400,88 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         return result;
     }
 
+    /**
+     * 判断单个箱号绑定情况
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<BoxCodeGroupBinDingDto> checkBingResult(BoxMaterialRelationRequest request) {
+        InvokeResult<BoxCodeGroupBinDingDto> result = new InvokeResult();
+        result.success();
+
+        String  boxCode  = request.getBoxCode();
+        // 1.先查询箱信息
+        Box box = boxService.findBoxByCode(boxCode);
+        if(box==null){
+            result.customMessage(InvokeResult.RESULT_NO_BOX_CODE,InvokeResult.RESULT_NO_BOX_MESSAGE);
+            return result;
+        }
+
+        BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
+        //2.查询箱号绑定关系(BC非BC均查询)
+        String boxMaterialCode = this.getBoxMaterialRelation(boxCode);
+        if(StringUtils.isEmpty(boxMaterialCode)){
+            // 2.1 不是BC的不拦截
+            if(!BusinessHelper.isBCBoxType(box.getType())){
+                return result;
+            }
+
+            //2.2 判断BC箱号绑定循环集包袋拦截状态
+            if(!getBCFilterFlag(request.getSiteCode())){
+                return result;
+            }
+
+            // 未绑定循环集包袋
+            result.customMessage(InvokeResult.RESULT_BC_BOX_NO_BINDING_CODE,InvokeResult.RESULT_BC_BOX_NO_BINDING_MESSAGE);
+            return result;
+        }
+        boxCodeGroupBinDingDto.setBinDingMaterialCode(boxMaterialCode);
+        result.setData(boxCodeGroupBinDingDto);
+        return result;
+    }
+
+    /**
+     * 查询分组绑定循环集包袋状态
+     * @param request
+     * @return
+     */
+    public InvokeResult<BCGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationRequest request){
+        InvokeResult<BCGroupBinDingDto> result = new InvokeResult();
+        result.success();
+
+        BCGroupBinDingDto bcGroupBinDingDto = new BCGroupBinDingDto();
+         // 3.开启分组扫描添加(且是拦截状态)-查询分组绑定情况
+        List<GroupBoxDto> noBinDingList = new ArrayList<GroupBoxDto>(); // 没绑定的
+        List<GroupBoxDto> binDingList = new ArrayList<GroupBoxDto>(); // 没绑定的
+        for (GroupBoxDto  groupBoxDto: request.getGroupList()){
+            // 只统计BC 箱号类型
+            if(groupBoxDto.getBoxType().equals(BoxTypeEnum.TYPE_BC.getCode())){
+                String materialCode =  this.getBoxMaterialRelation(groupBoxDto.getBoxCode());
+                if(StringUtils.isEmpty(materialCode)){
+                    noBinDingList.add(groupBoxDto);
+                }else {
+                    groupBoxDto.setMaterialCode(materialCode);
+                    binDingList.add(groupBoxDto);
+                }
+            }
+        }
+        bcGroupBinDingDto.setBinDingList(binDingList);
+        bcGroupBinDingDto.setNoBingDingList(noBinDingList);
+        result.setData(bcGroupBinDingDto);
+
+        if(CollectionUtils.isNotEmpty(noBinDingList)){
+            result.customMessage(InvokeResult.RESULT_BC_BOX_GROUP_NO_BINDING_CODE,"同组箱号"+noBinDingList.get(0).getBoxCode()+"未绑定循环集包袋,分组共"+noBinDingList.size()+"个未绑定");
+            return result;
+        }
+        return result;
+    }
+
+
+    //获取开关状态
+    private boolean getBCFilterFlag(Integer siteCode){
+       return   funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+    }
 
 
     /**

@@ -153,4 +153,12 @@ public interface FuncSwitchConfigService {
      * @return 有效返回true，记录不存在或者失效返回false
      */
     boolean getFuncStatusByAllDimension(Integer funcCode, Integer siteCode, String userErp);
+
+    /**
+     * 获取BC箱号是否强制绑定循环集包袋校验
+     * @param menuCode
+     * @param siteCode
+     * @return  false 不拦截校验   true 拦截校验
+     */
+    boolean  getBcBoxFilterStatus(Integer menuCode,Integer siteCode);
 }
