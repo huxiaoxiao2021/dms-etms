@@ -76,6 +76,20 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
     private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
+    //包裹存在
+    private static final Integer PACKAGEEXISTS = 0;
+    //包裹不存在
+    private static final Integer PACKAGENOTEXISTS = 1;
+    //运单信息存在 且运单通过校验
+    private static final Integer WAYBILLEXISTS = 2;
+    //运单没有通过校验 运单信息没有找到
+    private static final Integer WAYBILLNOTFIND = 3;
+    //运单没有通过校验 运单无需称重
+    private static final Integer WAYBILLNONEEDWEIGHT = 4;
+    //运单不支持按包裹维度
+    private static final Integer NOTSUPPORTUPWEIGHTBYPACKAGE = 5;
+    //运单已妥投
+    private static final Integer WAYBILLFINISHED = 6;
 
     @Value("${weight.transfer.b2c.min:5}")
     private double weightTransferB2cMin;
@@ -359,25 +373,27 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
     Map<String,Integer> packageMap = new HashMap<>();
     private boolean validatePackageCodeReality(String packageCode) throws WeighByWaybillExcpetion {
 
+
+
         BaseEntity<BigWaybillDto> baseEntity = null;
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         //运单通过校验
-        if(Objects.equals(packageMap.get(waybillCode),2)) {
+        if(Objects.equals(packageMap.get(waybillCode),WAYBILLEXISTS)) {
             //包裹号存在
-            if(Objects.equals(packageMap.get(packageCode),0)){
+            if(Objects.equals(packageMap.get(packageCode),PACKAGEEXISTS)){
                 return true;
-            }else if(Objects.equals(packageMap.get(packageCode),1)){//包裹不存在
+            }else if(Objects.equals(packageMap.get(packageCode),PACKAGENOTEXISTS)){//包裹不存在
                 throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
                 //return false;
             }
-        }else if(Objects.equals(packageMap.get(waybillCode),3)){//运单没有通过校验,说明该包裹所属运单不需要称重,或者包裹所属运单没有信息
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNOTFIND)){//运单没有通过校验 运单信息没有找到
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
-        }else if(Objects.equals(packageMap.get(waybillCode),4)){
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNONEEDWEIGHT)){ //运单没有通过校验 运单无需称重
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
-        }else if(Objects.equals(packageMap.get(waybillCode),5)){
+        }else if(Objects.equals(packageMap.get(waybillCode),NOTSUPPORTUPWEIGHTBYPACKAGE)){ //运单不支持按包裹维度
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException);
-        }else if(Objects.equals(packageMap.get(waybillCode),6)){
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLFINISHED)){//运单已经妥投
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }
 
@@ -388,7 +404,6 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
         wChoice.setQueryWaybillC(true);
         try {
             baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-            //waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
         } catch (Exception e) {
             log.error("waybillQueryManager.getWaybillByWaybillCode 异常：{}",packageCode,e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);

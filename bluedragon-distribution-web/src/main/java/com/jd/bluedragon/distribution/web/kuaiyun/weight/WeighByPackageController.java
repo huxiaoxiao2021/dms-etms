@@ -196,7 +196,7 @@ public class WeighByPackageController {
     public ModelAndView toExportPackage(String json, Model model) {
         try {
             List list = JsonHelper.fromJson(json,new ArrayList().getClass());
-            model.addAttribute("filename", "waybillWeight.xls");
+            model.addAttribute("filename", "packageWeight.xls");
             model.addAttribute("sheetname", "快运称重失败导出结果");
             model.addAttribute("contents", service.getExportDataPackage(list));
             return new ModelAndView(new DefaultExcelView(), model.asMap());
