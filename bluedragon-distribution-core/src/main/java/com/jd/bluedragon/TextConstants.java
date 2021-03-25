@@ -249,6 +249,10 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_THBG = "特惠包裹";
     /**
+     * 产品名-特快包裹
+     */
+    public static final String PRODUCT_NAME_TKBG = "特快包裹";
+    /**
      * 无人车配送标识-车
      */
     public static final String WRCPS_FLAG = "车";
