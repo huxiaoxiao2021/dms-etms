@@ -65,6 +65,14 @@ public class PreSealVehicleCondition extends BasePagerCondition {
 
 	/** 查询多小小时内的数据 */
 	private Integer hourRange;
+    /**
+     * 发车时间-开始
+     */
+    private String sendCarStartTime;
+    /**
+     * 发车时间-结束
+     */
+    private String sendCarEndTime;
 
 	/**
 	 * The set method for preSealUuid.
@@ -329,4 +337,20 @@ public class PreSealVehicleCondition extends BasePagerCondition {
     public void setHourRange(Integer hourRange) {
         this.hourRange = hourRange;
     }
+
+	public String getSendCarStartTime() {
+		return sendCarStartTime;
+	}
+
+	public void setSendCarStartTime(String sendCarStartTime) {
+		this.sendCarStartTime = sendCarStartTime;
+	}
+
+	public String getSendCarEndTime() {
+		return sendCarEndTime;
+	}
+
+	public void setSendCarEndTime(String sendCarEndTime) {
+		this.sendCarEndTime = sendCarEndTime;
+	}
 }

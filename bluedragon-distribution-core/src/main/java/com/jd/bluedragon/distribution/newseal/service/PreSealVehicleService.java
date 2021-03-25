@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.newseal.service;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.VehicleMeasureInfo;
 import com.jd.ql.dms.common.web.mvc.api.Service;
@@ -82,11 +83,11 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
     List<PreSealVehicle> queryBySiteCode(Integer createSiteCode);
 
     /**
-     *
+     *	查询预封车数据
      * @param preSealVehicle
      * @return
      */
-    List<PreSealVehicle> queryByParam(PreSealVehicle preSealVehicle);
+    List<PreSealVehicle> queryUnSealVehicleInfo(PreSealVehicleCondition condition);
 
     /**
      * 查询场地和车牌号查询预封车数据
