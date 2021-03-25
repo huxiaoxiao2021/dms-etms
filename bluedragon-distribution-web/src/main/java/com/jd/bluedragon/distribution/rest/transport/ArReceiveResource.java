@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -288,13 +289,17 @@ public class ArReceiveResource {
 
     public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
         JdResponse<Integer> rest = new JdResponse<>();
+        log.info("计提查询空铁提货count参数：{}", JsonHelper.toJsonMs(request));
         rest.setData(arReceiveService.queryArReceiveCountForWorking(request));
+        log.info("计提查询空铁提货count返回值：{}", JsonHelper.toJsonMs(rest));
         return rest;
     }
 
     public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
         JdResponse<List<ArReceiveVo>> rest = new JdResponse<>();
+        log.info("计提查询空铁提货detail参数：{}", JsonHelper.toJsonMs(request));
         rest.setData(arReceiveService.queryArReceiveDetailForWorking(request));
+        log.info("计提查询空铁提货detail返回数据量：{}", rest.getData() == null ? 0 : rest.getData().size());
         return rest;
     }
 
