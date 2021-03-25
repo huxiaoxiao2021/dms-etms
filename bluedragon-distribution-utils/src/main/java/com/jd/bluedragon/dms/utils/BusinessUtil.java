@@ -1901,4 +1901,11 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
                 WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
     }
+
+    /**
+     * 判断是否是返单
+     */
+    public static boolean isRefund(String waybillSign) {
+        return isSignChar(waybillSign, 1, '7');
+    }
 }
