@@ -2,7 +2,9 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.box.request.BoxRelationReq;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
+import com.jd.bluedragon.common.dto.box.response.BoxRelationDto;
 
 import java.util.List;
 
@@ -19,5 +21,19 @@ public interface BoxGatewayService {
     JdCResponse<List<BoxDto>> getGroupEffectiveBoxes(String boxCode);
 
     JdCResponse<BoxDto> getBoxInfo(String boxCode);
+
+    /**
+     * 查询箱号绑定关系
+     * @param req
+     * @return
+     */
+    JdCResponse<List<BoxRelationDto>> getBoxRelations(BoxRelationReq req);
+
+    /**
+     * 保存箱号绑定关系
+     * @param req
+     * @return
+     */
+    JdCResponse<Boolean> submitBoxBinding(BoxRelationReq req);
 
 }

@@ -1,11 +1,8 @@
 package com.jd.bluedragon.distribution.newseal.dao;
 
-import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
 
 /**
  * @ClassName: TmsVehicleRouteDao
@@ -24,6 +21,4 @@ public interface TmsVehicleRouteDao {
 	int logicalDeleteById(Long id);
 
 	TmsVehicleRoute queryByVehicleRouteCode(String vehicleRouteCode);
-
-	List<TmsVehicleRoute> queryByCondition(TmsVehicleRouteCondition condition);
 }

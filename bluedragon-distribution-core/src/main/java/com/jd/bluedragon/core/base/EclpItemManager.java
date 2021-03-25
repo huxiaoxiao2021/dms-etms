@@ -16,11 +16,17 @@ public interface EclpItemManager {
     /**
      * ECLP入库单创建接口成功状态码
      */
-    int ORDER_RESPONSE_SUCCESS = 200;
+    public static final int ORDER_RESPONSE_SUCCESS = 200;
     /**
      * 也是牛逼 ECLP那边相同接口 同一业务场景返回两种response 接口里也不提供成功码
      */
-    int STRINGAPIRESPONE_SUCCESS = 200;
+    public static final int STRINGAPIRESPONE_SUCCESS = 200;
+
+    /**
+     * https://cf.jd.com/pages/viewpage.action?pageId=248605146
+     * 没有对应入库单，返回异常码401
+     */
+    public static final int NON_EXISTENT = 401;
 
     public List<ItemInfo> getltemBySoNo(String soNo);
     public String getDeptBySettlementOuId(String ouId);

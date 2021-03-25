@@ -35,6 +35,7 @@ public class Box {
 	public static final String TYPE_TS = "TS"; // 退货奢侈品箱号
 	public static final String TYPE_GC = "GC"; // 取件普通箱号
 	public static final String TYPE_GS = "GS"; // 取件奢侈品箱号
+    public static final String TYPE_WJ = "WJ"; // 文件类型箱号
 
 	public static final Integer TRANSPORT_TYPE_AIR = 1;//运输方式  航空
 

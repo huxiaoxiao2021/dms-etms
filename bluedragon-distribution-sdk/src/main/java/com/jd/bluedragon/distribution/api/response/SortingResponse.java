@@ -326,7 +326,6 @@ public class SortingResponse extends JdResponse {
     // 站点登录人提示
     public static final String MESSAGE_29318_SITE = "此单为京权破损需拦截派送，请滞留站点等待异常管理平台系统通知";
 
-
     public static final Integer CODE_29401 = 29401;
     public static final String MESSAGE_29401 = "此单的[预分拣站点]为空";
 
@@ -516,6 +515,13 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_C2C_SPWMS_29317 = 29317;
     public static final String MESSAGE_C2C_SPWMS_29317 = "此单备件库已收货，禁止继续操作！";
+
+    public static final Integer CODE_29601 = 29601;
+    public static final String MESSAGE_29601 = "文件标识运单请集包至WJ开头箱号";
+
+    public static final Integer CODE_29602 = 29602;
+    public static final String MESSAGE_29602 = "集包数量超过WJ箱限制{0}个，请更换箱号!";
+    public static final String MESSAGE_29602_WAYBILL = "集包数量超过WJ箱限制{0}个，请按包裹操作建箱!";
 
     public static final String CODE_SiteType_BIANMINZITI="48";
     public static final String CODE_SiteType_DaiShou="46";

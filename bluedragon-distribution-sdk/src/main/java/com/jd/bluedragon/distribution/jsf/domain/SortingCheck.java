@@ -51,6 +51,7 @@ public class SortingCheck {
      */
     Integer isLoss;
 
+    Integer bizSourceType;
     /**
      * 业务操作节点，区分是分拣、发货等其他节点
      */
@@ -150,5 +151,13 @@ public class SortingCheck {
 
     public void setOperateNode(Integer operateNode) {
         this.operateNode = operateNode;
+    }
+
+    public Integer getBizSourceType() {
+        return bizSourceType;
+    }
+
+    public void setBizSourceType(Integer bizSourceType) {
+        this.bizSourceType = bizSourceType;
     }
 }

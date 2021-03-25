@@ -5,13 +5,15 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SealVehicleSendCodeInfo;
 import com.jd.bluedragon.distribution.sealVehicle.domain.SubmitSealVehicleDto;
-import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dbs.util.CollectionUtils;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
@@ -43,6 +45,10 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("wbSealVehicleCallbackProducer")
     private DefaultJMQProducer wbSealVehicleCallbackProducer;
+
+    @Autowired
+    @Qualifier("preSealBatchService")
+    private PreSealBatchService preSealBatchService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -121,6 +127,14 @@ public class SealVehicleFromWorkbenchConsumer extends MessageBaseConsumer {
                     //无需要封车的批次，写失败回执
                     callBackNoticeFail(sealVehicleTaskCode, "该运力未抓取到待封车的批次，无法封车！", transportCode);
                     return;
+                }
+                //查询PDA预封车选中的批次,筛选待封车的批次信息，取批次交集
+                List<String> pdaSelectedSendCodes = preSealBatchService.queryByUuid(preSealVehicle.getPreSealUuid());
+                if(CollectionUtils.isNotEmpty(pdaSelectedSendCodes)) {
+                	List<String> selectedSendCodeList = CollectionHelper.retainAll(sendCodeList, pdaSelectedSendCodes);
+                	if(CollectionUtils.isNotEmpty(selectedSendCodeList)) {
+                		sendCodeList = selectedSendCodeList;
+                	}
                 }
                 sealCarDto.setBatchCodes(sendCodeList);
                 sealCarDtoList.add(sealCarDto);
