@@ -55,7 +55,6 @@
        $("#waybill-weight-improtbypackage-fail-message").html("");
        $("#waybill-weight-improtbypackage-fail-submit-message").html("");
        var fileInput = $("#importbyPackageExcelFile");
-       //todo 在另外一个js文件中 不知道是否能调用到
        if(!checkFileInput(fileInput)) { //其他操作
         $("#waybill-weight-improtbypackage-form-submit").linkbutton('enable'); //解锁导入按钮
         return;
@@ -76,7 +75,6 @@
                    $("#waybill-weight-importbypackage-dialog").dialog('close');
                    $("#waybill-weight-improtbypackage-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
                    showWarnDataPackage(data.data.warnList);
-                   //todo next
                    showFailDataPackage(data.data.errorList);
                }else{
                    $.messager.alert('导入异常',data.message);
@@ -132,7 +130,6 @@
                     //是真正意义上的存在
                     existSubmitPackage(insertParam,removeFailDataFunc,index);
                 }else{
-                    //todo next
                     noExistSubmitPackage(insertParam,removeFailDataFunc,index);
                 }
 
@@ -145,7 +142,6 @@
 
                             if(isExist){
                                 //此处返回的存在并不是真正意义上的存在
-                                //todo next
                                 doWaybillWeightPackage(insertParam,removeFailDataFunc,index);
                             }else{
                                 noExistSubmitPackage(insertParam,removeFailDataFunc,index);
@@ -183,7 +179,6 @@
                         $('#waybill-weight-btn').linkbutton('enable');
                     } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
                     {
-                        //todo
                         /*MQ服务不可用时，转为task重试*/
                        /* $.messager.alert('包裹录入结果','进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入','info');
 

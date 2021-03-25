@@ -372,21 +372,24 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
             //包裹号存在
             if(Objects.equals(packageMap.get(packageCode),PACKAGEEXISTS)){
                 return true;
-            }else if(Objects.equals(packageMap.get(packageCode),PACKAGENOTEXISTS)){//包裹不存在
+            }else if(Objects.equals(packageMap.get(packageCode),PACKAGENOTEXISTS)){
+                //包裹不存在
                 throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
-                //return false;
             }
-        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNOTFIND)){//运单没有通过校验 运单信息没有找到
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNOTFIND)){
+            //运单没有通过校验 运单信息没有找到
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
-        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNONEEDWEIGHT)){ //运单没有通过校验 运单无需称重
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLNONEEDWEIGHT)){
+            //运单没有通过校验 运单无需称重
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
-        }else if(Objects.equals(packageMap.get(waybillCode),NOTSUPPORTUPWEIGHTBYPACKAGE)){ //运单不支持按包裹维度
+        }else if(Objects.equals(packageMap.get(waybillCode),NOTSUPPORTUPWEIGHTBYPACKAGE)){
+            //运单不支持按包裹维度
 
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException);
-        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLFINISHED)){//运单已经妥投
+        }else if(Objects.equals(packageMap.get(waybillCode),WAYBILLFINISHED)){
+            //运单已经妥投
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }
-
 
         WChoice wChoice = new WChoice();
         //只查询运单下的包裹
