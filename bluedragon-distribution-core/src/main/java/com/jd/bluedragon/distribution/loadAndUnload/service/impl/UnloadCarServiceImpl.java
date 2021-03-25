@@ -2,6 +2,17 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
+import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
+import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
@@ -1182,20 +1193,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             throw new LoadIllegalException(e.getMessage());
         }
 
-        int unScanPackageCount = 0;
         boolean isSurfacePackage = false;
         try {
-            // 获取未扫包裹
-            unScanPackageCount = getUnScanPackageCount(sealCarCode);
             // 是否多货包裹
             isSurfacePackage = isSurfacePackage(sealCarCode, packageCode);
         }catch (LoadIllegalException e){
             throw new LoadIllegalException(e.getMessage());
         }
-        if(unScanPackageCount <= 0 && !isSurfacePackage){
-            // 未扫包裹小于0提示拦截
-            throw new LoadIllegalException(String.format(LoadIllegalException.UNSCAN_PACK_ISNULL_INTERCEPT_MESSAGE,sealCarCode));
-        }
+
         if(StringUtils.isEmpty(request.getBoardCode())){
             return;
         }
