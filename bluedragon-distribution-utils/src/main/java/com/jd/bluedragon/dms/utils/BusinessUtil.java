@@ -1913,29 +1913,6 @@ public class BusinessUtil {
     }
 
     /**
-     * 当 WaybillSign40=2且 WaybillSign1≠7时，则查运单接口
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isNeedCheckWeightOrNo(String waybillSign){
-        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
-                    && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
-
-    }
-
-    /**
-     * 校验是否需要校验重量(装卸车)
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isNeedCheckWeightBusiness2OrNo(String waybillSign){
-        return isSignInChars(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1)
-                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_4)
-                && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
-
-    }
-
-    /**
      * 判断是否支持按包裹维度批量导入-当WaybillSign66=0或1时，不支持
      * @param waybillSign
      * @return

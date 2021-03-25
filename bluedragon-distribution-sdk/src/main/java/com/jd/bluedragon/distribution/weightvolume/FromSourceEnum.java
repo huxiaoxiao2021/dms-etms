@@ -58,7 +58,10 @@ public enum FromSourceEnum {
      * 分拣页面快运称重
      */
     DMS_WEB_FAST_TRANSPORT,
-
+    /***
+     * 分拣页面快运称重-包裹导入
+     */
+    DMS_WEB_PACKAGE_FAST_TRANSPORT,
     /**
      * 分拣内部拆分
      */

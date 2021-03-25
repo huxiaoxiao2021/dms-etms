@@ -39,7 +39,9 @@ public enum WeightByWaybillExceptionTypeEnum
     NoPackageException(true,WeightByWaybillExceptionTypeEnum.NoPackageMessage),
 
     //不支持按包裹维度批量导入
-    NotSupportUpWeightByPackageException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageMessage);
+    NotSupportUpWeightByPackageException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageMessage),
+    //C网运单不支持在快运处录入复重量方
+    NotSupportUpCWaybillException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpCWaybillMessage);
 
     public static final String UnknownCodeExceptionMessage = "所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则";
     public static final String WaybillServiceNotAvailableExceptionMessage = "调取运单系统失败，运单查询接口不可用";
@@ -53,7 +55,7 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String NoPackageMessage ="没有包裹信息";
     public static final String NotSupportUpWeightByPackageMessage ="不支持按包裹维度批量导入";
     public static final String NotPackageCodeMessage ="所输入的编码格式有误:不符合包裹号编码规则";
-
+    public static final String NotSupportUpCWaybillMessage = "不支持C网运单";
     public boolean shouldBeThrowToTop = false;
     public String exceptionMessage = null;
 

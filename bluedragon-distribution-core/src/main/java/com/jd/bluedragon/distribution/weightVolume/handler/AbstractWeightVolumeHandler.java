@@ -53,12 +53,6 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();
         BeanHelper.copyProperties(weightVolumeEntity, entity);
         weightVolumeFlowJSFService.recordWeightVolumeFlow(weightVolumeEntity);
-        //todo 本地调用报错 临时通过
-        try{
-
-        }catch (Exception exception){
-            exception.printStackTrace();
-        }
 
     }
 }

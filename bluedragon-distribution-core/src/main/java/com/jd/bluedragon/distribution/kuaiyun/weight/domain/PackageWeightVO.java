@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
 import java.io.Serializable;
 
-public class WaybillWeightVO implements Serializable
+public class PackageWeightVO implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -20,6 +20,8 @@ public class WaybillWeightVO implements Serializable
 
     /*操作人 id 同基础资料id*/
     private Integer operatorId;
+    /**操作人code*/
+    private String operatorCode;
 
     /*操作人姓名*/
     private String operatorName;
@@ -50,6 +52,57 @@ public class WaybillWeightVO implements Serializable
 
     /*是否可强制提交 0否 1是*/
     private Integer canSubmit;
+
+    /**批量新增包裹维度批量录入新增字段**/
+    /**包裹号*/
+    //private String packageCode;
+    /**包裹长cm**/
+    private Double packageLength;
+    /**包裹宽cm**/
+    private Double packageWidth;
+    /**包裹高cm**/
+    private Double packageHigh;
+
+   /* public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }*/
+
+    public Double getPackageLength() {
+        return packageLength;
+    }
+
+    public void setPackageLength(Double packageLength) {
+        this.packageLength = packageLength;
+    }
+
+    public Double getPackageWidth() {
+        return packageWidth;
+    }
+
+    public void setPackageWidth(Double packageWidth) {
+        this.packageWidth = packageWidth;
+    }
+
+    public Double getPackageHigh() {
+        return packageHigh;
+    }
+
+    public void setPackageHigh(Double packageHigh) {
+        this.packageHigh = packageHigh;
+    }
+
+    public String getOperatorCode() {
+        return operatorCode;
+    }
+
+    public void setOperatorCode(String operatorCode) {
+        this.operatorCode = operatorCode;
+    }
+    /**批量新增包裹维度批量录入新增字段**/
 
     @Override
     public String toString()
@@ -189,7 +242,7 @@ public class WaybillWeightVO implements Serializable
         this.errorCode = errorCode;
     }
 
-    public WaybillWeightVO(String codeStr, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
+    public PackageWeightVO(String codeStr, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
     {
 
         this.codeStr = codeStr;
@@ -203,7 +256,7 @@ public class WaybillWeightVO implements Serializable
         this.operateTimeMillis = operateTimeMillis;
     }
 
-    public WaybillWeightVO()
+    public PackageWeightVO()
     {
 
     }
