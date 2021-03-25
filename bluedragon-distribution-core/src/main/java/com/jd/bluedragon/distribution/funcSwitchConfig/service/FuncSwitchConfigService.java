@@ -1,14 +1,12 @@
 package com.jd.bluedragon.distribution.funcSwitchConfig.service;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigAllPureDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigCondition;
-import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.domain.FuncSwitchConfigResponse;
-import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -146,4 +144,13 @@ public interface FuncSwitchConfigService {
      * @return
      */
     boolean isAllPureValidateWeight(FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto);
+
+    /**
+     * 按照全国->场地->个人的顺序，返回功能开关的有效状态
+     * @param funcCode 开关编码
+     * @param siteCode 场地
+     * @param userErp null则不按个人维度查询
+     * @return 有效返回true，记录不存在或者失效返回false
+     */
+    boolean getFuncStatusByAllDimension(Integer funcCode, Integer siteCode, String userErp);
 }

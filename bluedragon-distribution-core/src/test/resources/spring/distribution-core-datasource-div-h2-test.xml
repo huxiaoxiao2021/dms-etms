@@ -28,7 +28,7 @@
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml"/>
     </bean>
 
-    <bean id="divSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <bean id="sessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="divSqlSessionFactory"/>
     </bean>
     <!-- dms单库写库 数据源 end -->
@@ -46,7 +46,7 @@
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-read.xml"/>
     </bean>
 
-    <bean id="readDivSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+    <bean id="readSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="readDivSqlSessionFactory"/>
     </bean>
     <!-- dms单库读库 数据源 end -->

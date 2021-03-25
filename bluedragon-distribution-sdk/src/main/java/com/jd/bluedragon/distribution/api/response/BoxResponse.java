@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.api.response;
 import com.jd.bluedragon.distribution.api.JdResponse;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 public class BoxResponse extends JdResponse {

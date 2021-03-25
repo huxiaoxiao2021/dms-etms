@@ -33,9 +33,14 @@
         </property>
     </bean>
     <bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
-
+    <import resource="classpath:spring/spring-ucc.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-waybill.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-task.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
+	<import resource="classpath:spring/distribution-core-datasource-jddl-test.xml"/>
     <import resource="classpath:spring/distribution-core-redis.xml"/>
-    <import resource="classpath:spring/distribution-core-datasource-undiv-h2-test.xml"/>
+	<import resource="classpath:spring/distribution-core-datasource-undiv-h2-test.xml"/>
+	<import resource="classpath:spring/distribution-core-dao.xml"/>
     <import resource="classpath:spring/distribution-core-datasource-div-h2-test.xml"/>
     <import resource="classpath:spring/distribution-core-datasource-business-h2-test.xml"/>
     <context:component-scan base-package="com.jd.bluedragon.distribution.*.dao"/>

@@ -39,6 +39,28 @@
         <property name="desc" value="分拣中心验货多包裹拆分任务"/>
     </bean>
 
+    <bean id="waybillSendDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.WaybillSendDeliveryTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="waybillSendDeliveryTaskN"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="10"/>
+        <property name="desc" value="分拣中心按运单发货任务"/>
+    </bean>
+
+    <bean id="waybillSendDeliverySplitTask" class="com.jd.bluedragon.distribution.worker.delivery.WaybillSendDeliverySplitTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="waybillSendDeliverySplitTaskN"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="11"/>
+        <property name="desc" value="分拣中心按运单发货多包裹拆分任务"/>
+    </bean>
+
     <bean id="sortingTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"
           init-method="init" depends-on="managerFactory">
@@ -231,4 +253,5 @@
         <property name="type" value="1330"/>
         <property name="desc" value="同步青流箱状态"/>
     </bean>
+
 </beans>

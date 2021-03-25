@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.jsf.tms;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -44,9 +45,6 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     @Autowired
     private BasicSelectWS basicSelectWs;
     
-    @Autowired
-    private BaseMajorManager baseMajorManager;
-    
 	@Override
 	public JdResult<TransportResource> getTransportResourceByTransCode(String transCode) {
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByTransCode");
@@ -59,11 +57,11 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
 	            result.setData(convertBean(rest.getData()));
 	            result.toSuccess();
 	        }else {
-				log.warn("调用tms加载运力信息失败！transCode={0},返回值：{1}",transCode,JsonHelper.toJson(rest));
+				log.warn("调用tms加载运力信息失败！transCode={},返回值：{}",transCode,JsonHelper.toJson(rest));
 				result.toFail("调用tms加载运力信息失败！");
 	        }
 		} catch (Exception e) {
-			log.error("调用tms加载运力信息异常！transCode={0}",e,transCode);
+			log.error("调用tms加载运力信息异常！transCode={}",e,transCode);
 			result.toError("调用tms加载运力信息异常！");
 			Profiler.functionError(callerInfo);
 		}finally{
@@ -75,10 +73,11 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
      * 调用运输系统获取运力资源
      * @param createSiteCode        始发站点
      * @param receiveSiteCode       结束站点
+     * @param filterTransTypes      过滤运力类型
      * @return
      */
     @Override
-    public JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode) {
+    public JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode, List<Integer> filterTransTypes) {
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "getTransportResourceByPage");
     	JdResult<List<TransportResource>> result = new JdResult<List<TransportResource>>();
     	try {
@@ -88,20 +87,33 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     		}
     		TransportResourceDto parameter=new TransportResourceDto();
     		PageDto<TransportResourceDto> page = new PageDto<TransportResourceDto>();
-	        page.setPageSize(5);
+    		page.setCurrentPage(1);
+    		page.setPageSize(20);
 	        parameter.setStartNodeCode(startNodeCode);
 	        parameter.setEndNodeCode(endNodeCode);
 	        CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page,parameter);
-	        if(null != rest){
+	        if(log.isDebugEnabled()) {
+	        	log.debug("查询运输接口getTransportResourceByPage，入参：{},{} 返回结果：{}", startNodeCode,endNodeCode,JsonHelper.toJson(rest));
+	        }
+	        if(null != rest 
+	        		&& rest.getData() != null 
+	        		&& rest.getData().getResult() != null){
 	        	List<TransportResource> listData=new ArrayList<TransportResource>();
 	        	List<TransportResourceDto> list = rest.getData().getResult();
 	            for (TransportResourceDto item:list){
-	                listData.add(convertBean(item));
+	            	//过滤运力类型
+	            	if(CollectionUtils.isNotEmpty(filterTransTypes)) {
+	            		if(filterTransTypes.contains(item.getTransType())) {
+	            			listData.add(convertBean(item));
+	            		}
+	            	}else {
+	            		listData.add(convertBean(item));
+	            	}
 	            }
 	            result.setData(listData);
 	            result.toSuccess();
 	        }else {
-				log.warn("调用tms加载运力信息为空！{0}-{1}",startNodeCode,endNodeCode);
+				log.warn("调用tms加载运力信息为空！{}-{}",startNodeCode,endNodeCode);
 				result.toFail("调用tms加载运力信息为空！");
 	        }
 		} catch (Exception e) {
