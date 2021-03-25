@@ -143,4 +143,9 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
 	public List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition) {
 		return sqlSession.selectList(this.nameSpace+".findOtherUuidsByCreateAndReceive", condition);
 	}
+
+	@Override
+	public List<PreSealVehicle> queryUnSealVehicleInfo(PreSealVehicleCondition condition) {
+		return sqlSession.selectList(this.nameSpace+".queryUnSealVehicleInfo", condition);
+	}
 }
