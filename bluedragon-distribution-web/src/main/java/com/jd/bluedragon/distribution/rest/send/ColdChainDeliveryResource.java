@@ -139,6 +139,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
      */
     @POST
     @Path("/delivery/coldChain/getTransPlan")
+    @JProfiler(jKey = "DMS.WEB.ColdChainDeliveryResource.getTransPlan", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainSendResponse<List<TransPlanDetailResult>> getTransPlan(TransPlanScheduleRequest request) {
         Integer createSiteCode = request.getCreateSiteCode();
         Integer receiveSiteCode = request.getReceiveSiteCode();

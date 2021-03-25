@@ -1,17 +1,14 @@
 package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Set;
 
 public class DynamicSortingQueryDao implements ISortingDao{
     private final Logger log = LoggerFactory.getLogger(DynamicSortingQueryDao.class);
@@ -21,10 +18,6 @@ public class DynamicSortingQueryDao implements ISortingDao{
 
     @Autowired
     private SortingDao sortingDao;
-
-
-    @Autowired
-    private SiteService siteService;
 
     private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN = "failover.sorting.query.site.open";
     private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_CLOSE = "failover.sorting.query.site.close";

@@ -7,7 +7,8 @@ import org.springframework.stereotype.Repository;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.newseal.dao.DmsSendRelationDao;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
-import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelationCondition;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealQueryRequest;
+import com.jd.bluedragon.distribution.sealVehicle.domain.PassPreSealRecord;
 
 /**
  * @ClassName: DmsSendRelationDaoImpl
@@ -34,8 +35,14 @@ public class DmsSendRelationDaoImpl extends BaseDao<DmsSendRelation> implements 
 	public DmsSendRelation queryByBusinessKey(DmsSendRelation dmsSendRelation) {
 		return this.getSqlSession().selectOne(namespace + ".queryByBusinessKey",dmsSendRelation);
 	}
+
 	@Override
-	public List<DmsSendRelation> queryByCondition(DmsSendRelationCondition dmsSendRelation) {
-		return this.getSqlSession().selectList(namespace + ".queryByCondition",dmsSendRelation);
+	public List<PassPreSealRecord> queryPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		return this.getSqlSession().selectList(namespace + ".queryPassPreSealData",queryCondition);
+	}
+
+	@Override
+	public Integer countPassPreSealData(PassPreSealQueryRequest queryCondition) {
+		return this.getSqlSession().selectOne(namespace + ".countPassPreSealData",queryCondition);
 	}
 }

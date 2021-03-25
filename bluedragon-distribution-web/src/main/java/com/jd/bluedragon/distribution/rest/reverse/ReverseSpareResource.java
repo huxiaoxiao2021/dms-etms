@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseSpareService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,7 @@ public class ReverseSpareResource {
 
 	@GET
 	@Path("/reverseSpare/getBySpareCode/{createSiteCode}/{spareCode}")
+	@JProfiler(jKey = "DMS.WEB.ReverseSpareResource.getBySpareCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public ReverseSpareResponse<ReverseSpareRequest> getBySpareCode(
 			@PathParam("createSiteCode") Integer createSiteCode,
 			@PathParam("spareCode") String spareCode) {

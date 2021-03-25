@@ -82,6 +82,27 @@ public class GantryResidentDto implements Serializable {
      * */
     private String operateTime;
 
+    //是否回传揽收
+    private boolean sendPickup = true;
+    //是否回传站点装箱
+    private boolean sendBoxing = true;
+
+    public boolean isSendPickup() {
+        return sendPickup;
+    }
+
+    public void setSendPickup(boolean sendPickup) {
+        this.sendPickup = sendPickup;
+    }
+
+    public boolean isSendBoxing() {
+        return sendBoxing;
+    }
+
+    public void setSendBoxing(boolean sendBoxing) {
+        this.sendBoxing = sendBoxing;
+    }
+
     public String getBoxCode() {
         return boxCode;
     }

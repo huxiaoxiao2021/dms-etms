@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sorting.domain.SortingException;
 import com.jd.bluedragon.distribution.sorting.service.SortingExceptionService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ public class SortingExceptionResource {
      */
     @GET
     @Path("/sortingexception/search/{batchCode}/{siteCode}")
+    @JProfiler(jKey = "DMS.WEB.SortingExceptionResource.search", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<SortingException>> search(@PathParam("batchCode") String batchCode,@PathParam("siteCode") Integer siteCode){
         InvokeResult<List<SortingException>> result=new InvokeResult<List<SortingException>>();
         if(StringHelper.isEmpty(batchCode)||StringHelper.isEmpty(batchCode.trim())){

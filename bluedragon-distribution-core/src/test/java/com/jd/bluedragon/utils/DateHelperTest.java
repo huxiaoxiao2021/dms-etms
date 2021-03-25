@@ -68,4 +68,14 @@ public class DateHelperTest {
 		}
 		System.out.println("----:" + DateHelper.getDateFormat(null));
 	}
+	@Test
+	public void testParseTmsCarTime() {
+		String[] dateStrList = new String[]{
+				"1D10:00",
+				"-1D 10:10"
+				};
+		for (String dateStr : dateStrList) {
+			System.out.println("----:" + DateHelper.parseTmsCarTime("2021-01-01",dateStr));
+		}
+	}
 }

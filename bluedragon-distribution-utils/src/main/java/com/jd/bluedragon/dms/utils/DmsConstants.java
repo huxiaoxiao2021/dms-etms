@@ -268,4 +268,8 @@ public class DmsConstants {
 
     /*车牌号正则表达式*/
     public static final String NUMBERPLATE_CODE = "^([\\u4e00-\\u9fa5]{1}|[0-9]{3,4})[0-9A-Za-z]{6,7}$";
+
+    public static final String BC_BOX_PREFIX = "BC";
+
+    public static final String WJ_BOX_PREFIX = "WJ";
 }

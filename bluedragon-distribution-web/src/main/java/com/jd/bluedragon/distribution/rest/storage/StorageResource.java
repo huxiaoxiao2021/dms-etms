@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +60,7 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/getStorageInfo/{siteCode}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.getStorageInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<String>> getStorageInfo(@PathParam("siteCode") Long siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<List<String>>();
 
@@ -78,6 +81,7 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/getStorageInfo/{siteCode}/{storageCode}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.checkStorage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkStorage(@PathParam("siteCode") Long siteCode,@PathParam("storageCode") String storageCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         try{
@@ -96,6 +100,7 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/checkIsNeedStorage/{barCode}/{siteCode}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.checkIsNeedStorage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkIsNeedStorage(@PathParam("barCode") String barCode,@PathParam("siteCode") Integer siteCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(siteCode == null
@@ -113,6 +118,7 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/storageTempCheck/{barCode}/{siteCode}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.storageTempCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StorageCheckDto> storageTempCheck(@PathParam("barCode") String barCode, @PathParam("siteCode") Integer siteCode) {
         InvokeResult<StorageCheckDto> result = new InvokeResult<StorageCheckDto>();
         if(siteCode == null
@@ -132,6 +138,7 @@ public class StorageResource {
      */
     @POST
     @Path("/storage/putaway")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.putaway", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1,bizType = 2000,operateType = 2000001)
     public InvokeResult<Boolean> putaway(PutawayDTO putawayDTO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
@@ -165,6 +172,7 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/getExistStorageCode/{barCode}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.getExistStorageCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> getExistStorageCode(@PathParam("barCode") String barCode){
         InvokeResult<String> result = new InvokeResult<String>();
 
@@ -188,6 +196,7 @@ public class StorageResource {
 
     @GET
     @Path("/storage/checkStatus/{waybillCode}/{waybillSign}")
+    @JProfiler(jKey = "DMS.WEB.StorageResource.checkStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkStatus(@PathParam("waybillCode") String waybillCode,@PathParam("waybillSign") String waybillSign){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         

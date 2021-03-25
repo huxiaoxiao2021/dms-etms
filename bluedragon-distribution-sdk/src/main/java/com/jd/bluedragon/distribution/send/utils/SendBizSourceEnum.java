@@ -108,7 +108,12 @@ public enum SendBizSourceEnum {
     /**
      * 安卓版本PDA装车发货
      */
-    ANDROID_PDA_LOAD_SEND(20, "安卓PDA装车发货");
+    ANDROID_PDA_LOAD_SEND(20, "安卓PDA装车发货"),
+
+    /**
+     * 按运单发货
+     */
+    WAYBILL_SEND(21, "按运单发货");
 
     /**
      * 编码

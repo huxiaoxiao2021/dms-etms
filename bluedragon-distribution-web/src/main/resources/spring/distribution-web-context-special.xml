@@ -77,7 +77,7 @@
 		<entry key="ZS" value="售后件" />
 	</util:map>
 
-
+	<!-- 分拣中心使用 -->
 	<util:map id="sortingBoxTypeMap" key-type="java.lang.String" value-type="java.lang.String">
 		<entry key="BC" value="正向普通" />
 		<entry key="TC" value="退货普通" />
@@ -90,11 +90,7 @@
 		<entry key="BX" value="正向虚拟" />
 		<entry key="TW" value="逆向内配" />
 		<entry key="LP" value="理赔完成" />
+        <entry key="WJ" value="文件" />
 	</util:map>
-
-
-
-
-
 
 </beans>

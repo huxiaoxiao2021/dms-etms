@@ -867,6 +867,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
             }else if("8".equals(keyword1)){
                 return "BatchForwardTask";
             }
+            else if("10".equals(keyword1)){
+                return "waybillSendDeliveryTaskN";
+            }
+            else if ("11".equals(keyword1)) {
+                return "waybillSendDeliverySplitTaskN";
+            }
         }else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
 

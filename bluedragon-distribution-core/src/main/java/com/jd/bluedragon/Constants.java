@@ -1,5 +1,8 @@
 package com.jd.bluedragon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
@@ -104,6 +107,16 @@ public class Constants {
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
     /** 经济网网点类型 **/
     public static final Integer THIRD_ENET_SITE_TYPE= 10000;
+
+    /**
+     * 二级分拣中心
+     */
+    public static final Integer SITE_SUBTYPE_SECOND = 6409;
+
+    /**
+     * 三级分拣中心
+      */
+    public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -1406,6 +1419,11 @@ public class Constants {
     public static final Integer PDA_SOURCE = 1;
 
     /**
+     * 快运发货标识
+     */
+    public static final Integer KY_DELIVERY = 1;
+
+    /**
      * 暂存预约接口成功响应码
      */
     public static final Integer STAGING_CHECK_SUCCESS_CODE = 0;
@@ -1414,4 +1432,30 @@ public class Constants {
      * 暂存预约提示语
      */
     public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
+
+    /**
+     * 数字：0
+     */
+    public static final Integer NUMBER_ZERO = 0;
+
+    /**
+     * 线路类型-默认值0
+     */
+    public static Integer LINE_TYPE_DEFAULT = 0;
+    /**
+     * 传摆线路类型列表
+     */
+    public static List<Integer> CUAN_BAI_LINE_TYPES = new ArrayList<Integer>();
+    static{
+    	//11-市内传站
+    	CUAN_BAI_LINE_TYPES.add(11);
+    	//5-摆渡
+    	CUAN_BAI_LINE_TYPES.add(5);
+    	//9-市内传站返回
+    	CUAN_BAI_LINE_TYPES.add(9);
+    	//10-长途传站
+    	CUAN_BAI_LINE_TYPES.add(10);
+    	//34-长途传站返回
+    	CUAN_BAI_LINE_TYPES.add(34);
+    }
 }
