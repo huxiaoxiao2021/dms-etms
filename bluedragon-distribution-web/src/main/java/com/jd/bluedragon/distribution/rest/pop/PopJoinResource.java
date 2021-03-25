@@ -26,6 +26,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +86,7 @@ public class PopJoinResource {
     @SuppressWarnings("unchecked")
     @POST
     @Path("/popJoin/queryPopJoinList")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.queryPopJoinList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<PopJoinQuery> queryPopJoinList(
             PopJoinQuery popJoinQuery) {
         Boolean checkParam = Boolean.FALSE;
@@ -172,6 +175,7 @@ public class PopJoinResource {
     @SuppressWarnings("unchecked")
     @POST
     @Path("/popJoin/queryBPopJoinList")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.queryBPopJoinList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<PopJoinQuery> queryBPopJoinList(
             PopJoinQuery popJoinQuery) {
         Boolean checkParam = Boolean.FALSE;
@@ -259,6 +263,7 @@ public class PopJoinResource {
     @SuppressWarnings("unchecked")
     @POST
     @Path("/popJoin/queryBusiList")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.queryBusiList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<List<String>> queryBusiList(
             PopJoinQuery popJoinQuery) {
 
@@ -290,6 +295,7 @@ public class PopJoinResource {
 
     @POST
     @Path("/popJoin/batchForcePopPrint")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.batchForcePopPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<Map<String, Integer>> batchForcePopPrint(
             List<String> waybillCodes) {
         if (waybillCodes == null || waybillCodes.size() <= 0
@@ -384,6 +390,7 @@ public class PopJoinResource {
 
     @POST
     @Path("/popJoin/findSitePrintDetail")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.findSitePrintDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<PopPrintJoinQuery> findSitePrintDetail(PopPrintJoinQuery popJoinQuery) {
         Boolean checkParam = Boolean.FALSE;
         Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -461,6 +468,7 @@ public class PopJoinResource {
 
     @POST
     @Path("/popJoin/forcePopReceive")
+    @JProfiler(jKey = "DMS.WEB.PopJoinResource.forcePopReceive", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PopJoinResponse<Map<String, Integer>> forcePopReceive(
             List<String> waybillCodes) {
         if (waybillCodes == null || waybillCodes.size() <= 0

@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.interceptconfig.domain.InterceptConfigInfo
 import com.jd.bluedragon.distribution.interceptconfig.service.InterceptConfigService;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.WaybillInterceptTips;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +47,7 @@ public class WaybillInterceptTipsResource {
      */
     @POST
     @Path("/waybill/intercept/tips")
+    @JProfiler(jKey = "DMS.WEB.WaybillInterceptTipsResource.getWaybillCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<List<String>> getWaybillAndPack(PdaOperateRequest pdaOperateRequest) {
         JdResult<List<String>> response = new JdResult<>();
         response.toSuccess();

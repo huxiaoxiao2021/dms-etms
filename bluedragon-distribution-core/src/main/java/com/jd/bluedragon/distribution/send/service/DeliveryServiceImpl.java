@@ -1,19 +1,17 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
-import com.jd.bluedragon.core.base.DmsInterturnManager;
-import com.jd.bluedragon.core.base.VosManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -24,6 +22,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -39,16 +38,22 @@ import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationEnum;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
+import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
+import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -74,28 +79,11 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
-import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendTaskCategoryEnum;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -107,9 +95,11 @@ import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -128,7 +118,6 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -140,33 +129,21 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 @Service("deliveryService")
@@ -175,6 +152,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Logger log = LoggerFactory.getLogger(DeliveryServiceImpl.class);
 
     private final int MAX_SHOW_NUM = 3;
+
+    public static int WAYBILL_SPLIT_NUM = 100;
 
     private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
@@ -378,6 +357,12 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private VosManager vosManager;
 
+    /**
+     * 按运单发货 redis 前缀
+     */
+    private static final String SEND_BY_WAYBILL_REDIS_PREFIX = "SEND_BY_WAYBILL_REDIS_PREFIX_";
+    private static final String SEND_BY_WAYBILL_PACK_REDIS_PREFIX = "SEND_BY_WAYBILL_PACK_REDIS_PREFIX";
+
     @Autowired
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
 
@@ -385,12 +370,21 @@ public class DeliveryServiceImpl implements DeliveryService {
     private LoadCarDao loadCarDao;
 
     @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private BoxRelationService boxRelationService;
+
+    @Autowired
     private PackageWeightingDao packageWeightingDao;
 
+    @Autowired
+    private FuncSwitchConfigService funcSwitchConfigService;
+
     /**
-     * 自动过期时间 15分钟
+     * 自动过期时间 30分钟
      */
-    private final static long REDIS_CACHE_EXPIRE_TIME = 15 * 60;
+    private final static long REDIS_CACHE_EXPIRE_TIME = 30 * 60;
 
     private final static String REDIS_CACHE_KEY = "PACKAGE-SEND-LOCK-";
 
@@ -409,6 +403,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
 
     private final Integer BATCH_NUM_M = 99;
+
 
     /**
      * 组板发货任务的Redis缓存key的前缀
@@ -476,7 +471,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (isCancelLastSend) {
             this.doCancelLastSend(domain);
         }
-        return this.doPackageSend(bizSource, domain);
+        SendResult sendResult = this.doPackageSend(bizSource, domain);
+
+        // BC箱号发货校验通过后，处理WJ箱号的发货逻辑
+        if (ObjectUtils.equals(SendResult.CODE_OK, sendResult.getKey()) || ObjectUtils.equals(SendResult.CODE_WARN, sendResult.getKey())) {
+
+            this.dealFileBoxSingleCarSend(bizSource, domain);
+        }
+
+        return sendResult;
+
     }
 
     /**
@@ -500,7 +504,190 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         sendResult = this.doPackageSend(bizSource, domain);
+
+        // BC箱号发货校验通过后，处理WJ箱号的发货逻辑
+        if (SendResult.CODE_OK.equals(sendResult.getKey()) || SendResult.CODE_WARN.equals(sendResult.getKey())) {
+
+            this.dealFileBoxSingleCarSend(bizSource, domain);
+        }
+
         return sendResult;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendByWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public SendResult packageSendByWaybill(SendM domain, Boolean isForceSend, Boolean isCancelLastSend) {
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货接口处理开始 boxCode={},isForceSend={},isCancelLastSend={}", domain.getBoxCode(), isForceSend, isCancelLastSend);
+        }
+        SendResult result = new SendResult();
+        result.init(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        // 校验参数
+        checkSendByWaybillParam(domain, result);
+
+        if (!SendResult.CODE_OK.equals(result.getKey())) {
+            return result;
+        }
+        if (!Boolean.TRUE.equals(isForceSend)) {
+            // 发货验证
+            result = this.beforeSendVerification(domain, true, isCancelLastSend);
+            if (log.isInfoEnabled()) {
+                log.info("按运单发货接口处理,拦截器链路校验结果: result={}", JsonHelper.toJson(result));
+            }
+            if (!SendResult.CODE_OK.equals(result.getKey())) {
+                return result;
+            }
+        }
+
+        String waybillCode = WaybillUtil.getWaybillCode(domain.getBoxCode());
+        Integer createSiteCode = domain.getCreateSiteCode();
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if (waybill == null) {
+            log.error("按运单发货任务处理,查询运单不存在:waybillCode={}", waybillCode);
+            result.init(SendResult.CODE_SENDED, "查询运单不存在:" + waybillCode);
+            return result;
+        }
+        // 校验是否已有包裹操作过发货
+        if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK);
+            return result;
+        }
+        // 锁定运单发货
+        if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+            return result;
+        }
+        if (Boolean.TRUE.equals(isCancelLastSend)) {
+            this.doCancelLastSend(domain);
+        }
+        try {
+            // 写入按运单发货任务
+            pushWaybillSendTask(domain, Task.TASK_TYPE_SEND_DELIVERY);
+        } catch (Throwable e) {
+            unlockWaybillSend(waybillCode, createSiteCode);
+            log.error("写入按运单发货任务出错:waybill={}", waybillCode, e);
+            result.init(SendResult.CODE_SERVICE_ERROR, "写入按运单发货任务出错:" + waybillCode);
+        }
+        return result;
+    }
+    /**
+     * 按运单发货任务
+     * @param domain 发货数据
+     */
+    private void pushWaybillSendTask(SendM domain,Integer taskType) {
+        if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+            domain.setBoxCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        }
+        Task tTask = new Task();
+        tTask.setBoxCode(domain.getBoxCode());
+        tTask.setBody(JsonHelper.toJson(domain));
+        tTask.setCreateSiteCode(domain.getCreateSiteCode());
+        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
+
+        tTask.setKeyword1("10");
+        tTask.setKeyword2(domain.getBoxCode());
+
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        // TB 调度防止重复
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + "_" + domain.getBoxCode()));
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货写入异步任务：task={}" ,JsonHelper.toJsonMs(tTask));
+        }
+        tTaskService.add(tTask, true);
+    }
+
+    /**
+     *
+     * 锁定运单发货
+     */
+    private boolean lockWaybillSend(String waybillCode, Integer createSiteCode,int totalPackNum) {
+        String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
+
+        // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
+        Boolean set = redisClientCache.set(redisKey, "" + totalPackNum, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false);
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货接口处理,锁定运单:key={}结果:{}", redisKey, set);
+        }
+        return set;
+    }
+
+    /**
+     * 解锁运单发货
+     *
+     */
+    private void unlockWaybillSend(String waybillCode, Integer createSiteCode) {
+        String redisKey = getSendByWaybillLockKey(waybillCode, createSiteCode);
+        redisClientCache.del(redisKey);
+        log.info("按运单发货移除运单锁:key={}",redisKey);
+    }
+
+    // 按运单发货，锁定整个运单，防止重复处理
+    private String getSendByWaybillLockKey(String waybill, Integer operateSiteCode) {
+        if (WaybillUtil.isPackageCode(waybill)) {
+            waybill = WaybillUtil.getWaybillCode(waybill);
+        }
+        return SEND_BY_WAYBILL_REDIS_PREFIX + waybill + "_" + operateSiteCode;
+    }
+
+    // 按运单发货 锁定包裹
+    private String getSendByWaybillPackLockKey(String waybill, Integer operateSiteCode) {
+        if (WaybillUtil.isPackageCode(waybill)) {
+            waybill = WaybillUtil.getWaybillCode(waybill);
+        }
+        return SEND_BY_WAYBILL_PACK_REDIS_PREFIX + waybill + "_" + operateSiteCode;
+    }
+
+    private void checkSendByWaybillParam(SendM domain, SendResult result) {
+        if (StringUtils.isEmpty(domain.getSendCode())) {
+            result.init(SendResult.CODE_SENDED, "批次号不能为空!");
+            return;
+        }
+        if (StringUtils.isEmpty(domain.getBoxCode())) {
+            result.init(SendResult.CODE_SENDED, "包裹号不能为空!");
+            return;
+        }
+        if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
+            result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
+            return;
+        }
+    }
+
+    /**
+     * 获取BC箱号关联的WJ箱号的发货对象
+     * @param BCSendM
+     * @return
+     */
+    private List<SendM> getWJSendMDomains(SendM BCSendM) {
+
+        List<SendM> WJSendMList = new ArrayList<>();
+
+        if (BusinessUtil.isBoxcode(BCSendM.getBoxCode())) {
+            CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.getWJSendMDomains", false, true);
+
+            List<BoxRelation> boxRelations = null;
+            BoxRelation boxRelationQ = new BoxRelation(BCSendM.getBoxCode(), Long.valueOf(BCSendM.getCreateSiteCode()));
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(boxRelationQ);
+            if (sr.codeSuccess() && CollectionUtils.isNotEmpty(sr.getData())) {
+                boxRelations =  sr.getData();
+            }
+            if (CollectionUtils.isNotEmpty(boxRelations)) {
+                for (BoxRelation relation : boxRelations) {
+                    SendM sendM = new SendM();
+
+                    BeanUtils.copyProperties(BCSendM, sendM);
+
+                    sendM.setBoxCode(relation.getRelationBoxCode());
+                    WJSendMList.add(sendM);
+                }
+            }
+            Profiler.registerInfoEnd(callerInfo);
+        }
+
+        return WJSendMList;
     }
 
     /**
@@ -632,6 +819,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
             result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+            return result;
+        }
+
+        // 运单和包裹互斥 按运单发货正在处理中( 按运单/包裹 SETNX 互相校验)
+        if (isSendByWaybillProcessing(domain)) {
+            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING);
             return result;
         }
 
@@ -813,6 +1006,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         sortingCheck.setOperateUserCode(domain.getCreateUserCode());
         sortingCheck.setOperateUserName(domain.getCreateUser());
         sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
+        sortingCheck.setBizSourceType(domain.getBizSource());
         //// FIXME: 2018/3/26 待校验后做修改
         if (domain.getCreateSiteCode() != null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
             //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
@@ -979,6 +1173,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             // 设置发货来源
             domain.setBizSource(sourceEnum.getCode());
         }
+        // 锁定当前包裹，防止按运单发货时 重复发货
+        lockWaybillByPack(domain.getCreateSiteCode(), domain.getBoxCode());
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
         //发送发货业务通知MQ
@@ -996,6 +1192,29 @@ public class DeliveryServiceImpl implements DeliveryService {
             //更新SEND_D状态
             this.updateCancel(sendDetail);
         }
+        // 判断是否是中转发货
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
+    }
+
+    /**
+     * 按运单发货发货数据落库，写相关的异步任务
+     *
+     *  1.获取运单下的所有包裹号
+     *  2.补充按运单分拣
+     *  3.按包裹分页 调用一车一单发货逻辑，,移除补分拣逻辑
+     *  4.所有分页数据处理完释放按运单锁
+     *
+     * @param domain 发货对象
+     * @return 1：发货成功  2：发货失败
+     */
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public void doPackageSendByWaybill(SendM domain) {
+        // 插入SEND_M
+        this.sendMManager.insertSendM(domain);
+        //发送发货业务通知MQ
+        deliverGoodsNoticeMQ(domain);
         // 判断是否是中转发货
         this.transitSend(domain);
         this.pushStatusTask(domain);
@@ -1644,6 +1863,144 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
     }
 
+    @Override
+    public DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList) {
+
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
+
+        // 获得可以发货的文件箱号
+        List<SendM> needSendBox = this.findCouldSendingFileBox(fileSendMList);
+
+        if (CollectionUtils.isEmpty(needSendBox)) {
+            return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        }
+
+        long startTime = System.currentTimeMillis();
+        // 老发货逻辑
+        DeliveryResponse result = this.dellCreateSendM(source, needSendBox);
+        long endTime = System.currentTimeMillis();
+
+        // 添加Log
+        this.addFileSendingBizLog(sendMList, needSendBox, JsonHelper.toJson(result), startTime, endTime);
+
+        Profiler.registerInfoEnd(callerInfo);
+
+        return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+    }
+
+    /**
+     * 批量处理BC箱号绑定的WJ箱号的发货逻辑
+     *
+     * <h3>WJ箱号发货逻辑</h3>
+     * @param bizSource
+     * @param BCSendM
+     * @return
+     */
+    @Override
+    public SendResult dealFileBoxSingleCarSend(SendBizSourceEnum bizSource, SendM BCSendM) {
+        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+
+        List<SendM> WJSendMList = this.getWJSendMDomains(BCSendM);
+        if (CollectionUtils.isEmpty(WJSendMList)) {
+            return result;
+        }
+
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.dealFileBoxSingleCarSend", Constants.UMP_APP_NAME_DMSWEB, false, true);
+
+        // 获得能够发货的WJ箱号
+        List<SendM> needSendBox = this.findCouldSendingFileBox(WJSendMList);
+
+        if (CollectionUtils.isEmpty(needSendBox)) {
+            return result;
+        }
+
+        // 批量处理新发货逻辑
+        long startTime = System.currentTimeMillis();
+        for (SendM domain : needSendBox) {
+            result = this.doPackageSend(bizSource, domain);
+        }
+        long endTime = System.currentTimeMillis();
+
+        // 添加Business Log
+        this.addFileSendingBizLog(Collections.singletonList(BCSendM), needSendBox, JsonHelper.toJson(result), startTime, endTime);
+
+        Profiler.registerInfoEnd(callerInfo);
+
+        return result;
+    }
+
+    /**
+     * 文件发货添加Business Log
+     * @param BCSendMList
+     * @param fileSendMList
+     * @param result
+     * @param startTime
+     * @param endTime
+     */
+    private void addFileSendingBizLog(List<SendM> BCSendMList, List<SendM> fileSendMList, String result, Long startTime, Long endTime) {
+        JSONObject operateRequest = new JSONObject();
+        operateRequest.put("bcSendM", JsonHelper.toJson(BCSendMList));
+        List<String> fileBoxCodes = Lists.newArrayListWithExpectedSize(fileSendMList.size());
+        for (SendM sendBox : fileSendMList) {
+            fileBoxCodes.add(sendBox.getBoxCode());
+        }
+        operateRequest.put("wjBoxCodes", fileBoxCodes);
+
+        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.SEND_FILE_BOX)
+                .operateRequest(operateRequest)
+                .operateResponse(result)
+                .processTime(endTime, startTime)
+                .methodName("DeliveryServiceImpl#dealFileBoxSending")
+                .build();
+
+        logEngine.addLog(businessLogProfiler);
+    }
+
+    /**
+     * 可以发货的文件箱号
+     * <ul>
+     *     <li>如果BC绑定的WJ已经发过货，且重复同一个批次号发货，则系统自动跳过，不重复发货，系统不显示提示。</li>
+     *     <li>如果BC绑定的WJ已经发过货，上次与本次发货批次号不同，且时间在【封车+1小时】内（老逻辑），
+     * 则系统自动取消上次发货，以本次发货为准，系统不显示提示。</li>
+     *     <li>如果BC绑定的WJ已经发过货，上次与本次发货批次号不同，且时间在【封车+1小时】以外（老逻辑），
+     * 则系统直接按新批次发货，不取消上次发货，系统不显示提示。</li>
+     * </ul>
+     * @param sendMList WJ箱号发货
+     * @return 可发货的WJ箱号
+     */
+    private List<SendM> findCouldSendingFileBox(List<SendM> sendMList) {
+        List<SendM> needSendBox = Lists.newArrayListWithExpectedSize(sendMList.size());
+
+        for (SendM domain : sendMList) {
+
+            SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+            if (lastSendM != null) {
+                String lastSendCode = lastSendM.getSendCode();
+                // 继续用相同批次发货，不重复发货
+                if (ObjectUtils.equals(domain.getSendCode(), lastSendM.getSendCode())) {
+                    log.warn("箱子{}已经在批次[" + lastSendCode + "]中发货，不重复发货");
+                }
+                else {
+                    // 用新批次再次发货
+                    // 发货时间距离封车时间不超过1个小时
+                    if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
+                        // 取消上次发货
+                        this.doCancelLastSend(domain);
+                        needSendBox.add(domain);
+                    }
+                    else {
+                        needSendBox.add(domain);
+                    }
+                }
+            }
+            else {
+                needSendBox.add(domain);
+            }
+        }
+
+        return needSendBox;
+    }
 
     /**
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
@@ -1756,8 +2113,18 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
+
+        // 文件包裹必须装箱才能发货
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            // 不校验快运发货
+            if (!ObjectUtils.equals(Constants.KY_DELIVERY, opType)) {
+
+                response = this.filePackSendByBox(tSendM);
+            }
+        }
+
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = zeroWeightAndVolumeCheck(tSendM);
         }
@@ -1767,6 +2134,56 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
         }
+
+        return response;
+    }
+
+    /**
+     * 符合文件标识的包裹必须按箱发货
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse filePackSendByBox(SendM tSendM) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        // 未配置不拦截
+        if (! funcSwitchConfigService.getFuncStatusByAllDimension(FuncSwitchConfigEnum.FUNCTION_FILE_INTERCEPTION.getCode(),
+                tSendM.getCreateSiteCode(), null)) {
+            return response;
+        }
+
+        String waybillCode = null;
+        if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
+            waybillCode = WaybillUtil.getWaybillCode(tSendM.getBoxCode());
+        }
+        else if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())) {
+            waybillCode = tSendM.getBoxCode();
+        }
+
+        // 未按箱发货
+        if (StringUtils.isNotBlank(waybillCode)) {
+
+            WaybillCache waybillCache = waybillCacheService.getFromCache(waybillCode);
+
+            if (null != waybillCache) {
+
+                Site site = siteService.get(tSendM.getCreateSiteCode());
+
+                // 判断运单是否是文件
+                if (waybillService.allowFilePackFilter(site.getSubType(), waybillCache.getWaybillSign())) {
+
+                    if (log.isWarnEnabled()) {
+                        log.warn("文件包裹禁止按包裹发货. packageBarCode:{}", tSendM.getBoxCode());
+                    }
+
+                    response.setCode(DeliveryResponse.CODE_20020);
+                    response.setMessage(DeliveryResponse.MESSAGE_20020);
+
+                    return response;
+                }
+            }
+        }
+
         return response;
     }
 
@@ -1919,6 +2336,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
             // 按照运单取消处理
             if (WaybillUtil.isWaybillCode(tSendM.getBoxCode()) || WaybillUtil.isSurfaceCode(tSendM.getBoxCode()) || WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
+                // 判断 按运单发货在处理中，则稍后再试
+                if (isSendByWaybillProcessing(tSendM)) {
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_DELIVERY_BY_WAYBILL_PROCESSING,
+                            DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING, null);
+                }
                 SendDetail mSendDetail = new SendDetail();
                 if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())) {
                     mSendDetail.setWaybillCode(tSendM.getBoxCode());
@@ -1956,8 +2379,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
-                    //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
-                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode(), tSendM.getUpdaterUser());
+                    //更新箱号状态
+                    openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
@@ -2054,8 +2477,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, sendMs);
                         if (threeDeliveryResponse.getCode().equals(200)) {
                             /* 更新箱号缓存状态 */
-                            boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode()
-                                    , BoxStatusEnum.CANCELED_STATUS.getCode(),sendMItem.getUpdaterUser());
+                            openBox(sendMItem);
                         } else {
                             continue;
                         }
@@ -2086,6 +2508,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
+    }
+
+    /**
+     * 由于取消发货，打开箱
+     * @param tSendM
+     */
+    private void openBox(SendM tSendM){
+        //参数构建
+        BoxReq boxReq = new BoxReq();
+        boxReq.setBoxCode(tSendM.getBoxCode());
+        boxReq.setBoxStatus(BoxStatusEnum.OPEN.getStatus());
+        boxReq.setOpNodeCode(OpBoxNodeEnum.CANCELSEND.getNodeCode());
+        boxReq.setOpNodeName(OpBoxNodeEnum.CANCELSEND.getNodeName());
+        boxReq.setOpSiteCode(tSendM.getCreateSiteCode());
+        boxReq.setOpSiteName("");
+        boxReq.setOpErp(tSendM.getCreateUser());
+        boxReq.setOpTime(tSendM.getOperateTime());
+        boxReq.setOpDescription(String.format("%s操作取消发货，打开此箱号%s的箱子", tSendM.getCreateUser(),tSendM.getBoxCode()));
+        //修改箱状态
+        boxService.updateBoxStatus(boxReq);
     }
 
     /**
@@ -2935,6 +3377,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 	            log.debug("SEND_D明细:{}" , JsonHelper.toJson(sendDetailList));
 	        }
 	        updateWaybillStatus(sendDetailList);
+	        //如果是按运单发货，解除按运单发货的redis锁
+	        unlockWaybillByPack(tSendM);
         }catch(Exception e){
         	Profiler.functionError(info);
         	log.error("发货任务处理异常！", e);
@@ -2943,6 +3387,55 @@ public class DeliveryServiceImpl implements DeliveryService {
         	Profiler.registerInfoEnd(info);
         }
         return true;
+    }
+
+    private void unlockWaybillByPack(List<SendM> tSendM) {
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货解锁运单中的包裹:{}", JsonHelper.toJsonMs(tSendM));
+        }
+        if (CollectionUtils.isEmpty(tSendM)) {
+            return;
+        }
+        try {
+            for (SendM sendM : tSendM) {
+                if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sendM.getBizSource())) {
+                    String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
+                    String packLockKey = getSendByWaybillPackLockKey(waybillCode, sendM.getCreateSiteCode());
+                    String waybillLockKey = getSendByWaybillLockKey(waybillCode, sendM.getCreateSiteCode());
+
+                    String s = redisClientCache.get(waybillLockKey);
+                    if (StringUtils.isEmpty(s)) {
+                        log.warn("按运单发货解锁运单中的包裹,key={}运单总包裹数获取为空!", waybillLockKey);
+                        return;
+                    }
+                    int packCount = redisClientCache.bitCount(packLockKey).intValue();
+                    int totalPack = Integer.parseInt(s);
+                    log.info("按运单发货解锁运单中的包裹,key={}运单总包裹数:{},已处理包裹数:{}", tSendM, s, packCount);
+                    if (packCount == totalPack) {
+                        redisClientCache.del(waybillLockKey);
+                        redisClientCache.del(packLockKey);
+                        log.info("按运单发货所有包裹处理完成,移除运单锁:packLockKey={}", packLockKey);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("按运单发货所有包裹处理完成,移除运单锁异常:" + tSendM, e);
+        }
+    }
+
+    /**
+     * 按运单发货是否在处理中
+     */
+    private boolean isSendByWaybillProcessing(SendM sendM) {
+        try {
+            if (sendM == null) {
+                return false;
+            }
+            return Boolean.TRUE.equals(redisClientCache.exists(getSendByWaybillLockKey(sendM.getBoxCode(), sendM.getCreateSiteCode())));
+        } catch (Exception e) {
+            log.error("判断运单是否发货出错:" + sendM, e);
+        }
+        return false;
     }
     /**
      * 根据任务获取对应的SendTaskCategoryEnum
@@ -5411,6 +5904,132 @@ public class DeliveryServiceImpl implements DeliveryService {
         redisManager.del(REDIS_PREFIX_BOARD_DELIVERY +domain.getBoardCode());
         return true;
 	}
+
+    /**
+     * 获取运单下的所有包裹号
+     * 补充按运单分拣
+     * 按包裹分页 调用一车一单发货逻辑(需移除补分拣逻辑)
+     * 所有分页数据处理完释放按运单锁
+     */
+    @Override
+    public boolean doWaybillSendDelivery(Task task) {
+        if(log.isInfoEnabled()){
+            log.info("按运单发货任务处理开始：{}" ,JsonHelper.toJson(task));
+        }
+        SendM domain = JsonHelper.fromJson(task.getBody(),SendM.class);
+        if (domain == null) {
+            return false;
+        }
+        // 包裹号转运单号
+        if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+            domain.setBoxCode( WaybillUtil.getWaybillCode(domain.getBoxCode()));
+        }
+
+        String waybillCode = domain.getBoxCode();
+        int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == 0 ? WAYBILL_SPLIT_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if (waybill.getGoodNumber() == null) {
+            log.error("获取运单中的包裹数量异常!{}", JsonHelper.toJsonMs(task));
+            return false;
+        }
+        lockWaybillSend(waybillCode, domain.getCreateSiteCode(), waybill.getGoodNumber());
+        // 按运单补分拣任务
+        pushSorting(domain);
+        log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", waybillCode);
+        // 按包裹分页 拆分任务调用一车一单发货逻辑
+        int splitSize = (waybill.getGoodNumber() / pageSize) + 1;
+        for (int i = 1; i <= splitSize; i++) {
+            pushWaybillSendSplitTask(domain, Task.TASK_TYPE_SEND_DELIVERY, i, pageSize);
+        }
+        log.info("按运单发货任务处理,完成 waybillCode={}", waybillCode);
+
+        return true;
+    }
+    @Override
+    public boolean doSendByWaybillSplitTask(Task task) {
+        if(log.isInfoEnabled()){
+            log.info("按运单发货拆分任务处理,开始：{}" ,JsonHelper.toJson(task));
+        }
+        SendM domain = JsonHelper.fromJson(task.getBody(),SendM.class);
+        if (domain == null) {
+            return false;
+        }
+        String waybillCode = domain.getBoxCode();
+        String[] split = task.getKeyword2().split(",");
+        BaseEntity<List<DeliveryPackageD>> waybillCodeOfPage = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        if (waybillCodeOfPage == null || CollectionUtils.isEmpty(waybillCodeOfPage.getData())) {
+            log.warn("按运单发货拆分任务处理,获取包裹数量为空:waybillCode={}", waybillCode);
+            return false;
+        }
+
+        // 循环调用按包裹发货逻辑
+        for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
+            SendM packSendM = new SendM();
+            BeanUtils.copyProperties(domain, packSendM);
+            packSendM.setBoxCode(pack.getPackageBarcode());
+            // 按包裹锁定
+            if(lockWaybillByPack(domain.getCreateSiteCode(), pack.getPackageBarcode())){
+                // 一车一单发货逻辑,其中 补分拣逻辑已移除(while循环外已按运单补分拣逻辑)
+                if(log.isInfoEnabled()){
+                    log.info("按运单发货拆分任务处理,锁定包裹完成,开始调用一车一单逻辑：packSendM={}" ,JsonHelper.toJson(packSendM));
+                }
+                doPackageSendByWaybill(packSendM);
+            }
+        }
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货逐单发货处理完成 waybillCode={},pageNo={},pageSize={}", waybillCode, Integer.parseInt(split[0]), Integer.parseInt(split[1]));
+        }
+
+        return true;
+    }
+
+
+    /**
+     * 按运单发货任务 , 拆分
+     * @param domain 发货数据
+     */
+    private void pushWaybillSendSplitTask(SendM domain,Integer taskType,Integer pageNo,Integer pageSize) {
+        Task tTask = new Task();
+        tTask.setBoxCode(domain.getBoxCode());
+        tTask.setBody(JsonHelper.toJson(domain));
+        tTask.setCreateSiteCode(domain.getCreateSiteCode());
+        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
+
+        tTask.setKeyword1("11");
+        tTask.setKeyword2(pageNo + "," + pageSize);
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+
+        // TB 调度防止重复
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + "_" + domain.getBoxCode() + "_" + tTask.getKeyword2()));
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货任务处理,开始写入拆分任务：task={}", JsonHelper.toJsonMs(tTask));
+        }
+
+        tTaskService.add(tTask, true);
+    }
+
+    /**
+     * 按运单发货，将对应的包裹数据缓存，以便判断所有包裹始发均执行完成
+     * 以当前是第几个包裹 设置 redis值 中 对应的 位置的 bit 位
+     */
+    private boolean lockWaybillByPack(Integer createSiteCode, String packageCode) {
+        Boolean locked = false;
+        try {
+            int num = WaybillUtil.getCurrentPackageNum(packageCode);
+            String lockWaybillByPackKey = getSendByWaybillPackLockKey(packageCode, createSiteCode);
+
+            // 返回值为false 表示 设置之前 当前offset的值为 false 即 之前没设置过
+            locked = !redisClientCache.setBit(lockWaybillByPackKey, num - 1, true);
+            redisClientCache.expire(lockWaybillByPackKey, REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("锁定包裹异常:createSiteCode:{},packageCode:{}", createSiteCode, packageCode);
+        }
+        log.info("lockWaybillByPack锁定包裹-locked={}:createSiteCode={},packageCode={}", locked, createSiteCode, packageCode);
+        return locked;
+    }
 
     /**
      * 根据任务类型获取发货业务来源

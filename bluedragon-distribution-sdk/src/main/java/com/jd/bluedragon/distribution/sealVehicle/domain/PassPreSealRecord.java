@@ -16,13 +16,25 @@ public class PassPreSealRecord implements Serializable{
 	 */
 	private String vehicleJobCode;
 	/**
+	 * 运力编码
+	 */
+	private String transportCode;
+	/**
 	 * 车牌号
 	 */
 	private String vehicleNumber;
 	/**
 	 * 始发地
 	 */
+	private Integer originalSiteCode;
+	/**
+	 * 始发地
+	 */
 	private String originalSiteName;
+	/**
+	 * 目的地
+	 */
+	private Integer destinationSiteCode;
 	/**
 	 * 目的地
 	 */
@@ -47,6 +59,7 @@ public class PassPreSealRecord implements Serializable{
 	 * 标准发车时间
 	 */
 	private Date departTime;
+	
 	public String getVehicleJobCode() {
 		return vehicleJobCode;
 	}
@@ -100,5 +113,23 @@ public class PassPreSealRecord implements Serializable{
 	}
 	public void setDepartTime(Date departTime) {
 		this.departTime = departTime;
+	}
+	public Integer getOriginalSiteCode() {
+		return originalSiteCode;
+	}
+	public void setOriginalSiteCode(Integer originalSiteCode) {
+		this.originalSiteCode = originalSiteCode;
+	}
+	public Integer getDestinationSiteCode() {
+		return destinationSiteCode;
+	}
+	public void setDestinationSiteCode(Integer destinationSiteCode) {
+		this.destinationSiteCode = destinationSiteCode;
+	}
+	public String getTransportCode() {
+		return transportCode;
+	}
+	public void setTransportCode(String transportCode) {
+		this.transportCode = transportCode;
 	}
 }

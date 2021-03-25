@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.popPickup.domain.PopPickup;
 import com.jd.bluedragon.distribution.popPickup.service.PopPickupService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.ObjectMapHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +61,7 @@ public class PopPickupResource {
 
 	@POST
 	@Path("/pop/pickUp/getPackageNumbers")
+	@JProfiler(jKey = "DMS.WEB.PopPickupResource.waybillNumbers", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@SuppressWarnings("rawtypes")
 	public PopPickupResponse waybillNumbers(PopPickupRequest popPickupRequest) {
 		if (null == popPickupRequest || null == popPickupRequest.getWaybillCode()) {
@@ -84,6 +87,7 @@ public class PopPickupResource {
 
 	@POST
 	@Path("/pop/pickUp/getPopBusinessName")
+	@JProfiler(jKey = "DMS.WEB.PopPickupResource.getPopBusinessNameByCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@SuppressWarnings("rawtypes")
 	public PopPickupResponse getPopBusinessNameByCode(PopPickupRequest popPickupRequest) {
 		if (null == popPickupRequest || null == popPickupRequest.getPopBusinessCode()) {
@@ -110,6 +114,7 @@ public class PopPickupResource {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@POST
 	@Path("/popPickup/queryPopPickupList")
+	@JProfiler(jKey = "DMS.WEB.PopPickupResource.queryPopPickupList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopPickupResponse<PopPickupQuery> queryPopPickupList(PopPickupQuery popPickupQuery) {
 		Boolean checkParam = Boolean.FALSE;
 		Map<String, Object> paramMap = new HashMap<String, Object>();
@@ -194,6 +199,7 @@ public class PopPickupResource {
 	 */
 	@POST
 	@Path("/pop/popPickup")
+	@JProfiler(jKey = "DMS.WEB.PopPickupResource.popPickup", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@SuppressWarnings("rawtypes")
 	public PopPickupResponse popPickup(PopPickupRequest popPickupRequest) {
 		if (null == popPickupRequest/*

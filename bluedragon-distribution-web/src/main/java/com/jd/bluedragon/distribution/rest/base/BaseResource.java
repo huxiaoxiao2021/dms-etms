@@ -43,6 +43,8 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
@@ -116,6 +118,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getDriver", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getDriver(@PathParam("driverCode") String driverCode) {
 		this.log.debug("driverCode is {}" , driverCode);
         BaseStaffSiteOrgDto driver = null;
@@ -157,6 +160,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/saf/vehicle/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSafVehicle", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getSafVehicle(@QueryParam("vehicleCode") String vehicleCode,
 			@QueryParam("barCode") String barCode) {
 		this.log.debug("Saf vehicleCode is {} and barCode is {}" ,vehicleCode, barCode);
@@ -195,6 +199,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/sortingcenter/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSortingCenter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getSortingCenter(@PathParam("code") String code) {
 		log.debug("sortingcentercode is {}" , code);
 		try {
@@ -248,6 +253,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/site/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getSite(@PathParam("code") String code) {
 		this.log.debug("sitecode is {}" , code);
 
@@ -282,12 +288,14 @@ public class BaseResource {
 
 	@POST
 	@Path("/bases/login")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.login", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
 
 	@POST
 	@Path("/bases/newLogin")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.newLogin", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public LoginUserResponse newLogin(LoginRequest request) {
 		if (log.isInfoEnabled()) {
 			log.info("login from new rest service.[{}]", JsonHelper.toJson(request));
@@ -306,6 +314,7 @@ public class BaseResource {
 	 */
 	@POST
 	@Path("/bases/deviceInfoUpload")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.deviceInfoUpload", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Object deviceInfoUpload(DeviceInfoRequest request) {
 		if (log.isInfoEnabled()) {
 			log.info("设备信息上传接口:[{}]", JsonHelper.toJson(request));
@@ -315,11 +324,13 @@ public class BaseResource {
 
 	@POST
 	@Path("/bases/getLoginUser")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getLoginUser", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
 		return userService.getLoginUser(request);
 	}
 	@GET
 	@Path("/bases/drivers/{orgId}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getDrivers", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
 		// 根据机构ID获取对应的司机信息列表
 		this.log.debug("orgId is {}" , orgId);
@@ -368,6 +379,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/allorgs/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getAllOrgs", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getAllOrgs() {
 		this.log.debug("获取全部机构信息开始");
 
@@ -421,6 +433,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/sites/{orgId}")
 	@GZIP
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSites", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getSites(@PathParam("orgId") Integer orgCode) {
 		// 根据机构ID获取对应的站点信息列表
 		this.log.debug("orgCode is {}" , orgCode);
@@ -494,6 +507,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/errorlist/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getErrorList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getErrorList() {
 
 		this.log.debug("获取所有错误信息列表");
@@ -535,6 +549,7 @@ public class BaseResource {
 
     @GET
     @Path("/bases/getBaseDictionaryTreeMulti")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseDictionaryTreeMulti", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<BaseDataDict>> getBaseDictionaryTreeMulti(@QueryParam("typeGroups")String typeGroups){
         InvokeResult<List<BaseDataDict>> result=new InvokeResult<List<BaseDataDict>>();
         result.success();
@@ -557,6 +572,7 @@ public class BaseResource {
     }
 	@GET
 	@Path("/bases/getBaseDictionaryTree/{typeGroup}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseDictionaryTree", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<BaseDataDict>> getBaseDictionaryTree(@PathParam("typeGroup") int typeGroup){
 		InvokeResult<List<BaseDataDict>> result=new InvokeResult<List<BaseDataDict>>();
 		result.success();
@@ -570,6 +586,7 @@ public class BaseResource {
 	}
 	@GET
 	@Path("/bases/error/{typeGroup}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getErrorList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getErrorList(@PathParam("typeGroup") Integer typeGroup) {
 
 		this.log.debug("typeGroup is {}" , typeGroup);
@@ -612,6 +629,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/sitetype/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSiteTypeList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getSiteTypeList() {
 		this.log.debug("获取站点类型信息列表");
 
@@ -652,6 +670,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/serverdate/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getServerDate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getServerDate() {
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -664,6 +683,7 @@ public class BaseResource {
 	@GET
 	@Path("/newbases/sites/{orgId}")
 	@GZIP
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSites_New", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getSites_New(@PathParam("orgId") Integer orgCode) {
 		// 根据机构ID获取对应的站点信息列表
 		this.log.debug("orgCode is {}" , orgCode);
@@ -739,6 +759,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/newbases/site/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSite_New", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getSite_New(@PathParam("code") String code) {
 		this.log.info("sitecode is {}" , code);
 
@@ -799,6 +820,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/sysconfig/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getConfigByKey", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<SysConfigResponse> getConfigByKey(@QueryParam("key") String key) {
 		this.log.debug("key is {}" , key);
 		List<SysConfig> configs = baseService.queryConfigByKey(key+"%");
@@ -829,6 +851,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/base/getBaseSite/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void getBaseSite(@PathParam("code") String code) {
 		this.log.debug("sitecode is {}" , code);
 
@@ -853,6 +876,7 @@ public class BaseResource {
 
 	@POST
 	@Path("/sysconfig")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.modifySysConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SysConfigResponse modifySysConfig(SysConfig sysConfig) {
 		SysConfigResponse response = new SysConfigResponse();
 
@@ -886,6 +910,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/sysconfig/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.findSysConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SysConfigResponse findSysConfig(@QueryParam("key") String key) {
 		List<SysConfigResponse> sysConfigs = this.getConfigByKey(key);
 
@@ -905,6 +930,7 @@ public class BaseResource {
 
 	@Path("/getRunNumber/")
 	@GET
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getRunNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse>  getRunNumber(){
 		List<BaseDataDict> dataList =	this.baseService.getBaseDataDictList(6055, 2, 6055);
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
@@ -925,6 +951,7 @@ public class BaseResource {
      * */
 	@GET
 	@Path("/bases/selfD/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getselfD", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getselfD(@PathParam("code") Integer code) {
 		this.log.debug("sitecode is {}" , code);
 
@@ -942,6 +969,7 @@ public class BaseResource {
 	 * */
 	@GET
 	@Path("/bases/threePartner/{code}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getThreePartnerD", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponse getThreePartnerD(@PathParam("code") Integer code) {
 		this.log.debug("sitecode is {}" , code);
 
@@ -965,6 +993,7 @@ public class BaseResource {
 	 * */
 	@GET
 	@Path("/bases/perAndSelfSite/{waybillCode}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.perAndSelfSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<Integer>> perAndSelfSite(@PathParam("waybillCode") String waybillCode) {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 		List<Integer> siteCodes = new ArrayList<Integer>();
@@ -1003,6 +1032,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/cache/info")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getCacheInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Object getCacheInfo() {
 		try {
 			return cacheMonitor.info();
@@ -1013,6 +1043,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/cache/memory/{key}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getMemoryElement", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Object getMemoryElement(@PathParam("key") String key) {
 		try {
 			return cacheMonitor.getMemoryElement(key);
@@ -1023,6 +1054,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/cache/memory/remove/{key}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.removeMemoryElement", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Object removeMemoryElement(@PathParam("key") String key) {
 		try {
 			return cacheMonitor.removeMemoryElement(key);
@@ -1033,6 +1065,7 @@ public class BaseResource {
 	
 	@GET
 	@Path("/bases/capacityTypelist")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getCapacityTypelist", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getCapacityTypelist() {
 
 		//运力编码需求相关类型
@@ -1092,6 +1125,7 @@ public class BaseResource {
 	 */
 	@GET
 	@Path("/bases/capacityTypelists")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getCapacityTypelists", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getCapacityTypelists() {
 		//运力编码需求相关类型
 		//(1011,2,1011) //线路类型：运输类型
@@ -1149,6 +1183,7 @@ public class BaseResource {
 	 */
 	@GET
 	@Path("/bases/getCarrierInfoList")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getCarrierInfoList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getCarrierInfoList() {
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
 		CarrierDto carrierParamDto = new CarrierDto();
@@ -1177,6 +1212,7 @@ public class BaseResource {
 	 * */
 	@GET
 	@Path("/bases/goodsposition")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseGoodsPositionDmsCodeSiteCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(@QueryParam("createCode") Integer createCode,@QueryParam("receiveCode") Integer receiveCode) {
 		return  baseService.getBaseGoodsPositionDmsCodeSiteCode(createCode , receiveCode);
 
@@ -1188,6 +1224,7 @@ public class BaseResource {
      */
     @GET
     @Path("/bases/getallsigncustomers")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getAllSignCustomers", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<String>> getAllSignCustomers(){
         InvokeResult<List<String>> result=new InvokeResult<List<String>>();
         result.setCode(200);
@@ -1207,6 +1244,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/orginalback/{parentGroup}/{nodeLevel}/{typeGroup}")
 	@GZIP
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getOrignalBackBusIds", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public DatadictResponse getOrignalBackBusIds(@PathParam("parentGroup")Integer parentGroup
 												,@PathParam("nodeLevel") Integer nodeLevel
 												,@PathParam("typeGroup") Integer typeGroup){
@@ -1247,6 +1285,7 @@ public class BaseResource {
 	 * */
 	@GET
 	@Path("/bases/getConsignments")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getConsignments", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<String>> getConsignments(){
 		InvokeResult result = new InvokeResult();
 		List<String> list = new ArrayList<String>();
@@ -1264,6 +1303,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/store/{storeType}/{cky2}/{storeID}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getWarehouseByCky2", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WarehouseResponse getWarehouseByCky2(@PathParam("storeType") String storeType
 												,@PathParam("cky2") Integer cky2
 												, @PathParam("storeID") Integer storeID){
@@ -1291,6 +1331,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/switch/{conName}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getSwitchStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SysConfigResponse getSwitchStatus(@PathParam("conName") String conName){
 		SysConfigResponse response = new SysConfigResponse();
 		List<SysConfig> sysConfigs = null;
@@ -1322,6 +1363,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/dms/{orgId}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getDmsByOrgId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getDmsByOrgId(@PathParam("orgId") Integer orgId){
 		this.log.debug("根据orgId获取分拣中心列表,orgId为:{}" , orgId);
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
@@ -1354,6 +1396,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/dms")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getDmsAll", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getDmsAll(){
 		this.log.debug("获取所有的分拣中心");
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
@@ -1391,6 +1434,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/getB2BSiteAll/{subTypes}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getB2BSiteAll", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getB2BSiteAll(@PathParam("subTypes") String subTypes){
 		this.log.debug("获取全国所有的转运中心，站点类型：{}" , subTypes);
 		List<BaseResponse> result = new ArrayList<BaseResponse>();
@@ -1464,6 +1508,7 @@ public class BaseResource {
 	@GET
 	@GZIP
 	@Path("/bases/getBaseAllStore/")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseAllStore", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BaseResponse> getBaseAllStore(){
 		this.log.debug("调用基础资料接口获取全国所有库房信息");
 		List<BaseResponse> result = new ArrayList<BaseResponse>();
@@ -1499,6 +1544,7 @@ public class BaseResource {
     @GET
     @GZIP
     @Path("/bases/getStaffByStaffId/{staffId}")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getStaffByStaffId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseStaffResponse getStaffByStaffId(@PathParam("staffId") Integer staffId){
         BaseStaffSiteOrgDto dto = baseService.getCachedStaffByStaffId(staffId);
         if(null == dto)
@@ -1524,6 +1570,7 @@ public class BaseResource {
 	@GET
 	@Path("/bases/getWaybillRouter/{token}/{startNode}/{endNodeCode}/{operateTime}/{waybillSign}")
 	@GZIP
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<RecommendRouteResp> getWaybillRouter(@PathParam("token")String token,
 														  @PathParam("startNode")String startNode,
 														  @PathParam("endNodeCode")String endNodeCode,
@@ -1551,6 +1598,7 @@ public class BaseResource {
 
 	@POST
 	@Path("menu/pda/account")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.menuPdaAccount", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> menuPdaAccount(MenuPdaRequest request){
 		InvokeResult<String> result = new InvokeResult<>();
 		if(log.isDebugEnabled()){
@@ -1581,6 +1629,7 @@ public class BaseResource {
 
 	@POST
 	@Path("menu/print/account")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.menuPrintAccount", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> menuPrintAccount(MenuPdaRequest request){
 		InvokeResult<String> result = new InvokeResult<>();
 		if(log.isDebugEnabled()){
@@ -1609,11 +1658,12 @@ public class BaseResource {
 		return result;
 	}
 
-	@Path("/getBaseDataDictList/{parentId}/{nodeLevel}/{typeGroup}")
-	@GET
 	/**
 	 * 基础资料字典获取接口
 	 */
+	@Path("/getBaseDataDictList/{parentId}/{nodeLevel}/{typeGroup}")
+	@GET
+	@JProfiler(jKey = "DMS.WEB.BaseResource.getBaseDataDictList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<BaseDataDict>>  getBaseDataDictList(@PathParam("parentId")Integer parentId, @PathParam("nodeLevel")Integer nodeLevel,@PathParam("typeGroup")Integer typeGroup){
         InvokeResult<List<BaseDataDict>> result = new InvokeResult<>();
 	    if(parentId == null || nodeLevel == null || typeGroup == null){

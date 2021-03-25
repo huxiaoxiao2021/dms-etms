@@ -1847,6 +1847,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 特定开头的箱号
+     * @param boxCode
+     * @param codePrefix
+     * @return
+     */
+    public static boolean boxCodeMatchPrefix(String boxCode, String codePrefix) {
+        if (StringUtils.isBlank(boxCode) || StringUtils.isBlank(codePrefix)) {
+            return false;
+        }
+        return isBoxcode(boxCode) && boxCode.trim().toUpperCase().startsWith(codePrefix);
+    }
+
+    /**
      *  判断是否为C 网
      *  40 位为0:C网,   非0:B网
      */
@@ -1878,5 +1891,14 @@ public class BusinessUtil {
      */
     public static boolean isFYWZ(String waybillSign) {
         return isSignChar(waybillSign, 82, '6');
+    }
+    /**
+     * 判断包裹维度是否有增值服务信息，waybillSign86位=2或者3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPackageHavePickUpOrNo(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
     }
 }

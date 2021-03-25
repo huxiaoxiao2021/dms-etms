@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class InventoryResource {
      */
     @GET
     @Path("/inventory/getDirectionList/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.getDirectionList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<List<SiteEntity>> getDirectionList(@PathParam("siteCode") Integer siteCode) {
         JdResult<List<SiteEntity>> result = new JdResult<List<SiteEntity>>();
         result.toSuccess();
@@ -72,6 +75,7 @@ public class InventoryResource {
      */
     @POST
     @Path("/inventory/getUserDoingInventoryTask")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.getUserDoingInventoryTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<InventoryTaskResponse> getUserDoingInventoryTask(InventoryTaskRequest request) {
         JdResult result = new JdResult();
         result.toSuccess();
@@ -92,6 +96,7 @@ public class InventoryResource {
      */
     @POST
     @Path("/inventory/directionVerify")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.directionVerify", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<InventoryTaskResponse> directionVerify(InventoryTaskRequest request) {
         JdResult result = new JdResult();
         result.toSuccess();
@@ -113,6 +118,7 @@ public class InventoryResource {
      */
     @POST
     @Path("/inventory/addInventoryTask")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.addInventoryTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<InventoryTaskResponse> addInventoryTask(InventoryTaskRequest request) {
         JdResult result = new JdResult();
         result.toSuccess();
@@ -131,6 +137,7 @@ public class InventoryResource {
 	 */
 	@POST
 	@Path("/inventory/info")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.getInventoryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<InventoryWaybillResponse> getInventoryInfo(InventoryBaseRequest inventoryBaseRequest){
 		JdResult<InventoryWaybillResponse> result = new JdResult<>();
 		result.toSuccess();
@@ -162,6 +169,7 @@ public class InventoryResource {
 	 */
 	@POST
 	@Path("/inventory/detail")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.getInventoryWaybillDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<List<InventoryWaybillDetail>> getInventoryWaybillDetail(InventoryBaseRequest inventoryBaseRequest){
 		JdResult<List<InventoryWaybillDetail>> result = new JdResult<>();
 		result.toSuccess();
@@ -183,6 +191,7 @@ public class InventoryResource {
 	 */
 	@POST
 	@Path("/inventory/scan")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.scanInventoryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<Integer> scanInventoryInfo(InventoryBaseRequest inventoryBaseRequest){
 		JdResult<Integer> result = new JdResult<>();
 		result.toSuccess();
@@ -256,6 +265,7 @@ public class InventoryResource {
 	 */
 	@POST
 	@Path("/inventory/complete")
+	@JProfiler(jKey = "DMS.WEB.InventoryResource.completeInventoryTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult completeInventoryTask(InventoryBaseRequest inventoryBaseRequest){
 		JdResult result = new JdResult<>();
 		result.toSuccess();

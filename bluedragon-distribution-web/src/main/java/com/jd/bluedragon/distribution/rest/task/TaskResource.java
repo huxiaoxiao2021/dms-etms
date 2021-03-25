@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.rest.task;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
@@ -11,9 +11,10 @@ import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.BoxRelation;
+import com.jd.bluedragon.distribution.box.service.BoxRelationService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
-import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -23,7 +24,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.authorization.RestAuthorization;
-import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.alibaba.fastjson.JSONObject;
@@ -81,9 +81,13 @@ public class TaskResource {
     @Autowired
     private LogEngine logEngine;
 
+    @Autowired
+    private BoxRelationService boxRelationService;
+
 
     @POST
     @Path("/tasks/add")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer add(Task task) {
         task.setTableName("task_waybill");
         return taskService.add(task, false);
@@ -91,6 +95,7 @@ public class TaskResource {
 
     @GET
     @Path("/tasks/{taskId}")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.get", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse get(@PathParam("taskId") Long taskId) {
         Assert.notNull(taskId, "taskId must not be null");
         return this.toTaskResponse(new Task());
@@ -233,7 +238,35 @@ public class TaskResource {
                 } else {
                     log.warn("未知的离线任务时间格式【{}】，请注意代码适配问题。",operateTime);
                 }
-            } else {
+
+                Integer innerTaskType = null;
+                try {
+                    if (null != itemTask.get("taskType")) {
+                        innerTaskType = Integer.valueOf(String.valueOf(itemTask.get("taskType")));
+                    }
+                }
+                catch (Exception ex) {
+                    log.error("转换taskType失败.", ex);
+                }
+
+                if (Task.TASK_TYPE_AR_RECEIVE.equals(innerTaskType)) {
+
+                    this.dealAirRecvRelationTask(request, itemTask);
+                }
+            }
+            // 处理收货任务
+            else if (Task.TASK_TYPE_RECEIVE.equals(request.getType())) {
+
+                String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                        + JsonHelper.toJson(element)
+                        + Constants.PUNCTUATION_CLOSE_BRACKET;
+                this.taskAssemblingAndSave(request, eachJson);
+
+                // BC箱号收货时，判断dms_box_relation是否存在绑定的箱号，同步处理收货
+                this.dealRelationBoxReceiveTask(request, element);
+
+            }
+            else {
                 String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                         + JsonHelper.toJson(element)
                         + Constants.PUNCTUATION_CLOSE_BRACKET;
@@ -243,6 +276,125 @@ public class TaskResource {
 
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
+    }
+
+    /**
+     * 从离线任务请求里获取箱号字段
+     * @param itemTask
+     * @return
+     */
+    private String getBoxCodeFromOfflineRequest(Map<String, Object> itemTask) {
+        String boxCode = String.valueOf(itemTask.get("boxCode"));
+        if (StringUtils.isNotBlank(boxCode) && Constants.SPARE_CODE_PREFIX_DEFAULT.equalsIgnoreCase(boxCode)) {
+            if (BusinessUtil.isBoxcode(boxCode)) {
+                return boxCode;
+            }
+        }
+        String packageCode = String.valueOf(itemTask.get("packageCode"));
+        if (StringUtils.isNotBlank(packageCode) && Constants.SPARE_CODE_PREFIX_DEFAULT.equalsIgnoreCase(packageCode)) {
+            if (BusinessUtil.isBoxcode(packageCode)) {
+                return packageCode;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 空铁收货时，同步生成关联箱号的收货任务
+     * @param request
+     * @param itemTask
+     */
+    private void dealAirRecvRelationTask(TaskRequest request, Map<String, Object> itemTask) {
+
+        String boxCode = this.getBoxCodeFromOfflineRequest(itemTask);
+        Long siteCode = null;
+        if (null != itemTask.get("siteCode")) {
+            siteCode = Long.valueOf(String.valueOf(itemTask.get("siteCode")));
+        }
+        List<BoxRelation> boxRelations = this.getBoxRelations(boxCode, siteCode);
+
+        if (CollectionUtils.isNotEmpty(boxRelations)) {
+
+            // 加入UMP监控
+            CallerInfo info = Profiler.registerInfo("dms.etms.addReceiveTask.dealAirRecvRelationTask", false, true);
+
+            for (BoxRelation boxRelation : boxRelations) {
+
+                if (log.isInfoEnabled()) {
+                    log.info("插入关联箱号收货任务. boxCode:{}, relationBoxCode:{}", boxRelation.getBoxCode(), boxRelation.getRelationBoxCode());
+                }
+                // 收货任务只修改箱号字段，其它字段不变
+                itemTask.put("boxCode", boxRelation.getRelationBoxCode()); // 当前为WJ箱号
+                String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                        + JsonHelper.toJson(itemTask)
+                        + Constants.PUNCTUATION_CLOSE_BRACKET;
+
+                this.taskAssemblingAndSave(request, eachJson);
+            }
+
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * BC箱号收货时，绑定的WJ箱号同步收货
+     * @param request
+     * @param element
+     */
+    private void dealRelationBoxReceiveTask(TaskRequest request, Object element) {
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> receiveMap = (Map<String, Object>) element;
+        String packOrBox = String.valueOf(receiveMap.get("packOrBox"));
+        Long siteCode = null;
+        if (null != receiveMap.get("siteCode")) {
+            siteCode = Long.valueOf(String.valueOf(receiveMap.get("siteCode")));
+        }
+
+        List<BoxRelation> boxRelations = this.getBoxRelations(packOrBox, siteCode);
+
+        if (CollectionUtils.isNotEmpty(boxRelations)) {
+
+            // 加入UMP监控
+            CallerInfo info = Profiler.registerInfo("dms.etms.addReceiveTask.dealRelationBoxReceiveTask", false, true);
+
+            for (BoxRelation boxRelation : boxRelations) {
+
+                if (log.isInfoEnabled()) {
+                    log.info("插入关联箱号收货任务. boxCode:{}, relationBoxCode:{}", boxRelation.getBoxCode(), boxRelation.getRelationBoxCode());
+                }
+                // 收货任务只修改箱号和keyword2字段，其它字段不变
+                receiveMap.put("packOrBox", boxRelation.getRelationBoxCode()); // 当前为WJ箱号
+                String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                        + JsonHelper.toJson(receiveMap)
+                        + Constants.PUNCTUATION_CLOSE_BRACKET;
+
+                request.setKeyword2(boxRelation.getRelationBoxCode());
+
+                this.taskAssemblingAndSave(request, eachJson);
+            }
+
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 获取箱号关联的箱号
+     * @param packOrBox
+     * @param siteCode
+     * @return
+     */
+    private List<BoxRelation> getBoxRelations(String packOrBox, Long siteCode) {
+        if (BusinessUtil.isBoxcode(packOrBox) && null != siteCode) {
+            BoxRelation query = new BoxRelation(packOrBox, siteCode);
+            InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
+            if (sr.codeSuccess() && CollectionUtils.isNotEmpty(sr.getData())) {
+                return sr.getData();
+            }
+        }
+
+        return null;
     }
 
     private void taskAssemblingAndSave(TaskRequest request, String jsonStr) {
@@ -264,6 +416,7 @@ public class TaskResource {
 
     @GET
     @Path("/checktasks/checkPendingTaskStatus")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.checkPendingTaskStatusHealth", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse checkPendingTaskStatusHealth(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -280,6 +433,7 @@ public class TaskResource {
 
     @GET
     @Path("/task/findFailTasksNumsByType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.findFailTasksNumsByType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse findFailTasksNumsByType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -299,6 +453,7 @@ public class TaskResource {
 
     @GET
     @Path("/checktasks/checkPendingTaskStatusIgnoreType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.checkPendingTaskStatusHealthIgnoreType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse checkPendingTaskStatusHealthIgnoreType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -315,6 +470,7 @@ public class TaskResource {
 
     @GET
     @Path("/task/findFailTasksNumsIgnoreType")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.findFailTasksNumsIgnoreType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse findFailTasksNumsIgnoreType(
             @QueryParam("type") Integer type,
             @QueryParam("fetchNum") Integer fetchNum,
@@ -334,6 +490,7 @@ public class TaskResource {
 
     @GET
     @Path("/systemDate")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.getSYSDate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse getSYSDate() {
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
@@ -345,6 +502,7 @@ public class TaskResource {
      */
     @POST
     @Path("/astasks")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.addASTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse addASTask(TaskRequest request) {
         Assert.notNull(request, "autosorting task request must not be null");
         //加入监控，开始
@@ -381,6 +539,7 @@ public class TaskResource {
      */
     @POST
     @Path("/InspectSortingTask")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.addInspectSortingTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public TaskResponse addInspectSortingTask(AutoSortingPackageDto packageDtos) {
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.addInspectSortingTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
@@ -407,6 +566,7 @@ public class TaskResource {
      */
     @POST
     @Path("/task/saveTask")
+    @JProfiler(jKey = "DMS.WEB.TaskResource.saveTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult saveTask(@Context HttpServletRequest request, UploadData domain) {
         Integer source = domain.getSource();
         // 判断请求来源 2-分拣机 其他来源目前均为走龙门架逻辑

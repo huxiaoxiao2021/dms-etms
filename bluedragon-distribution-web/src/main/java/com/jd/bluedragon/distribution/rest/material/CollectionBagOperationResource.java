@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.material.util.MaterialServiceFactory;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -56,6 +58,7 @@ public class CollectionBagOperationResource {
 
     @POST
     @Path("/collectionBag/receive")
+    @JProfiler(jKey = "DMS.WEB.CollectionBagOperationResource.receive", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> receive(CollectionBagRequest request) {
 
         JdResult<Boolean> response = new JdResult<>();
@@ -101,6 +104,7 @@ public class CollectionBagOperationResource {
 
     @POST
     @Path("/collectionBag/send")
+    @JProfiler(jKey = "DMS.WEB.CollectionBagOperationResource.send", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResult<Boolean> send(CollectionBagRequest request) {
         JdResult<Boolean> response = new JdResult<>();
         response.toSuccess();

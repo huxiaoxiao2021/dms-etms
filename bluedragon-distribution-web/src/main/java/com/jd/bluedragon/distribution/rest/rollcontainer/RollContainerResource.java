@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.rollcontainer.service.ContainerRelationSer
 import com.jd.bluedragon.distribution.rollcontainer.service.RollContainerService;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,7 @@ public class RollContainerResource {
 	 */
 	@POST
     @Path("/rollContainer/updateStatus")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.updateRollContainerStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ContainerRelationResponse updateRollContainerStatus(RollContainer request) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         if(request.getContainerCode() == null && request.getStatus() == null ){
@@ -82,6 +85,7 @@ public class RollContainerResource {
 	 */
 	@GET
     @Path("/rollContainer/getBoxCodeByContainerCode/{containerCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.getBoxCodeByContainerCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ContainerRelationResponse getBoxCodeByContainerCode(@PathParam("containerCode") String containerCode,
 			@PathParam("siteCode") Integer siteCode) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -133,6 +137,7 @@ public class RollContainerResource {
 	 */
 	@POST
     @Path("/rollContainer/bindRollContainerBoxCode")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.bindRollContainerBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ContainerRelationResponse bindRollContainerBoxCode(ContainerRelation relation) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
@@ -177,6 +182,7 @@ public class RollContainerResource {
 	 */
 	@POST
     @Path("/rollContainer/getContainerRelationByCode")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.getContainerRelationByCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ContainerRelationResponse getContainerRelationByCode(ContainerRelation relationRequest) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if(relationRequest == null || relationRequest.getContainerCode()==null){
@@ -213,6 +219,7 @@ public class RollContainerResource {
 	 */
 	@POST
     @Path("/rollContainer/releaseContainerRelation")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.releaseContainerRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ContainerRelationResponse releaseContainerRelation(ContainerRelation relation) {
 		ContainerRelationResponse response = new ContainerRelationResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		if(relation.getContainerCode() == null && relation.getBoxCode() == null ){
@@ -241,6 +248,7 @@ public class RollContainerResource {
 	 */
 	@POST
 	@Path("/rollContainer/getContainerRelationPager")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.getContainerRelationPager", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition){
     	if(condition.getDmsId() == null || condition.getDmsId() == 0){
 			Pager reponese = new Pager();
@@ -256,6 +264,7 @@ public class RollContainerResource {
 	 */
 	@POST
 	@Path("/rollContainer/getContainerRelationByModel")
+	@JProfiler(jKey = "DMS.WEB.RollContainerResource.getContainerRelationByModel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<ContainerRelation> getContainerRelationByModel(ContainerRelationCondition condition){
 		return containerRelationService.getContainerRelationByModel(condition);
 	}

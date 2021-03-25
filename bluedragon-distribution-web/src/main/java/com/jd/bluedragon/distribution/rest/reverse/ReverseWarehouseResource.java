@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +67,7 @@ public class ReverseWarehouseResource {
 
     @POST
     @Path("/reverse/warehouse/check")
+    @JProfiler(jKey = "DMS.WEB.ReverseWarehouseResource.returnWarehouseCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse returnWarehouseCheck(ReverseWarehouseRequest request){
         JdResponse response = new JdResponse(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         Integer createSiteCode = request.getSiteCode();

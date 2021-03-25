@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ public class ReassignWaybillResource {
 
 	@POST
 	@Path("/tagPrint/returnPack")
+    @JProfiler(jKey = "DMS.WEB.ReassignWaybillResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse add(ReassignWaybillRequest request) {
 		JdResult<Boolean> jdResult = reassignWaybillService.backScheduleAfter(request);
 		if (jdResult.isSucceed()) {
@@ -47,6 +50,7 @@ public class ReassignWaybillResource {
      * */
     @GET
     @Path("/packLastScheduleSite/{packageCode}")
+    @JProfiler(jKey = "DMS.WEB.ReassignWaybillResource.queryLastScheduleSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseResponse queryLastScheduleSite(@PathParam("packageCode") String packageCode){
         this.log.info("the packagecode is : {}", packageCode);
         BaseResponse baseResponse = new BaseResponse();

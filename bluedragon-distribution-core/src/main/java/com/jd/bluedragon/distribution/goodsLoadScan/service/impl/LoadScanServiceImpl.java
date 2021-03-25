@@ -43,6 +43,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.merchant.api.common.dto.ResponseResult;
+import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
+import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -126,6 +129,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Resource
+    private StagingServiceWS stagingServiceWS;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -685,6 +691,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 GoodsLoadScan loadScan = new GoodsLoadScan();
                 loadScan.setTaskId(taskId);
                 loadScan.setWayBillCode(scanDto.getWayBillCode());
+                loadScan.setPackageAmount(scanDto.getPackageAmount());
                 // 取出板子上该运单下的要装车包裹数量
                 Integer packageNum = map.get(scanDto.getWayBillCode());
                 // 计算已装、未装
@@ -822,6 +829,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             GoodsLoadScan loadScan = new GoodsLoadScan();
             loadScan.setTaskId(taskId);
             loadScan.setWayBillCode(waybillCode);
+            loadScan.setPackageAmount(loadScanDto.getPackageAmount());
             // 计算已装、未装
             loadScan.setLoadAmount(insertPackageCodes.size() + updateRecordIds.size());
             // 按运单暂存，库存有多少就装多少，未装永远等于0
@@ -905,7 +913,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param updateRecords 修改的包裹集合
      */
     private void handlePackagesOfBulk(List<String> packages, LoadCar loadCar, String boardCode, GoodsLoadingScanningReq req,
-                                       List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
+                                      List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
         User user = req.getUser();
         Long taskId = loadCar.getId();
         Integer transfer = req.getTransfer();
@@ -1115,6 +1123,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        // 校验是否是暂存包裹，并且校验包裹是否可发货
+        JdVerifyResponse<Void> result = checkIsCanDelivery(packageCode, loadCar.getCreateSiteCode().intValue());
+        if (!JdVerifyResponse.CODE_SUCCESS.equals(result.getCode())) {
+            return result;
+        }
         if (log.isDebugEnabled()) {
             log.debug("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         }
@@ -1289,6 +1302,13 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+
+        // 校验是否是暂存运单，并且校验运单是否可发货
+        JdVerifyResponse<Void> result = checkIsCanDelivery(waybillCode, loadCar.getCreateSiteCode().intValue());
+        if (!JdVerifyResponse.CODE_SUCCESS.equals(result.getCode())) {
+            return result;
+        }
+
         int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
@@ -1433,6 +1453,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         loadCar.setOperateUserName(user.getUserName());
         loadCar.setUpdateTime(new Date());
         loadCarDao.updateLoadCarById(loadCar);
+        loadScanCacheService.setTaskLoadScan(loadCar);
         response.setCode(JdCResponse.CODE_SUCCESS);
         return response;
     }
@@ -1449,8 +1470,8 @@ public class LoadScanServiceImpl implements LoadScanService {
      */
     @Transactional(value = "main_loadunload", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JdCResponse<Void> saveLoadScanByPackCode(Long taskId, String waybillCode, String packageCode,
-                                                     Integer goodsAmount, Integer transfer, Integer flowDisAccord,
-                                                     User user, LoadCar loadCar) {
+                                                    Integer goodsAmount, Integer transfer, Integer flowDisAccord,
+                                                    User user, LoadCar loadCar) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.LoadScanServiceImpl.saveLoadScanByPackCode", false, true);
         JdCResponse<Void> response = new JdCResponse<>();
         if (log.isDebugEnabled()) {
@@ -1609,6 +1630,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                                                Map<String, LoadScanDto> flowDisAccordMap, LoadScanDetailDto scanDetailDto) {
         List<GoodsDetailDto> goodsDetails = new ArrayList<>();
         BigDecimal totalWeight = new BigDecimal("0");
+        // 体积单位换算基数
+        BigDecimal cardinalNumber = new BigDecimal("1000000");
         BigDecimal totalVolume = new BigDecimal("0");
         BigDecimal weight;
         BigDecimal volume;
@@ -1658,7 +1681,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             goodsDetails.add(goodsDetailDto);
         }
         scanDetailDto.setTotalWeight(totalWeight.doubleValue());
-        scanDetailDto.setTotalVolume(totalVolume.doubleValue());
+        scanDetailDto.setTotalVolume(totalVolume.divide(cardinalNumber, 3, BigDecimal.ROUND_HALF_UP).doubleValue());
         scanDetailDto.setTotalPackageNum(totalPackageNum);
         return goodsDetails;
     }
@@ -1706,6 +1729,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         goodsLoadScan.setTaskId(taskId);
         goodsLoadScan.setWayBillCode(waybillCode);
         goodsLoadScan.setLoadAmount(1);
+        // 运单上截取总包裹数
+        int packageAmount = WaybillUtil.getPackNumByPackCode(packageCode);
+        goodsLoadScan.setPackageAmount(packageAmount);
         // 未装：库存包裹数 – 装车已扫包裹数
         goodsLoadScan.setUnloadAmount(goodsAmount - goodsLoadScan.getLoadAmount());
         goodsLoadScan.setForceAmount(0);
@@ -1737,7 +1763,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     private List<LoadScanDto> getWaybillCodes(List<GoodsLoadScan> scans, Map<String, GoodsLoadScan> map,
-                                         Map<String, LoadScanDto> flowDisAccordMap) {
+                                              Map<String, LoadScanDto> flowDisAccordMap) {
         List<LoadScanDto> list = new ArrayList<>();
         LoadScanDto scanDto;
         for (GoodsLoadScan scan : scans) {
@@ -1943,6 +1969,38 @@ public class LoadScanServiceImpl implements LoadScanService {
         }
         return packageCodes;
     }
+
+    /**
+     * 根据包裹号或运单号判断是否可发货
+     * @param barCode 包裹号或运单号
+     * @param creatSiteId 当前网点ID
+     */
+    private JdVerifyResponse<Void> checkIsCanDelivery(String barCode, Integer creatSiteId) {
+        JdVerifyResponse<Void> jdcResponse = new JdVerifyResponse<>();
+        List<String> list = new ArrayList<>();
+        list.add(barCode);
+        try {
+            ResponseResult<DeliveryCheckDto> result = stagingServiceWS.checkIsCanDelivery(list, creatSiteId);
+            if (result == null) {
+                log.warn("根据包裹号或运单号判断是否可发货返回空(result is null)：barCode={},creatSiteId={}", barCode, creatSiteId);
+                jdcResponse.toFail("根据包裹号或运单号判断是否可发货返回空");
+                return jdcResponse;
+            }
+            if (ResponseResult.CODE_SUCCESS.equals(result.getCode())) {
+                jdcResponse.toSuccess();
+                return jdcResponse;
+            }
+            log.warn("根据包裹号或运单号判断是否可发货返回结果：barCode={},creatSiteId={},code={},message={}", barCode,
+                    creatSiteId, result.getCode(), result.getMessage());
+            jdcResponse.toFail(result.getMessage());
+            return jdcResponse;
+        } catch (Exception e) {
+            log.error("根据包裹号或运单号判断是否可发货发生异常：barCode={},creatSiteId={},error=", barCode, creatSiteId, e);
+            jdcResponse.toFail("根据包裹号或运单号判断是否可发货发生异常");
+            return jdcResponse;
+        }
+    }
+
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, value = "main_loadunload", rollbackFor = Exception.class)

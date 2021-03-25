@@ -40,6 +40,7 @@ public class ProductResource {
 
     @GET
     @Path("/order/waybillAndGoods/{orderId}")
+    @JProfiler(jKey = "DMS.WEB.ProductResource.getwaybillAndGoods", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ProductResponse getwaybillAndGoods(@PathParam("orderId") String  orderId){
         if (orderId == null) {
             return this.paramError();

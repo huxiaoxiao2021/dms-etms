@@ -12,6 +12,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,7 @@ public class AllianceBusiResouse {
      */
     @POST
     @Path("allianceBusi/delivery")
+    @JProfiler(jKey = "DMS.WEB.AllianceBusiResouse.allianceBusiDelivery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<List<AllianceBusiFailDetailDto>> allianceBusiDelivery(AllianceBusiDeliveryDto dto){
         BaseEntity<List<AllianceBusiFailDetailDto>> result = new BaseEntity<List<AllianceBusiFailDetailDto>>();
         try{
@@ -64,6 +67,7 @@ public class AllianceBusiResouse {
      */
     @GET
     @Path("allianceBusi/checkDelivered/{waybillCode}")
+    @JProfiler(jKey = "DMS.WEB.AllianceBusiResouse.checkDelivered", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<Boolean> checkDelivered(@PathParam("waybillCode") String waybillCode){
         BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
         result.setData(Boolean.FALSE);
@@ -87,6 +91,7 @@ public class AllianceBusiResouse {
      */
     @GET
     @Path("allianceBusi/checkMoney/{waybillCode}")
+    @JProfiler(jKey = "DMS.WEB.AllianceBusiResouse.checkMoney", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<Boolean> checkMoney(@PathParam("waybillCode") String waybillCode){
         BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
         result.setData(Boolean.TRUE);
@@ -118,6 +123,7 @@ public class AllianceBusiResouse {
      */
     @GET
     @Path("allianceBusi/checkWaybill/{waybillCode}")
+    @JProfiler(jKey = "DMS.WEB.AllianceBusiResouse.checkWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<Boolean> checkWaybill(@PathParam("waybillCode") String waybillCode){
         BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
         result.setData(Boolean.FALSE);
@@ -147,6 +153,7 @@ public class AllianceBusiResouse {
      */
     @GET
     @Path("allianceBusi/checkOwn/{waybillCode}/{siteId}")
+    @JProfiler(jKey = "DMS.WEB.AllianceBusiResouse.checkOwn", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<Boolean> checkOwn(@PathParam("waybillCode") String waybillCode,@PathParam("siteId") String siteId){
         BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
         result.setData(Boolean.FALSE);

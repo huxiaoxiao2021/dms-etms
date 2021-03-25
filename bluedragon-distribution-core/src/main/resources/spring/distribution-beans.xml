@@ -24,4 +24,30 @@
 			</map>
     	</property>
     </bean>
+
+    <!--  固定箱号前缀的系统  -->
+    <!--  @see com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum   -->
+    <bean id="stableBoxPrefixSystem"  class="java.util.HashSet">
+        <constructor-arg type="java.util.Collection">
+            <set>
+                <!-- 京喜快递 -->
+                <value type="java.lang.String">03</value>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!--  固定箱号前缀的类型  -->
+    <!--  @see com.jd.bluedragon.distribution.box.constants.BoxTypeEnum  -->
+    <bean id="stableBoxPrefixType"  class="java.util.HashSet">
+        <constructor-arg type="java.util.Collection">
+            <set>
+                <value type="java.lang.String">ZH</value>
+                <value type="java.lang.String">ZF</value>
+                <value type="java.lang.String">ZK</value>
+                <value type="java.lang.String">ZQ</value>
+                <value type="java.lang.String">ZS</value>
+            </set>
+        </constructor-arg>
+    </bean>
+
 </beans>
