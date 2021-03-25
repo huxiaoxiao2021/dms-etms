@@ -23,4 +23,5 @@ public interface WeighByPackageService {
     boolean insertPackageWeightEntry(WaybillWeightVO vo) throws WeighByWaybillExcpetion;
 
     boolean uploadExcelToJss(MultipartFile file, String userCode);
+
 }

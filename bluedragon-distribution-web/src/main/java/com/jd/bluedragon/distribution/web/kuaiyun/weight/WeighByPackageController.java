@@ -39,7 +39,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 运单称重
@@ -85,14 +87,8 @@ public class WeighByPackageController {
             //提前获取一次
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             BaseStaffSiteOrgDto bssod = null;
-            //todo 临时设置
-            /*ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-            erpUser.setUserCode("wuyoude");
-            erpUser.setUserName("吴有德");*/
-
-            //todo 临时值
             String userCode = "";
-            //todo 暂时注销erp
+
             if(erpUser!=null){
                 userCode = erpUser.getUserCode();
                 bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
@@ -343,23 +339,13 @@ public class WeighByPackageController {
             result.setData(false);
             return result;
         }
-        //todo 临时测试数据 删掉
-        /*erpUser = new ErpUserClient.ErpUser();
-        erpUser.setUserCode("wuyoude");
-        erpUser.setUserName("吴有德");
 
-        baseStaffSiteOrgDto = new BaseStaffSiteOrgDto();
-        baseStaffSiteOrgDto.setSiteCode(910);
-        baseStaffSiteOrgDto.setSiteName("北京马驹桥分拣中心");
-        baseStaffSiteOrgDto.setStaffName("吴有德");
-        baseStaffSiteOrgDto.setStaffNo(17331);*/
         /*插入记录*/
         try {
             try {
                 if(StringUtils.isBlank(vo.getOperatorName())){
                     //入参自带操作人时不需要查操作人信息
                     if(erpUser==null || baseStaffSiteOrgDto==null){
-                        //todo 为了测试临时删除
                         erpUser = ErpUserClient.getCurrUser();
                         if (erpUser != null) {
                             vo.setOperatorId(erpUser.getStaffNo());
@@ -409,12 +395,6 @@ public class WeighByPackageController {
             }
             //且调用第三方接口 需要修改
             service.insertPackageWeightEntry(vo);
-            //todo 判断是否转网因为全是B网 用redis缓存存储已经判断过的运单号
-            if(weighByWaybillService.waybillTransferB2C(vo)){
-                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                result.setMessage(MessageFormat.format(InvokeResult.RESULT_INTERCEPT_MESSAGE, WaybillUtil.getWaybillCode(vo.getCodeStr())));
-                result.setData(true);
-            }
         } catch (WeighByWaybillExcpetion weighByWaybillExcpetion) {
             WeightByWaybillExceptionTypeEnum exceptionType = weighByWaybillExcpetion.exceptionType;
             if (exceptionType.shouldBeThrowToTop) {
