@@ -2210,7 +2210,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(WaybillUtil.isPackageCode(tSendM.getBoxCode())){
                 waybill=WaybillUtil.getWaybillCode(tSendM.getBoxCode());
             }
-            if (!waybillTraceManager.isWaybillWaste(waybill)){
+            if (waybillTraceManager.isWaybillWaste(waybill)){
                 response.setCode(DeliveryResponse.CODE_WAYBILL_IS_WASTE);
                 response.setMessage(DeliveryResponse.MESSAGE_WAYBILL_IS_WASTE);
             }
