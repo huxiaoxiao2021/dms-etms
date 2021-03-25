@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.recyclematerial.request.BoxMaterialRelationJSFRequest;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 
@@ -17,4 +18,8 @@ public interface RecycleMaterialGatewayService {
     JdCResponse<String> getBoxMaterialRelation( String boxCode);
 
     JdCResponse<Boolean> boxMaterialRelationAlter(BoxMaterialRelationJSFRequest request);
+
+    JdCResponse<Boolean> getInterceptStatus(Integer siteCode);
+
+    JdCResponse<BoxCodeGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationJSFRequest request);
 }

@@ -265,6 +265,15 @@ public class UccPropertyConfiguration {
      */
     private Integer pdaNoticePullIntervalTime;
 
+    /**
+     * BC箱号强制绑定循环集包袋开关(黑名单)
+     * 配置的走新的逻辑，不配置的走以前的逻辑
+     * 注: 仅为了上线使用
+     * @return
+     */
+    private String allBCBoxFilterWebSite;
+
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -729,4 +738,12 @@ public class UccPropertyConfiguration {
         this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
     }
 
+
+    public String getAllBCBoxFilterWebSite() {
+        return allBCBoxFilterWebSite;
+    }
+
+    public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
+        this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
+    }
 }

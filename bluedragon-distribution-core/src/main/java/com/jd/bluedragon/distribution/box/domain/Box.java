@@ -145,6 +145,20 @@ public class Box {
      */
 	private String boxSource;
 
+	/**
+	 * 绑定的循环集包袋
+	 */
+	private String materialCode;
+
+
+	public String getMaterialCode() {
+		return materialCode;
+	}
+
+	public void setMaterialCode(String materialCode) {
+		this.materialCode = materialCode;
+	}
+
 	public String getGroupSendCode() {
 		return groupSendCode;
 	}

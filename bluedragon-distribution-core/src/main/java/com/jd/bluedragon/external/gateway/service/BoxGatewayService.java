@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.box.request.BoxRelationReq;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.common.dto.box.response.BoxRelationDto;
 
@@ -36,4 +37,5 @@ public interface BoxGatewayService {
      */
     JdCResponse<Boolean> submitBoxBinding(BoxRelationReq req);
 
+    JdVerifyResponse<BoxDto> boxValidationAndCheck(String boxCode,Integer operateType,Integer siteCode);
 }

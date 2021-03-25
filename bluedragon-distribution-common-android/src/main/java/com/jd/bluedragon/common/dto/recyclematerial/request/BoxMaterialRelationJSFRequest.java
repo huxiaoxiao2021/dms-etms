@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class BoxMaterialRelationJSFRequest implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -32,6 +33,20 @@ public class BoxMaterialRelationJSFRequest implements Serializable {
      * 操作类型 1 绑定 2 解绑
      */
     private int bindFlag;
+
+    /**
+     * 是否查询一组箱号绑定情况
+     * true 查询  false 不查询
+     */
+    private boolean groupSearch;
+
+    public boolean getGroupSearch() {
+        return groupSearch;
+    }
+
+    public void setGroupSearch(boolean groupSearch) {
+        this.groupSearch = groupSearch;
+    }
 
     public User getUser() {
         return user;
