@@ -105,7 +105,7 @@ public class SortingResponse extends JdResponse {
 
     //弃件拦截
     public static final Integer CODE_29320 = 29320;
-    public static final String MESSAGE_29320 = "弃件禁止操作换单，请按公司规定进行暂存及按时处理";
+    public static final String MESSAGE_29320 = "弃件禁止操作，请按公司规定暂存";
 
     /**************************************配送拦截新逻辑END******************************/
 
