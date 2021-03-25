@@ -408,8 +408,9 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     @Override
     public InvokeResult<BoxCodeGroupBinDingDto> checkBingResult(BoxMaterialRelationRequest request) {
         InvokeResult<BoxCodeGroupBinDingDto> result = new InvokeResult();
+        BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
         result.success();
-
+        result.setData(boxCodeGroupBinDingDto);
         String  boxCode  = request.getBoxCode();
         // 1.先查询箱信息
         Box box = boxService.findBoxByCode(boxCode);
@@ -418,7 +419,6 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
 
-        BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
         //2.查询箱号绑定关系(BC非BC均查询)
         String boxMaterialCode = this.getBoxMaterialRelation(boxCode);
         if(StringUtils.isEmpty(boxMaterialCode)){
@@ -436,8 +436,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             result.customMessage(InvokeResult.RESULT_BC_BOX_NO_BINDING_CODE,InvokeResult.RESULT_BC_BOX_NO_BINDING_MESSAGE);
             return result;
         }
-        boxCodeGroupBinDingDto.setBinDingMaterialCode(boxMaterialCode);
-        result.setData(boxCodeGroupBinDingDto);
+        result.getData().setBinDingMaterialCode(boxMaterialCode);
         return result;
     }
 
