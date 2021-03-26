@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -22,11 +24,15 @@ import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,7 +43,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 运单称重
@@ -64,7 +72,7 @@ public class WeighByPackageController {
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
     private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
-
+    private static final String UPLOADKEY = "uploadExcelByPackageKey";
     @Autowired
     private WeighByPackageService service;
     @Autowired
@@ -73,13 +81,21 @@ public class WeighByPackageController {
     private WeighByWaybillService weighByWaybillService;
     @Autowired
     private SysConfigService sysConfigService;
+    @Autowired
+    RedisCommonUtil redisCommonUtil;
 
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping(value = "/uploadExcelByPackage", method = RequestMethod.POST)
     public @ResponseBody JdResponse uploadExcelByPackage(@RequestParam("importbyPackageExcelFile") MultipartFile file){
         log.debug("uploadExcelByPackage begin...");
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(  "DMS.BASE.WeighByPackageController.uploadExcelByPackage");
         String errorString = "";
         try {
+            if(redisCommonUtil.cacheIntegerNx(UPLOADKEY,20) &&
+                    redisCommonUtil.decrVal(UPLOADKEY)<0){
+                log.info("当前操作人较多;稍后重试,uploadExcelByPackageKey值为:{}",redisCommonUtil.getData(UPLOADKEY));
+                return new JdResponse(JdResponse.CODE_FAIL,"当前操作人较多;请稍后重试!");
+            }
             //提前获取一次
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             BaseStaffSiteOrgDto bssod = null;
@@ -111,7 +127,7 @@ public class WeighByPackageController {
             packageWeightImportResponse.setErrorList(errorList);
             packageWeightImportResponse.setSuccessList(successList);
             packageWeightImportResponse.setWarnList(warnList);
-            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
+            dataList = dataResolver.resolverExcel(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
             log.info("WeighByWaybillController-uploadExcelByPackage转成WaybillWeightVO-List参数:{}", JsonUtils.toJSONString(dataList));
             if (dataList != null && dataList.size() > 0) {
                 if (dataList.size() > 1000) {
@@ -119,12 +135,13 @@ public class WeighByPackageController {
                     return new JdResponse(JdResponse.CODE_FAIL,errorString);
                 }
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
+                Map<String,Integer> maps = new HashMap<>();
                 for(int i=0;i<resultMessages.size();i++){
                     PackageWeightVO packageWeightVO = dataList.get(i);
                     String resultMessage = resultMessages.get(i);
                     if(resultMessage.equals(JdResponse.CODE_SUCCESS.toString())){
                         // 按照前台JS逻辑编写此校验逻辑
-                        if(checkOfImportPackage(packageWeightVO,erpUser,bssod)){
+                        if(checkOfImportPackage(packageWeightVO,erpUser,bssod,maps)){
                             //校验通过
                             successList.add(packageWeightVO);
                             //判断是否有提示信息
@@ -177,7 +194,10 @@ public class WeighByPackageController {
                 log.error("导入异常信息：", e);
                 errorString = "导入出现异常";
             }
+            Profiler.functionError(callerInfo);
             return new JdResponse(JdResponse.CODE_FAIL,errorString);
+        }finally {
+            redisCommonUtil.incr(UPLOADKEY);
         }
     }
 
@@ -216,12 +236,14 @@ public class WeighByPackageController {
     @RequestMapping("/verifyWaybillReality")
     @ResponseBody
     public InvokeResult<Boolean> verifyPackageReality(String codeStr) {
-        return service.verifyPackageReality(codeStr);
+        Map<String,Integer> maps = new HashMap<>();
+        InvokeResult<Boolean> result = service.verifyPackageReality(codeStr, maps);
+        return result;
     }
 
 
 
-    private boolean checkOfImportPackage(PackageWeightVO vo,ErpUserClient.ErpUser erpUser, BaseStaffSiteOrgDto baseStaffSiteOrgDto)
+    private boolean checkOfImportPackage(PackageWeightVO vo, ErpUserClient.ErpUser erpUser, BaseStaffSiteOrgDto baseStaffSiteOrgDto, Map<String, Integer> map)
     {
         //默认设置不可进行强制提交
         vo.setCanSubmit(0);
@@ -258,7 +280,7 @@ public class WeighByPackageController {
         Double volume = MathUtils.mul(length,width,high,6);
         vo.setVolume(volume);
         //存在性校验
-        InvokeResult<Boolean> verifyWaybillRealityResult = service.verifyPackageReality(vo.getCodeStr());
+        InvokeResult<Boolean> verifyWaybillRealityResult = service.verifyPackageReality(vo.getCodeStr(),map);
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){
             //不存在
             vo.setErrorMessage(verifyWaybillRealityResult.getMessage());

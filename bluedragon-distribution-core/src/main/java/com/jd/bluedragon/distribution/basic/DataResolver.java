@@ -19,4 +19,6 @@ public interface DataResolver {
      * @throws Exception
      */
 	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages) throws Exception;
+
+	<T> List<T> resolverExcel(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages) throws Exception;
 }
