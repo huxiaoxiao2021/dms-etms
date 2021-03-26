@@ -67,8 +67,8 @@ public class BlockerQueryWSJsfMangerImpl implements BlockerQueryWSJsfManager {
         try {
             CommonDto<List<ExceptionOrderDto>>  ordersResult =   blockerQueryWS.queryExceptionOrders(exceptionOrderQuery);
             if(ordersResult == null || ordersResult.getCode() != CommonDto.CODE_SUCCESS){
-                log.error("运单拦截接口异常,运单号{},返回结果{}",waybillCode, JsonHelper.toJsonMs(ordersResult));
-                jdCResponse.toError("运单拦截接口异常");
+                log.error("运单拦截接口结果异常,运单号{},返回结果{}",waybillCode, JsonHelper.toJsonMs(ordersResult));
+                jdCResponse.toError("运单拦截接口结果异常");
                 return jdCResponse;
             }
 
@@ -80,6 +80,7 @@ public class BlockerQueryWSJsfMangerImpl implements BlockerQueryWSJsfManager {
 
         }catch (Exception e){
             log.error("调用运单异常订单拦截接口error,运单号{}",waybillCode,e);
+            jdCResponse.toError("运单拦截接口异常");
         }
         return jdCResponse;
     }
