@@ -152,7 +152,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             String token = UUID.randomUUID().toString();
             loginUserResponse.setToken(token);
             // 保存缓存
-            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
+            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, request.getUserCode(), deviceId);
             jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
         } catch (Exception e) {
             log.error("UserServiceImpl.getAndSaveToken exception ", e);
@@ -171,16 +171,16 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
      * @time 2021-03-09 19:32:02 周二
      */
     @Override
-    public JdResult<Boolean> verifyClientLoginToken(String deviceId, String token) {
+    public JdResult<Boolean> verifyClientLoginToken(String userErp, String deviceId, String token) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess("success");
         try {
-            if(StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
+            if(StringUtils.isBlank(userErp) || StringUtils.isBlank(deviceId) || StringUtils.isBlank(token)){
                 result.setCode(JdResponse.CODE_PARAM_ERROR);
                 result.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return result;
             }
-            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
+            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, userErp, deviceId);
             String tokenExistVal = jimdbCacheService.get(clientLoginDeviceIdKey);
             log.info("UserServiceImpl.verifyClientLoginToken tokenExistVal {}", tokenExistVal);
             if(!Objects.equals(token, tokenExistVal)){
