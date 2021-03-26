@@ -26,6 +26,7 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.jim.cli.Cluster;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -46,6 +47,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 运单称重
@@ -70,8 +72,10 @@ public class WeighByPackageController {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private SysConfigService sysConfigService;
+
     @Autowired
-    RedisCommonUtil redisCommonUtil;
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
 
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping(value = "/uploadExcelByPackage", method = RequestMethod.POST)
@@ -80,9 +84,8 @@ public class WeighByPackageController {
         CallerInfo callerInfo = ProfilerHelper.registerInfo(  "DMS.BASE.WeighByPackageController.uploadExcelByPackage");
         String errorString = "";
         try {
-            if(redisCommonUtil.cacheIntegerNx(UPLOADKEY,20) &&
-                    redisCommonUtil.decrVal(UPLOADKEY)<0){
-                log.info("当前操作人较多;稍后重试,uploadExcelByPackageKey值为:{}",redisCommonUtil.getData(UPLOADKEY));
+            if(redisClientCache.incr(UPLOADKEY)>20){
+                log.info("当前操作人较多;稍后重试,uploadExcelByPackageKey值为:{}",redisClientCache.get(UPLOADKEY));
                 return new JdResponse(JdResponse.CODE_FAIL,"当前操作人较多;请稍后重试!");
             }
             //提前获取一次
@@ -116,13 +119,9 @@ public class WeighByPackageController {
             packageWeightImportResponse.setErrorList(errorList);
             packageWeightImportResponse.setSuccessList(successList);
             packageWeightImportResponse.setWarnList(warnList);
-            dataList = dataResolver.resolverExcel(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
+            dataList = dataResolver.resolver(file.getInputStream(), PackageWeightVO.class, new PropertiesMetaDataFactory("/excel/packageWeight.properties"),true,resultMessages);
             log.info("WeighByWaybillController-uploadExcelByPackage转成WaybillWeightVO-List参数:{}", JsonUtils.toJSONString(dataList));
             if (dataList != null && dataList.size() > 0) {
-                if (dataList.size() > 1000) {
-                    errorString = "导入数据超出1000条";
-                    return new JdResponse(JdResponse.CODE_FAIL,errorString);
-                }
                 //取出 成功的数据 继续校验重泡比 成功直接保存 失败的数据返回给前台
                 Map<String,Integer> maps = new HashMap<>();
                 for(int i=0;i<resultMessages.size();i++){
@@ -172,7 +171,7 @@ public class WeighByPackageController {
                 return response;
 
             } else {
-                errorString = "导入数据表格为空，请检查excel数据";
+                errorString = "导入数据表格为空或数据量超过1000条;请检查excel数据";
                 return new JdResponse(JdResponse.CODE_FAIL,errorString);
             }
 
@@ -186,7 +185,7 @@ public class WeighByPackageController {
             Profiler.functionError(callerInfo);
             return new JdResponse(JdResponse.CODE_FAIL,errorString);
         }finally {
-            redisCommonUtil.incr(UPLOADKEY);
+            redisClientCache.decr(UPLOADKEY);
         }
     }
 
