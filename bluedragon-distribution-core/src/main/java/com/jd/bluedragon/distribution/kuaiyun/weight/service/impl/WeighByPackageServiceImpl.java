@@ -26,7 +26,6 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.eclp.common.etl.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jsf.gd.util.JsonUtils;

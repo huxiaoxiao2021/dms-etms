@@ -57,28 +57,17 @@ import java.util.Map;
 public class WeighByPackageController {
     private static final Logger log = LoggerFactory.getLogger(WeighByPackageController.class);
 
-    private final Double MAX_WEIGHT = 999999.99;
-    private final Double MAX_VOLUME = 999.99;
-
     /*10：表示经调取运单接口WaybillQueryApi，已查到该运单，可直接入库*/
     /*20：表示经调取运单接口WaybillQueryApi，未查到该运单，需经处理*/
     private final Integer VALID_EXISTS_STATUS_CODE = 10;
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
-    private final Integer NO_NEED_WEIGHT = 201;
-    private final Integer WAYBILL_STATE_FINISHED = 202;
-    private final Integer KAWAYBILL_NEEDPACKAGE_WEIGHT=203;
-
     private final Integer EXCESS_CODE = 600;
-    private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
-    private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
     private static final String UPLOADKEY = "uploadExcelByPackageKey";
     @Autowired
     private WeighByPackageService service;
     @Autowired
     private BaseMajorManager baseMajorManager;
-    @Autowired
-    private WeighByWaybillService weighByWaybillService;
     @Autowired
     private SysConfigService sysConfigService;
     @Autowired
