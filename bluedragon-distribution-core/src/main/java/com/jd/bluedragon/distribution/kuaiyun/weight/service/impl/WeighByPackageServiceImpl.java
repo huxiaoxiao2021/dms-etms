@@ -378,8 +378,7 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
 
         }catch (WeighByWaybillExcpetion weighByWaybillExcpetion){
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NoPackageException);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("waybillQueryManager.getWaybillByPackCode 异常：{}",packageCode,e);
             packageMap.put(waybillCode,SERVICENOTAVALIABLE);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
