@@ -373,6 +373,8 @@ public interface WaybillSignConstants {
 	 * 66
 	 */
 	int POSITION_66 = 66;
+	char CHAR_66_0 = '0';
+	char CHAR_66_1 = '1';
 	char CHAR_66_2 = '2';
 	char CHAR_66_3 = '3';
 }

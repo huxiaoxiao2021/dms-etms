@@ -1948,16 +1948,6 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isKaPackageOrNo(String waybillSign){
-        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
-                WaybillSignConstants.CHAR_66_3);
-    }
-
-    /**
      * 当 WaybillSign40=2且 WaybillSign1≠7时，则查运单接口
      * @param waybillSign
      * @return
@@ -1978,6 +1968,28 @@ public class BusinessUtil {
                 && isSignInChars(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_4)
                 && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
 
+    }
+
+
+
+    /**
+     * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKaPackageOrNo(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
+                WaybillSignConstants.CHAR_66_3);
+    }
+
+    /**
+     * 判断是否支持按包裹维度批量导入-当WaybillSign66=0或1时，不支持
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNotSupportUpWeightByPackage(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
+                WaybillSignConstants.CHAR_66_1, WaybillSignConstants.CHAR_66_0);
     }
 
 
