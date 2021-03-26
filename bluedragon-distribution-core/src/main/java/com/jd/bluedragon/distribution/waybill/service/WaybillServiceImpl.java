@@ -1015,6 +1015,7 @@ public class WaybillServiceImpl implements WaybillService {
      * 1.如果运单类型为重货网运单，即waybillsign 第36位=4 且 操作人ERP所属部分类型为分拣中心64类型
      * 2.只有重货网的运单现场调度站点可以选择京东帮类型的站点
      * 3.是否取消
+     * 4.是否已退款
      * @param waybillForPreSortOnSiteRequest
      * @return
      */
