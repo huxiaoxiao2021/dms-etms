@@ -1,5 +1,6 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
+    var checkOverExportLimitUrl = '/weightAndVolumeCheck/checkOverExportLimit';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
     var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
@@ -347,6 +348,7 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
+                $('#btn_export').attr("disabled",false);
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
                 if(days > 30){
                     Jd.alert("查询时间不能超过30天，请缩小时间范围!");
@@ -369,22 +371,46 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
+            if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
+                Jd.alert("请选择复核区域、复核分拣后导出!");
+                return;
+            }
             var params = tableInit.getSearchCondition();
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action": exportUrl});
 
-            $.each(params, function (key, value) {
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": key});
-                input.val(value);
-                form.append(input);
-            });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
+
+            var param = "&reviewOrgCode=" + params.reviewOrgCode;
+            param += "&createSiteCode=" +  params.createSiteCode;
+            if(params.isExcess != undefined && params.isExcess != "undefined"){
+                param += "&isExcess=" +  params.isExcess;
+            }
+            param += "&startTime=" +  $("#startTime").val();
+            param += "&endTime=" +  $("#endTime").val();
+            if(params.waybillCode != undefined && params.waybillCode != "undefined"){
+                param += "&waybillCode=" +  params.waybillCode;
+            }
+            if(params.waybillOrPackCode != undefined && params.waybillOrPackCode != "undefined"){
+                param += "&waybillOrPackCode=" +  params.waybillOrPackCode;
+            }
+            if(params.busiName != undefined && params.busiName != "undefined"){
+                param += "&busiName=" +  encodeURI(encodeURI(params.busiName));
+            }
+            if(params.reviewErp != undefined && params.reviewErp != "undefined"){
+                param += "&reviewErp=" +  params.reviewErp;
+            }
+            if(params.billingErp != undefined && params.billingErp != "undefined"){
+                param += "&billingErp=" +  params.billingErp;
+            }
+            if(params.spotCheckType != undefined && params.spotCheckType != "undefined"){
+                param += "&spotCheckType=" +  params.spotCheckType;
+            }
+
+            $('#btn_export').attr("disabled",true);
+            location.href = exportUrl + "?" + param;
+
         });
     }
+
+    $("[data-toggle='tooltip']").tooltip();
 
     initSelect();
     initOrg();
