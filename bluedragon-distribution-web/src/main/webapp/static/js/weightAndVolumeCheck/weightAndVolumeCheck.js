@@ -1,5 +1,6 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
+    var checkExistExportUrl = '/weightAndVolumeCheck/checkExistExport';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
     var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
@@ -369,7 +370,23 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
+            if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
+                Jd.alert("请选择复核区域、复核分拣后导出!");
+                return;
+            }
             var params = tableInit.getSearchCondition();
+
+            var checkExport = false;
+            $.ajaxHelper.doPostSync(checkExistExportUrl,JSON.stringify(params),function(res){
+                if(res.code === 200){
+                    checkExport = res.data;
+                }
+            });
+            if(checkExport){
+                Jd.alert("正在导出请稍后!");
+                return;
+            }
+
             var form = $("<form method='post'></form>"),
                 input;
             form.attr({"action": exportUrl});

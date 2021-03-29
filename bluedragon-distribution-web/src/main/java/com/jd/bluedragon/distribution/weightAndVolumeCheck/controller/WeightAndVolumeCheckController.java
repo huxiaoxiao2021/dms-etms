@@ -2,19 +2,14 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import com.alibaba.fastjson.JSON;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -23,7 +18,6 @@ import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -88,6 +82,15 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         return result;
     }
 
+
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/checkExistExport", method = RequestMethod.POST)
+    public @ResponseBody InvokeResult<Boolean> checkExistExport(@RequestBody WeightAndVolumeCheckCondition condition) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.setData(weightAndVolumeCheckService.checkExistExport(condition));
+        return result;
+    }
+
     /**
      * 导出
      * @return
@@ -96,14 +99,14 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
-        this.log.info("导出重量体积抽验统计表");
+        log.info("导出重量体积抽验统计表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "重量体积抽验统计表.xls");
             model.addAttribute("sheetname", "重量体积抽验统计结果");
             resultList = weightAndVolumeCheckService.getExportData(condition);
         }catch (Exception e){
-            this.log.error("导出重量体积抽验统计表失败:" , e);
+            log.error("导出重量体积抽验统计表失败:" , e);
             List<Object> list = new ArrayList<>();
             list.add("导出重量体积抽验统计表失败!");
             resultList = new ArrayList<>();

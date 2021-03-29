@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
@@ -26,10 +27,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -54,7 +52,7 @@ import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import com.jd.ql.dms.report.domain.*;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -69,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -107,10 +106,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     public String fourSumLWH;
 
     /**
-     * 抽检导出最大阈值
-     * */
-    @Value("${export.spot.check:10000}")
-    private long exportSpotCheckMaxSize;
+     * 导出最大限制
+     */
+    private static final int EXPORT_MAX_SIZE = 10000;
 
     /**
      * C网超标下发MQ天数
@@ -186,7 +184,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Qualifier("weightAndVolumeCheckBHandler")
     private WeightAndVolumeCheckStandardHandler weightAndVolumeCheckBHandler;
 
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 不允许第二个分拣中心称重的返回码
      */
@@ -1227,6 +1226,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
+
+    @Override
+    public boolean checkExistExport(WeightAndVolumeCheckCondition condition){
+        String conditionMd5 = new String(Base64.encodeBase64(Md5Helper.getMD5(JsonHelper.toJson(condition))), StandardCharsets.UTF_8);
+        return jimdbCacheService.exists(conditionMd5);
+    }
+
     /**
      * 导出
      * @param condition
@@ -1234,6 +1240,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     @Override
     public List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition) {
+        String conditionMd5 = new String(Base64.encodeBase64(Md5Helper.getMD5(JsonHelper.toJson(condition))), StandardCharsets.UTF_8);
+        lock(conditionMd5);
         List<List<Object>> resList = new ArrayList<List<Object>>();
         List<Object> heads = new ArrayList<Object>();
         //添加表头
@@ -1322,7 +1330,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             resList = new ArrayList<>();
             resList.add(list);
         }
+        unlock(conditionMd5);
         return  resList;
+    }
+
+    private void lock(String conditionMd5) {
+        try {
+            jimdbCacheService.setEx(conditionMd5,String.valueOf(true),5*60,TimeUnit.SECONDS);
+        }catch (Exception e){
+            log.error("设置缓存key【{}】异常!",conditionMd5);
+        }
+    }
+
+    private void unlock(String conditionMd5) {
+        try {
+            jimdbCacheService.del(conditionMd5);
+        }catch (Exception e){
+            log.error("删除缓存key【{}】异常!",conditionMd5);
+        }
     }
 
     /**
@@ -1356,33 +1381,28 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         BaseEntity<List<WeightVolumeCollectDto>> response = new BaseEntity<>();
         List<WeightVolumeCollectDto> list = new ArrayList<>();
         try {
-            int pageNo = 1;
             WeightVolumeQueryCondition transform = transform(condition);
-            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-            pager.setSearchVo(transform);
-            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
-            pager.setPageNo(pageNo);
-            BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity
-                    = reportExternalService.getPagerByConditionForWeightVolume(pager);
-            if(baseEntity == null || baseEntity.getData() == null
-                    || baseEntity.getData().getTotal() == null
-                    || CollectionUtils.isEmpty(baseEntity.getData().getData())){
+            BaseEntity<Long> baseEntity = reportExternalService.countByParam(transform);
+            if(baseEntity == null || baseEntity.getData() == null){
                 response.setCode(BaseEntity.CODE_SERVICE_ERROR);
                 response.setMessage("导出数据为空!");
                 return response;
             }
-
-            Long total = baseEntity.getData().getTotal();
-            list.addAll(baseEntity.getData().getData());
-
-            // 设置最大导出数量
-            if(total > exportSpotCheckMaxSize){
-                log.info("导出超出" + exportSpotCheckMaxSize + "条");
-                total = exportSpotCheckMaxSize;
+            Long total = baseEntity.getData();
+            // 设置总导出数据
+            Integer uccSpotCheckMaxSize = uccPropertyConfiguration.getExportSpotCheckMaxSize();
+            if(uccPropertyConfiguration.getExportSpotCheckMaxSize() == null){
+                uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
+            }
+            if(total > uccSpotCheckMaxSize){
+                total = Long.parseLong(uccSpotCheckMaxSize.toString());
             }
 
             long totalPageNum = (total + EXPORT_THRESHOLD_SIZE - 1) / EXPORT_THRESHOLD_SIZE;
-            for (int i = 2; i <= totalPageNum; i++) {
+            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+            pager.setSearchVo(transform);
+            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
+            for (int i = 1; i <= totalPageNum; i++) {
                 pager.setPageNo(i);
                 BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity
                         = reportExternalService.getPagerByConditionForWeightVolume(pager);
