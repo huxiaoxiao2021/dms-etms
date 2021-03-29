@@ -147,6 +147,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_PACK="包装";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
+    private static final String SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE="极速到仓";
     private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
     private static final String SPECIAL_REQUIRMENT_UNLOAD_CAR = "卸车";
     private static final String SPECIAL_REQUIRMENT_LOAD_UNLOAD_CAR = "装卸车";
@@ -1700,7 +1701,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
             //送货入仓
             if(BusinessUtil.isSignChar(waybillSign,42,'1')){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+                if(BusinessUtil.isSignInChars(waybillSign,89,'1','2')){
+                    if(BusinessUtil.isSignChar(waybillSign,80,'B')){
+                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE + ",";
+                    }
+                } else {
+                    specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+                }
             }
             //装车
             if(BusinessUtil.isSignChar(waybillSign,41,'1')){
