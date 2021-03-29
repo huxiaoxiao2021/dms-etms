@@ -1246,6 +1246,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     @Override
     public List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition) {
+        long startTime = System.currentTimeMillis();
         String conditionMd5 = new String(Base64.encodeBase64(Md5Helper.getMD5(JsonHelper.toJson(condition))), StandardCharsets.UTF_8);
         lock(conditionMd5);
         List<List<Object>> resList = new ArrayList<List<Object>>();
@@ -1337,6 +1338,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             resList.add(list);
         }
         unlock(conditionMd5);
+        if(log.isInfoEnabled()){
+            log.info("抽检导出时间耗时：{}",System.currentTimeMillis() - startTime);
+        }
         return  resList;
     }
 
