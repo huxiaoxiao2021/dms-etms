@@ -1373,6 +1373,11 @@ public class Constants {
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
     /**
+     * 常量值：2
+     * */
+    public static final int  CONSTANT_NUMBER_TWO = 2;
+
+    /**
      * 组板转移标识
      */
     public static final Integer IS_COMBITION_TRANSFER = 1;
@@ -1442,6 +1447,11 @@ public class Constants {
      * 线路类型-默认值0
      */
     public static Integer LINE_TYPE_DEFAULT = 0;
+
+    /**
+     * 换行符
+     */
+    public static String LINE_NEXT_CHAR = "\n";
     /**
      * 传摆线路类型列表
      */

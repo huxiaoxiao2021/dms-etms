@@ -110,6 +110,11 @@ public class WeightVolumeEntity {
      */
     private String machineCode;
 
+    /**
+     * 备注
+     */
+    private String remark;
+
     public WeightVolumeEntity longPackage(Integer longPackage){
         this.longPackage = longPackage;
         return this;
@@ -202,6 +207,11 @@ public class WeightVolumeEntity {
 
     public WeightVolumeEntity machineCode(String machineCode){
         this.machineCode = machineCode;
+        return this;
+    }
+
+    public WeightVolumeEntity remark(String remark){
+        this.machineCode = remark;
         return this;
     }
 
@@ -355,5 +365,13 @@ public class WeightVolumeEntity {
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

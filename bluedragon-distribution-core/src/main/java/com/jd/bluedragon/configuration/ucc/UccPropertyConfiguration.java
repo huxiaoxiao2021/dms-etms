@@ -259,6 +259,19 @@ public class UccPropertyConfiguration {
      */
     private Integer siteQueryLimit;
 
+    /**
+     * 称重良方规则标准
+     */
+    private String weightVolumeRuleStandard;
+
+    public String getWeightVolumeRuleStandard() {
+        return weightVolumeRuleStandard;
+    }
+
+    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
+        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
+    }
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
