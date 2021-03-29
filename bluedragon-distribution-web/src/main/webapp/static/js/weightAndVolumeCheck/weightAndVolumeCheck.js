@@ -1,5 +1,6 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
+    var checkExistExportUrl = '/weightAndVolumeCheck/checkExistExport';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
     var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
@@ -374,6 +375,18 @@ $(function () {
                 return;
             }
             var params = tableInit.getSearchCondition();
+
+            var checkExport = false;
+            $.ajaxHelper.doPostSync(checkExistExportUrl,params,function(res){
+                if(res.succeed){
+                    checkExport = res.data;
+                }
+            });
+            if(checkExport){
+                Jd.alert("正在导出请稍后!");
+                return;
+            }
+
             var form = $("<form method='post'></form>"),
                 input;
             form.attr({"action": exportUrl});
