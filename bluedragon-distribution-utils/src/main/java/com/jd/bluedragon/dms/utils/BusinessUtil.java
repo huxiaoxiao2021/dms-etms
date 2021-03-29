@@ -1963,14 +1963,11 @@ public class BusinessUtil {
      * @param waybillSign
      * @return
      */
-    public static boolean isNeedCheckWeightBusiness2OrNo(String waybillSign){
-        return isSignInChars(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1)
-                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_4)
-                && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
-
+    public static boolean isNeedCheckWeightBusiness2OrNo(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.REPLACE_ORDER_POSITION_62, WaybillSignConstants.REPLACE_ORDER_CHAR_62_1)
+                && isSignInChars(waybillSign, WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_4)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_7);
     }
-
-
 
     /**
      * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的

@@ -274,6 +274,11 @@ public class UccPropertyConfiguration {
     private String allBCBoxFilterWebSite;
 
 
+    /**
+     * 抽检导出最大限制
+     */
+    private Integer exportSpotCheckMaxSize;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -586,38 +591,6 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
-    public int getClientPrintQueryGapTime() {
-        return clientPrintQueryGapTime;
-    }
-
-    public void setClientPrintQueryGapTime(int clientPrintQueryGapTime) {
-        this.clientPrintQueryGapTime = clientPrintQueryGapTime;
-    }
-
-    public int getClickIntervalSecond() {
-        return clickIntervalSecond;
-    }
-
-    public void setClickIntervalSecond(int clickIntervalSecond) {
-        this.clickIntervalSecond = clickIntervalSecond;
-    }
-
-	public String getRedisSwitchOn() {
-		return redisSwitchOn;
-	}
-
-	public void setRedisSwitchOn(String redisSwitchOn) {
-		this.redisSwitchOn = redisSwitchOn;
-	}
-
-    public String getDellCancelDeliveryCheckSealCar() {
-        return dellCancelDeliveryCheckSealCar;
-    }
-
-    public void setDellCancelDeliveryCheckSealCar(String dellCancelDeliveryCheckSealCar) {
-        this.dellCancelDeliveryCheckSealCar = dellCancelDeliveryCheckSealCar;
-    }
-
     public boolean isControlCheckPackage() {
         return controlCheckPackage;
     }
@@ -745,5 +718,13 @@ public class UccPropertyConfiguration {
 
     public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
         this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
+    }
+
+    public Integer getExportSpotCheckMaxSize() {
+        return exportSpotCheckMaxSize;
+    }
+
+    public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
+        this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
     }
 }

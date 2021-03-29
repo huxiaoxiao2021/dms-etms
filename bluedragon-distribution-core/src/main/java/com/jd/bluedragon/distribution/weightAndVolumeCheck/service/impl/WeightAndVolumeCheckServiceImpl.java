@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
@@ -109,10 +110,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     public String fourSumLWH;
 
     /**
-     * 抽检导出最大阈值
-     * */
-    @Value("${export.spot.check:10000}")
-    private long exportSpotCheckMaxSize;
+     * 导出最大限制
+     */
+    private static final int EXPORT_MAX_SIZE = 10000;
 
     /**
      * C网超标下发MQ天数
@@ -195,7 +195,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Qualifier("weightAndVolumeCheckBHandler")
     private WeightAndVolumeCheckStandardHandler weightAndVolumeCheckBHandler;
 
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 不允许第二个分拣中心称重的返回码
      */
@@ -1362,33 +1363,28 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         BaseEntity<List<WeightVolumeCollectDto>> response = new BaseEntity<>();
         List<WeightVolumeCollectDto> list = new ArrayList<>();
         try {
-            int pageNo = 1;
             WeightVolumeQueryCondition transform = transform(condition);
-            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-            pager.setSearchVo(transform);
-            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
-            pager.setPageNo(pageNo);
-            BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity
-                    = reportExternalService.getPagerByConditionForWeightVolume(pager);
-            if(baseEntity == null || baseEntity.getData() == null
-                    || baseEntity.getData().getTotal() == null
-                    || CollectionUtils.isEmpty(baseEntity.getData().getData())){
+            BaseEntity<Long> baseEntity = reportExternalService.countByParam(transform);
+            if(baseEntity == null || baseEntity.getData() == null){
                 response.setCode(BaseEntity.CODE_SERVICE_ERROR);
                 response.setMessage("导出数据为空!");
                 return response;
             }
-
-            Long total = baseEntity.getData().getTotal();
-            list.addAll(baseEntity.getData().getData());
-
-            // 设置最大导出数量
-            if(total > exportSpotCheckMaxSize){
-                log.info("导出超出" + exportSpotCheckMaxSize + "条");
-                total = exportSpotCheckMaxSize;
+            Long total = baseEntity.getData();
+            // 设置总导出数据
+            Integer uccSpotCheckMaxSize = uccPropertyConfiguration.getExportSpotCheckMaxSize();
+            if(uccPropertyConfiguration.getExportSpotCheckMaxSize() == null){
+                uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
+            }
+            if(total > uccSpotCheckMaxSize){
+                total = Long.parseLong(uccSpotCheckMaxSize.toString());
             }
 
             long totalPageNum = (total + EXPORT_THRESHOLD_SIZE - 1) / EXPORT_THRESHOLD_SIZE;
-            for (int i = 2; i <= totalPageNum; i++) {
+            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+            pager.setSearchVo(transform);
+            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
+            for (int i = 1; i <= totalPageNum; i++) {
                 pager.setPageNo(i);
                 BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity
                         = reportExternalService.getPagerByConditionForWeightVolume(pager);

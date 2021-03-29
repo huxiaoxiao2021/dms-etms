@@ -1449,6 +1449,11 @@ public class Constants {
     public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
 
     /**
+     * 数字：0
+     */
+    public static final Integer NUMBER_ZERO = 0;
+
+    /**
      * 线路类型-默认值0
      */
     public static Integer LINE_TYPE_DEFAULT = 0;
@@ -1468,11 +1473,6 @@ public class Constants {
     	//34-长途传站返回
     	CUAN_BAI_LINE_TYPES.add(34);
     }
-
-    /**
-     * 数字：0
-     */
-    public static final Integer NUMBER_ZERO = 0;
 
     //DeliveryPackageD信任包裹称重
     public static Integer isTrust = 1;

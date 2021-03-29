@@ -96,14 +96,14 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
-        this.log.info("导出重量体积抽验统计表");
+        log.info("导出重量体积抽验统计表");
         List<List<Object>> resultList;
         try{
             model.addAttribute("filename", "重量体积抽验统计表.xls");
             model.addAttribute("sheetname", "重量体积抽验统计结果");
             resultList = weightAndVolumeCheckService.getExportData(condition);
         }catch (Exception e){
-            this.log.error("导出重量体积抽验统计表失败:" , e);
+            log.error("导出重量体积抽验统计表失败:" , e);
             List<Object> list = new ArrayList<>();
             list.add("导出重量体积抽验统计表失败!");
             resultList = new ArrayList<>();
