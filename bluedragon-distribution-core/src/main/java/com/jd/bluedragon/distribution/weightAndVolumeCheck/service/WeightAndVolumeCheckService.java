@@ -115,5 +115,10 @@ public interface WeightAndVolumeCheckService {
      */
     InvokeResult<Boolean> handleAfterUploadImgMessageOrAfterSend(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage);
 
-
+    /**
+     * 校验是否正在导出
+     * @param condition
+     * @return
+     */
+    boolean checkExistExport(WeightAndVolumeCheckCondition condition);
 }

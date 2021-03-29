@@ -27,10 +27,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -55,7 +52,7 @@ import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import com.jd.ql.dms.report.domain.*;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -70,6 +67,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -1228,6 +1226,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
+
+    @Override
+    public boolean checkExistExport(WeightAndVolumeCheckCondition condition){
+        String conditionMd5 = new String(Base64.encodeBase64(Md5Helper.getMD5(JsonHelper.toJson(condition))), StandardCharsets.UTF_8);
+        return jimdbCacheService.exists(conditionMd5);
+    }
+
     /**
      * 导出
      * @param condition
@@ -1235,6 +1240,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     @Override
     public List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition) {
+        String conditionMd5 = new String(Base64.encodeBase64(Md5Helper.getMD5(JsonHelper.toJson(condition))), StandardCharsets.UTF_8);
+        lock(conditionMd5);
         List<List<Object>> resList = new ArrayList<List<Object>>();
         List<Object> heads = new ArrayList<Object>();
         //添加表头
@@ -1323,7 +1330,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             resList = new ArrayList<>();
             resList.add(list);
         }
+        unlock(conditionMd5);
         return  resList;
+    }
+
+    private void lock(String conditionMd5) {
+        try {
+            jimdbCacheService.setEx(conditionMd5,String.valueOf(true),5*60,TimeUnit.SECONDS);
+        }catch (Exception e){
+            log.error("设置缓存key【{}】异常!",conditionMd5);
+        }
+    }
+
+    private void unlock(String conditionMd5) {
+        try {
+            jimdbCacheService.del(conditionMd5);
+        }catch (Exception e){
+            log.error("删除缓存key【{}】异常!",conditionMd5);
+        }
     }
 
     /**
