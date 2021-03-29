@@ -369,6 +369,10 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
+            if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
+                Jd.alert("请选择复核区域、复核分拣后导出!");
+                return;
+            }
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;
