@@ -193,12 +193,6 @@ public class ColdChainDeliveryResource extends DeliveryResource{
         if (createSiteCode != null && receiveSiteCode != null) {
             try {
                 List<TransPlanDetailResult> resultList = coldChainSendService.getTransPlanDetail(createSiteCode, receiveSiteCode);
-                if(CollectionUtils.isEmpty(resultList)){
-                    TransPlanDetailResult item = new TransPlanDetailResult();
-                    item.setTransPlanCode("R123435345");
-                    item.setWaybills(new ArrayList<String>(Arrays.asList("JD0003358151746", "JD0003358151701")));
-                    resultList = new ArrayList<>(Arrays.asList(item));
-                }
                 if (resultList != null) {
                     return new ColdChainSendResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, resultList);
                 } else {
