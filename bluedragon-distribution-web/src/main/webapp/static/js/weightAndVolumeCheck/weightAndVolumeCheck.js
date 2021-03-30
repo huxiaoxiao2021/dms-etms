@@ -378,7 +378,7 @@ $(function () {
 
             var checkExport = false;
             $.ajaxHelper.doPostSync(checkExistExportUrl,JSON.stringify(params),function(res){
-                if(res.succeed){
+                if(res.code === 200){
                     checkExport = res.data;
                 }
             });
