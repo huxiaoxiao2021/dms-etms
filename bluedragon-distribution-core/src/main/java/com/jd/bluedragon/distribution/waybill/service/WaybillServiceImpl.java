@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
@@ -115,6 +117,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private CancelWaybillJsfManager cancelWaybillJsfManager;
+
+    @Autowired
+    private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1011,6 +1016,7 @@ public class WaybillServiceImpl implements WaybillService {
      * 1.如果运单类型为重货网运单，即waybillsign 第36位=4 且 操作人ERP所属部分类型为分拣中心64类型
      * 2.只有重货网的运单现场调度站点可以选择京东帮类型的站点
      * 3.是否取消
+     * 4.是否已退款
      * @param waybillForPreSortOnSiteRequest
      * @return
      */
@@ -1068,6 +1074,12 @@ public class WaybillServiceImpl implements WaybillService {
             JsfResponse<WaybillCancelJsfResponse> cancelJsfResponseJsfResponse = cancelWaybillJsfManager.dealCancelWaybill(waybillForPreSortOnSiteRequest.getWaybill());
             if (!cancelJsfResponseJsfResponse.getCode().equals(JsfResponse.SUCCESS_CODE)){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,cancelJsfResponseJsfResponse.getMessage());
+                return result;
+            }
+            //规则4-已退款的禁止 操作现场预分拣
+            JdCResponse jdCResponse = blockerQueryWSJsfManager.queryExceptionOrders(waybill.getWaybillCode());
+            if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
                 return result;
             }
 
