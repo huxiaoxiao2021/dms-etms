@@ -11,10 +11,12 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -57,6 +59,30 @@ public class ColdChainDeliveryResource extends DeliveryResource{
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
+
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
+    /**
+     * 冷链发货校验接口
+     *
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.delivery.checkColdChainSendDelivery", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @POST
+    @Path("/delivery/coldChain/checkColdChainSendDelivery")
+    public SortingJsfResponse checkColdChainSendDelivery(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request) {
+        if(log.isInfoEnabled()){
+            this.log.info("ColdChainDeliveryResource.checkColdChainSendDelivery param :{}", JsonHelper.toJson(request));
+        }
+        try {
+            return sortingCheckService.coldChainSendCheck(request);
+        } catch (Exception e) {
+            log.error("ColdChainDeliveryResource.checkColdChainSendDelivery exception ", e);
+            return new SortingJsfResponse(DeliveryResponse.CODE_SERVICE_ERROR, DeliveryResponse.MESSAGE_SERVICE_ERROR_C);
+        }
+    }
 
     /**
      * 冷链发货接口
