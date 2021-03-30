@@ -171,4 +171,14 @@
         <property name="filterList" ref="boardCombinationFilterList">
         </property>
     </bean>
+
+    <!-- 冷链发货拦截链 -->
+    <bean id="coldChainDeliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ColdChainDeliveryFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="coldChainDeliveryFilterList">
+        </property>
+    </bean>
+    <util:list id="coldChainDeliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+    </util:list>
 </beans>

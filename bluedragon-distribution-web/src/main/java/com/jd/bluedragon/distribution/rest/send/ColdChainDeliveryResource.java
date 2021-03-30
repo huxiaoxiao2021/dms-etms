@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
@@ -8,16 +10,20 @@ import com.jd.bluedragon.distribution.api.request.TransPlanScheduleRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +35,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,6 +65,45 @@ public class ColdChainDeliveryResource extends DeliveryResource{
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
+
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
+    /**
+     * 冷链发货校验接口
+     *
+     * @param pdaOperateRequest
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.dms.delivery.checkColdChainSendDelivery", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @POST
+    @Path("/delivery/coldChain/checkColdChainSendDelivery")
+    public SortingJsfResponse checkColdChainSendDelivery(PdaOperateRequest pdaOperateRequest) {
+        if(log.isInfoEnabled()){
+            this.log.info("ColdChainDeliveryResource.checkColdChainSendDelivery param :{}", JsonHelper.toJson(pdaOperateRequest));
+        }
+        try {
+            com.jd.bluedragon.common.dto.send.request.DeliveryRequest request = new com.jd.bluedragon.common.dto.send.request.DeliveryRequest();
+            request.setBoxCode(pdaOperateRequest.getPackageCode());
+            request.setBusinessType(pdaOperateRequest.getBusinessType());
+            request.setOpType(pdaOperateRequest.getOperateType());
+            request.setReceiveSiteCode(pdaOperateRequest.getReceiveSiteCode());
+            CurrentOperate currentOperate = new CurrentOperate();
+            currentOperate.setSiteCode(pdaOperateRequest.getCreateSiteCode());
+            currentOperate.setSiteName(pdaOperateRequest.getCreateSiteName());
+            request.setCurrentOperate(currentOperate);
+            User user = new User();
+            user.setUserCode(pdaOperateRequest.getOperateUserCode());
+            user.setUserName(pdaOperateRequest.getOperateUserName());
+            request.setUser(user);
+            SortingJsfResponse sortingJsfResponse = sortingCheckService.coldChainSendCheck(request);
+            log.info("ColdChainDeliveryResource.checkColdChainSendDelivery result {}", JsonHelper.toJson(sortingJsfResponse));
+            return sortingJsfResponse;
+        } catch (Exception e) {
+            log.error("ColdChainDeliveryResource.checkColdChainSendDelivery exception ", e);
+            return new SortingJsfResponse(DeliveryResponse.CODE_SERVICE_ERROR, DeliveryResponse.MESSAGE_SERVICE_ERROR_C);
+        }
+    }
 
     /**
      * 冷链发货接口
