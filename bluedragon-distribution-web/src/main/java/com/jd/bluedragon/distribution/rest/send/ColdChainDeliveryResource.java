@@ -197,7 +197,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
                     TransPlanDetailResult item = new TransPlanDetailResult();
                     item.setTransPlanCode("R123435345");
                     item.setWaybills(new ArrayList<String>(Arrays.asList("JD0003358151746", "JD0003358151701")));
-                    resultList.add(item);
+                    resultList = new ArrayList<>(Arrays.asList(item));
                 }
                 if (resultList != null) {
                     return new ColdChainSendResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, resultList);
