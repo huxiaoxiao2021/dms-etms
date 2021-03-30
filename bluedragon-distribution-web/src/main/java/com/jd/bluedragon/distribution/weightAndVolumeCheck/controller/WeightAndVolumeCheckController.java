@@ -6,15 +6,16 @@ import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,15 +23,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URLDecoder;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName: WeightAndVolumeCheckController
@@ -82,42 +84,35 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         return result;
     }
 
-
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/checkExistExport", method = RequestMethod.POST)
-    public @ResponseBody InvokeResult<Boolean> checkExistExport(@RequestBody WeightAndVolumeCheckCondition condition) {
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        result.setData(weightAndVolumeCheckService.checkExistExport(condition));
-        return result;
-    }
+    @RequestMapping(value = "/toExport")
+    public void toExport(WeightAndVolumeCheckCondition condition, HttpServletResponse response) {
 
-    /**
-     * 导出
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
-        long startTime = System.currentTimeMillis();
-        log.info("导出重量体积抽验统计表");
-        List<List<Object>> resultList;
+        BufferedWriter bfw = null;
         try{
-            model.addAttribute("filename", "重量体积抽验统计表.xls");
-            model.addAttribute("sheetname", "重量体积抽验统计结果");
-            resultList = weightAndVolumeCheckService.getExportData(condition);
+            if(StringUtils.isNotBlank(condition.getBusiName())){
+                condition.setBusiName(URLDecoder.decode(condition.getBusiName(), "UTF-8"));
+            }
+            String fileName = "重量体积抽检统计表";
+            //设置文件后缀
+            String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+            bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+            //设置响应
+            CsvExporterUtils.setResponseHeader(response, fn);
+            weightAndVolumeCheckService.export(condition,bfw);
         }catch (Exception e){
-            log.error("导出重量体积抽验统计表失败:" , e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出重量体积抽验统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
+            log.error("exportData error", e);
+        }finally {
+            try {
+                if (bfw != null) {
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException e) {
+                log.error("export-error", e);
+            }
         }
-        model.addAttribute("contents", resultList);
-        ModelAndView modelAndView = new ModelAndView(new DefaultExcelView(), model.asMap());
-        if(log.isInfoEnabled()){
-            log.info("抽检导出总耗时：{}",System.currentTimeMillis() - startTime);
-        }
-        return modelAndView;
+
     }
 
     /**
