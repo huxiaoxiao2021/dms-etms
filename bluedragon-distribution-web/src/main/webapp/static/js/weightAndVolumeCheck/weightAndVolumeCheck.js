@@ -377,7 +377,7 @@ $(function () {
             var params = tableInit.getSearchCondition();
 
             var checkExport = false;
-            $.ajaxHelper.doPostSync(checkExistExportUrl,params,function(res){
+            $.ajaxHelper.doPostSync(checkExistExportUrl,JSON.stringify(params),function(res){
                 if(res.succeed){
                     checkExport = res.data;
                 }

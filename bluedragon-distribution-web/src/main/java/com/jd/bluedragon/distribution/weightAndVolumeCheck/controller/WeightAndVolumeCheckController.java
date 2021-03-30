@@ -85,7 +85,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/checkExistExport", method = RequestMethod.POST)
-    public @ResponseBody InvokeResult<Boolean> checkExistExport(WeightAndVolumeCheckCondition condition) {
+    public @ResponseBody InvokeResult<Boolean> checkExistExport(@RequestBody WeightAndVolumeCheckCondition condition) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setData(weightAndVolumeCheckService.checkExistExport(condition));
         return result;
