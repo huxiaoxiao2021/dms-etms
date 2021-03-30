@@ -211,32 +211,6 @@ public class WeightAndVolumeCheckServiceImplTest {
         //Assert.assertTrue(result.getCode()!=200);
     }
 
-
-    @Test
-    public void testGetExportData() throws Exception {
-
-        Pager<WeightVolumeQueryCondition> pager = new Pager<WeightVolumeQueryCondition>();
-        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        pager.setPageNo(1);
-        pager.setPageSize(10);
-        pager.setSearchVo(condition);
-        BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity = new BaseEntity<Pager<WeightVolumeCollectDto>>();
-        Pager<WeightVolumeCollectDto> resultPager = new Pager<WeightVolumeCollectDto>();
-        List<WeightVolumeCollectDto> list = new ArrayList<>();
-        WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-        dto.setWaybillCode("JDVC03992440423");
-        list.add(dto);
-        resultPager.setTotal(10l);
-        resultPager.setData(list);
-        nextBaseEntity.setCode(200);
-        nextBaseEntity.setData(resultPager);
-        when(reportExternalService.getPagerByConditionForWeightVolume(pager)).thenReturn(nextBaseEntity);
-
-        WeightAndVolumeCheckCondition condition1 = new WeightAndVolumeCheckCondition();
-        List<List<Object>> result = weightAndVolumeCheckServiceImpl.getExportData(condition1);
-        Assert.assertTrue(true);
-    }
-
 }
 
 //Generated with love by TestMe :) Please report issues and submit feature requests at: http://weirddev.com/forum#!/testme
