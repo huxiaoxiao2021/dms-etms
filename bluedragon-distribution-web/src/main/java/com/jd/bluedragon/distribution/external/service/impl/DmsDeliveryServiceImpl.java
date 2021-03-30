@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
+import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -115,6 +116,18 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     @Override
     @Deprecated
     public JdCResponse<Boolean> checkThreeDelivery(ColdChainSendRequest request){
+        return null;
+    }
+
+    /**
+     * 冷链发货校验
+     * @param request 单个发货参数
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2021-03-23 11:28:33 周二
+     */
+    @Override
+    public JdCResponse<Boolean> checkColdChainSendDelivery(com.jd.bluedragon.common.dto.send.request.DeliveryRequest request) {
         return null;
     }
 
