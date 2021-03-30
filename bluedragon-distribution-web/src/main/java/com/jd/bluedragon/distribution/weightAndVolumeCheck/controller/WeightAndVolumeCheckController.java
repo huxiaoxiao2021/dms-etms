@@ -98,7 +98,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
-
+        long startTime = System.currentTimeMillis();
         log.info("导出重量体积抽验统计表");
         List<List<Object>> resultList;
         try{
@@ -113,7 +113,11 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             resultList.add(list);
         }
         model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
+        ModelAndView modelAndView = new ModelAndView(new DefaultExcelView(), model.asMap());
+        if(log.isInfoEnabled()){
+            log.info("抽检导出总耗时：{}",System.currentTimeMillis() - startTime);
+        }
+        return modelAndView;
     }
 
     /**
