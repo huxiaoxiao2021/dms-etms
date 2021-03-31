@@ -297,4 +297,9 @@ public interface WaybillQueryManager{
 	 */
 	Map<String,String> doGetPackageVasInfo(String wayBillCode);
 
+	/**
+	 * 根据运单号,包裹号获取包裹维度商品名称
+	 */
+	Map<String,String> doGetPackageGoodsVasInfo(String wayBillCode);
+
 }

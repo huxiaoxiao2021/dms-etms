@@ -6,13 +6,14 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.GoodsDto;
-import com.jd.etms.waybill.dto.GoodsQueryDto;
-import com.jd.etms.waybill.dto.WaybillPickupVasDto;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.dto.*;
+import com.jd.jsf.gd.util.JsonUtils;
 import junit.framework.Assert;
 import org.apache.avro.generic.GenericData;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 //包裹增值服务mock测试
 @RunWith(MockitoJUnitRunner.class)
@@ -90,6 +92,54 @@ public class PackageVasTestCase
         Map<String,String> map2= waybillQueryManager.doGetPackageVasInfo("JDV000503537329");
         /*System.out.println("return2"+return2);
         Assert.assertEquals(true,return2 == null);*/
+    }
+
+    @Test
+    public void testlues() throws Exception{
+        List<Goods> goodsList = new ArrayList<>();
+        Goods goods1 = new Goods();
+        goods1.setPackBarcode("123");
+        goods1.setGoodName("测试111");
+        goodsList.add(goods1);
+
+        Goods goods2 = new Goods();
+        goods2.setPackBarcode("123");
+        goods2.setGoodName("测试222");
+        goodsList.add(goods2);
+
+        Goods goods0 = new Goods();
+        goods0.setPackBarcode("123");
+        goods0.setGoodName("测试222");
+        goodsList.add(goods0);
+
+        Goods goods3 = new Goods();
+        goods3.setPackBarcode("456");
+        goods3.setGoodName("测试333");
+        goodsList.add(goods3);
+
+        Goods goods4 = new Goods();
+        goods4.setPackBarcode("1234");
+        goods4.setGoodName("测试1234");
+        goodsList.add(goods4);
+
+        BigWaybillDto waybillDto = new BigWaybillDto();
+        waybillDto.setGoodsList(goodsList);
+
+        BaseEntity baseEntity = new BaseEntity();
+        baseEntity.setData(waybillDto);
+        baseEntity.setResultCode(1);
+
+        /*WChoice wChoice = new WChoice();
+        //只查询运单下的商品列表
+        wChoice.setQueryGoodList(true);*/
+
+        Mockito.when(waybillQueryApi.getDataByChoice(anyString(), any(WChoice.class)))
+                .thenReturn(baseEntity);
+
+        Map lastMap= waybillQueryManager.doGetPackageGoodsVasInfo("JDV000503537329");
+        System.out.println("map==="+ JsonUtils.toJSONString(lastMap));
+
+
     }
 
 }

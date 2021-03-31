@@ -50,6 +50,19 @@ public class PrintPackage implements Serializable {
      */
     public String packageSpecialRequirement;
 
+    /**
+     * 包裹维度商品名称
+     */
+    public String packageGoodsName;
+
+    public String getPackageGoodsName() {
+        return packageGoodsName;
+    }
+
+    public void setPackageGoodsName(String packageGoodsName) {
+        this.packageGoodsName = packageGoodsName;
+    }
+
     public String getPackageSpecialRequirement() {
         return packageSpecialRequirement;
     }
