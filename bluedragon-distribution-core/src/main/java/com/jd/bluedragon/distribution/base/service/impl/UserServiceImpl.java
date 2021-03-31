@@ -152,7 +152,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             String token = UUID.randomUUID().toString();
             loginUserResponse.setToken(token);
             // 保存缓存
-            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, request.getUserCode(), deviceId);
+            String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, request.getErpAccount(), deviceId);
             jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
         } catch (Exception e) {
             log.error("UserServiceImpl.getAndSaveToken exception ", e);
