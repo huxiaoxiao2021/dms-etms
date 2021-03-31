@@ -172,6 +172,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
      */
     @Override
     public JdResult<Boolean> verifyClientLoginToken(String userErp, String deviceId, String token) {
+        log.info("UserServiceImpl.verifyClientLoginToken userErp {}, deviceId {}, token {}", userErp, deviceId, token);
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess("success");
         try {
