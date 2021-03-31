@@ -353,25 +353,18 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         response.setMessage(JdResponse.MESSAGE_OK);
 
         String barCode = request.getBarCode();
-        List<Message> messages = null;
+        CCTemporaryInMessage body =null;
 
         BarCodeType codeType = BusinessUtil.getBarCodeType(barCode);
 
         switch (codeType) {
             case PACKAGE_CODE: {
-                List<String> packageCodeList = new ArrayList<>(1);
-                packageCodeList.add(request.getBarCode());
-                messages = this.buildTemppraryInMessageList(request, packageCodeList);
+                String waybillCode=WaybillUtil.getWaybillCode(barCode);
+                body = this.buildTemppraryInMessageList(request,waybillCode,barCode);
                 break;
             }
             case WAYBILL_CODE: {
-                List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
-                if (packageCodeList != null && packageCodeList.size() > 0) {
-                    messages = this.buildTemppraryInMessageList(request, packageCodeList);
-                } else {
-                    response.setCode(JdResponse.CODE_PARAM_ERROR);
-                    response.setMessage("无效运单号或该运单下无包裹");
-                }
+                body=this.buildTemppraryInMessageList(request, barCode,"");
                 break;
             }
             default: {
@@ -380,28 +373,24 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
                 break;
             }
         }
-        ccTemporaryInProducer.batchSend(messages);
+        if(body!=null){
+            ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
+        }
         return response;
     }
 
-    private List<Message> buildTemppraryInMessageList(ColdChainTemporaryInRequest request, List<String> packageCodeList) {
+    private CCTemporaryInMessage buildTemppraryInMessageList(ColdChainTemporaryInRequest request,String waybillCode, String packageCode) {
         CCTemporaryInMessage body = new CCTemporaryInMessage();
         body.setOperateERP(request.getOperateERP());
         body.setOperateName(request.getSiteName());
         body.setTempscTime(DateUtil.format(new Date(),DateUtil.FORMAT_DATE_TIME));
         body.setOperateId(String.valueOf(request.getSiteId()));
         body.setOperateUser(request.getOperateUser());
-        List<Message> messageList = new ArrayList<>();
-        for (String packageCode : packageCodeList) {
-            body.setPackageNo(packageCode);
-            body.setWaybillNo(WaybillUtil.getWaybillCode(packageCode));
-            Message message = new Message();
-            message.setBusinessId(request.getBarCode());
-            message.setText(JSON.toJSONString(body));
-            message.setTopic(ccTemporaryInProducer.getTopic());
-            messageList.add(message);
-        }
-        return messageList;
+        body.setWaybillNo(waybillCode);
+        body.setPackageNo(packageCode);
+        body.setWaybillNo(waybillCode);
+
+        return body;
     }
 
 }
