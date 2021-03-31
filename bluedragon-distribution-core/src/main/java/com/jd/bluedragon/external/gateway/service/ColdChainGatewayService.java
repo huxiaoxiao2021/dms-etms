@@ -1,12 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadCompleteRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
-import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
+import com.jd.bluedragon.distribution.coldchain.dto.*;
 
 import java.util.List;
 
@@ -55,5 +50,14 @@ public interface ColdChainGatewayService {
      * @return
      */
     JdCResponse inAndOutBound(ColdChainInAndOutBoundRequest request);
+
+
+    /**
+     *
+     *
+     * @param request
+     * @return
+     */
+    JdCResponse temporaryIn(ColdChainTemporaryInRequest request);
 
 }

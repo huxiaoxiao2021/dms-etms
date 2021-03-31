@@ -55,4 +55,11 @@ public interface ColdChainOperationService {
      * @return
      */
     ColdChainOperationResponse boundThermometer(ThermometerRequest request);
+
+    /**
+     * 暂存入库操作
+     *
+     * @return
+     */
+    ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request)  throws JMQException;
 }

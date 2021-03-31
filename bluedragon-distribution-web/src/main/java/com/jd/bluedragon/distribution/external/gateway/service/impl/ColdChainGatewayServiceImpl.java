@@ -3,12 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainInAndOutBoundRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainQueryUnloadTaskRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadCompleteRequest;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadDto;
-import com.jd.bluedragon.distribution.coldchain.dto.ColdChainUnloadQueryResultDto;
-import com.jd.bluedragon.distribution.coldchain.dto.VehicleTypeDict;
+import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.bluedragon.distribution.rest.coldchain.ColdChainOperationResource;
 import com.jd.bluedragon.external.gateway.service.ColdChainGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,6 +131,29 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
         }
 
         ColdChainOperationResponse operationResponse = coldChainOperationResource.inAndOutBound(request);
+        if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
+            response.toSucceed();
+        } else {
+            response.toError(operationResponse.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 暂存入库
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public JdCResponse temporaryIn(ColdChainTemporaryInRequest request) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        if (request == null) {
+            response.toError("请求参数为null");
+            return response;
+        }
+
+        ColdChainOperationResponse operationResponse = coldChainOperationResource.temporaryIn(request);
         if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
             response.toSucceed();
         } else {

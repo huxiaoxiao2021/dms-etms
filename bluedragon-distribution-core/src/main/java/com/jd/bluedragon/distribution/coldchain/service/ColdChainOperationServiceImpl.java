@@ -20,6 +20,7 @@ import com.jd.ccmp.ctm.dto.QueryUnloadDto;
 import com.jd.ccmp.ctm.dto.WaybillRequest;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.jmq.common.exception.JMQException;
@@ -33,6 +34,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -55,6 +57,11 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     private DefaultJMQProducer ccInAndOutBoundProducer;
 
     @Autowired
+    @Qualifier("ccTemporaryInProducer")
+    private DefaultJMQProducer ccTemporaryInProducer;
+
+
+    @Autowired
     private WaybillPackageManager waybillPackageManager;
 
     @Autowired
@@ -74,6 +81,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
      */
     @Override
     public boolean addUploadTask(ColdChainUnloadDto unloadDto) {
+
         if (unloadDto != null) {
             return coldChainOptimizeManager.receiveUnloadData(unloadDto);
         }
@@ -336,6 +344,64 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         response = wayBillThermometerApiManager.bindWaybillPackage(waybillRequest);
 
         return response;
+    }
+
+    @Override
+    public ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request)  throws JMQException{
+        ColdChainOperationResponse response = new ColdChainOperationResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
+        String barCode = request.getBarCode();
+        List<Message> messages = null;
+
+        BarCodeType codeType = BusinessUtil.getBarCodeType(barCode);
+
+        switch (codeType) {
+            case PACKAGE_CODE: {
+                List<String> packageCodeList = new ArrayList<>(1);
+                packageCodeList.add(request.getBarCode());
+                messages = this.buildTemppraryInMessageList(request, packageCodeList);
+                break;
+            }
+            case WAYBILL_CODE: {
+                List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
+                if (packageCodeList != null && packageCodeList.size() > 0) {
+                    messages = this.buildTemppraryInMessageList(request, packageCodeList);
+                } else {
+                    response.setCode(JdResponse.CODE_PARAM_ERROR);
+                    response.setMessage("无效运单号或该运单下无包裹");
+                }
+                break;
+            }
+            default: {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage("无法识别的条码");
+                break;
+            }
+        }
+        ccTemporaryInProducer.batchSend(messages);
+        return response;
+    }
+
+    private List<Message> buildTemppraryInMessageList(ColdChainTemporaryInRequest request, List<String> packageCodeList) {
+        CCTemporaryInMessage body = new CCTemporaryInMessage();
+        body.setOperateERP(request.getOperateERP());
+        body.setOperateName(request.getSiteName());
+        body.setTempscTime(DateUtil.format(new Date(),DateUtil.FORMAT_DATE_TIME));
+        body.setOperateId(String.valueOf(request.getSiteId()));
+        body.setOperateUser(request.getOperateUser());
+        List<Message> messageList = new ArrayList<>();
+        for (String packageCode : packageCodeList) {
+            body.setPackageNo(packageCode);
+            body.setWaybillNo(WaybillUtil.getWaybillCode(packageCode));
+            Message message = new Message();
+            message.setBusinessId(request.getBarCode());
+            message.setText(JSON.toJSONString(body));
+            message.setTopic(ccTemporaryInProducer.getTopic());
+            messageList.add(message);
+        }
+        return messageList;
     }
 
 }
