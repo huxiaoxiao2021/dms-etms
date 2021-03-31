@@ -348,6 +348,7 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
+                $('#btn_export').attr("disabled",false);
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
                 if(days > 30){
                     Jd.alert("查询时间不能超过30天，请缩小时间范围!");
@@ -403,10 +404,13 @@ $(function () {
                 param += "&spotCheckType=" +  params.spotCheckType;
             }
 
+            $('#btn_export').attr("disabled",true);
             location.href = exportUrl + "?" + param;
 
         });
     }
+
+    $("[data-toggle='tooltip']").tooltip();
 
     initSelect();
     initOrg();

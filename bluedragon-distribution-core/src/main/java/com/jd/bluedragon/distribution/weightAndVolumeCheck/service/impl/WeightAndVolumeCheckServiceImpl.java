@@ -48,12 +48,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
-import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.*;
 import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
-import com.jd.ql.dms.report.domain.Pager;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -117,11 +114,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * */
     @Value("${b2c.spotCheck.interval.days:3}")
     private int defaultIntervalDays;
-
-    /**
-     * 导出分页阈值
-     * */
-    private static final Integer EXPORT_THRESHOLD_SIZE = 2000;
 
     /** 对象存储 **/
     /**外部 访问域名 */
@@ -1305,36 +1297,29 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, innerBfw, headerMap.values().size());
             // 分页查询记录
-            WeightVolumeQueryCondition transform = transform(condition);
-            BaseEntity<Long> baseEntity = reportExternalService.countByParam(transform);
-            if(baseEntity == null || baseEntity.getData() == null){
-                return;
-            }
-            Long total = baseEntity.getData();
+            WeightVolumeQueryCondition weightVolumeQueryCondition = transform(condition);
             // 设置总导出数据
             Integer uccSpotCheckMaxSize = uccPropertyConfiguration.getExportSpotCheckMaxSize();
             if(uccPropertyConfiguration.getExportSpotCheckMaxSize() == null){
                 uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
             }
-            if(total > uccSpotCheckMaxSize){
-                total = Long.parseLong(uccSpotCheckMaxSize.toString());
-            }
-
-            long totalPageNum = (total + EXPORT_THRESHOLD_SIZE - 1) / EXPORT_THRESHOLD_SIZE;
-            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-            pager.setSearchVo(transform);
-            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
-            for (int i = 1; i <= totalPageNum; i++) {
-                pager.setPageNo(i);
-                BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity
-                        = reportExternalService.getPagerByConditionForWeightVolume(pager);
-                if(nextBaseEntity != null && nextBaseEntity.getData() != null
-                        && CollectionUtils.isNotEmpty(nextBaseEntity.getData().getData())){
-                    // 输出至excel
-                    CsvExporterUtils.writeCsvByPage(innerBfw,headerMap,trans2ExportDto(nextBaseEntity.getData().getData()));
-                }else {
-                    log.warn("获取重量体积抽检数据第【{}】页数据为空，共【{}】页，查询条件【{}】",i,totalPageNum,JsonHelper.toJson(pager));
-                    return;
+            int queryTotal = 0;
+            int index = 1;
+            while (index++ <= 1000) {
+                BaseEntity<WeightVolumeCollectScrollResult> baseEntity = reportExternalService.queryWeightVolumeByScroll(weightVolumeQueryCondition);
+                if(baseEntity == null || !baseEntity.isSuccess()
+                        || baseEntity.getData() == null || CollectionUtils.isEmpty(baseEntity.getData().getList())){
+                    log.warn("scroll查询抽检明细数据为空!");
+                    break;
+                }
+                // 设置scrollId
+                weightVolumeQueryCondition.setScrollId(baseEntity.getData().getScrollId());
+                // 输出至excel
+                CsvExporterUtils.writeCsvByPage(innerBfw, headerMap, trans2ExportDto(baseEntity.getData().getList()));
+                // 限制导出数量
+                queryTotal += baseEntity.getData().getList().size();
+                if(queryTotal > uccSpotCheckMaxSize){
+                    break;
                 }
             }
         }catch (Exception e){
