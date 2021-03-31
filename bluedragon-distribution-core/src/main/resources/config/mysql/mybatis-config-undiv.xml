@@ -383,6 +383,7 @@
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
         <!--面单异常举报-->
-      <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/discardedPackageStorageTemp/DiscardedPackageStorageTempMapper.xml" />
     </mappers>
 </configuration>
