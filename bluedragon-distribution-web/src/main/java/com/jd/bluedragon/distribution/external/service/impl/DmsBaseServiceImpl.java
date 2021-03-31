@@ -80,8 +80,8 @@ public class DmsBaseServiceImpl implements DmsBaseService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.verifyClientLoginToken", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdResult verifyClientLoginToken(String deviceId, String token) {
-        return userService.verifyClientLoginToken(deviceId, token);
+    public JdResult verifyClientLoginToken(String userErp, String deviceId, String token) {
+        return userService.verifyClientLoginToken(userErp, deviceId, token);
     }
 
     @Override

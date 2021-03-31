@@ -140,7 +140,7 @@ public class CacheKeyConstants {
     /**
      * 用户登录设备记录缓存key
      */
-    public static final String CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID = "dmsWeb:client:login:deviceId:%s";
+    public static final String CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID = "dmsWeb:client:login:userDeviceId:%s:%s";
     /**
      * 用户登录设备记录缓存过期时间
      */

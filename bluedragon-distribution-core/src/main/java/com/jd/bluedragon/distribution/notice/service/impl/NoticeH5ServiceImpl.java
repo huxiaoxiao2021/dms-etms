@@ -172,7 +172,7 @@ public class NoticeH5ServiceImpl implements NoticeH5Service {
             if(StringUtils.isNotBlank(noticePdaQuery.getDeviceId()) && StringUtils.isNotBlank(noticePdaQuery.getToken())){
                 String deviceId = noticePdaQuery.getDeviceId();
                 String token = noticePdaQuery.getToken();
-                String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID, deviceId);
+                String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, deviceId);
                 jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
             }
 

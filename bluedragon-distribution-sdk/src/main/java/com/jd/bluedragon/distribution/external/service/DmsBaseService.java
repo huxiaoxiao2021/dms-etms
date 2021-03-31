@@ -47,7 +47,7 @@ public interface DmsBaseService {
      * @author fanggang7
      * @time 2021-03-09 19:32:02 周二
      */
-    JdResult verifyClientLoginToken(String deviceId, String token);
+    JdResult verifyClientLoginToken(String userErp, String deviceId, String token);
     /**
      * web页面，cookies自动登录后，调用该接口获取用户登录信息
      * @param request
