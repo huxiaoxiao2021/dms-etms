@@ -9,6 +9,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 
+import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.util.List;
 
@@ -63,13 +64,6 @@ public interface WeightAndVolumeCheckService {
     PagerResult<WeightVolumeCollectDto> queryByCondition(WeightAndVolumeCheckCondition condition);
 
     /**
-     * 导出
-     * @param condition
-     * @return
-     */
-    List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition);
-
-    /**
      * 发消息并更新
      * @param packageCode
      * @param siteCode
@@ -115,5 +109,10 @@ public interface WeightAndVolumeCheckService {
      */
     InvokeResult<Boolean> handleAfterUploadImgMessageOrAfterSend(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage);
 
-
+    /**
+     * 导出
+     * @param condition
+     * @param innerBfw
+     */
+    void export(WeightAndVolumeCheckCondition condition, BufferedWriter innerBfw);
 }

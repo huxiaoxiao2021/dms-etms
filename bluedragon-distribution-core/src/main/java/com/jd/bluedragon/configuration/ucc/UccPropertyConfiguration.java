@@ -259,6 +259,11 @@ public class UccPropertyConfiguration {
      */
     private Integer siteQueryLimit;
 
+    /**
+     * 抽检导出最大限制
+     */
+    private Integer exportSpotCheckMaxSize;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -713,5 +718,13 @@ public class UccPropertyConfiguration {
 
     public void setSiteQueryLimit(Integer siteQueryLimit) {
         this.siteQueryLimit = siteQueryLimit;
+    }
+
+    public Integer getExportSpotCheckMaxSize() {
+        return exportSpotCheckMaxSize;
+    }
+
+    public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
+        this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
     }
 }
