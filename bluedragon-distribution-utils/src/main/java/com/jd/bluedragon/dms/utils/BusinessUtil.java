@@ -1943,4 +1943,15 @@ public class BusinessUtil {
     }
 
 
+    /**
+     * 判断是否支持按包裹维度批量导入-当WaybillSign66=0或1时，不支持
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNotSupportUpWeightByPackage(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
+                WaybillSignConstants.CHAR_66_1, WaybillSignConstants.CHAR_66_0);
+    }
+
+
 }
