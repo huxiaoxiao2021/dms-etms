@@ -98,9 +98,9 @@ public class DiscardedPackageStorageTemp implements Serializable{
      */
     private Integer prevSiteCode;
     /**
-     * 上一级操作站点ID名称  db_column: prev_site_code_name
+     * 上一级操作站点ID名称  db_column: prev_site_name
      */
-    private String prevSiteCodeName;
+    private String prevSiteName;
     /**
      * 上一级操作站点所在大区  db_column: prev_org_code
      */
@@ -127,6 +127,222 @@ public class DiscardedPackageStorageTemp implements Serializable{
     private Date ts;
     //columns END
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getWaybillProduct() {
+        return waybillProduct;
+    }
+
+    public void setWaybillProduct(String waybillProduct) {
+        this.waybillProduct = waybillProduct;
+    }
+
+    public String getConsignmentName() {
+        return consignmentName;
+    }
+
+    public void setConsignmentName(String consignmentName) {
+        this.consignmentName = consignmentName;
+    }
+
+    public BigDecimal getWeight() {
+        return weight;
+    }
+
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
+
+    public Integer getCod() {
+        return cod;
+    }
+
+    public void setCod(Integer cod) {
+        this.cod = cod;
+    }
+
+    public BigDecimal getCodAmount() {
+        return codAmount;
+    }
+
+    public void setCodAmount(BigDecimal codAmount) {
+        this.codAmount = codAmount;
+    }
+
+    public String getBusinessCode() {
+        return businessCode;
+    }
+
+    public void setBusinessCode(String businessCode) {
+        this.businessCode = businessCode;
+    }
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public Long getOperatorCode() {
+        return operatorCode;
+    }
+
+    public void setOperatorCode(Long operatorCode) {
+        this.operatorCode = operatorCode;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
+    }
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public String getSiteCity() {
+        return siteCity;
+    }
+
+    public void setSiteCity(String siteCity) {
+        this.siteCity = siteCity;
+    }
+
+    public Integer getOrgCode() {
+        return orgCode;
+    }
+
+    public void setOrgCode(Integer orgCode) {
+        this.orgCode = orgCode;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public Integer getPrevSiteCode() {
+        return prevSiteCode;
+    }
+
+    public void setPrevSiteCode(Integer prevSiteCode) {
+        this.prevSiteCode = prevSiteCode;
+    }
+
+    public String getPrevSiteName() {
+        return prevSiteName;
+    }
+
+    public void setPrevSiteName(String prevSiteName) {
+        this.prevSiteName = prevSiteName;
+    }
+
+    public Integer getPrevOrgCode() {
+        return prevOrgCode;
+    }
+
+    public void setPrevOrgCode(Integer prevOrgCode) {
+        this.prevOrgCode = prevOrgCode;
+    }
+
+    public String getPrevOrgName() {
+        return prevOrgName;
+    }
+
+    public void setPrevOrgName(String prevOrgName) {
+        this.prevOrgName = prevOrgName;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
+
+    public Date getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
+
+    public Date getTs() {
+        return ts;
+    }
+
+    public void setTs(Date ts) {
+        this.ts = ts;
+    }
+
     @Override
     public String toString() {
         return "DiscardedPackageStorageTemp{" +
@@ -150,7 +366,7 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", orgCode=" + orgCode +
                 ", orgName='" + orgName + '\'' +
                 ", prevSiteCode=" + prevSiteCode +
-                ", prevSiteCodeName='" + prevSiteCodeName + '\'' +
+                ", prevSiteName='" + prevSiteName + '\'' +
                 ", prevOrgCode=" + prevOrgCode +
                 ", prevOrgName='" + prevOrgName + '\'' +
                 ", createTime=" + createTime +

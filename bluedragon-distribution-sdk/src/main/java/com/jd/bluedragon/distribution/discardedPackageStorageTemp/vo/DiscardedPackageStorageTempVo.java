@@ -35,6 +35,11 @@ public class DiscardedPackageStorageTempVo extends DiscardedPackageStorageTemp i
      */
     private String lastOperateTimeFormative;
 
+    /**
+     * 存已储天数
+     */
+    private Integer storageDays;
+
     public String getFirstScanTimeFormative() {
         return firstScanTimeFormative;
     }
@@ -67,6 +72,14 @@ public class DiscardedPackageStorageTempVo extends DiscardedPackageStorageTemp i
         this.lastOperateTimeFormative = lastOperateTimeFormative;
     }
 
+    public Integer getStorageDays() {
+        return storageDays;
+    }
+
+    public void setStorageDays(Integer storageDays) {
+        this.storageDays = storageDays;
+    }
+
     @Override
     public String toString() {
         return "DiscardedPackageStorageTempVo{" +
@@ -74,6 +87,7 @@ public class DiscardedPackageStorageTempVo extends DiscardedPackageStorageTemp i
                 ", isCodStr='" + isCodStr + '\'' +
                 ", statusStr='" + statusStr + '\'' +
                 ", lastOperateTimeFormative='" + lastOperateTimeFormative + '\'' +
+                ", storageDays=" + storageDays +
                 '}';
     }
 }

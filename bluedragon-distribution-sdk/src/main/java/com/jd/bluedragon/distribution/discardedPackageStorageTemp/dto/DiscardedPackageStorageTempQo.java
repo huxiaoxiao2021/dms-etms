@@ -46,6 +46,10 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
      */
     private Integer storageDays;
 
+    private String currentUserErp;
+
+    private Integer isAsyncExport;
+
     private Integer pageSize;
 
     public String getWaybillCode() {
@@ -94,6 +98,22 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 
     public void setStorageDays(Integer storageDays) {
         this.storageDays = storageDays;
+    }
+
+    public String getCurrentUserErp() {
+        return currentUserErp;
+    }
+
+    public void setCurrentUserErp(String currentUserErp) {
+        this.currentUserErp = currentUserErp;
+    }
+
+    public Integer getIsAsyncExport() {
+        return isAsyncExport;
+    }
+
+    public void setIsAsyncExport(Integer isAsyncExport) {
+        this.isAsyncExport = isAsyncExport;
     }
 
     public Integer getPageSize() {

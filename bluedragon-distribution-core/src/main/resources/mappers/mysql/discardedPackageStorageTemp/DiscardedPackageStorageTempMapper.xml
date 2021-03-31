@@ -23,7 +23,7 @@
         <result property="orgCode" column="org_code"/>
         <result property="orgName" column="org_name"/>
         <result property="prevSiteCode" column="prev_site_code"/>
-        <result property="prevSiteCodeName" column="prev_site_code_name"/>
+        <result property="prevSiteName" column="prev_site_name"/>
         <result property="prevOrgCode" column="prev_org_code"/>
         <result property="prevOrgName" column="prev_org_name"/>
         <result property="createTime" column="create_time"/>
@@ -34,7 +34,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_code_name`, `prev_org_code`, `prev_org_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_org_code`, `prev_org_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 增加 -->
@@ -101,8 +101,8 @@
             <if test="prevSiteCode != null">
                 prev_site_code,
             </if>
-            <if test="prevSiteCodeName != null and prevSiteCodeName != ''">
-                prev_site_code_name,
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name,
             </if>
             <if test="prevOrgCode != null">
                 prev_org_code,
@@ -184,8 +184,8 @@
             <if test="prevSiteCode != null">
                 #{prevSiteCode},
             </if>
-            <if test="prevSiteCodeName != null and prevSiteCodeName != ''">
-                #{prevSiteCodeName},
+            <if test="prevSiteName != null and prevSiteName != ''">
+                #{prevSiteName},
             </if>
             <if test="prevOrgCode != null">
                 #{prevOrgCode},
@@ -231,7 +231,7 @@
             org_code,
             org_name,
             prev_site_code,
-            prev_site_code_name,
+            prev_site_name,
             prev_org_code,
             prev_org_name,
             create_time,
@@ -262,7 +262,7 @@
                     #{item.orgCode},
                     #{item.orgName},
                     #{item.prevSiteCode},
-                    #{item.prevSiteCodeName},
+                    #{item.prevSiteName},
                     #{item.prevOrgCode},
                     #{item.prevOrgName},
                     #{item.createTime},
@@ -333,8 +333,8 @@
             <if test="prevSiteCode != null ">
             prev_site_code = #{prevSiteCode},
             </if>
-            <if test="prevSiteCodeName != null and prevSiteCodeName != ''">
-            prev_site_code_name = #{prevSiteCodeName},
+            <if test="prevSiteName != null and prevSiteName != ''">
+            prev_site_name = #{prevSiteName},
             </if>
             <if test="prevOrgCode != null ">
             prev_org_code = #{prevOrgCode},
@@ -420,8 +420,8 @@
                 <if test="item.prevSiteCode != null">
                 prev_site_code = #{item.prevSiteCode},
                 </if>
-                <if test="item.prevSiteCodeName != null and item.prevSiteCodeName != ''">
-                prev_site_code_name = #{item.prevSiteCodeName},
+                <if test="item.prevSiteName != null and item.prevSiteName != ''">
+                prev_site_name = #{item.prevSiteName},
                 </if>
                 <if test="item.prevOrgCode != null">
                 prev_org_code = #{item.prevOrgCode},
@@ -531,8 +531,8 @@
         <if test="prevSiteCode != null">
         AND prev_site_code = #{prevSiteCode}
         </if>
-        <if test="prevSiteCodeName != null and prevSiteCodeName != ''">
-        AND prev_site_code_name = #{prevSiteCodeName}
+        <if test="prevSiteName != null and prevSiteName != ''">
+        AND prev_site_name = #{prevSiteName}
         </if>
         <if test="prevOrgCode != null">
         AND prev_org_code = #{prevOrgCode}
@@ -554,12 +554,12 @@
         </if>
     </sql>
     <!-- 查询行数 -->
-    <select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+    <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
         SELECT count(1) FROM `discarded_package_storage_temp`
         <include refid="where"/>
     </select>
     <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
-    <select id="queryList" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+    <select id="selectList" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
         SELECT
         <include refid="Base_Column_List" />
         FROM `discarded_package_storage_temp`

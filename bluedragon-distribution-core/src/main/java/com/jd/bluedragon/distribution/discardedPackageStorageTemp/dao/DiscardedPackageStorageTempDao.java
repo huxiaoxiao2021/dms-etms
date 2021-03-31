@@ -36,8 +36,8 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2020-07-02 16:27:55 周四
      */
-    public Long queryCount(DiscardedPackageStorageTempQo query) {
-        return this.getSqlSession().selectOne(DiscardedPackageStorageTempDao.NAMESPACE + ".queryCount", query);
+    public Long selectCount(DiscardedPackageStorageTempQo query) {
+        return this.getSqlSession().selectOne(DiscardedPackageStorageTempDao.NAMESPACE + ".selectCount", query);
     }
 
     /**
@@ -47,8 +47,8 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2020-07-02 16:27:55 周四
      */
-    public List<DiscardedPackageStorageTemp> queryList(DiscardedPackageStorageTempQo query) {
-        return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".queryList", query);
+    public List<DiscardedPackageStorageTemp> selectList(DiscardedPackageStorageTempQo query) {
+        return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectList", query);
     }
 
     /**
