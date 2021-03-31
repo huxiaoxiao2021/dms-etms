@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * Description: 快递弃件暂存<br>
@@ -22,9 +23,14 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     private String waybillCode;
 
     /**
-     * 是否cod
+     * 运单号
      */
-    private String org;
+    private String packageCode;
+
+    /**
+     * 区域
+     */
+    private Integer orgCode;
 
     /**
      * 分拣中心
@@ -44,7 +50,23 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     /**
      * 存储天数，录入起、止天数
      */
-    private Integer storageDays;
+    private Integer storageDaysFrom;
+
+    /**
+     * 存储天数，录入起、止天数
+     */
+    private Integer storageDaysTo;
+
+    /**
+     * 扫描开始时间
+     */
+    private Date scanTimeFrom;
+    /**
+     * 扫描结束时间
+     */
+    private Date scanTimeTo;
+
+    private Integer yn;
 
     private String currentUserErp;
 
@@ -60,12 +82,20 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
         this.waybillCode = waybillCode;
     }
 
-    public String getOrg() {
-        return org;
+    public String getPackageCode() {
+        return packageCode;
     }
 
-    public void setOrg(String org) {
-        this.org = org;
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
+
+    public Integer getOrgCode() {
+        return orgCode;
+    }
+
+    public void setOrgCode(Integer orgCode) {
+        this.orgCode = orgCode;
     }
 
     public Integer getSiteCode() {
@@ -92,14 +122,45 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
         this.isCod = isCod;
     }
 
-    public Integer getStorageDays() {
-        return storageDays;
+    public Integer getStorageDaysFrom() {
+        return storageDaysFrom;
     }
 
-    public void setStorageDays(Integer storageDays) {
-        this.storageDays = storageDays;
+    public void setStorageDaysFrom(Integer storageDaysFrom) {
+        this.storageDaysFrom = storageDaysFrom;
     }
 
+    public Integer getStorageDaysTo() {
+        return storageDaysTo;
+    }
+
+    public void setStorageDaysTo(Integer storageDaysTo) {
+        this.storageDaysTo = storageDaysTo;
+    }
+
+    public Date getScanTimeFrom() {
+        return scanTimeFrom;
+    }
+
+    public void setScanTimeFrom(Date scanTimeFrom) {
+        this.scanTimeFrom = scanTimeFrom;
+    }
+
+    public Date getScanTimeTo() {
+        return scanTimeTo;
+    }
+
+    public void setScanTimeTo(Date scanTimeTo) {
+        this.scanTimeTo = scanTimeTo;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
     public String getCurrentUserErp() {
         return currentUserErp;
     }

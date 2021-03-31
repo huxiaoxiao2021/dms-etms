@@ -471,86 +471,32 @@
     </sql>
     <!-- 判断空值 -->
     <sql id="sql_if_not_null">
-        <if test="id != null">
-        AND id = #{id}
-        </if>
         <if test="waybillCode != null and waybillCode != ''">
-        AND waybill_code = #{waybillCode}
+            AND waybill_code = #{waybillCode}
         </if>
         <if test="packageCode != null and packageCode != ''">
-        AND package_code = #{packageCode}
+            AND package_code = #{packageCode}
         </if>
-        <if test="status != null">
-        AND status = #{status}
-        </if>
-        <if test="waybillProduct != null and waybillProduct != ''">
-        AND waybill_product = #{waybillProduct}
-        </if>
-        <if test="consignmentName != null and consignmentName != ''">
-        AND consignment_name = #{consignmentName}
-        </if>
-        <if test="weight != null">
-        AND weight = #{weight}
-        </if>
-        <if test="cod != null">
-        AND cod = #{cod}
-        </if>
-        <if test="codAmount != null">
-        AND cod_amount = #{codAmount}
-        </if>
-        <if test="businessCode != null and businessCode != ''">
-        AND business_code = #{businessCode}
+        <if test="isCod != null">
+            AND cod = #{isCod}
         </if>
         <if test="businessName != null and businessName != ''">
-        AND business_name = #{businessName}
-        </if>
-        <if test="operatorCode != null">
-        AND operator_code = #{operatorCode}
-        </if>
-        <if test="operatorErp != null and operatorErp != ''">
-        AND operator_erp = #{operatorErp}
-        </if>
-        <if test="operatorName != null and operatorName != ''">
-        AND operator_name = #{operatorName}
-        </if>
-        <if test="siteCode != null">
-        AND site_code = #{siteCode}
-        </if>
-        <if test="siteName != null and siteName != ''">
-        AND site_name = #{siteName}
-        </if>
-        <if test="siteCity != null and siteCity != ''">
-        AND site_city = #{siteCity}
+            AND business_name = #{businessName}
         </if>
         <if test="orgCode != null">
-        AND org_code = #{orgCode}
+            AND org_code = #{orgCode}
         </if>
-        <if test="orgName != null and orgName != ''">
-        AND org_name = #{orgName}
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
         </if>
-        <if test="prevSiteCode != null">
-        AND prev_site_code = #{prevSiteCode}
+        <if test="scanTimeFrom != null">
+            AND create_time &lt;= #{scanTimeFrom}
         </if>
-        <if test="prevSiteName != null and prevSiteName != ''">
-        AND prev_site_name = #{prevSiteName}
-        </if>
-        <if test="prevOrgCode != null">
-        AND prev_org_code = #{prevOrgCode}
-        </if>
-        <if test="prevOrgName != null and prevOrgName != ''">
-        AND prev_org_name = #{prevOrgName}
-        </if>
-        <if test="createTime != null">
-        AND create_time = #{createTime}
-        </if>
-        <if test="updateTime != null">
-        AND update_time = #{updateTime}
+        <if test="scanTimeTo != null">
+            AND create_time >= #{scanTimeTo}
         </if>
         <if test="yn != null">
-        AND yn = #{yn}
-        </if>
-        <if test="ts != null">
-        AND ts = #{ts}
+            AND yn = #{yn}
         </if>
     </sql>
     <!-- 查询行数 -->
@@ -565,7 +511,7 @@
         FROM `discarded_package_storage_temp`
         <include refid="where"/>
         <if test="pageNumber > 0">
-            limit #{startRecord}, #{pageSize}
+            limit #{offset}, #{pageSize}
         </if>
     </select>
     <!-- 伪删除（更新删除行的识别码） -->
