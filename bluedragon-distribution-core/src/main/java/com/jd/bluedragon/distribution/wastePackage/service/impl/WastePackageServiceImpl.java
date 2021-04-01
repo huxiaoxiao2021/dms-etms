@@ -1,21 +1,32 @@
 package com.jd.bluedragon.distribution.wastePackage.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.TextConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
+import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,9 +34,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
@@ -54,10 +69,13 @@ public class WastePackageServiceImpl implements WastePackageService {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private ArAbnormalService arAbnormalService;
 
     /**
-     * 生成滞留明细消息
+     * 弃件暂存上报
      * @param request
      */
     @Override
@@ -74,11 +92,29 @@ public class WastePackageServiceImpl implements WastePackageService {
                 return result;
             }
 
-            List<String> packageList = getPackageCodesByWaybillCode(request.getWaybillCode());
-            if (CollectionUtils.isEmpty(packageList)) {
-                result.error("没有查询到运单号内包裹信息");
+            BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+            if(siteDto==null){
+                result.error("没有查询到操作站点信息");
                 return result;
             }
+
+            BigWaybillDto bigWaybillDto = arAbnormalService.getBigWaybillDtoByWaybillCode(request.getWaybillCode());
+            if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
+                result.error("没有查询到运单信息");
+                return result;
+            }
+
+            List<DiscardedPackageStorageTemp> dbList=getDBList(bigWaybillDto,siteDto,request);
+            if(dbList==null){
+                result.error("没有查询到运单包裹信息");
+                return result;
+            }
+
+
+
+
+
+
 
 
 
@@ -96,19 +132,186 @@ public class WastePackageServiceImpl implements WastePackageService {
         return result;
     }
 
-    private List<String> getPackageCodesByWaybillCode(String waybillCode) {
-        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_PACKAGE_CODES + waybillCode;
-        List<String> packageCodes = jimdbCacheService.getList(key, String.class);
-        // 如果缓存为空，从远程获取
-        if (org.apache.commons.collections.CollectionUtils.isEmpty(packageCodes)) {
-            packageCodes = waybillPackageManager.getWaybillPackageCodes(waybillCode);
-            // 如果不为空，缓存7天
-            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(packageCodes)) {
-                jimdbCacheService.setEx(key, packageCodes, 7, TimeUnit.DAYS);
-                return packageCodes;
+    /**
+     * 组装DB数据
+     * @param bigWaybillDto
+     * @param siteDto
+     * @return
+     */
+    private List<DiscardedPackageStorageTemp> getDBList(BigWaybillDto bigWaybillDto,BaseStaffSiteOrgDto siteDto,WastePackageRequest request){
+        List<DiscardedPackageStorageTemp> dbList=new ArrayList<>();
+        if(bigWaybillDto.getPackageList()==null){
+            return null;
+        }
+
+        Waybill WaybillInfo=bigWaybillDto.getWaybill();
+        for (DeliveryPackageD pack : bigWaybillDto.getPackageList()){
+            DiscardedPackageStorageTemp db=new DiscardedPackageStorageTemp();
+            db.setWaybillCode(request.getWaybillCode());
+            db.setPackageCode(pack.getPackageBarcode());
+            db.setStatus(request.getStatus());
+            db.setWaybillProduct(setTransportMode(WaybillInfo));
+            db.setConsignmentName(arAbnormalService.getConsignmentNameByWaybillDto(bigWaybillDto));
+            db.setWeight(BigDecimal.valueOf(WaybillInfo.getGoodWeight()));
+            if(WaybillInfo.getPayment()!=null && (WaybillInfo.getPayment()==1 || WaybillInfo.getPayment()==3)){
+                db.setCod(1);
+            }else {
+                db.setCod(0);
+            }
+            String codMoney = WaybillInfo.getCodMoney();
+            if (codMoney != null) {
+                db.setCodAmount(new BigDecimal(codMoney));
+            }
+            db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
+            db.setBusinessName(WaybillInfo.getBusiName());
+            db.setOperatorCode(request.getUserCode().longValue());
+            db.setBusinessName(request.getUserName());
+            db.setOperatorErp(request.getOperatorERP());
+            db.setSiteCode(request.getSiteCode());
+            db.setSiteName(request.getSiteName());
+            db.setSiteCity(siteDto.getCityName());
+            db.setOrgCode((int)siteDto.getAreaId());
+            db.setOrgName(siteDto.getAreaName());
+            Integer prevSiteCode=getPreSiteCode(pack.getPackageBarcode(),request.getSiteCode());
+            db.setPrevSiteCode(prevSiteCode);
+            if(prevSiteCode!=null){
+                BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+                if(prevSiteDto==null){
+                    db.setPrevSiteName(prevSiteDto.getSiteName());
+                    db.setPrevOrgCode((int)prevSiteDto.getAreaId());
+                    db.setPrevOrgName(prevSiteDto.getAreaName());
+                }
+            }
+
+            dbList.add(db);
+        }
+
+        return dbList;
+    }
+
+    private Integer getPreSiteCode(String packageCode, Integer currentSiteCode) {
+        Integer preSiteCode = null;
+
+        //查全程跟踪
+        BaseEntity<List<PackageState>> waybillTrackResult = waybillTraceManager.getPkStateByPCode(packageCode);
+        // 解析全程跟踪数据
+        if(waybillTrackResult != null && waybillTrackResult.getData() != null && waybillTrackResult.getData().size() > 0){
+            List<PackageState> packageStateList = waybillTrackResult.getData();
+            // 按全程跟踪的创建时间降序排列排序
+            Collections.sort(packageStateList, new Comparator<PackageState>() {
+                @Override
+                public int compare(PackageState v1, PackageState v2) {
+                    return v2.getCreateTime().compareTo(v1.getCreateTime());
+                }
+            });
+            // 遍历，找到当前分拣中心之前的操作数据
+            boolean findCurrentSiteOpLog = false;
+            for(PackageState packageState : packageStateList){
+                if(Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)) {
+                    //  找到当前分拣中心的操作记录，往后就是上游节点的数据
+                    findCurrentSiteOpLog = true;
+                }
+                if (findCurrentSiteOpLog && !Objects.equals(packageState.getOperatorSiteId(), currentSiteCode)){
+                    preSiteCode = packageState.getOperatorSiteId();
+                    break;
+                }
             }
         }
-        return packageCodes;
+
+        return preSiteCode;
+    }
+
+
+
+    private String setTransportMode(Waybill waybill) {
+        String res="";
+
+        if(waybill == null){
+            return res;
+        }
+        String waybillSign = waybill.getWaybillSign();
+        if(StringHelper.isEmpty(waybillSign)){
+            return res;
+        }
+
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
+            //5-特惠送
+            res = TextConstants.PRODUCT_NAME_THS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
+            //13\14-京准达
+            res = TextConstants.PRODUCT_NAME_JZD;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_F)){
+            //31 = F  特惠小件
+            res = TextConstants.PRODUCT_NAME_THXJ;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)){
+            //31 = G  冷链专送
+            res = TextConstants.PRODUCT_NAME_LLZS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
+                && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+                //4-同城速配
+                res = TextConstants.PRODUCT_NAME_TCSP;
+            }else{
+                //3-极速达
+                res = TextConstants.PRODUCT_NAME_JSD;
+            }
+        }
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
+                //1-特惠送
+                res = TextConstants.PRODUCT_NAME_THS;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B)){
+                //2-函速达
+                res = TextConstants.PRODUCT_NAME_HSD;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_3)){
+                //6-城际即日
+                res = TextConstants.PRODUCT_NAME_CJJR;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)){
+                //7-生鲜特惠
+                res = TextConstants.PRODUCT_NAME_SXTH;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
+                //8-生鲜特快
+                res = TextConstants.PRODUCT_NAME_SXTK;
+                // 8.1 - 生鲜特快下运营类型
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
+                    res += TextConstants.PRODUCT_NAME_SXTK_JR;
+                }
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)) {
+                    res += TextConstants.PRODUCT_NAME_SXTK_CC;
+                }
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
+                //16-特惠包裹
+                res = TextConstants.PRODUCT_NAME_THBG;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_0,WaybillSignConstants.CHAR_116_1)){
+                //10-特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }else if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1,WaybillSignConstants.CHAR_16_2
+                    ,WaybillSignConstants.CHAR_16_3,WaybillSignConstants.CHAR_16_7,WaybillSignConstants.CHAR_16_8))
+                    ||
+                    (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2))){
+                //11-特快送即日
+                res = TextConstants.PRODUCT_NAME_TKSJR;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                    ||
+                    (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3))){
+                //12-特快送次晨
+                res = TextConstants.PRODUCT_NAME_TKSCC;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_4)){
+                //15-特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }
+
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1)){
+            //9-生鲜专送
+            res = TextConstants.PRODUCT_NAME_SXZS;
+        }
+
+        return res;
     }
 
     private BdTraceDto getPackagePrintBdTraceDto(WastePackageRequest request) {

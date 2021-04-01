@@ -502,7 +502,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         return BusinessUtil.isArTransportMode(waybillSign);
     }
 
-    private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
+    @Override
+    public BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
         choice.setQueryGoodList(true);
@@ -581,7 +582,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      * @param bigWaybillDto
      * @return
      */
-    private String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto) {
+    @Override
+    public String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto) {
         // 1.查询运单商品信息
         String name = this.getConsignmentNameFromGoods(bigWaybillDto.getGoodsList());
         if (name != null) {
