@@ -41,6 +41,15 @@ public interface CacheService {
 	 * @return
 	 */
 	<T> boolean set(String key, T val);
+
+	/**
+	 * 缓存中放入一个不过期的可序列化对象
+	 * @param key
+	 * @param val
+	 * @param <T>
+	 * @return
+	 */
+	<T> boolean setNoEx(String key, T val);
 	/**
 	 * 缓存中放入一个可序列化的对象，指定过期时间（单位秒）
 	 * @param key

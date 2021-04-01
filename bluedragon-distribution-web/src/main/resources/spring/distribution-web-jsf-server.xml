@@ -271,5 +271,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
-
+    <!-- 通知中心 提供给h5页面 -->
+    <jsf:provider id="dmsNoticeH5JsfService"
+                  interface="com.jd.bluedragon.distribution.notice.service.NoticeH5JsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="noticeH5JsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
