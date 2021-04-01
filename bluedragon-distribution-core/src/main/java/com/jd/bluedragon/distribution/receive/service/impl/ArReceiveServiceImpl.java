@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition;
+import com.jd.bluedragon.distribution.transport.domain.ArReceiveVo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -131,6 +133,16 @@ public class ArReceiveServiceImpl extends BaseService<ArReceive> implements ArRe
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public Integer queryArReceiveCountForWorking(ArReceiveCondition request) {
+		return arReceiveDao.queryArReceiveCountForWorking(request);
+	}
+
+	@Override
+	public List<ArReceiveVo> queryArReceiveDetailForWorking(ArReceiveCondition request) {
+		return arReceiveDao.queryArReceiveDetailForWorking(request);
 	}
 
 }
