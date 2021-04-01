@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -28,6 +29,25 @@ public interface DmsBaseService {
      * @return
      */
     LoginUserResponse clientLogin(LoginRequest request);
+
+    /**
+     * 客户端登录获取登录信息接口(安卓PDA)，增加token信息
+     *
+     * @param request
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    LoginUserResponse clientLoginNew(LoginRequest request);
+
+    /**
+     * 客户端登录token验证
+     *
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    JdResult verifyClientLoginToken(String userErp, String deviceId, String token);
     /**
      * web页面，cookies自动登录后，调用该接口获取用户登录信息
      * @param request

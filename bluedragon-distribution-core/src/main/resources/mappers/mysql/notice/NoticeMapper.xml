@@ -10,7 +10,9 @@
         <result column="upload_time" property="uploadTime"/>
         <result column="is_display" property="isDisplay"/>
         <result column="is_top_display" property="isTopDisplay"/>
+        <result column="content_brief" property="contentBrief"/>
         <result column="content" property="content"/>
+        <result column="receive_scope_type" property="receiveScopeType"/>
         <result column="create_user" property="createUser"/>
         <result column="update_user" property="updateUser"/>
         <result column="create_time" property="createTime"/>
@@ -26,7 +28,27 @@
         upload_time,
         is_display,
         is_top_display,
+        receive_scope_type,
         content,
+        content_brief,
+        create_user,
+        update_user,
+        create_time,
+        update_time,
+        is_delete
+    </sql>
+
+    <!-- 不查长字段content的字段 -->
+    <sql id="Base_Column_No_Content_List">
+        id,
+        theme,
+        level,
+        type,
+        upload_time,
+        is_display,
+        is_top_display,
+        receive_scope_type,
+        content_brief,
         create_user,
         update_user,
         create_time,
@@ -43,7 +65,9 @@
 		    upload_time,
 		    is_display,
 		    is_top_display,
+            receive_scope_type,
 		    content,
+            content_brief,
 		    create_user,
 		    update_user,
 		    create_time,
@@ -58,7 +82,9 @@
 			#{uploadTime, jdbcType=TIMESTAMP},
 			#{isDisplay, jdbcType=TINYINT},
 			#{isTopDisplay, jdbcType=TINYINT},
+			#{receiveScopeType, jdbcType=TINYINT},
 			#{content, jdbcType=VARCHAR},
+			#{contentBrief, jdbcType=VARCHAR},
 			#{createUser, jdbcType=VARCHAR},
 			#{updateUser, jdbcType=VARCHAR},
 			NOW(),
@@ -87,15 +113,25 @@
         </if>
     </select>
 
-    <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
-        SELECT count(1)
-        FROM notice
-        WHERE is_delete = 0
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            and id = #{id}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            and theme like concat('%', #{keyword}, '%')
+        </if>
         <if test="title != null and title != ''">
             and theme like concat(#{title}, '%')
         </if>
         <if test="type != null and type != ''">
             and type = #{type}
+        </if>
+        <if test="typeList != null">
+            and type in
+            <foreach collection="typeList" item="type" open="(" close=")" separator=",">
+                #{type}
+            </foreach>
         </if>
         <if test="level != null and level != ''">
             and level = #{level}
@@ -103,26 +139,51 @@
         <if test="isDisplay != null">
             and is_display = #{isDisplay}
         </if>
-        ORDER BY is_top_display desc, create_time desc
+        <if test="isTopDisplay != null">
+            and is_top_display = #{isTopDisplay}
+        </if>
+        <if test="receiveScopeType != null">
+            and receive_scope_type = #{receiveScopeType}
+        </if>
+        <if test="receiveScopeTypeList != null">
+            and receive_scope_type in
+            <foreach collection="receiveScopeTypeList" item="type" open="(" close=")" separator=",">
+                #{type}
+            </foreach>
+        </if>
+        <if test="createTimeStart != null">
+            and create_time >= #{createTimeStart}
+        </if>
+        <if test="createTimeEnd != null">
+            and create_time &lt;= #{createTimeEnd}
+        </if>
+        <if test="isDelete != null">
+            and is_delete = #{isDelete}
+        </if>
+    </sql>
+
+    <select id="selectOne" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice
+        WHERE 1 = 1
+        <include refid="sql_if_not_null"/>
+        LIMIT 1
+    </select>
+
+    <select id="queryCount" resultType="Long" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
+        SELECT count(1)
+        FROM notice
+        WHERE 1 = 1
+        <include refid="sql_if_not_null"/>
     </select>
 
     <select id="queryList" resultMap="notice" parameterType="com.jd.bluedragon.distribution.notice.request.NoticeQuery">
         SELECT
-        <include refid="Base_Column_List"/>
+        <include refid="Base_Column_No_Content_List"/>
         FROM notice
-        WHERE is_delete = 0
-        <if test="title != null and title != ''">
-            and theme like concat(#{title}, '%')
-        </if>
-        <if test="type != null and type != ''">
-            and type = #{type}
-        </if>
-        <if test="level != null and level != ''">
-            and level = #{level}
-        </if>
-        <if test="isDisplay != null">
-            and is_display = #{isDisplay}
-        </if>
+        WHERE 1 = 1
+        <include refid="sql_if_not_null"/>
         ORDER BY is_top_display desc, create_time desc
         <if test="offset != null and offset >= 0">
             LIMIT #{offset}, #{limit}
@@ -176,8 +237,14 @@
             <if test="isTopDisplay != null">
                 is_top_display = #{isTopDisplay},
             </if>
+            <if test="receiveScopeType != null">
+                receive_scope_type = #{receiveScopeType},
+            </if>
             <if test="content != null and content != ''">
                 content = #{content},
+            </if>
+            <if test="contentBrief != null and contentBrief != ''">
+                content_brief = #{contentBrief},
             </if>
             <if test="updateUser != null">
                 update_user = #{updateUser},
@@ -189,4 +256,4 @@
         AND id = #{id}
     </update>
 
-</mapper>	
+</mapper>

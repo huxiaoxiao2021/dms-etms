@@ -91,6 +91,19 @@ public class JimdbCacheServiceImpl implements CacheService{
 	public <T> boolean set(String key, T val) {
 		return setEx(key, val ,exTime,exTimeUnit);
 	}
+
+	/**
+	 * 缓存中放入一个可序列化的对象
+	 * @param key
+	 * @param val
+	 * @return
+	 */
+	@Override
+	public <T> boolean setNoEx(String key, T val) {
+		jimdbClient.set(key, serialize(val));
+		return true;
+	}
+
 	/**
 	 * 缓存中放入一个可序列化的对象，指定过期时间（单位秒）
 	 * @param key

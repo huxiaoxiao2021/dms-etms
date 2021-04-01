@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -34,6 +35,23 @@ public interface UserService {
 	 * @return
 	 */
 	public LoginUserResponse jsfLogin(LoginRequest request);
+
+	/**
+	 * 通过jsf调用登录服务
+	 * @param request
+	 * @return
+	 */
+	LoginUserResponse jsfLoginWithToken(LoginRequest request);
+
+	/**
+	 * 客户端登录token验证
+	 *
+	 * @return
+	 * @author fanggang7
+	 * @time 2021-03-09 19:32:02 周二
+	 */
+	JdResult verifyClientLoginToken(String userErp, String deviceId, String token);
+
 	/**
 	 * 通过jsf调用,获取当前登录账户信息
 	 * @param request
