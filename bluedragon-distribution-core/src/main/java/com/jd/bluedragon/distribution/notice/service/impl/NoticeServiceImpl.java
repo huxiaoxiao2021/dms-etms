@@ -246,11 +246,12 @@ public class NoticeServiceImpl implements NoticeService {
         Response<Boolean> response = new Response<>();
         response.toSucceed();
         response.setData(false);
+        Notice noticeExist = noticeDao.getByPrimaryKey(notice.getId());
         int updateCount = noticeDao.deleteByPrimaryKey(notice);
         if(updateCount == 1){
             response.setData(true);
         }
-        noticeH5Service.updatePdaNoticeCache(notice, NoticeH5Service.OPERATE_TYPE_DELETE);
+        noticeH5Service.updatePdaNoticeCache(noticeExist, NoticeH5Service.OPERATE_TYPE_DELETE);
         return response;
     }
 }
