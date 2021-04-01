@@ -15,6 +15,7 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,9 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    private
+
     /**
      * 生成滞留明细消息
      * @param request
@@ -65,16 +69,18 @@ public class WastePackageServiceImpl implements WastePackageService {
         }
 
         try {
-//            if (!waybillTraceManager.isWaybillWaste(request.getWaybillCode())){
-//                result.error("不是弃件，请勿操作弃件暂存");
-//                return result;
-//            }
+            if (!waybillTraceManager.isWaybillWaste(request.getWaybillCode())){
+                result.error("不是弃件，请勿操作弃件暂存");
+                return result;
+            }
 
-//            List<String> packageList = getPackageCodesByWaybillCode(request.getWaybillCode());
-//            if (CollectionUtils.isEmpty(packageList)) {
-//                result.error("没有查询到运单号内包裹信息");
-//                return result;
-//            }
+            List<String> packageList = getPackageCodesByWaybillCode(request.getWaybillCode());
+            if (CollectionUtils.isEmpty(packageList)) {
+                result.error("没有查询到运单号内包裹信息");
+                return result;
+            }
+
+
 
             log.info("发送弃件全程跟踪。运单号：{}",request.getWaybillCode());
             BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(request);
