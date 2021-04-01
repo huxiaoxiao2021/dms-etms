@@ -47,16 +47,19 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
         }
         try {
             TmsSealCar tmsSealCar = JsonHelper.fromJsonUseGson(message.getText(), TmsSealCar.class);
-
-            if (StringUtils.isEmpty(tmsSealCar.getOperateSiteCode()) || CollectionUtils.isEmpty(tmsSealCar.getBatchCodes())
-                    || StringUtils.isEmpty(tmsSealCar.getSealCarCode())){
-                log.warn("封车解封车状态变化下发消息体缺少必要字段，内容为【{}】", message.getText());
+            if (StringUtils.isEmpty(tmsSealCar.getSealCarCode())){
+                log.warn("封车解封车状态变化下发消息体缺少封车编码，内容为【{}】", message.getText());
                 return;
             }
-
             // 消费解封车状态，自动分配卸车任务
             if (UNSEAL_CAR_STATUS.equals(tmsSealCar.getStatus())) {
                 distributeUnloadCarTask(tmsSealCar);
+                return;
+            }
+
+            if (StringUtils.isEmpty(tmsSealCar.getOperateSiteCode()) || CollectionUtils.isEmpty(tmsSealCar.getBatchCodes())){
+                log.warn("封车解封车状态变化下发消息体缺少必要字段，内容为【{}】", message.getText());
+                return;
             }
 
             if (!SEAL_CAR_STATUS.equals(tmsSealCar.getStatus())) {
