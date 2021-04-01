@@ -119,7 +119,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         BoxResponse boxResponse = boxResource.validationAndCheck(boxCode,operateType,siteCode);
         JdVerifyResponse<BoxDto> jdVerifyResponse = new JdVerifyResponse<>();
         if(!Objects.equals(boxResponse.getCode(),BoxResponse.CODE_OK)){
-            jdVerifyResponse.toError(boxResponse.getMessage());
+            jdVerifyResponse.toCustomError(boxResponse.getCode(),boxResponse.getMessage());
             return jdVerifyResponse;
         }
         jdVerifyResponse.toSuccess();
