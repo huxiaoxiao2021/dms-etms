@@ -396,10 +396,10 @@
 			</foreach>
 		</if>
 		<if test="operateTimeStart !=null">
-			and operate_time &gt; #{operateTimeStart}
+			and create_time &gt; #{operateTimeStart}
 		</if>
 		<if test="operateTimeEnd !=null">
-			and operate_time &lt; #{operateTimeEnd}
+			and create_time &lt; #{operateTimeEnd}
 		</if>
 	</select>
 	<select id="queryArReceiveDetailForWorking" parameterType="com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition" resultMap="ArReceive">
@@ -422,10 +422,10 @@
 			</foreach>
 		</if>
 		<if test="operateTimeStart !=null">
-			and operate_time &gt; #{operateTimeStart}
+			and create_time &gt; #{operateTimeStart}
 		</if>
 		<if test="operateTimeEnd !=null">
-			and operate_time &lt; #{operateTimeEnd}
+			and create_time &lt; #{operateTimeEnd}
 		</if>
 		limit #{offset},#{size}
 	</select>
