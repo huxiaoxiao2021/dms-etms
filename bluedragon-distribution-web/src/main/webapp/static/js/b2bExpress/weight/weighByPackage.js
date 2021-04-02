@@ -128,9 +128,9 @@
                 // 批量强制提交 调用的时候
                 if(isExist){
                     //是真正意义上的存在
-                    existSubmitPackage(insertParam,removeFailDataFunc,index);
+                    existSubmitPackage(insertParam,removeFailDataFuncPackage,index);
                 }else{
-                    noExistSubmitPackage(insertParam,removeFailDataFunc,index);
+                    noExistSubmitPackage(insertParam,removeFailDataFuncPackage,index);
                 }
 
             }else{
@@ -142,9 +142,9 @@
 
                             if(isExist){
                                 //此处返回的存在并不是真正意义上的存在
-                                doWaybillWeightPackage(insertParam,removeFailDataFunc,index);
+                                doWaybillWeightPackage(insertParam,removeFailDataFuncPackage,index);
                             }else{
-                                noExistSubmitPackage(insertParam,removeFailDataFunc,index);
+                                noExistSubmitPackage(insertParam,removeFailDataFuncPackage,index);
                             }
                             //会自动把errorData的数据移除掉一条
 
@@ -460,7 +460,7 @@
                         });
                     }
 
-                    function removeFailDataFunc(key){
+                    function removeFailDataFuncPackage(key){
                             //防止删除后 数组索引发生变化  原函数索引未改变
                         if(key || key >= 0){
                             for(var index = 0 ; index < errorData.length ; index++ ){
