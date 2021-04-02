@@ -979,13 +979,26 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"运单信息不存在!");
             return result;
         }
-        if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
-            return result;
+        //企配仓校验
+        boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
+
+        //如果是企配仓的运单并且不是B2B的运单的时候 ，校验当前操作场地是末级场地。
+        if(qpcWaybill&& BusinessUtil.isNotB2B(waybill.getSendPay())){
+            if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
+                return result;
+            }
         }
+        //暂存(非企配仓)
+        if(!qpcWaybill){
+            if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
+                return result;
+            }
+        }
+
         try {
             storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
-            boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
             if(waybillCommonService.isStorageWaybill(waybillCode)
                     || qpcWaybill){
                 storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());

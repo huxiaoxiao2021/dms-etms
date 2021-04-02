@@ -1918,12 +1918,10 @@ public class BusinessUtil {
         return isSignChar(waybillSign, 1, '7');
     }
 
-
-
     /**
-     * 根据sendPay表位判断预售暂存类型
-     * 如果sendPay 228位等于1或2，表示预售暂存到仓
-     * 如果sendPay 228位等于4或5，表示预售暂存到配
+     * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的
+     * @param waybillSign
+     * @return
      */
     public static Integer getStoreTypeBySendPay(String sendPay){
         Integer result = null;
@@ -1990,4 +1988,12 @@ public class BusinessUtil {
     }
 
 
+    /**
+     * 非B2B运单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isNotB2B(String sendPay) {
+        return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
+    }
 }

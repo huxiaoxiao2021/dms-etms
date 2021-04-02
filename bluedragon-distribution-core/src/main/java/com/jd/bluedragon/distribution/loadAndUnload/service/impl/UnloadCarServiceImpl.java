@@ -207,10 +207,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private WaybillStagingCheckManager waybillStagingCheckManager;
 
     @Autowired
-    WaybillPackageApi waybillPackageApi;
+    private WaybillService waybillService;
 
     @Autowired
-    private WaybillService waybillService;
+    WaybillPackageApi waybillPackageApi;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2553,6 +2553,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
+
             // 返单标识
             boolean isRefund = BusinessUtil.isRefund(waybillSign);
 
@@ -2616,7 +2617,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 result.setMessage(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
                 return result;
             }
-
 
 
             //有包装服务
