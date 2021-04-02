@@ -304,13 +304,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 Integer forceAmount = unloadScan.getForceAmount();
                 Integer surplusAmount = unloadScan.getSurplusAmount();
                 Integer loadAmount = unloadScan.getLoadAmount();
-                if (unloadScan.getForceAmount() == null) {
+                if (forceAmount == null) {
                     forceAmount = 0;
                 }
-                if (unloadScan.getSurplusAmount() == null) {
+                if (surplusAmount == null) {
                     surplusAmount = 0;
                 }
-                if (unloadScan.getLoadAmount() == null) {
+                if (loadAmount == null) {
                     loadAmount = 0;
                 }
                 // 所有应卸加起来就是总包裹数
@@ -376,7 +376,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScanDto.setPackageAmount(unloadScan.getPackageAmount());
         unloadScanDto.setForceAmount(unloadScan.getForceAmount());
         if (isEmptyTask) {
-            unloadScanDto.setLoadAmount(unloadScan.getSurplusAmount());
+            Integer surplusAmount = unloadScan.getSurplusAmount();
+            if (surplusAmount == null) {
+                surplusAmount = 0;
+            }
+            unloadScanDto.setLoadAmount(surplusAmount);
         } else {
             unloadScanDto.setLoadAmount(unloadScan.getLoadAmount());
         }
@@ -722,7 +726,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 运单之前操作过
             if (unloadScan != null) {
                 if (flowDisAccord) {
-                    unloadScan.setSurplusAmount(unloadScan.getSurplusAmount() + 1);
+                    Integer surplusAmount = unloadScan.getSurplusAmount();
+                    if (surplusAmount == null) {
+                        surplusAmount = 0;
+                    }
+                    unloadScan.setSurplusAmount(surplusAmount + 1);
                 } else {
                     unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
                 }
@@ -814,8 +822,24 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         packageNum, request.getOperateUserName(), request.getOperateUserErp(), flowDisAccord);
                 unloadScanDao.insert(unloadScan);
             } else {
-                unloadScan.setLoadAmount(unloadScan.getLoadAmount() + normalPackages.size());
-                unloadScan.setSurplusAmount(unloadScan.getSurplusAmount() + surplusPackages.size());
+                Integer loadAmount = unloadScan.getLoadAmount();
+                if (loadAmount == null) {
+                    loadAmount = 0;
+                }
+                int normalPackageListSize = 0;
+                if (CollectionUtils.isNotEmpty(normalPackages)) {
+                    normalPackageListSize = normalPackages.size();
+                }
+                unloadScan.setLoadAmount(loadAmount + normalPackageListSize);
+                Integer surplusAmount = unloadScan.getSurplusAmount();
+                if (surplusAmount == null) {
+                    surplusAmount = 0;
+                }
+                int surplusPackageListSize = 0;
+                if (CollectionUtils.isNotEmpty(surplusPackages)) {
+                    surplusPackageListSize = surplusPackages.size();
+                }
+                unloadScan.setSurplusAmount(surplusAmount + surplusPackageListSize);
                 unloadScan.setUnloadAmount(0);
                 unloadScan.setPackageAmount(packageNum);
                 // 设置状态
@@ -891,8 +915,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScan.setForceAmount(forceAmount);
         if (flowDisAccord) {
             unloadScan.setSurplusAmount(loadAmount);
+            unloadScan.setLoadAmount(0);
         } else {
             unloadScan.setLoadAmount(loadAmount);
+            unloadScan.setSurplusAmount(0);
         }
         if (forceAmount != null && forceAmount != 0) {
             unloadScan.setUnloadAmount(forceAmount > loadAmount ? forceAmount - loadAmount : 0);
