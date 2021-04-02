@@ -74,6 +74,15 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
     }
 
     /**
+     * 批量新增
+     * @param listParam
+     * @return
+     */
+    public int batchInsert(List<DiscardedPackageStorageTemp> listParam) {
+        return this.getSqlSession().insert(DiscardedPackageStorageTempDao.NAMESPACE + ".batchInsert", listParam);
+    }
+
+    /**
      * 按主键更新
      * @param discardedPackageStorageTemp 参数
      * @return 数据列表
@@ -82,6 +91,15 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      */
     public int updateByPrimaryKey(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
         return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateByPrimaryKey", discardedPackageStorageTemp);
+    }
+
+    /**
+     * 批量更新
+     * @param listParam
+     * @return
+     */
+    public int batchUpdate(List<DiscardedPackageStorageTemp> listParam) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".batchUpdate", listParam);
     }
 
     /**

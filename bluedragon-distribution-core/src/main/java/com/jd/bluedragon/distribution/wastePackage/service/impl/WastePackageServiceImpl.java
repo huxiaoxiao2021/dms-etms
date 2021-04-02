@@ -9,12 +9,15 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
 import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -74,6 +77,9 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Autowired
     private ArAbnormalService arAbnormalService;
 
+    @Autowired
+    private DiscardedPackageStorageTempDao discardedPackageStorageTempDao;
+
     /**
      * 弃件暂存上报
      * @param request
@@ -110,20 +116,26 @@ public class WastePackageServiceImpl implements WastePackageService {
                 return result;
             }
 
+            DiscardedPackageStorageTempQo dbQuery=new DiscardedPackageStorageTempQo();
+            dbQuery.setWaybillCode(request.getWaybillCode());
+            dbQuery.setYn(Constants.YN_YES);
+            long total = discardedPackageStorageTempDao.selectCount(dbQuery);
+            int dbRes=-1;
+            if(total>0){
+                dbRes=discardedPackageStorageTempDao.batchUpdate(dbList);
+            }else {
+                dbRes=discardedPackageStorageTempDao.batchInsert(dbList);
+            }
 
-
-
-
-
-
-
+            if(dbRes<0){
+                result.error("弃件暂存失败，存储数据出现错误");
+                return result;
+            }
 
             log.info("发送弃件全程跟踪。运单号：{}",request.getWaybillCode());
             BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(request);
             //发送全程跟踪消息
             waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
-
-
         }catch (Exception e){
             log.error("弃件暂存异常,请求参数：{}", JsonHelper.toJson(request),e);
             result.error("弃件暂存异常,请联系分拣小秘！");
@@ -178,10 +190,11 @@ public class WastePackageServiceImpl implements WastePackageService {
                 BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
                 if(prevSiteDto==null){
                     db.setPrevSiteName(prevSiteDto.getSiteName());
-                    db.setPrevOrgCode((int)prevSiteDto.getAreaId());
-                    db.setPrevOrgName(prevSiteDto.getAreaName());
+                    db.setPrevOrgCode(Integer.valueOf(prevSiteDto.getProvinceCompanyCode()));
+                    db.setPrevOrgName(prevSiteDto.getProvinceCompanyName());
                 }
             }
+            db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
 
             dbList.add(db);
         }

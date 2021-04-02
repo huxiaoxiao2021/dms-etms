@@ -41,9 +41,6 @@
     <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
         insert into `discarded_package_storage_temp`
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                id,
-            </if>
             <if test="waybillCode != null and waybillCode != ''">
                 waybill_code,
             </if>
@@ -124,9 +121,6 @@
             </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="id != null">
-                #{id},
-            </if>
             <if test="waybillCode != null and waybillCode != ''">
                 #{waybillCode},
             </if>
@@ -211,7 +205,6 @@
     <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
         insert into `discarded_package_storage_temp`
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            id,
             waybill_code,
             package_code,
             status,
@@ -234,15 +227,11 @@
             prev_site_name,
             prev_org_code,
             prev_org_name,
-            create_time,
-            update_time,
-            yn,
-            ts,
+            create_time
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
             <trim prefix=" (" suffix=")" suffixOverrides=",">
-                    #{item.id},
                     #{item.waybillCode},
                     #{item.packageCode},
                     #{item.status},
@@ -265,10 +254,7 @@
                     #{item.prevSiteName},
                     #{item.prevOrgCode},
                     #{item.prevOrgName},
-                    #{item.createTime},
-                    #{item.updateTime},
-                    #{item.yn},
-                    #{item.ts},
+                    #{item.createTime}
             </trim>
         </foreach>
     </insert>
@@ -342,21 +328,9 @@
             <if test="prevOrgName != null and prevOrgName != ''">
             prev_org_name = #{prevOrgName},
             </if>
-            <if test="createTime != null ">
-            create_time = #{createTime},
-            </if>
-            <if test="updateTime != null ">
-            update_time = #{updateTime},
-            </if>
-            <if test="yn != null ">
-            yn = #{yn},
-            </if>
-            <if test="ts != null ">
-            ts = #{ts}
-            </if>
         </set>
         WHERE
-            id = #{id}
+            package_code = #{packageCode}
     </update>
     <!-- 批量更新 -->
     <update id="batchUpdate" parameterType="java.util.List">
@@ -429,21 +403,9 @@
                 <if test="item.prevOrgName != null and item.prevOrgName != ''">
                 prev_org_name = #{item.prevOrgName},
                 </if>
-                <if test="item.createTime != null">
-                create_time = #{item.createTime},
-                </if>
-                <if test="item.updateTime != null">
-                update_time = #{item.updateTime},
-                </if>
-                <if test="item.yn != null">
-                yn = #{item.yn},
-                </if>
-                <if test="item.ts != null">
-                ts = #{item.ts}
-                </if>
             </set>
             WHERE
-                id = #{item.id}
+                package_code = #{item.packageCode}
         </foreach>
     </update>
     <!-- 按主键查询 -->
