@@ -336,7 +336,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
      * @time 2021-03-23 11:28:33 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkColdChainSendDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> checkColdChainSendDelivery(DeliveryRequest request) {
+        log.info("SendGatewayServiceImpl.checkColdChainSendDelivery param {}", JsonHelper.toJson(request));
         JdCResponse<Boolean> result = new JdCResponse<>();
         result.toSucceed();
         try {
