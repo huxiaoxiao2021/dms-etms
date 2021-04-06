@@ -121,7 +121,6 @@ public class WastePackageServiceImpl implements WastePackageService {
                 return result;
             }
 
-
             List<DiscardedPackageStorageTemp> dbList=getDBList(baseEntity.getData(),siteDto,request);
             if(dbList==null){
                 result.error("没有查询到运单包裹信息");
