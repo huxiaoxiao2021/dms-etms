@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_DiscardedPackageStorageTemp" type="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        <result property="id" column="id"/>
+        <result property="waybillCode" column="waybill_code"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="status" column="status"/>
+        <result property="waybillProduct" column="waybill_product"/>
+        <result property="consignmentName" column="consignment_name"/>
+        <result property="weight" column="weight"/>
+        <result property="cod" column="cod"/>
+        <result property="codAmount" column="cod_amount"/>
+        <result property="businessCode" column="business_code"/>
+        <result property="businessName" column="business_name"/>
+        <result property="operatorCode" column="operator_code"/>
+        <result property="operatorErp" column="operator_erp"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="siteCity" column="site_city"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="orgName" column="org_name"/>
+        <result property="prevSiteCode" column="prev_site_code"/>
+        <result property="prevSiteName" column="prev_site_name"/>
+        <result property="prevProvinceCompanyCode" column="prev_province_company_code"/>
+        <result property="prevProvinceCompanyName" column="prev_province_company_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        insert into `discarded_package_storage_temp`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="waybillCode != null and waybillCode != ''">
+                waybill_code,
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                package_code,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="waybillProduct != null and waybillProduct != ''">
+                waybill_product,
+            </if>
+            <if test="consignmentName != null and consignmentName != ''">
+                consignment_name,
+            </if>
+            <if test="weight != null">
+                weight,
+            </if>
+            <if test="cod != null">
+                cod,
+            </if>
+            <if test="codAmount != null">
+                cod_amount,
+            </if>
+            <if test="businessCode != null and businessCode != ''">
+                business_code,
+            </if>
+            <if test="businessName != null and businessName != ''">
+                business_name,
+            </if>
+            <if test="operatorCode != null">
+                operator_code,
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+                operator_erp,
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                operator_name,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name,
+            </if>
+            <if test="siteCity != null and siteCity != ''">
+                site_city,
+            </if>
+            <if test="orgCode != null">
+                org_code,
+            </if>
+            <if test="orgName != null and orgName != ''">
+                org_name,
+            </if>
+            <if test="prevSiteCode != null">
+                prev_site_code,
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name,
+            </if>
+            <if test="prevProvinceCompanyCode != null">
+                prev_province_company_code,
+            </if>
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+                prev_province_company_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="waybillCode != null and waybillCode != ''">
+                #{waybillCode},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+                #{packageCode},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="waybillProduct != null and waybillProduct != ''">
+                #{waybillProduct},
+            </if>
+            <if test="consignmentName != null and consignmentName != ''">
+                #{consignmentName},
+            </if>
+            <if test="weight != null">
+                #{weight},
+            </if>
+            <if test="cod != null">
+                #{cod},
+            </if>
+            <if test="codAmount != null">
+                #{codAmount},
+            </if>
+            <if test="businessCode != null and businessCode != ''">
+                #{businessCode},
+            </if>
+            <if test="businessName != null and businessName != ''">
+                #{businessName},
+            </if>
+            <if test="operatorCode != null">
+                #{operatorCode},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+                #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                #{operatorName},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                #{siteName},
+            </if>
+            <if test="siteCity != null and siteCity != ''">
+                #{siteCity},
+            </if>
+            <if test="orgCode != null">
+                #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+                #{orgName},
+            </if>
+            <if test="prevSiteCode != null">
+                #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                #{prevSiteName},
+            </if>
+            <if test="prevProvinceCompanyCode != null">
+                #{prevProvinceCompanyCode},
+            </if>
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+                #{prevProvinceCompanyName},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `discarded_package_storage_temp`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            waybill_code,
+            package_code,
+            status,
+            waybill_product,
+            consignment_name,
+            weight,
+            cod,
+            cod_amount,
+            business_code,
+            business_name,
+            operator_code,
+            operator_erp,
+            operator_name,
+            site_code,
+            site_name,
+            site_city,
+            org_code,
+            org_name,
+            prev_site_code,
+            prev_site_name,
+            prev_province_company_code,
+            prev_province_company_name,
+            create_time
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.waybillCode},
+                    #{item.packageCode},
+                    #{item.status},
+                    #{item.waybillProduct},
+                    #{item.consignmentName},
+                    #{item.weight},
+                    #{item.cod},
+                    #{item.codAmount},
+                    #{item.businessCode},
+                    #{item.businessName},
+                    #{item.operatorCode},
+                    #{item.operatorErp},
+                    #{item.operatorName},
+                    #{item.siteCode},
+                    #{item.siteName},
+                    #{item.siteCity},
+                    #{item.orgCode},
+                    #{item.orgName},
+                    #{item.prevSiteCode},
+                    #{item.prevSiteName},
+                    #{item.prevProvinceCompanyCode},
+                    #{item.prevProvinceCompanyName},
+                    #{item.createTime}
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        UPDATE `discarded_package_storage_temp`
+        <set>
+            <if test="waybillCode != null and waybillCode != ''">
+            waybill_code = #{waybillCode},
+            </if>
+            <if test="packageCode != null and packageCode != ''">
+            package_code = #{packageCode},
+            </if>
+            <if test="status != null ">
+            status = #{status},
+            </if>
+            <if test="waybillProduct != null and waybillProduct != ''">
+            waybill_product = #{waybillProduct},
+            </if>
+            <if test="consignmentName != null and consignmentName != ''">
+            consignment_name = #{consignmentName},
+            </if>
+            <if test="weight != null ">
+            weight = #{weight},
+            </if>
+            <if test="cod != null ">
+            cod = #{cod},
+            </if>
+            <if test="codAmount != null ">
+            cod_amount = #{codAmount},
+            </if>
+            <if test="businessCode != null and businessCode != ''">
+            business_code = #{businessCode},
+            </if>
+            <if test="businessName != null and businessName != ''">
+            business_name = #{businessName},
+            </if>
+            <if test="operatorCode != null ">
+            operator_code = #{operatorCode},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+            operator_erp = #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+            operator_name = #{operatorName},
+            </if>
+            <if test="siteCode != null ">
+            site_code = #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+            site_name = #{siteName},
+            </if>
+            <if test="siteCity != null and siteCity != ''">
+            site_city = #{siteCity},
+            </if>
+            <if test="orgCode != null ">
+            org_code = #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+            org_name = #{orgName},
+            </if>
+            <if test="prevSiteCode != null ">
+            prev_site_code = #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+            prev_site_name = #{prevSiteName},
+            </if>
+            <if test="prevProvinceCompanyCode != null ">
+            prev_province_company_code = #{prevProvinceCompanyCode},
+            </if>
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+            prev_province_company_name = #{prevProvinceCompanyName}
+            </if>
+        </set>
+        WHERE
+            package_code = #{packageCode}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `discarded_package_storage_temp`
+            <set>
+                <if test="item.waybillCode != null and item.waybillCode != ''">
+                waybill_code = #{item.waybillCode},
+                </if>
+                <if test="item.packageCode != null and item.packageCode != ''">
+                package_code = #{item.packageCode},
+                </if>
+                <if test="item.status != null">
+                status = #{item.status},
+                </if>
+                <if test="item.waybillProduct != null and item.waybillProduct != ''">
+                waybill_product = #{item.waybillProduct},
+                </if>
+                <if test="item.consignmentName != null and item.consignmentName != ''">
+                consignment_name = #{item.consignmentName},
+                </if>
+                <if test="item.weight != null">
+                weight = #{item.weight},
+                </if>
+                <if test="item.cod != null">
+                cod = #{item.cod},
+                </if>
+                <if test="item.codAmount != null">
+                cod_amount = #{item.codAmount},
+                </if>
+                <if test="item.businessCode != null and item.businessCode != ''">
+                business_code = #{item.businessCode},
+                </if>
+                <if test="item.businessName != null and item.businessName != ''">
+                business_name = #{item.businessName},
+                </if>
+                <if test="item.operatorCode != null">
+                operator_code = #{item.operatorCode},
+                </if>
+                <if test="item.operatorErp != null and item.operatorErp != ''">
+                operator_erp = #{item.operatorErp},
+                </if>
+                <if test="item.operatorName != null and item.operatorName != ''">
+                operator_name = #{item.operatorName},
+                </if>
+                <if test="item.siteCode != null">
+                site_code = #{item.siteCode},
+                </if>
+                <if test="item.siteName != null and item.siteName != ''">
+                site_name = #{item.siteName},
+                </if>
+                <if test="item.siteCity != null and item.siteCity != ''">
+                site_city = #{item.siteCity},
+                </if>
+                <if test="item.orgCode != null">
+                org_code = #{item.orgCode},
+                </if>
+                <if test="item.orgName != null and item.orgName != ''">
+                org_name = #{item.orgName},
+                </if>
+                <if test="item.prevSiteCode != null">
+                prev_site_code = #{item.prevSiteCode},
+                </if>
+                <if test="item.prevSiteName != null and item.prevSiteName != ''">
+                prev_site_name = #{item.prevSiteName},
+                </if>
+                <if test="item.prevProvinceCompanyCode != null ">
+                prev_province_company_code = #{item.prevProvinceCompanyCode},
+                </if>
+                <if test="item.prevProvinceCompanyName != null and item.prevProvinceCompanyName != ''">
+                prev_province_company_name = #{item.prevProvinceCompanyName}
+                </if>
+            </set>
+            WHERE
+                package_code = #{item.packageCode}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `discarded_package_storage_temp`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `discarded_package_storage_temp`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="waybillCode != null and waybillCode != ''">
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND package_code = #{packageCode}
+        </if>
+        <if test="isCod != null">
+            AND cod = #{isCod}
+        </if>
+        <if test="businessName != null and businessName != ''">
+            AND business_name = #{businessName}
+        </if>
+        <if test="orgCode != null">
+            AND org_code = #{orgCode}
+        </if>
+        <if test="siteCode != null">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="scanTimeFrom != null">
+            AND create_time &lt;= #{scanTimeFrom}
+        </if>
+        <if test="scanTimeTo != null">
+            AND create_time >= #{scanTimeTo}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+        SELECT count(1) FROM `discarded_package_storage_temp`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="selectList" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `discarded_package_storage_temp`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        UPDATE `discarded_package_storage_temp` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+        UPDATE `discarded_package_storage_temp` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

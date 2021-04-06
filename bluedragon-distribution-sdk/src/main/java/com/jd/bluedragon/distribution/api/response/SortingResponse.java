@@ -103,6 +103,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29317 = 29317;
     public static final String MESSAGE_29317 = "此单为[运营退货拦截],请退货";
 
+    //弃件拦截
+    public static final Integer CODE_29320 = 29320;
+    public static final String MESSAGE_29320 = "弃件禁止操作，请按公司规定暂存";
+
     /**************************************配送拦截新逻辑END******************************/
 
     public static final Integer CODE_29319 = 29319;

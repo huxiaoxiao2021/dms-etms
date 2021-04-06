@@ -82,6 +82,20 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     }
 
     /**
+     * 判断运单是否为弃件
+     * @param waybillCode 运单号
+     * @return true表示是弃件，false表示不是弃件
+     */
+    @Override
+    public boolean isWaybillWaste(String waybillCode){
+        List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILLTRACE_WASTE);
+        if(list != null && list.size() > 0 ){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 获取包裹的全程跟踪状态
      * @param packageCode
      * @return

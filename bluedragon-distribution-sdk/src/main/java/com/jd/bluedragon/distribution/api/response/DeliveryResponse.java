@@ -161,6 +161,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = 40019;
     public static final String MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = "当前众邮箱号无分拣复重重量或复重体积，请复重量方后再发货";
 
+    public static final Integer CODE_WAYBILL_IS_WASTE = 40020;
+    public static final String MESSAGE_WAYBILL_IS_WASTE = "弃件禁止操作，请按公司规定暂存";
+
     /**取消发货校验提示语 End*/
 
     /**

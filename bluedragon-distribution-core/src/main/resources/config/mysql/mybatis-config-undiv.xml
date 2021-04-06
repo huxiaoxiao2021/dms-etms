@@ -152,7 +152,8 @@
                 reverse_spare=systemId:system_id,
                 seal_box=id:system_id,
                 seal_vehicle=id:system_id,
-                sorting_ret=id:sorting_ret_id
+                sorting_ret=id:sorting_ret_id,
+                discarded_package_storage_temp=id:id
              "/>
             <property name="replaceNextValue" value="true"/>
             <property name="replaceExistsNewId" value="true"/>
@@ -384,6 +385,7 @@
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
         <!--面单异常举报-->
-      <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/discardedPackageStorageTemp/DiscardedPackageStorageTempMapper.xml" />
     </mappers>
 </configuration>
