@@ -134,7 +134,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             long total = discardedPackageStorageTempDao.selectCount(dbQuery);
             int dbRes=-1;
             if(total>0){
-                dbRes=discardedPackageStorageTempDao.batchUpdate(dbList);
+                dbRes=discardedPackageStorageTempDao.updateByPrimaryKey(dbList.get(0));
             }else {
                 dbRes=discardedPackageStorageTempDao.batchInsert(dbList);
             }
@@ -209,8 +209,6 @@ public class WastePackageServiceImpl implements WastePackageService {
             db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
 
             dbList.add(db);
-
-            break;
         }
 
         return dbList;
