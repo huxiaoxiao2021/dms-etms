@@ -102,13 +102,13 @@ public class DiscardedPackageStorageTemp implements Serializable{
      */
     private String prevSiteName;
     /**
-     * 上一级操作站点所在大区  db_column: prev_org_code
+     * 上一级操作站点所在战区  db_column: prev_province_company_code
      */
-    private Integer prevOrgCode;
+    private Integer prevProvinceCompanyCode;
     /**
-     * 上一级操作站点所在大区名称  db_column: prev_org_name
+     * 上一级操作站点所在战区名称  db_column: prev_province_company_name
      */
-    private String prevOrgName;
+    private String prevProvinceCompanyName;
     /**
      * 创建时间  db_column: create_time
      */
@@ -295,22 +295,6 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.prevSiteName = prevSiteName;
     }
 
-    public Integer getPrevOrgCode() {
-        return prevOrgCode;
-    }
-
-    public void setPrevOrgCode(Integer prevOrgCode) {
-        this.prevOrgCode = prevOrgCode;
-    }
-
-    public String getPrevOrgName() {
-        return prevOrgName;
-    }
-
-    public void setPrevOrgName(String prevOrgName) {
-        this.prevOrgName = prevOrgName;
-    }
-
     public Date getCreateTime() {
         return createTime;
     }
@@ -343,6 +327,22 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.ts = ts;
     }
 
+    public Integer getPrevProvinceCompanyCode() {
+        return prevProvinceCompanyCode;
+    }
+
+    public void setPrevProvinceCompanyCode(Integer prevProvinceCompanyCode) {
+        this.prevProvinceCompanyCode = prevProvinceCompanyCode;
+    }
+
+    public String getPrevProvinceCompanyName() {
+        return prevProvinceCompanyName;
+    }
+
+    public void setPrevProvinceCompanyName(String prevProvinceCompanyName) {
+        this.prevProvinceCompanyName = prevProvinceCompanyName;
+    }
+
     @Override
     public String toString() {
         return "DiscardedPackageStorageTemp{" +
@@ -367,8 +367,8 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", orgName='" + orgName + '\'' +
                 ", prevSiteCode=" + prevSiteCode +
                 ", prevSiteName='" + prevSiteName + '\'' +
-                ", prevOrgCode=" + prevOrgCode +
-                ", prevOrgName='" + prevOrgName + '\'' +
+                ", prevProvinceCompanyCode=" + prevProvinceCompanyCode +
+                ", prevProvinceCompanyName='" + prevProvinceCompanyName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", yn=" + yn +

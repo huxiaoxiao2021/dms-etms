@@ -24,8 +24,8 @@
         <result property="orgName" column="org_name"/>
         <result property="prevSiteCode" column="prev_site_code"/>
         <result property="prevSiteName" column="prev_site_name"/>
-        <result property="prevOrgCode" column="prev_org_code"/>
-        <result property="prevOrgName" column="prev_org_name"/>
+        <result property="prevProvinceCompanyCode" column="prev_province_company_code"/>
+        <result property="prevProvinceCompanyName" column="prev_province_company_name"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
@@ -34,7 +34,7 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_org_code`, `prev_org_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`
     </sql>
 
     <!-- 增加 -->
@@ -101,11 +101,11 @@
             <if test="prevSiteName != null and prevSiteName != ''">
                 prev_site_name,
             </if>
-            <if test="prevOrgCode != null">
-                prev_org_code,
+            <if test="prevProvinceCompanyCode != null">
+                prev_province_company_code,
             </if>
-            <if test="prevOrgName != null and prevOrgName != ''">
-                prev_org_name,
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+                prev_province_company_name,
             </if>
             <if test="createTime != null">
                 create_time,
@@ -181,11 +181,11 @@
             <if test="prevSiteName != null and prevSiteName != ''">
                 #{prevSiteName},
             </if>
-            <if test="prevOrgCode != null">
-                #{prevOrgCode},
+            <if test="prevProvinceCompanyCode != null">
+                #{prevProvinceCompanyCode},
             </if>
-            <if test="prevOrgName != null and prevOrgName != ''">
-                #{prevOrgName},
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+                #{prevProvinceCompanyName},
             </if>
             <if test="createTime != null">
                 #{createTime},
@@ -225,8 +225,8 @@
             org_name,
             prev_site_code,
             prev_site_name,
-            prev_org_code,
-            prev_org_name,
+            prev_province_company_code,
+            prev_province_company_name,
             create_time
         </trim>
         values
@@ -252,8 +252,8 @@
                     #{item.orgName},
                     #{item.prevSiteCode},
                     #{item.prevSiteName},
-                    #{item.prevOrgCode},
-                    #{item.prevOrgName},
+                    #{item.prevProvinceCompanyCode},
+                    #{item.prevProvinceCompanyName},
                     #{item.createTime}
             </trim>
         </foreach>
@@ -322,11 +322,11 @@
             <if test="prevSiteName != null and prevSiteName != ''">
             prev_site_name = #{prevSiteName},
             </if>
-            <if test="prevOrgCode != null ">
-            prev_org_code = #{prevOrgCode},
+            <if test="prevProvinceCompanyCode != null ">
+            prev_province_company_code = #{prevProvinceCompanyCode},
             </if>
-            <if test="prevOrgName != null and prevOrgName != ''">
-            prev_org_name = #{prevOrgName},
+            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
+            prev_province_company_name = #{prevProvinceCompanyName}
             </if>
         </set>
         WHERE
@@ -397,11 +397,11 @@
                 <if test="item.prevSiteName != null and item.prevSiteName != ''">
                 prev_site_name = #{item.prevSiteName},
                 </if>
-                <if test="item.prevOrgCode != null">
-                prev_org_code = #{item.prevOrgCode},
+                <if test="item.prevProvinceCompanyCode != null ">
+                prev_province_company_code = #{item.prevProvinceCompanyCode},
                 </if>
-                <if test="item.prevOrgName != null and item.prevOrgName != ''">
-                prev_org_name = #{item.prevOrgName},
+                <if test="item.prevProvinceCompanyName != null and item.prevProvinceCompanyName != ''">
+                prev_province_company_name = #{item.prevProvinceCompanyName}
                 </if>
             </set>
             WHERE

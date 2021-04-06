@@ -201,8 +201,8 @@ public class WastePackageServiceImpl implements WastePackageService {
                 BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
                 if(prevSiteDto==null){
                     db.setPrevSiteName(prevSiteDto.getSiteName());
-                    db.setPrevOrgCode(Integer.valueOf(prevSiteDto.getProvinceCompanyCode()));
-                    db.setPrevOrgName(prevSiteDto.getProvinceCompanyName());
+                    db.setPrevProvinceCompanyCode(Integer.valueOf(prevSiteDto.getProvinceCompanyCode()));
+                    db.setPrevProvinceCompanyName(prevSiteDto.getProvinceCompanyName());
                 }
             }
             db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
