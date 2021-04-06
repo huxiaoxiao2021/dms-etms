@@ -20,12 +20,14 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -72,10 +74,10 @@ public class WastePackageServiceImpl implements WastePackageService {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
+    private ArAbnormalService arAbnormalService;
 
     @Autowired
-    private ArAbnormalService arAbnormalService;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private DiscardedPackageStorageTempDao discardedPackageStorageTempDao;
@@ -104,14 +106,23 @@ public class WastePackageServiceImpl implements WastePackageService {
                 return result;
             }
 
-            BigWaybillDto bigWaybillDto = arAbnormalService.getBigWaybillDtoByWaybillCode(request.getWaybillCode());
-            log.info("查询运单信息，运单号：{}。返回信息：{}",request.getWaybillCode(),JsonHelper.toJson(bigWaybillDto));
-            if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(true);
+            choice.setQueryPackList(true);
+            choice.setQueryGoodList(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(request.getWaybillCode(), choice);
+            if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                result.error("查询到运单信息失败:"+baseEntity.getMessage());
+                return result;
+            }
+
+            if(baseEntity.getData() == null || baseEntity.getData().getWaybill()==null){
                 result.error("没有查询到运单信息");
                 return result;
             }
 
-            List<DiscardedPackageStorageTemp> dbList=getDBList(bigWaybillDto,siteDto,request);
+
+            List<DiscardedPackageStorageTemp> dbList=getDBList(baseEntity.getData(),siteDto,request);
             if(dbList==null){
                 result.error("没有查询到运单包裹信息");
                 return result;
