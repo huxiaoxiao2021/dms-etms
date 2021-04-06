@@ -133,16 +133,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     @Override
     public String weightVolumeExcessDeal(WeightVolumeCondition condition) {
-        JSONObject remark = new JSONObject();
         if(!isCInternet(condition.getBarCode())){
-            return remark.toJSONString();
+            return null;
         }
+        JSONObject remark = new JSONObject();
         if(condition.getWeight() > WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C){
             remark.put("weight",condition.getWeight());
             condition.setWeight(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C)));
         }
         if(!Objects.equals(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name(),condition.getSourceCode())){
-            return remark.toJSONString();
+            return remark.isEmpty() ? null : remark.toJSONString();
         }
         if(condition.getVolume() == null || condition.getVolume() <= Constants.DOUBLE_ZERO){
             condition.setVolume(condition.getLength()*condition.getWidth()*condition.getHeight());
@@ -164,7 +164,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             remark.put("height",condition.getHeight());
             condition.setHeight(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C)));
         }
-        return remark.toJSONString();
+        return remark.isEmpty() ? null : remark.toJSONString();
     }
 
     /**

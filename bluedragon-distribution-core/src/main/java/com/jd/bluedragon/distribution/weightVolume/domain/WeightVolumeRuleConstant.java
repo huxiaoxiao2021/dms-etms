@@ -75,7 +75,7 @@ public class WeightVolumeRuleConstant {
      * B网特殊校验-强制提示
      */
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_1 = "运单下单个包裹体积已超过%s立方米！";
-    public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_2 = "计泡重量（长宽高相乘除以%s）已超过实际重量！";
+    public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_2 = "泡重比超过%s！";
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B_3 = "运单下单个包裹重量已超过%skg!";
 
     public static final String RESULT_SPECIAL_MESSAGE_FORCE_B = "请核实后重新录入!";
@@ -85,6 +85,7 @@ public class WeightVolumeRuleConstant {
      */
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_B_0 = "体积录入长宽高最大边已超过%s米！";
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_B_1 = "运单下平均单个包裹超过'%s千克/包裹'或'%s立方/包裹'为超规件！";
+    public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_B_3 = "泡重比超过正常范围%s:1到%s:1！";
 
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM = "是否继续操作？";
 
@@ -142,6 +143,11 @@ public class WeightVolumeRuleConstant {
      * B网-泡重比标准：7800
      */
     private Integer foamWeightRatioB;
+    /**
+     * B网-泡重比确认范围：168-330
+     */
+    private Integer foamWeightRatioConfirmFloorB;
+    private Integer foamWeightRatioConfirmCeilingB;
     /**
      * C网-泡重比标准倍数：5
      */
@@ -241,6 +247,22 @@ public class WeightVolumeRuleConstant {
 
     public void setFoamWeightRatioB(Integer foamWeightRatioB) {
         this.foamWeightRatioB = foamWeightRatioB;
+    }
+
+    public Integer getFoamWeightRatioConfirmFloorB() {
+        return foamWeightRatioConfirmFloorB;
+    }
+
+    public void setFoamWeightRatioConfirmFloorB(Integer foamWeightRatioConfirmFloorB) {
+        this.foamWeightRatioConfirmFloorB = foamWeightRatioConfirmFloorB;
+    }
+
+    public Integer getFoamWeightRatioConfirmCeilingB() {
+        return foamWeightRatioConfirmCeilingB;
+    }
+
+    public void setFoamWeightRatioConfirmCeilingB(Integer foamWeightRatioConfirmCeilingB) {
+        this.foamWeightRatioConfirmCeilingB = foamWeightRatioConfirmCeilingB;
     }
 
     public Integer getFoamWeightRatioMultiple() {

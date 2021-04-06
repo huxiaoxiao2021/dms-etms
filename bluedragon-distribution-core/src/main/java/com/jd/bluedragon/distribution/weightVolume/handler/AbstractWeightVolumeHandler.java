@@ -109,7 +109,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         StringBuilder hintMessage = new StringBuilder();
         // 重量标准：大于1000kg按1000kg记录
-        int weightMaxLimitC = weightVolumeRuleConstant.getWeightMaxLimitC();
+        int weightMaxLimitC = weightVolumeRuleConstant.getWeightMaxLimitCS();
         if(condition.getWeight() > weightMaxLimitC){
             setNextRowChar(hintMessage);
             hintMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_2,weightMaxLimitC,weightMaxLimitC));
@@ -213,7 +213,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // 泡重比、泡重比倍数标准值
         int foamWeightRatio = weightVolumeRuleConstant.getFoamWeightRatioC();
         int foamWeightRatioMultiple = weightVolumeRuleConstant.getFoamWeightRatioMultiple();
-        if(volume > foamWeightRatio * foamWeightRatioMultiple * weight){
+        if(weight > Constants.DOUBLE_ZERO && volume > foamWeightRatio * foamWeightRatioMultiple * weight){
             setNextRowChar(confirmMessage);
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_3,foamWeightRatio,foamWeightRatioMultiple));
         }
@@ -276,7 +276,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
         // 2、确认提示信息
         StringBuilder confirmMessage = new StringBuilder();
-        // 边长标准值
+        // 边长标准值：大于3m
         int sideMaxLengthB = weightVolumeRuleConstant.getSideMaxLengthB();
         if(length > sideMaxLengthB || width > sideMaxLengthB || height > sideMaxLengthB){
             setNextRowChar(confirmMessage);
@@ -287,12 +287,21 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             setNextRowChar(confirmMessage);
             confirmMessage.append(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_CONFIRM_8);
         }
+        // 重量及体积：200kg/1包裹 或 1立方/1包裹
         int weightMaxLimitConfirmB = weightVolumeRuleConstant.getWeightMaxLimitConfirmB();
         int volumeMaxLimitConfirmB = weightVolumeRuleConstant.getVolumeMaxLimitConfirmB();
         if(weight > weightMaxLimitConfirmB || volume > volumeMaxLimitConfirmB){
             setNextRowChar(confirmMessage);
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_1,
                     weightMaxLimitConfirmB,volumeMaxLimitConfirmB/WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION));
+        }
+        // 泡重比：大于168小于330
+        int foamWeightRatioConfirmFloorB = weightVolumeRuleConstant.getFoamWeightRatioConfirmFloorB();
+        int foamWeightRatioConfirmCeilingB = weightVolumeRuleConstant.getFoamWeightRatioConfirmCeilingB();
+        if(weight > volume * foamWeightRatioConfirmFloorB && weight < volume * foamWeightRatioConfirmCeilingB){
+            setNextRowChar(confirmMessage);
+            confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_3,
+                    foamWeightRatioConfirmFloorB,foamWeightRatioConfirmCeilingB));
         }
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);

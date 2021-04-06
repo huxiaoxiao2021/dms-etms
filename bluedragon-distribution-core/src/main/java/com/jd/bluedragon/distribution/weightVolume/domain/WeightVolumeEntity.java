@@ -211,7 +211,7 @@ public class WeightVolumeEntity {
     }
 
     public WeightVolumeEntity remark(String remark){
-        this.machineCode = remark;
+        this.remark = remark;
         return this;
     }
 

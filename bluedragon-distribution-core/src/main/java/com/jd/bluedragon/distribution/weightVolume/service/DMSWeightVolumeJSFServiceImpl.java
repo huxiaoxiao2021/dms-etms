@@ -70,6 +70,8 @@ public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService 
         // 称重量方前置校验
         WeightVolumeRuleCheckDto weightVolumeRuleCheckDto = new WeightVolumeRuleCheckDto();
         BeanUtils.copyProperties(entity,weightVolumeRuleCheckDto);
+        weightVolumeRuleCheckDto.setSourceCode(entity.getSourceCode().name());
+        weightVolumeRuleCheckDto.setBusinessType(entity.getBusinessType().name());
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> result
                 = dmsWeightVolumeService.weightVolumeRuleCheck(weightVolumeRuleCheckDto);
         if(!result.codeSuccess() && result.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.CODE_HINT){
