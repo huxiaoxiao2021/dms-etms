@@ -264,6 +264,17 @@ public class UccPropertyConfiguration {
      */
     private Integer exportSpotCheckMaxSize;
 
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
+
+    /**
+     * 导出并发缓存key 有效时间 :秒
+     */
+    private Integer exportRedisKeyTimeOut;
+
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -726,5 +737,21 @@ public class UccPropertyConfiguration {
 
     public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
         this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
+    }
+
+    public Integer getExportConcurrencyLimitNum() {
+        return exportConcurrencyLimitNum;
+    }
+
+    public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
+        this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
+    }
+
+    public Integer getExportRedisKeyTimeOut() {
+        return exportRedisKeyTimeOut;
+    }
+
+    public void setExportRedisKeyTimeOut(Integer exportRedisKeyTimeOut) {
+        this.exportRedisKeyTimeOut = exportRedisKeyTimeOut;
     }
 }

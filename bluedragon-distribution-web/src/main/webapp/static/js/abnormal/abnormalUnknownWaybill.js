@@ -4,6 +4,7 @@ $(function () {
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
     var queryUrl = '/abnormal/abnormalUnknownWaybill/listData';
+    var exportUrl = "/abnormal/abnormalUnknownWaybill/toExport";
     tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -334,38 +335,45 @@ $(function () {
     function initExport(tableInit){
         $("#btn_export").on("click",function(e){
 
-            var url = "/abnormal/abnormalUnknownWaybill/toExport";
             var params = tableInit.getSearchCondition();
 
             var areaId = params["areaId"];
             var dmsSiteCode = params["dmsSiteCode"];
+            var waybillCode = params["waybillCode"];
+            var startTime = params["startTime"];
+            var endTime = params["endTime"];
+
             if(areaId ==null|| dmsSiteCode==null){
                 alert('导出功能 "机构"和"分拣中心"必选');
                 return ;
+            }
+
+            if(waybillCode==null &&(startTime==null||endTime==null)){
+                alert("运单号和上报时间条件不能同时为空")
+                return;
             }
 
             if (isEmptyObject(params)){
                 alert('禁止全量导出，请确定查询范围');
                 return;
             }
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action":url});
 
+           /* var param = "";
             $.each(params,function(key,value){
-
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name":key});
-                if (key == 'startTime' || key == 'endTime'){
-                    input.val(new Date(value));
-                }else{
-                    input.val(value);
+                if (value!= undefined && value != "undefined"){
+                    param += "&"+key+"="+value;
                 }
-                form.append(input);
             });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
+
+            location.href = exportUrl + "?" + param;*/
+            $.ajaxHelper.doPostAsync(exportUrl, JSON.stringify(params), function (res) {
+                if (res.succeed) {
+                    alert(res.message);
+                } else {
+                    alert('操作异常');
+                }
+            });
+
         });
     }
 

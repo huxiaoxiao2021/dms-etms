@@ -1460,4 +1460,14 @@ public class Constants {
     }
     //DeliveryPackageD信任包裹称重
     public static Integer isTrust = 1;
+
+    /**
+     * 导出并发限制数量
+     */
+    public static Integer CONCURRENCY_EXPORT_LIMIT = 50;
+
+    /**
+     * 导出并发key 缓存有效时间 单位:秒
+     */
+    public static Integer EXPORT_REDIS_KEY_TIME_OUT = 60;
 }

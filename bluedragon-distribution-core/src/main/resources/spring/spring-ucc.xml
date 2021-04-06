@@ -95,6 +95,8 @@
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
+		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
+		<property name="exportRedisKeyTimeOut" value="${exportRedisKeyTimeOut:60}"/>
 
 	</bean>
 
@@ -160,6 +162,8 @@
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
+				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
+				<value>uccPropertyConfiguration.exportRedisKeyTimeOut</value>
 			</list>
 		</property>
 	</bean>

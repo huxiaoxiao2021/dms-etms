@@ -1,14 +1,19 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -18,19 +23,24 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wuyoude
@@ -49,6 +59,9 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
 
     @Autowired
     private AbnormalUnknownWaybillService abnormalUnknownWaybillService;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 返回主页面
@@ -188,33 +201,52 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
 
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
-    public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.AbnormalUnknownWaybillController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public @ResponseBody InvokeResult toExport(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, HttpServletResponse response) {
+        InvokeResult result = new InvokeResult();
+
+        BufferedWriter bfw = null;
         try {
-            if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
-                    && (abnormalUnknownWaybillCondition.getStartTime() == null || abnormalUnknownWaybillCondition.getEndTime() == null)){
-                model.addAttribute("exception",new IllegalArgumentException("运单号和上报时间条件不能同时为空！") );
-                return new ModelAndView("uncaught");
-            }
             if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
                     && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
                     queryLimitDay){
-                model.addAttribute("exception",new IllegalArgumentException("上报时间相差不能超过"+ queryLimitDay +"天！") );
-                return new ModelAndView("uncaught");
+                result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,"上报时间相差不能超过"+ queryLimitDay +"天！");
+                return result;
             }
+
             if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
                 String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
                 abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
                 abnormalUnknownWaybillCondition.setWaybillCode(null);
             }
-            List<List<Object>> resultList = abnormalUnknownWaybillService.getExportData(abnormalUnknownWaybillCondition);
-            model.addAttribute("filename", "三无托寄物核实结果.xls");
-            model.addAttribute("sheetname", "三无托寄物核实结果");
-            model.addAttribute("contents", resultList);
 
-            return new ModelAndView(new DefaultExcelView(), model.asMap());
+            //校验并发
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)){
+                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+                return result;
+            }
+
+            String fileName = "三无托寄物核实结果";
+            //设置文件后缀
+            String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+            bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+            //设置响应
+            CsvExporterUtils.setResponseHeader(response, fn);
+            abnormalUnknownWaybillService.export(abnormalUnknownWaybillCondition,bfw);
         } catch (Exception e) {
             log.error("abnormal/abnormalUnknownWaybill--toExport:", e);
-            return null;
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+        }finally {
+            try {
+                if (bfw != null) {
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException e) {
+                log.error("export-error", e);
+                result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+            }
         }
+        return result;
     }
 }
