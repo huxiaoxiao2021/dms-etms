@@ -52,6 +52,8 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String PACKAGE_ALREADY_BIND="此包裹已在板号【%s】内，是否确认重新组板？";
 
+    public static final String PACKAGE_NO_WEIGHT="此包裹无重量体积，请到转运工作台按包裹录入重量体积";
+
     public LoadIllegalException(String message) {
         super(message);
     }

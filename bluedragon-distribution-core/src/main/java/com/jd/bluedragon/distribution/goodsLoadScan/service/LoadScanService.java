@@ -83,5 +83,11 @@ public interface LoadScanService {
      */
     JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req, JdCResponse<List<String>> response);
 
+    /**
+     * 根据waybillsign判断是否为KA;大宗按单不通过校验;waybillsign66为3KA订单不通过
+     * @param waybillCode 运单号
+     * @param packageCode 包裹号
+     */
+    JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode);
 
 }

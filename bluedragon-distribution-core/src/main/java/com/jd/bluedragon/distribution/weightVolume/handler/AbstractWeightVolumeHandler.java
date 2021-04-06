@@ -75,6 +75,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();
         BeanHelper.copyProperties(weightVolumeEntity, entity);
         weightVolumeFlowJSFService.recordWeightVolumeFlow(weightVolumeEntity);
+
     }
 
     @Override

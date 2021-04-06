@@ -1468,4 +1468,6 @@ public class Constants {
     	//34-长途传站返回
     	CUAN_BAI_LINE_TYPES.add(34);
     }
+    //DeliveryPackageD信任包裹称重
+    public static Integer isTrust = 1;
 }

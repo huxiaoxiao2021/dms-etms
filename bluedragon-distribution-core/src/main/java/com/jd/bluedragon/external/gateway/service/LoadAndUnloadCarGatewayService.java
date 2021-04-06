@@ -47,4 +47,7 @@ public interface LoadAndUnloadCarGatewayService {
 
 
     JdCResponse<String> createUnloadTask(CreateUnloadTaskReq req);
+
+    JdCResponse<Void> combinationBoardComplete(UnloadCarScanRequest request);
+
 }

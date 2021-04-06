@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.loadAndUnload.service;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
@@ -106,6 +107,11 @@ public interface UnloadCarService {
     boolean insertUnloadCar(TmsSealCar tmsSealCar);
 
     /**
+     * 根据封车编码查询卸车任务
+     */
+    public UnloadCar selectBySealCarCode(String sealCarCode);
+
+    /**
      * 获取分配给责任人的任务
      *
      * @param unloadCarTaskReq
@@ -160,6 +166,11 @@ public interface UnloadCarService {
      * @return
      */
     InvokeResult<String> interceptValidateUnloadCar(String barCode);
+
+    /***
+     * KA运单拦截
+     */
+    InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
 
 
 }

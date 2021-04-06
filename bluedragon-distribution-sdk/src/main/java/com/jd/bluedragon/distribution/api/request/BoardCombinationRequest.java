@@ -25,6 +25,11 @@ public class BoardCombinationRequest extends JdRequest {
     /** 是否强制组板 **/
     private boolean isForceCombination;
 
+    /**
+     * 错组标识: 1是错组，0是非错组
+     */
+    private Integer flowDisaccord;
+
 
     public String getBoardCode() {
         return boardCode;
@@ -64,5 +69,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setIsForceCombination(boolean isForceCombination) {
         this.isForceCombination = isForceCombination;
+    }
+
+    public Integer getFlowDisaccord() {
+        return flowDisaccord;
+    }
+
+    public void setFlowDisaccord(Integer flowDisaccord) {
+        this.flowDisaccord = flowDisaccord;
     }
 }

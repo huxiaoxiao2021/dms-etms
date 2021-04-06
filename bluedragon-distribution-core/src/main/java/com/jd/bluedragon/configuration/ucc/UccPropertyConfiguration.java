@@ -260,6 +260,16 @@ public class UccPropertyConfiguration {
     private Integer siteQueryLimit;
 
     /**
+     * 抽检导出最大限制
+     */
+    private Integer exportSpotCheckMaxSize;
+
+    /**
+     * PDA通知自动拉取间隔时间(单位秒)
+     */
+    private Integer pdaNoticePullIntervalTime;
+
+    /**
      * 称重良方规则标准
      */
     private String weightVolumeRuleStandard;
@@ -726,5 +736,21 @@ public class UccPropertyConfiguration {
 
     public void setSiteQueryLimit(Integer siteQueryLimit) {
         this.siteQueryLimit = siteQueryLimit;
+    }
+
+    public Integer getExportSpotCheckMaxSize() {
+        return exportSpotCheckMaxSize;
+    }
+
+    public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
+        this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
+    }
+
+    public Integer getPdaNoticePullIntervalTime() {
+        return pdaNoticePullIntervalTime;
+    }
+
+    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
+        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
     }
 }

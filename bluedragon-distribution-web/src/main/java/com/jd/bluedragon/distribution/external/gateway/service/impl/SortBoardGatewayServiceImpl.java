@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bk.common.util.string.StringUtils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -97,6 +99,43 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     }
 
     /**
+     * 组板(自动生成板号)
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
+
+        JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
+
+        JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
+        BoardCheckDto boardCheckDto = new BoardCheckDto();
+        boardCheckDto.setBoardCode(response.getData().getBoardCode());
+        boardCheckDto.setReceiveSiteCode(response.getData().getReceiveSiteCode());
+        boardCheckDto.setReceiveSiteName(response.getData().getReceiveSiteName());
+        jdcResponse.setData(boardCheckDto);
+
+        if (!JdCResponse.CODE_SUCCESS.equals(response.getCode())) {
+            jdcResponse.setMessage(convertMessage(response.getData().getStatusInfo()));
+        } else {
+            jdcResponse.setMessage(response.getMessage());
+        }
+
+        // code转化
+        if (response.getCode() > 30000 && response.getCode() < 40000) {
+            // 如果是错组
+            if (SortingResponse.CODE_CROUTER_ERROR.equals(response.getData().getStatusInfo().get(0).getStatusCode())) {
+                boardCheckDto.setFlowDisaccord(1);
+            }
+            jdcResponse.setCode(JdCResponse.CODE_CONFIRM);
+        } else {
+            jdcResponse.setCode(response.getCode());
+        }
+        jdcResponse.setCode(response.getCode());
+
+        return jdcResponse;
+    }
+
+    /**
      * 取消组板
      */
     @Override
@@ -111,6 +150,24 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         jdCResponse.setMessage(response.getMessage());
 
         return jdCResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardCancelNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoardCheckDto> combinationBoardCancelNew(CombinationBoardRequest request) {
+        JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
+        JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardCancelNew(request);
+        BoardCheckDto boardCheckDto = new BoardCheckDto();
+        if (response.getData() != null) {
+            boardCheckDto.setBoardCode(response.getData().getBoardCode());
+            boardCheckDto.setReceiveSiteName(response.getData().getReceiveSiteName());
+            boardCheckDto.setReceiveSiteCode(response.getData().getReceiveSiteCode());
+        }
+        jdcResponse.setData(boardCheckDto);
+        jdcResponse.setCode(response.getCode());
+        jdcResponse.setMessage(response.getMessage());
+
+        return jdcResponse;
     }
 
     /**
@@ -158,6 +215,19 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         jdCResponse.setMessage(response.getMessage());
 
         return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<Void> combinationComplete(CombinationBoardRequest request) {
+        JdCResponse<Void> jdcResponse = new JdCResponse<>();
+        if (request == null || StringUtils.isBlank(request.getBoardCode())) {
+            jdcResponse.toFail("板号不能为空");
+            return jdcResponse;
+        }
+        JdResponse<Void> jdResponse = boardCombinationResource.combinationComplete(request);
+        jdcResponse.setCode(jdResponse.getCode());
+        jdcResponse.setMessage(jdResponse.getMessage());
+        return jdcResponse;
     }
 
 

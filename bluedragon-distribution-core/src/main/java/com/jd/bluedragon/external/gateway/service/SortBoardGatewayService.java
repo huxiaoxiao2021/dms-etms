@@ -19,10 +19,16 @@ public interface SortBoardGatewayService {
 
     JdCResponse combinationBoard(CombinationBoardRequest request);
 
+    JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request);
+
     JdCResponse combinationBoardCancel(CombinationBoardRequest request);
+
+    JdCResponse<BoardCheckDto> combinationBoardCancelNew(CombinationBoardRequest request);
 
     JdCResponse<BoardDetailDto> queryBoardDetail(String boardCode);
 
     JdCResponse<BoardInfoDto> queryBoardInfo(Integer siteCode, String packageOrBoxCode);
+
+    JdCResponse<Void> combinationComplete(CombinationBoardRequest request);
 
 }

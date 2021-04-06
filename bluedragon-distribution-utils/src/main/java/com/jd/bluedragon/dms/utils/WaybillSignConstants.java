@@ -239,6 +239,7 @@ public interface WaybillSignConstants {
 	char CHAR_31_B = 'B';
 	char CHAR_31_C = 'C';
 	char CHAR_31_F = 'F';
+	char CHAR_31_G = 'G';
 	/**
 	 * waybillsign第36位
 	 */
@@ -356,4 +357,13 @@ public interface WaybillSignConstants {
 	int POSITION_86 = 86;
 	char CHAR_86_2 = '2';
 	char CHAR_86_3 = '3';
+
+	/**
+	 * 66
+	 */
+	int POSITION_66 = 66;
+	char CHAR_66_0 = '0';
+	char CHAR_66_1 = '1';
+	char CHAR_66_2 = '2';
+	char CHAR_66_3 = '3';
 }

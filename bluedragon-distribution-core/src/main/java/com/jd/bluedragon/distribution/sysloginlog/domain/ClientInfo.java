@@ -42,6 +42,11 @@ public class ClientInfo {
     private List<FileVersion> files;
 
     /**
+     * 设备ID
+     */
+    private String deviceId;
+
+    /**
      * 设备信息
      */
     private String deviceInfo;
@@ -184,6 +189,14 @@ public class ClientInfo {
      */
     public void setFiles(List<FileVersion> files) {
         this.files = files;
+    }
+
+    public String getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
     }
 
     /**
