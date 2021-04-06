@@ -199,10 +199,15 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             setNextRowChar(confirmMessage);
             confirmMessage.append(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_CONFIRM_8);
         }
-        int weightMaxLimit = weightVolumeRuleConstant.getWeightMaxLimitC();
-        if(weight > weightMaxLimit){
+        int weightMaxLimitF = weightVolumeRuleConstant.getWeightMaxLimitCF();
+        int weightMaxLimitS = weightVolumeRuleConstant.getWeightMaxLimitCS();
+        if(weight >= weightMaxLimitF && weight <= weightMaxLimitS){
             setNextRowChar(confirmMessage);
-            confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_2,weightMaxLimit,weightMaxLimit));
+            confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_4,weightMaxLimitF));
+        }
+        if(weight > weightMaxLimitS){
+            setNextRowChar(confirmMessage);
+            confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_2,weightMaxLimitS,weightMaxLimitS));
         }
         // 泡重比、泡重比倍数标准值
         int foamWeightRatio = weightVolumeRuleConstant.getFoamWeightRatioC();

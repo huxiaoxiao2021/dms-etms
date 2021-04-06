@@ -69,6 +69,7 @@ public class WeightVolumeRuleConstant {
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_C_1 = "该包裹体积大于%s立方米！";
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_C_2 = "该包裹重量大于%s千克,系统即将记录为%s千克！";
     public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_C_3 = "计泡重量（长宽高相乘除以%s）已超过实际重量%s倍！";
+    public static final String RESULT_SPECIAL_MESSAGE_CONFIRM_C_4 = "该包裹重量大于%s千克,请确认包裹重量是否正确？";
 
     /**
      * B网特殊校验-强制提示
@@ -118,9 +119,13 @@ public class WeightVolumeRuleConstant {
      */
     private Integer volumeMaxLimitRecord;
     /**
+     * C网-重量最大限制：50KG
+     */
+    private Integer weightMaxLimitCF;
+    /**
      * C网-重量最大限制：1000KG
      */
-    private Integer weightMaxLimitC;
+    private Integer weightMaxLimitCS;
     /**
      * B网-重量最大限制：5000KG(包裹维度)
      */
@@ -190,12 +195,20 @@ public class WeightVolumeRuleConstant {
         this.volumeMaxLimitRecord = volumeMaxLimitRecord;
     }
 
-    public Integer getWeightMaxLimitC() {
-        return weightMaxLimitC;
+    public Integer getWeightMaxLimitCF() {
+        return weightMaxLimitCF;
     }
 
-    public void setWeightMaxLimitC(Integer weightMaxLimitC) {
-        this.weightMaxLimitC = weightMaxLimitC;
+    public void setWeightMaxLimitCF(Integer weightMaxLimitCF) {
+        this.weightMaxLimitCF = weightMaxLimitCF;
+    }
+
+    public Integer getWeightMaxLimitCS() {
+        return weightMaxLimitCS;
+    }
+
+    public void setWeightMaxLimitCS(Integer weightMaxLimitCS) {
+        this.weightMaxLimitCS = weightMaxLimitCS;
     }
 
     public Integer getWeightMaxLimitB() {
