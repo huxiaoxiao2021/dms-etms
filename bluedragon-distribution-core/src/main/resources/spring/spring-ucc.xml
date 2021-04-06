@@ -96,6 +96,7 @@
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
+		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
 
 	</bean>
 
@@ -162,6 +163,7 @@
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
+				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
 			</list>
 		</property>
 	</bean>

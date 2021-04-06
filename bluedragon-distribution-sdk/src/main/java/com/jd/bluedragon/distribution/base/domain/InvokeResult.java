@@ -45,6 +45,16 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_BOX_CODE=304;
     public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，箱号不合法";
 
+    public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
+    public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
+
+    public static final int RESULT_BC_BOX_GROUP_NO_BINDING_CODE= 306;
+    public static final String RESULT_BC_BOX_GROUP_NO_BINDING_MESSAGE = "同组箱号中存在未绑定循环集包袋";
+
+    public static final int RESULT_NO_GROUP_CODE = 307;
+    public static final String RESULT_NO_GROUP_MESSAGE = "查询同组箱号异常";
+
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

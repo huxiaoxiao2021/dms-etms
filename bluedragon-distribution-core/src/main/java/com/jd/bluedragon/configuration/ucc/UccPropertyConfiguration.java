@@ -255,6 +255,15 @@ public class UccPropertyConfiguration {
     private boolean checkBoxSendedSwitchOn;
 
     /**
+     * BC箱号强制绑定循环集包袋开关(黑名单)
+     * 配置的走新的逻辑，不配置的走以前的逻辑
+     * 注: 仅为了上线使用
+     * @return
+     */
+    private String allBCBoxFilterWebSite;
+
+
+    /**
      * 站点查询数量最大限制
      */
     private Integer siteQueryLimit;
@@ -715,6 +724,14 @@ public class UccPropertyConfiguration {
 
     public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public String getAllBCBoxFilterWebSite() {
+        return allBCBoxFilterWebSite;
+    }
+
+    public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
+        this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
     }
 
     public Integer getSiteQueryLimit() {
