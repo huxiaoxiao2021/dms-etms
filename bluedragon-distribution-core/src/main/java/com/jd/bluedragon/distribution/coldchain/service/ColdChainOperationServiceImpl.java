@@ -2,10 +2,7 @@ package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.ColdChainOptimizeManager;
-import com.jd.bluedragon.core.base.WayBillThermometerApiManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
@@ -23,6 +20,7 @@ import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -48,6 +46,9 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
 
     @Autowired
     private ColdChainOptimizeManager coldChainOptimizeManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
@@ -374,6 +375,13 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
             }
         }
         if(body!=null){
+            //设置waybillSign
+            if(StringUtils.isNotEmpty(body.getWaybillNo())){
+                BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
+                if(waybillEntity!=null&&waybillEntity.getData()!=null){
+                    body.setWaybillSign(waybillEntity.getData().getWaybillSign());
+                }
+            }
             ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
         }
         return response;

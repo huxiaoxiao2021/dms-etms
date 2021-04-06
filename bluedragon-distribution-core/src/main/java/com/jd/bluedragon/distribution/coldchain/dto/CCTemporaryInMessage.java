@@ -41,6 +41,11 @@ public class CCTemporaryInMessage {
      */
     private String operateUser;
 
+    /**
+     * waybillSign
+     */
+    private String waybillSign;
+
 
     public String getWaybillNo() {
         return waybillNo;
@@ -96,5 +101,13 @@ public class CCTemporaryInMessage {
 
     public void setOperateUser(String operateUser) {
         this.operateUser = operateUser;
+    }
+
+    public String getWaybillSign() {
+        return waybillSign;
+    }
+
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
     }
 }
