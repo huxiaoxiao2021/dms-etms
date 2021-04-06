@@ -2120,18 +2120,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.warn("封车编码【{}】下的批次为空!",unloadCar.getSealCarCode());
             return false;
         }
-        Set<String> requiredBatchCodes = new HashSet<>();
-        for (String batchCode : batchCodes){
-            if(BusinessHelper.isSendCode(batchCode)){
-                requiredBatchCodes.add(batchCode);
-            }
-        }
-        if(CollectionUtils.isEmpty(requiredBatchCodes)){
-            logger.warn("封车编码【{}】没有符合的批次!",unloadCar.getSealCarCode());
-            return false;
-        }
-        unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
-
         try {
             // 通过工具类从批次号上截取目的场地ID
             Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
@@ -2139,9 +2127,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
                 return false;
             }
+            boolean isExpressCenterSite = isExpressCenterSite(nextSiteCode);
+            Set<String> requiredBatchCodes = new HashSet<>();
+            for (String batchCode : batchCodes){
+                //目的场地为转运的，需要初始化目的转运场地的卸车任务。
+                if(BusinessHelper.isSendCode(batchCode) || isExpressCenterSite){
+                    requiredBatchCodes.add(batchCode);
+                }
+            }
+            if(CollectionUtils.isEmpty(requiredBatchCodes)){
+                logger.warn("封车编码【{}】没有符合的批次!",unloadCar.getSealCarCode());
+                return false;
+            }
+            unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
             // 只有操作站点是快运中心时，才初始化运单暂存
-            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
-            if (isExpressCenterSite(nextSiteCode)) {
+//            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
+            if (isExpressCenterSite) {
                 logger.info("当前封车消息属于快运中心：sealCarCode={}", tmsSealCar.getSealCarCode());
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
                 logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
