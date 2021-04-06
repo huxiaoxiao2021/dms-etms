@@ -209,6 +209,8 @@ public class WastePackageServiceImpl implements WastePackageService {
             db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
 
             dbList.add(db);
+
+            break;
         }
 
         return dbList;
