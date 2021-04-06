@@ -111,7 +111,8 @@ public class WastePackageServiceImpl implements WastePackageService {
             choice.setQueryPackList(true);
             choice.setQueryGoodList(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(request.getWaybillCode(), choice);
-            if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+            log.info("查询到运单信息。运单号：{}。返回结果：{}",request.getWaybillCode(),JsonHelper.toJson(baseEntity));
+            if (baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()) {
                 result.error("查询到运单信息失败:"+baseEntity.getMessage());
                 return result;
             }
