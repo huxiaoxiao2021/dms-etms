@@ -189,7 +189,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
             db.setBusinessName(WaybillInfo.getBusiName());
             db.setOperatorCode(request.getUserCode().longValue());
-            db.setBusinessName(request.getUserName());
+            db.setOperatorName(request.getUserName());
             db.setOperatorErp(request.getOperatorERP());
             db.setSiteCode(request.getSiteCode());
             db.setSiteName(request.getSiteName());
