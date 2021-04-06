@@ -1,11 +1,17 @@
 package com.jd.bluedragon.distribution.barcode.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.CsvExporterUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +22,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +41,9 @@ public class DmsBarCodeController extends DmsBaseController {
 
     @Autowired
     BarcodeService barcodeService;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 返回主页面
@@ -57,17 +71,59 @@ public class DmsBarCodeController extends DmsBaseController {
 
     @Authorization(Constants.DMS_WEB_SORTING_DMSBARCODE_R)
     @RequestMapping(value = "/toExport")
-    public ModelAndView toExport(DmsBarCode barCode, Model model) {
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.barcode.controller.DmsBarCodeController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public @ResponseBody InvokeResult toExport(@RequestBody DmsBarCode barCode, HttpServletResponse response) {
+        InvokeResult result = new InvokeResult();
+        BufferedWriter bfw = null;
         try {
-            List<List<Object>> resultList = barcodeService.export(barCode);
-            model.addAttribute("filename", "69码商品查询.xls");
-            model.addAttribute("sheetname", "69码商品列表");
-            model.addAttribute("contents", resultList);
+            if(!checkParam(barCode,result)){
+                return result;
+            }
 
-            return new ModelAndView(new DefaultExcelView(), model.asMap());
+            //校验并发
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)){
+                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+                return result;
+            }
+
+            String fileName = "69码商品查询";
+            //设置文件后缀
+            String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+            bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+            //设置响应
+            CsvExporterUtils.setResponseHeader(response, fn);
+            barcodeService.export(barCode,bfw);
         } catch (Exception e) {
-            log.error("barcode--toExport:", e);
-            return null;
+            log.error("69码商品查询--toExport:", e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+            return result;
+        }finally {
+            try {
+                if (bfw != null) {
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException e) {
+                log.error("69码商品查询export-error", e);
+                result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+            }
+    }
+        return result;
+    }
+
+    /**
+     * 校验前端参数
+     * @param barCode
+     * @param result
+     * @return
+     */
+    private boolean checkParam(DmsBarCode barCode,InvokeResult result) {
+
+        if (barCode == null || barCode.getBarcode() == null) {
+            result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,InvokeResult.PARAM_ERROR);
+            return false;
         }
+
+        return true;
     }
 }

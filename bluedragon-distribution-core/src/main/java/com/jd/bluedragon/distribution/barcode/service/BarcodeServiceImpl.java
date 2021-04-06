@@ -2,13 +2,20 @@ package com.jd.bluedragon.distribution.barcode.service;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.OmcGoodManager;
+import com.jd.bluedragon.distribution.abnormal.service.impl.AbnormalUnknownWaybillServiceImpl;
 import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.StringHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author tangchunqing
@@ -17,6 +24,8 @@ import java.util.List;
  */
 @Service("barcodeService")
 public class BarcodeServiceImpl implements BarcodeService {
+
+    private final Logger log = LoggerFactory.getLogger(BarcodeServiceImpl.class);
 
     private static final String BARCODE_SPLITER_QUERY = "\n";
     private static final String BARCODE_SPLITER_EXPORT = "\r\n";
@@ -27,9 +36,6 @@ public class BarcodeServiceImpl implements BarcodeService {
     public List<DmsBarCode> query(DmsBarCode barCode) {
 
         List<DmsBarCode> result = Lists.newArrayList();
-        if (barCode == null || barCode.getBarcode() == null) {
-            return result;
-        }
         /**
          *  前台输入例如
          *  6905321911667
@@ -44,40 +50,37 @@ public class BarcodeServiceImpl implements BarcodeService {
                 if (StringHelper.isEmpty(barcode)){
                     continue;
                 }
-//                if (barcode.startsWith("69")) {
-                    result.addAll(omcGoodManager.getBaseAndSpecInfo(barcode.trim()));
-//                } else {
-//                    DmsBarCode dmsBarCode = new DmsBarCode();
-//                    dmsBarCode.setBarcode(barcode);
-//                    dmsBarCode.setProductName("编码录入格式不正确");
-//                    result.add(dmsBarCode);
-//                }
+                result.addAll(omcGoodManager.getBaseAndSpecInfo(barcode.trim()));
             }
         }
         return result;
     }
 
+    /**
+     * 导出数据查询
+     * @param barCode
+     * @param bufferedWriter
+     */
     @Override
-    public List<List<Object>> export(DmsBarCode barCode) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
+    public void export(DmsBarCode barCode, BufferedWriter bufferedWriter) {
+        try {
+            // 写入表头
+            Map<String, String> headerMap = getHeaderMap();
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+            List<DmsBarCode> data = query(barCode);
 
-        //添加表头
-        heads.add("SKU");
-        heads.add("69码");
-        heads.add("商品名称");
-        resList.add(heads);
-
-        List<DmsBarCode> data = query(barCode);
-        if (data != null && data.size() > 0) {
-            for (DmsBarCode barCode1 : data) {
-                List<Object> body = Lists.newArrayList();
-                body.add(barCode1.getSkuId());
-                body.add(barCode1.getBarcode());
-                body.add(barCode1.getProductName());
-                resList.add(body);
-            }
+            // 输出至excel
+            CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+        }catch (Exception e){
+            log.error("69码查询商品名称导出异常",e);
         }
-        return resList;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        headerMap.put("skuId","SKU");
+        headerMap.put("barcode","69码");
+        headerMap.put("productName","商品名称");
+        return headerMap;
     }
 }
