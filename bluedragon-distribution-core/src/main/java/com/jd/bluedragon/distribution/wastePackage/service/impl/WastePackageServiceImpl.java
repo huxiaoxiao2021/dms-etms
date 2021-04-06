@@ -105,7 +105,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             }
 
             BigWaybillDto bigWaybillDto = arAbnormalService.getBigWaybillDtoByWaybillCode(request.getWaybillCode());
-            if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
+            if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
                 result.error("没有查询到运单信息");
                 return result;
             }
