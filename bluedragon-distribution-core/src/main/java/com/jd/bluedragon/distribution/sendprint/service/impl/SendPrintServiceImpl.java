@@ -161,7 +161,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         }finally {
             Profiler.registerInfoEnd(info);
         }
-
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tSummaryPrintResultResponse;
     }
 
@@ -945,7 +946,24 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tBasicQueryEntityResponse;
+    }
+
+    /**
+     * 记录安全日志
+     * @param criteria
+     */
+    private void writeSecurityLog(PrintQueryCriteria criteria) {
+        try {
+            if(criteria == null || StringUtils.isEmpty(criteria.getUserCode())){
+                return;
+            }
+            SecurityLog.reportQuerySecurityLogRecordRequest(SendPrintServiceImpl.class.getName(),criteria.getUserCode(),JsonHelper.toJson(criteria));
+        }catch (Exception e){
+            log.error("打印交接清单上传安全日日志失败.入参:{}",JsonHelper.toJson(criteria),e);
+        }
     }
 
     @Autowired
@@ -976,6 +994,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tBasicQueryEntityResponse;
     }
 
