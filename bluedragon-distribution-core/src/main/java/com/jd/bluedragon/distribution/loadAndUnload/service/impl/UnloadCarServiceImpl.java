@@ -2695,8 +2695,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result)  {
         DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if(deliveryPackageD != null){
-            //非信任重量  信任重量不做重量体积拦截
-            if(!Objects.equals(Constants.isTrust,deliveryPackageD.getTrustType())){
+            //非信任重量  信任重量不做重量体积拦截.---去除 信任非信任的判断逻辑，直接按照业务类型是否进行称重进行判断。
+//            if(!Objects.equals(Constants.isTrust,deliveryPackageD.getTrustType())){
                 //是否需要校验体重 业务类型1
                 if(BusinessUtil.isNeedCheckWeightOrNo(waybillSign)){
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
@@ -2715,7 +2715,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         return result;
                     }
                 }
-            }
+//            }
         }
         return result;
     }
