@@ -571,6 +571,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
                         return responseCode;
                     }
+                    boardCode = request.getBoardCode();
                 }
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
@@ -613,6 +614,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
                     return responseCode;
                 }
+                boardCode = request.getBoardCode();
             }
             AddBoardBox addBoardBox = new AddBoardBox();
             addBoardBox.setBoardCode(request.getBoardCode());
