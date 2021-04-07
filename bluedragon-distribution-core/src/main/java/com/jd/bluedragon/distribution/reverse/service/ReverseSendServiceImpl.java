@@ -619,18 +619,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     continue;
                 }
                 newsend.setOrderId(send.getOrderId());
-                ReverseSendWms sendT = send; //新单对象，如果现场操作的是原单就是原单
-                if(!wallBillCode.equals(operCodeMap.get(wallBillCode).getNewWaybillCode())){
-                    ReverseSendWms reverseSendTWms = tBaseService.getWaybillByOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
-                    if(reverseSendTWms != null){
-                        sendT = reverseSendTWms;
-                    }
-                }
-                //一盘货变更订单号获取来源 从新单获取 上海亚一逻辑
-                if (sendT != null && BusinessUtil.isYiPanHuoOrder(sendT.getWaybillSign())) {
-                    newsend.setOrderId(sendT.getSpareColumn3());
-                }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
+                //一盘货变更订单号获取来源 2021年03月25日15:38:10  变更从原单的venderId中获取
+
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wallBillCode, sendM, orderpackMap.get(wallBillCode))) {
                     newsend.setBusiOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
@@ -934,11 +925,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         send.setSickWaybill(isSickWaybill);
 
-        //一盘货变更订单号获取来源 从新单获取
-        if (sendTwaybill != null && BusinessUtil.isYiPanHuoOrder(sendTwaybill.getWaybillSign())) {
-            send.setOrderId(sendTwaybill.getSpareColumn3());
-        }
-
+        //一盘货变更订单号获取来源 2021年03月25日15:38:10  变更从原单的venderId中获取
 
         //初始化加履中心订单
         //金鹏退仓修改字段 OrderId 初始化商品信息（原商品信息已被初始化） OrderSource
