@@ -17,9 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
@@ -72,7 +71,8 @@ public class DmsBarCodeController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_DMSBARCODE_R)
     @RequestMapping(value = "/toExport")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.barcode.controller.DmsBarCodeController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public @ResponseBody InvokeResult toExport(@RequestBody DmsBarCode barCode, HttpServletResponse response) {
+    @ResponseBody
+    public InvokeResult toExport(DmsBarCode barCode, HttpServletResponse response) {
         InvokeResult result = new InvokeResult();
         BufferedWriter bfw = null;
         try {
@@ -107,7 +107,7 @@ public class DmsBarCodeController extends DmsBaseController {
                 log.error("69码商品查询export-error", e);
                 result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
             }
-    }
+        }
         return result;
     }
 
@@ -118,8 +118,7 @@ public class DmsBarCodeController extends DmsBaseController {
      * @return
      */
     private boolean checkParam(DmsBarCode barCode,InvokeResult result) {
-
-        if (barCode == null || barCode.getBarcode() == null) {
+        if (barCode==null || barCode.getBarcode()==null) {
             result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,InvokeResult.PARAM_ERROR);
             return false;
         }

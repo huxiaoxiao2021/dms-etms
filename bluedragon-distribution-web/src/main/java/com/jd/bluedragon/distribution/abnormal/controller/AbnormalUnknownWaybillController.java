@@ -202,9 +202,9 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.AbnormalUnknownWaybillController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public @ResponseBody InvokeResult toExport(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, HttpServletResponse response) {
+    @ResponseBody
+    public  InvokeResult toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, HttpServletResponse response) {
         InvokeResult result = new InvokeResult();
-
         BufferedWriter bfw = null;
         try {
             if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())

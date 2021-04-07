@@ -336,7 +336,6 @@ $(function () {
         $("#btn_export").on("click",function(e){
 
             var params = tableInit.getSearchCondition();
-
             var areaId = params["areaId"];
             var dmsSiteCode = params["dmsSiteCode"];
             var waybillCode = params["waybillCode"];
@@ -358,22 +357,22 @@ $(function () {
                 return;
             }
 
-           /* var param = "";
+            var form = $("<form method='post'></form>"),
+                input;
+            form.attr({"action":exportUrl});
             $.each(params,function(key,value){
-                if (value!= undefined && value != "undefined"){
-                    param += "&"+key+"="+value;
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name":key});
+                if (key == 'startTime' || key == 'endTime'){
+                    input.val(new Date(value));
+                }else{
+                    input.val(value);
                 }
+                form.append(input);
             });
-
-            location.href = exportUrl + "?" + param;*/
-            $.ajaxHelper.doPostAsync(exportUrl, JSON.stringify(params), function (res) {
-                if (res.succeed) {
-                    alert(res.message);
-                } else {
-                    alert('操作异常');
-                }
-            });
-
+            form.appendTo(document.body);
+            form.submit();
+            form.remove();
         });
     }
 

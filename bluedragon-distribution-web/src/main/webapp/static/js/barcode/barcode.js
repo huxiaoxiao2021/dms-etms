@@ -74,25 +74,23 @@ $(function () {
                 $('#dataTable').bootstrapTable("load",[]);
             });
             $("#btn_export").click(function () {
-
                 var v_barcode=$("#barcode").val();
                 if (!v_barcode){
                     Jd.alert("无可导出内容");
                     return;
                 }
+                $('#edit-form').attr('action',exportUrl);
+                 var form = $("<form method='post' id='exportForm'></form>"),
+                    input;
+                form.attr({"action": exportUrl});
 
-             /*   var params = {}
-                params["barcode"] = v_barcode;*/
-                location.href = exportUrl + "?barCode="+v_barcode;
-               /* $.ajaxHelper.doPostAsync(exportUrl, JSON.stringify(params), function (res) {
-                    if (res && res.succeed) {
-
-                    } else if (res) {
-                        alert(res.message);
-                    }else {
-                        alert('操作异常');
-                    }
-                });*/
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name": "barcode"});
+                input.val(v_barcode);
+                form.append(input);
+                form.appendTo(document.body);
+                form.submit();
+                form.remove();
             });
         };
         return oInit;
