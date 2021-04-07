@@ -371,15 +371,19 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
-            if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
-                Jd.alert("请选择复核区域、复核分拣后导出!");
-                return;
-            }
+            // if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
+            //     Jd.alert("请选择复核区域、复核分拣后导出!");
+            //     return;
+            // }
             var params = tableInit.getSearchCondition();
 
-
-            var param = "&reviewOrgCode=" + params.reviewOrgCode;
-            param += "&createSiteCode=" +  params.createSiteCode;
+            var param = "";
+            if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
+                param = "&reviewOrgCode=" + params.reviewOrgCode;
+            }
+            if(params.createSiteCode != undefined && params.createSiteCode != "undefined"){
+                param += "&createSiteCode=" +  params.createSiteCode;
+            }
             if(params.isExcess != undefined && params.isExcess != "undefined"){
                 param += "&isExcess=" +  params.isExcess;
             }
