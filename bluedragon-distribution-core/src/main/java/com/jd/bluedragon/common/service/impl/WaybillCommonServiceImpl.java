@@ -987,8 +987,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         //物品名称
         if(waybill.getWaybillExt()!=null && StringUtils.isNotBlank(waybill.getWaybillExt().getConsignWare())){
-            //如果是B网(6->3) goodsName不赋值 6不赋值
-            if(!BusinessUtil.isKaPackageOrNo(waybill.getWaybillSign())){
+            //如果是B网(66为3、2) goodsName不赋值
+            if(!BusinessUtil.needPrintPackageName(waybill.getWaybillSign())){
                 target.setGoodsName(waybill.getWaybillExt().getConsignWare());
             }
         }

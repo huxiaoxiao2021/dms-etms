@@ -2073,7 +2073,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             if(baseEntity != null && Objects.equals(baseEntity.getResultCode(),EnumBusiCode.BUSI_SUCCESS.getCode())
                     && StringUtils.isNotBlank(baseEntity.getData())){
                 log.info("LoadScanServiceImpl-checkWaybillCode-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",baseEntity.getData());
-                if(BusinessUtil.isKaPackageOrNo(baseEntity.getData())){
+                if(BusinessUtil.needWeighingSquare(baseEntity.getData())){
                     log.warn("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描！包裹号={},运单号={},运单标识={}", packageCode, waybillCode,baseEntity.getData());
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描!");

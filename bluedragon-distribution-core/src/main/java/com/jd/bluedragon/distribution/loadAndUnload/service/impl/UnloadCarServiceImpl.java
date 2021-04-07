@@ -2585,7 +2585,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //信任运单标识
             boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
             //是否是KA的重量逻辑校验 66->3
-            boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
+            boolean isNewWeightLogic = BusinessUtil.needWeighingSquare(waybillSign);
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
 
