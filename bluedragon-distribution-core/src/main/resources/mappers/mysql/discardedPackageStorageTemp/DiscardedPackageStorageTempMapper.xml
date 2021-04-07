@@ -38,7 +38,7 @@
     </sql>
 
     <!-- 增加 -->
-    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
         insert into `discarded_package_storage_temp`
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="waybillCode != null and waybillCode != ''">
@@ -202,7 +202,7 @@
         </trim>
     </insert>
     <!-- 批量增加 -->
-    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+    <insert id="batchInsert" parameterType="java.util.List">
         insert into `discarded_package_storage_temp`
         <trim prefix="(" suffix=")" suffixOverrides=",">
             waybill_code,
@@ -262,35 +262,8 @@
     <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
         UPDATE `discarded_package_storage_temp`
         <set>
-            <if test="waybillCode != null and waybillCode != ''">
-            waybill_code = #{waybillCode},
-            </if>
-            <if test="packageCode != null and packageCode != ''">
-            package_code = #{packageCode},
-            </if>
             <if test="status != null ">
             status = #{status},
-            </if>
-            <if test="waybillProduct != null and waybillProduct != ''">
-            waybill_product = #{waybillProduct},
-            </if>
-            <if test="consignmentName != null and consignmentName != ''">
-            consignment_name = #{consignmentName},
-            </if>
-            <if test="weight != null ">
-            weight = #{weight},
-            </if>
-            <if test="cod != null ">
-            cod = #{cod},
-            </if>
-            <if test="codAmount != null ">
-            cod_amount = #{codAmount},
-            </if>
-            <if test="businessCode != null and businessCode != ''">
-            business_code = #{businessCode},
-            </if>
-            <if test="businessName != null and businessName != ''">
-            business_name = #{businessName},
             </if>
             <if test="operatorCode != null ">
             operator_code = #{operatorCode},
@@ -316,21 +289,9 @@
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
             </if>
-            <if test="prevSiteCode != null ">
-            prev_site_code = #{prevSiteCode},
-            </if>
-            <if test="prevSiteName != null and prevSiteName != ''">
-            prev_site_name = #{prevSiteName},
-            </if>
-            <if test="prevProvinceCompanyCode != null ">
-            prev_province_company_code = #{prevProvinceCompanyCode},
-            </if>
-            <if test="prevProvinceCompanyName != null and prevProvinceCompanyName != ''">
-            prev_province_company_name = #{prevProvinceCompanyName}
-            </if>
         </set>
         WHERE
-            package_code = #{packageCode}
+            waybill_code = #{waybillCode}
     </update>
     <!-- 批量更新 -->
     <update id="batchUpdate" parameterType="java.util.List">

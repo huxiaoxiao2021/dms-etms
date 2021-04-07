@@ -134,7 +134,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             long total = discardedPackageStorageTempDao.selectCount(dbQuery);
             int dbRes=-1;
             if(total>0){
-                dbRes=discardedPackageStorageTempDao.batchUpdate(dbList);
+                dbRes=discardedPackageStorageTempDao.updateByPrimaryKey(dbList.get(0));
             }else {
                 dbRes=discardedPackageStorageTempDao.batchInsert(dbList);
             }
@@ -189,7 +189,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
             db.setBusinessName(WaybillInfo.getBusiName());
             db.setOperatorCode(request.getUserCode().longValue());
-            db.setBusinessName(request.getUserName());
+            db.setOperatorName(request.getUserName());
             db.setOperatorErp(request.getOperatorERP());
             db.setSiteCode(request.getSiteCode());
             db.setSiteName(request.getSiteName());
