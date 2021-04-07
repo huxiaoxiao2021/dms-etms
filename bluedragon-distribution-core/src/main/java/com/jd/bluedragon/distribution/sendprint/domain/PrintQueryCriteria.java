@@ -48,7 +48,12 @@ public class PrintQueryCriteria implements Serializable{
      * 页码
      */
     private Integer pageNo;
-	
+
+    /**
+     * 操作人ERP
+     */
+    private String userCode;
+
     public Integer getSiteCode() {
         return siteCode;
     }
@@ -151,5 +156,13 @@ public class PrintQueryCriteria implements Serializable{
 
     public void setPageNo(Integer pageNo) {
         this.pageNo = pageNo;
+    }
+
+    public String getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(String userCode) {
+        this.userCode = userCode;
     }
 }
