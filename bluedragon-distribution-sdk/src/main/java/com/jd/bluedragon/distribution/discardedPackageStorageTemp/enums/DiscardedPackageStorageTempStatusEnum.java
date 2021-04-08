@@ -16,17 +16,17 @@ public enum DiscardedPackageStorageTempStatusEnum {
     /**
      * 暂存
      */
-    TEMP_STORAGE(1, "暂存"),
+    TEMP_STORAGE(0, "暂存"),
 
     /**
      * 出库
      */
-    OUT_STOCK(2, "出库"),
+    OUT_STOCK(1, "出库"),
 
     /**
      * 已认领
      */
-    CLAIMED(3, "已认领"),
+    CLAIMED(2, "已认领"),
 
     /**
      * 未知
