@@ -215,7 +215,7 @@ public class CycleBoxResource {
      */
     @GET
     @Path("/cycleBox/getInterceptStatus/{siteCode}")
-    @JProfiler(jKey = "DMS.WEB.BoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.getInterceptStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean>  getInterceptStatus(@PathParam("siteCode") Integer siteCode){
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
@@ -238,7 +238,7 @@ public class CycleBoxResource {
      */
     @POST
     @Path("/cycleBox/checkGroupBingResult")
-    @JProfiler(jKey = "DMS.WEB.BoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.WEB.CycleBoxResource.checkGroupBingResult", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<BoxCodeGroupBinDingDto>  checkGroupBingResult(BoxMaterialRelationRequest request){
         InvokeResult<BoxCodeGroupBinDingDto> invokeResult = new InvokeResult<BoxCodeGroupBinDingDto>();
         invokeResult.success();

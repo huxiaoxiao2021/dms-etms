@@ -652,6 +652,7 @@ public class BoxResource {
 
     @GET
     @Path("/boxes/validationAndCheck")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.validationAndCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BoxResponse validationAndCheck(@QueryParam("boxCode") String boxCode, @QueryParam("operateType") Integer operateType,@QueryParam("siteCode")Integer siteCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         Assert.notNull(operateType, "operateType must not be null");
