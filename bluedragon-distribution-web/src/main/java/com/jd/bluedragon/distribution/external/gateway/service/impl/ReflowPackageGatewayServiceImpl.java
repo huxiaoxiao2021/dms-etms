@@ -94,7 +94,7 @@ public class ReflowPackageGatewayServiceImpl implements ReflowPackageGatewayServ
                 result.setCode(res.getCode());
             }
 
-            result.setMessage(result.getMessage());
+            result.setMessage(res.getMessage());
         }catch (Exception e) {
             log.error("ReflowPackageGatewayServiceImpl.wastepackagestorage {}", e.getMessage(), e);
             result.toFail("弃件暂存异常");
