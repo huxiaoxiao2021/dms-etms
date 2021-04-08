@@ -78,5 +78,10 @@ public interface PopReceiveAbnormalService {
 	 */
 	public int delete(Long abnormalId);
 
+	/**
+	 * 导出差异订单
+	 * @param paramMap
+	 * @param bfw
+	 */
     void export(Map<String, Object> paramMap, BufferedWriter bfw);
 }

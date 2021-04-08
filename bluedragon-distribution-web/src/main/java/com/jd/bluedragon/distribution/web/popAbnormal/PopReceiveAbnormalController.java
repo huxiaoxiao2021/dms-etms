@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.popAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
@@ -77,6 +78,9 @@ public class PopReceiveAbnormalController {
 
 	@Autowired
 	private SortCenterServiceManager sortCenterManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 跳转到查询POP差异列表页面
@@ -525,6 +529,28 @@ public class PopReceiveAbnormalController {
 		}
 	}
 
+
+	@RequestMapping(value = "/checkConcurrencyLimit")
+	@ResponseBody
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopReceiveAbnormalController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult checkConcurrencyLimit(){
+		InvokeResult result = new InvokeResult();
+		try {
+			//校验并发
+			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_PTORDER_DIFF_R)){
+				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+				return result;
+			}
+		}catch (Exception e){
+			log.error("校验导出并发接口异常",e);
+			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+			return result;
+		}
+		return result;
+	}
+
+
 	/**
 	 * 导出POP差异订单数据
 	 * @param popAbnormalQuery
@@ -534,6 +560,7 @@ public class PopReceiveAbnormalController {
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopReceiveAbnormalController.exportPopReceiveAbnormal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public InvokeResult exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery, HttpServletResponse response) {
 		InvokeResult result = new InvokeResult();
 		this.log.info("导出平台差异订单数据");
@@ -547,6 +574,12 @@ public class PopReceiveAbnormalController {
 		BufferedWriter bfw = null;
 		try {
 			Map<String, Object> paramMap =  ObjectMapHelper.makeObject2Map(popAbnormalQuery);
+			if(paramMap.isEmpty()){
+				this.log.warn("PopReceiveAbnormalController exportPopReceiveAbnormal PARAM ERROR --> 查询参数为空");
+				result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,InvokeResult.PARAM_ERROR);
+				return result;
+			}
+
 			String fileName = "平台收货差异订单数据";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -557,7 +590,6 @@ public class PopReceiveAbnormalController {
 		} catch (Exception e) {
 			this.log.error("根据条件查询平台差异订单导出数据异常：", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
-
 		} finally {
 			try {
 				if (bfw != null) {

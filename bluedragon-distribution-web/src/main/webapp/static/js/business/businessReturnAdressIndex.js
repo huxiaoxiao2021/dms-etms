@@ -156,26 +156,41 @@ $(function() {
 		    	}
 		    	tableInit().refresh();
 			});
+
+		    //数据导出
             $("#btn_export").on("click",function(e){
 		    	if(!checkQueryParams()){
 		    		return;
 		    	}
-                var params = tableInit().getSearchCondition();
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":exportUrl});
+				jQuery.ajax({
+					type: "POST",
+					url: "#springUrl('/businessReturnAdress/checkConcurrencyLimit')",
+					data: {orgCode: this.value},
+					success: function(data){
+						if(data.code == 200){
+							var params = tableInit().getSearchCondition();
+							var form = $("<form method='post'></form>"),
+								input;
+							form.attr({"action":exportUrl});
 
-                $.each(params,function(key,value){
+							$.each(params,function(key,value){
 
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
-                });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
+								input = $("<input type='hidden' class='search-param'>");
+								input.attr({"name":key});
+								input.val(value);
+								form.append(input);
+							});
+							form.appendTo(document.body);
+							form.submit();
+							document.body.removeChild(form[0]);
+							return;
+						}else {
+							alert(data.message);
+							return;
+						}
+					}
+				});
 
             });
 		};

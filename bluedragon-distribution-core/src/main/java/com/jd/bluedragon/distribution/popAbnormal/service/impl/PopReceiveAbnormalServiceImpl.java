@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -21,6 +22,8 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.dms.report.domain.WeightVolumeCollectScrollResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +76,9 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 
 	@Autowired
 	private PopPrintDao popPrintDao;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	@Override
 	public int findTotalCount(Map<String, Object> paramMap) {
@@ -288,27 +294,31 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			// 写入表头
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
-			List<PopReceiveAbnormal> popReceiveAbnormals = null;
+			// 设置总导出数据
+			Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
 
-			if (!paramMap.isEmpty()) {
-				popReceiveAbnormals = this.findList(paramMap);
-			}
+			paramMap.put("startIndex",0);
+			paramMap.put("pageSize",10000);
 
-			List<PopReceiveAbnormal> popReceiveAbnormalExports = new ArrayList<PopReceiveAbnormal>();
-			if (popReceiveAbnormals != null && !popReceiveAbnormals.isEmpty()) {
-				int maxCount = 5000;
-				if (popReceiveAbnormals.size() > maxCount) {
-					for (int i = 0; i < maxCount; i++) {
-						popReceiveAbnormalExports.add(popReceiveAbnormals.get(i));
-					}
-				} else {
-					popReceiveAbnormalExports = popReceiveAbnormals;
+			int queryTotal = 0;
+			int index = 1;
+			while (index++ <= 100) {
+				paramMap.put("startIndex",(Integer)paramMap.get("startIndex") + (index-1) * 10000);
+				List<PopReceiveAbnormal> popReceiveAbnormalExports = this.findList(paramMap);
+				if(CollectionUtils.isEmpty(popReceiveAbnormalExports)){
+					break;
+				}
+
+				// 输出至csv文件中
+				CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, popReceiveAbnormalExports);
+				// 限制导出数量
+				queryTotal += popReceiveAbnormalExports.size();
+				if(queryTotal > uccSpotCheckMaxSize){
+					break;
 				}
 			}
-			// 输出至csv文件中
-			CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, popReceiveAbnormalExports);
 		}catch (Exception e){
-
+			log.error("平台收货差异订单数据导出异常",e);
 		}
 	}
 
