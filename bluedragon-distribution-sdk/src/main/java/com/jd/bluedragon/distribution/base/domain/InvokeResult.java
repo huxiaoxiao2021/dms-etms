@@ -51,6 +51,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_EXPORT_LIMIT_CODE = 306;
     public static final String RESULT_EXPORT_LIMIT_MESSAGE="导出调用繁忙,请稍后重试";
 
+    public static  final int RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE = 307;
+    public static final  String RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE= "校验导出并发接口异常";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

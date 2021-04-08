@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopReceiveAbnormalDao;
+import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalSendVO;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal;
@@ -16,10 +17,7 @@ import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.PopOrderDto;
 import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.WaybillService;
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -32,7 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -280,6 +280,57 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			return 0;
 		}
 		return this.popReceiveAbnormalDao.delete(abnormalId);
+	}
+
+	@Override
+	public void export(Map<String, Object> paramMap, BufferedWriter bufferedWriter) {
+		try {
+			// 写入表头
+			Map<String, String> headerMap = getHeaderMap();
+			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+			List<PopReceiveAbnormal> popReceiveAbnormals = null;
+
+			if (!paramMap.isEmpty()) {
+				popReceiveAbnormals = this.findList(paramMap);
+			}
+
+			List<PopReceiveAbnormal> popReceiveAbnormalExports = new ArrayList<PopReceiveAbnormal>();
+			if (popReceiveAbnormals != null && !popReceiveAbnormals.isEmpty()) {
+				int maxCount = 5000;
+				if (popReceiveAbnormals.size() > maxCount) {
+					for (int i = 0; i < maxCount; i++) {
+						popReceiveAbnormalExports.add(popReceiveAbnormals.get(i));
+					}
+				} else {
+					popReceiveAbnormalExports = popReceiveAbnormals;
+				}
+			}
+			// 输出至csv文件中
+			CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, popReceiveAbnormalExports);
+		}catch (Exception e){
+
+		}
+	}
+
+	private Map<String, String> getHeaderMap() {
+		Map<String, String> headerMap = new LinkedHashMap<>();
+		headerMap.put("mainType","差异类型");
+		headerMap.put("orgName","区域");
+		headerMap.put("createSiteName","分拣中心");
+		headerMap.put("mainTypeName","一级差异类型名称");
+		headerMap.put("subTypeName","二级差异类型名称");
+		headerMap.put("waybillCode","运单号");
+		headerMap.put("orderCode","订单号");
+		headerMap.put("abnormalStatus","回复状态");
+		headerMap.put("popSupNo","商家编号");
+		headerMap.put("popSupName","商家名称");
+		headerMap.put("attr1","快递公司名称(1、2)/三方运单号(3)/运营信息(4)/原始数量(5、6)/应发分拣中心(7)");
+		headerMap.put("attr2","快递单号(1、2)/商品名称(3)/实际数量(5、6)");
+		headerMap.put("attr3","确认数量(5、6)");
+		headerMap.put("operatorName","发起人");
+		headerMap.put("createTime","发起时间");
+		headerMap.put("updateTime","回复时间");
+		return  headerMap;
 	}
 
 	private void pushMqToPop(PopReceiveAbnormal popReceiveAbnormal,

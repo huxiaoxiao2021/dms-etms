@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDao;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.popAbnormal.ws.client.waybill.WaybillServi
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -30,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedWriter;
 import java.util.*;
 
 /**
@@ -226,77 +229,45 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 		return flag;
 	}
 
-	/*@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public int updateById(PopAbnormal popAbnormal) {
-		int flag = 0;
-		if (popAbnormal == null || popAbnormal.getId() == null
-				|| popAbnormal.getId() <= 0) {
-			this.log.info("POP差异订单Service，更新商家确认时间，传入参数有误！");
-			return (flag - 1);
+	/**
+	 * 导出方法
+	 * @param paramMap
+	 * @param bufferedWriter
+	 */
+	@Override
+	public void export(Map<String, Object> paramMap, BufferedWriter bufferedWriter) {
+		try {
+			// 写入表头
+			Map<String, String> headerMap = getHeaderMap();
+			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+			List<PopAbnormal> data = this.findList(paramMap);
+			// 输出至csv文件中
+			CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+		}catch (Exception e){
+			log.error("POP差异订单数据导出数据异常",e);
 		}
-		// 更新Cache缓存包裹数量,更新成功后 flag 为 1
-		long startTime = System.currentTimeMillis();
-		int resultCode = UpdateCacheWaybillClient.updateConfirmNum(popAbnormal
-				.getWaybillCode(), popAbnormal.getConfirmNum());
-		long endTime = System.currentTimeMillis();
-		this.log.info("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量，参数：运单号【"
-				+ popAbnormal.getWaybillCode() + "】，调用时间【"
-				+ (endTime - startTime) + "】");
-		if (resultCode == 200 || resultCode == 404) {
-			flag++;
-		} else {
-			this.log.error("POP差异订单Service，更新商家确认时间，更新Cache缓存包裹数量失败："
-					+ resultCode);
-			return flag;
-		}
-		// 更新运单包裹数量,更新成功后 flag 为 2
-		this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 开始，运单号："
-				+ popAbnormal.getWaybillCode());
-		startTime = System.currentTimeMillis();
-		BaseEntity<List<String>> baseEntity = waybillUpdateApi
-				.batchUpdataForPOP(convPopList(popAbnormal));
-		endTime = System.currentTimeMillis();
-		this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 结束参数：运单号【"
-				+ popAbnormal.getWaybillCode() + "】，调用时间【"
-				+ (endTime - startTime) + "】");
-
-		if (baseEntity != null) {
-			List<String> resultStrList = baseEntity.getData();
-			if (resultStrList != null && resultStrList.size() > 0
-					&& resultStrList.contains(popAbnormal.getWaybillCode())) {
-				this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 成功，运单号："
-						+ popAbnormal.getWaybillCode() + ", 包裹数："
-						+ popAbnormal.getConfirmNum());
-				flag++;
-			}
-		}
-		if (flag < 2) {
-			this.log.info("POP差异订单Service，更新商家确认时间，更新运单包裹数量 失败，运单号："
-					+ popAbnormal.getWaybillCode() + ", 包裹数："
-					+ popAbnormal.getConfirmNum());
-			return flag;
-		}
-
-		// 更新验货表包裹数量
-		int resultInt = this.inspectionDao
-				.updatePop(convToInsepection(popAbnormal));
-		this.log.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
-				+ popAbnormal.getId());
-		if (resultInt <= 0) {
-			// 更新包裹标签打印表数据
-			this.popPrintDao.updateByWaybillCode(convToPopPrint(popAbnormal));
-		}
-		flag++;
-
-		// 更新申请单状态,更新成功后 flag 为 4
-		popAbnormalDao.updateById(popAbnormal);
-		this.log.info("POP差异订单Service，更新商家确认时间，更新申请单 成功，ID："
-				+ popAbnormal.getId());
-		flag++;
-		return flag;
 	}
-*/
+
+	private Map<String, String> getHeaderMap() {
+		Map<String, String> headerMap = new LinkedHashMap<>();
+		headerMap.put("orderCode","订单号");
+		headerMap.put("waybillCode","运单号");
+		headerMap.put("abnormalType","异常类型");
+		headerMap.put("abnormalState","申请状态");
+		headerMap.put("serialNumber","流水单号");
+		headerMap.put("popSupNo","商家编号");
+		headerMap.put("currentNum","原包裹数");
+		headerMap.put("actualNum","实际包裹数");
+		headerMap.put("confirmNum","确认包裹数");
+		headerMap.put("createTime","申请时间");
+		headerMap.put("operatorCode","申请ID");
+		headerMap.put("operatorName","申请人姓名");
+		headerMap.put("confirmTime","确认时间");
+		headerMap.put("updateTime","更新时间");
+		headerMap.put("memo","备注");
+		return  headerMap;
+	}
+
 	/**
 	 * 转换运单基本信息
 	 * 

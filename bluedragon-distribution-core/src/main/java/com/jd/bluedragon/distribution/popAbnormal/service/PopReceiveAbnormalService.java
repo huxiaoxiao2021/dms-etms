@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.popAbnormal.service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -77,4 +78,5 @@ public interface PopReceiveAbnormalService {
 	 */
 	public int delete(Long abnormalId);
 
+    void export(Map<String, Object> paramMap, BufferedWriter bfw);
 }

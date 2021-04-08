@@ -102,10 +102,23 @@
 
         // 导出数据
         $("#exportData").click(function() {
-            // 提交表单
-            $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
-            $("#selectPopList").attr("method", "POST");
-            $("#selectPopList").submit();
+            //校验接口并发限制
+            jQuery.ajax({
+                type: "POST",
+                url: "#springUrl('/popReceiveAbnormal/checkConcurrencyLimit')",
+                data: {orgCode: this.value},
+                success: function(data){
+                    if(data.code == 200){
+                        // 提交表单-执行导出
+                        $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
+                        $("#selectPopList").attr("method", "POST");
+                        $("#selectPopList").submit();
+                        return true;
+                    }else {
+                        alert(data.message);
+                    }
+                }
+            });
             return false;
         });
         // 提交查询
