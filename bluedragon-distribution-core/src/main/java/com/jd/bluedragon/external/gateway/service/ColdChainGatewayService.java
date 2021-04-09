@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
 
 import java.util.List;
@@ -58,6 +59,6 @@ public interface ColdChainGatewayService {
      * @param request
      * @return
      */
-    JdCResponse temporaryIn(ColdChainTemporaryInRequest request);
+    ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request);
 
 }

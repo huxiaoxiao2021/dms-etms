@@ -146,19 +146,15 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public JdCResponse temporaryIn(ColdChainTemporaryInRequest request) {
-        JdCResponse<Boolean> response = new JdCResponse<>();
+    public ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request) {
+        ColdChainOperationResponse<ColdChainTemporaryInResponse> response = new ColdChainOperationResponse<>();
         if (request == null) {
-            response.toError("请求参数为null");
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("请求参数为null");
             return response;
         }
+        response= coldChainOperationResource.temporaryIn(request);
 
-        ColdChainOperationResponse operationResponse = coldChainOperationResource.temporaryIn(request);
-        if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
-            response.toSucceed();
-        } else {
-            response.toError(operationResponse.getMessage());
-        }
         return response;
     }
 }
