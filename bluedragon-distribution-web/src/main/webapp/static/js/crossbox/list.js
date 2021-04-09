@@ -274,10 +274,24 @@ function importDataBtn() {
 }
 
 function exportDataBtn() {
-	var contextPath = $("#contextPath").val();
-	var url = contextPath + "/base/crossbox/toExport";
-	$("#dataForm").attr("action", url);
-	$("#dataForm").submit();
+	jQuery.ajax({
+		type: "POST",
+		url: "#springUrl('/base/crossbox/checkConcurrencyLimit')",
+		data: {},
+		success: function(data){
+			if(data.code == 200){
+				// 提交表单
+				var contextPath = $("#contextPath").val();
+				var url = contextPath + "/base/crossbox/toExport";
+				$("#dataForm").attr("action", url);
+				$("#dataForm").submit();
+				return;
+			}else {
+				alert(data.message);
+				return;
+			}
+		}
+	});
 }
 
 function add0(m) {

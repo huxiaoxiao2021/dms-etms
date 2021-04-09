@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.goodsPrint.service;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -12,7 +13,13 @@ import java.util.List;
  */
 public interface GoodsPrintService {
     JdResponse<List<GoodsPrintDto>> query(GoodsPrintDto goodsPrintDto);
-    List<List<Object>> export(GoodsPrintDto goodsPrintDto);
+
+    /**
+     * 导出
+     * @param goodsPrintDto
+     * @param bfw
+     */
+    void export(GoodsPrintDto goodsPrintDto, BufferedWriter bfw);
 
     /**
      * 如果redis中读到了 key 说明已经往es写过了  后面就不重复写了

@@ -75,5 +75,15 @@ public class ExportConcurrencyLimitServiceImpl implements ExportConcurrencyLimit
         return uccSpotCheckMaxSize;
     }
 
+    /**
+     * 获取导出单次查询数据库条数限制
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.ExportConcurrencyLimitServiceImpl.uccSpotCheckMaxSize", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public Integer getOneQuerySizeLimit(){
+        return uccPropertyConfiguration.getOneQuerySize();
+    }
+
 }
     

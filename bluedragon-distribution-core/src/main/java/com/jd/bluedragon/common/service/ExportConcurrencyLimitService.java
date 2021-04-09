@@ -17,4 +17,10 @@ public interface ExportConcurrencyLimitService {
     * @return
     */
    Integer uccSpotCheckMaxSize();
+
+   /**
+    * 导出单次查询数据库条数限制
+    * @return
+    */
+   Integer getOneQuerySizeLimit();
 }

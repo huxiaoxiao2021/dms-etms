@@ -109,7 +109,7 @@ $(document).ready(function() {
 		jQuery.ajax({
 			type: "POST",
 			url: "#springUrl('/popReceiveAbnormal/checkConcurrencyLimit')",
-			data: {orgCode: this.value},
+			data: {},
 			success: function(data){
 				if(data.code == 200){
 					// 提交表单

@@ -112,8 +112,6 @@ public class BusinessReturnAdressController extends DmsBaseController{
 		InvokeResult result = new InvokeResult();
 		BufferedWriter bfw = null;
 		try {
-
-
 			String fileName = "商家退货地址";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -122,6 +120,9 @@ public class BusinessReturnAdressController extends DmsBaseController{
 			CsvExporterUtils.setResponseHeader(response, fn);
 			businessReturnAdressService.export(businessReturnAdressCondition,bfw);
 		} catch (Exception e) {
+			log.error("商家退货地址 export error",e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+		}finally {
 			try {
 				if (bfw != null) {
 					bfw.flush();

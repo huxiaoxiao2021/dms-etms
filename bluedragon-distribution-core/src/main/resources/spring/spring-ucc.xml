@@ -97,7 +97,7 @@
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="exportRedisKeyTimeOut" value="${exportRedisKeyTimeOut:60}"/>
-
+		<property name="oneQuerySize" value="${oneQuerySize:5000}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -164,6 +164,7 @@
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.exportRedisKeyTimeOut</value>
+				<value>uccPropertyConfiguration.oneQuerySize</value>
 			</list>
 		</property>
 	</bean>

@@ -274,6 +274,10 @@ public class UccPropertyConfiguration {
      */
     private Integer exportRedisKeyTimeOut;
 
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
 
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
@@ -753,5 +757,13 @@ public class UccPropertyConfiguration {
 
     public void setExportRedisKeyTimeOut(Integer exportRedisKeyTimeOut) {
         this.exportRedisKeyTimeOut = exportRedisKeyTimeOut;
+    }
+
+    public Integer getOneQuerySize() {
+        return oneQuerySize;
+    }
+
+    public void setOneQuerySize(Integer oneQuerySize) {
+        this.oneQuerySize = oneQuerySize;
     }
 }

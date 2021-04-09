@@ -166,7 +166,7 @@ $(function() {
 				jQuery.ajax({
 					type: "POST",
 					url: "#springUrl('/businessReturnAdress/checkConcurrencyLimit')",
-					data: {orgCode: this.value},
+					data: {},
 					success: function(data){
 						if(data.code == 200){
 							var params = tableInit().getSearchCondition();

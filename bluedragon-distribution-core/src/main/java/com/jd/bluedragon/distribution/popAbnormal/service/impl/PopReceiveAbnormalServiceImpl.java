@@ -297,13 +297,12 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			// 设置总导出数据
 			Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
 
-			paramMap.put("startIndex",0);
-			paramMap.put("pageSize",10000);
-
+			// 设置单次查询条数
+			paramMap.put("pageSize",exportConcurrencyLimitService.getOneQuerySizeLimit());
 			int queryTotal = 0;
 			int index = 1;
-			while (index++ <= 100) {
-				paramMap.put("startIndex",(Integer)paramMap.get("startIndex") + (index-1) * 10000);
+			while (index++ <= 1000) {
+				paramMap.put("startIndex",(index-1) * (Integer)paramMap.get("pageSize"));
 				List<PopReceiveAbnormal> popReceiveAbnormalExports = this.findList(paramMap);
 				if(CollectionUtils.isEmpty(popReceiveAbnormalExports)){
 					break;

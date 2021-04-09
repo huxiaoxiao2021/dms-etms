@@ -115,6 +115,7 @@ $(function () {
                 window.print();
                 $('#edit-condition').show();
             });
+
             $("#btn_export").click(function () {
 
                 var v_sendCode=$("#sendCode").val();
@@ -122,18 +123,34 @@ $(function () {
                     Jd.alert("无可导出内容");
                     return;
                 }
-                var url = "/goodsPrint/toExport";
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action": url});
+                jQuery.ajax({
+                    type: "POST",
+                    url: "#springUrl('/goodsPrint/checkConcurrencyLimit')",
+                    data: {},
+                    success: function(data){
+                        if(data.code == 200){
+                            // 提交表单
+                            var url = "/goodsPrint/toExport";
+                            var form = $("<form method='post'></form>"),
+                                input;
+                            form.attr({"action": url});
 
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": "sendCode"});
-                input.val(v_sendCode);
-                form.append(input);
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
+                            input = $("<input type='hidden' class='search-param'>");
+                            input.attr({"name": "sendCode"});
+                            input.val(v_sendCode);
+                            form.append(input);
+                            form.appendTo(document.body);
+                            form.submit();
+                            document.body.removeChild(form[0]);
+                            return;
+                        }else {
+                            alert(data.message);
+                            return;
+                        }
+                    }
+                });
+
+
             });
         };
         return oInit;

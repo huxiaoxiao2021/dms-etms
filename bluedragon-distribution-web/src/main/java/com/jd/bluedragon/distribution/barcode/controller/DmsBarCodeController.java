@@ -68,6 +68,12 @@ public class DmsBarCodeController extends DmsBaseController {
         return barcodeService.query(barCode);
     }
 
+    /**
+     * 导出数据
+     * @param barCode
+     * @param response
+     * @return
+     */
     @Authorization(Constants.DMS_WEB_SORTING_DMSBARCODE_R)
     @RequestMapping(value = "/toExport")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.barcode.controller.DmsBarCodeController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
@@ -81,7 +87,7 @@ public class DmsBarCodeController extends DmsBaseController {
             }
 
             //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)){
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_DMSBARCODE_R)){
                 result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
                 return result;
             }
