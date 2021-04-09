@@ -360,8 +360,9 @@ public class ColdChainOperationResource {
     @POST
     @Path("/coldChain/operation/temporaryIn")
     @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.temporaryIn", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> temporaryIn(ColdChainTemporaryInRequest request) {
-        ColdChainOperationResponse<List<ColdChainUnloadQueryResultDto>> response = new ColdChainOperationResponse<>();
+    public ColdChainOperationResponse<ColdChainTemporaryInResponse> temporaryIn(ColdChainTemporaryInRequest request) {
+        ColdChainOperationResponse<ColdChainTemporaryInResponse> response = new ColdChainOperationResponse<>();
+        log.info("[冷链操作-暂存入库]调用service开始,request:" + JsonHelper.toJson(request));
         try {
             if (this.checkParams(request)) {
                 response= coldChainOperationService.temporaryIn(request);
