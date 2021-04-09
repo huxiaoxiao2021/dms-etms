@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
+import com.jd.bluedragon.distribution.mail.MailProxy;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -30,10 +31,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 冷链货物操作服务
@@ -357,15 +355,32 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         CCTemporaryInMessage body =null;
 
         BarCodeType codeType = BusinessUtil.getBarCodeType(barCode);
-
+        if(codeType==null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("请输入有效的运单/包裹号");
+            return response;
+        }
+        ColdChainTemporaryInResponse responseData=new ColdChainTemporaryInResponse();
+        responseData.setPackageCount(0);
+        responseData.setWaybillCount(0);
         switch (codeType) {
             case PACKAGE_CODE: {
                 String waybillCode=WaybillUtil.getWaybillCode(barCode);
                 body = this.buildTemppraryInMessageList(request,waybillCode,barCode);
+                responseData.setPackageCount(1);
+                responseData.setWaybillCount(1);
                 break;
             }
             case WAYBILL_CODE: {
-                body=this.buildTemppraryInMessageList(request, barCode,"");
+                List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
+                if (packageCodeList != null && packageCodeList.size() > 0) {
+                    responseData.setPackageCount(packageCodeList.size());
+                    responseData.setWaybillCount(1);
+                    body=this.buildTemppraryInMessageList(request, barCode,"");
+                } else {
+                    response.setCode(JdResponse.CODE_PARAM_ERROR);
+                    response.setMessage("无效运单号或该运单下无包裹");
+                }
                 break;
             }
             default: {
@@ -384,12 +399,13 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
             }
             ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
         }
+        response.setData(responseData);
         return response;
     }
 
     private CCTemporaryInMessage buildTemppraryInMessageList(ColdChainTemporaryInRequest request,String waybillCode, String packageCode) {
         CCTemporaryInMessage body = new CCTemporaryInMessage();
-        body.setOperateERP(request.getOperateERP());
+        body.setOperateErp(request.getOperateERP());
         body.setOperateName(request.getSiteName());
         body.setTempscTime(DateUtil.format(new Date(),DateUtil.FORMAT_DATE_TIME));
         body.setOperateId(String.valueOf(request.getSiteId()));

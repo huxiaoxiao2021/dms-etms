@@ -365,8 +365,6 @@ public class ColdChainOperationResource {
         try {
             if (this.checkParams(request)) {
                 response= coldChainOperationService.temporaryIn(request);
-                response.setCode(JdResponse.CODE_OK);
-                response.setMessage(JdResponse.MESSAGE_OK);
             } else {
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
                 response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);

@@ -34,7 +34,7 @@ public class CCTemporaryInMessage {
     /**
      * 操作人erp
      */
-    private String operateERP;
+    private String operateErp;
 
     /**
      * 操作人名称
@@ -87,12 +87,12 @@ public class CCTemporaryInMessage {
         this.tempscTime = tempscTime;
     }
 
-    public String getOperateERP() {
-        return operateERP;
+    public String getOperateErp() {
+        return operateErp;
     }
 
-    public void setOperateERP(String operateERP) {
-        this.operateERP = operateERP;
+    public void setOperateErp(String operateErp) {
+        this.operateErp = operateErp;
     }
 
     public String getOperateUser() {
