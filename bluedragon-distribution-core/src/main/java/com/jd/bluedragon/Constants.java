@@ -1460,4 +1460,9 @@ public class Constants {
     }
     //DeliveryPackageD信任包裹称重
     public static Integer isTrust = 1;
+
+    /**
+     * 卸车任务流水线模式:只验货不组板
+     */
+    public static final Integer ASSEMBLY_LINE_TYPE = 1;
 }

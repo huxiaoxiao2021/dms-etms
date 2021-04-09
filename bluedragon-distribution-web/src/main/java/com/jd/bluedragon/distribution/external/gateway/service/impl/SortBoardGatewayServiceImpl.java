@@ -10,7 +10,10 @@ import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -36,6 +39,9 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     private BoardCombinationResource boardCombinationResource;
+
+    @Autowired
+    protected InspectionDao inspectionDao;
 
     /**
      * 组板校验
@@ -106,6 +112,16 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
 
         JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
+        Inspection inspectionQ=new Inspection();
+        inspectionQ.setWaybillCode(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()));
+        inspectionQ.setPackageBarcode(request.getBoxOrPackageCode());
+        inspectionQ.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        inspectionQ.setYn(Integer.valueOf(1));
+        //未操作验货不允许组板
+        if(inspectionDao.haveInspectionByPackageCode(inspectionQ)){
+            jdcResponse.toConfirm("此包裹未验货，不允许组板！");
+            return jdcResponse;
+        }
 
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
         BoardCheckDto boardCheckDto = new BoardCheckDto();
