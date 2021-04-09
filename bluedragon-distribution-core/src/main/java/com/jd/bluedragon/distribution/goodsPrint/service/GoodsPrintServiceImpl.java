@@ -80,16 +80,8 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         List<GoodsPrintDto> result = new ArrayList<GoodsPrintDto>(count.intValue());
         String sendCodeString="";
         for (String sendCode : realCodes.keySet()) {
-//            int num = realCodes.get(sendCode).intValue();
-//            int page = num / PAGE_SIZE + (num % PAGE_SIZE > 0 ? 1 : 0);
-//            if (page > 1) {
-//                for (int i = 1; i <= page; i++) {
-//                    result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusOfPage(sendCode,i,PAGE_SIZE));
-//                }
-//            } else {
-                result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatus(sendCode));
-//            }
-            sendCodeString+=Constants.SEPARATOR_COMMA+sendCode;
+            result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatus(sendCode));
+            sendCodeString += Constants.SEPARATOR_COMMA+sendCode;
         }
         jdResponse.setData(result);
         if (sendCodeString.length()>1){

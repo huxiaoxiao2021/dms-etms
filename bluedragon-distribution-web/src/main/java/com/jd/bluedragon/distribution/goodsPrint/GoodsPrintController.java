@@ -119,7 +119,7 @@ public class GoodsPrintController extends DmsBaseController {
 
             goodsPrintService.export(goodsPrint,bfw);
         } catch (Exception e) {
-            log.error("托寄物品名--toExport:", e);
+            log.error("托寄物品名--toExport error:", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
             return result;
         }finally {

@@ -74,6 +74,7 @@ $(function () {
         oInit.init = function () {
             $('#dataTable').hide();
             $('#sendCode').val(null);
+            // 查询
             $('#btn_query').click(function () {
                 var params={};
                 var v_sendCode=$('#sendCode').val();
@@ -91,7 +92,7 @@ $(function () {
                         $('#labelCount').show();
 
                         if (res.data.length>10000) {
-                            $('#labelAlert').text("提示：条目过多，建议导出excel再做打印，避免页面卡顿");
+                            $('#labelAlert').text("提示：条目过多，建议导出csv再做打印，避免页面卡顿");
                             $('#labelAlert').show();
                         }else{
                             $('#labelAlert').hide();
@@ -109,6 +110,7 @@ $(function () {
                 $('#labelCount').text("");
                 $('#dataTable').bootstrapTable("load",[]);
             });
+            // 打印
             $('#btn_print').click(function () {
                 $('#edit-condition').hide();
                 $('#labelAlert').hide();
@@ -116,16 +118,17 @@ $(function () {
                 $('#edit-condition').show();
             });
 
+            //导出
             $("#btn_export").click(function () {
-
                 var v_sendCode=$("#sendCode").val();
                 if (!v_sendCode){
                     Jd.alert("无可导出内容");
                     return;
                 }
+
                 jQuery.ajax({
                     type: "POST",
-                    url: "#springUrl('/goodsPrint/checkConcurrencyLimit')",
+                    url: "/goodsPrint/checkConcurrencyLimit",
                     data: {},
                     success: function(data){
                         if(data.code == 200){

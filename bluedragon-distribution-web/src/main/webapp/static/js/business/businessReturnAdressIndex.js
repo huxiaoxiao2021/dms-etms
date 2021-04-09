@@ -165,7 +165,7 @@ $(function() {
 
 				jQuery.ajax({
 					type: "POST",
-					url: "#springUrl('/businessReturnAdress/checkConcurrencyLimit')",
+					url: "/businessReturnAdress/checkConcurrencyLimit",
 					data: {},
 					success: function(data){
 						if(data.code == 200){
@@ -210,6 +210,6 @@ function checkQueryParams(){
 	if(date1.getTime()>date00.getTime()){
 		alert('时间区间不能大于30天！');
 		return false;
-	}	
+	}
 	return true;
 }

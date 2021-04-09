@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
@@ -11,6 +13,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,9 @@ public class ReversePartDetailController {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 返回主页面
@@ -162,6 +169,31 @@ public class ReversePartDetailController {
 
 
 	/**
+	 * 校验并发接口
+	 * @return
+	 */
+	@RequestMapping(value = "/checkConcurrencyLimit")
+	@ResponseBody
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.reverse.part.controller.ReversePartDetailController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult checkConcurrencyLimit(){
+		InvokeResult result = new InvokeResult();
+		try {
+			//校验并发
+			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)){
+				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+				return result;
+			}
+		}catch (Exception e){
+			log.error("校验导出并发接口异常",e);
+			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+			return result;
+		}
+		return result;
+	}
+
+
+	/**
 	 * 导出
  	 * @param reversePartDetailCondition
 	 * @param model
@@ -169,10 +201,9 @@ public class ReversePartDetailController {
 	 */
 	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toExport")
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.reverse.part.controller.ReversePartDetailController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public ModelAndView toExport(ReversePartDetailCondition reversePartDetailCondition, Model model) {
 		try {
-
-
 			//超过5000条不允许导出
 			int count = reversePartDetailService.queryByParamCount(reversePartDetailCondition);
 
@@ -187,13 +218,11 @@ public class ReversePartDetailController {
 				resultList = reversePartDetailService.getExportData(reversePartDetailCondition);
 			}
 
-
 			model.addAttribute("filename", "半退发货明细.xls");
 			model.addAttribute("sheetname", "半退发货明细");
 			model.addAttribute("contents", resultList);
 
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
-
 		} catch (Exception e) {
 			log.error("toExport:异常", e);
 			return null;

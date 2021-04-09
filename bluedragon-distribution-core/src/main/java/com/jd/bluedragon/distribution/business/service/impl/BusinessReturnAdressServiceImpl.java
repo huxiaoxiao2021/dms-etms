@@ -53,6 +53,9 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 	private BusinessReturnAdressDao businessReturnAdressDao;
     @Autowired
 	private LDOPManager lDOPManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
     
 	@Override
 	public Dao<BusinessReturnAdress> getDao() {
@@ -147,18 +150,23 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
+			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+
 			int queryTotal = 0;
 			int index = 1;
 			businessReturnAdressCondition.setLimit(businessReturnExportMax);
 			while (index++ <= 100) {
+				businessReturnAdressCondition.setOffset((index-1) * businessReturnExportMax);
+
 				PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
+
 				if(result != null && result.getRows() != null){
 					List<BusinessReturnAddressExportDto> dataList =  transForm(result.getRows());
 					// 输出至csv文件中
 					CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
 					// 限制导出数量
 					queryTotal += dataList.size();
-					if(queryTotal > businessReturnExportMax){
+					if(queryTotal > MaxSize ){
 						break;
 					}
 				}

@@ -276,7 +276,7 @@ function importDataBtn() {
 function exportDataBtn() {
 	jQuery.ajax({
 		type: "POST",
-		url: "#springUrl('/base/crossbox/checkConcurrencyLimit')",
+		url: "/base/crossbox/checkConcurrencyLimit",
 		data: {},
 		success: function(data){
 			if(data.code == 200){
