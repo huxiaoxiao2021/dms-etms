@@ -210,6 +210,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
             saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
+            saveInterceptMsgDto.setOnlineStatus(filterContext.getOnlineStatus());
 
             String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
@@ -386,6 +387,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         pdaOperateRequest.setOperateTime(sortingCheck.getOperateTime());
         pdaOperateRequest.setOperateType(sortingCheck.getOperateType());
         pdaOperateRequest.setOperateNode(sortingCheck.getOperateNode());
+        pdaOperateRequest.setOnlineStatus(sortingCheck.getOnlineStatus());
         if(sortingCheck.getIsLoss() == null){
             pdaOperateRequest.setIsLoss(0);
         }else{
@@ -521,6 +523,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
+        filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
         return filterContext;
     }
 
@@ -547,6 +550,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(boardCombinationRequest.getBusinessType());
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
+        filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
 
         return filterContext;
     }
