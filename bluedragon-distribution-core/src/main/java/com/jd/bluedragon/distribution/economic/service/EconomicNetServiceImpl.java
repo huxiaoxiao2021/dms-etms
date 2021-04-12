@@ -228,9 +228,9 @@ public class EconomicNetServiceImpl implements IEconomicNetService{
         Double itemHeight = vo.getHeight() == null ? Constants.DOUBLE_ZERO : vo.getHeight() / noExistFlowDetails.size();
         //重量体积保留小数点1位 四舍五入
         BigDecimal bw = BigDecimal.valueOf(itemWeight);
-        itemWeight = bw.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+        itemWeight = bw.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
         BigDecimal bh = BigDecimal.valueOf(itemHeight);
-        itemHeight = bh.setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
+        itemHeight = bh.setScale(3, BigDecimal.ROUND_HALF_UP).doubleValue();
 
         List<Message> messages = new ArrayList<>();
         // 分批处理
