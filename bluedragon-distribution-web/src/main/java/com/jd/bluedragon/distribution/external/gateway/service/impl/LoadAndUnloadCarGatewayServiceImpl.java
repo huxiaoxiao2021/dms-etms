@@ -344,10 +344,6 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toFail("操作人站点名称不能为空！");
             return jdCResponse;
         }
-        if (null == req.getType()) {
-            jdCResponse.toFail("请选择卸车模式！");
-            return jdCResponse;
-        }
         UnloadCar unloadCar = new UnloadCar();
         BeanUtils.copyProperties(req, unloadCar);
         String sealCarCode = Constants.PDA_UNLOAD_TASK_PREFIX + System.currentTimeMillis();
