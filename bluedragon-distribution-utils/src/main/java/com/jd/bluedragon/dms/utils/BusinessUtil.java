@@ -1975,4 +1975,12 @@ public class BusinessUtil {
     }
 
 
+    /**
+     * 非B2B运单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isNotB2B(String sendPay) {
+        return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
+    }
 }

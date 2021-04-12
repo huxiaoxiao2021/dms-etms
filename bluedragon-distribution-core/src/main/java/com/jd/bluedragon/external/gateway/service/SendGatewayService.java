@@ -61,6 +61,15 @@ public interface SendGatewayService {
     JdCResponse<Boolean> checkThreeDelivery(ColdChainSendRequest request);
 
     /**
+     * 冷链发货校验
+     * @param request 单个发货参数
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2021-03-23 11:28:33 周二
+     */
+    JdCResponse<Boolean> checkColdChainSendDelivery(DeliveryRequest request);
+
+    /**
      * 冷链发货
      * @param request
      * @return
