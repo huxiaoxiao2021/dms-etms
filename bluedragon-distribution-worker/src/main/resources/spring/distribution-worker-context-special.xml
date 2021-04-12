@@ -24,6 +24,8 @@
 		<property name="objectIdService" ref="objectIdService"/>
 	</bean>
 
+	<!-- 分拣校验链校验服务 -->
+	<bean id="dmsSortingCheckJsfService" class="com.jd.bluedragon.distribution.ver.jsf.impl.SortingCheckJsfServiceImpl"/>
 
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">

@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.offline.service.OfflineService;
@@ -13,9 +14,11 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +57,8 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 	public static final String OFFLINE_DELIVERY_REMARK = "离线发货";    //离线发货操作备注
 
-
+	@Autowired
+	private IOfflineTaskCheckBusinessInterceptService offlineTaskCheckBusinessInterceptService;
 
 	@Override
 	public int parseToTask(OfflineLogRequest offlineLogRequest) {
@@ -70,15 +75,11 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 		List<OfflineLog> offlineLogs = new ArrayList<OfflineLog>();
 
-		String[] boxCodes = offlineLogRequest.getBoxCode().split(
-				Constants.SEPARATOR_COMMA);
+		String[] boxCodes = offlineLogRequest.getBoxCode().split(Constants.SEPARATOR_COMMA);
 		String[] turnoverBoxCodes = null;
 		if (StringUtils.isNotBlank(offlineLogRequest.getTurnoverBoxCode())
-				&& StringUtils.isNotBlank(offlineLogRequest
-						.getTurnoverBoxCode().replace(
-								Constants.SEPARATOR_COMMA, ""))) {
-			turnoverBoxCodes = offlineLogRequest.getTurnoverBoxCode().split(
-					Constants.SEPARATOR_COMMA);
+				&& StringUtils.isNotBlank(offlineLogRequest.getTurnoverBoxCode().replace(Constants.SEPARATOR_COMMA, ""))) {
+			turnoverBoxCodes = offlineLogRequest.getTurnoverBoxCode().split(Constants.SEPARATOR_COMMA);
 		} else {
 			offlineLogRequest.setTurnoverBoxCode(null);
 		}
@@ -97,19 +98,14 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 				Boolean tempGoOn = Boolean.TRUE;
 				if (WaybillUtil.isPackageCode(boxCode)) {
 					// 目的站点不存在，获取预分拣站点
-					BigWaybillDto bigWaybillDto = this.waybillService
-							.getWaybill(WaybillUtil.getWaybillCode(boxCode));
+					BigWaybillDto bigWaybillDto = this.waybillService.getWaybill(WaybillUtil.getWaybillCode(boxCode));
 					if (bigWaybillDto != null
 							&& bigWaybillDto.getWaybill() != null
 							&& bigWaybillDto.getWaybill().getOldSiteId() != null
-							&& !bigWaybillDto.getWaybill().getOldSiteId()
-									.equals(0)) {
-						receiveSiteCode = bigWaybillDto.getWaybill()
-								.getOldSiteId();
+							&& !bigWaybillDto.getWaybill().getOldSiteId().equals(0)) {
+						receiveSiteCode = bigWaybillDto.getWaybill().getOldSiteId();
 					} else {
-						this.log
-								.error("OfflineDeliveryServiceImpl --> 传入参数有误--原包【"
-										+ boxCode + "】预分拣站点问题！");
+						this.log.error("OfflineDeliveryServiceImpl --> 传入参数有误--原包【" + boxCode + "】预分拣站点问题！");
 						tempGoOn = Boolean.FALSE;
 					}
 
@@ -117,9 +113,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 					// 正常箱号，根据箱号获取目的站点信息
 					Box box = this.boxService.findBoxByCode(boxCode);
 					if (box == null) {
-						this.log
-								.error("OfflineDeliveryServiceImpl --> 传入参数有误--箱号【"
-										+ boxCode + "】不存在！");
+						this.log.error("OfflineDeliveryServiceImpl --> 传入参数有误--箱号【" + boxCode + "】不存在！");
 						tempGoOn = Boolean.FALSE;
 					} else {
 						// 设置目的站点
@@ -133,15 +127,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 				if (StringUtils.isBlank(offlineLogRequest.getBatchCode())) {
 					// 设置批次号
-					offlineLogRequest.setBatchCode(offlineLogRequest
-							.getSiteCode()
-							+ "-"
-							+ receiveSiteCode
-							+ "-"
-							+ DateHelper.formatDate(DateHelper.parseDate(
-									offlineLogRequest.getOperateTime(),
-									Constants.DATE_TIME_MS_FORMAT),
-									Constants.DATE_TIME_MS_STRING));
+					offlineLogRequest.setBatchCode(offlineLogRequest.getSiteCode() + "-" + receiveSiteCode + "-" + DateHelper.formatDate(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT), Constants.DATE_TIME_MS_STRING));
 				}
 			}
 			offlineLogRequest.setBoxCode(boxCode);
@@ -157,6 +143,8 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		if (sendMList.size() > 0) {
 			this.log.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
 			this.deliveryService.dellDeliveryMessage(SendBizSourceEnum.OFFLINE_OLD_SEND, sendMList);
+			// 处理拦截验证
+			this.sendOfflineSortingBusinessInterceptTaskMq(offlineLogRequest);
 			this.addOfflineLog(offlineLogs);
 			this.addOperationLogs(operationLogs);    //记录离线发货操作日志
 			this.log.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
@@ -165,6 +153,17 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 		return Constants.RESULT_FAIL;
 	}
+
+    /**
+     * 增加离线处理mq
+     * @param offlineLogRequest 离线请求
+     */
+    private void sendOfflineSortingBusinessInterceptTaskMq(OfflineLogRequest offlineLogRequest) {
+        offlineLogRequest.setTaskType(Task.TASK_TYPE_SEND_DELIVERY);
+        offlineLogRequest.setBizSource(SendBizSourceEnum.OFFLINE_OLD_SEND.getCode());
+        List<OfflineLogRequest> offlineLogRequestsList = new ArrayList<>(Arrays.asList(offlineLogRequest));
+        offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestsList);
+    }
 
 	private void addOfflineLog(List<OfflineLog> offlineLogs) {
 		if (offlineLogs != null && offlineLogs.size() > 0) {
