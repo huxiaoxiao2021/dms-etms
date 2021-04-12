@@ -113,7 +113,7 @@ public class WeightVolumeFilter implements Filter {
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
             //是否是KA的重量逻辑校验 66->3
-            boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
+            boolean isNewWeightLogic = BusinessUtil.needWeighingSquare(waybillSign);
             if(isNewWeightLogic){
                 logger.info("waybillsign66为3增加新的拦截校验,package:{},waybillSin:{}",packageCode,waybillSign);
                 InvokeResult<String> result = new InvokeResult<String>();

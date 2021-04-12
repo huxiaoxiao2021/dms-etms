@@ -3,6 +3,7 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.constant.WaybillCodePattern;
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -1923,6 +1924,31 @@ public class BusinessUtil {
      * @param waybillSign
      * @return
      */
+    public static boolean isKaPackageOrNo(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ;
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 或者2 包裹标签需要打印商品名称信息。
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needPrintPackageName(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ||
+                BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_2);
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否必须称重量方,waybillSign66位=3 必须称重量方
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needWeighingSquare(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3);
+        return isSignChars;
+    }
     public static Integer getStoreTypeBySendPay(String sendPay){
         Integer result = null;
         if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
@@ -1940,11 +1966,10 @@ public class BusinessUtil {
     public static boolean preSellAndUnpaidBalance(String sendPay){
         return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
                 isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
-                ) &&
+        ) &&
                 isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
                 ?Boolean.TRUE:Boolean.FALSE;
     }
-
     /**
      * 当 WaybillSign40=2且 WaybillSign1≠7时，则查运单接口
      * @param waybillSign
@@ -1967,15 +1992,6 @@ public class BusinessUtil {
                 && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_7);
     }
 
-    /**
-     * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isKaPackageOrNo(String waybillSign){
-        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
-                WaybillSignConstants.CHAR_66_3);
-    }
 
     /**
      * 判断是否支持按包裹维度批量导入-当WaybillSign66=0或1时，不支持

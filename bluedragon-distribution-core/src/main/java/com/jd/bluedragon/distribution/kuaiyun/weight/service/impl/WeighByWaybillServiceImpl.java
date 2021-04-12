@@ -221,7 +221,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
-        }else if(waybill.getWaybillSign() != null && BusinessUtil.isKaPackageOrNo(waybill.getWaybillSign())){
+        }else if(waybill.getWaybillSign() != null && BusinessUtil.needWeighingSquare(waybill.getWaybillSign())){
             //waybillsign66=3
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
         }
