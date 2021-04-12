@@ -103,18 +103,23 @@ public class WastePackageServiceImpl implements WastePackageService {
                 return result;
             }
 
-            List<DiscardedPackageStorageTemp> dbList=getDBList(baseEntity.getData(),siteDto,request);
-            if(dbList==null){
-                result.error("没有查询到运单包裹信息");
-                return result;
-            }
-
             DiscardedPackageStorageTempQo dbQuery=new DiscardedPackageStorageTempQo();
             dbQuery.setWaybillCode(request.getWaybillCode());
             dbQuery.setYn(Constants.YN_YES);
             long total = discardedPackageStorageTempDao.selectCount(dbQuery);
-            int dbRes=-1;
+            boolean isUpdate=false;
             if(total>0){
+                isUpdate=true;
+            }
+
+            List<DiscardedPackageStorageTemp> dbList=getDBList(baseEntity.getData(),siteDto,request,isUpdate);
+            if(dbList==null || dbList.size()<=0){
+                result.error("没有查询到运单包裹信息");
+                return result;
+            }
+
+            int dbRes=-1;
+            if(isUpdate){
                 dbRes=discardedPackageStorageTempDao.updateByWaybillCode(dbList.get(0));
             }else {
                 dbRes=discardedPackageStorageTempDao.batchInsert(dbList);
@@ -143,7 +148,7 @@ public class WastePackageServiceImpl implements WastePackageService {
      * @param siteDto
      * @return
      */
-    private List<DiscardedPackageStorageTemp> getDBList(BigWaybillDto bigWaybillDto,BaseStaffSiteOrgDto siteDto,WastePackageRequest request){
+    private List<DiscardedPackageStorageTemp> getDBList(BigWaybillDto bigWaybillDto,BaseStaffSiteOrgDto siteDto,WastePackageRequest request,boolean isUpdate){
         List<DiscardedPackageStorageTemp> dbList=new ArrayList<>();
         if(bigWaybillDto.getPackageList()==null){
             return null;
@@ -188,8 +193,11 @@ public class WastePackageServiceImpl implements WastePackageService {
                 }
             }
             db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
-
             dbList.add(db);
+
+            if(isUpdate){
+                break;
+            }
         }
 
         return dbList;
