@@ -52,10 +52,6 @@ public class DealReversePrintInfoHandler implements InterceptHandler<WaybillPrin
         		Waybill tmsWaybill = context.getBigWaybillDto().getWaybill();
         		if(tmsWaybill != null){
         			Double weight = context.getBigWaybillDto().getWaybill().getAgainWeight();
-        			//againWeight无效，取goodWeight
-        			if(!NumberHelper.gt0(weight)){
-        				weight = context.getBigWaybillDto().getWaybill().getGoodWeight();
-        			}
         			//重量有效设置包裹重量
         			if(NumberHelper.gt0(weight)){
         				printPackage.setWeightAndUnit(weight, Constants.MEASURE_UNIT_NAME_KG);
