@@ -58,7 +58,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
     private BaseService baseService;
 
     @Autowired
-    private SendGatewayService dmsSendGatewayService;
+    private SendGatewayService sendGatewayService;
 
     private List<Integer> sendTaskTypeList = new ArrayList<>(Arrays.asList(Task.TASK_TYPE_SEND_DELIVERY, Task.TASK_TYPE_ACARABILL_SEND_DELIVERY));
 
@@ -176,7 +176,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
             deliveryRequest.setUser(user);
             // 走一遍校验链，得到拦截结果
             log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend deliveryRequest: {}", JSON.toJSONString(deliveryRequest));
-            JdVerifyResponse<CheckBeforeSendResponse> checkResult = dmsSendGatewayService.checkBeforeSend(deliveryRequest);
+            JdVerifyResponse<CheckBeforeSendResponse> checkResult = sendGatewayService.checkBeforeSend(deliveryRequest);
             log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend checkBeforeSend: {}", JSON.toJSONString(checkResult));
         } catch (Exception e) {
             log.error("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend singleSendCheckAndReportIntercept throw exception {}", e.getMessage(), e);
