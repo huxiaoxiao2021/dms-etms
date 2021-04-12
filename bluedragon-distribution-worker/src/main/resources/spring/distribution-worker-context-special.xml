@@ -24,9 +24,6 @@
 		<property name="objectIdService" ref="objectIdService"/>
 	</bean>
 
-	<!-- 分拣校验链校验服务 -->
-	<bean id="sortingCheckService" class="com.jd.bluedragon.distribution.ver.service.impl.SortingCheckServiceImpl"/>
-
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">
 			<list>

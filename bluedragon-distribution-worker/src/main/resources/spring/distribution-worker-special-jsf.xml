@@ -22,4 +22,8 @@
                   protocol="jsf" alias="${dms.gateway.jsf.alias}" timeout="${dms.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="dmsSortingCheckJsfService" interface="com.jd.bluedragon.distribution.ver.service.SortingCheckJsfService"
+                  protocol="jsf" alias="${dms.jsf.alias}" timeout="${dms.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
