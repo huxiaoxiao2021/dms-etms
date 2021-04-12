@@ -1,9 +1,12 @@
 package ld;
 
 import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
+import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferServiceImpl;
 import com.jd.bluedragon.distribution.consumer.reverse.PickWareConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
@@ -12,6 +15,7 @@ import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.util.AsynBufferDemotionUtil;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.worker.InspectionTask;
@@ -23,6 +27,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.record.formula.functions.T;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +35,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +50,63 @@ public class ReverseTest {
 
     @Autowired
     private WaybillService waybillService;
+    @Autowired
+    private AsynBufferDemotionUtil asynBufferDemotionUtil;
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Test
+    public void testOffline(){
+        Task task = new Task();
+        task.setBody("[{\n" +
+                "  \"taskType\" : 1200,\n" +
+                "  \"packageCode\" : \"ZYJ000039500042-1-1-\",\n" +
+                "  \"waybillCode\" : \"ZYJ000039500042\",\n" +
+                "  \"boxCode\" : \"BC1001201119160007396227\",\n" +
+                "  \"receiveSiteCode\" : 0,\n" +
+                "  \"sealBoxCode\" : \"\",\n" +
+                "  \"shieldsCarCode\" : \"\",\n" +
+                "  \"carCode\" : \"\",\n" +
+                "  \"sendUserCode\" : \"\",\n" +
+                "  \"sendUser\" : \"\",\n" +
+                "  \"batchCode\" : \"\",\n" +
+                "  \"weight\" : \"0\",\n" +
+                "  \"volume\" : \"0\",\n" +
+                "  \"exceptionType\" : \"\",\n" +
+                "  \"turnoverBoxCode\" : \"\",\n" +
+                "  \"operateType\" : 0,\n" +
+                "  \"goodsType\" : \"\",\n" +
+                "  \"airNo\" : \"\",\n" +
+                "  \"transName\" : \"\",\n" +
+                "  \"railwayNo\" : \"\",\n" +
+                "  \"num\" : 0,\n" +
+                "  \"demo\" : \"\",\n" +
+                "  \"bizSource\" : 67,\n" +
+                "  \"id\" : 26573,\n" +
+                "  \"businessType\" : 10,\n" +
+                "  \"userCode\" : 20113974,\n" +
+                "  \"userName\" : \"杨翠翠\",\n" +
+                "  \"siteCode\" : 67492,\n" +
+                "  \"siteName\" : \"南昌分拣中心\",\n" +
+                "  \"operateTime\" : \"2021-04-07 00:54:24.000\"\n" +
+                "}]");
+
+        task.setCreateSiteCode(67492);
+
+        try {
+            uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
+            List<Boolean> r = new ArrayList<>();
+            for(int i = 0 ; i< 10 ; i++){
+                r.add(asynBufferDemotionUtil.isDemotionOfSite(task));
+            }
+
+            System.out.println(JsonHelper.toJson(r));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @Test
     public void ECLPRejectReason(){
