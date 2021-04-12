@@ -176,6 +176,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      * 分拣校验
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest){
         return this.sortingCheck(pdaOperateRequest, true);
     }
@@ -296,7 +297,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck) {
         return this.singleSendCheck(sortingCheck, true);
     }
@@ -308,7 +309,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest) {
         return this.boardCombinationCheck(boardCombinationRequest, true);
     }
@@ -691,6 +692,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return sortingCheck;
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.coldChainSendCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse coldChainSendCheckAndReportIntercept(DeliveryRequest request) {
+        return this.coldChainSendCheck(request, true);
+    }
+
     /**
      * 冷链发货主校验
      *
@@ -698,6 +705,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      * @return 校验结果
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.coldChainSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse coldChainSendCheck(DeliveryRequest request) {
         return this.coldChainSendCheck(request, false);
     }
