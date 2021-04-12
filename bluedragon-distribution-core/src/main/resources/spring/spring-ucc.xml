@@ -90,13 +90,13 @@
 		<property name="allPureValidateWeightWebSite" value="${allPureValidateWeightWebSite:-1}"/>
 		<property name="preSortOnSiteSwitchOn" value="${preSortOnSiteSwitchOn:true}" />
 		<property name="deliverHideSites" value="${deliverHideSites:''}" />
-		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
+		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
+		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
-		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 
 	</bean>
 
@@ -142,17 +142,16 @@
                 <value>uccPropertyConfiguration.clickIntervalSecond</value>
 				<value>uccPropertyConfiguration.boardCombinationSwitchVerToWebSites</value>
 				<value>uccPropertyConfiguration.economicNetValidateWeightSwitch</value>
-				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
 				<value>uccPropertyConfiguration.controlCheckPackage</value>
 				<value>uccPropertyConfiguration.controlCheckRoute</value>
 				<value>uccPropertyConfiguration.dellCancelDeliveryCheckSealCar</value>
+				<value>uccPropertyConfiguration.removeEmptyBatchCode</value>
 				<value>uccPropertyConfiguration.loadScanTaskWaybillSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageSize</value>
 				<value>uccPropertyConfiguration.loadScanTaskPackageMaxSize</value>
 				<value>uccPropertyConfiguration.economicNetPushZTDRetry</value>
 				<value>uccPropertyConfiguration.eNetSyncWaybillCodeAndBoxCode</value>
 				<value>uccPropertyConfiguration.preSealVehicleRemoveEmptyBatchCode</value>
-				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
                 <value>uccPropertyConfiguration.inspectionAggEffectiveSites</value>
                 <value>uccPropertyConfiguration.quickSealTips</value>
 				<value>uccPropertyConfiguration.sendCodeGenSwitchOn</value>
@@ -162,10 +161,9 @@
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
-				<value>uccPropertyConfiguration.siteQueryLimit</value>
+                <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
-                <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 			</list>
 		</property>
 	</bean>

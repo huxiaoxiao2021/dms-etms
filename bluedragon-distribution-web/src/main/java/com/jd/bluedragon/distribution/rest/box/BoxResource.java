@@ -650,6 +650,13 @@ public class BoxResource {
         return response;
     }
 
+    /**
+     * 校验箱号信息-以及绑定循环集包袋情况
+     * @param boxCode
+     * @param operateType
+     * @param siteCode 当前登录人归属站点
+     * @return
+     */
     @GET
     @Path("/boxes/validationAndCheck")
     @JProfiler(jKey = "DMS.WEB.BoxResource.validationAndCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})

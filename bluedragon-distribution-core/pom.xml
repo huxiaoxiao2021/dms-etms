@@ -140,6 +140,12 @@
         </dependency>
 
 		<dependency>
+			<groupId>com.jd.tms.basic</groupId>
+			<artifactId>tms-basic-client</artifactId>
+			<version>1.4-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
@@ -804,12 +810,6 @@
         </dependency>
 
 		<dependency>
-			<groupId>com.jd.tms.basic</groupId>
-			<artifactId>tms-basic-client</artifactId>
-			<version>1.4-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
             <version>1.0.1-SNAPSHOT</version>
@@ -1074,7 +1074,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.5-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->

@@ -458,16 +458,18 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         String boxOrPackageCode = request.getBoxOrPackageCode();
         String logInfo = "";
 
-        //数量限制校验，每次的数量记录的redis中
-        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
-        log.debug("板号：{}已经绑定的包裹/箱号个数为：{}" ,boardCode, count);
+        if (StringUtils.isNotBlank(boardCode)) {
+            //数量限制校验，每次的数量记录的redis中
+            Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
+            log.debug("板号：{}已经绑定的包裹/箱号个数为：{}", boardCode, count);
 
-        //超上限提示
-        if (count >= boardBindingsMaxCount) {
-            log.warn("板号：{}已经绑定的包裹/箱号个数为：{}达到上限.",boardCode, count);
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
+            //超上限提示
+            if (count >= boardBindingsMaxCount) {
+                log.warn("板号：{}已经绑定的包裹/箱号个数为：{}达到上限.", boardCode, count);
+                boardResponse.addStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
 
-            return JdResponse.CODE_FAIL;
+                return JdResponse.CODE_FAIL;
+            }
         }
 
         //查询发货记录判断是否已经发货
@@ -569,6 +571,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
                         return responseCode;
                     }
+                    boardCode = request.getBoardCode();
                 }
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
@@ -611,6 +614,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 if (!JdResponse.CODE_SUCCESS.equals(responseCode)) {
                     return responseCode;
                 }
+                boardCode = request.getBoardCode();
             }
             AddBoardBox addBoardBox = new AddBoardBox();
             addBoardBox.setBoardCode(request.getBoardCode());

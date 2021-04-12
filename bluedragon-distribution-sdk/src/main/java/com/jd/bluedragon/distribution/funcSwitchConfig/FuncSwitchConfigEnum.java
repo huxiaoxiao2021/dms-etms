@@ -28,7 +28,6 @@ public enum FuncSwitchConfigEnum {
     FUNCTION_FILE_INTERCEPTION(9006, "DMS-WEB-FUNCTION-FILE-INTERCEPTION-WHITELIST", "文件集包拦截"),
     FUNCTION_BC_BOX_FILTER(9007,"DMS-WEB-FUNCTION-SWITCH_BC_BOX_FILTER","BC箱号集包袋拦截");
 
-
     private int code;
     // 权限码
     private String authCode;

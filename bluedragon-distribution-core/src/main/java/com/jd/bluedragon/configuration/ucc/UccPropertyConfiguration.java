@@ -1,5 +1,7 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import java.util.List;
+
 /**
  * Created by xumei3 on 2017/12/15.
  */
@@ -240,11 +242,6 @@ public class UccPropertyConfiguration {
     private boolean preSortOnSiteSwitchOn;
 
     /**
-     * 是否走老逻辑检查箱是否发货开关
-     */
-    private boolean checkBoxSendedSwitchOn;
-
-    /**
      * BC箱号绑定WJ数量限制
      */
     private int BCContainWJNumberLimit;
@@ -255,14 +252,9 @@ public class UccPropertyConfiguration {
     private int WJPackageNumberLimit;
 
     /**
-     * 站点查询数量最大限制
+     * 是否走老逻辑检查箱是否发货开关
      */
-    private Integer siteQueryLimit;
-
-    /**
-     * PDA通知自动拉取间隔时间(单位秒)
-     */
-    private Integer pdaNoticePullIntervalTime;
+    private boolean checkBoxSendedSwitchOn;
 
     /**
      * BC箱号强制绑定循环集包袋开关(黑名单)
@@ -274,9 +266,19 @@ public class UccPropertyConfiguration {
 
 
     /**
+     * 站点查询数量最大限制
+     */
+    private Integer siteQueryLimit;
+
+    /**
      * 抽检导出最大限制
      */
     private Integer exportSpotCheckMaxSize;
+
+    /**
+     * PDA通知自动拉取间隔时间(单位秒)
+     */
+    private Integer pdaNoticePullIntervalTime;
 
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
@@ -702,14 +704,6 @@ public class UccPropertyConfiguration {
         this.deliverHideSites = deliverHideSites;
     }
 
-    public boolean getCheckBoxSendedSwitchOn() {
-        return checkBoxSendedSwitchOn;
-    }
-
-    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
-        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
-    }
-
     public int getBCContainWJNumberLimit() {
         return BCContainWJNumberLimit;
     }
@@ -726,22 +720,13 @@ public class UccPropertyConfiguration {
         this.WJPackageNumberLimit = WJPackageNumberLimit;
     }
 
-    public Integer getSiteQueryLimit() {
-        return siteQueryLimit;
+    public boolean getCheckBoxSendedSwitchOn() {
+        return checkBoxSendedSwitchOn;
     }
 
-    public void setSiteQueryLimit(Integer siteQueryLimit) {
-        this.siteQueryLimit = siteQueryLimit;
+    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
+        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
-
-    public Integer getPdaNoticePullIntervalTime() {
-        return pdaNoticePullIntervalTime;
-    }
-
-    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
-        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
-    }
-
 
     public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
@@ -751,11 +736,27 @@ public class UccPropertyConfiguration {
         this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
     }
 
+    public Integer getSiteQueryLimit() {
+        return siteQueryLimit;
+    }
+
+    public void setSiteQueryLimit(Integer siteQueryLimit) {
+        this.siteQueryLimit = siteQueryLimit;
+    }
+
     public Integer getExportSpotCheckMaxSize() {
         return exportSpotCheckMaxSize;
     }
 
     public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
         this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
+    }
+
+    public Integer getPdaNoticePullIntervalTime() {
+        return pdaNoticePullIntervalTime;
+    }
+
+    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
+        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
     }
 }

@@ -377,7 +377,6 @@ $(function () {
             // }
             var params = tableInit.getSearchCondition();
 
-
             var param = "";
             if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
                 param = "&reviewOrgCode=" + params.reviewOrgCode;

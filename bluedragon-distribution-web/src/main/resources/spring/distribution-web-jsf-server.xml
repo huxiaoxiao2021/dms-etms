@@ -261,6 +261,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 包裹回流扫描 提供给分拣工作台 -->
+    <jsf:provider id="dmsReflowPackageJsfService"
+                  interface="com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="reflowPackageJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"
@@ -270,13 +277,6 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!-- 包裹回流扫描 提供给分拣工作台 -->
-    <jsf:provider id="dmsReflowPackageJsfService"
-                  interface="com.jd.bluedragon.distribution.reflowPackage.service.ReflowPackageJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="reflowPackageJsfService"
-                  server="dmsjsf">
-    </jsf:provider>
     <!-- 通知中心 提供给h5页面 -->
     <jsf:provider id="dmsNoticeH5JsfService"
                   interface="com.jd.bluedragon.distribution.notice.service.NoticeH5JsfService"

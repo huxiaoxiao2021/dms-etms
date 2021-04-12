@@ -303,32 +303,44 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             int surplusPackageNum = 0;
             List<UnloadScanDto> unloadScanDtoList = new ArrayList<>();
             for (UnloadScan unloadScan : unloadScans) {
+                Integer forceAmount = unloadScan.getForceAmount();
+                Integer surplusAmount = unloadScan.getSurplusAmount();
+                Integer loadAmount = unloadScan.getLoadAmount();
+                if (forceAmount == null) {
+                    forceAmount = 0;
+                }
+                if (surplusAmount == null) {
+                    surplusAmount = 0;
+                }
+                if (loadAmount == null) {
+                    loadAmount = 0;
+                }
                 // 所有应卸加起来就是总包裹数
-                totalPackageNum = totalPackageNum + unloadScan.getForceAmount();
+                totalPackageNum = totalPackageNum + forceAmount;
                 // 转换数据
                 unloadScanDtoList.add(convertData(unloadScan, isEmptyTask));
-                if (unloadScan.getLoadAmount() == 0 && unloadScan.getSurplusAmount() == 0) {
+                if (loadAmount == 0 && surplusAmount == 0) {
                     continue;
                 }
                 // 统计已扫数据
-                loadPackageNum = loadPackageNum + unloadScan.getLoadAmount() + unloadScan.getSurplusAmount();
+                loadPackageNum = loadPackageNum + loadAmount + surplusAmount;
                 // 如果是空任务
                 if (isEmptyTask) {
                     // 运单总包裹数 = 多卸数，则已卸单+1
-                    if (unloadScan.getPackageAmount().equals(unloadScan.getSurplusAmount())) {
+                    if (unloadScan.getPackageAmount().equals(surplusAmount)) {
                         loadWaybillNum = loadWaybillNum + 1;
                     }
                 } else {
                     // 正常任务有多扫
-                    if (unloadScan.getSurplusAmount() > 0) {
+                    if (surplusAmount > 0) {
                         // 运单总包裹数 = 已卸数+多卸数，则已卸单+1
-                        if (unloadScan.getPackageAmount().equals(unloadScan.getLoadAmount() + unloadScan.getSurplusAmount())) {
+                        if (unloadScan.getPackageAmount().equals(loadAmount + surplusAmount)) {
                             loadWaybillNum = loadWaybillNum + 1;
                         }
                         // 统计正常任务下多扫的包裹数
-                        surplusPackageNum = surplusPackageNum + unloadScan.getSurplusAmount();
+                        surplusPackageNum = surplusPackageNum + surplusAmount;
                         // 正常任务也没有多扫，应卸=已卸，已卸单+1
-                    } else if (unloadScan.getForceAmount().equals(unloadScan.getLoadAmount())) {
+                    } else if (forceAmount.equals(loadAmount)) {
                         loadWaybillNum = loadWaybillNum + 1;
                     }
                 }
@@ -366,7 +378,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScanDto.setPackageAmount(unloadScan.getPackageAmount());
         unloadScanDto.setForceAmount(unloadScan.getForceAmount());
         if (isEmptyTask) {
-            unloadScanDto.setLoadAmount(unloadScan.getSurplusAmount());
+            Integer surplusAmount = unloadScan.getSurplusAmount();
+            if (surplusAmount == null) {
+                surplusAmount = 0;
+            }
+            unloadScanDto.setLoadAmount(surplusAmount);
         } else {
             unloadScanDto.setLoadAmount(unloadScan.getLoadAmount());
         }
@@ -712,7 +728,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 运单之前操作过
             if (unloadScan != null) {
                 if (flowDisAccord) {
-                    unloadScan.setSurplusAmount(unloadScan.getSurplusAmount() + 1);
+                    Integer surplusAmount = unloadScan.getSurplusAmount();
+                    if (surplusAmount == null) {
+                        surplusAmount = 0;
+                    }
+                    unloadScan.setSurplusAmount(surplusAmount + 1);
                 } else {
                     unloadScan.setLoadAmount(unloadScan.getLoadAmount() + 1);
                 }
@@ -804,8 +824,24 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         packageNum, request.getOperateUserName(), request.getOperateUserErp(), flowDisAccord);
                 unloadScanDao.insert(unloadScan);
             } else {
-                unloadScan.setLoadAmount(unloadScan.getLoadAmount() + normalPackages.size());
-                unloadScan.setSurplusAmount(unloadScan.getSurplusAmount() + surplusPackages.size());
+                Integer loadAmount = unloadScan.getLoadAmount();
+                if (loadAmount == null) {
+                    loadAmount = 0;
+                }
+                int normalPackageListSize = 0;
+                if (CollectionUtils.isNotEmpty(normalPackages)) {
+                    normalPackageListSize = normalPackages.size();
+                }
+                unloadScan.setLoadAmount(loadAmount + normalPackageListSize);
+                Integer surplusAmount = unloadScan.getSurplusAmount();
+                if (surplusAmount == null) {
+                    surplusAmount = 0;
+                }
+                int surplusPackageListSize = 0;
+                if (CollectionUtils.isNotEmpty(surplusPackages)) {
+                    surplusPackageListSize = surplusPackages.size();
+                }
+                unloadScan.setSurplusAmount(surplusAmount + surplusPackageListSize);
                 unloadScan.setUnloadAmount(0);
                 unloadScan.setPackageAmount(packageNum);
                 // 设置状态
@@ -881,8 +917,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadScan.setForceAmount(forceAmount);
         if (flowDisAccord) {
             unloadScan.setSurplusAmount(loadAmount);
+            unloadScan.setLoadAmount(0);
         } else {
             unloadScan.setLoadAmount(loadAmount);
+            unloadScan.setSurplusAmount(0);
         }
         if (forceAmount != null && forceAmount != 0) {
             unloadScan.setUnloadAmount(forceAmount > loadAmount ? forceAmount - loadAmount : 0);
