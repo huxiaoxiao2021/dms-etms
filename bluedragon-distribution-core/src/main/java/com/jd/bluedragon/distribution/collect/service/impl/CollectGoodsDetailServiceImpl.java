@@ -1,17 +1,19 @@
 package com.jd.bluedragon.distribution.collect.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
-import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceStatusEnum;
+import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailExportDto;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -20,8 +22,11 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
 import com.jd.bluedragon.distribution.collect.dao.CollectGoodsDetailDao;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,6 +42,9 @@ public class CollectGoodsDetailServiceImpl extends BaseService<CollectGoodsDetai
 	@Autowired
 	@Qualifier("collectGoodsDetailDao")
 	private CollectGoodsDetailDao collectGoodsDetailDao;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	@Override
 	public Dao<CollectGoodsDetail> getDao() {
@@ -124,49 +132,69 @@ public class CollectGoodsDetailServiceImpl extends BaseService<CollectGoodsDetai
 	 * 导出记录
 	 *
 	 * @param collectGoodsDetailCondition
+	 * @param bufferedWriter
 	 * @return
 	 */
 	@Override
-	public List<List<Object>> getExportData(CollectGoodsDetailCondition collectGoodsDetailCondition) {
-		List<List<Object>> resList = new ArrayList<List<Object>>();
-
-		List<Object> heads = new ArrayList<Object>();
-
-		heads.add("集货区");
-		heads.add("货位类型");
-		heads.add("集货位");
-
-		heads.add("运单号");
-		heads.add("总包裹数");
-		heads.add("实际扫描包裹数");
-		heads.add("集货时间");
-		heads.add("集货人");
-
-		resList.add(heads);
-
-
-		collectGoodsDetailCondition.setLimit(5000);
-		PagerResult<CollectGoodsDetail> queryByPagerCondition = this.queryByPagerCondition(collectGoodsDetailCondition);
-
-		List<CollectGoodsDetail> rows = queryByPagerCondition.getRows();
-
-		for(CollectGoodsDetail row : rows){
-			List<Object> body = new ArrayList<Object>();
-
-			body.add(row.getCollectGoodsAreaCode());
-			body.add(row.getCollectGoodsPlaceType()==null?"": CollectGoodsPlaceTypeEnum.getEnumByKey(row.getCollectGoodsPlaceType().toString()).getName());
-			body.add(row.getCollectGoodsPlaceCode());
-			//body.add(row.getCollectGoodsPlaceStatus()==null?"": CollectGoodsPlaceStatusEnum.getEnumByKey(row.getCollectGoodsPlaceStatus().toString()).getName());
-			body.add(row.getWaybillCode());
-			body.add(row.getPackageCount());
-			body.add(row.getScanPackageCount());
-			body.add(DateHelper.formatDate(row.getCreateTime(), Constants.DATE_TIME_FORMAT));
-			body.add(row.getCreateUser());
-
-			resList.add(body);
+	public void getExportData(CollectGoodsDetailCondition collectGoodsDetailCondition, BufferedWriter bufferedWriter) {
+		try {
+			// 报表头
+			Map<String, String> headerMap = getHeaderMap();
+			//设置最大导出数量
+			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			//设置单次导出数量
+			collectGoodsDetailCondition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+			int queryTotal = 0;
+			int index = 1;
+			while (index++ <= 100){
+				collectGoodsDetailCondition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+				PagerResult<CollectGoodsDetail> result = queryByPagerCondition(collectGoodsDetailCondition);
+				if(CollectionUtils.isEmpty(result.getRows())){
+					break;
+				}
+				List<CollectGoodsDetailExportDto>  dataList =  transForm(result.getRows());
+				// 输出至csv文件中
+				CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+				// 限制导出数量
+				queryTotal += dataList.size();
+				if(queryTotal > MaxSize ){
+					break;
+				}
+			}
+		}catch (Exception e){
+			log.error("集货报表 export error",e);
 		}
+	}
 
-		return resList;
+	private List<CollectGoodsDetailExportDto> transForm(List<CollectGoodsDetail> list) {
+		List<CollectGoodsDetailExportDto> dataList = new ArrayList<>();
+		for(CollectGoodsDetail row : list){
+			CollectGoodsDetailExportDto body = new CollectGoodsDetailExportDto();
+			body.setCollectGoodsAreaCode(row.getCollectGoodsAreaCode());
+			body.setCollectGoodsPlaceType(row.getCollectGoodsPlaceType()==null?"": CollectGoodsPlaceTypeEnum.getEnumByKey(row.getCollectGoodsPlaceType().toString()).getName());
+			body.setCollectGoodsPlaceCode(row.getCollectGoodsPlaceCode());
+			body.setWaybillCode(row.getWaybillCode());
+			body.setPackageCount(row.getPackageCount());
+			body.setScanPackageCount(row.getScanPackageCount());
+			body.setCreateTime(DateHelper.formatDate(row.getCreateTime(), Constants.DATE_TIME_FORMAT));
+			body.setCreateUser(row.getCreateUser());
+			dataList.add(body);
+		}
+		return dataList;
+	}
+
+	private Map<String, String> getHeaderMap() {
+		Map<String,String> headerMap = new LinkedHashMap<>();
+		headerMap.put("collectGoodsAreaCode","集货区");
+		headerMap.put("collectGoodsPlaceType","货位类型");
+		headerMap.put("collectGoodsPlaceCode","集货位");
+		headerMap.put("waybillCode","运单号");
+		headerMap.put("packageCount","总包裹数");
+		headerMap.put("scanPackageCount","实际扫描包裹数");
+		headerMap.put("createTime","集货时间");
+		headerMap.put("createUser","集货人");
+		return headerMap;
 	}
 
 	@Override

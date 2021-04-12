@@ -2,10 +2,12 @@ package com.jd.bluedragon.distribution.web.waybill.rma;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
@@ -19,6 +21,8 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +56,10 @@ public class RmaHandOverController {
 
     private static final Logger log = LoggerFactory.getLogger(RmaHandOverController.class);
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
+
     /**
      * 跳转到主界面
      *
@@ -71,6 +79,7 @@ public class RmaHandOverController {
     @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController.query", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public RmaHandoverResponse<Pager<List<RmaHandoverWaybill>>> query(RmaHandoverQueryRequest rmaHandoverQueryRequest, Pager page) {
         RmaHandoverResponse<Pager<List<RmaHandoverWaybill>>> response = new RmaHandoverResponse<Pager<List<RmaHandoverWaybill>>>();
         response.setCode(RmaHandoverResponse.CODE_NORMAL);
@@ -94,6 +103,12 @@ public class RmaHandOverController {
 
             if (StringUtils.isEmpty(rmaHandoverQueryRequest.getReceiverAddress())) {
                 response.toWarn("请输入收货地址");
+                return response;
+            }
+
+            Integer oneQueryLimit = exportConcurrencyLimitService.getOneQuerySizeLimit();
+            if(page.getPageSize()==null || page.getPageSize() > oneQueryLimit){
+                response.toWarn("单页限制显示条数上限"+ oneQueryLimit);
                 return response;
             }
 
@@ -229,9 +244,30 @@ public class RmaHandOverController {
         return rmaResponse;
     }
 
+    @RequestMapping(value = "/checkConcurrencyLimit")
+    @ResponseBody
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult checkConcurrencyLimit(){
+        InvokeResult result = new InvokeResult();
+        try {
+            //校验并发
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)){
+                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("校验导出并发接口异常-RMA交接清单打印",e);
+            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+            return result;
+        }
+        return result;
+    }
+
     @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/toExport")
     @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public void toExport(String idList, HttpServletResponse response) {
         try {
             this.doExport(idList, response);

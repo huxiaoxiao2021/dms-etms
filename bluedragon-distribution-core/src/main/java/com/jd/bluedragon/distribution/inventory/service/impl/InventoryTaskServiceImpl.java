@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.InventoryJsfManager;
 import com.jd.bluedragon.distribution.api.domain.SiteEntity;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
 import com.jd.bluedragon.distribution.inventory.domain.*;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -21,6 +23,7 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.io.BufferedWriter;
+import java.util.*;
 
 @Service("inventoryTaskService")
 public class InventoryTaskServiceImpl extends BaseService<InventoryTask> implements InventoryTaskService {
@@ -71,53 +72,86 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         return this.inventoryTaskDao;
     }
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
+
     @Override
     public PagerResult<InventoryTask> queryByPagerCondition(InventoryTaskCondition condition) {
         return inventoryTaskDao.queryByPagerCondition(condition);
     }
 
     @Override
-    public List<List<Object>> getExportData(InventoryTaskCondition condition) {
-        List<List<Object>> resList = new ArrayList<>();
-        List<Object> heads = new ArrayList<>();
-        //添加表头
-        heads.add("区域");
-        heads.add("操作场地");
-        heads.add("盘点范围");
-        heads.add("下游场地");
-        heads.add("任务码");
-        heads.add("运单数");
-        heads.add("包裹数");
-        heads.add("差异数");
-        heads.add("盘点erp");
-        heads.add("时间范围（小时）");
-        heads.add("创建时间");
-        heads.add("完成时间");
+    public void getExportData(InventoryTaskCondition condition, BufferedWriter bufferedWriter) {
+        try {
+            // 报表头
+            Map<String, String> headerMap = getHeaderMap();
+            //设置最大导出数量
+            Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            //设置单次导出数量
+            condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+            int queryTotal = 0;
+            int index = 1;
+            while (index++ <= 100) {
+                condition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+                List<InventoryTask> list = inventoryTaskDao.getExportResultByCondition(condition);
+                if(CollectionUtils.isEmpty(list)){
+                    break;
+                }
 
-        resList.add(heads);
-        List<InventoryTask> list = inventoryTaskDao.getExportResultByCondition(condition);
-        if (list != null && ! list.isEmpty()) {
-            //表格信息
-            for(InventoryTask inventoryTask : list){
-                List<Object> body = Lists.newArrayList();
-                body.add(inventoryTask.getOrgName());
-                body.add(inventoryTask.getCreateSiteName());
-                body.add(inventoryTask.getDirectionName() == null ? "" : inventoryTask.getDirectionName());
-                body.add(InventoryScopeEnum.getDescByCode(inventoryTask.getInventoryScope()));
-                body.add(inventoryTask.getInventoryTaskId());
-                body.add(inventoryTask.getWaybillSum());
-                body.add(inventoryTask.getPackageSum());
-                body.add(inventoryTask.getExceptionSum());
-                body.add((inventoryTask.getCreateUserErp()));
-                body.add((inventoryTask.getHourRange()));
-                body.add(DateHelper.formatDate(inventoryTask.getCreateTime(), Constants.DATE_TIME_FORMAT));
-                body.add(DateHelper.formatDate(inventoryTask.getEndTime(), Constants.DATE_TIME_FORMAT));
-                resList.add(body);
+                List<InventoryTaskExportDto> dataList = transForm(list);
+                // 输出至csv文件中
+                CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+                // 限制导出数量
+                queryTotal += dataList.size();
+                if(queryTotal > MaxSize ){
+                    break;
+                }
             }
+        }catch (Exception e){
+            log.error("转运清场任务信息表 export error",e);
         }
-        return resList;
     }
 
+    private List<InventoryTaskExportDto> transForm(List<InventoryTask> list) {
+        List<InventoryTaskExportDto> dataList = new ArrayList<>();
+        //表格信息
+        for(InventoryTask inventoryTask : list){
+            InventoryTaskExportDto inventoryTaskExportDto = new InventoryTaskExportDto();
+            inventoryTaskExportDto.setOrgName(inventoryTask.getOrgName());
+            inventoryTaskExportDto.setCreateSiteName(inventoryTask.getCreateSiteName());
+            inventoryTaskExportDto.setDirectionName(inventoryTask.getDirectionName() == null ? "" : inventoryTask.getDirectionName());
+            inventoryTaskExportDto.setInventoryScopeStr(InventoryScopeEnum.getDescByCode(inventoryTask.getInventoryScope()));
+            inventoryTaskExportDto.setInventoryTaskId(inventoryTask.getInventoryTaskId());
+            inventoryTaskExportDto.setWaybillSum(inventoryTask.getWaybillSum());
+            inventoryTaskExportDto.setPackageSum(inventoryTask.getPackageSum());
+            inventoryTaskExportDto.setExceptionSum(inventoryTask.getExceptionSum());
+            inventoryTaskExportDto.setCreateUserErp((inventoryTask.getCreateUserErp()));
+            inventoryTaskExportDto.setHourRange((inventoryTask.getHourRange()));
+            inventoryTaskExportDto.setCreateTime(DateHelper.formatDate(inventoryTask.getCreateTime(), Constants.DATE_TIME_FORMAT));
+            inventoryTaskExportDto.setEndTime(DateHelper.formatDate(inventoryTask.getEndTime(), Constants.DATE_TIME_FORMAT));
+            dataList.add(inventoryTaskExportDto);
+        }
+        return dataList;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        headerMap.put("orgName","区域");
+        headerMap.put("createSiteName","操作场地");
+        headerMap.put("directionName","盘点范围");
+        headerMap.put("inventoryScopeStr","下游场地");
+        headerMap.put("inventoryTaskId","任务码");
+        headerMap.put("waybillSum","运单数");
+        headerMap.put("packageSum","包裹数");
+        headerMap.put("exceptionSum","差异数");
+        headerMap.put("createUserErp","盘点erp");
+        headerMap.put("hourRange","时间范围（小时）");
+        headerMap.put("createTime","创建时间");
+        headerMap.put("endTime","完成时间");
+        return headerMap;
+    }
 
     /**
      * 获取当前分拣中心的盘点的流向

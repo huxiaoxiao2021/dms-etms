@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.storage.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
@@ -13,12 +14,16 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.CsvExporterUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +36,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +66,9 @@ public class StoragePackageMController {
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 返回主页面
@@ -286,29 +299,61 @@ public class StoragePackageMController {
 		return result;
 	}
 
+	@RequestMapping(value = "/checkConcurrencyLimit")
+	@ResponseBody
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.storage.controller.StoragePackageMController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult checkConcurrencyLimit(){
+		InvokeResult result = new InvokeResult();
+		try {
+			//校验并发
+			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)){
+				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+				return result;
+			}
+		}catch (Exception e){
+			log.error("校验导出并发接口异常-暂存记录统计表",e);
+			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+			return result;
+		}
+		return result;
+	}
+
     /**
      * 导出
      * @return
      */
     @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(StoragePackageMCondition condition, Model model) {
-
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.storage.controller.StoragePackageMController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult toExport(StoragePackageMCondition condition, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
+		BufferedWriter bfw = null;
         this.log.info("暂存管理记录统计表...");
-        List<List<Object>> resultList;
         try{
-            model.addAttribute("filename", "暂存记录统计表.xls");
-            model.addAttribute("sheetname", "暂存记录");
-            resultList = storagePackageMService.getExportData(condition);
+			String fileName = "暂存记录统计表";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+            storagePackageMService.getExportData(condition,bfw);
         }catch (Exception e){
             this.log.error("导出暂存记录统计表失败:", e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出暂存记录统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
-        }
-        model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+        }finally {
+			try {
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
+				}
+			} catch (IOException es) {
+				log.error("暂存管理记录统计表 流关闭异常", es);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+			}
+		}
+        return result;
     }
 
     /**

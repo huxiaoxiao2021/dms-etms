@@ -333,5 +333,8 @@
         inventory_task
         <include refid="Base_Condition_Sql"/>
         group by inventory_task_id order by create_time
+        <if test="limit != -1">
+            limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+        </if>
     </select>
 </mapper>

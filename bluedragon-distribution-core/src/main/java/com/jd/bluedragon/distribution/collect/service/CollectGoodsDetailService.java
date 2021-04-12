@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.collect.service;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -74,9 +74,10 @@ public interface CollectGoodsDetailService extends Service<CollectGoodsDetail> {
     /**
      * 导出记录
      * @param CollectGoodsDetailCondition
+     * @param bfw
      * @return
      */
-    public List<List<Object>> getExportData(CollectGoodsDetailCondition CollectGoodsDetailCondition);
+    public void getExportData(CollectGoodsDetailCondition CollectGoodsDetailCondition, BufferedWriter bfw);
 
     /**
      * 根据包裹号获取包裹的集货信息

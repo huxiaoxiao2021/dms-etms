@@ -71,6 +71,8 @@ function printBtn() {
  * 导出
  */
 function exportBtn() {
+
+
     var checkedKeys = $("#paperTable tbody input[type=checkbox][name='record']:checked");
     if (checkedKeys) {
         if (checkedKeys.length > 0) {
@@ -81,7 +83,21 @@ function exportBtn() {
                     idList = idList + "," + $(checkedKeys[i]).val()
                 }
             }
-            openPostWindow(url, "idList", idList);
+
+            jQuery.ajax({
+                type: "POST",
+                url: "/waybill/rma/checkConcurrencyLimit",
+                data: {},
+                success: function(data){
+                    if(data.code == 200){
+                        openPostWindow(url, "idList", idList);
+
+                    }else {
+                        jQuery.messager.alert('提示:', 'data.message！', 'info');
+                    }
+                }
+            });
+
         } else {
             jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
         }

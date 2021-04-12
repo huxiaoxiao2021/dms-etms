@@ -221,25 +221,36 @@ $(function() {
 			});
 
             $("#btn_export").on("click",function(e){
+                jQuery.ajax({
+                    type: "POST",
+                    url: "/collect/collectGoodsDetail/checkConcurrencyLimit",
+                    data: {},
+                    success: function(data){
+                        if(data.code == 200){
+                            var url = "/collect/collectGoodsDetail/toExport";
+                            var params = tableInit().getSearchCondition();
 
-                var url = "/collect/collectGoodsDetail/toExport";
-                var params = tableInit().getSearchCondition();
+                            var form = $("<form method='post'></form>"),
+                                input;
+                            form.attr({"action":url});
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":url});
+                            $.each(params,function(key,value){
 
-                $.each(params,function(key,value){
-
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
+                                input = $("<input type='hidden' class='search-param'>");
+                                input.attr({"name":key});
+                                input.val(value);
+                                form.append(input);
+                            });
+                            form.appendTo(document.body);
+                            form.submit();
+                            document.body.removeChild(form[0]);
+                            return;
+                        }else {
+                            alert(data.message);
+                            return;
+                        }
+                    }
                 });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
-
             });
 
 			$('#btn_submit').click(function() {

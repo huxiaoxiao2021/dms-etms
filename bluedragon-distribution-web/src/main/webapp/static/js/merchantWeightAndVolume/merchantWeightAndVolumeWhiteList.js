@@ -184,20 +184,33 @@ $(function () {
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            var params = tableInit.getSearchCondition();
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action": exportUrl});
+            jQuery.ajax({
+                type: "POST",
+                url: "/merchantWeightAndVolume/whiteList/checkConcurrencyLimit",
+                data: {},
+                success: function(data){
+                    if(data.code == 200){
+                        var params = tableInit.getSearchCondition();
+                        var form = $("<form method='post'></form>"),
+                            input;
+                        form.attr({"action": exportUrl});
 
-            $.each(params, function (key, value) {
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": key});
-                input.val(value);
-                form.append(input);
+                        $.each(params, function (key, value) {
+                            input = $("<input type='hidden' class='search-param'>");
+                            input.attr({"name": key});
+                            input.val(value);
+                            form.append(input);
+                        });
+                        form.appendTo(document.body);
+                        form.submit();
+                        document.body.removeChild(form[0]);
+                        return;
+                    }else {
+                        alert(data.message);
+                        return;
+                    }
+                }
             });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
         });
     }
     initOrg();
@@ -205,7 +218,6 @@ $(function () {
     pageInit().init();
     initExport(tableInit());
     initImportExcel();
-
 });
 
 //自定义确认框

@@ -152,8 +152,6 @@ $(function () {
                         }
                     }
                 });
-
-
             });
         };
         return oInit;

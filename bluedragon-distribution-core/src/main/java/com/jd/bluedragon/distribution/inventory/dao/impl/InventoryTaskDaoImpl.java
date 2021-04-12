@@ -95,11 +95,6 @@ public class InventoryTaskDaoImpl extends BaseDao<InventoryTask> implements Inve
     }
 
     @Override
-    public int getExportCountByCondition(InventoryTaskCondition condition) {
-        return this.getSqlSession().selectOne(nameSpace + ".pageNum_queryByPagerCondition", condition);
-    }
-
-    @Override
     public List<InventoryTask> getExportResultByCondition(InventoryTaskCondition condition) {
         return this.getSqlSession().selectList(nameSpace + ".getExportResultByCondition", condition);
     }
