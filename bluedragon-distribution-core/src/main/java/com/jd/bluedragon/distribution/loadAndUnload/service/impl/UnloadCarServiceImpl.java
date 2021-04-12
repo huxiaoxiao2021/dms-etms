@@ -2282,7 +2282,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum() == null ? 0 : unloadCar.getPackageNum());
             unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
             unloadCarTaskDto.setTaskStatusName(UnloadCarStatusEnum.getEnum(unloadCar.getStatus()).getName());
-
+            unloadCarTaskDto.setType(unloadCar.getType());
             serialNumber++;
             unloadCarTaskDtos.add(unloadCarTaskDto);
         }
