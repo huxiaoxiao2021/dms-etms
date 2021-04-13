@@ -2519,7 +2519,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum() == null ? 0 : unloadCar.getWaybillNum());
                 unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
                 unloadCarTaskDto.setTaskStatusName(UnloadCarStatusEnum.getEnum(unloadCar.getStatus()).getName());
-
+                unloadCarTaskDto.setType(unloadCar.getType());
                 serialNumber++;
                 unloadCarTaskDtos.add(unloadCarTaskDto);
             }
