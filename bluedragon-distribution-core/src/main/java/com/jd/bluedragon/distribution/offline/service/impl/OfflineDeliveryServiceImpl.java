@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -24,11 +25,11 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -74,6 +75,7 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		List<OperationLog> operationLogs = new ArrayList<OperationLog>();    //离线发货操作日志集合
 
 		List<OfflineLog> offlineLogs = new ArrayList<OfflineLog>();
+		List<OfflineLogRequest> offlineLogRequest4InterceptList = new ArrayList<>();
 
 		String[] boxCodes = offlineLogRequest.getBoxCode().split(Constants.SEPARATOR_COMMA);
 		String[] turnoverBoxCodes = null;
@@ -138,13 +140,14 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 			sendMList.add(toSendDatail(offlineLogRequest));
 			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS,"OfflineDeliveryServiceImpl#parseToTask"));
 			operationLogs.add(RequestConvertOperationLog(offlineLogRequest,"OfflineDeliveryServiceImpl#parseToTask"));
+			offlineLogRequest4InterceptList.add(this.convertToInterceptOfflineLogRequest(offlineLogRequest));
 		}
 
 		if (sendMList.size() > 0) {
-			this.log.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
-			this.deliveryService.dellDeliveryMessage(SendBizSourceEnum.OFFLINE_OLD_SEND, sendMList);
-			// 处理拦截验证
-			this.sendOfflineSortingBusinessInterceptTaskMq(offlineLogRequest);
+            // 处理拦截验证
+            this.sendOfflineSortingBusinessInterceptTaskMq(offlineLogRequest4InterceptList);
+            this.log.info("OfflineDeliveryServiceImpl --> 开始写入发货信息");
+            this.deliveryService.dellDeliveryMessage(SendBizSourceEnum.OFFLINE_OLD_SEND, sendMList);
 			this.addOfflineLog(offlineLogs);
 			this.addOperationLogs(operationLogs);    //记录离线发货操作日志
 			this.log.info("OfflineDeliveryServiceImpl --> 结束写入发货信息");
@@ -156,13 +159,16 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
     /**
      * 增加离线处理mq
-     * @param offlineLogRequest 离线请求
+     * @param offlineLogRequestList 离线请求
      */
-    private void sendOfflineSortingBusinessInterceptTaskMq(OfflineLogRequest offlineLogRequest) {
-        offlineLogRequest.setTaskType(Task.TASK_TYPE_SEND_DELIVERY);
-        offlineLogRequest.setBizSource(SendBizSourceEnum.OFFLINE_OLD_SEND.getCode());
-        List<OfflineLogRequest> offlineLogRequestsList = new ArrayList<>(Arrays.asList(offlineLogRequest));
-        offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestsList);
+    private void sendOfflineSortingBusinessInterceptTaskMq(List<OfflineLogRequest> offlineLogRequestList) {
+        // offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestList);
+        for (OfflineLogRequest offlineLogRequest : offlineLogRequestList) {
+            Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(offlineLogRequest);
+            if(!handleResult.isSucceed()){
+                log.error("OfflineDeliveryServiceImpl offlineTaskCheckBusinessInterceptService.handleOfflineTask fail {}", JsonHelper.toJson(handleResult));
+            }
+        }
     }
 
 	private void addOfflineLog(List<OfflineLog> offlineLogs) {
@@ -283,5 +289,18 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 		operationLog.setRemark(OFFLINE_DELIVERY_REMARK);
 		return operationLog;
 	}
+
+    /**
+     * 将原始离线数据转换为拦截验证需要的请求对象
+     * @param offlineLogRequestRaw 原是离线数据
+     * @return 拦截验证参数
+     */
+    private OfflineLogRequest convertToInterceptOfflineLogRequest(OfflineLogRequest offlineLogRequestRaw) {
+        OfflineLogRequest offlineLogRequest = new OfflineLogRequest();
+        BeanUtils.copyProperties(offlineLogRequestRaw, offlineLogRequest);
+        offlineLogRequest.setTaskType(Task.TASK_TYPE_SEND_DELIVERY);
+        offlineLogRequest.setBizSource(SendBizSourceEnum.OFFLINE_OLD_SEND.getCode());
+        return offlineLogRequest;
+    }
 
 }
