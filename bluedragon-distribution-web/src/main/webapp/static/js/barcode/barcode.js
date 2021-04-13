@@ -73,24 +73,37 @@ $(function () {
                 $('#barcode').val(null);
                 $('#dataTable').bootstrapTable("load",[]);
             });
+
+            // 导出
             $("#btn_export").click(function () {
                 var v_barcode=$("#barcode").val();
                 if (!v_barcode){
                     Jd.alert("无可导出内容");
                     return;
                 }
-                $('#edit-form').attr('action',exportUrl);
-                 var form = $("<form method='post' id='exportForm'></form>"),
-                    input;
-                form.attr({"action": exportUrl});
+                jQuery.ajax({
+                    type: "POST",
+                    url: "/barcode/checkConcurrencyLimit",
+                    data: {},
+                    success: function(data){
+                        if(data.code == 200){
+                            $('#edit-form').attr('action',exportUrl);
+                            var form = $("<form method='post' id='exportForm'></form>"),
+                                input;
+                            form.attr({"action": exportUrl});
 
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": "barcode"});
-                input.val(v_barcode);
-                form.append(input);
-                form.appendTo(document.body);
-                form.submit();
-                form.remove();
+                            input = $("<input type='hidden' class='search-param'>");
+                            input.attr({"name": "barcode"});
+                            input.val(v_barcode);
+                            form.append(input);
+                            form.appendTo(document.body);
+                            form.submit();
+                            form.remove();
+                        }else {
+                            alert(data.message);
+                        }
+                    }
+                });
             });
         };
         return oInit;

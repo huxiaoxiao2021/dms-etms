@@ -35,6 +35,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -635,7 +636,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
             //返回的数据
             List<AbnormalUnknownWaybillExportDto> body = new ArrayList<>();
-            if (rows != null && rows.size() > 0) {
+            if (CollectionUtils.isNotEmpty(rows)) {
                 int  queryTotal = 0;
                 for (AbnormalUnknownWaybill abnormalUnknownWaybill : rows) {
                     //导出限制
@@ -755,7 +756,6 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             if (abnormalUnknownWaybillCondition.getWaybillCode() != null) {//代表前端输入的一个运单号
                 //肯定就是那一个了
                 return pagerResult;
-
             } else {//代表输入的多个运单号
                 //补上没查到的单号
                 List<AbnormalUnknownWaybill> data = pagerResult.getRows();

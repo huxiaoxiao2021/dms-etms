@@ -334,7 +334,6 @@ $(function () {
     //初始化导出按钮
     function initExport(tableInit){
         $("#btn_export").on("click",function(e){
-
             var params = tableInit.getSearchCondition();
             var areaId = params["areaId"];
             var dmsSiteCode = params["dmsSiteCode"];
@@ -357,22 +356,34 @@ $(function () {
                 return;
             }
 
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action":exportUrl});
-            $.each(params,function(key,value){
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name":key});
-                if (key == 'startTime' || key == 'endTime'){
-                    input.val(new Date(value));
-                }else{
-                    input.val(value);
+            jQuery.ajax({
+                type: "POST",
+                url: "/abnormal/abnormalUnknownWaybill/checkConcurrencyLimit",
+                data: {},
+                success: function(data){
+                    if(data.code == 200){
+                        // 提交表单
+                        var form = $("<form method='post'></form>"),
+                            input;
+                        form.attr({"action":exportUrl});
+                        $.each(params,function(key,value){
+                            input = $("<input type='hidden' class='search-param'>");
+                            input.attr({"name":key});
+                            if (key == 'startTime' || key == 'endTime'){
+                                input.val(new Date(value));
+                            }else{
+                                input.val(value);
+                            }
+                            form.append(input);
+                        });
+                        form.appendTo(document.body);
+                        form.submit();
+                        form.remove();
+                    }else {
+                        alert(data.message);
+                    }
                 }
-                form.append(input);
             });
-            form.appendTo(document.body);
-            form.submit();
-            form.remove();
         });
     }
 

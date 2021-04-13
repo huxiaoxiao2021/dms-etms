@@ -95,7 +95,7 @@
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
-		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
+		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:1}"/>
 		<property name="exportRedisKeyTimeOut" value="${exportRedisKeyTimeOut:60}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:5000}"/>
 	</bean>
