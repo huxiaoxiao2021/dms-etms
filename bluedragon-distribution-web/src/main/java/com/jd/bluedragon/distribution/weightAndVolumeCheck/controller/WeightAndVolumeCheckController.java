@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -15,6 +16,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +60,9 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
     /**
      * 返回主页面
      * @return
@@ -84,10 +90,30 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         return result;
     }
 
+    @RequestMapping(value = "/checkConcurrencyLimit")
+    @ResponseBody
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.WeightAndVolumeCheckController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult checkConcurrencyLimit(){
+        InvokeResult result = new InvokeResult();
+        try {
+            //校验并发
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)){
+                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("校验导出并发接口异常-重量体积抽检统计表",e);
+            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+            return result;
+        }
+        return result;
+    }
+
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/toExport")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.WeightAndVolumeCheckController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public void toExport(WeightAndVolumeCheckCondition condition, HttpServletResponse response) {
-
         BufferedWriter bfw = null;
         try{
             if(StringUtils.isNotBlank(condition.getBusiName())){
@@ -112,7 +138,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
                 log.error("export-error", e);
             }
         }
-
     }
 
     /**

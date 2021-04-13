@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;

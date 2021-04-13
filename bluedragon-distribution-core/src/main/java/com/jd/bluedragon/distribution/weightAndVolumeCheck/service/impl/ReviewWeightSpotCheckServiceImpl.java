@@ -2,16 +2,16 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -25,14 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @ClassName: ReviewWeightSpotCheckServiceImpl
@@ -54,59 +49,94 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     @Autowired
     private ReportExternalService reportExternalService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
+
     /**
      * 获取导出数据
      * @param condition
+     * @param bufferedWriter
      * @return
      */
     @Override
-    public List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
-        //添加表头
-        heads.add("复核日期");
-        heads.add("复核区域");
-        heads.add("机构类型");
-        heads.add("机构名称");
-        heads.add("业务类型");
-        heads.add("普通应抽查运单数");
-        heads.add("普通实际抽查运单数");
-        heads.add("普通抽查率");
-        heads.add("普通抽查差异运单数");
-        heads.add("普通抽查差异率");
-        heads.add("信任商家应抽查运单数");
-        heads.add("信任商家实际抽查运单数");
-        heads.add("信任商家抽查率");
-        heads.add("信任商家抽查差异运单数");
-        heads.add("信任商家抽查差异率");
-        heads.add("总抽查率");
-        resList.add(heads);
-        PagerResult<ReviewWeightSpotCheck> result = listData(condition);
-        if(result != null && result.getRows() != null && result.getRows().size() > 0){
-            List<ReviewWeightSpotCheck> list = result.getRows();
-            //表格信息
-            for(ReviewWeightSpotCheck reviewWeightSpotCheck : list){
-                List<Object> body = Lists.newArrayList();
-                body.add(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_FORMAT));
-                body.add(reviewWeightSpotCheck.getReviewOrgName());
-                body.add((reviewWeightSpotCheck.getReviewMechanismType()==null || reviewWeightSpotCheck.getReviewMechanismType()==-1)?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
-                body.add(reviewWeightSpotCheck.getReviewSiteName());
-                body.add(reviewWeightSpotCheck.getSpotCheckType()==0?"C网":"B网");
-                body.add(reviewWeightSpotCheck.getNormalPackageNum());
-                body.add(reviewWeightSpotCheck.getNormalPackageNumOfActual());
-                body.add(reviewWeightSpotCheck.getNormalCheckRate());
-                body.add(reviewWeightSpotCheck.getNormalPackageNumOfDiff());
-                body.add(reviewWeightSpotCheck.getNormalCheckRateOfDiff());
-                body.add(reviewWeightSpotCheck.getTrustPackageNum());
-                body.add(reviewWeightSpotCheck.getTrustPackageNumOfActual());
-                body.add(reviewWeightSpotCheck.getTrustCheckRate());
-                body.add(reviewWeightSpotCheck.getTrustPackageNumOfDiff());
-                body.add(reviewWeightSpotCheck.getTrustCheckRateOfDiff());
-                body.add(reviewWeightSpotCheck.getTotalCheckRate());
-                resList.add(body);
-            }
+    public void getExportData(WeightAndVolumeCheckCondition condition, BufferedWriter bufferedWriter) {
+       try {
+               // 报表头
+               Map<String, String> headerMap = getTheHeaderMap();
+               //设置最大导出数量
+               Integer MaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+               //设置单次导出数量
+               condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+               CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+               int queryTotal = 0;
+               int index = 1;
+               while (index++ <= 100) {
+                   condition.setOffset((index - 1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+                   PagerResult<ReviewWeightSpotCheck> result = listData(condition);
+                   if(result==null || CollectionUtils.isEmpty(result.getRows())){
+                       break;
+                   }
+                   List<ReviewWeightSpotCheckExportDto> dataList = transForm(result.getRows());
+                    // 输出至csv文件中
+                   CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+                   // 限制导出数量
+                   queryTotal += dataList.size();
+                   if(queryTotal > MaxSize ){
+                       break;
+                   }
+               }
+           }catch(Exception e){
+                log.error("分拣复重抽检任务统计表 export error",e);
+           }
+       }
+
+    private List<ReviewWeightSpotCheckExportDto> transForm(List<ReviewWeightSpotCheck> list) {
+        List<ReviewWeightSpotCheckExportDto> dataList = new ArrayList<>();
+        //表格信息
+        for(ReviewWeightSpotCheck reviewWeightSpotCheck : list){
+            ReviewWeightSpotCheckExportDto body = new ReviewWeightSpotCheckExportDto();
+            body.setReviewDate(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_FORMAT));
+            body.setReviewOrgName(reviewWeightSpotCheck.getReviewOrgName());
+            body.setReviewMechanismType((reviewWeightSpotCheck.getReviewMechanismType()==null || reviewWeightSpotCheck.getReviewMechanismType()==-1)?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
+            body.setReviewSiteName(reviewWeightSpotCheck.getReviewSiteName());
+            body.setSpotCheckType(reviewWeightSpotCheck.getSpotCheckType()==0?"C网":"B网");
+            body.setNormalPackageNum(reviewWeightSpotCheck.getNormalPackageNum());
+            body.setNormalPackageNumOfActual(reviewWeightSpotCheck.getNormalPackageNumOfActual());
+            body.setNormalCheckRate(reviewWeightSpotCheck.getNormalCheckRate());
+            body.setNormalPackageNumOfDiff(reviewWeightSpotCheck.getNormalPackageNumOfDiff());
+            body.setNormalCheckRateOfDiff(reviewWeightSpotCheck.getNormalCheckRateOfDiff());
+            body.setTrustPackageNum(reviewWeightSpotCheck.getTrustPackageNum());
+            body.setTrustPackageNumOfActual(reviewWeightSpotCheck.getTrustPackageNumOfActual());
+            body.setTrustCheckRate(reviewWeightSpotCheck.getTrustCheckRate());
+            body.setTrustPackageNumOfDiff(reviewWeightSpotCheck.getTrustPackageNumOfDiff());
+            body.setTrustCheckRateOfDiff(reviewWeightSpotCheck.getTrustCheckRateOfDiff());
+            body.setTotalCheckRate(reviewWeightSpotCheck.getTotalCheckRate());
+            dataList.add(body);
         }
-        return  resList;
+        return  dataList;
+    }
+
+    private Map<String, String> getTheHeaderMap() {
+        Map<String,String> headerMap = new LinkedHashMap<>();
+        //添加表头
+        headerMap.put("reviewRate","复核日期");
+        headerMap.put("reviewOrgName","复核区域");
+        headerMap.put("reviewMechanismType","机构类型");
+        headerMap.put("reviewSiteName","机构名称");
+        headerMap.put("spotCheckType","业务类型");
+        headerMap.put("normalPackageNum","普通应抽查运单数");
+        headerMap.put("normalPackageNumOfActual","普通实际抽查运单数");
+        headerMap.put("normalCheckRate","普通抽查率");
+        headerMap.put("normalPackageNumOfDiff","普通抽查差异运单数");
+        headerMap.put("normalCheckRateOfDiff","普通抽查差异率");
+        headerMap.put("trustPackageNum","信任商家应抽查运单数");
+        headerMap.put("trustPackageNumOfActual","信任商家实际抽查运单数");
+        headerMap.put("trustCheckRate","信任商家抽查率");
+        headerMap.put("trustPackageNumOfDiff","信任商家抽查差异运单数");
+        headerMap.put("trustCheckRateOfDiff","信任商家抽查差异率");
+        headerMap.put("totalCheckRate","总抽查率");
+        return  headerMap;
     }
 
     /**
@@ -115,7 +145,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
      */
     @Override
     public List<List<Object>> exportSpotData() {
-
         List<List<Object>> resList = new ArrayList<List<Object>>();
         List<Object> heads = new ArrayList<Object>();
         //添加表头
@@ -273,7 +302,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
      */
     @Override
     public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition) {
-
         PagerResult<ReviewWeightSpotCheck> result = new PagerResult<>();
         List<ReviewWeightSpotCheck> list = new ArrayList<>();
         try {
@@ -332,7 +360,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
                     reviewWeightSpotCheck.setTotalCheckRate(convertPercentage((IntegerHelper.integerToInt(trustNumOfActual) + IntegerHelper.integerToInt(normalNumOfActual)), (IntegerHelper.integerToInt(trustNumOfShould) + IntegerHelper.integerToInt(normalNumOfShould))));
 
-
                     list.add(reviewWeightSpotCheck);
                 }
             }
@@ -366,16 +393,13 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     list.add(reviewWeightSpotCheck);
                 }
             }
-
             result.setRows(list);
             result.setTotal(list.size());
-
         }catch (Exception e){
             log.error("查询失败!",e);
             result.setRows(new ArrayList<ReviewWeightSpotCheck>());
             result.setTotal(0);
         }
-
         return result;
     }
 

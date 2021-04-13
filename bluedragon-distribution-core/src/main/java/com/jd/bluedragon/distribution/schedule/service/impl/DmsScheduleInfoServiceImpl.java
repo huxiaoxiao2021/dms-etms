@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.schedule.service.impl;
 
+import java.io.BufferedWriter;
 import java.text.Collator;
 import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.DmsScheduleInfoServiceManager;
+import com.jd.bluedragon.distribution.schedule.vo.DmsEdnPickingExportDto;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageDService;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.jp.print.templet.center.sdk.common.SdkCommonResult;
 import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchPdfDto;
 import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchRequest;
@@ -56,15 +60,6 @@ import javax.annotation.Resource;
 public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> implements DmsScheduleInfoService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DmsScheduleInfoServiceImpl.class);
-	/**
-	 * 导出excel头
-	 */
-	private static final List<Object> EXCELL_HEADS = new ArrayList<Object>();
-	static {
-		EXCELL_HEADS.add("调度单号");
-		EXCELL_HEADS.add("承运商");
-		EXCELL_HEADS.add("调度时间");
-	}
 	@Autowired
 	@Qualifier("dmsScheduleInfoDao")
 	private DmsScheduleInfoDao dmsScheduleInfoDao;
@@ -89,7 +84,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	@Qualifier("storagePackageDService")
 	private StoragePackageDService storagePackageDService;
 
-
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	@Resource
 	private DmsScheduleInfoServiceManager  dmsScheduleInfoServiceManager;
@@ -126,6 +122,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		}
 		return false;
 	}
+
 	@Override
 	public PagerResult<DmsEdnPickingVo> queryEdnPickingListByPagerCondition(DmsScheduleInfoCondition dmsScheduleInfoCondition) {
 		if(dmsScheduleInfoCondition != null){
@@ -139,24 +136,60 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 		}
 		return dmsScheduleInfoDao.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
 	}
+
 	@Override
-	public List<List<Object>> queryEdnPickingExcelData(DmsScheduleInfoCondition dmsScheduleInfoCondition) {
-		List<List<Object>> resList = new ArrayList<List<Object>>();
-		resList.add(EXCELL_HEADS);
-		dmsScheduleInfoCondition.setLimit(5000);
-		PagerResult<DmsEdnPickingVo> queryByPagerCondition = this.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
+	public void export(DmsScheduleInfoCondition dmsScheduleInfoCondition, BufferedWriter bufferedWriter) {
+		try {
+			// 报表头
+			Map<String, String> headerMap = getThisHeaderMap();
+			//设置最大导出数量
+			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			//设置单次导出数量
+			dmsScheduleInfoCondition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+			int queryTotal = 0;
+			int index = 1;
+			while (index++ <= 100) {
+				dmsScheduleInfoCondition.setOffset((index - 1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+				PagerResult<DmsEdnPickingVo> queryByPagerCondition = this.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
+				if(CollectionUtils.isEmpty(queryByPagerCondition.getRows())){
+					break;
+				}
+				List<DmsEdnPickingExportDto>  dataList   = transform(queryByPagerCondition.getRows());
 
-		List<DmsEdnPickingVo> rows = queryByPagerCondition.getRows();
-
-		for(DmsEdnPickingVo row : rows){
-			List<Object> body = new ArrayList<Object>();
-			body.add(row.getScheduleBillCode());
-			body.add(row.getCarrierName());
-			body.add(DateHelper.formatDateTime(row.getScheduleTime()));
-			resList.add(body);
+				// 输出至csv文件中
+				CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+				// 限制导出数量
+				queryTotal += dataList.size();
+				if(queryTotal > MaxSize ){
+					break;
+				}
+			}
+		}catch (Exception e){
+			log.error("企配仓拣货 export error",e);
 		}
-		return resList;
 	}
+
+	private List<DmsEdnPickingExportDto> transform(List<DmsEdnPickingVo> rows) {
+		List<DmsEdnPickingExportDto> dataList = new ArrayList<>();
+		for(DmsEdnPickingVo row : rows){
+			DmsEdnPickingExportDto body = new DmsEdnPickingExportDto();
+			body.setScheduleBillCode(row.getScheduleBillCode());
+			body.setCarrierName(row.getCarrierName());
+			body.setScheduleTime(DateHelper.formatDateTime(row.getScheduleTime()));
+			dataList.add(body);
+		}
+		return dataList;
+	}
+
+	private Map<String, String> getThisHeaderMap() {
+		Map<String,String> headerMap = new LinkedHashMap<>();
+		headerMap.put("scheduleBillCode","调度单号");
+		headerMap.put("carrierName","承运商");
+		headerMap.put("scheduleTime","调度时间");
+		return headerMap;
+	}
+
 	@Override
 	public DmsEdnPickingVo queryDmsEdnPickingVo(String scheduleBillCode) {
 		return dmsScheduleInfoDao.queryDmsEdnPickingVo(scheduleBillCode);

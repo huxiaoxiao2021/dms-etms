@@ -212,23 +212,35 @@ $(function() {
 		    	if(!checkQueryParams()){
 		    		return;
 		    	}
-                var params = tableInit().getSearchCondition();
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":exportUrl});
+				$('#btn_export').click(function () {
+					jQuery.ajax({
+						type: "POST",
+						url: "/schedule/dmsScheduleInfo/checkConcurrencyLimit",
+						data: {},
+						success: function(data){
+							if(data.code == 200){
+								var params = tableInit().getSearchCondition();
+								var form = $("<form method='post'></form>"),
+									input;
+								form.attr({"action":exportUrl});
 
-                $.each(params,function(key,value){
+								$.each(params,function(key,value){
 
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
-                });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
-
+									input = $("<input type='hidden' class='search-param'>");
+									input.attr({"name":key});
+									input.val(value);
+									form.append(input);
+								});
+								form.appendTo(document.body);
+								form.submit();
+								document.body.removeChild(form[0]);
+							}else {
+								alert(data.message);
+							}
+						}
+					});
+				});
             });
 
 			$('#btn_submit').click(function() {

@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.handoverPrint;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
 import com.jd.bluedragon.distribution.signAndReturn.service.MergedWaybillService;
@@ -12,6 +14,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +48,8 @@ public class SignReturnController extends DmsBaseController {
     @Autowired
     private MergedWaybillService mergedWaybillService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 返回主页面
@@ -111,14 +117,34 @@ public class SignReturnController extends DmsBaseController {
         return result;
     }
 
+    @RequestMapping(value = "/checkConcurrencyLimit")
+    @ResponseBody
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.handoverPrint.SignReturnController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult checkConcurrencyLimit(){
+        InvokeResult result = new InvokeResult();
+        try {
+            //校验并发
+            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_TOOL_SIGNRETURN_R)){
+                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("校验导出并发接口异常-暂存记录统计表",e);
+            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+            return result;
+        }
+        return result;
+    }
+
     /**
      * 导出
      * @return
      */
     @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.handoverPrint.SignReturnController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
-
         log.debug("导出签单返回合单打印交接单");
         try{
             PagerResult<SignReturnPrintM> result = query(condition);
