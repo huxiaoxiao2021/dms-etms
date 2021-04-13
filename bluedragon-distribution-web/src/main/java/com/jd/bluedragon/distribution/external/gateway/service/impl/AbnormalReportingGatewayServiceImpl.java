@@ -247,45 +247,35 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
                 return jdCResponse;
             }
 
-            JdCResponse pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
+            JdCResponse<List<String>> pdaResult = iAbnPdaAPIManager.report(wpAbnormalRecordPda);
             if (pdaResult == null) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
                 jdCResponse.setMessage("上报质控系统失败，请稍后重试！");
                 return jdCResponse;
             }
             log.info("上报质控系统返回结果，code：{}，message：{}", pdaResult.getCode(), pdaResult.getMessage());
-            //返回 5-全部成功 4-重复提交 3-部分成功 2-信息不全
+            //返回 5-全部成功 3-部分成功
             if (pdaResult.getCode() == 5) {
                 //生成异常处理的异步任务，与老质控逻辑保持一致
                 this.genQcTask(abnormalReportingRequest, abnormalReportingRequest.getBarCodes(), QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
-            } else if (pdaResult.getCode() == 4) {
-                jdCResponse.setMessage("上传信息已提交质控系统！");
-                //已报备，不发MQ
-            } else if (pdaResult.getCode() == 3) {
+            }else if (pdaResult.getCode() == 3) {
                 //部分成功
                 //剔除失败列表
-                String failBarCodes = pdaResult.getMessage();
-                String[] failBarCodeList = failBarCodes.split(",");
                 Set<String> barCodeSet = new HashSet<>(abnormalReportingRequest.getBarCodes());
-                for (String failBarCode : failBarCodeList) {
-                    barCodeSet.remove(failBarCode);
+                List<String> failBarCodes = pdaResult.getData();
+                if(failBarCodes!=null){
+
+                    for (String failBarCode : failBarCodes) {
+                        barCodeSet.remove(failBarCode);
+                    }
                 }
                 this.genQcTask(abnormalReportingRequest, new ArrayList<>(barCodeSet), QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("部分信息提交质控系统成功！未成功条码：" + failBarCodes);
-            } else if (pdaResult.getCode() == 2) {
-                jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("上报信息不全，请检查必填信息！");
-            } else if (pdaResult.getCode() == 1) {
-                jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("信息不全，上报人员未配置，请联系IT运营人员核实质控系统权限！");
+                jdCResponse.setMessage("部分信息提交质控系统成功。\r\n" + pdaResult.getMessage());
             } else if (pdaResult.getCode() == 0) {
                 jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("质控系统接口异常，请稍后再试！");
+                jdCResponse.setMessage("上报质控系统失败！\r\n" + pdaResult.getMessage());
                 log.error("质控系统接口异常：{}", pdaResult.getMessage());
-            } else {
-                jdCResponse.setCode(JdCResponse.CODE_ERROR);
-                jdCResponse.setMessage("信息提交失败，请联系IT运营人员核实质控系统权限！");
             }
         } else {
             //组装信息走老的异常提交流程

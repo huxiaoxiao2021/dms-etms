@@ -70,15 +70,17 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
     @JProfiler(jKey = "DMSWEB.IAbnPdaAPIManagerImpl.report", mState = {JProEnum.TP})
     @Override
-    public JdCResponse report(List<ReportRecord> wpAbnormalRecordPda) {
-        JdCResponse res = new JdCResponse<>(0, JdCResponse.MESSAGE_FAIL);
+    public JdCResponse<List<String>> report(List<ReportRecord> wpAbnormalRecordPda) {
+        JdCResponse<List<String>>  res = new JdCResponse<>(0, JdCResponse.MESSAGE_FAIL);
 
         List<String> reportFails=new ArrayList<>();
+        String msg="";
         for (ReportRecord item : wpAbnormalRecordPda) {
             try {
                 BaseResult result= reportService.report(item);
                 if(!result.getResultCode().equals(ResultCodeEnum.SUCCESS.getCode())){
                     logger.info("调用质控系统report JSF失败！入参："+JsonHelper.toJson(item)+" 返回值："+JsonHelper.toJson(result));
+                    msg=msg+result.getMessage()+"\r\n";
                     reportFails.add(item.getCode());
                 }
             } catch (Exception e) {
@@ -95,10 +97,10 @@ public class IAbnPdaAPIManagerImpl implements IAbnPdaAPIManager {
 
         if(reportFails.size()>0 && reportFails.size()<wpAbnormalRecordPda.size()){
             res.setCode(3);
-            res.setMessage(StringUtils.join(reportFails.toArray(), ','));
-            return res;
+            res.setData(reportFails);
         }
 
+        res.setMessage(msg);
         return res;
     }
 
