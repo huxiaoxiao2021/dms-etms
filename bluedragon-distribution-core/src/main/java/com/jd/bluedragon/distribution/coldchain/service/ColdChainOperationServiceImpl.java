@@ -395,6 +395,10 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
                 BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
                 if(waybillEntity!=null&&waybillEntity.getData()!=null){
                     body.setWaybillSign(waybillEntity.getData().getWaybillSign());
+                }else{
+                    response.setCode(JdResponse.CODE_NO_POP_WAYBILL);
+                    response.setMessage("当前运单不存在");
+                    return  response;
                 }
             }
             ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
