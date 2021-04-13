@@ -189,4 +189,14 @@
         <include refid="page_where_condition"/>
     </select>
 
+    <select id="getByBoxCode" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+            dms_box_relation
+        WHERE
+            yn = 1
+        AND box_code = #{boxCode,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

@@ -81,6 +81,26 @@ public class BoxRelationServiceImpl implements BoxRelationService {
     }
 
     @Override
+    public InvokeResult<List<BoxRelation>> getRelationsByBoxCode(String boxCode) {
+        InvokeResult<List<BoxRelation>> result = new InvokeResult<>();
+        if (StringUtils.isBlank(boxCode)) {
+            result.parameterError("缺少必要参数");
+            return result;
+        }
+        try {
+
+            result.setData(boxRelationDao.getByBoxCode(boxCode));
+
+        }
+        catch (Exception ex) {
+            LOGGER.error("根据箱号查新绑定记录失败. param:{}", boxCode, ex);
+            result.error();
+        }
+
+        return result;
+    }
+
+    @Override
     @JProfiler(jKey = "dms.web.BoxRelationService.saveBoxRelation", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.FunctionError })
     public InvokeResult<Boolean> saveBoxRelation(BoxRelation relation) {
         InvokeResult<Boolean> result = new InvokeResult<>();
