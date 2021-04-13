@@ -1464,5 +1464,5 @@ public class Constants {
     /**
      * 卸车任务流水线模式:只验货不组板
      */
-    public static final Integer ASSEMBLY_LINE_TYPE = 1;
+    public static final Integer ASSEMBLY_LINE_TYPE = 0;
 }
