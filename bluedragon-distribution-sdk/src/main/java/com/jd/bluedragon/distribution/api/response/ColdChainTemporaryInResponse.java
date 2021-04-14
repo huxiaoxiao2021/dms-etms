@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.coldchain.dto;
+package com.jd.bluedragon.distribution.api.response;
 
 /**
  * 冷链暂存入库返回对象

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.coldchain.dto;
+package com.jd.bluedragon.distribution.api.request;
 
 /**
  * 冷链操作 暂存入库请求

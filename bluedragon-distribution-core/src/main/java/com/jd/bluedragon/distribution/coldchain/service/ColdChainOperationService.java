@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
+import com.jd.bluedragon.distribution.api.request.ColdChainTemporaryInRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.jmq.common.exception.JMQException;

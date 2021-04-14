@@ -5,7 +5,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ColdChainTemporaryInRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainTemporaryInResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
@@ -363,48 +365,47 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         ColdChainTemporaryInResponse responseData=new ColdChainTemporaryInResponse();
         responseData.setPackageCount(0);
         responseData.setWaybillCount(0);
-        switch (codeType) {
-            case PACKAGE_CODE: {
-                String waybillCode=WaybillUtil.getWaybillCode(barCode);
-                body = this.buildTemppraryInMessageList(request,waybillCode,barCode);
-                responseData.setPackageCount(1);
-                responseData.setWaybillCount(1);
-                break;
-            }
-            case WAYBILL_CODE: {
-                List<String> packageCodeList = this.getPackageCodeListByWaybillCode(barCode);
-                if (packageCodeList != null && packageCodeList.size() > 0) {
-                    responseData.setPackageCount(packageCodeList.size());
-                    responseData.setWaybillCount(1);
-                    body=this.buildTemppraryInMessageList(request, barCode,"");
-                } else {
-                    response.setCode(JdResponse.CODE_PARAM_ERROR);
-                    response.setMessage("无效运单号或该运单下无包裹");
-                }
-                break;
-            }
-            default: {
-                response.setCode(JdResponse.CODE_PARAM_ERROR);
-                response.setMessage("无法识别的条码");
-                break;
-            }
+        String waybillCode="";
+        String packageCode="";
+        if(codeType.getCode()==BarCodeType.WAYBILL_CODE.getCode()){
+            waybillCode=barCode;
+            packageCode="";
+        }else if(codeType.getCode()==BarCodeType.PACKAGE_CODE.getCode()){
+            waybillCode=WaybillUtil.getWaybillCode(barCode);
+            packageCode=barCode;
+        }else{
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无法识别的条码");
+            return response;
         }
-        if(body!=null){
-            //设置waybillSign
-            if(StringUtils.isNotEmpty(body.getWaybillNo())){
-                BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
-                if(waybillEntity!=null&&waybillEntity.getData()!=null){
-                    body.setWaybillSign(waybillEntity.getData().getWaybillSign());
-                }else{
-                    response.setCode(JdResponse.CODE_NO_POP_WAYBILL);
-                    response.setMessage("当前运单不存在");
-                    return  response;
-                }
-            }
-            ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
+        List<String> packageCodeList = this.getPackageCodeListByWaybillCode(waybillCode);
+        if (packageCodeList != null && packageCodeList.size() > 0) {
+            responseData.setPackageCount(codeType.getCode()==BarCodeType.PACKAGE_CODE.getCode()?1:packageCodeList.size());
+            responseData.setWaybillCount(1);
+            body=this.buildTemppraryInMessageList(request, waybillCode,packageCode);
+        } else {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无效运单号或该运单下无包裹");
+            return response;
         }
+        if(body==null||StringUtils.isEmpty(body.getWaybillNo())){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无效运单号或该运单下无包裹");
+            return response;
+        }
+        //设置waybillSign
+        BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
+        if(waybillEntity==null||waybillEntity.getData()==null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无效运单号");
+            return response;
+        }
+        body.setWaybillSign(waybillEntity.getData().getWaybillSign());
+        ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
         response.setData(responseData);
-        return response;
+        return  response;
+
+
     }
 
     private CCTemporaryInMessage buildTemppraryInMessageList(ColdChainTemporaryInRequest request,String waybillCode, String packageCode) {
@@ -417,7 +418,6 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         body.setWaybillNo(waybillCode);
         body.setPackageNo(packageCode);
         body.setWaybillNo(waybillCode);
-
         return body;
     }
 

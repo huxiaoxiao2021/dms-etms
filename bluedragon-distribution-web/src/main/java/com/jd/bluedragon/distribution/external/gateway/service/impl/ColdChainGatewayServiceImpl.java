@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ColdChainTemporaryInRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainTemporaryInResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.bluedragon.distribution.rest.coldchain.ColdChainOperationResource;
 import com.jd.bluedragon.external.gateway.service.ColdChainGatewayService;
@@ -146,15 +148,19 @@ public class ColdChainGatewayServiceImpl implements ColdChainGatewayService {
      * @return
      */
     @Override
-    public ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request) {
-        ColdChainOperationResponse<ColdChainTemporaryInResponse> response = new ColdChainOperationResponse<>();
+    public JdCResponse<ColdChainTemporaryInResponse> temporaryIn(ColdChainTemporaryInRequest request) {
+        JdCResponse<ColdChainTemporaryInResponse> response = new JdCResponse<>();
         if (request == null) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("请求参数为null");
             return response;
         }
-        response= coldChainOperationResource.temporaryIn(request);
-
+        ColdChainOperationResponse<ColdChainTemporaryInResponse> operationResponse = coldChainOperationResource.temporaryIn(request);
+        if (JdResponse.CODE_OK.equals(operationResponse.getCode())) {
+            response.init(JdCResponse.CODE_SUCCESS,JdCResponse.MESSAGE_SUCCESS,operationResponse.getData());
+        } else {
+            response.toError(operationResponse.getMessage());
+        }
         return response;
     }
 }
