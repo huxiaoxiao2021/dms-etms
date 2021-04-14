@@ -1090,8 +1090,7 @@ public class DeliveryResource {
                     if (!BusinessUtil.isBoxcode(request.getBoxCode()) || null == request.getSiteCode()) {
                         continue;
                     }
-                    BoxRelation query = new BoxRelation(request.getBoxCode(), Long.valueOf(request.getSiteCode()));
-                    InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
+                    InvokeResult<List<BoxRelation>> sr = boxRelationService.getRelationsByBoxCode(request.getBoxCode());
                     if (!sr.codeSuccess() || CollectionUtils.isEmpty(sr.getData())) {
                         continue;
                     }

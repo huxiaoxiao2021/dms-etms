@@ -27,4 +27,11 @@ public interface BoxRelationService {
      */
     InvokeResult<Boolean> saveBoxRelation(BoxRelation relation);
 
+    /**
+     * 根据BC箱号获取绑定关系
+     * @param boxCode
+     * @return
+     */
+    InvokeResult<List<BoxRelation>> getRelationsByBoxCode(String boxCode);
+
 }
