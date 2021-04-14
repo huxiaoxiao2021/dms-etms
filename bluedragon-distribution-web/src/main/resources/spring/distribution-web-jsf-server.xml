@@ -278,4 +278,12 @@
                   ref="noticeH5JsfService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 获取集包袋绑定箱号信息 -->
+    <jsf:provider id="dmsCycleBoxJsfService"
+                  interface="com.jd.bluedragon.distribution.cycleBox.service.CycleBoxJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="cycleBoxJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
