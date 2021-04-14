@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
@@ -60,6 +61,9 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 	@Autowired
 	private IOfflineTaskCheckBusinessInterceptService offlineTaskCheckBusinessInterceptService;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@Override
 	public int parseToTask(OfflineLogRequest offlineLogRequest) {
@@ -140,7 +144,9 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 			sendMList.add(toSendDatail(offlineLogRequest));
 			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS,"OfflineDeliveryServiceImpl#parseToTask"));
 			operationLogs.add(RequestConvertOperationLog(offlineLogRequest,"OfflineDeliveryServiceImpl#parseToTask"));
-			offlineLogRequest4InterceptList.add(this.convertToInterceptOfflineLogRequest(offlineLogRequest));
+			if (WaybillUtil.isPackageCode(boxCode) || WaybillUtil.isWaybillCode(boxCode)) {
+				offlineLogRequest4InterceptList.add(this.convertToInterceptOfflineLogRequest(offlineLogRequest));
+			}
 		}
 
 		if (sendMList.size() > 0) {
@@ -164,6 +170,9 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
     private void sendOfflineSortingBusinessInterceptTaskMq(List<OfflineLogRequest> offlineLogRequestList) {
         // offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestList);
         for (OfflineLogRequest offlineLogRequest : offlineLogRequestList) {
+			if(!uccPropertyConfiguration.getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
+				continue;
+			}
             Response<Boolean> handleResult = offlineTaskCheckBusinessInterceptService.handleOfflineTask(offlineLogRequest);
             if(!handleResult.isSucceed()){
                 log.error("OfflineDeliveryServiceImpl offlineTaskCheckBusinessInterceptService.handleOfflineTask fail {}", JsonHelper.toJson(handleResult));

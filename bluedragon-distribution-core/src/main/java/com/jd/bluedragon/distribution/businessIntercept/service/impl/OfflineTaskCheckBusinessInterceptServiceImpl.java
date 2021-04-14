@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -59,6 +60,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
 
     @Autowired
     private SendGatewayService sendGatewayService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     private List<Integer> sendTaskTypeList = new ArrayList<>(Arrays.asList(Task.TASK_TYPE_SEND_DELIVERY, Task.TASK_TYPE_ACARABILL_SEND_DELIVERY));
 
@@ -310,6 +314,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
         try {
             List<Message> messageList = new ArrayList<>();
             for (OfflineLogRequest offlineLogRequest : offlineLogRequests) {
+                if(!uccPropertyConfiguration.getOfflineTaskReportInterceptNeedHandle(offlineLogRequest.getSiteCode())){
+                    continue;
+                }
                 Message message = new Message();
                 message.setBusinessId(offlineLogRequest.getPackageCode());
                 message.setText(JSON.toJSONString(offlineLogRequest));
