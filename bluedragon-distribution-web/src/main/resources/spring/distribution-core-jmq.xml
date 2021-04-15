@@ -417,6 +417,10 @@
     <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
     </bean>
+    <!-- 冷链 - 暂存入库消息 -->
+    <bean id="ccTemporaryInProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.temporaryIn}"/>
+    </bean>
     <!-- 滞留上报消息 -->
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>

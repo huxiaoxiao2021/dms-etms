@@ -2,16 +2,16 @@ package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.ColdChainOptimizeManager;
-import com.jd.bluedragon.core.base.WayBillThermometerApiManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ColdChainTemporaryInRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainTemporaryInResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
+import com.jd.bluedragon.distribution.mail.MailProxy;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -20,8 +20,10 @@ import com.jd.ccmp.ctm.dto.QueryUnloadDto;
 import com.jd.ccmp.ctm.dto.WaybillRequest;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -31,9 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * 冷链货物操作服务
@@ -48,11 +48,19 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
     private ColdChainOptimizeManager coldChainOptimizeManager;
 
     @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
     private BasicQueryWSManager basicQueryWSManager;
 
     @Autowired
     @Qualifier("ccInAndOutBoundProducer")
     private DefaultJMQProducer ccInAndOutBoundProducer;
+
+    @Autowired
+    @Qualifier("ccTemporaryInProducer")
+    private DefaultJMQProducer ccTemporaryInProducer;
+
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
@@ -74,6 +82,7 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
      */
     @Override
     public boolean addUploadTask(ColdChainUnloadDto unloadDto) {
+
         if (unloadDto != null) {
             return coldChainOptimizeManager.receiveUnloadData(unloadDto);
         }
@@ -336,6 +345,74 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         response = wayBillThermometerApiManager.bindWaybillPackage(waybillRequest);
 
         return response;
+    }
+
+    @Override
+    public ColdChainOperationResponse temporaryIn(ColdChainTemporaryInRequest request)  throws JMQException{
+        ColdChainOperationResponse response = new ColdChainOperationResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
+        String barCode = request.getBarCode();
+        CCTemporaryInMessage body =null;
+
+        BarCodeType codeType = BusinessUtil.getBarCodeType(barCode);
+        if(codeType==null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("请输入有效的运单/包裹号");
+            return response;
+        }
+        ColdChainTemporaryInResponse responseData=new ColdChainTemporaryInResponse();
+        responseData.setPackageCount(0);
+        responseData.setWaybillCount(0);
+        String waybillCode="";
+        String packageCode="";
+        if(codeType.getCode()==BarCodeType.WAYBILL_CODE.getCode()){
+            waybillCode=barCode;
+            packageCode="";
+        }else if(codeType.getCode()==BarCodeType.PACKAGE_CODE.getCode()){
+            waybillCode=WaybillUtil.getWaybillCode(barCode);
+            packageCode=barCode;
+        }else{
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无法识别的条码");
+            return response;
+        }
+        List<String> packageCodeList = this.getPackageCodeListByWaybillCode(waybillCode);
+        if (packageCodeList != null && packageCodeList.size() > 0) {
+            responseData.setPackageCount(codeType.getCode()==BarCodeType.PACKAGE_CODE.getCode()?1:packageCodeList.size());
+            responseData.setWaybillCount(1);
+            body=this.buildTemppraryInMessageList(request, waybillCode,packageCode);
+        } else {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无效运单号或该运单下无包裹");
+            return response;
+        }
+        //设置waybillSign
+        BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
+        if(waybillEntity==null||waybillEntity.getData()==null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无效运单号");
+            return response;
+        }
+        body.setWaybillSign(waybillEntity.getData().getWaybillSign());
+        ccTemporaryInProducer.send(barCode,JSON.toJSONString(body));
+        response.setData(responseData);
+        return  response;
+
+
+    }
+
+    private CCTemporaryInMessage buildTemppraryInMessageList(ColdChainTemporaryInRequest request,String waybillCode, String packageCode) {
+        CCTemporaryInMessage body = new CCTemporaryInMessage();
+        body.setOperateErp(request.getOperateERP());
+        body.setOperateName(request.getSiteName());
+        body.setTempscTime(DateUtil.format(new Date(),DateUtil.FORMAT_DATE_TIME));
+        body.setOperateId(String.valueOf(request.getSiteId()));
+        body.setOperateUser(request.getOperateUser());
+        body.setWaybillNo(waybillCode);
+        body.setPackageNo(packageCode);
+        return body;
     }
 
 }
