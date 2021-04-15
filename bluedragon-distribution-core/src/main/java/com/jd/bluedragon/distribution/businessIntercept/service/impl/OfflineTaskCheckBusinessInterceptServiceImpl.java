@@ -30,6 +30,8 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +75,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
      * @return 处理结果
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.handleOfflineTask", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Response<Boolean> handleOfflineTask(OfflineLogRequest offlineLogRequest) {
         log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask param: {}", JSON.toJSONString(offlineLogRequest));
         Response<Boolean> result = new Response<>();
@@ -307,6 +310,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
      * @time 2021-03-23 15:39:43 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.batchSendOfflineTaskMq", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Response<Boolean> batchSendOfflineTaskMq(List<OfflineLogRequest> offlineLogRequests) {
         Response<Boolean> result = new Response<>();
         result.toSucceed();
@@ -341,6 +345,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
      * @time 2021-03-23 15:39:43 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.sendOfflineTaskMq", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Response<Boolean> sendOfflineTaskMq(OfflineLogRequest offlineLogRequest) {
         return this.batchSendOfflineTaskMq(new ArrayList<>(Collections.singletonList(offlineLogRequest)));
     }
