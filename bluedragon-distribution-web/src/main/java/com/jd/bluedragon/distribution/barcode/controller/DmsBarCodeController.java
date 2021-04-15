@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.barcode.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.uim.annotation.Authorization;
@@ -16,10 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
@@ -105,6 +102,7 @@ public class DmsBarCodeController extends DmsBaseController {
             if(!checkParam(barCode,result)){
                 return result;
             }
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.DMS_BAR_CODE_REPORT.getCode());
 
             String fileName = "69码商品查询";
             //设置文件后缀
@@ -113,6 +111,8 @@ public class DmsBarCodeController extends DmsBaseController {
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             barcodeService.export(barCode,bfw);
+
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.DMS_BAR_CODE_REPORT.getCode());
         } catch (Exception e) {
             log.error("69码商品查询--toExport:", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

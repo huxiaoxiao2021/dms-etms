@@ -23,4 +23,25 @@ public interface ExportConcurrencyLimitService {
     * @return
     */
    Integer getOneQuerySizeLimit();
+
+   /**
+    * 进行中并发数+1
+    * @param key
+    */
+   void incrKey(String key);
+
+   /**
+    * 进行中并发数-1
+    * @param key
+    */
+   void decrKey(String key);
+
+   /**
+    * 导出增加通用操作日志
+    * @param requestParam
+    * @param methodName
+    * @param time
+    * @param count
+    */
+   void addBusinessLog(String requestParam,String methodName,long time,Integer count);
 }

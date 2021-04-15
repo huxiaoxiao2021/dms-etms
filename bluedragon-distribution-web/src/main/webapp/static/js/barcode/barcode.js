@@ -81,27 +81,25 @@ $(function () {
                     Jd.alert("无可导出内容");
                     return;
                 }
-                jQuery.ajax({
-                    type: "POST",
-                    url: "/barcode/checkConcurrencyLimit",
-                    data: {},
-                    success: function(data){
-                        if(data.code == 200){
-                            $('#edit-form').attr('action',exportUrl);
-                            var form = $("<form method='post' id='exportForm'></form>"),
-                                input;
-                            form.attr({"action": exportUrl});
+                checkConcurrencyLimit({
+                    currentKey: exportReportEnum.DMS_BAR_CODE_REPORT,
+                    checkPassCallback: function (result) {
+                        $('#edit-form').attr('action',exportUrl);
+                        var form = $("<form method='post' id='exportForm'></form>"),
+                            input;
+                        form.attr({"action": exportUrl});
 
-                            input = $("<input type='hidden' class='search-param'>");
-                            input.attr({"name": "barcode"});
-                            input.val(v_barcode);
-                            form.append(input);
-                            form.appendTo(document.body);
-                            form.submit();
-                            form.remove();
-                        }else {
-                            alert(data.message);
-                        }
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name": "barcode"});
+                        input.val(v_barcode);
+                        form.append(input);
+                        form.appendTo(document.body);
+                        form.submit();
+                        form.remove();
+                    },
+                    checkFailCallback: function (result) {
+                        // 导出校验失败，弹出提示消息
+                        alert(result.message)
                     }
                 });
             });

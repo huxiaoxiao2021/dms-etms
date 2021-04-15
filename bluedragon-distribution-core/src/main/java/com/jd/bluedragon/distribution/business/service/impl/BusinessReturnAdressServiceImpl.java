@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.business.service.impl;
 
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.business.dao.BusinessReturnAdressDao;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -41,12 +43,6 @@ import java.util.Map;
 public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnAdress> implements BusinessReturnAdressService {
 
 	private static final Logger logger = LoggerFactory.getLogger(BusinessReturnAdressServiceImpl.class);
-
-	/**
-     * 商家退货地址导出限制条数，默认：5000
-     * */
-    @Value("${business.return.export.max:5000}")
-	private Integer businessReturnExportMax;
 
 	@Autowired
 	@Qualifier("businessReturnAdressDao")
@@ -146,18 +142,20 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 	@Override
 	public void export(BusinessReturnAdressCondition businessReturnAdressCondition, BufferedWriter bufferedWriter) {
 		try {
+			long  start = System.currentTimeMillis();
 			// 写入表头
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
 			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			Integer oneQuery =  exportConcurrencyLimitService.getOneQuerySizeLimit();
 
 			int queryTotal = 0;
 			int index = 1;
-			businessReturnAdressCondition.setLimit(businessReturnExportMax);
-			while (index++ <= 100) {
-				businessReturnAdressCondition.setOffset((index-1) * businessReturnExportMax);
-
+			businessReturnAdressCondition.setLimit(oneQuery);
+			while (index <= (MaxSize/oneQuery)+1) {
+				businessReturnAdressCondition.setOffset((index-1) * oneQuery);
+				index++;
 				PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
 
 				if(result != null && result.getRows() != null){
@@ -171,6 +169,8 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 					}
 				}
 			}
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(businessReturnAdressCondition), ExportConcurrencyLimitEnum.BUSINESS_RETURN_ADDRESS_REPORT.getName(),end-start,queryTotal);
 		}catch (Exception e){
 			log.error("商家退货地址 export error",e);
 		}

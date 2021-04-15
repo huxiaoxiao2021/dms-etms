@@ -356,32 +356,30 @@ $(function () {
                 return;
             }
 
-            jQuery.ajax({
-                type: "POST",
-                url: "/abnormal/abnormalUnknownWaybill/checkConcurrencyLimit",
-                data: {},
-                success: function(data){
-                    if(data.code == 200){
-                        // 提交表单
-                        var form = $("<form method='post'></form>"),
-                            input;
-                        form.attr({"action":exportUrl});
-                        $.each(params,function(key,value){
-                            input = $("<input type='hidden' class='search-param'>");
-                            input.attr({"name":key});
-                            if (key == 'startTime' || key == 'endTime'){
-                                input.val(new Date(value));
-                            }else{
-                                input.val(value);
-                            }
-                            form.append(input);
-                        });
-                        form.appendTo(document.body);
-                        form.submit();
-                        form.remove();
-                    }else {
-                        alert(data.message);
-                    }
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT,
+                checkPassCallback: function (result) {
+                    // 提交表单
+                    var form = $("<form method='post'></form>"),
+                        input;
+                    form.attr({"action":exportUrl});
+                    $.each(params,function(key,value){
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name":key});
+                        if (key == 'startTime' || key == 'endTime'){
+                            input.val(new Date(value));
+                        }else{
+                            input.val(value);
+                        }
+                        form.append(input);
+                    });
+                    form.appendTo(document.body);
+                    form.submit();
+                    form.remove();
+                },
+                checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
                 }
             });
         });

@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.inventory.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -23,14 +23,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Date;
-import java.util.List;
 
 @Controller
 @RequestMapping("/inventoryTask")
@@ -80,6 +78,7 @@ public class inventoryTaskController extends DmsBaseController {
         BufferedWriter bfw = null;
         log.debug("转运清场任务信息结果");
         try{
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.INVENTORY_TASK_REPORT.getCode());
             String fileName = "转运清场任务信息表";
             //设置文件后缀
             String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -87,6 +86,7 @@ public class inventoryTaskController extends DmsBaseController {
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             inventoryTaskService.getExportData(condition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.INVENTORY_TASK_REPORT.getCode());
         }catch (Exception e){
             log.error("导出转运清场任务信息表失败:", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
@@ -100,27 +100,6 @@ public class inventoryTaskController extends DmsBaseController {
                 log.error("导出转运清场任务信息表 流关闭异常", es);
                 result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
             }
-        }
-        return result;
-    }
-
-
-    @RequestMapping(value = "/checkConcurrencyLimit")
-    @ResponseBody
-    @Authorization(Constants.DMS_WEB_SORTING_INVENTORYTASK_R)
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public InvokeResult checkConcurrencyLimit(){
-        InvokeResult result = new InvokeResult();
-        try {
-            //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_INVENTORYTASK_R)){
-                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-                return result;
-            }
-        }catch (Exception e){
-            log.error("校验导出并发接口异常",e);
-            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-            return result;
         }
         return result;
     }

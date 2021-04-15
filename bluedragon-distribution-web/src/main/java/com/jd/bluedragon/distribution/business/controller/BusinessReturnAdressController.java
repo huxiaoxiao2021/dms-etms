@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.business.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -9,7 +10,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressCondition;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -24,14 +24,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Date;
-import java.util.List;
 
 /**
  *
@@ -78,28 +76,6 @@ public class BusinessReturnAdressController extends DmsBaseController{
 		return businessReturnAdressService.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
 	}
 
-
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_BUSINESS_RETURN_ADRESS_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopReceiveAbnormalController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_BUSINESS_RETURN_ADRESS_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
-
 	/**
 	 * 导出excel
 	 * @param businessReturnAdressCondition
@@ -112,6 +88,7 @@ public class BusinessReturnAdressController extends DmsBaseController{
 		InvokeResult result = new InvokeResult();
 		BufferedWriter bfw = null;
 		try {
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.BUSINESS_RETURN_ADDRESS_REPORT.getCode());
 			String fileName = "商家退货地址";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -119,6 +96,7 @@ public class BusinessReturnAdressController extends DmsBaseController{
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
 			businessReturnAdressService.export(businessReturnAdressCondition,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.BUSINESS_RETURN_ADDRESS_REPORT.getCode());
 		} catch (Exception e) {
 			log.error("商家退货地址 export error",e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

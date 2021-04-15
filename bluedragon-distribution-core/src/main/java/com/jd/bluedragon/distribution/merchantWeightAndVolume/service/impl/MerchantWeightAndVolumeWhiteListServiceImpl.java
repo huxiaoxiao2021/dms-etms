@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.merchantWeightAndVolume.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -180,19 +180,22 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
     @Override
     public void getExportData(MerchantWeightAndVolumeCondition condition, BufferedWriter bufferedWriter) {
         try {
+            long start =System.currentTimeMillis();
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
             //最大导出数量
             Integer maxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportMaxNum==null?MERCHANT_WHITELIST_EXPORT_MAX_NUM:exportMaxNum;
             // 设置单次查询时间
-            condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+            condition.setLimit(oneQuery);
             int queryTotal = 0;
             int index = 1;
-            while ( index++ <= 100){
-                condition.setOffset((index-1)* condition.getLimit());
+            while ( index <= (maxSize/oneQuery)+1){
+                condition.setOffset((index-1)* oneQuery);
                 List<MerchantWeightAndVolumeDetail> dataList = merchantWeightAndVolumeWhiteListDao.exportByCondition(condition);
+                index++;
                 if(CollectionUtils.isEmpty(dataList)){
                     break;
                 }
@@ -206,6 +209,8 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
                     break;
                 }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.MERCHANT_WEIGHT_AND_VOLUME_WHITE_REPORT.getName(), end -start,queryTotal);
         }catch (Exception e){
             log.error("商家称重量方白名单统计表 export error",e);
         }

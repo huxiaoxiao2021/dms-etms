@@ -2,15 +2,13 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
-import com.jd.bluedragon.utils.CsvExporterUtils;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.IntegerHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -62,17 +60,21 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     @Override
     public void getExportData(WeightAndVolumeCheckCondition condition, BufferedWriter bufferedWriter) {
        try {
+             long start = System.currentTimeMillis();
                // 报表头
                Map<String, String> headerMap = getTheHeaderMap();
                //设置最大导出数量
                Integer MaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+               Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+
                //设置单次导出数量
-               condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+               condition.setLimit(oneQuery);
                CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
                int queryTotal = 0;
                int index = 1;
-               while (index++ <= 100) {
-                   condition.setOffset((index - 1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+               while (index <= (MaxSize/oneQuery)+1) {
+                   condition.setOffset((index - 1) * oneQuery);
+                   index++;
                    PagerResult<ReviewWeightSpotCheck> result = listData(condition);
                    if(result==null || CollectionUtils.isEmpty(result.getRows())){
                        break;
@@ -86,6 +88,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                        break;
                    }
                }
+               long end = System.currentTimeMillis();
+               exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.REVIEW_WEIGHT_SPOT_CHECK_REPORT.getName(), end-start,queryTotal);
            }catch(Exception e){
                 log.error("分拣复重抽检任务统计表 export error",e);
            }

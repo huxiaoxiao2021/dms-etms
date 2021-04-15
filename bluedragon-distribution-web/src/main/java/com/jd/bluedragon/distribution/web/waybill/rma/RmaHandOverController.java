@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.waybill.rma;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
@@ -244,33 +245,15 @@ public class RmaHandOverController {
         return rmaResponse;
     }
 
-    @RequestMapping(value = "/checkConcurrencyLimit")
-    @ResponseBody
-    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public InvokeResult checkConcurrencyLimit(){
-        InvokeResult result = new InvokeResult();
-        try {
-            //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)){
-                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-                return result;
-            }
-        }catch (Exception e){
-            log.error("校验导出并发接口异常-RMA交接清单打印",e);
-            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-            return result;
-        }
-        return result;
-    }
-
     @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/toExport")
     @ResponseBody
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public void toExport(String idList, HttpServletResponse response) {
         try {
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.RMA_HAND_OVER_REPORT.getCode());
             this.doExport(idList, response);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.RMA_HAND_OVER_REPORT.getCode());
         } catch (Exception e) {
             log.error("toExport:异常", e);
         }

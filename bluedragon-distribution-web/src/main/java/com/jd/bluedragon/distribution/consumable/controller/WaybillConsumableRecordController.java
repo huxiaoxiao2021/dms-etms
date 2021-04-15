@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -228,11 +229,6 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	@JProfiler(jKey = "com.jd.bluedragon.distribution.consumable.controller.WaybillConsumableRecordController.exportByCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public @ResponseBody JdResponse<Boolean> exportByCondition(WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
-		//校验并发
-		if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)){
-			rest.toFail(InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-			return rest;
-		}
 
         if (StringUtils.isEmpty(condition.getStartTimeStr()) || StringUtils.isEmpty(condition.getEndTimeStr()) ) {
             rest.toFail("导出参数未指定时间范围！");
@@ -253,7 +249,11 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             return rest;
         }
 
+        long start = System.currentTimeMillis();
+  		exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getCode());
         List rows = waybillConsumableRecordService.exportInfoByWebCondition(condition);
+		exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getCode());
+
         for(Object data : rows){
 			WaybillConsumableExportDto dto = (WaybillConsumableExportDto)data;
         	dto.setReceiveTimeStr(DateHelper.formatDateTime(dto.getReceiveTime()));
@@ -264,6 +264,8 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                     WaybillConsumableExportCol.PROPERTYS,
                     WaybillConsumableExportCol.TITLES,
                     rows, ExportExcel.EXPORT_TYPE_EXCEL);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition),ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getName(), end-start,rows.size());
         }catch (Exception e){
             log.error("B网耗材明细导出失败：,导出条件：{}", JsonHelper.toJson(condition) , e);
             rest.toFail("导出失败，服务异常！");

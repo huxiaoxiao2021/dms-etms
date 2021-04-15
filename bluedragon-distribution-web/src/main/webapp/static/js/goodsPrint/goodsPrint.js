@@ -125,31 +125,26 @@ $(function () {
                     Jd.alert("无可导出内容");
                     return;
                 }
+                checkConcurrencyLimit({
+                    currentKey: exportReportEnum.GOODS_PRINT_REPORT,
+                    checkPassCallback: function (result) {
+                        // 提交表单
+                        var url = "/goodsPrint/toExport";
+                        var form = $("<form method='post'></form>"),
+                            input;
+                        form.attr({"action": url});
 
-                jQuery.ajax({
-                    type: "POST",
-                    url: "/goodsPrint/checkConcurrencyLimit",
-                    data: {},
-                    success: function(data){
-                        if(data.code == 200){
-                            // 提交表单
-                            var url = "/goodsPrint/toExport";
-                            var form = $("<form method='post'></form>"),
-                                input;
-                            form.attr({"action": url});
-
-                            input = $("<input type='hidden' class='search-param'>");
-                            input.attr({"name": "sendCode"});
-                            input.val(v_sendCode);
-                            form.append(input);
-                            form.appendTo(document.body);
-                            form.submit();
-                            document.body.removeChild(form[0]);
-                            return;
-                        }else {
-                            alert(data.message);
-                            return;
-                        }
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name": "sendCode"});
+                        input.val(v_sendCode);
+                        form.append(input);
+                        form.appendTo(document.body);
+                        form.submit();
+                        document.body.removeChild(form[0]);
+                    },
+                    checkFailCallback: function (result) {
+                        // 导出校验失败，弹出提示消息
+                        alert(result.message)
                     }
                 });
             });

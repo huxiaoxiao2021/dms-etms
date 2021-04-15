@@ -245,32 +245,28 @@ $(function () {
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            jQuery.ajax({
-                type: "POST",
-                url: "/inventoryException/checkConcurrencyLimit",
-                data: {},
-                success: function(data){
-                    if(data.code == 200){
-                        // 提交表单
-                        var params = tableInit.getSearchCondition();
-                        var form = $("<form method='post'></form>"),
-                            input;
-                        form.attr({"action": exportUrl});
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.INVENTORY_EXCEPTION_REPORT,
+                checkPassCallback: function (result) {
+                    // 提交表单
+                    var params = tableInit.getSearchCondition();
+                    var form = $("<form method='post'></form>"),
+                        input;
+                    form.attr({"action": exportUrl});
 
-                        $.each(params, function (key, value) {
-                            input = $("<input type='hidden' class='search-param'>");
-                            input.attr({"name": key});
-                            input.val(value);
-                            form.append(input);
-                        });
-                        form.appendTo(document.body);
-                        form.submit();
-                        document.body.removeChild(form[0]);
-                        return;
-                    }else {
-                        alert(data.message);
-                        return;
-                    }
+                    $.each(params, function (key, value) {
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name": key});
+                        input.val(value);
+                        form.append(input);
+                    });
+                    form.appendTo(document.body);
+                    form.submit();
+                    document.body.removeChild(form[0]);
+                },
+                checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
                 }
             });
         });

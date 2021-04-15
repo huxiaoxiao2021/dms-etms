@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.collect.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailExportDto;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -138,17 +140,22 @@ public class CollectGoodsDetailServiceImpl extends BaseService<CollectGoodsDetai
 	@Override
 	public void getExportData(CollectGoodsDetailCondition collectGoodsDetailCondition, BufferedWriter bufferedWriter) {
 		try {
+			long start = System.currentTimeMillis();
 			// 报表头
 			Map<String, String> headerMap = getHeaderMap();
 			//设置最大导出数量
 			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
 			//设置单次导出数量
-			collectGoodsDetailCondition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+			Integer oneQuery =  exportConcurrencyLimitService.getOneQuerySizeLimit();
+			//设置单次导出数量
+			collectGoodsDetailCondition.setLimit(oneQuery);
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 			int queryTotal = 0;
 			int index = 1;
-			while (index++ <= 100){
-				collectGoodsDetailCondition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+			while (index <= (MaxSize/oneQuery)+1){
+				collectGoodsDetailCondition.setOffset((index-1) * oneQuery);
+				index++;
+
 				PagerResult<CollectGoodsDetail> result = queryByPagerCondition(collectGoodsDetailCondition);
 				if(CollectionUtils.isEmpty(result.getRows())){
 					break;
@@ -162,6 +169,8 @@ public class CollectGoodsDetailServiceImpl extends BaseService<CollectGoodsDetai
 					break;
 				}
 			}
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(collectGoodsDetailCondition), ExportConcurrencyLimitEnum.COLLECT_GOODS_DETAIL_REPORT.getName(), end-start,queryTotal);
 		}catch (Exception e){
 			log.error("集货报表 export error",e);
 		}

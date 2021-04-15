@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -121,26 +122,6 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         return response;
     }
 
-    @RequestMapping(value = "/checkConcurrencyLimit")
-    @ResponseBody
-    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.ReviewWeightSpotCheckController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public InvokeResult checkConcurrencyLimit(){
-        InvokeResult result = new InvokeResult();
-        try {
-            //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)){
-                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-                return result;
-            }
-        }catch (Exception e){
-            log.error("校验导出并发接口异常-暂存记录统计表",e);
-            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-            return result;
-        }
-        return result;
-    }
-
     /**
      * 导出
      * @return
@@ -154,6 +135,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         BufferedWriter bfw = null;
         this.log.info("分拣复重抽查任务统计表");
         try{
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.REVIEW_WEIGHT_SPOT_CHECK_REPORT.getCode());
             String fileName = "分拣复重抽查任务统计表";
             //设置文件后缀
             String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -161,6 +143,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             reviewWeightSpotCheckService.getExportData(condition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.REVIEW_WEIGHT_SPOT_CHECK_REPORT.getCode());
         }catch (Exception e){
             this.log.error("导出分拣复重抽检任务统计表失败:", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

@@ -222,33 +222,31 @@ $(function() {
                     return;
                 }
 
-                jQuery.ajax({
-                    type: "POST",
-                    url: "/signReturn/checkConcurrencyLimit",
-                    data: {},
-                    success: function(data){
-                        if(data.code == 200){
-                            // 提交表单
-                            var newWaybillCode=$("#newWaybillCode").val();
-                            var waybillCode = $("#waybillCode").val();
-                            var url = "/signReturn/toExport";
-                            var form = $("<form method='post'></form>"),
-                                input1,input2;
-                            form.attr({"action": url});
+                checkConcurrencyLimit({
+                    currentKey: exportReportEnum.SIGN_RETURN_REPORT,
+                    checkPassCallback: function (result) {
+                        // 提交表单
+                        var newWaybillCode=$("#newWaybillCode").val();
+                        var waybillCode = $("#waybillCode").val();
+                        var url = "/signReturn/toExport";
+                        var form = $("<form method='post'></form>"),
+                            input1,input2;
+                        form.attr({"action": url});
 
-                            input1 = $("<input type='hidden' id='input1' class='search-param'>");
-                            input1.attr({"name": "newWaybillCode"});
-                            input1.val(newWaybillCode);
-                            input2 = $("<input type='hidden' id='input2' class='search-param'>");
-                            input2.attr({"name": "waybillCode"});
-                            input2.val(waybillCode);
-                            form.append(input1).append(input2);
-                            form.appendTo(document.body);
-                            form.submit();
-                            document.body.removeChild(form[0]);
-                        }else {
-                            alert(data.message);
-                        }
+                        input1 = $("<input type='hidden' id='input1' class='search-param'>");
+                        input1.attr({"name": "newWaybillCode"});
+                        input1.val(newWaybillCode);
+                        input2 = $("<input type='hidden' id='input2' class='search-param'>");
+                        input2.attr({"name": "waybillCode"});
+                        input2.val(waybillCode);
+                        form.append(input1).append(input2);
+                        form.appendTo(document.body);
+                        form.submit();
+                        document.body.removeChild(form[0]);
+                    },
+                    checkFailCallback: function (result) {
+                        // 导出校验失败，弹出提示消息
+                        alert(result.message)
                     }
                 });
 			});

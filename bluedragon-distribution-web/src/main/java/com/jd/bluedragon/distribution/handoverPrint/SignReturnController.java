@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.handoverPrint;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -117,26 +118,6 @@ public class SignReturnController extends DmsBaseController {
         return result;
     }
 
-    @RequestMapping(value = "/checkConcurrencyLimit")
-    @ResponseBody
-    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.handoverPrint.SignReturnController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public InvokeResult checkConcurrencyLimit(){
-        InvokeResult result = new InvokeResult();
-        try {
-            //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_TOOL_SIGNRETURN_R)){
-                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-                return result;
-            }
-        }catch (Exception e){
-            log.error("校验导出并发接口异常-暂存记录统计表",e);
-            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-            return result;
-        }
-        return result;
-    }
-
     /**
      * 导出
      * @return
@@ -147,8 +128,12 @@ public class SignReturnController extends DmsBaseController {
     public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
         log.debug("导出签单返回合单打印交接单");
         try{
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.SIGN_RETURN_REPORT.getCode());
+
             PagerResult<SignReturnPrintM> result = query(condition);
             signReturnService.toExport(result,response);
+
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.SIGN_RETURN_REPORT.getCode());
         }catch (Exception e){
             log.error("导出失败!",e);
         }

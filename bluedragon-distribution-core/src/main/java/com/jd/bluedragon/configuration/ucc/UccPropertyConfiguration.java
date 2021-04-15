@@ -270,11 +270,6 @@ public class UccPropertyConfiguration {
     private Integer exportConcurrencyLimitNum;
 
     /**
-     * 导出并发缓存key 有效时间 :秒
-     */
-    private Integer exportRedisKeyTimeOut;
-
-    /**
      * 单次查询数据库条数限制
      */
     private Integer oneQuerySize;
@@ -749,14 +744,6 @@ public class UccPropertyConfiguration {
 
     public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
         this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
-    }
-
-    public Integer getExportRedisKeyTimeOut() {
-        return exportRedisKeyTimeOut;
-    }
-
-    public void setExportRedisKeyTimeOut(Integer exportRedisKeyTimeOut) {
-        this.exportRedisKeyTimeOut = exportRedisKeyTimeOut;
     }
 
     public Integer getOneQuerySize() {

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.InventoryJsfManager;
@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -84,17 +85,20 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     @Override
     public void getExportData(InventoryTaskCondition condition, BufferedWriter bufferedWriter) {
         try {
+            long start = System.currentTimeMillis();
             // 报表头
             Map<String, String> headerMap = getHeaderMap();
             //设置最大导出数量
             Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
             //设置单次导出数量
-            condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+            condition.setLimit(oneQuery);
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
             int queryTotal = 0;
             int index = 1;
-            while (index++ <= 100) {
-                condition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+            while (index <= (MaxSize/oneQuery)+1) {
+                condition.setOffset((index-1) * oneQuery);
+                index++;
                 List<InventoryTask> list = inventoryTaskDao.getExportResultByCondition(condition);
                 if(CollectionUtils.isEmpty(list)){
                     break;
@@ -109,6 +113,8 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                     break;
                 }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.INVENTORY_TASK_REPORT.getName(), end-start,queryTotal);
         }catch (Exception e){
             log.error("转运清场任务信息表 export error",e);
         }

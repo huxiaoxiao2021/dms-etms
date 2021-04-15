@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -626,6 +627,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     public void export(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, BufferedWriter bufferedWriter) {
         try {
+            long start = System.currentTimeMillis();
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
@@ -636,8 +638,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
             //返回的数据
             List<AbnormalUnknownWaybillExportDto> body = new ArrayList<>();
+            int  queryTotal = 0;
             if (CollectionUtils.isNotEmpty(rows)) {
-                int  queryTotal = 0;
                 for (AbnormalUnknownWaybill abnormalUnknownWaybill : rows) {
                     //导出限制
                     if(queryTotal > exportConcurrencyLimitService.uccSpotCheckMaxSize()){
@@ -649,6 +651,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
             // 输出至excel
             CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, body);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(abnormalUnknownWaybillCondition),ExportConcurrencyLimitEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT.getName(),end-start,queryTotal);
         }catch (Exception e){
             log.error("三无托寄物核实结果分页获取导出数据失败",e);
         }

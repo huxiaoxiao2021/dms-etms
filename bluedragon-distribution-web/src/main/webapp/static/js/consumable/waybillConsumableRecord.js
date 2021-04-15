@@ -342,20 +342,29 @@ $(function() {
                     var confirmMessage = '确认按照当前条件进行数据导出吗？（单次最大支持导出50000条数据，如超过50000条，请缩短时间范围多次导出）';
 
                     $.msg.confirm(confirmMessage,function () {
-                        /*获取参数*/
-                        var queryParams = $.formHelper.serialize('query-form');
+                        checkConcurrencyLimit({
+                            currentKey: exportReportEnum.WAYBILL_CONSUMABLE_RECORD_REPORT,
+                            checkPassCallback: function (result) {
+                                /*获取参数*/
+                                var queryParams = $.formHelper.serialize('query-form');
 
-                        var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
-                        if(receiveUserErp != ""){
-                            exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
-                        }
-                        if(waybillCode != ""){
-                            exportUrl = exportUrl + '&waybillCode=' + waybillCode;
-                        }
-                        if(confirmStatus != null && confirmStatus != "2"){
-                            exportUrl = exportUrl + '&confirmStatus=' + confirmStatus;
-                        }
-                        window.open(exportUrl);
+                                var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
+                                if(receiveUserErp != ""){
+                                    exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
+                                }
+                                if(waybillCode != ""){
+                                    exportUrl = exportUrl + '&waybillCode=' + waybillCode;
+                                }
+                                if(confirmStatus != null && confirmStatus != "2"){
+                                    exportUrl = exportUrl + '&confirmStatus=' + confirmStatus;
+                                }
+                                window.open(exportUrl);
+                            },
+                            checkFailCallback: function (result) {
+                                // 导出校验失败，弹出提示消息
+                                alert(result.message)
+                            }
+                        });
                     });
                 }else{
                     $.msg.warn('导出查询条件有误','请您检查导出查询条件是否有误');

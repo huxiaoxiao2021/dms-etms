@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
@@ -13,7 +12,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -23,7 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author wuyoude
@@ -199,27 +195,6 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
         return rest;
     }
 
-    @RequestMapping(value = "/checkConcurrencyLimit")
-    @ResponseBody
-    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
-    @JProfiler(jKey = "com.jd.bluedragon.distribution.abnormal.controller.AbnormalUnknownWaybillController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    public InvokeResult checkConcurrencyLimit(){
-        InvokeResult result = new InvokeResult();
-        try {
-            //校验并发
-            if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)){
-                result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-                return result;
-            }
-        }catch (Exception e){
-            log.error("校验导出并发接口异常-暂存记录统计表",e);
-            result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-            return result;
-        }
-        return result;
-    }
-
-
     @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
     @JProfiler(jKey = "com.jd.bluedragon.distribution.web.AbnormalUnknownWaybillController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
@@ -241,6 +216,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
                 abnormalUnknownWaybillCondition.setWaybillCode(null);
             }
 
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT.getCode());
             String fileName = "三无托寄物核实结果";
             //设置文件后缀
             String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -248,6 +224,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             abnormalUnknownWaybillService.export(abnormalUnknownWaybillCondition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT.getCode());
         } catch (Exception e) {
             log.error("abnormal/abnormalUnknownWaybill--toExport:", e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

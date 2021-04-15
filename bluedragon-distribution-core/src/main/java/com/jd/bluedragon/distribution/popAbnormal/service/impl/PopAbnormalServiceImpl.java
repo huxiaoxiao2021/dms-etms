@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDao;
@@ -53,9 +54,6 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
 
-	/*@Autowired
-	private WaybillUpdateApi waybillUpdateApi;*/
-
 	@Autowired
 	private PopAbnormalDao popAbnormalDao;
 
@@ -69,7 +67,10 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	private PopPrintDao popPrintDao;
 	
 	@Autowired
-	private WaybillService waybillService; 
+	private WaybillService waybillService;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	@Override
 	public Map<String, Object> getBaseStaffByStaffId(Integer staffId) {
@@ -237,12 +238,15 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	@Override
 	public void export(Map<String, Object> paramMap, BufferedWriter bufferedWriter) {
 		try {
+			long start = System.currentTimeMillis();
 			// 写入表头
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 			List<PopAbnormal> data = this.findList(paramMap);
 			// 输出至csv文件中
 			CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(paramMap), ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getName(),end-start,data.size());
 		}catch (Exception e){
 			log.error("POP差异订单数据导出数据异常",e);
 		}

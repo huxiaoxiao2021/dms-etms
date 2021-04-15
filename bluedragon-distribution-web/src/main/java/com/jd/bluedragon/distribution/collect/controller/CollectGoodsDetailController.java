@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -153,26 +154,6 @@ public class CollectGoodsDetailController {
 		return rest;
 	}
 
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.collect.controller.CollectGoodsDetailController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_COLLECT_REPORT)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常-暂存记录统计表",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
 	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/toExport")
 	@ResponseBody
@@ -182,6 +163,9 @@ public class CollectGoodsDetailController {
 		BufferedWriter bfw = null;
 		log.info("导出集货报表");
 		try {
+			//导出操作+1
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.COLLECT_GOODS_DETAIL_REPORT.getCode());
+
 			String fileName = "集货报表";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -189,6 +173,9 @@ public class CollectGoodsDetailController {
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
 			collectGoodsDetailService.getExportData(collectGoodsDetailCondition,bfw);
+
+			//导出操作-1
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.COLLECT_GOODS_DETAIL_REPORT.getCode());
 		} catch (Exception e) {
 			log.error("导出 集货报表异常:", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

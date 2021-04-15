@@ -9,6 +9,7 @@
     <SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
+    <script type="application/javascript" src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
 </head>
 
 <script type="text/javascript">
@@ -102,21 +103,17 @@
 
         // 导出数据
         $("#exportData").click(function() {
-            //校验接口并发限制
-            jQuery.ajax({
-                type: "POST",
-                url: "#springUrl('/popReceiveAbnormal/checkConcurrencyLimit')",
-                data: {},
-                success: function(data){
-                    if(data.code == 200){
-                        // 提交表单-执行导出
-                        $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
-                        $("#selectPopList").attr("method", "POST");
-                        $("#selectPopList").submit();
-                        return true;
-                    }else {
-                        alert(data.message);
-                    }
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.POP_ABNORMAL_REPORT,
+                checkPassCallback: function (result) {
+                    // 提交表单-执行导出
+                    $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
+                    $("#selectPopList").attr("method", "POST");
+                    $("#selectPopList").submit();
+                },
+                checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
                 }
             });
             return false;

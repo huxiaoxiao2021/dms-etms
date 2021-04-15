@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -167,32 +168,6 @@ public class ReversePartDetailController {
 		return rest;
 	}
 
-
-	/**
-	 * 校验并发接口
-	 * @return
-	 */
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.reverse.part.controller.ReversePartDetailController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
-
 	/**
 	 * 导出
  	 * @param reversePartDetailCondition
@@ -204,6 +179,7 @@ public class ReversePartDetailController {
 	@JProfiler(jKey = "com.jd.bluedragon.distribution.reverse.part.controller.ReversePartDetailController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public ModelAndView toExport(ReversePartDetailCondition reversePartDetailCondition, Model model) {
 		try {
+
 			//超过5000条不允许导出
 			int count = reversePartDetailService.queryByParamCount(reversePartDetailCondition);
 
@@ -215,7 +191,9 @@ public class ReversePartDetailController {
 				resultList.add(errorResult);
 
 			}else{
+				exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.REVERSE_PART_DETAIL_REPORT.getCode());
 				resultList = reversePartDetailService.getExportData(reversePartDetailCondition);
+				exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.REVERSE_PART_DETAIL_REPORT.getCode());
 			}
 
 			model.addAttribute("filename", "半退发货明细.xls");

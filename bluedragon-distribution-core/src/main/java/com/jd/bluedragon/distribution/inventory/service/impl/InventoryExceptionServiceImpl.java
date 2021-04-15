@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -80,18 +81,21 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     @Override
     public void getExportData(InventoryExceptionCondition condition, BufferedWriter bufferedWriter) {
       try {
+          long start = System.currentTimeMillis();
           // 报表头
           Map<String, String> headerMap = getHeaderMap();
           //设置最大导出数量
           Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+          Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
           //设置单次导出数量
-          condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+          condition.setLimit(oneQuery);
           CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
           int queryTotal = 0;
           int index = 1;
-          while (index++ <= 100){
-              condition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+          while (index <= (MaxSize/oneQuery)+1){
+              condition.setOffset((index-1) * oneQuery);
+              index ++;
               List<InventoryException> list = inventoryExceptionDao.getExportResultByCondition(condition);
               if(CollectionUtils.isEmpty(list)){
                   break;
@@ -106,6 +110,8 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                   break;
               }
           }
+          long end = System.currentTimeMillis();
+          exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.INVENTORY_EXCEPTION_REPORT.getName(),end-start,queryTotal);
       }catch (Exception e){
           log.error("出转运清场异常统计表 export error",e);
       }

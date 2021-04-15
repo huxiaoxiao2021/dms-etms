@@ -143,7 +143,6 @@ $(function() {
 			});
 		    //导出
 		    $('#btn_export').click(function(){
-
                	//选择发货时间
                	var v_sendTimeGEStr = $("#sendTimeGEStr").val();
                	var v_sendTimeLEStr = $("#sendTimeLEStr").val();
@@ -152,33 +151,29 @@ $(function() {
                		return;
 				}
 
-				jQuery.ajax({
-					type: "POST",
-					url: "/goodsPrint/checkConcurrencyLimit",
-					data: {},
-					success: function(data){
-						//控制并发
-						if(data.code == 200){
-							var params = tableInit().getSearchCondition();
+				checkConcurrencyLimit({
+					currentKey: exportReportEnum.REVERSE_PART_DETAIL_REPORT,
+					checkPassCallback: function (result) {
+						// 提交表单
+						var params = tableInit().getSearchCondition();
+						var form = $("<form method='post'></form>"),
+							input;
+						form.attr({"action":exportUrl});
 
-							var form = $("<form method='post'></form>"),
-								input;
-							form.attr({"action":exportUrl});
+						$.each(params,function(key,value){
 
-							$.each(params,function(key,value){
-
-								input = $("<input type='hidden' class='search-param'>");
-								input.attr({"name":key});
-								input.val(value);
-								form.append(input);
-							});
-							form.appendTo(document.body);
-							form.submit();
-							document.body.removeChild(form[0]);
-
-						}else {
-							alert(data.message);
-						}
+							input = $("<input type='hidden' class='search-param'>");
+							input.attr({"name":key});
+							input.val(value);
+							form.append(input);
+						});
+						form.appendTo(document.body);
+						form.submit();
+						document.body.removeChild(form[0]);
+					},
+					checkFailCallback: function (result) {
+						// 导出校验失败，弹出提示消息
+						alert(result.message)
 					}
 				});
 			});

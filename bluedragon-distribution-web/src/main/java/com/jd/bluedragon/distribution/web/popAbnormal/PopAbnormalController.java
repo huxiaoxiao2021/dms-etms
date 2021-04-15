@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.popAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
@@ -26,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -253,27 +253,6 @@ public class PopAbnormalController {
 		}
 	}
 
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopAbnormalController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_PTORDER_DIFF_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
-
 	/**
 	 * 导出POP差异订单数据
 	 * 
@@ -301,6 +280,7 @@ public class PopAbnormalController {
 
 		BufferedWriter bfw = null;
 		try {
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getCode());
 			String fileName = "POP差异订单数据";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -314,6 +294,8 @@ public class PopAbnormalController {
 				paramMap.putAll(dmsUserMap);
 			}
 			popAbnormalService.export(paramMap,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getCode());
+
 		} catch (Exception e) {
 			log.error("根据条件查询POP差异订单处理集合异常：", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,Constants.DMS_WEB_PTORDER_DIFF_R+InvokeResult.RESULT_EXPORT_MESSAGE);

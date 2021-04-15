@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.crossbox.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
@@ -276,18 +277,22 @@ public class CrossBoxServiceImpl implements CrossBoxService {
     @Override
     public void export(CrossBoxRequest crossBoxRequest, BufferedWriter bufferedWriter) {
         try {
+            long start = System.currentTimeMillis();
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
             // 设置总导出数据
-            Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer maxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+
             // 设置单次查询数据库条数限制
-            crossBoxRequest.setPageSize(exportConcurrencyLimitService.getOneQuerySizeLimit());
+            crossBoxRequest.setPageSize(oneQuery);
             int queryTotal = 0;
             int index = 1;
-            while (index++ <= 100){
-                crossBoxRequest.setStartIndex((index-1) * crossBoxRequest.getPageSize());
+            while (index++ <= (maxSize/oneQuery)+1 ){
+                crossBoxRequest.setStartIndex((index-1) * oneQuery);
+                index++;
                 List<CrossBox> dataList = this.queryByConditionForExport(crossBoxRequest);
                 if (dataList == null) {
                     break;
@@ -298,10 +303,12 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, exportDtoList);
                 // 限制导出数量
                 queryTotal += exportDtoList.size();
-                if(queryTotal > uccSpotCheckMaxSize){
+                if(queryTotal > maxSize){
                     break;
                 }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(crossBoxRequest), ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getName(),end-start,queryTotal);
         }catch (Exception e){
             log.error("跨箱号中转维护导出结果异常",e);
         }

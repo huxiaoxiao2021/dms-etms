@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.storage.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -34,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedWriter;
@@ -299,26 +299,6 @@ public class StoragePackageMController {
 		return result;
 	}
 
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.storage.controller.StoragePackageMController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常-暂存记录统计表",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
     /**
      * 导出
      * @return
@@ -332,6 +312,8 @@ public class StoragePackageMController {
 		BufferedWriter bfw = null;
         this.log.info("暂存管理记录统计表...");
         try{
+        	exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.STORAGE_PACKAGE_M_REPORT.getCode());
+
 			String fileName = "暂存记录统计表";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -339,6 +321,7 @@ public class StoragePackageMController {
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
             storagePackageMService.getExportData(condition,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.STORAGE_PACKAGE_M_REPORT.getCode());
         }catch (Exception e){
             this.log.error("导出暂存记录统计表失败:", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

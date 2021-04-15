@@ -1,13 +1,15 @@
 package com.jd.bluedragon.distribution.goodsPrint.service;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.GoodsPrintEsManager;
 import com.jd.bluedragon.distribution.goodsPrint.service.domain.GoodsPrintExportDto;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
@@ -41,6 +43,9 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     private Cluster redisClientCache;
     @Autowired
     private GoodsPrintEsManager goodsPrintEsManager;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     private static final String BARCODE_SPLITER_QUERY = "\n";
     private static final String BARCODE_SPLITER_EXPORT = "\r\n";
@@ -96,12 +101,15 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     @JProfiler(jKey = "DMS.BASE.GoodsPrintServiceImpl.export", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public void export(GoodsPrintDto goodsPrintDto, BufferedWriter bufferedWriter) {
         try {
+            long start = System.currentTimeMillis();
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
             JdResponse<List<GoodsPrintDto>> jdResponse = query(goodsPrintDto);
 
             if (!jdResponse.isSucceed()){
+                long end = System.currentTimeMillis();
+                exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(goodsPrintDto), ExportConcurrencyLimitEnum.GOODS_PRINT_REPORT.getName(),end-start,0);
                 return;
             }
 
@@ -109,6 +117,8 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
 
             // 输出至excel
             CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(goodsPrintDto), ExportConcurrencyLimitEnum.GOODS_PRINT_REPORT.getName(),end-start,data.size());
         }catch (Exception e){
             log.error("跨箱号中转维护导出结果异常",e);
         }

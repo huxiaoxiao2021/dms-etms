@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.storage.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -1143,18 +1144,20 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     @Override
     public void getExportData(StoragePackageMCondition condition, BufferedWriter bufferedWriter) {
         try {
+            long start = System.currentTimeMillis();
             // 报表头
             Map<String, String> headerMap = getHeaderMap();
             //设置最大导出数量
             Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
             //设置单次导出数量
-            condition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+            condition.setLimit(oneQuery);
             CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
             int queryTotal = 0;
             int index = 1;
-            while (index++ <= 100){
-                condition.setOffset((index-1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+            while (index++ <= (MaxSize/oneQuery)+1){
+                condition.setOffset((index-1) * oneQuery);
                 List<StoragePackageM> list = storagePackageMDao.queryExportByCondition(condition);
                 if(CollectionUtils.isEmpty(list)){
                     break;
@@ -1169,6 +1172,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                     break;
                 }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.STORAGE_PACKAGE_M_REPORT.getName(), end-start,queryTotal);
         }catch (Exception e){
             log.error("暂存管理 export error",e);
         }

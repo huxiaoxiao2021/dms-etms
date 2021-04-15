@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.crossbox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
@@ -588,31 +589,6 @@ public class CrossBoxController {
 		return resData;
 	}
 
-	/**
-	 * 校验并发接口
-	 * @return
-	 */
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.crossbox.CrossBoxController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_SORTING_CROSSBOX_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
-
     @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/toExport")
 	@ResponseBody
@@ -632,6 +608,7 @@ public class CrossBoxController {
 				}
 			}
 
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getCode());
 			String fileName = "跨箱号中转维护导出结果";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -639,6 +616,7 @@ public class CrossBoxController {
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
 			crossBoxService.export(crossBoxRequest,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getCode());
 		} catch (Exception e) {
 				log.error("跨箱号中转维护导出结果 export error",e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
