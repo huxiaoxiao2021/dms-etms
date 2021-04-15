@@ -119,6 +119,10 @@ public class BoxRelation extends DbEntity implements Serializable {
 
     public BoxRelation() {}
 
+    public BoxRelation(String boxCode) {
+        this.boxCode = boxCode;
+    }
+
     public BoxRelation(String boxCode, Long createSiteCode) {
         this.boxCode = boxCode;
         this.createSiteCode = createSiteCode;

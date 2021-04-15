@@ -122,6 +122,7 @@ public class BoxResource {
             if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
                 //没超过5个站点，用这个选择模板打印
                 response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
+                response.setRouterFullId(routInfoRes.getData()[1].split("\\-\\-"));
                 //超过5个站点，打印系统直接用他打印
                 response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
             }

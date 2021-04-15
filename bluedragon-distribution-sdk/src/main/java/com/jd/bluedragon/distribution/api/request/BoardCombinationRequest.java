@@ -30,6 +30,7 @@ public class BoardCombinationRequest extends JdRequest {
      */
     private Integer flowDisaccord;
 
+    private Integer onlineStatus;
 
     public String getBoardCode() {
         return boardCode;
@@ -77,5 +78,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setFlowDisaccord(Integer flowDisaccord) {
         this.flowDisaccord = flowDisaccord;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 }

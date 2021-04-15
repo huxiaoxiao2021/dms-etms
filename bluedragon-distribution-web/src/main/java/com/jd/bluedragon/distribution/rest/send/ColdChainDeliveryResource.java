@@ -96,7 +96,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             user.setUserCode(pdaOperateRequest.getOperateUserCode());
             user.setUserName(pdaOperateRequest.getOperateUserName());
             request.setUser(user);
-            SortingJsfResponse sortingJsfResponse = sortingCheckService.coldChainSendCheck(request);
+            SortingJsfResponse sortingJsfResponse = sortingCheckService.coldChainSendCheckAndReportIntercept(request);
             log.info("ColdChainDeliveryResource.checkColdChainSendDelivery result {}", JsonHelper.toJson(sortingJsfResponse));
             return sortingJsfResponse;
         } catch (Exception e) {

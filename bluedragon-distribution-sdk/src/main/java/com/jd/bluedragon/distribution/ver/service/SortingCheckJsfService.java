@@ -1,13 +1,19 @@
 package com.jd.bluedragon.distribution.ver.service;
 
-import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 
-public interface SortingCheckService {
+/**
+ * 分拣验证服务
+ *
+ * @author fanggang7
+ * @copyright jd.com 京东物流JDL
+ * @time 2021-03-25 19:48:05 周四
+ */
+public interface SortingCheckJsfService {
 
     /**
      * 分拣校验
@@ -45,31 +51,7 @@ public interface SortingCheckService {
     BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest request);
 
     /*
-    * 切换开关
-    * */
+     * 切换开关
+     * */
     boolean isNeedCheck(String uccStr, Integer siteCode);
-
-    /**
-     * 冷链发货主校验
-     *
-     * @param request 单个请求参数
-     * @return 校验结果
-     */
-    SortingJsfResponse coldChainSendCheck(DeliveryRequest request);
-
-    /**
-     * 冷链发货主校验，并且有拦截是提交拦截信息
-     *
-     * @param request 单个请求参数
-     * @return 校验结果
-     */
-    SortingJsfResponse coldChainSendCheckAndReportIntercept(DeliveryRequest request);
-
-    /**
-     * 冷链发货主校验
-     * @param request 单个请求参数
-     * @param reportIntercept 是否记录拦截记录到报表
-     * @return 校验结果
-     */
-    SortingJsfResponse coldChainSendCheck(DeliveryRequest request, boolean reportIntercept);
 }

@@ -675,8 +675,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.getWJSendMDomains", false, true);
 
             List<BoxRelation> boxRelations = null;
-            BoxRelation boxRelationQ = new BoxRelation(BCSendM.getBoxCode(), Long.valueOf(BCSendM.getCreateSiteCode()));
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(boxRelationQ);
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BoxRelation>> sr = boxRelationService.getRelationsByBoxCode(BCSendM.getBoxCode());
             if (sr.codeSuccess() && CollectionUtils.isNotEmpty(sr.getData())) {
                 boxRelations =  sr.getData();
             }

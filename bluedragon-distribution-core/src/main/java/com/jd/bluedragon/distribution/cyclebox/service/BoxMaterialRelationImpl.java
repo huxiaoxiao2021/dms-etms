@@ -52,4 +52,9 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     public BoxMaterialRelation getDataByBoxCode(String boxCode){
         return boxMaterialRelationDao.getDataByBoxCode(boxCode);
     }
+
+    @Override
+    public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
+        return boxMaterialRelationDao.getDataByMaterialCode(materialCode);
+    }
 }
