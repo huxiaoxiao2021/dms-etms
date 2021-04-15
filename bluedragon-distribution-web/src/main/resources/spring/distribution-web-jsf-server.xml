@@ -4,13 +4,6 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
-    <!-- 发布给外部系统验证服务接口 -->
-    <jsf:provider id="dmsSortingCheckJsfService"
-                  interface="com.jd.bluedragon.distribution.ver.service.SortingCheckJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="sortingCheckJsfService" server="dmsjsf">
-    </jsf:provider>
-
     <!-- 发布给外部系统读接口 -->
     <jsf:provider id="jsfDmsExternalReadService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsExternalReadService"
