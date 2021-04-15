@@ -5,7 +5,9 @@ import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.domain.BoxRelationQ;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName BoxRelationDaoImpl
@@ -33,5 +35,12 @@ public class BoxRelationDaoImpl extends BaseDao<BoxRelation> implements BoxRelat
     @Override
     public int countByQuery(BoxRelationQ query) {
         return (Integer)sqlSession.selectOne(getNameSpace() + ".pageNum_queryByPagerCondition", query);
+    }
+
+    @Override
+    public List<BoxRelation> getByBoxCode(String boxCode) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("boxCode", boxCode);
+        return sqlSession.selectList(this.nameSpace + ".getByBoxCode", param);
     }
 }

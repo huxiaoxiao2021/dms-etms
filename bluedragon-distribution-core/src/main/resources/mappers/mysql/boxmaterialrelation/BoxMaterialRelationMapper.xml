@@ -92,4 +92,12 @@
         WHERE box_code = #{boxCode}
     </select>
 
+    <select id="getDataByMaterialCode" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from  box_material_relation
+        where material_code = #{materialCode} AND is_delete = 0 AND bind_flag = 1
+        order by id  desc
+        limit 1
+    </select>
 </mapper>

@@ -4,6 +4,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
+    <!-- 发布给外部系统验证服务接口 -->
+    <jsf:provider id="dmsSortingCheckJsfService"
+                  interface="com.jd.bluedragon.distribution.ver.service.SortingCheckJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="sortingCheckJsfService" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 发布给外部系统读接口 -->
     <jsf:provider id="jsfDmsExternalReadService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsExternalReadService"
@@ -282,6 +289,14 @@
                   interface="com.jd.bluedragon.distribution.notice.service.NoticeH5JsfService"
                   alias="${dms.jsf.alias}"
                   ref="noticeH5JsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 获取集包袋绑定箱号信息 -->
+    <jsf:provider id="dmsCycleBoxJsfService"
+                  interface="com.jd.bluedragon.distribution.cycleBox.service.CycleBoxJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="cycleBoxJsfService"
                   server="dmsjsf">
     </jsf:provider>
 
