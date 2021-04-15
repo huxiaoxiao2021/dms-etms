@@ -45,13 +45,13 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_BOX_CODE=304;
     public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，箱号不合法";
 
-    public static final int RESULT_EXPORT_CODE = 305;
+    public static final int RESULT_EXPORT_CODE = 308;
     public static final String RESULT_EXPORT_MESSAGE = "导出执行异常";
 
-    public static final int RESULT_EXPORT_LIMIT_CODE = 306;
+    public static final int RESULT_EXPORT_LIMIT_CODE = 309;
     public static final String RESULT_EXPORT_LIMIT_MESSAGE="导出调用繁忙,请稍后重试";
 
-    public static  final int RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE = 307;
+    public static  final int RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE = 310;
     public static final  String RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE= "校验导出并发接口异常";
 
     public InvokeResult(){
