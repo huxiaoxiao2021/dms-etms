@@ -361,7 +361,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
             //包裹维度商品信息展示 waybillsign 66=3 展示;否则不展示
             Map<String,String> packageNameMap = new HashMap<>();
-            boolean isPrintPackageNameOrNo = BusinessUtil.isKaPackageOrNo(tmsWaybill.getWaybillSign());
+            boolean isPrintPackageNameOrNo = BusinessUtil.needPrintPackageName(tmsWaybill.getWaybillSign());
             if(isPrintPackageNameOrNo){
                 packageNameMap = waybillQueryManager.doGetPackageGoodsVasInfo(waybillCode);
             }
