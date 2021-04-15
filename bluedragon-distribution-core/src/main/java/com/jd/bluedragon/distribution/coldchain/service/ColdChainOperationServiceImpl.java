@@ -388,11 +388,6 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
             response.setMessage("无效运单号或该运单下无包裹");
             return response;
         }
-        if(body==null||StringUtils.isEmpty(body.getWaybillNo())){
-            response.setCode(JdResponse.CODE_PARAM_ERROR);
-            response.setMessage("无效运单号或该运单下无包裹");
-            return response;
-        }
         //设置waybillSign
         BaseEntity<Waybill>waybillEntity= waybillQueryManager.getWaybillByWaybillCode(body.getWaybillNo());
         if(waybillEntity==null||waybillEntity.getData()==null){
@@ -417,7 +412,6 @@ public class ColdChainOperationServiceImpl implements ColdChainOperationService 
         body.setOperateUser(request.getOperateUser());
         body.setWaybillNo(waybillCode);
         body.setPackageNo(packageCode);
-        body.setWaybillNo(waybillCode);
         return body;
     }
 
