@@ -69,6 +69,8 @@ public class FilterContext {
      */
     private Site createSite;
 
+    private Integer onlineStatus;
+
     public String getBoxCode() {
         return boxCode;
     }
@@ -263,5 +265,13 @@ public class FilterContext {
 
     public void setCreateSite(Site createSite) {
         this.createSite = createSite;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 }

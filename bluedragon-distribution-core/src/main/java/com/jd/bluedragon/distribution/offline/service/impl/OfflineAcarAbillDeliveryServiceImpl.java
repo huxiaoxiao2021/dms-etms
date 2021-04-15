@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
+import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.offline.service.OfflineService;
@@ -49,6 +50,9 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     @Autowired
     private OperationLogService operationLogService;
 
+    @Autowired
+    private IOfflineTaskCheckBusinessInterceptService offlineTaskCheckBusinessInterceptService;
+
     /**
      * 一车一单离线发货操作备注
      */
@@ -67,15 +71,19 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                 //一车一单下的组板发货
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(toSendM(request)));
+                request.setBizSource(SendBizSourceEnum.OFFLINE_BOARD_SEND.getCode());
                 deliveryService.doBoardDelivery(task);
             } else {
                 //一车一单发货
                 if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(request.getTaskType())) {
+                    request.setBizSource(SendBizSourceEnum.OFFLINE_NEW_SEND.getCode());
                     deliveryService.offlinePackageSend(SendBizSourceEnum.OFFLINE_AR_NEW_SEND, toSendM(request));
                 } else {
                     deliveryService.offlinePackageSend(SendBizSourceEnum.OFFLINE_NEW_SEND, toSendM(request));
+                    request.setBizSource(SendBizSourceEnum.OFFLINE_NEW_SEND.getCode());
                 }
             }
+            this.sendOfflineSendBusinessInterceptTaskMq(request);
 
             OfflineLog offlineLog = requestToOffline(request, Constants.RESULT_SUCCESS);
             offlineLog.setMethodName("OfflineAcarAbillDeliveryServiceImpl#parseToTask");
@@ -88,6 +96,12 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
         return Constants.RESULT_FAIL;
     }
 
+    private void sendOfflineSendBusinessInterceptTaskMq(OfflineLogRequest offlineLogRequest){
+        log.info("OfflineAcarAbillDeliveryServiceImpl.sendOfflineSendBusinessInterceptTaskMq param {}", JsonHelper.toJson(offlineLogRequest));
+        offlineLogRequest.setTaskType(Task.TASK_TYPE_ACARABILL_SEND_DELIVERY);
+        offlineLogRequest.setBizSource(SendBizSourceEnum.OFFLINE_NEW_SEND.getCode());
+        offlineTaskCheckBusinessInterceptService.sendOfflineTaskMq(offlineLogRequest);
+    }
 
     /**
      * 设置目的站点

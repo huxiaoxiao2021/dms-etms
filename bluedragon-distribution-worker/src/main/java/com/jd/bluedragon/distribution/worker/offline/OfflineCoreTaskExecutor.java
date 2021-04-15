@@ -94,6 +94,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 			return result;
 		}
 		try {
+            log.info("OfflineCoreTaskExecutor.execute taskContext: {}", JSON.toJSONString(taskContext));
             JSONArray taskList = JSONObject.parseArray(body);
             Integer taskType = taskList.getJSONObject(0).getInteger("taskType");
             if(Task.TASK_TYPE_SEAL_OFFLINE.equals(taskType)){
@@ -106,8 +107,6 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
             }else{
                 result = offlineCore(body);
             }
-            // 离线任务处理发出mq
-            this.batchSendOfflineTask2Mq(taskContext);
 		} catch (Exception e) {
 			this.log.error("OfflineCoreTask execute--> 转换body异常body【{}】：",body, e);
 		}
@@ -115,11 +114,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 	}
 
 	private void batchSendOfflineTask2Mq(TaskContext<Task> taskContext){
-        String body = taskContext.getTask().getBody();
+        Task task = taskContext.getTask();
+        String body = task.getBody();
         JSONArray taskList = JSONObject.parseArray(body);
         // 发出离线任务mq，后续消费此消息进行后续处理
         try {
-            Task task = taskContext.getTask();
             String businessId = String.format("%s_%s_%s", task.getType(), task.getCreateSiteCode(), task.getReceiveSiteCode());
             List<Message> messageList = new ArrayList<>();
             for (Object taskItem : taskList) {
@@ -174,6 +173,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
         for (OfflineLogRequest offlineLogRequest : offlineLogRequests) {
             int resultCode = 0;
             try {
+                log.info("OfflineCoreTaskExecutor.offlineCore offlineLogRequest {}", JSON.toJSONString(offlineLogRequest));
                 if (Task.TASK_TYPE_RECEIVE.equals(offlineLogRequest.getTaskType())) {
                     // 分拣中心收货
                     resultCode = this.offlineReceiveService.parseToTask(offlineLogRequest);

@@ -342,7 +342,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         JdCResponse<Boolean> result = new JdCResponse<>();
         result.toSucceed();
         try {
-            SortingJsfResponse checkResult = sortingCheckService.coldChainSendCheck(request);
+            SortingJsfResponse checkResult = sortingCheckService.coldChainSendCheckAndReportIntercept(request);
             result.init(checkResult.getCode(), checkResult.getMessage());
         } catch (Exception e) {
             log.error("SendGatewayServiceImpl.checkColdChainSendDelivery exception {}", e.getMessage(), e);
