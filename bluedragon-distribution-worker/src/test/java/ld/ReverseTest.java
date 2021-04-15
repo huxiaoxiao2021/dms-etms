@@ -40,7 +40,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = "classpath:spring/distribution-worker-context.xml")
+@ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
 public class ReverseTest {
 
     @Autowired
@@ -94,13 +94,17 @@ public class ReverseTest {
         task.setCreateSiteCode(67492);
 
         try {
-            uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
-            List<Boolean> r = new ArrayList<>();
-            for(int i = 0 ; i< 10 ; i++){
-                r.add(asynBufferDemotionUtil.isDemotionOfSite(task));
-            }
+            int index = 0;
+            while (index++ <= 10){
+                uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
+                List<Boolean> r = new ArrayList<>();
+                for(int i = 0 ; i< 10 ; i++){
+                    r.add(asynBufferDemotionUtil.isDemotionOfSite(task));
+                }
 
-            System.out.println(JsonHelper.toJson(r));
+                System.out.println(JsonHelper.toJson(r));
+
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

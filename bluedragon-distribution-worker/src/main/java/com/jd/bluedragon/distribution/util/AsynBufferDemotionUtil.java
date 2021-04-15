@@ -73,7 +73,7 @@ public class AsynBufferDemotionUtil {
                 redisClient.zAdd(key,nowTime, UUID.randomUUID().toString());
 
                 //清理限流ZSET 清理5个窗口周期前的数据
-                redisClient.zRemRange(key,0,nowTime - (5 * windowTime));
+                redisClient.zRemRangeByScore(key,0,nowTime - (5 * windowTime));
             }
 
         }catch (Exception e){
