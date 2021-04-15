@@ -75,7 +75,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
      * @return 处理结果
      */
     @Override
-
+    @JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.handleOfflineTask", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Response<Boolean> handleOfflineTask(OfflineLogRequest offlineLogRequest) {
         log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask param: {}", JSON.toJSONString(offlineLogRequest));
         Response<Boolean> result = new Response<>();
@@ -89,7 +89,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
                 this.handleOfflineSorting(offlineLogRequest);
             }
             if (sendTaskTypeList.contains(taskType)) {
-                // 如果是发@JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.handleOfflineTask", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)货
+                // 如果是发货
                 this.handleOfflineSend(offlineLogRequest);
             }
         } catch (Exception e) {
