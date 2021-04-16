@@ -42,7 +42,7 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
 
     /**
      * 查询运单是否已经确认
-     * @param records
+     * @param waybillCode
      * @return
      */
     public Boolean isConfirmed(String waybillCode);
@@ -73,5 +73,12 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      * @return
      */
     public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition);
+
+    /**
+     * 查询运单待确认耗材
+     * @param waybillCode
+     * @return
+     */
+    public Boolean needConfirmed(String waybillCode);
 
 }
