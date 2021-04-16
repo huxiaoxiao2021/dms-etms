@@ -112,17 +112,6 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
 
         JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
-        Inspection inspectionQ=new Inspection();
-        inspectionQ.setWaybillCode(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()));
-        inspectionQ.setPackageBarcode(request.getBoxOrPackageCode());
-        inspectionQ.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        inspectionQ.setYn(Integer.valueOf(1));
-        //未操作验货不允许组板
-        if(inspectionDao.haveInspectionByPackageCode(inspectionQ)){
-            jdcResponse.toConfirm("此包裹未验货，不允许组板！");
-            return jdcResponse;
-        }
-
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
         BoardCheckDto boardCheckDto = new BoardCheckDto();
         boardCheckDto.setBoardCode(response.getData().getBoardCode());
