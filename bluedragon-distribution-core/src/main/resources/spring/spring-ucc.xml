@@ -97,6 +97,8 @@
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
+		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
+		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
 
 	</bean>
 
@@ -164,6 +166,8 @@
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
+				<value>uccPropertyConfiguration.printHandoverListSites</value>
+				<value>uccPropertyConfiguration.checkSiteSubType</value>
 			</list>
 		</property>
 	</bean>

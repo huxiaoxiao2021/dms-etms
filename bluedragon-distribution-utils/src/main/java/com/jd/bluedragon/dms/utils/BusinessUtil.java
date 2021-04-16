@@ -225,6 +225,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否奢侈品
+     * @param sendPay
+     * @return
+     */
+    public static boolean isLuxury(String sendPay) {
+        return isSignChar(sendPay, 19,'1');
+    }
+
+    /**
      * 根据waybillSign和sendSign判断是否城配运单
      *
      * @param waybillSign 36为1

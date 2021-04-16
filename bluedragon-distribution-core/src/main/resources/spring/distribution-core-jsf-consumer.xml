@@ -678,4 +678,17 @@
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 
+    <jsf:consumer id="printHandoverListJsfService"
+                  interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
+                  alias="${jsf.printHandoverList.alias}"
+                  timeout="${jsf.printHandoverList.timeout}">
+    </jsf:consumer>
+
+    <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
+                  alias="${jsf.flowService.alias}">
+        <jsf:parameter key="appKey" value="${flow.appkey}" hide="true"/>
+        <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
+    </jsf:consumer>
+
+
 </beans>

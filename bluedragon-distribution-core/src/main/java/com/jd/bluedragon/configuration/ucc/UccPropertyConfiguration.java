@@ -278,6 +278,19 @@ public class UccPropertyConfiguration {
      */
     private Integer pdaNoticePullIntervalTime;
 
+    /**
+     * 打印交接清单新查询开通场地
+     *  1)、字符串false代表不开启
+     *  2)、多个场地以,分隔
+     *  3)、字符串true代表全国
+     */
+    private String printHandoverListSites;
+
+    /**
+     * 校验站点子类型是否三方：16
+     */
+    private boolean checkSiteSubType;
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -756,5 +769,21 @@ public class UccPropertyConfiguration {
 
     public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
         this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
+    }
+
+    public String getPrintHandoverListSites() {
+        return printHandoverListSites;
+    }
+
+    public void setPrintHandoverListSites(String printHandoverListSites) {
+        this.printHandoverListSites = printHandoverListSites;
+    }
+
+    public boolean getCheckSiteSubType() {
+        return checkSiteSubType;
+    }
+
+    public void setCheckSiteSubType(boolean checkSiteSubType) {
+        this.checkSiteSubType = checkSiteSubType;
     }
 }
