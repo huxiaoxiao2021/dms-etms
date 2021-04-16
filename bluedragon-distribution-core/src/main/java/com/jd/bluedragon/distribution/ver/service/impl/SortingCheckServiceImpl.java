@@ -771,7 +771,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         pdaOperateRequest.setBusinessType(request.getBusinessType());
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
-        pdaOperateRequest.setOperateNode(OperateNodeConstants.SEND);
         if(request.getCurrentOperate() != null && request.getCurrentOperate().getOperateTime() != null){
             pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
         } else {

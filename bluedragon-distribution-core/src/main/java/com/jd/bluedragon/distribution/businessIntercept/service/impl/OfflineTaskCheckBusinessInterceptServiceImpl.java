@@ -25,7 +25,6 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.sdk.util.DateUtil;
-import com.jd.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -77,7 +76,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
     @Override
     @JProfiler(jKey = "DMSWEB.OfflineTaskCheckBusinessInterceptServiceImpl.handleOfflineTask", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Response<Boolean> handleOfflineTask(OfflineLogRequest offlineLogRequest) {
-        log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask param: {}", JSON.toJSONString(offlineLogRequest));
+        log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineTask param: {}", JsonHelper.toJson(offlineLogRequest));
         Response<Boolean> result = new Response<>();
         result.setData(true);
         result.toSucceed();
@@ -121,9 +120,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
             pdaOperateRequest.setOperateNode(operateNode);
             pdaOperateRequest.setIsLoss(0);
             // 走一遍校验链，得到拦截结果
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSorting pdaOperateRequest: {}", JSON.toJSONString(pdaOperateRequest));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSorting pdaOperateRequest: {}", JsonHelper.toJson(pdaOperateRequest));
             SortingJsfResponse checkResult = sortingCheckService.sortingCheckAndReportIntercept(pdaOperateRequest);
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSorting checkResult: {}", JSON.toJSONString(checkResult));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSorting checkResult: {}", JsonHelper.toJson(checkResult));
         } catch (Exception e) {
             log.error("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSorting sortingCheckAndReportIntercept throw exception {}", e.getMessage(), e);
         }
@@ -182,9 +181,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
             user.setUserName(offlineLogRequest.getUserName());
             deliveryRequest.setUser(user);
             // 走一遍校验链，得到拦截结果
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend deliveryRequest: {}", JSON.toJSONString(deliveryRequest));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend deliveryRequest: {}", JsonHelper.toJson(deliveryRequest));
             JdVerifyResponse<CheckBeforeSendResponse> checkResult = sendGatewayService.checkBeforeSend(deliveryRequest);
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend checkBeforeSend: {}", JSON.toJSONString(checkResult));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend checkBeforeSend: {}", JsonHelper.toJson(checkResult));
         } catch (Exception e) {
             log.error("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineOldSend singleSendCheckAndReportIntercept throw exception {}", e.getMessage(), e);
         }
@@ -223,9 +222,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
                 sortingCheck.setOperateType(1);
             }
             // 走一遍校验链，得到拦截结果
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSendNew sortingCheck: {}", JSON.toJSONString(sortingCheck));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSendNew sortingCheck: {}", JsonHelper.toJson(sortingCheck));
             SortingJsfResponse singleSendCheckResult = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSendNew singleSendCheckResult: {}", JSON.toJSONString(singleSendCheckResult));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSendNew singleSendCheckResult: {}", JsonHelper.toJson(singleSendCheckResult));
         } catch (Exception e) {
             log.error("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineSendNew singleSendCheckAndReportIntercept throw exception {}", e.getMessage(), e);
         }
@@ -242,9 +241,9 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
             // 走一遍发货校验，得到拦截结果
             BoardCombinationRequest boardCombinationRequest = new BoardCombinationRequest();
             // 走一遍校验链，得到拦截结果
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineBoardCombinationSend boardCombinationRequest: {}", JSON.toJSONString(boardCombinationRequest));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineBoardCombinationSend boardCombinationRequest: {}", JsonHelper.toJson(boardCombinationRequest));
             BoardCombinationJsfResponse boardCombinationCheckResult = sortingCheckService.boardCombinationCheckAndReportIntercept(boardCombinationRequest);
-            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineBoardCombinationSend boardCombinationCheckResult: {}", JSON.toJSONString(boardCombinationCheckResult));
+            log.info("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineBoardCombinationSend boardCombinationCheckResult: {}", JsonHelper.toJson(boardCombinationCheckResult));
         } catch (Exception e) {
             log.error("OfflineTaskCheckBusinessInterceptServiceImpl handleOfflineBoardCombinationSend boardCombinationCheckAndReportIntercept throw exception {}", e.getMessage(), e);
         }
@@ -288,7 +287,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
             for (OfflineLogRequest offlineLogRequest : offlineLogRequests) {
                 Message message = new Message();
                 message.setBusinessId(offlineLogRequest.getPackageCode());
-                message.setText(JSON.toJSONString(offlineLogRequest));
+                message.setText(JsonHelper.toJson(offlineLogRequest));
                 log.info("batchSendOfflineTask2Mq text: {}", message.getText());
                 message.setTopic(dmsBusinessOperateOfflineTaskSendProducer.getTopic());
                 messageList.add(message);
@@ -323,7 +322,7 @@ public class OfflineTaskCheckBusinessInterceptServiceImpl implements IOfflineTas
                 }
                 Message message = new Message();
                 message.setBusinessId(offlineLogRequest.getPackageCode());
-                message.setText(JSON.toJSONString(offlineLogRequest));
+                message.setText(JsonHelper.toJson(offlineLogRequest));
                 log.info("batchSendOfflineTask2Mq text: {}", message.getText());
                 message.setTopic(dmsBusinessOperateOfflineTaskSendProducer.getTopic());
                 messageList.add(message);
