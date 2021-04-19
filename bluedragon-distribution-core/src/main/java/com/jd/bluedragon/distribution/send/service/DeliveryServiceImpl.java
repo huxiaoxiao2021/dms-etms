@@ -952,7 +952,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         SortingJsfResponse response = null;
         try {
             if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
-                response = sortingCheckService.singleSendCheck(sortingCheck);
+                response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
             } else {
                 response = jsfSortingResourceService.check(sortingCheck);
             }
