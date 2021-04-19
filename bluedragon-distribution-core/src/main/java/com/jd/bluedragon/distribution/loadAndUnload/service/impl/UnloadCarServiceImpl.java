@@ -666,6 +666,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
+
+            //返回组板 单/件数量
+            if(StringUtils.isNotBlank(request.getBoardCode())) {
+                String countStr = jimdbCacheService.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(request.getBoardCode()));
+                if(StringUtils.isNotEmpty(countStr)){
+                    Integer boxCount = Integer.valueOf(countStr);
+                    UnloadScanDetailDto resData = dtoInvokeResult.getData();
+                    if(resData == null) {
+                        resData = new UnloadScanDetailDto();
+                        resData.setBoardBoxCount(boxCount);
+                        dtoInvokeResult.setData(resData);
+                    }
+                    resData.setBoardBoxCount(boxCount);
+                    logger.info("test-----log----包裹号{}对应板号{}已经组板件数为{}， 板最大组板数{}",
+                            request.getBarCode(), request.getBoardCode(), boxCount, unloadBoardBindingsMaxCount);
+                }
+            }
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
