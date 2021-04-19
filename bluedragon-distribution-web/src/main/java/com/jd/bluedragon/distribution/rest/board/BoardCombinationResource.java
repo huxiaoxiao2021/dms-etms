@@ -170,6 +170,7 @@ public class BoardCombinationResource {
         log.info("验货组装参数={},验货校验结果={}",JSON.toJSONString(inspectionQ),flag);
         //未操作验货不允许组板
         if(!flag){
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, errStr);
             result.toFail("此包裹未验货，不允许组板！");
             return result;
         }
