@@ -1406,7 +1406,7 @@
 		<dependency>
 			<groupId>com.jd.wl</groupId>
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.7-pda-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.kafka</groupId>

@@ -546,7 +546,11 @@
                   alias="${jsf.business.dmsClientJsfService.alias}" timeout="${jsf.business.dmsClientJsfService.timeout}"  retries="${jsf.retries}">
     </jsf:consumer>
 
-    <jsf:consumer id="iAbnPdaAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.IAbnPdaAPI" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
+    <jsf:consumer id="iAbnExceptionReasonAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ExceptionReasonService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>
+
+    <jsf:consumer id="iAbnReportAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ReportService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
 
