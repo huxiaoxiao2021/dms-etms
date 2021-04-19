@@ -15,6 +15,15 @@ public class Product {
 	private Integer quantity;
 	private BigDecimal price;
 	private long skuId;
+	private long profitChannelId;
+
+	public long getProfitChannelId() {
+		return this.profitChannelId;
+	}
+
+	public void setProfitChannelId(long profitChannelId) {
+		this.profitChannelId = profitChannelId;
+	}
 
 	public String getProductId() {
 		return this.productId;

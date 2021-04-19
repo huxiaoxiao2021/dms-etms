@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.order.domain.InternationOrderDto;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.ioms.jsf.export.domain.Order;
@@ -31,11 +32,11 @@ public class ReverseReceiveNotifyStockServiceTest {
 //                Integer payType
 
 
-        Order order = new Order();
+        InternationOrderDto order = new InternationOrderDto();
         order.setDeliveryCenterID(3);//DcId 源配送中心Id	3;上海(3)
         order.setStoreId(49);//Sid 仓ID	49;49号仓(49)
         order.setIdCompanyBranch(3);//DcId 源配送中心Id	3;上海(3)
-        order.setTotalFee(new BigDecimal(3333));
+      /*  order.setTotalFee(new BigDecimal(3333));*/
         order.setIdCompanyBranchName("上海(3)");
         List<Product> products = Lists.newArrayList();
         Product product = new Product();

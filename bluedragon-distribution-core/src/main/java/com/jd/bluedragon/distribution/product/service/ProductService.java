@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.product.service;
 
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.distribution.order.domain.InternationDetailOrderDto;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -83,10 +84,44 @@ public class ProductService {
 			
 			products.add(product);
 		}
-		
 		return products;
 	}
-	
+
+
+	//获取国际化订单信息
+	public List<Product> getInternationProducts(Long orderId){
+		List<InternationDetailOrderDto> orderDetails = this.orderWebService.getInternationDetailById(orderId);
+		List<Product> products = new ArrayList<Product>();
+
+		if (orderDetails == null || orderDetails.isEmpty()) {
+			orderDetails = this.getInternationOrderDetailByWaybillMiddleware(orderId);
+		}
+
+		if (orderDetails == null || orderDetails.isEmpty()) {
+			orderDetails = this.getInternationHistoryOrderDetailByOrderMiddleware(orderId);
+		}
+
+		for (InternationDetailOrderDto orderDetail : orderDetails) {
+			Product product = new Product();
+			product.setName(StringHelper.getStringValue(orderDetail.getName()));
+			product.setQuantity(orderDetail.getNum());
+			product.setProductId(String.valueOf(orderDetail.getProductId()));
+			product.setPrice(orderDetail.getPrice());
+			if(orderDetail.getProfitChannelId()!=null){
+				product.setProfitChannelId(orderDetail.getProfitChannelId());
+			}
+			if(orderDetail.getSkuId() != null){
+				product.setSkuId(orderDetail.getSkuId());
+			}
+			this.log.info("订单号：{}, 商品详情：{}" ,orderId, product.toString());
+
+			products.add(product);
+		}
+		return products;
+	}
+
+
+
 	private List<com.jd.ioms.jsf.export.domain.OrderDetail> getOrderDetailByWaybillMiddleware(Long orderId) {
 		List<com.jd.ioms.jsf.export.domain.OrderDetail> orderDetails = new ArrayList<com.jd.ioms.jsf.export.domain.OrderDetail>();
 		
@@ -109,7 +144,28 @@ public class ProductService {
 		
 		return orderDetails;
 	}
-	
+
+	private List<InternationDetailOrderDto> getInternationOrderDetailByWaybillMiddleware(Long orderId) {
+		List<InternationDetailOrderDto> orderDetails = new ArrayList<InternationDetailOrderDto>();
+		BigWaybillDto waybillDto = this.waybillService.getWaybillProduct(String.valueOf(orderId));
+
+		if (waybillDto.getGoodsList() != null) {
+			for (Goods goods : waybillDto.getGoodsList()) {
+				InternationDetailOrderDto orderDetail = new InternationDetailOrderDto();
+				orderDetail.setName(goods.getGoodName());
+				orderDetail.setProductId(new Long(goods.getSku()));
+				orderDetail.setNum(goods.getGoodCount());
+				orderDetail.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+
+				//这里加一个sku的赋值 不确定是不是goods.getSKU
+//				orderDetail.setSkuId(goods.getSku());
+				orderDetail.setSkuId(new Long(goods.getVirtualSku()));
+				orderDetails.add(orderDetail);
+			}
+		}
+		return orderDetails;
+	}
+
 	private List<com.jd.ioms.jsf.export.domain.OrderDetail> getHistoryOrderDetailByOrderMiddleware(Long orderId) {
 		List<com.jd.ioms.jsf.export.domain.OrderDetail> orderDetails = new ArrayList<com.jd.ioms.jsf.export.domain.OrderDetail>();
 		List<jd.oom.client.orderfile.OrderDetail> orderFileOrderDetails = this.orderWebService
@@ -128,7 +184,27 @@ public class ProductService {
 		
 		return orderDetails;
 	}
-	
+
+	private List<InternationDetailOrderDto> getInternationHistoryOrderDetailByOrderMiddleware(Long orderId) {
+		List<InternationDetailOrderDto> orderDetails = new ArrayList<InternationDetailOrderDto>();
+		List<jd.oom.client.orderfile.OrderDetail> orderFileOrderDetails = this.orderWebService
+				.getHistoryOrderDetailById(orderId.intValue());
+
+		if (orderFileOrderDetails != null) {
+			for (jd.oom.client.orderfile.OrderDetail orderFileOrderDetail : orderFileOrderDetails) {
+				InternationDetailOrderDto orderDetail = new InternationDetailOrderDto();
+				orderDetail.setName(orderFileOrderDetail.getName());
+				orderDetail.setProductId(orderFileOrderDetail.getProductId());
+				orderDetail.setNum(orderFileOrderDetail.getNum());
+				orderDetail.setPrice(orderFileOrderDetail.getPrice());
+
+				orderDetails.add(orderDetail);
+			}
+		}
+		return orderDetails;
+	}
+
+
 	public List<Product> getPickwareProductds(String code) {
 		BaseEntity<PickupTask> pickware = this.waybillPickupTaskApi.getDataBySfCode(code);
 		if (pickware == null || pickware.getData() == null) {
