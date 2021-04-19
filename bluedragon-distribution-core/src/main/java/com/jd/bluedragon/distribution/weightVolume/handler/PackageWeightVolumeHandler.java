@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -13,6 +14,8 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -20,6 +23,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -31,6 +35,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -61,6 +66,37 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Override
+    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
+                                                Waybill waybill,InvokeResult<Boolean> result) {
+        packageWeightBasicCheck(condition,result);
+        if(!result.codeSuccess()){
+            return;
+        }
+        if(BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            checkCInternetRule(condition,weightVolumeRuleConstant,result);
+            return;
+        }
+        checkBInternetRule(condition,weightVolumeRuleConstant,waybill,result);
+    }
+
+    private void packageWeightBasicCheck(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
+        if(!Objects.equals(condition.getCheckLWH(),true)){
+           return;
+        }
+        if(condition.getLength() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
+            return;
+        }
+        if(condition.getWidth() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
+            return;
+        }
+        if(condition.getHeight() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
+        }
+    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

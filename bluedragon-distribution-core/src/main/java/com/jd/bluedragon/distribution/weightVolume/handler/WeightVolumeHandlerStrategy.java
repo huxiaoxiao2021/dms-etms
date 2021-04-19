@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 
 /**
  * <p>
@@ -92,4 +94,27 @@ public class WeightVolumeHandlerStrategy {
         throw new RuntimeException(MessageFormat.format("获取该单号的称重量方处理器失败：{0}",JsonHelper.toJson(entity)));
     }
 
+    public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if(condition == null){
+            result.parameterError("查询条件不能为空!");
+            return result;
+        }
+        // 操作类型
+        String businessType = condition.getBusinessType();
+        /* 1. 按包裹称重 */
+        if (Objects.equals(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name(),businessType)) {
+            return packageWeightVolumeHandler.weightVolumeRuleCheck(condition);
+        }
+        /* 2. 按运单称重  */
+        if (Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(),businessType)) {
+            return waybillWeightVolumeHandler.weightVolumeRuleCheck(condition);
+        }
+        /* 3. 按箱称重业务 */
+        if (Objects.equals(WeightVolumeBusinessTypeEnum.BY_BOX.name(),businessType)) {
+            return boxWeightVolumeHandler.weightVolumeRuleCheck(condition);
+        }
+        result.parameterError("未知场景不予处理!");
+        return result;
+    }
 }

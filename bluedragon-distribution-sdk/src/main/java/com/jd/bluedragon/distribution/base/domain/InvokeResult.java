@@ -45,6 +45,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_BOX_CODE=304;
     public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，箱号不合法";
 
+    public static final Integer CODE_CONFIRM = 30001;
+    public static final Integer CODE_HINT = 30002;
+
     public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
     public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
 
@@ -146,6 +149,24 @@ public class InvokeResult<T> implements Serializable {
     public void customMessage(int code,String message){
         this.code=code;
         this.message=message;
+    }
+
+    /**
+     * 设置确认自定义消息
+     * @param message   消息内容
+     */
+    public void confirmMessage(String message){
+        this.code = CODE_CONFIRM;
+        this.message = message;
+    }
+
+    /**
+     * 设置确认自定义消息
+     * @param message   消息内容
+     */
+    public void hintMessage(String message){
+        this.code = CODE_HINT;
+        this.message = message;
     }
 
     /**

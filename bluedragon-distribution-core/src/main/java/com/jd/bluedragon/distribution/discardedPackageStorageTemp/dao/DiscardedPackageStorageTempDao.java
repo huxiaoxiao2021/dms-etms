@@ -89,8 +89,8 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2021-03-31 11:32:59 周三
      */
-    public int updateByPrimaryKey(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
-        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateByPrimaryKey", discardedPackageStorageTemp);
+    public int updateByWaybillCode(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateByWaybillCode", discardedPackageStorageTemp);
     }
 
     /**

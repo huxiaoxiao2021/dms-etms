@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.arAbnormal;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 
 import java.util.List;
@@ -36,8 +35,4 @@ public interface ArAbnormalService {
      * @return
      */
     public List<ArContrabandReason> getArContrabandReasonListNew(Integer transpondType);
-
-    public String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto);
-
-    public BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode);
 }

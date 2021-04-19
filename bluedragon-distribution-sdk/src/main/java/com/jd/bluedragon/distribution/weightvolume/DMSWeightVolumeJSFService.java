@@ -23,4 +23,11 @@ public interface DMSWeightVolumeJSFService {
      */
     InvokeResult<Boolean> dealAsyncWeightVolume(WeightVolumeJSFEntity entity);
 
+    /**
+     * 校验并处理称重量方
+     * @param entity
+     * @return
+     */
+    InvokeResult<Boolean> checkAndDealWeightVolume(WeightVolumeJSFEntity entity);
+
 }

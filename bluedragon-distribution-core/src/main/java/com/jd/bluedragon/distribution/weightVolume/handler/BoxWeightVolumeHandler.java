@@ -1,14 +1,18 @@
 package com.jd.bluedragon.distribution.weightVolume.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BoxOperateApiManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -25,10 +29,10 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.zhongyouex.order.api.dto.BoxDetailInfoDto;
-import com.zhongyouex.order.api.dto.BoxDetailResultDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -80,6 +84,24 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Override
+    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
+                                                Waybill waybill,InvokeResult<Boolean> result) {
+        boxWeightBasicCheck(condition,result);
+        if(!result.codeSuccess()){
+            return;
+        }
+        // 箱号称重默认使用C网称重校验逻辑
+        checkCInternetRule(condition,weightVolumeRuleConstant,result);
+    }
+
+    private void boxWeightBasicCheck(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
+        if(condition.getVolume() <= Constants.DOUBLE_ZERO
+                && condition.getHeight() * condition.getHeight() * condition.getHeight() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_7);
+        }
+    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

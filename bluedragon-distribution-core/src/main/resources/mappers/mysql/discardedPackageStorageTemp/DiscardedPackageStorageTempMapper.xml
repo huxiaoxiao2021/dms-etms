@@ -259,7 +259,7 @@
         </foreach>
     </insert>
     <!-- 更新 -->
-    <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+    <update id="updateByWaybillCode" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
         UPDATE `discarded_package_storage_temp`
         <set>
             <if test="status != null ">

@@ -290,6 +290,19 @@ public class UccPropertyConfiguration {
      */
     private String offlineTaskReportInterceptSites;
 
+    /**
+     * 称重良方规则标准
+     */
+    private String weightVolumeRuleStandard;
+
+    public String getWeightVolumeRuleStandard() {
+        return weightVolumeRuleStandard;
+    }
+
+    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
+        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
+    }
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }

@@ -3,10 +3,14 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -16,6 +20,8 @@ import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * <p>
@@ -37,6 +43,26 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private DmsWeightFlowService dmsWeightFlowService;
+
+    @Override
+    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
+                                                Waybill waybill,InvokeResult<Boolean> result) {
+        waybillWeightBasicCheck(condition,result);
+        if(!result.codeSuccess()){
+            return;
+        }
+        if(BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            checkCInternetRule(condition,weightVolumeRuleConstant,result);
+            return;
+        }
+        checkBInternetRule(condition,weightVolumeRuleConstant,waybill,result);
+    }
+
+    private void waybillWeightBasicCheck(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
+        if(Objects.equals(condition.getCheckVolume(),true) && condition.getVolume() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_5);
+        }
+    }
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

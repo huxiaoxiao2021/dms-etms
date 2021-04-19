@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 
 /**
  * <p>
@@ -27,5 +29,20 @@ public interface DMSWeightVolumeService {
      * @return
      */
     InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity);
+
+    /**
+     * 称重量方规则校验
+     * @param condition
+     * @return
+     */
+    InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition);
+
+    /**
+     * 重量体积长宽高超额处理
+     *  返回备注字段：记录原始记录
+     * @param condition
+     * @return
+     */
+    String weightVolumeExcessDeal(WeightVolumeCondition condition);
 
 }

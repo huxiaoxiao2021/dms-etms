@@ -91,7 +91,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         if (abnormalReasonDtoMap == null || abnormalReasonDtoMap.size() == 0) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage("没有查询到异常原因数据。请联质控系统接口人配置异常上报权限");
+            jdCResponse.setMessage("没有查询到质控系统异常原因数据");
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);

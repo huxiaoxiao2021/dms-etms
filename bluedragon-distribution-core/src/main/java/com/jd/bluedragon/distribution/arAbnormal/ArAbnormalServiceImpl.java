@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.arAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -27,13 +26,14 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
-import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -70,9 +70,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     @Autowired
     private SendDatailDao sendDatailDao;
-
-    @Autowired
-    private EclpItemManager eclpItemManager;
 
     @Autowired
     @Qualifier("arTransportModeChangeProducer")
@@ -502,8 +499,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         return BusinessUtil.isArTransportMode(waybillSign);
     }
 
-    @Override
-    public BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
+    private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
         choice.setQueryGoodList(true);
@@ -567,111 +563,13 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         dto.setBusiId(waybill.getBusiId());
         // 商家名称
         dto.setBusiName(waybill.getBusiName());
-        dto.setConsignmentName(this.getConsignmentNameByWaybillDto(bigWaybillDto));
+        dto.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
         List<Message> messageList = new ArrayList<>(packageCodeList.size());
         for (String packageCode : packageCodeList) {
             dto.setPackageCode(packageCode);
             messageList.add(new Message(arTransportModeChangeProducer.getTopic(), JsonHelper.toJson(dto), packageCode));
         }
         return messageList;
-    }
-
-    /**
-     * 根据运单信息获取托寄物名称
-     *
-     * @param bigWaybillDto
-     * @return
-     */
-    @Override
-    public String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto) {
-        // 1.查询运单商品信息
-        String name = this.getConsignmentNameFromGoods(bigWaybillDto.getGoodsList());
-        if (name != null) {
-            return name;
-        }
-        // 2.查询ECLP全程跟踪
-        name = this.getConsignmentNameFromECLP(bigWaybillDto.getWaybill().getBusiOrderCode());
-        if (name != null) {
-            return name;
-        }
-        // 3.查询运单托寄物信息
-        name = this.getConsignmentNameFromWaybillExt(bigWaybillDto.getWaybill().getWaybillExt());
-        if (name != null) {
-            return name;
-        }
-        return null;
-    }
-
-    /**
-     * 查询运单商品信息
-     *
-     * @param goods
-     * @return
-     */
-    private String getConsignmentNameFromGoods(List<Goods> goods) {
-        if (goods != null && goods.size() > 0) {
-            StringBuilder name = new StringBuilder();
-            for (int i = 0; i < goods.size(); i++) {
-                //明细内容： 商品编码SKU：商品名称*数量
-                name.append(goods.get(i).getSku());
-                name.append(":");
-                name.append(goods.get(i).getGoodName());
-                name.append(" * ");
-                name.append(goods.get(i).getGoodCount());
-                if (i != goods.size() - 1) {
-                    //除了最后一个，其他拼完加个,
-                    name.append(",");
-                }
-            }
-            return name.toString();
-        }
-        return null;
-    }
-
-    /***
-     * 调用ECLP获取商品信息
-     *
-     * @param busiOrderCode
-     * @return
-     */
-    private String getConsignmentNameFromECLP(String busiOrderCode) {
-        //第二步 查eclp
-        //如果运单上没有明细 就判断是不是eclp订单 如果是，调用eclp接口
-        if (WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)) {
-            StringBuilder name = new StringBuilder();
-            List<ItemInfo> itemInfoList = eclpItemManager.getltemBySoNo(busiOrderCode);
-            if (itemInfoList != null && itemInfoList.size() > 0) {
-                for (int i = 0; i < itemInfoList.size(); i++) {
-                    //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty  eclp负责人宫体雷
-                    name.append(itemInfoList.get(i).getGoodsName());
-                    name.append(" * ");
-                    name.append(itemInfoList.get(i).getDeptRealOutQty() == null ? itemInfoList.get(i).getRealOutstoreQty() : itemInfoList.get(i).getDeptRealOutQty());
-                    if (i != itemInfoList.size() - 1) {
-                        //除了最后一个，其他拼完加个,
-                        name.append(",");
-                    }
-                }
-                return name.toString();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 查询运单托寄物信息
-     *
-     * @param waybillExt
-     * @return
-     */
-    private String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
-        //第三步 查运单的托寄物
-        if (waybillExt != null && StringUtils.isNotEmpty(waybillExt.getConsignWare())) {
-            StringBuilder name = new StringBuilder();
-            name.append(waybillExt.getConsignWare());
-            name.append(waybillExt.getConsignCount() == null ? "" : " * " + waybillExt.getConsignCount());
-            return name.toString();
-        }
-        return null;
     }
 
     /**
