@@ -55,4 +55,7 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
         return this.getSqlSession().selectOne(NAMESPACE + ".getDataByBean", parameter);
     }
 
+    public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".getDataByMaterialCode", materialCode);
+    }
 }

@@ -1017,6 +1017,11 @@ public class Constants {
      */
     public static final String WAYBILLTRACE_FINISHED = "150";
 
+    /**
+     * 运单状态  弃件
+     */
+    public static final String WAYBILLTRACE_WASTE = "620";
+
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
 

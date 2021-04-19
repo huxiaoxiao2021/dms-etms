@@ -1915,8 +1915,29 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isKaPackageOrNo(String waybillSign){
-        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
-                WaybillSignConstants.CHAR_66_3);
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ;
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 或者2 包裹标签需要打印商品名称信息。
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needPrintPackageName(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ||
+                BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_2);
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否必须称重量方,waybillSign66位=3 必须称重量方
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needWeighingSquare(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3);
+        return isSignChars;
     }
 
     /**
@@ -1954,4 +1975,12 @@ public class BusinessUtil {
     }
 
 
+    /**
+     * 非B2B运单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isNotB2B(String sendPay) {
+        return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
+    }
 }

@@ -1,5 +1,12 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Created by xumei3 on 2017/12/15.
  */
@@ -255,6 +262,15 @@ public class UccPropertyConfiguration {
     private boolean checkBoxSendedSwitchOn;
 
     /**
+     * BC箱号强制绑定循环集包袋开关(黑名单)
+     * 配置的走新的逻辑，不配置的走以前的逻辑
+     * 注: 仅为了上线使用
+     * @return
+     */
+    private String allBCBoxFilterWebSite;
+
+
+    /**
      * 站点查询数量最大限制
      */
     private Integer siteQueryLimit;
@@ -268,6 +284,11 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
+
+    /**
+     * 离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
+     */
+    private String offlineTaskReportInterceptSites;
 
     /**
      * 称重良方规则标准
@@ -730,6 +751,14 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
+    public String getAllBCBoxFilterWebSite() {
+        return allBCBoxFilterWebSite;
+    }
+
+    public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
+        this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
+    }
+
     public Integer getSiteQueryLimit() {
         return siteQueryLimit;
     }
@@ -752,5 +781,30 @@ public class UccPropertyConfiguration {
 
     public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
         this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
+    }
+
+    public String getOfflineTaskReportInterceptSites() {
+        return offlineTaskReportInterceptSites;
+    }
+
+    public void setOfflineTaskReportInterceptSites(String offlineTaskReportInterceptSites) {
+        this.offlineTaskReportInterceptSites = offlineTaskReportInterceptSites;
+    }
+
+    public Boolean getOfflineTaskReportInterceptNeedHandle(Integer siteId) {
+        if(StringUtils.isBlank(offlineTaskReportInterceptSites)){
+            return false;
+        }
+        if(Objects.equals("0", offlineTaskReportInterceptSites)){
+            return true;
+        }
+        if(Objects.equals("-1", offlineTaskReportInterceptSites)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(offlineTaskReportInterceptSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
     }
 }

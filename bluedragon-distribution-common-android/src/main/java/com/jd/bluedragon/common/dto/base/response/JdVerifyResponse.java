@@ -78,6 +78,10 @@ public class JdVerifyResponse<T> {
         this.init(CODE_ERROR, message);
     }
 
+    public void toCustomError(int code,String message){
+        this.init(code, message);
+    }
+
     public void addBox(MsgBox box) {
         if (this.getMsgBoxes() == null) {
             msgBoxes = new ArrayList<MsgBox>();

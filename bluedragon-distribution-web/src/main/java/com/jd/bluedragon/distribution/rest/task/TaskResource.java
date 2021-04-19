@@ -308,11 +308,7 @@ public class TaskResource {
     private void dealAirRecvRelationTask(TaskRequest request, Map<String, Object> itemTask) {
 
         String boxCode = this.getBoxCodeFromOfflineRequest(itemTask);
-        Long siteCode = null;
-        if (null != itemTask.get("siteCode")) {
-            siteCode = Long.valueOf(String.valueOf(itemTask.get("siteCode")));
-        }
-        List<BoxRelation> boxRelations = this.getBoxRelations(boxCode, siteCode);
+        List<BoxRelation> boxRelations = this.getBoxRelations(boxCode);
 
         if (CollectionUtils.isNotEmpty(boxRelations)) {
 
@@ -347,12 +343,8 @@ public class TaskResource {
         @SuppressWarnings("unchecked")
         Map<String, Object> receiveMap = (Map<String, Object>) element;
         String packOrBox = String.valueOf(receiveMap.get("packOrBox"));
-        Long siteCode = null;
-        if (null != receiveMap.get("siteCode")) {
-            siteCode = Long.valueOf(String.valueOf(receiveMap.get("siteCode")));
-        }
 
-        List<BoxRelation> boxRelations = this.getBoxRelations(packOrBox, siteCode);
+        List<BoxRelation> boxRelations = this.getBoxRelations(packOrBox);
 
         if (CollectionUtils.isNotEmpty(boxRelations)) {
 
@@ -382,13 +374,11 @@ public class TaskResource {
     /**
      * 获取箱号关联的箱号
      * @param packOrBox
-     * @param siteCode
      * @return
      */
-    private List<BoxRelation> getBoxRelations(String packOrBox, Long siteCode) {
-        if (BusinessUtil.isBoxcode(packOrBox) && null != siteCode) {
-            BoxRelation query = new BoxRelation(packOrBox, siteCode);
-            InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(query);
+    private List<BoxRelation> getBoxRelations(String packOrBox) {
+        if (BusinessUtil.isBoxcode(packOrBox)) {
+            InvokeResult<List<BoxRelation>> sr = boxRelationService.getRelationsByBoxCode(packOrBox);
             if (sr.codeSuccess() && CollectionUtils.isNotEmpty(sr.getData())) {
                 return sr.getData();
             }

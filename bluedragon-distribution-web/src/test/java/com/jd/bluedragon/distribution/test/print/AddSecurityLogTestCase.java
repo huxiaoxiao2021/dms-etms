@@ -1,11 +1,6 @@
 package com.jd.bluedragon.distribution.test.print;
 
 import com.jd.bluedragon.distribution.command.JsonCommandServiceImpl;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.distribution.test.utils.UtilsForTestCase;
-import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import junit.framework.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;

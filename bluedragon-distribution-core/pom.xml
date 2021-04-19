@@ -205,7 +205,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.6.3-test-SNAPSHOT</version>
+			<version>1.6.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.alpha</groupId>
@@ -232,7 +232,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.3.0-SNAPSHOT</version>
+            <version>1.3.2-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1406,7 +1406,7 @@
 		<dependency>
 			<groupId>com.jd.wl</groupId>
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.7-pda-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.kafka</groupId>

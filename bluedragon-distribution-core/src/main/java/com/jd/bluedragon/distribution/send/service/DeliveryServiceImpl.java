@@ -140,6 +140,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.util.*;
@@ -380,6 +381,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     /**
      * 自动过期时间 30分钟
@@ -669,8 +673,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.getWJSendMDomains", false, true);
 
             List<BoxRelation> boxRelations = null;
-            BoxRelation boxRelationQ = new BoxRelation(BCSendM.getBoxCode(), Long.valueOf(BCSendM.getCreateSiteCode()));
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BoxRelation>> sr = boxRelationService.queryBoxRelation(boxRelationQ);
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<List<BoxRelation>> sr = boxRelationService.getRelationsByBoxCode(BCSendM.getBoxCode());
             if (sr.codeSuccess() && CollectionUtils.isNotEmpty(sr.getData())) {
                 boxRelations =  sr.getData();
             }
@@ -949,7 +952,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         SortingJsfResponse response = null;
         try {
             if (sortingCheckService.isNeedCheck(uccPropertyConfiguration.getSingleSendSwitchVerToWebSites(), sortingCheck.getCreateSiteCode())) {
-                response = sortingCheckService.singleSendCheck(sortingCheck);
+                response = sortingCheckService.singleSendCheckAndReportIntercept(sortingCheck);
             } else {
                 response = jsfSortingResourceService.check(sortingCheck);
             }
@@ -2115,6 +2118,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = waybillWasteCheck(tSendM);
+        }
 
         // 文件包裹必须装箱才能发货
         if (JdResponse.CODE_OK.equals(response.getCode())) {
@@ -2181,6 +2187,31 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                     return response;
                 }
+            }
+        }
+
+        return response;
+    }
+
+    /**
+     * 弃件检测
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse waybillWasteCheck(SendM tSendM){
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        if (null == tSendM || StringUtils.isEmpty(tSendM.getBoxCode())){
+            return response;
+        }
+
+        if(WaybillUtil.isPackageCode(tSendM.getBoxCode()) || WaybillUtil.isWaybillCode(tSendM.getBoxCode())){
+            String waybill=tSendM.getBoxCode();
+            if(WaybillUtil.isPackageCode(tSendM.getBoxCode())){
+                waybill=WaybillUtil.getWaybillCode(tSendM.getBoxCode());
+            }
+            if (waybillTraceManager.isWaybillWaste(waybill)){
+                response.setCode(DeliveryResponse.CODE_WAYBILL_IS_WASTE);
+                response.setMessage(DeliveryResponse.MESSAGE_WAYBILL_IS_WASTE);
             }
         }
 

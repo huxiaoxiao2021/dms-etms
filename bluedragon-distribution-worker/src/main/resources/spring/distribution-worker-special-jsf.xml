@@ -18,4 +18,8 @@
 <!--<jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>-->
 </jsf:consumer>
 
+    <jsf:consumer id="sendGatewayService" interface="com.jd.bluedragon.external.gateway.service.SendGatewayService"
+                  protocol="jsf" alias="${dms.gateway.jsf.alias}" timeout="${dms.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

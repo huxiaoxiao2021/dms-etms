@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -930,4 +931,18 @@ public class BusinessHelper {
         return BusinessUtil.isSignChar(waybillSign, 135, '1');
     }
 
+
+    /**
+     * 校验是否是BC箱号类型
+     */
+    public static Boolean isBCBoxType(String boxType){
+        if(StringUtils.isEmpty(boxType)){
+            return Boolean.FALSE;
+        }
+
+        if(BoxTypeEnum.TYPE_BC.getCode().equals(boxType)){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }

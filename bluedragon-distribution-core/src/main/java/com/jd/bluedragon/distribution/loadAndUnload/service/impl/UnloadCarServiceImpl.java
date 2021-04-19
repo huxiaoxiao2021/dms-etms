@@ -2120,18 +2120,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.warn("封车编码【{}】下的批次为空!",unloadCar.getSealCarCode());
             return false;
         }
-        Set<String> requiredBatchCodes = new HashSet<>();
-        for (String batchCode : batchCodes){
-            if(BusinessHelper.isSendCode(batchCode)){
-                requiredBatchCodes.add(batchCode);
-            }
-        }
-        if(CollectionUtils.isEmpty(requiredBatchCodes)){
-            logger.warn("封车编码【{}】没有符合的批次!",unloadCar.getSealCarCode());
-            return false;
-        }
-        unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
-
         try {
             // 通过工具类从批次号上截取目的场地ID
             Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
@@ -2139,9 +2127,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
                 return false;
             }
+            boolean isExpressCenterSite = isExpressCenterSite(nextSiteCode);
+            Set<String> requiredBatchCodes = new HashSet<>();
+            for (String batchCode : batchCodes){
+                //目的场地为转运的，需要初始化目的转运场地的卸车任务。
+                if(BusinessHelper.isSendCode(batchCode) || isExpressCenterSite){
+                    requiredBatchCodes.add(batchCode);
+                }
+            }
+            if(CollectionUtils.isEmpty(requiredBatchCodes)){
+                logger.warn("封车编码【{}】没有符合的批次!",unloadCar.getSealCarCode());
+                return false;
+            }
+            unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(requiredBatchCodes)));
             // 只有操作站点是快运中心时，才初始化运单暂存
-            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
-            if (isExpressCenterSite(nextSiteCode)) {
+//            logger.info("封车消息操作站点：sealCarCode={}, operateSiteId={}, nextSiteCode={}", tmsSealCar.getSealCarCode(), tmsSealCar.getOperateSiteId(), nextSiteCode);
+            if (isExpressCenterSite) {
                 logger.info("当前封车消息属于快运中心：sealCarCode={}", tmsSealCar.getSealCarCode());
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
                 logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
@@ -2584,7 +2585,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //信任运单标识
             boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
             //是否是KA的重量逻辑校验 66->3
-            boolean isNewWeightLogic = BusinessUtil.isKaPackageOrNo(waybillSign);
+            boolean isNewWeightLogic = BusinessUtil.needWeighingSquare(waybillSign);
             //纯配快运零担
             boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
 
@@ -2694,8 +2695,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result)  {
         DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if(deliveryPackageD != null){
-            //非信任重量  信任重量不做重量体积拦截
-            if(!Objects.equals(Constants.isTrust,deliveryPackageD.getTrustType())){
+            //非信任重量  信任重量不做重量体积拦截.---去除 信任非信任的判断逻辑，直接按照业务类型是否进行称重进行判断。
+//            if(!Objects.equals(Constants.isTrust,deliveryPackageD.getTrustType())){
                 //是否需要校验体重 业务类型1
                 if(BusinessUtil.isNeedCheckWeightOrNo(waybillSign)){
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
@@ -2714,7 +2715,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         return result;
                     }
                 }
-            }
+//            }
         }
         return result;
     }

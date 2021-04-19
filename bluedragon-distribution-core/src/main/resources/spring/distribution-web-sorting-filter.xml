@@ -17,6 +17,7 @@
     </bean>
 
     <util:list id="forwardFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
@@ -79,6 +80,7 @@
     </bean>
 
     <util:list id="deliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OneWaybillMultiPackFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
@@ -171,4 +173,14 @@
         <property name="filterList" ref="boardCombinationFilterList">
         </property>
     </bean>
+
+    <!-- 冷链发货拦截链 -->
+    <bean id="coldChainDeliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ColdChainDeliveryFilterChain" scope="prototype" destroy-method="destory">
+        <property name="filterList" ref="coldChainDeliveryFilterList">
+        </property>
+    </bean>
+    <util:list id="coldChainDeliveryFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+    </util:list>
 </beans>

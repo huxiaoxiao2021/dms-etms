@@ -57,6 +57,12 @@ public interface SendPayConstants {
 	char CHAR_314_1 = '1';
 	char CHAR_314_2 = '2';
 	/**
+	 * SendPay第315位,CHAR_315_0 = '0' -非B2B运单
+	 */
+	int POSITION_315 = 315;
+	char CHAR_315_0 = '0';
+
+	/**
 	 * 第307位,1-无人车配送
 	 */
 	int POSITION_307 = 307;

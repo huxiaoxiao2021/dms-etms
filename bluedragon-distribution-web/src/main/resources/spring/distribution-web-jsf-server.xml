@@ -263,6 +263,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 快递弃件暂存服务 -->
+    <jsf:provider id="dmsDiscardedPackageStorageTempJsfService"
+                  interface="com.jd.bluedragon.distribution.discardedPackageStorageTemp.jsf.DiscardedPackageStorageTempJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="discardedPackageStorageTempJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"
                   interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"
@@ -276,6 +284,14 @@
                   interface="com.jd.bluedragon.distribution.notice.service.NoticeH5JsfService"
                   alias="${dms.jsf.alias}"
                   ref="noticeH5JsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 获取集包袋绑定箱号信息 -->
+    <jsf:provider id="dmsCycleBoxJsfService"
+                  interface="com.jd.bluedragon.distribution.cycleBox.service.CycleBoxJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="cycleBoxJsfService"
                   server="dmsjsf">
     </jsf:provider>
 </beans>

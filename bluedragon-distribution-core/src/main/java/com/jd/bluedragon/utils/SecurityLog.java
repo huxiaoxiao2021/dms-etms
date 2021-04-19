@@ -5,10 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 包括 head(头部)，reqInfo(请求部分)，respInfo(响应部分)
@@ -439,6 +436,10 @@ public class SecurityLog {
              * 订单号
              */
             private String orderId;
+            /**
+             * 请求json串
+             */
+            private String requestParamJson;
 
             public String getCarryBillId() {
                 return carryBillId;
@@ -455,9 +456,63 @@ public class SecurityLog {
             public void setOrderId(String orderId) {
                 this.orderId = orderId;
             }
+
+            public String getRequestParamJson() {
+                return requestParamJson;
+            }
+
+            public void setRequestParamJson(String requestParamJson) {
+                this.requestParamJson = requestParamJson;
+            }
         }
     }
 
+    /**
+     * 上报查询类安全日志（记录请求入参）
+     * @param interfaceName
+     * @param erpOp
+     * @param requestParamJson
+     * @throws UnknownHostException
+     */
+    public static void reportQuerySecurityLogRecordRequest(String interfaceName,String erpOp,String requestParamJson) throws UnknownHostException {
+        String log = makeParamForSecurityLogRecordRequest(interfaceName,erpOp,requestParamJson,OpTypeEnum.QUERY.ordinal());
+        securityLog.info(log);
+    }
+    /**
+     * 上报导出类安全日志（记录请求入参）
+     * @param interfaceName
+     * @param erpOp
+     * @param requestParamJson
+     * @throws UnknownHostException
+     */
+    public static void reportExportSecurityLogRecordRequest(String interfaceName,String erpOp,String requestParamJson) throws UnknownHostException {
+        String log = makeParamForSecurityLogRecordRequest(interfaceName,erpOp,requestParamJson,OpTypeEnum.EXPORT.ordinal());
+        securityLog.info(log);
+    }
+
+    /**
+     * 创建安全日志
+     * @param interfaceName
+     * @param erpOp
+     * @param requestParamJson
+     * @param opTypeType
+     * @return
+     * @throws UnknownHostException
+     */
+    private static String makeParamForSecurityLogRecordRequest(String interfaceName, String erpOp,
+                                                               String requestParamJson,int opTypeType) throws UnknownHostException {
+        // 创建头部信息
+        HeadLogSecurityInfo head = createHead(interfaceName,opTypeType);
+        // 创建请求信息
+        ReqLogSecurityInfo reqInfo = createRequest(erpOp,requestParamJson);
+        // 创建返回信息
+        RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new RespLogSecurityInfo.UniqueIdentifier();
+        uniqueIdentifier.setRequestParamJson(requestParamJson);
+        RespLogSecurityInfo respInfo = createResp(uniqueIdentifier);
+
+        SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
+        return JsonHelper.toJson(securityLog);
+    }
 
     /**
      * 上报安全日志
@@ -478,12 +533,59 @@ public class SecurityLog {
      * @return
      * @throws UnknownHostException
      */
-    public static String makeParamForSecurityLog(String interfaceName,String erpOp,String carryBill) throws UnknownHostException {
-        //头部信息
+    private static String makeParamForSecurityLog(String interfaceName,String erpOp,String carryBill) throws UnknownHostException {
+        // 创建头部信息
+        HeadLogSecurityInfo head = createHead(interfaceName,OpTypeEnum.QUERY.ordinal());
+        // 创建请求信息
+        ReqLogSecurityInfo reqInfo = createRequest(erpOp,null);
+        // 创建返回信息
+        RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new RespLogSecurityInfo.UniqueIdentifier();
+        uniqueIdentifier.setCarryBillId(carryBill);
+        RespLogSecurityInfo respInfo = createResp(uniqueIdentifier);
+
+        SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
+        return JsonHelper.toJson(securityLog);
+    }
+
+    /**
+     * 构建返回信息
+     * @param uniqueIdentifier
+     * @return
+     */
+    private static RespLogSecurityInfo createResp(RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier) {
+        RespLogSecurityInfo respInfo = new RespLogSecurityInfo();
+        respInfo.setStatus(0);
+        respInfo.setRecordCnt(1L);
+        respInfo.setUniqueIdentifier(Collections.singletonList(uniqueIdentifier));
+        return respInfo;
+    }
+
+    /**
+     * 构建请求信息
+     * @param erpOp
+     * @param requestParamJson
+     * @return
+     */
+    private static ReqLogSecurityInfo createRequest(String erpOp, String requestParamJson) {
+        ReqLogSecurityInfo reqInfo = new ReqLogSecurityInfo();
+        reqInfo.setErpId(erpOp);
+        reqInfo.setTimeFrom(System.currentTimeMillis()/1000);
+        reqInfo.setTimeTo(System.currentTimeMillis()/1000);
+        return reqInfo;
+    }
+
+    /**
+     * 构建头部信息
+     * @param interfaceName
+     * @param type
+     * @return
+     * @throws UnknownHostException
+     */
+    private static HeadLogSecurityInfo createHead(String interfaceName, int type) throws UnknownHostException {
         HeadLogSecurityInfo head = new HeadLogSecurityInfo();
-        head.setOp(OpTypeEnum.QUERY.ordinal());
+        head.setOp(type);
         head.setInterfaceName(interfaceName);
-        head.setTime(new Date().getTime()/1000);
+        head.setTime(System.currentTimeMillis()/1000);
         head.setServerIp(InetAddress.getLocalHost().getHostAddress());
         head.setSystemName(SYSTEMNAME);
         head.setAppName(APPNAME);
@@ -491,25 +593,7 @@ public class SecurityLog {
         head.setVersion("V1.0");
         head.setAccountName(SecurityLog.ACCOUNTNAME);
         head.setAccountType(AccountTypeEnum.ERP.ordinal());
-
-        //请求信息
-        ReqLogSecurityInfo reqInfo = new ReqLogSecurityInfo();
-        reqInfo.setErpId(erpOp);
-        reqInfo.setTimeFrom(new Date().getTime()/1000);
-        reqInfo.setTimeTo(new Date().getTime()/1000);
-
-
-        //返回信息
-        RespLogSecurityInfo respInfo = new RespLogSecurityInfo();
-        respInfo.setStatus(0);
-        respInfo.setRecordCnt(1L);
-        RespLogSecurityInfo.UniqueIdentifier uniqueIdentifier = new RespLogSecurityInfo.UniqueIdentifier();
-        uniqueIdentifier.setCarryBillId(carryBill);
-        respInfo.setUniqueIdentifier(Arrays.asList(uniqueIdentifier));
-
-        SecurityLog securityLog = new SecurityLog(head,reqInfo,respInfo);
-
-        return JsonHelper.toJson(securityLog);
+        return head;
     }
 }
 
