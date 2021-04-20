@@ -553,11 +553,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             result.init(SendResult.CODE_SENDED, "查询运单不存在:" + waybillCode);
             return result;
         }
-        // 校验是否已有包裹操作过发货
-        if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
-            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK);
-            return result;
-        }
+        // 校验是否已有包裹操作过发货 v2新需求：如果有包裹号单独先发货，则跳过已发货包裹号，剩余的包裹号执行发货逻辑
+//        if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
+//            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK);
+//            return result;
+//        }
         // 锁定运单发货
         if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
