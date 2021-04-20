@@ -25,6 +25,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillPOPDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -242,11 +243,30 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 			// 写入表头
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
-			List<PopAbnormal> data = this.findList(paramMap);
-			// 输出至csv文件中
-			CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+			Integer  maxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+			paramMap.put("pageSize",oneQuery);
+
+			int queryTotal = 0;
+			int index = 1;
+			while (index <= (maxSize/oneQuery)+1 ){
+				paramMap.put("startIndex",(index-1) * oneQuery);
+				index++;
+				List<PopAbnormal> data = this.findList(paramMap);
+				if(CollectionUtils.isEmpty(data)){
+					break;
+				}
+
+				// 输出至csv文件中
+				CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, data);
+				// 限制导出数量
+				queryTotal += data.size();
+				if(queryTotal > maxSize){
+					break;
+				}
+			}
 			long end = System.currentTimeMillis();
-			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(paramMap), ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getName(),end-start,data.size());
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(paramMap), ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getName(),end-start,queryTotal);
 		}catch (Exception e){
 			log.error("POP差异订单数据导出数据异常",e);
 		}

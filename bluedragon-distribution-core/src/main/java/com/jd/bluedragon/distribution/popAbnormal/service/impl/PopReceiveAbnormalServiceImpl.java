@@ -296,13 +296,15 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 			// 设置总导出数据
 			Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
 
 			// 设置单次查询条数
-			paramMap.put("pageSize",exportConcurrencyLimitService.getOneQuerySizeLimit());
+			paramMap.put("pageSize",oneQuery);
 			int queryTotal = 0;
 			int index = 1;
-			while (index++ <= 1000) {
-				paramMap.put("startIndex",(index-1) * (Integer)paramMap.get("pageSize"));
+			while (index <= (uccSpotCheckMaxSize/oneQuery)+1) {
+				paramMap.put("startIndex",(index-1) * oneQuery);
+				index ++;
 				List<PopReceiveAbnormal> popReceiveAbnormalExports = this.findList(paramMap);
 				if(CollectionUtils.isEmpty(popReceiveAbnormalExports)){
 					break;

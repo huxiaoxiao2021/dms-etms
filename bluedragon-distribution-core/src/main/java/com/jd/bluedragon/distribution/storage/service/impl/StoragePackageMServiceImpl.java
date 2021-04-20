@@ -1156,8 +1156,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
             int queryTotal = 0;
             int index = 1;
-            while (index++ <= (MaxSize/oneQuery)+1){
+            while (index <= (MaxSize/oneQuery)+1){
                 condition.setOffset((index-1) * oneQuery);
+                index++;
                 List<StoragePackageM> list = storagePackageMDao.queryExportByCondition(condition);
                 if(CollectionUtils.isEmpty(list)){
                     break;

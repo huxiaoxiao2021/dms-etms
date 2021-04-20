@@ -22,6 +22,7 @@ import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -290,11 +291,11 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             crossBoxRequest.setPageSize(oneQuery);
             int queryTotal = 0;
             int index = 1;
-            while (index++ <= (maxSize/oneQuery)+1 ){
+            while (index <= (maxSize/oneQuery)+1 ){
                 crossBoxRequest.setStartIndex((index-1) * oneQuery);
                 index++;
                 List<CrossBox> dataList = this.queryByConditionForExport(crossBoxRequest);
-                if (dataList == null) {
+                if (CollectionUtils.isEmpty(dataList)) {
                     break;
                 }
 

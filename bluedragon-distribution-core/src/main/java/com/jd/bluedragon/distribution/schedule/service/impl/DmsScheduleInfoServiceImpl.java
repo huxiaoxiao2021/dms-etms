@@ -145,12 +145,14 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			//设置最大导出数量
 			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
 			//设置单次导出数量
-			dmsScheduleInfoCondition.setLimit(exportConcurrencyLimitService.getOneQuerySizeLimit());
+			Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+			dmsScheduleInfoCondition.setLimit(oneQuery);
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 			int queryTotal = 0;
 			int index = 1;
-			while (index++ <= 100) {
-				dmsScheduleInfoCondition.setOffset((index - 1) * exportConcurrencyLimitService.getOneQuerySizeLimit());
+			while (index <= (MaxSize/oneQuery)+1) {
+				dmsScheduleInfoCondition.setOffset((index - 1) * oneQuery);
+				index++;
 				PagerResult<DmsEdnPickingVo> queryByPagerCondition = this.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
 				if(CollectionUtils.isEmpty(queryByPagerCondition.getRows())){
 					break;
