@@ -2668,7 +2668,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             //有包装服务
             boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-            if(isPackService && !waybillConsumableRecordService.isConfirmed(waybillCode)){
+            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
