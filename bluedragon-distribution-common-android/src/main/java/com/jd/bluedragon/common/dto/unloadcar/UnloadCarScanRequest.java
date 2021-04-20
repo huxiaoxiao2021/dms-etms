@@ -81,6 +81,11 @@ public class UnloadCarScanRequest implements Serializable {
      */
     private String waybillCode;
 
+    /**
+     * 卸车模式: 1-人工, 0-流水线
+     */
+    private Integer type;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -207,5 +212,21 @@ public class UnloadCarScanRequest implements Serializable {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public boolean isForceCombination() {
+        return isForceCombination;
+    }
+
+    public void setForceCombination(boolean forceCombination) {
+        isForceCombination = forceCombination;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

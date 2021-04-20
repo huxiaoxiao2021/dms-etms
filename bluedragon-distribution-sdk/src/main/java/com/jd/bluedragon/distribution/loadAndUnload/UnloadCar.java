@@ -106,6 +106,11 @@ public class UnloadCar extends DbEntity {
      * */
     private Integer yn;
 
+    /**
+     * 卸车模式: 1-人工, 0-流水线
+     */
+    private Integer type;
+
     public Long getUnloadCarId() {
         return unloadCarId;
     }
@@ -288,5 +293,13 @@ public class UnloadCar extends DbEntity {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

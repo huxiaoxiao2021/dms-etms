@@ -1398,6 +1398,7 @@ public class Constants {
      * PDA无封车号任务前缀
      */
     public static final String PDA_UNLOAD_TASK_PREFIX="PDA";
+
     /**
      * 全部站点隐藏
      */
@@ -1506,4 +1507,9 @@ public class Constants {
      * 查询已扫包裹最大数限制单次IN50
      */
     public static final int QUERY_LOAD_SCAN_MAX = 50;
+
+    /**
+     * 卸车任务流水线模式:只验货不组板
+     */
+    public static final Integer ASSEMBLY_LINE_TYPE = 0;
 }

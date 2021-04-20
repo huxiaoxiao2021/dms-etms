@@ -1,24 +1,29 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
-import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.*;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
+import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
+import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
+import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScan;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanRecord;
+import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
-import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.report.domain.LoadScanDto;
+import com.jd.service.common.json.JSON;
+import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -28,6 +33,12 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
+        import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
+        import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+        import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 
 /**
  * 装车发货相关功能测试
@@ -35,7 +46,7 @@ import java.util.List;
  * @Author zhengchengfa
  * @Date 2020年10月22日
  */
-@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:spring/distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
@@ -44,6 +55,9 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private GoodsLoadScanRecordDao goodsLoadScanRecordDao;
+
+    @Resource
+    private GoodsLoadScanDao goodsLoadScanDao;
 
     @Resource
     private LoadCarTaskGateWayService loadCarTaskGateWayService;
@@ -56,8 +70,12 @@ public class GoodsLoadingScanningServiceImplTest {
     private LoadScanServiceImpl loadScanService;
 
     @Resource
+    private DmsDisSendService dmsDisSendService;
+    @Resource
     private SpotCheckGateWayService spotCheckGateWayService;
 
+    @Resource
+    private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
     @Resource
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
@@ -287,7 +305,76 @@ public class GoodsLoadingScanningServiceImplTest {
         loadScanService.updateTaskStatus(loadCar, user);
     }
 
+    @Test
+    public void testGetLoadScanByWaybillAndPackageCode() {
+        LoadScanDto loadScanDto = new LoadScanDto();
+        loadScanDto.setWayBillCode("JDV000488510739");
+        loadScanDto.setPackageCode("JDV000488510739-4-5-");
+        loadScanDto.setCreateSiteId(364605);
+        LoadScanDto scanDto = dmsDisSendService.getLoadScanByWaybillAndPackageCode(loadScanDto);
+        System.out.println(JsonHelper.toJson(scanDto));
+    }
 
+
+    @Test
+    public void testFindRecordsByWaybillCode() {
+        Map<String, GoodsLoadScanRecord> map = goodsLoadScanRecordDao.findRecordsByWaybillCode(910L,
+                "JDV000488800736");
+
+        List<String> list = new ArrayList<>();
+
+        list.add("JDV000488800736-6-5-");
+        list.add("JDV000488800736-7-5-");
+        list.add("JDV000488800736-8-5-");
+        list.add("JDV000488800736-9-5-");
+        list.add("JDV000488800736-10-5-");
+
+
+        GoodsLoadScanRecord loadScanRecord = new GoodsLoadScanRecord();
+        loadScanRecord.setTaskId(169L);
+        loadScanRecord.setWayBillCode("JDV000488800736");
+        // 装车动作
+        loadScanRecord.setScanAction(GoodsLoadScanConstants.GOODS_SCAN_LOAD);
+        // 包裹号转板号标识
+        loadScanRecord.setTransfer(2);
+        // 多扫标识
+        loadScanRecord.setFlowDisaccord(0);
+        // 强发标识
+        loadScanRecord.setForceStatus(GoodsLoadScanConstants.GOODS_LOAD_SCAN_FORCE_STATUS_N);
+
+        loadScanRecord.setCreateUserCode(10053);
+        loadScanRecord.setCreateUserName("刑松");
+        loadScanRecord.setUpdateUserCode(10053);
+        loadScanRecord.setUpdateUserName("刑松");
+
+        loadScanRecord.setCreateTime(new Date());
+        loadScanRecord.setUpdateTime(new Date());
+        loadScanRecord.setYn(Constants.YN_YES);
+
+
+        //2020 10-23为了装车名词报表增加始发和目的场地id以及各自名称
+        loadScanRecord.setCreateSiteCode(364605L);
+        loadScanRecord.setCreateSiteName("北京通州分拣中心");
+        loadScanRecord.setEndSiteCode(910L);
+        loadScanRecord.setEndSiteName("北京马驹桥分拣中心");
+        loadScanRecord.setLicenseNumber("京A12345");
+
+        List<List<String>> subPackageCodes = ListUtils.partition(list, 2);
+        // 分批批量插入，每次1000个
+        for (List<String> packageCodes : subPackageCodes) {
+            loadScanRecord.setPackageCodeList(packageCodes);
+            goodsLoadScanRecordDao.batchInsertByWaybill(loadScanRecord);
+        }
+
+        List<Long> idList = new ArrayList<>();
+        idList.add(86170L);
+        idList.add(86171L);
+        idList.add(86172L);
+        loadScanRecord.setIdList(idList);
+        int a = goodsLoadScanRecordDao.batchUpdateGoodsScanRecordByIds(loadScanRecord);
+
+        System.out.println(JsonHelper.toJson(map));
+    }
     @Test
     public void testSpotCheckTest() {
         SpotCheckCheckReq req = new SpotCheckCheckReq();
@@ -319,5 +406,90 @@ public class GoodsLoadingScanningServiceImplTest {
     public void testSpotCheckPictures(){
 
         weightAndVolumeCheckService.searchPicture("JDK000000055832",364605,1,"SPOT_CHECK_ANDROID");
+    }
+
+        @Test
+        public void testCreateUnloadTask(){
+            CreateUnloadTaskReq req=new CreateUnloadTaskReq();
+            req.setCreateSiteCode(910L);
+            req.setOperateUserErp("bjxingsong");
+            req.setVehicleNumber("京A00001");
+            req.setOperateUserName("刑松");
+            loadAndUnloadCarGatewayService.createUnloadTask(req);
+        }
+
+    @Test
+    public void testFindPackageCodesByWaybillCode3() {
+
+        List<String> waybillCodes = new ArrayList<>();
+        for (int i = 1; i < 1000; i ++) {
+            String index;
+            if ((i / 100) >= 1 ) {
+                index = "";
+            } else if ((i / 10) >= 1) {
+                index = "0";
+            } else {
+                index = "00";
+            }
+            String waybillCode = "JDV100000000" + index + i;
+            waybillCodes.add(waybillCode);
+        }
+
+        GoodsLoadScan goodsLoadScan;
+        GoodsLoadScanRecord goodsLoadScanRecord;
+        List<GoodsLoadScan> list = new ArrayList<>();
+        List<GoodsLoadScanRecord> records = new ArrayList<>();
+        for (int i = 0; i <= waybillCodes.size() - 1; i ++) {
+            goodsLoadScan = new GoodsLoadScan();
+            String waybillCode = waybillCodes.get(i);
+            goodsLoadScan.setTaskId(197L);
+            goodsLoadScan.setWayBillCode(waybillCode);
+            goodsLoadScan.setPackageAmount(5);
+            goodsLoadScan.setLoadAmount(1);
+            goodsLoadScan.setUnloadAmount(4);
+            goodsLoadScan.setForceAmount(0);
+            goodsLoadScan.setStatus(4);
+            goodsLoadScan.setWeight(0d);
+            goodsLoadScan.setVolume(0d);
+            goodsLoadScan.setYn(1);
+            list.add(goodsLoadScan);
+            for (int j = 1; j <= 1; j ++) {
+                goodsLoadScanRecord = new GoodsLoadScanRecord();
+                String packageCode = waybillCode + "-" + j + "-" + "5" + "-";
+                goodsLoadScanRecord.setTaskId(197L);
+                goodsLoadScanRecord.setWayBillCode(waybillCode);
+                goodsLoadScanRecord.setPackageCode(packageCode);
+                goodsLoadScanRecord.setCreateSiteCode(910L);
+                goodsLoadScanRecord.setCreateSiteName("北京马驹桥分拣中心");
+                goodsLoadScanRecord.setEndSiteCode(364605L);
+                goodsLoadScanRecord.setEndSiteName("北京通州分拣中心");
+                goodsLoadScanRecord.setFlowDisaccord(0);
+                goodsLoadScanRecord.setForceStatus(0);
+                goodsLoadScanRecord.setLicenseNumber("京J00001");
+                goodsLoadScanRecord.setScanAction(1);
+                goodsLoadScanRecord.setTransfer(0);
+                goodsLoadScanRecord.setYn(1);
+                records.add(goodsLoadScanRecord);
+            }
+        }
+        goodsLoadScanRecordDao.batchInsert(records);
+        goodsLoadScanDao.batchInsert(list);
+        System.out.println("123");
+    }
+
+    @Test
+    public void testCheckPackageCode(){
+        GoodsLoadingScanningReq req = new GoodsLoadingScanningReq();
+        req.setTaskId(204L);
+        req.setPackageCode("JDV000503436330-1640-20000-");
+        goodsLoadingScanningService.checkPackageCode(req);
+    }
+
+    @Test
+    public void testStartUnloadTask(){
+        String str="[{\"currentOperate\":{\"siteCode\":39,\"siteName\":\"石景山营业部\"},\"operateTime\":\"2021-04-12 15:51:21\",\"taskCode\":\"PDA1618213809124\",\"taskStatus\":2,\"type\":1,\"user\":{\"userCode\":0,\"userErp\":\"bjxings\",\"userName\":\"刑松\"}}]";
+        UnloadCarTaskReq unloadCarTaskReq= JsonHelper.fromJson(str,UnloadCarTaskReq.class);
+        loadAndUnloadCarGatewayService.startUnloadTask(unloadCarTaskReq);
+
     }
 }

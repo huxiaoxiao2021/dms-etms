@@ -25,6 +25,11 @@ public class UnloadCarTaskReq implements Serializable {
 
     private String operateTime;
 
+    /**
+     * 卸车模式: 1-人工, 0-流水线
+     */
+    private Integer type;
+
     public String getTaskCode() {
         return taskCode;
     }
@@ -63,5 +68,13 @@ public class UnloadCarTaskReq implements Serializable {
 
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

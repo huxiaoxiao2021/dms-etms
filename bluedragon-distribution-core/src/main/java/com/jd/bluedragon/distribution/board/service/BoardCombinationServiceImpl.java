@@ -472,24 +472,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             }
         }
 
-        //查询发货记录判断是否已经发货
-        SendM sendM = new SendM();
-        sendM.setBoxCode(request.getBoxOrPackageCode());
-        sendM.setCreateSiteCode(request.getSiteCode());
-        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
-
-        List<SendM> sendMList = this.selectBySendSiteCode(sendM);
-
-        if (null != sendMList && sendMList.size() > 0) {
-            logInfo = "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点：" + request.getSiteCode();
-
-            log.warn(logInfo);
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
-
-            addSystemLog(request, logInfo);
-            return JdResponse.CODE_FAIL;
-        }
-
         if (StringUtils.isBlank(request.getBoardCode())) {
             String waybillCode = WaybillUtil.getWaybillCode(request.getBoxOrPackageCode());
             // 根据当前网点匹配下一网点
@@ -509,6 +491,24 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             }
             request.setReceiveSiteCode(nextSiteCode);
             request.setReceiveSiteName(baseSite.getSiteName());
+        }
+
+        //查询发货记录判断是否已经发货
+        SendM sendM = new SendM();
+        sendM.setBoxCode(request.getBoxOrPackageCode());
+        sendM.setCreateSiteCode(request.getSiteCode());
+        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
+
+        List<SendM> sendMList = this.selectBySendSiteCode(sendM);
+
+        if (null != sendMList && sendMList.size() > 0) {
+            logInfo = "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点：" + request.getSiteCode();
+
+            log.warn(logInfo);
+            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
+
+            addSystemLog(request, logInfo);
+            return JdResponse.CODE_FAIL;
         }
 
         //调Ver的接口进行组板拦截
