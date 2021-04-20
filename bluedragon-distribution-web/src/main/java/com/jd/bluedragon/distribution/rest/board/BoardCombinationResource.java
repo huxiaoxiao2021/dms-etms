@@ -155,7 +155,6 @@ public class BoardCombinationResource {
 
         // 参数校验
         String errStr = checkCombinationBoardParam(request);
-        log.info("参数校验结果={}", errStr);
         if (StringHelper.isNotEmpty(errStr)) {
             boardResponse.addStatusInfo(JdResponse.CODE_FAIL, errStr);
             result.toFail(errStr);
@@ -167,7 +166,6 @@ public class BoardCombinationResource {
         inspectionQ.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         inspectionQ.setYn(Integer.valueOf(1));
         boolean flag=inspectionDao.haveInspectionByPackageCode(inspectionQ);
-        log.info("验货组装参数={},验货校验结果={}",JSON.toJSONString(inspectionQ),flag);
         //未操作验货不允许组板
         if(!flag){
             boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此包裹未验货，不允许组板！");

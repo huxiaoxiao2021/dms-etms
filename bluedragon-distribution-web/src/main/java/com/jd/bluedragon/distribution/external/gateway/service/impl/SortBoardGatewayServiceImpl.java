@@ -116,7 +116,6 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     @Override
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
-        log.info("组板功能请求入参={}", JSON.toJSONString(request));
         JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
         BoardCheckDto boardCheckDto = new BoardCheckDto();
