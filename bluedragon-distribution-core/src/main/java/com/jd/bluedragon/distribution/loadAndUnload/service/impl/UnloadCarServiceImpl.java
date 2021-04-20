@@ -713,6 +713,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         resData.setBoardBoxCount(boxCount);
                         resData.setBoardWaybillCount(waybillSet.size());
                     }
+                    //todo test log zhengchengfa
                     logger.info("test--log--20210420--组板包裹数={}，组板运单数={}，组板包裹信息=【{}】,组板运单信息=【{}】",
                             boxCount, waybillSet.size(), JsonHelper.toJson(tcResponse.getData()), JsonHelper.toJson(waybillSet));
                 }else{
