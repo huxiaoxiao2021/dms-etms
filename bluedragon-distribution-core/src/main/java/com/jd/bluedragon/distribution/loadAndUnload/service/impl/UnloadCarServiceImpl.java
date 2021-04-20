@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
@@ -209,6 +210,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
+
+    @Autowired
+    private BoardCombinationService boardCombinationService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -668,21 +672,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
 
             //返回组板 单/件数量
-            if(StringUtils.isNotBlank(request.getBoardCode())) {
-                String countStr = jimdbCacheService.get(CacheKeyConstants.REDIS_PREFIX_UNLOAD_BOARD_PACKAGE_COUNT.concat(request.getBoardCode()));
-                if(StringUtils.isNotEmpty(countStr)){
-                    Integer boxCount = Integer.valueOf(countStr);
-                    UnloadScanDetailDto resData = dtoInvokeResult.getData();
-                    if(resData == null) {
-                        resData = new UnloadScanDetailDto();
-                        resData.setBoardBoxCount(boxCount);
-                        dtoInvokeResult.setData(resData);
-                    }
-                    resData.setBoardBoxCount(boxCount);
-                    logger.info("test-----log----包裹号{}对应板号{}已经组板件数为{}， 板最大组板数{}",
-                            request.getBarCode(), request.getBoardCode(), boxCount, unloadBoardBindingsMaxCount);
-                }
-            }
+            setBoardCount(dtoInvokeResult, request);
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -698,6 +688,43 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unLock(request.getSealCarCode(), waybillCode);
         }
         return dtoInvokeResult;
+    }
+    //获取组板包裹数
+    private void setBoardCount(InvokeResult<UnloadScanDetailDto> dtoInvokeResult, UnloadCarScanRequest request) {
+        if(StringUtils.isNotBlank(request.getBoardCode())) {
+            Response<List<String>>  tcResponse = boardCombinationService.getBoxesByBoardCode(request.getBoardCode());
+            if(tcResponse == null){
+                logger.error("UnloadCarServiceImpl.setBoardCount--组板组件返回结果为空！,板号=【{}】", request.getBoardCode());
+            }else if(com.jd.ql.dms.common.domain.JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){
+                //查询成功
+                if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
+                    Integer boxCount = tcResponse.getData().size();
+                    Set waybillSet = new HashSet();
+                    for (String packageCode : tcResponse.getData()){
+                        waybillSet.add(WaybillUtil.getWaybillCode(packageCode));
+                    }
+                    UnloadScanDetailDto resData = dtoInvokeResult.getData();
+                    if(resData == null) {
+                        resData = new UnloadScanDetailDto();
+                        resData.setBoardBoxCount(boxCount);
+                        resData.setBoardWaybillCount(waybillSet.size());
+                        dtoInvokeResult.setData(resData);
+                    }else {
+                        resData.setBoardBoxCount(boxCount);
+                        resData.setBoardWaybillCount(waybillSet.size());
+                    }
+                    logger.info("test--log--20210420--组板包裹数={}，组板运单数={}，组板包裹信息=【{}】,组板运单信息=【{}】",
+                            boxCount, waybillSet.size(), JsonHelper.toJson(tcResponse.getData()), JsonHelper.toJson(waybillSet));
+                }else{
+                    if(logger.isWarnEnabled()) {
+                        logger.warn("UnloadCarServiceImpl.setBoardCount--未查询到板号明细,板号=【{}】", request.getBoardCode());
+                    }
+                }
+            }else {
+                logger.error("UnloadCarServiceImpl.setBoardCount-根据板号查询组板明细错误--error--！,板号=【{}】, 错误信息=【{}】",
+                        request.getBoardCode(), tcResponse.getMesseage());
+            }
+        }
     }
 
     /**
