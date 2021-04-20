@@ -52,7 +52,7 @@ public class DiscardedPackageStorageTemp implements Serializable{
     /**
      * cod代收款金额 单位元  db_column: cod_amount
      */
-    private BigDecimal codAmount;
+    private String codAmount;
     /**
      * 商家编码  db_column: business_code
      */
@@ -104,7 +104,7 @@ public class DiscardedPackageStorageTemp implements Serializable{
     /**
      * 上一级操作站点所在战区  db_column: prev_province_company_code
      */
-    private Integer prevProvinceCompanyCode;
+    private String prevProvinceCompanyCode;
     /**
      * 上一级操作站点所在战区名称  db_column: prev_province_company_name
      */
@@ -191,11 +191,11 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.cod = cod;
     }
 
-    public BigDecimal getCodAmount() {
+    public String getCodAmount() {
         return codAmount;
     }
 
-    public void setCodAmount(BigDecimal codAmount) {
+    public void setCodAmount(String codAmount) {
         this.codAmount = codAmount;
     }
 
@@ -327,11 +327,11 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.ts = ts;
     }
 
-    public Integer getPrevProvinceCompanyCode() {
+    public String getPrevProvinceCompanyCode() {
         return prevProvinceCompanyCode;
     }
 
-    public void setPrevProvinceCompanyCode(Integer prevProvinceCompanyCode) {
+    public void setPrevProvinceCompanyCode(String prevProvinceCompanyCode) {
         this.prevProvinceCompanyCode = prevProvinceCompanyCode;
     }
 
