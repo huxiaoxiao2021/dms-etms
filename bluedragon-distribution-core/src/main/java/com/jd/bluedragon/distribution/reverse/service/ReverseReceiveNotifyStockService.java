@@ -192,8 +192,8 @@ public class ReverseReceiveNotifyStockService {
 		sysLog.setType(SystemLogContants.TYPE_REVERSE_STOCK);//设置日志类型
 		boolean isOldForNewType = false;
 		try{
-			InternationOrderDto order = this.orderWebService.getInternationOrder(waybillCode);
-			List<Product> products = this.productService.getInternationProducts(waybillCode); //订单详情
+			InternationOrderDto order = orderWebService.getInternationOrder(waybillCode);
+			List<Product> products =  productService.getInternationProducts(waybillCode); //订单详情
 
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )

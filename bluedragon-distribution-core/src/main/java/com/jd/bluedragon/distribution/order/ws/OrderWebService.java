@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -109,26 +110,32 @@ public class OrderWebService {
 
 		if (CollectionUtils.isNotEmpty(details)) {
 			for (Map<String, Object> orderDetailMap : details) {
-				// 名称
-				String  name = (String) orderDetailMap.get(FieldKeyEnum.M_DETAIL_NAME.getFieldName());
-				// 数量
-				Integer num = (Integer)orderDetailMap.get(FieldKeyEnum.M_DETAIL_NUM.getFieldName());
-				// 产品Id
-				Long productId = (Long) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRODUCTID.getFieldName());
-				// 价格
-				BigDecimal price = (BigDecimal) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRICE.getFieldName());
-				// shu
-				Long skuId = (Long) orderDetailMap.get(FieldKeyEnum.M_DETAIL_SKUID.getFieldName());
-				// 渠道ID
-				Integer channelId = (Integer) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PROFITCHANNELID.getFieldName());
-
 				InternationDetailOrderDto orderDetail = new InternationDetailOrderDto();
-				orderDetail.setName(name);
-				orderDetail.setNum(num);
-				orderDetail.setProductId(productId);
-				orderDetail.setPrice(price);
-				orderDetail.setSkuId(skuId);
-				orderDetail.setProfitChannelId(channelId);
+				// 名称
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_NAME.getFieldName())!=null){
+					orderDetail.setName((String) orderDetailMap.get(FieldKeyEnum.M_DETAIL_NAME.getFieldName()));
+				}
+				// 数量
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_NUM.getFieldName())!=null){
+					orderDetail.setNum((Integer)orderDetailMap.get(FieldKeyEnum.M_DETAIL_NUM.getFieldName()));
+				}
+				// 产品Id
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRODUCTID.getFieldName())!=null){
+					orderDetail.setProductId((Long) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRODUCTID.getFieldName()));
+				}
+				// 价格
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRICE.getFieldName())!=null){
+					orderDetail.setPrice((BigDecimal) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PRICE.getFieldName()));
+				}
+				// shu
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_SKUID.getFieldName())!=null){
+					orderDetail.setSkuId((Long) orderDetailMap.get(FieldKeyEnum.M_DETAIL_SKUID.getFieldName()));
+				}
+
+				// 渠道ID
+				if(orderDetailMap.get(FieldKeyEnum.M_DETAIL_PROFITCHANNELID.getFieldName())!=null){
+					orderDetail.setProfitChannelId((Integer) orderDetailMap.get(FieldKeyEnum.M_DETAIL_PROFITCHANNELID.getFieldName()));
+				}
 				list.add(orderDetail);
 			}
 		}
@@ -193,7 +200,7 @@ public class OrderWebService {
 		return null;
 	}
 
-	@JProfiler(jKey = "DMS.WEB.OrderWebService.getOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jKey = "DMS.WEB.OrderWebService.getInternationOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InternationOrderDto getInternationOrder(long orderId){
 		com.jd.jdorders.component.export.OrderMiddlewareCBDExport newOrderMiddlewareJsfService = this.getOrderMiddlewareCBDExport();
 
@@ -234,26 +241,41 @@ public class OrderWebService {
 
 	// 普通订单对象
 	private InternationOrderDto transForm(Map<String, Object> dataMap) {
-		Long  id = (Long) dataMap.get(FieldKeyEnum.M_ID.getFieldName());
-		Integer idCompanyBranch = (Integer) dataMap.get(FieldKeyEnum.M_OPRATOR.getFieldName());
-		Integer deliveryCenterId = (Integer)dataMap.get(FieldKeyEnum.M_DELIVERYCENTERID.getFieldName());
-		String customerName = (String) dataMap.get(FieldKeyEnum.M_CUSTOMERNAME.getFieldName());
-		Integer orderType = (Integer) dataMap.get(FieldKeyEnum.M_ORDERTYPE.getFieldName());
-		Integer storeId = (Integer) dataMap.get(FieldKeyEnum.M_STOREID.getFieldName());
-		String sendPay = (String) dataMap.get(FieldKeyEnum.M_SENDPAY.getFieldName());
-		Integer province = (Integer) dataMap.get(FieldKeyEnum.M_PROVINCE.getFieldName());
-		Integer city = (Integer) dataMap.get(FieldKeyEnum.M_CITY.getFieldName());
-
 		InternationOrderDto internationOrderDto = new InternationOrderDto();
-		internationOrderDto.setId(id);
-		internationOrderDto.setIdCompanyBranch(idCompanyBranch);
-		internationOrderDto.setDeliveryCenterID(deliveryCenterId);
-		internationOrderDto.setCustomerName(customerName);
-		internationOrderDto.setOrderType(orderType);
-		internationOrderDto.setStoreId(storeId);
-		internationOrderDto.setCity(city);
-		internationOrderDto.setProvince(province);
-		internationOrderDto.setSendPay(sendPay);
+		if(dataMap.get(FieldKeyEnum.M_ID.getFieldName())!=null){
+			internationOrderDto.setId((Long) dataMap.get(FieldKeyEnum.M_ID.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_OPRATOR.getFieldName())!=null){
+			internationOrderDto.setIdCompanyBranch((Integer) dataMap.get(FieldKeyEnum.M_OPRATOR.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_DELIVERYCENTERID.getFieldName())!=null){
+			internationOrderDto.setDeliveryCenterID((Integer)dataMap.get(FieldKeyEnum.M_DELIVERYCENTERID.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_CUSTOMERNAME.getFieldName())!=null){
+			internationOrderDto.setCustomerName((String) dataMap.get(FieldKeyEnum.M_CUSTOMERNAME.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_ORDERTYPE.getFieldName())!=null){
+			internationOrderDto.setOrderType( (Integer) dataMap.get(FieldKeyEnum.M_ORDERTYPE.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_STOREID.getFieldName())!=null){
+			internationOrderDto.setStoreId((Integer) dataMap.get(FieldKeyEnum.M_STOREID.getFieldName()));
+		}
+		if(dataMap.get(FieldKeyEnum.M_SENDPAY.getFieldName())!=null){
+			internationOrderDto.setSendPay((String) dataMap.get(FieldKeyEnum.M_SENDPAY.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_PROVINCE.getFieldName())!=null){
+			internationOrderDto.setProvince((Integer) dataMap.get(FieldKeyEnum.M_PROVINCE.getFieldName()));
+		}
+
+		if(dataMap.get(FieldKeyEnum.M_CITY.getFieldName())!=null){
+			internationOrderDto.setCity((Integer) dataMap.get(FieldKeyEnum.M_CITY.getFieldName()));
+		}
 		return internationOrderDto;
 	}
 
