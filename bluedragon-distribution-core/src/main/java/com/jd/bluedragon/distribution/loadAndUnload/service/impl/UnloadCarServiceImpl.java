@@ -590,6 +590,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
+        //当前组板号，，后面request中板号在组板转移时替换成了老板号
+        String currentBoardCode = request.getBoardCode();
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
         // 判断当前扫描人员是否有按单操作权限
@@ -672,7 +674,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
 
             //返回组板 单/件数量
-            setBoardCount(dtoInvokeResult, request);
+            setBoardCount(dtoInvokeResult, currentBoardCode);
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -690,11 +692,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return dtoInvokeResult;
     }
     //获取组板包裹数
-    private void setBoardCount(InvokeResult<UnloadScanDetailDto> dtoInvokeResult, UnloadCarScanRequest request) {
-        if(StringUtils.isNotBlank(request.getBoardCode())) {
-            Response<List<String>>  tcResponse = boardCombinationService.getBoxesByBoardCode(request.getBoardCode());
+    private void setBoardCount(InvokeResult<UnloadScanDetailDto> dtoInvokeResult, String boardCode) {
+        if(StringUtils.isNotBlank(boardCode)) {
+            Response<List<String>>  tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
             if(tcResponse == null){
-                logger.error("UnloadCarServiceImpl.setBoardCount--组板组件返回结果为空！,板号=【{}】", request.getBoardCode());
+                logger.error("UnloadCarServiceImpl.setBoardCount--组板组件返回结果为空！,板号=【{}】", boardCode);
             }else if(com.jd.ql.dms.common.domain.JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){
                 //查询成功
                 if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
@@ -718,12 +720,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                             boxCount, waybillSet.size(), JsonHelper.toJson(tcResponse.getData()), JsonHelper.toJson(waybillSet));
                 }else{
                     if(logger.isWarnEnabled()) {
-                        logger.warn("UnloadCarServiceImpl.setBoardCount--未查询到板号明细,板号=【{}】", request.getBoardCode());
+                        logger.warn("UnloadCarServiceImpl.setBoardCount--未查询到板号明细,板号=【{}】", boardCode);
                     }
                 }
             }else {
                 logger.error("UnloadCarServiceImpl.setBoardCount-根据板号查询组板明细错误--error--！,板号=【{}】, 错误信息=【{}】",
-                        request.getBoardCode(), tcResponse.getMesseage());
+                        boardCode, tcResponse.getMesseage());
             }
         }
     }
