@@ -58,7 +58,13 @@ public class OrderServiceHelper {
      */
     public static List<String> getQueryDetailKeys() {
         List<String> queryList =  OrdermidQueryHelper.buildQuery(
-                FieldKeyEnum.M_DETAILS);
+                FieldKeyEnum.M_DETAIL_NAME,
+                FieldKeyEnum.M_DETAIL_NUM,
+                FieldKeyEnum.M_DETAIL_PRODUCTID,
+                FieldKeyEnum.M_DETAIL_PRICE,
+                FieldKeyEnum.M_DETAIL_SKUID,
+                FieldKeyEnum.M_DETAIL_PROFITCHANNELID
+                );
         return queryList;
     }
 
