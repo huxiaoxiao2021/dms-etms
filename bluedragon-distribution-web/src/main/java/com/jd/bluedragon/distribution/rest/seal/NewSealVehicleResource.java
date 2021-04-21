@@ -27,6 +27,9 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -1034,5 +1037,31 @@ public class NewSealVehicleResource {
         } catch (Exception e) {
             log.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
         }
+    }
+
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹分页列表
+     * @param request 查询参数
+     * @return 查询结果
+     */
+    @POST
+    @Path("sealCarCollect/selectNotCollectedPageList")
+    public NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectNotCollectedPageList(SealCarNotCollectedPo request) {
+        NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            if (request == null) {
+                log.warn("NewSealVehicleResource unseal --> 传入参数非法");
+                sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
+            }
+
+            SealCarNotCollectedPo sealCarNotCollectedPo = new SealCarNotCollectedPo();
+            NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedPageList(sealCarNotCollectedPo);
+            sealVehicleResponse = pageDataResult;
+        } catch (Exception e) {
+            this.log.error("NewSealVehicleResource.selectNotCollectedPageList exception ", e);
+        }
+        return sealVehicleResponse;
     }
 }

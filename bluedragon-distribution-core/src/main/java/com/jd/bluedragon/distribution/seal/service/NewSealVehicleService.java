@@ -5,6 +5,10 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -207,5 +211,18 @@ public interface NewSealVehicleService {
      * @return
      */
 	JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request);
-    
+
+    /**
+     * 按封车号查询运单是否有未集齐包裹
+     * @param paramObj 查询参数
+     * @return 查询结果
+     */
+    NewSealVehicleResponse<Long> selectPackageNotFullCollectedCount(SealCarNotCollectedPo paramObj);
+
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹分页列表
+     * @param paramObj 查询参数
+     * @return 查询结果
+     */
+    NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectPackageNotFullCollectedPageList(SealCarNotCollectedPo paramObj);
 }

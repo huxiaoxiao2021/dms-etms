@@ -700,4 +700,9 @@
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
     </jsf:consumer>
 
+    <!-- 封车集齐监控报表查询接口 -->
+    <jsf:consumer id="dmsWbSealCarCollectJsfService" interface="com.jd.dms.wb.report.api.sealCar.jsf.ISealCarCollectJsfService"
+                  protocol="jsf" alias="${jsf.dmsWb.report.alias}" timeout="${jsf.dmsWb.report.timeout}" >
+    </jsf:consumer>
+
 </beans>

@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.IDmsWbSealCarCollectManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
@@ -41,6 +42,10 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
@@ -125,6 +130,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private CarrierQueryWSManager carrierQueryWSManager;
+
+    @Autowired
+    private IDmsWbSealCarCollectManager dmsWbSealCarCollectManager;
 
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
@@ -694,6 +702,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
+            // 解封车增加是否集齐处理提示
+            this.unsealHandlePackageHasFullCollected(sealCarInfo, sealCars);
         }catch (Exception e){
             this.log.error("封车-error参数：{}",JsonHelper.toJson(paramList), e);
             msg = "封车异常：["+ e.getMessage() +"]";
@@ -723,6 +733,37 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
         return sealCarInfo;
 	}
+
+    /**
+     * 处理解封车未集齐
+     * @param sealCarResult
+     */
+	private void unsealHandlePackageHasFullCollected(CommonDto<String> sealCarResult, List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        try {
+            if(sealCarResult == null){
+                return;
+            }
+            Long siteId = (long)sealCars.get(0).getSealSiteId();
+            // 增加UCC开关，不处理的直接返回
+            if(!uccPropertyConfiguration.getUnSealCarHandlePackageFullCollectedNeedHandle(siteId)){
+                return;
+            }
+            List<String> sealCarCodeList = new ArrayList<>();
+            for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCar : sealCars) {
+                sealCarCodeList.add(sealCar.getSealCarCode());
+            }
+            // 查询封车集齐报表是否集齐，未集齐则code变为201
+            SealCarNotCollectedPo paramObj = new SealCarNotCollectedPo();
+            paramObj.setSealCarCodeList(sealCarCodeList);
+            paramObj.setSiteId(siteId);
+            NewSealVehicleResponse<Long> notFullCollectedCountResult = this.selectPackageNotFullCollectedCount(paramObj);
+            if(Objects.equals(notFullCollectedCountResult.getCode(), JdResponse.CODE_OK) && notFullCollectedCountResult.getData() != null && notFullCollectedCountResult.getData() > 0){
+                sealCarResult.setCode(201);
+            }
+        } catch (Exception e) {
+            log.error("unsealHandlePackageHasFullCollected exception ", e);
+        }
+    }
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealed",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -1329,4 +1370,81 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		}
 		return newList;
 	}
+
+    /**
+     * 按封车号查询运单是否有未集齐包裹
+     * @param paramObj 查询参数
+     * @return 查询结果
+     */
+    @Override
+    public NewSealVehicleResponse<Long> selectPackageNotFullCollectedCount(SealCarNotCollectedPo paramObj){
+        if(log.isInfoEnabled()){
+            log.info("selectPackageNotFullCollectedCount param：{}",JsonHelper.toJson(paramObj));
+        }
+        NewSealVehicleResponse<Long> result = new NewSealVehicleResponse<>();
+        result.setCode(JdResponse.CODE_OK);
+        try{
+            Result<Void> checkResult = this.checkParam4SelectPackageNotFullCollected(paramObj);
+            if (!checkResult.isSuccess()) {
+                result.setMessage(checkResult.getMessage());
+                return result;
+            }
+            Result<Long> countResult = dmsWbSealCarCollectManager.selectNotCollectedCount(paramObj);
+            if (!countResult.isSuccess()) {
+                result.setMessage("按封车号查询运单是否有未集齐包裹失败，请稍后重试");
+                return result;
+            }
+            result.setData(countResult.getData());
+        } catch (Exception e){
+            log.error("selectPackageNotFullCollectedCount exception {}", e.getMessage(), e);
+            result.setMessage("按封车号查询运单是否有未集齐包裹异常，请联系分拣小秘");
+            return result;
+        }
+        return result;
+    }
+
+    private Result<Void> checkParam4SelectPackageNotFullCollected(SealCarNotCollectedPo paramObj){
+        Result<Void> result = Result.success();
+
+        if(paramObj.getSiteId() == null){
+            return result.toFail("参数错误，siteId不能为空");
+        }
+
+        if(CollectionUtils.isEmpty(paramObj.getSealCarCodeList())){
+            return result.toFail("参数错误，sealCarCodeList不能为空");
+        }
+
+        return result;
+    }
+
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹分页列表
+     * @param paramObj 查询参数
+     * @return 查询结果
+     */
+    @Override
+    public NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectPackageNotFullCollectedPageList(SealCarNotCollectedPo paramObj){
+        if(log.isInfoEnabled()){
+            log.info("selectPackageNotFullCollectedPageList param：{}",JsonHelper.toJson(paramObj));
+        }
+        NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> result = new NewSealVehicleResponse<>();
+        result.setCode(JdResponse.CODE_OK);
+        try{
+            Result<Void> checkResult = this.checkParam4SelectPackageNotFullCollected(paramObj);
+            if (!checkResult.isSuccess()) {
+                result.setMessage(checkResult.getMessage());
+                return result;
+            }
+            Result<PageData<SealCarNotCollectedDto>> listResult = dmsWbSealCarCollectManager.selectNotCollectedPageList(paramObj);
+            if (!listResult.isSuccess()) {
+                result.setMessage("按封车号查询运单未集齐包裹列表失败，请稍后重试");
+                return result;
+            }
+            result.setData(listResult.getData());
+        } catch (Exception e){
+            log.error("selectPackageNotFullCollectedPageList exception {}", e.getMessage(), e);
+            result.setMessage("按封车号查询运单未集齐包裹列表异常，请联系分拣小秘");
+        }
+        return result;
+    }
 }
