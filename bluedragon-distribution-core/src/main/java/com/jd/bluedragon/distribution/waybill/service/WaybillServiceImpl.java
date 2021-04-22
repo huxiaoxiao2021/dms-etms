@@ -22,7 +22,9 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
+import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -115,6 +117,10 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private CancelWaybillJsfManager cancelWaybillJsfManager;
+
+
+    @Autowired
+    private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1067,6 +1073,15 @@ public class WaybillServiceImpl implements WaybillService {
             JsfResponse<WaybillCancelJsfResponse> cancelJsfResponseJsfResponse = cancelWaybillJsfManager.dealCancelWaybill(waybillForPreSortOnSiteRequest.getWaybill());
             if (!cancelJsfResponseJsfResponse.getCode().equals(JsfResponse.SUCCESS_CODE)){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,cancelJsfResponseJsfResponse.getMessage());
+                return result;
+            }
+
+            // 当前校验必须放在最后
+            //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
+            InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
+                    waybill.getWaybillCode(),siteOfSchedulingOnSite.getSiteCode(),waybillForPreSortOnSiteRequest.getSortingSite());
+            if(!crossResult.codeSuccess()){
+                result.customMessage(crossResult.getCode(),crossResult.getMessage());
                 return result;
             }
 

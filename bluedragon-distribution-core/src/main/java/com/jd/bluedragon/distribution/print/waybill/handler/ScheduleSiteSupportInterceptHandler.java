@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -48,6 +51,10 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
     @Autowired
     private WaybillPrintService waybillPrintService;
 
+    @Autowired
+    private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
+
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
@@ -67,6 +74,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
+        Waybill waybill = context.getWaybill();
 
         BaseStaffSiteOrgDto scheduleSiteOrgDto;
         try {
@@ -96,8 +104,8 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             }
 
             if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()
-                    ,context.getWaybill().getCodMoney())){
-                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(context.getWaybill().getCodMoney()));
+                    ,waybill.getCodMoney())){
+                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(waybill.getCodMoney()));
                 result.toError(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
                 return result;
             }
@@ -134,6 +142,16 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                         }
                     }
                 }
+            }
+
+            //校验预分拣归属滑道信息
+            InvokeResult<String> crossResult = scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),waybillCode,
+                    context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode());
+            if(!crossResult.codeSuccess()){
+                LOGGER.warn("ScheduleSiteSupportInterceptHandler.handler 预分拣站点滑道信息为空,targetSiteCode:{},dmsSiteCode:{},waybillCode:{}",
+                        context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode(),waybillCode);
+                result.toWarn(crossResult.getCode(),crossResult.getMessage());
+                return result;
             }
 
         } catch (Exception e) {
