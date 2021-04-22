@@ -150,7 +150,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             if(!crossResult.codeSuccess()){
                 LOGGER.warn("ScheduleSiteSupportInterceptHandler.handler 预分拣站点滑道信息为空,targetSiteCode:{},dmsSiteCode:{},waybillCode:{}",
                         context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode(),waybillCode);
-                result.toWarn(crossResult.getCode(),crossResult.getMessage());
+                result.toWeakSuccess(crossResult.getCode(),crossResult.getMessage());
                 return result;
             }
 
