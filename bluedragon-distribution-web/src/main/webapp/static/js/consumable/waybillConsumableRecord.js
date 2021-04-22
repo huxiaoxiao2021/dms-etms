@@ -339,42 +339,32 @@ $(function() {
                     var receiveUserErp = $("#receiveUserErp").val();
                     var waybillCode = $("#waybillCode").val();
                     var confirmStatus = $("#confirmStatus").val();
-                    /* var startTime = $.dateHelper.parseDateTime(startTimeStr);
-                    var endTime = $.dateHelper.parseDateTime(endTimeStr);
-
-                    if(window.date.subtract(endTime,startTime).toDays() > PERIOD_LIMIT){
-                        $.msg.alert("时间范围有误：起始时间、截止时间间隔最大为1个月");
-                        return;
-                    }
-
-                    if(startTime >= endTime){
-                        $.msg.warn("起始时间必须小于截止时间！");
-                        return;
-                    }
-
-                    if(startTime > now || endTime > now){
-                        $.msg.warn("不能导出未来的数据！");
-                        return;
-                    }*/
-
                     var confirmMessage = '确认按照当前条件进行数据导出吗？（单次最大支持导出50000条数据，如超过50000条，请缩短时间范围多次导出）';
 
                     $.msg.confirm(confirmMessage,function () {
-                        /*获取参数*/
-                        var queryParams = $.formHelper.serialize('query-form');
+                        checkConcurrencyLimit({
+                            currentKey: exportReportEnum.WAYBILL_CONSUMABLE_RECORD_REPORT,
+                            checkPassCallback: function (result) {
+                                /*获取参数*/
+                                var queryParams = $.formHelper.serialize('query-form');
 
-                        var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
-                        if(receiveUserErp != ""){
-                            exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
-                        }
-                        if(waybillCode != ""){
-                            exportUrl = exportUrl + '&waybillCode=' + waybillCode;
-                        }
-                        if(confirmStatus != null && confirmStatus != "2"){
-                            exportUrl = exportUrl + '&confirmStatus=' + confirmStatus;
-                        }
-                        console.log(exportUrl);
-                        window.open(exportUrl);
+                                var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
+                                if(receiveUserErp != ""){
+                                    exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
+                                }
+                                if(waybillCode != ""){
+                                    exportUrl = exportUrl + '&waybillCode=' + waybillCode;
+                                }
+                                if(confirmStatus != null && confirmStatus != "2"){
+                                    exportUrl = exportUrl + '&confirmStatus=' + confirmStatus;
+                                }
+                                window.open(exportUrl);
+                            },
+                            checkFailCallback: function (result) {
+                                // 导出校验失败，弹出提示消息
+                                alert(result.message)
+                            }
+                        });
                     });
                 }else{
                     $.msg.warn('导出查询条件有误','请您检查导出查询条件是否有误');

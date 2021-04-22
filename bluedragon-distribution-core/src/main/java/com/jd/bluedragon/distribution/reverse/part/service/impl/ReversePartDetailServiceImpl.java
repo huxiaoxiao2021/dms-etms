@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.reverse.part.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
@@ -59,6 +61,9 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 	public Dao<ReversePartDetail> getDao() {
 		return this.reversePartDetailDao;
 	}
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 获取累计发货记录
@@ -185,6 +190,7 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 	@Override
 	public List<List<Object>> getExportData(ReversePartDetailCondition reversePartDetailCondition) {
 
+         long start = System.currentTimeMillis();
 
 		List<List<Object>> resList = new ArrayList<List<Object>>();
 
@@ -249,6 +255,8 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 
 		}
 
+		long end = System.currentTimeMillis();
+		exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(reversePartDetailCondition), ExportConcurrencyLimitEnum.REVERSE_PART_DETAIL_REPORT.getName(),end-start,resList.size() );
 		return resList;
 	}
 

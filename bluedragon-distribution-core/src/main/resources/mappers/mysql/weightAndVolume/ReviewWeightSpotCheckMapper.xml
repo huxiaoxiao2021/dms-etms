@@ -126,7 +126,7 @@
 		<include refid="Query_Params_Condition_Sql"/>
 
 		<include refid="Base_Condition_Sql"/>
-		limit 5000
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
 	<update id="updateBySiteCode" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo" timeout="3">

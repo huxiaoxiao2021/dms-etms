@@ -1,5 +1,7 @@
 $(function () {
     var queryUrl = '/barcode/listData';
+    var exportUrl = '/barcode/toExport';
+
     /*blockUI*/
     var lockPage = function () {
         $.blockUI({
@@ -71,25 +73,35 @@ $(function () {
                 $('#barcode').val(null);
                 $('#dataTable').bootstrapTable("load",[]);
             });
-            $("#btn_export").click(function () {
 
+            // 导出
+            $("#btn_export").click(function () {
                 var v_barcode=$("#barcode").val();
                 if (!v_barcode){
                     Jd.alert("无可导出内容");
                     return;
                 }
-                var url = "/barcode/toExport";
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action": url});
+                checkConcurrencyLimit({
+                    currentKey: exportReportEnum.DMS_BAR_CODE_REPORT,
+                    checkPassCallback: function (result) {
+                        $('#edit-form').attr('action',exportUrl);
+                        var form = $("<form method='post' id='exportForm'></form>"),
+                            input;
+                        form.attr({"action": exportUrl});
 
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": "barcode"});
-                input.val(v_barcode);
-                form.append(input);
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name": "barcode"});
+                        input.val(v_barcode);
+                        form.append(input);
+                        form.appendTo(document.body);
+                        form.submit();
+                        form.remove();
+                    },
+                    checkFailCallback: function (result) {
+                        // 导出校验失败，弹出提示消息
+                        alert(result.message)
+                    }
+                });
             });
         };
         return oInit;

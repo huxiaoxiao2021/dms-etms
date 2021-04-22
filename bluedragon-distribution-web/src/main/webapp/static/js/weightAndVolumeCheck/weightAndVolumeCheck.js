@@ -371,46 +371,50 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
-            // if($('#createSiteCode').val() === null || $('#createSiteCode').val() === ''){
-            //     Jd.alert("请选择复核区域、复核分拣后导出!");
-            //     return;
-            // }
-            var params = tableInit.getSearchCondition();
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.STORAGE_PACKAGE_M_REPORT,
+                checkPassCallback: function (result) {
+                    var params = tableInit.getSearchCondition();
 
-            var param = "";
-            if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
-                param = "&reviewOrgCode=" + params.reviewOrgCode;
-            }
-            if(params.createSiteCode != undefined && params.createSiteCode != "undefined"){
-                param += "&createSiteCode=" +  params.createSiteCode;
-            }
-            if(params.isExcess != undefined && params.isExcess != "undefined"){
-                param += "&isExcess=" +  params.isExcess;
-            }
-            param += "&startTime=" +  $("#startTime").val();
-            param += "&endTime=" +  $("#endTime").val();
-            if(params.waybillCode != undefined && params.waybillCode != "undefined"){
-                param += "&waybillCode=" +  params.waybillCode;
-            }
-            if(params.waybillOrPackCode != undefined && params.waybillOrPackCode != "undefined"){
-                param += "&waybillOrPackCode=" +  params.waybillOrPackCode;
-            }
-            if(params.busiName != undefined && params.busiName != "undefined"){
-                param += "&busiName=" +  encodeURI(encodeURI(params.busiName));
-            }
-            if(params.reviewErp != undefined && params.reviewErp != "undefined"){
-                param += "&reviewErp=" +  params.reviewErp;
-            }
-            if(params.billingErp != undefined && params.billingErp != "undefined"){
-                param += "&billingErp=" +  params.billingErp;
-            }
-            if(params.spotCheckType != undefined && params.spotCheckType != "undefined"){
-                param += "&spotCheckType=" +  params.spotCheckType;
-            }
+                    var param = "";
+                    if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
+                        param = "&reviewOrgCode=" + params.reviewOrgCode;
+                    }
+                    if(params.createSiteCode != undefined && params.createSiteCode != "undefined"){
+                        param += "&createSiteCode=" +  params.createSiteCode;
+                    }
+                    if(params.isExcess != undefined && params.isExcess != "undefined"){
+                        param += "&isExcess=" +  params.isExcess;
+                    }
+                    param += "&startTime=" +  $("#startTime").val();
+                    param += "&endTime=" +  $("#endTime").val();
+                    if(params.waybillCode != undefined && params.waybillCode != "undefined"){
+                        param += "&waybillCode=" +  params.waybillCode;
+                    }
+                    if(params.waybillOrPackCode != undefined && params.waybillOrPackCode != "undefined"){
+                        param += "&waybillOrPackCode=" +  params.waybillOrPackCode;
+                    }
+                    if(params.busiName != undefined && params.busiName != "undefined"){
+                        param += "&busiName=" +  encodeURI(encodeURI(params.busiName));
+                    }
+                    if(params.reviewErp != undefined && params.reviewErp != "undefined"){
+                        param += "&reviewErp=" +  params.reviewErp;
+                    }
+                    if(params.billingErp != undefined && params.billingErp != "undefined"){
+                        param += "&billingErp=" +  params.billingErp;
+                    }
+                    if(params.spotCheckType != undefined && params.spotCheckType != "undefined"){
+                        param += "&spotCheckType=" +  params.spotCheckType;
+                    }
 
-            $('#btn_export').attr("disabled",true);
-            location.href = exportUrl + "?" + param;
-
+                    $('#btn_export').attr("disabled",true);
+                    location.href = exportUrl + "?" + param;
+                    },
+                    checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
+                 }
+            });
         });
     }
 

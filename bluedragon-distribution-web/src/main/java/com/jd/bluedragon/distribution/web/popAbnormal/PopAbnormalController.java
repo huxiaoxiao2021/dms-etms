@@ -2,16 +2,18 @@ package com.jd.bluedragon.distribution.web.popAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDTO;
 import com.jd.bluedragon.distribution.popAbnormal.service.PopAbnormalService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.bluedragon.utils.WorkBookObject;
+import com.jd.bluedragon.utils.*;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +25,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -47,6 +50,9 @@ public class PopAbnormalController {
 	@Autowired
 	private PopAbnormalService popAbnormalService;
 
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
 	/**
 	 * 跳转到查询POP差异列表页面
 	 * 
@@ -63,7 +69,7 @@ public class PopAbnormalController {
 	/**
 	 * 按条件查询POP差异订单数据集合
 	 * 
-	 * @param paramMap
+	 * @param pager
 	 * @param model
 	 * @return
 	 */
@@ -255,15 +261,14 @@ public class PopAbnormalController {
 	 * @param response
 	 * @return
 	 */
-//	@HrmPrivilege("TMS-REPORT-POPCY")
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
-	public String exportPopAbnormal(PopAbnormalDTO popAbnormalDTO, Pager pager,
-			HttpServletResponse response) {
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopAbnormalController.exportPopAbnormal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult exportPopAbnormal(PopAbnormalDTO popAbnormalDTO, Pager pager, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
 		log.debug("导出POP差异订单数据");
 		Map<String, Object> paramMap = ObjectMapHelper.makeObject2Map(popAbnormalDTO);
-		// 验证登陆信息
-		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 
 		// 设置分页对象
 		if (pager == null) {
@@ -273,58 +278,57 @@ public class PopAbnormalController {
 		}
 		paramMap.putAll(ObjectMapHelper.makeObject2Map(pager));
 
-		OutputStream os = null;
+		BufferedWriter bfw = null;
 		try {
-			List<PopAbnormal> popAbnormals = null;
-			// 获取用户分拣中心相关信息
-			Map<String, Object> dmsUserMap = getUserMap(erpUser.getStaffNo());
-			try {
-				if (!dmsUserMap.isEmpty()) {
-					// 设置用户分拣中心信息
-					paramMap.putAll(dmsUserMap);
-					popAbnormals = popAbnormalService.findList(paramMap);
-				}
-			} catch (Exception e) {
-				this.log.error("根据条件查询POP差异订单处理集合异常：", e);
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getCode());
+			String fileName = "POP差异订单数据";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+
+			Map<String, Object>  dmsUserMap = checkUser();
+			if (!checkUser().isEmpty()) {
+				// 设置用户分拣中心信息
+				paramMap.putAll(dmsUserMap);
 			}
-			os = response.getOutputStream();
-			String filename = "POP差异订单数据" + DateHelper.formatDate(new Date())
-					+ ".xls";
-			response.setContentType("application/vnd.ms-excel");
-			response.addHeader("Content-Disposition", "attachment; filename=\""
-					+ new String(filename.getBytes("GB2312"), "ISO8859-1")
-					+ "\"");
+			popAbnormalService.export(paramMap,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.POP_ABNORMAL_REPORT.getCode());
 
-			WorkBookObject wb = new WorkBookObject(filename);
-			wb.addTitle(new String[] { "订单号", "运单号", "异常类型", "申请状态", "流水单号",
-					"商家编号", "原包裹数", "实际包裹数", "确认包裹数", "申请时间", "申请人ID", "申请人姓名",
-					"确认时间", "更新时间", "备注" });
-			wb.saveTitle();
-
-			if (popAbnormals != null && !popAbnormals.isEmpty()) {
-				String[] tAttrs = new String[] { "orderCode", "waybillCode",
-						"abnormalType", "abnormalState", "serialNumber",
-						"popSupNo", "currentNum", "actualNum", "confirmNum",
-						"createTime", "operatorCode", "operatorName",
-						"confirmTime", "updateTime", "memo" };
-				wb.saveDataList(popAbnormals, PopAbnormal.class, tAttrs);
-			}
-
-			wb.getWb().write(os);
-
-			os.flush();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			log.error("根据条件查询POP差异订单处理集合异常：", e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,Constants.DMS_WEB_PTORDER_DIFF_R+InvokeResult.RESULT_EXPORT_MESSAGE);
 		} finally {
 			try {
-				if (os != null) {
-					os.close();
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
 				}
 			} catch (IOException e) {
-				log.error("关闭数据流 ERROR", e);
+				log.error("POP差异订单数据 流关闭异常", e);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
 			}
 		}
-		return null;
+		return result;
+	}
+
+	/**
+	 * 根据用户编号获取用户所属站点信息
+	 * staffId 用户编号
+	 * @return
+	 */
+	private Map<String, Object> checkUser(){
+		Map<String, Object>  dmsUserMap = null;
+		try {
+			// 验证登陆信息
+			ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+			// 获取用户分拣中心相关信息
+			 dmsUserMap = popAbnormalService.getBaseStaffByStaffId(erpUser.getStaffNo());
+		}catch (Exception e){
+			log.error("获取用户信息异常",e);
+		}
+		return dmsUserMap;
 	}
 
 	@InitBinder
@@ -343,4 +347,5 @@ public class PopAbnormalController {
 	private Map<String, Object> getUserMap(Integer staffId) {
 		return popAbnormalService.getBaseStaffByStaffId(staffId);
 	}
+
 }

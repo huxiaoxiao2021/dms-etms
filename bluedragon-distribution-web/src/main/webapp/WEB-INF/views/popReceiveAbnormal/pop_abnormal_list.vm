@@ -106,10 +106,23 @@ $(document).ready(function() {
 	
 	// 导出数据
 	$("#exportData").click(function() {
-		// 提交表单
-		$("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
-		$("#selectPopList").attr("method", "POST");
-		$("#selectPopList").submit();
+		jQuery.ajax({
+			type: "POST",
+			url: "#springUrl('/popReceiveAbnormal/checkConcurrencyLimit')",
+			data: {},
+			success: function(data){
+				if(data.code == 200){
+					// 提交表单
+					$("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
+					$("#selectPopList").attr("method", "POST");
+					$("#selectPopList").submit();
+					return true;
+				}else {
+					alert(data.message);
+					return false;
+				}
+			}
+		});
 		return false;
 	});
 	// 提交查询

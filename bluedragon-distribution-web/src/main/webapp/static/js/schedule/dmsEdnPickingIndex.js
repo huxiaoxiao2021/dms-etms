@@ -212,23 +212,34 @@ $(function() {
 		    	if(!checkQueryParams()){
 		    		return;
 		    	}
-                var params = tableInit().getSearchCondition();
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":exportUrl});
+				$('#btn_export').click(function () {
 
-                $.each(params,function(key,value){
+					checkConcurrencyLimit({
+						currentKey: exportReportEnum.DMS_SCHEDULE_INFO_REPORT,
+						checkPassCallback: function (result) {
+							var params = tableInit().getSearchCondition();
+							var form = $("<form method='post'></form>"),
+								input;
+							form.attr({"action":exportUrl});
 
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
-                });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
+							$.each(params,function(key,value){
 
+								input = $("<input type='hidden' class='search-param'>");
+								input.attr({"name":key});
+								input.val(value);
+								form.append(input);
+							});
+							form.appendTo(document.body);
+							form.submit();
+							document.body.removeChild(form[0]);
+						},
+						checkFailCallback: function (result) {
+							// 导出校验失败，弹出提示消息
+							alert(result.message)
+						}
+					});
+				});
             });
 
 			$('#btn_submit').click(function() {

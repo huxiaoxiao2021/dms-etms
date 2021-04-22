@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.popAbnormal.service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -68,4 +69,11 @@ public interface PopAbnormalService {
 	 * @return
 	 */
 	public int updatePopPackNum(PopAbnormal popAbnormal);
+
+	/**
+	 * 导出方法
+	 * @param paramMap
+	 * @param bfw
+	 */
+	void export(Map<String, Object> paramMap, BufferedWriter bfw);
 }

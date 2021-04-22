@@ -156,27 +156,36 @@ $(function() {
 		    	}
 		    	tableInit().refresh();
 			});
+
+		    //数据导出
             $("#btn_export").on("click",function(e){
 		    	if(!checkQueryParams()){
 		    		return;
 		    	}
-                var params = tableInit().getSearchCondition();
+				checkConcurrencyLimit({
+					currentKey: exportReportEnum.BUSINESS_RETURN_ADDRESS_REPORT,
+					checkPassCallback: function (result) {
+						var params = tableInit().getSearchCondition();
+						var form = $("<form method='post'></form>"),
+							input;
+						form.attr({"action":exportUrl});
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":exportUrl});
+						$.each(params,function(key,value){
 
-                $.each(params,function(key,value){
-
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
-                });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
-
+							input = $("<input type='hidden' class='search-param'>");
+							input.attr({"name":key});
+							input.val(value);
+							form.append(input);
+						});
+						form.appendTo(document.body);
+						form.submit();
+						document.body.removeChild(form[0]);
+					},
+					checkFailCallback: function (result) {
+						// 导出校验失败，弹出提示消息
+						alert(result.message)
+					}
+				});
             });
 		};
 		return oInit;
@@ -195,6 +204,6 @@ function checkQueryParams(){
 	if(date1.getTime()>date00.getTime()){
 		alert('时间区间不能大于30天！');
 		return false;
-	}	
+	}
 	return true;
 }

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -104,10 +106,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Value("${spotCheck.fourSumLWH:70}")
     public String fourSumLWH;
 
-    /**
-     * 导出最大限制
-     */
-    private static final int EXPORT_MAX_SIZE = 10000;
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * C网超标下发MQ天数
@@ -1293,16 +1293,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public void export(WeightAndVolumeCheckCondition condition, BufferedWriter innerBfw) {
         try {
+            long start = System.currentTimeMillis();
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, innerBfw, headerMap.values().size());
             // 分页查询记录
             WeightVolumeQueryCondition weightVolumeQueryCondition = transform(condition);
+
             // 设置总导出数据
-            Integer uccSpotCheckMaxSize = uccPropertyConfiguration.getExportSpotCheckMaxSize();
-            if(uccPropertyConfiguration.getExportSpotCheckMaxSize() == null){
-                uccSpotCheckMaxSize = EXPORT_MAX_SIZE;
-            }
+            Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+
             int queryTotal = 0;
             int index = 1;
             while (index++ <= 1000) {
@@ -1322,6 +1322,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     break;
                 }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getName(), end-start,queryTotal);
         }catch (Exception e){
             log.error("分页获取导出数据失败",e);
         }

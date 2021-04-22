@@ -8,6 +8,7 @@
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
     <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
     <script src="/static/js/inventory/inventoryTask.js"></script>
 </head>
 <body>

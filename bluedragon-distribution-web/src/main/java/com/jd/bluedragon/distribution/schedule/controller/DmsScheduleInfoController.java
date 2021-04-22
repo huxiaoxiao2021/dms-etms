@@ -1,9 +1,19 @@
 package com.jd.bluedragon.distribution.schedule.controller;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.CsvExporterUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchPdfDto;
 import com.jd.jp.print.templet.center.sdk.dto.EdnDeliveryReceiptBatchRequest;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +38,8 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  *
  * @ClassName: CollectGoodsDetailController
@@ -48,6 +60,9 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	@Autowired
 	BaseMajorManager baseMajorManager;
 
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
 	/**
 	 * 返回企配仓拣货主页面
 	 * @return
@@ -59,9 +74,10 @@ public class DmsScheduleInfoController extends DmsBaseController{
 		model.addAttribute("orgId",loginUser.getOrgId()).addAttribute("createSiteCode",loginUser.getSiteCode());
 		return "/schedule/dmsEdnPickingIndex";
 	}
+
 	/**
 	 * 根据条件分页查询数据信息
-	 * @param collectGoodsDetailCondition
+	 * @param dmsScheduleInfoCondition
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
@@ -69,29 +85,69 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	public @ResponseBody PagerResult<DmsEdnPickingVo> queryEdnPickingList(@RequestBody DmsScheduleInfoCondition dmsScheduleInfoCondition) {
 		return dmsScheduleInfoService.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
 	}
+
+	@RequestMapping(value = "/checkConcurrencyLimit")
+	@ResponseBody
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.schedule.controller.DmsScheduleInfoController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult checkConcurrencyLimit(){
+		InvokeResult result = new InvokeResult();
+		try {
+			//校验并发
+			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EDN_PICKING_R)){
+				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
+				return result;
+			}
+		}catch (Exception e){
+			log.error("校验导出并发接口异常-企配仓拣货",e);
+			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
+			return result;
+		}
+		return result;
+	}
+
 	/**
 	 * 导出excel
 	 * @param dmsScheduleInfoCondition
-	 * @param model
+	 * @param response
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/exportEdnPickingList")
-	public ModelAndView exportEdnPickingList(DmsScheduleInfoCondition dmsScheduleInfoCondition, Model model) {
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.schedule.controller.DmsScheduleInfoController.exportEdnPickingList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult exportEdnPickingList(DmsScheduleInfoCondition dmsScheduleInfoCondition, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
+		BufferedWriter bfw = null;
+		log.info("企配仓拣货导出");
 		try {
-			List<List<Object>> resultList = dmsScheduleInfoService.queryEdnPickingExcelData(dmsScheduleInfoCondition);
-			model.addAttribute("filename", "企配仓拣货.xls");
-			model.addAttribute("sheetname", "企配仓拣货");
-			model.addAttribute("contents", resultList);
-			return new ModelAndView(new DefaultExcelView(), model.asMap());
+			String fileName = "企配仓拣货";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+			dmsScheduleInfoService.export(dmsScheduleInfoCondition,bfw);
 		} catch (Exception e) {
-			log.error("toExport:", e);
-			return null;
+			log.error("企配仓拣货导出 toExport:", e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+		}finally {
+			try {
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
+				}
+			} catch (IOException es) {
+				log.error("导出企配仓拣货 流关闭异常", es);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+			}
 		}
+		return result;
 	}
+
 	/**
 	 * 根据scheduleBillCode获取基本信息
-	 * @param id
+	 * @param scheduleBillCode
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
@@ -103,7 +159,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	}
 	/**
 	 * 根据scheduleBillCode打印取件单
-	 * @param id
+	 * @param scheduleBillCode
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
@@ -113,7 +169,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	}
 	/**
 	 * 根据scheduleBillCode打印交接单
-	 * @param id
+	 * @param scheduleBillCode
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)

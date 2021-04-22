@@ -20,6 +20,7 @@ public class CrossBoxRequest implements Serializable {
 	private String startDate;
 	private String endDate;
 	private Integer startIndex;
+	private Integer pageSize;
 	private Integer endIndex;
 	private Integer yn;
 	private String originateOrgName;//始发区域名称
@@ -186,4 +187,11 @@ public class CrossBoxRequest implements Serializable {
 		this.transferOrgName = transferOrgName;
 	}
 
+	public Integer getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(Integer pageSize) {
+		this.pageSize = pageSize;
+	}
 }

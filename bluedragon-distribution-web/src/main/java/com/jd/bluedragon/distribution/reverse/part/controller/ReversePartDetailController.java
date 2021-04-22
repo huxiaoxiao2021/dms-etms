@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
@@ -11,6 +14,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +49,9 @@ public class ReversePartDetailController {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 返回主页面
@@ -160,7 +168,6 @@ public class ReversePartDetailController {
 		return rest;
 	}
 
-
 	/**
 	 * 导出
  	 * @param reversePartDetailCondition
@@ -169,9 +176,9 @@ public class ReversePartDetailController {
 	 */
 	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toExport")
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.reverse.part.controller.ReversePartDetailController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public ModelAndView toExport(ReversePartDetailCondition reversePartDetailCondition, Model model) {
 		try {
-
 
 			//超过5000条不允许导出
 			int count = reversePartDetailService.queryByParamCount(reversePartDetailCondition);
@@ -184,16 +191,16 @@ public class ReversePartDetailController {
 				resultList.add(errorResult);
 
 			}else{
+				exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.REVERSE_PART_DETAIL_REPORT.getCode());
 				resultList = reversePartDetailService.getExportData(reversePartDetailCondition);
+				exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.REVERSE_PART_DETAIL_REPORT.getCode());
 			}
-
 
 			model.addAttribute("filename", "半退发货明细.xls");
 			model.addAttribute("sheetname", "半退发货明细");
 			model.addAttribute("contents", resultList);
 
 			return new ModelAndView(new DefaultExcelView(), model.asMap());
-
 		} catch (Exception e) {
 			log.error("toExport:异常", e);
 			return null;

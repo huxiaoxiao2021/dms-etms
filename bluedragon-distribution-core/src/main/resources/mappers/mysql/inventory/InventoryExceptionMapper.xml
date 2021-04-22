@@ -297,6 +297,7 @@
         <if test="isRepeat > 0">
             <include refid="Base_Repeat_Condition_Sql" />
         </if>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
     <select id="getInventoryLossException" resultMap="BaseResultMap">
