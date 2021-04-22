@@ -418,5 +418,24 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         }
     }
 
+    @Override
+    public JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp) {
+        if(logger.isInfoEnabled()) {
+            logger.info("LoadAndUnloadCarGatewayServiceImpl.getUnloadCarHistoryHelper--begin--参数={}", erp);
+        }
+        JdCResponse<List<String>> jdcResponse = new JdCResponse<>();
+        if (StringUtils.isBlank(erp)) {
+            jdcResponse.toFail("参数不能为空");
+            return jdcResponse;
+        }
+        try {
+            return unloadCarService.getUnloadCarHistoryHelper(erp);
+        } catch (Exception e) {
+            logger.info("LoadAndUnloadCarGatewayServiceImpl.getUnloadCarHistoryHelper--error--参数={}", erp, e);
+            jdcResponse.toError("查询卸车协助人历史记录失败");
+            return jdcResponse;
+        }
+    }
+
 
 }

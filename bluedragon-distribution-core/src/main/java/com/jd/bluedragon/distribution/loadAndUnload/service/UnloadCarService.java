@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
@@ -172,6 +173,8 @@ public interface UnloadCarService {
      */
     InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
 
+
+    JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
     /**
      * 卸车扫描(空任务卸车最新版)
      */

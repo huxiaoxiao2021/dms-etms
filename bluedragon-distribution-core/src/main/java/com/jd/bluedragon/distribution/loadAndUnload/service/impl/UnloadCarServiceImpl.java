@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
+import com.jd.bluedragon.distribution.loadAndUnload.constants.UnloadCarConstant;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
@@ -94,6 +95,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
@@ -2457,7 +2459,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         }
                     }
                 }
-
+                //添加协助人存入redis
+                addUnloadCarHelperCache(taskHelpersReq.getUser().getUserErp(), taskHelpersReq.getHelperERP());
                 //添加协助人
                 UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
                 unloadCarDistribution.setSealCarCode(taskHelpersReq.getTaskCode());
@@ -2482,6 +2485,54 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
 
         return this.getUnloadCarTaskHelpers(taskHelpersReq.getTaskCode());
+    }
+
+    /**
+     * 卸车协助人数据存储redis, 历史协助人查询
+     * @param mainUserErp  负责人erp
+     * @param helperUserErp  协助人erp
+     */
+    private void addUnloadCarHelperCache(String mainUserErp, String helperUserErp) {
+        if(StringUtils.isNotBlank(mainUserErp) && StringUtils.isNotBlank(helperUserErp)) {
+            String key = CacheKeyConstants.CACHE_KEY_UNLOAD_MAIN_ERP + mainUserErp;
+            List<String> helperErpCacheList = jimdbCacheService.getList(key, String.class);
+            if (CollectionUtils.isEmpty(helperErpCacheList)) {
+                List<String> helperListNew = new ArrayList<>();
+                helperListNew.add(helperUserErp);
+                jimdbCacheService.setEx(key, helperListNew, 30, TimeUnit.DAYS);
+            }else {
+                if(helperErpCacheList.contains(helperUserErp)) {
+                    return;
+                }
+                if(helperErpCacheList.size() >= UnloadCarConstant.UNLOAD_HELPER_HISTORY_SIZE) {
+                    helperErpCacheList.remove(0);
+                }
+                helperErpCacheList.add(helperUserErp);
+                jimdbCacheService.setEx(key, helperErpCacheList, 30, TimeUnit.DAYS);
+            }
+            //todo zcf test log
+            logger.info("test--log--创建人erp={}, 添加协助人erp={}, 已有协助人历史=【{}】", mainUserErp, helperUserErp,
+                    JsonHelper.toJson(helperErpCacheList));
+        }
+    }
+
+    @Override
+    public JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp) {
+        String key = CacheKeyConstants.CACHE_KEY_UNLOAD_MAIN_ERP + erp;
+        List<String> helperErpCacheList = jimdbCacheService.getList(key, String.class);
+        JdCResponse<List<String>> jdcResponse = new JdCResponse<>();
+        if(CollectionUtils.isEmpty(helperErpCacheList)) {
+            if(logger.isInfoEnabled()) {
+                logger.info("根据负责人erp={}查询历史协助人信息为空", erp);
+            }
+            jdcResponse.setMessage("查询历史记录为空");
+        }else {
+            jdcResponse.setData(helperErpCacheList);
+        }
+        jdcResponse.toSucceed();
+        //todo zcf test log
+        logger.info("test--log--根据ero查询历史协助人信息，返回{}", erp, JsonHelper.toJson(helperErpCacheList));
+        return jdcResponse;
     }
 
     @Override
