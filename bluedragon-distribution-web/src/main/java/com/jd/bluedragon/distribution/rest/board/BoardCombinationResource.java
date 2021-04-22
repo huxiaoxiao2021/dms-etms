@@ -9,12 +9,15 @@ import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
@@ -47,6 +50,8 @@ public class BoardCombinationResource {
     BoardCombinationService boardCombinationService;
     @Autowired
     private BoardCommonManager boardCommonManager;
+    @Autowired
+    protected InspectionDao inspectionDao;
 
     @GET
     @Path("/boardCombination/barCodeValidation")
@@ -155,6 +160,19 @@ public class BoardCombinationResource {
             result.toFail(errStr);
             return result;
         }
+        Inspection inspectionQ=new Inspection();
+        inspectionQ.setWaybillCode(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()));
+        inspectionQ.setPackageBarcode(request.getBoxOrPackageCode());
+        inspectionQ.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        inspectionQ.setYn(Integer.valueOf(1));
+        boolean flag=inspectionDao.haveInspectionByPackageCode(inspectionQ);
+        //未操作验货不允许组板
+        if(!flag){
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此包裹未验货，不允许组板！");
+            result.toFail("此包裹未验货，不允许组板！");
+            return result;
+        }
+
         try {
             Board oldBoard = null;
             // 查询之前是否组过板

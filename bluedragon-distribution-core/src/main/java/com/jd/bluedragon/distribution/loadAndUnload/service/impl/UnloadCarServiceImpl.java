@@ -586,6 +586,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
+        //流水线模式：只验货不组板
+        if(Constants.ASSEMBLY_LINE_TYPE.equals(request.getType())){
+            return assemblyLineScan(request);
+        }
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
         // 判断当前扫描人员是否有按单操作权限
@@ -2279,7 +2283,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarTaskDto.setPackageNum(unloadCar.getPackageNum() == null ? 0 : unloadCar.getPackageNum());
             unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
             unloadCarTaskDto.setTaskStatusName(UnloadCarStatusEnum.getEnum(unloadCar.getStatus()).getName());
-
+            unloadCarTaskDto.setType(unloadCar.getType());
             serialNumber++;
             unloadCarTaskDtos.add(unloadCarTaskDto);
         }
@@ -2340,6 +2344,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
         Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
+        //更新任务模式
+        if (null != unloadCarTaskReq.getType()) {
+            unloadCar.setType(unloadCarTaskReq.getType());
+        }
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -2512,7 +2520,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarTaskDto.setWaybillNum(unloadCar.getWaybillNum() == null ? 0 : unloadCar.getWaybillNum());
                 unloadCarTaskDto.setTaskStatus(unloadCar.getStatus());
                 unloadCarTaskDto.setTaskStatusName(UnloadCarStatusEnum.getEnum(unloadCar.getStatus()).getName());
-
+                unloadCarTaskDto.setType(unloadCar.getType());
                 serialNumber++;
                 unloadCarTaskDtos.add(unloadCarTaskDto);
             }
@@ -2834,4 +2842,83 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         return false;
     }
+
+    /**
+     * 卸车任务流水线模式扫描接口
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request) {
+        InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
+        result.setData(convertToUnloadCarResult(request));
+        // 判断当前扫描人员是否有按单操作权限
+        if (hasInspectFunction(request.getOperateSiteCode(), request.getOperateUserErp())) {
+            result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
+        }
+        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        try {
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            if (unloadCar == null) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return dtoInvokeResult;
+            }
+            // 包裹是否扫描成功
+            packageIsScanBoard(request);
+            // 多货包裹标识
+            boolean isSurplusPackage = false;
+            // 验货校验
+            inspectionIntercept(request);
+
+            // 获取锁
+            if (!lock(request.getSealCarCode(), waybillCode)) {
+                logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
+                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "多人同时操作该包裹所在的运单，请稍后重试！");
+                return dtoInvokeResult;
+            }
+            // 是否多货包裹校验
+            isSurplusPackage = surfacePackageCheck(request, result);
+            // 保存包裹卸车记录和运单暂存
+            saveUnloadDetail(request, isSurplusPackage, unloadCar);
+
+            // 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
+            if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
+                return dtoInvokeResult;
+            }
+
+            BeanUtils.copyProperties(result, dtoInvokeResult);
+            //拦截校验
+            InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+            if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+                setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                return dtoInvokeResult;
+            }
+
+            // 获取卸车运单扫描信息
+            setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
+        } catch (LoadIllegalException e) {
+            dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
+            return dtoInvokeResult;
+        } catch (Exception e) {
+            if (e instanceof UnloadPackageBoardException) {
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return dtoInvokeResult;
+            }
+            logger.error("packageCodeScanNew接口发生异常：e=", e);
+            dtoInvokeResult.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        } finally {
+            // 释放锁
+            unLock(request.getSealCarCode(), waybillCode);
+        }
+        return dtoInvokeResult;
+    }
+
 }

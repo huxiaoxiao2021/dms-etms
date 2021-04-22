@@ -7,17 +7,24 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
+import com.jd.bluedragon.distribution.admin.service.impl.RedisMonitorServiceImpl;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
 import com.jd.transboard.api.dto.Board;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +43,11 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     private BoardCombinationResource boardCombinationResource;
+
+    @Autowired
+    protected InspectionDao inspectionDao;
+
+    private static final Logger log = LoggerFactory.getLogger(SortBoardGatewayServiceImpl.class);
 
     /**
      * 组板校验
@@ -104,9 +116,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     @Override
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
-
         JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
-
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
         BoardCheckDto boardCheckDto = new BoardCheckDto();
         boardCheckDto.setBoardCode(response.getData().getBoardCode());
