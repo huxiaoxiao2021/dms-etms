@@ -73,6 +73,15 @@ public class UnloadScanDetailDto implements Serializable {
      */
     private String sealCarCode;
 
+    /**
+     * 板箱绑定数量
+     */
+    private Integer boardBoxCount;
+    /**
+     * 板单绑定数量
+     */
+    private Integer boardWaybillCount;
+
 
     public Integer getTotalWaybillNum() {
         return totalWaybillNum;
@@ -168,5 +177,21 @@ public class UnloadScanDetailDto implements Serializable {
 
     public void setSealCarCode(String sealCarCode) {
         this.sealCarCode = sealCarCode;
+    }
+
+    public Integer getBoardBoxCount() {
+        return boardBoxCount;
+    }
+
+    public void setBoardBoxCount(Integer boardBoxCount) {
+        this.boardBoxCount = boardBoxCount;
+    }
+
+    public Integer getBoardWaybillCount() {
+        return boardWaybillCount;
+    }
+
+    public void setBoardWaybillCount(Integer boardWaybillCount) {
+        this.boardWaybillCount = boardWaybillCount;
     }
 }
