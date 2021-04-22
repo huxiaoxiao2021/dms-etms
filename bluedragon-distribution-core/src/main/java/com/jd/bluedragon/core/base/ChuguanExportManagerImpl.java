@@ -16,6 +16,7 @@ import com.jd.stock.iwms.export.vo.ChuguanDetailVo;
 import com.jd.stock.iwms.export.vo.ChuguanVo;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,7 +118,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
                 return null;
             }
             result = chuguanDataResult.getChuguanVoList();
-            if(result != null){
+            if(CollectionUtils.isNotEmpty(result)){
                 log.warn("新出管接口调用成功-有数据chuguanQueryParam[{}]chuguanDataResult[{}]"
                         ,JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson(chuguanDataResult));
             }else {
