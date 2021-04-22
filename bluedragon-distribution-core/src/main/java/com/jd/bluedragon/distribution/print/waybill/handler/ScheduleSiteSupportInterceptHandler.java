@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -54,6 +55,10 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
 
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
+
+    @Autowired
+    private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
+
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -148,6 +153,16 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             JdCResponse jdCResponse = blockerQueryWSJsfManager.queryExceptionOrders(waybillCode);
             if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
                 result.toError(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
+                return result;
+            }
+
+            //校验预分拣归属滑道信息
+            InvokeResult<String> crossResult = scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),waybillCode,
+                    context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode());
+            if(!crossResult.codeSuccess()){
+                LOGGER.warn("ScheduleSiteSupportInterceptHandler.handler 预分拣站点滑道信息为空,targetSiteCode:{},dmsSiteCode:{},waybillCode:{}",
+                        context.getRequest().getTargetSiteCode(),context.getRequest().getDmsSiteCode(),waybillCode);
+                result.toWarn(crossResult.getCode(),crossResult.getMessage());
                 return result;
             }
 
