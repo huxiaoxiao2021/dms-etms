@@ -202,6 +202,10 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_RE_PRINT_REPEAT = 30122;
     public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
 
+    //弃件拦截
+    public static final Integer CODE_WAYBILL_WASTE = 30123;
+    public static final String MESSAGE_WAYBILL_WASTE = "弃件禁止操作换单，请按公司规定进行暂存及按时处理";
+
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";
 
