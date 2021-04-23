@@ -90,4 +90,11 @@ public interface LoadScanService {
      */
     JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode);
 
+    /**
+     * 未装包裹明细列表查询
+     */
+    JdCResponse<Boolean> uploadPhotoCheck(GoodsLoadingReq goodsLoadingReq);
+
+
+
 }

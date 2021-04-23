@@ -65,4 +65,10 @@ public class GoodsLoadScanConstants {
     public static final Integer UNLOAD_SCAN_ORANGE = 3;
     public static final Integer UNLOAD_SCAN_RED = 4;
 
+    //转运操作任务： 1-装车 2-卸车 3-盘点 4-叉车
+    public static final Integer TRANSPORT_BUSINESS_TYPE_LOAD = 1;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_UNLOAD = 2;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_INVENTORY = 3;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_FORKLIFT = 4;
+
 }

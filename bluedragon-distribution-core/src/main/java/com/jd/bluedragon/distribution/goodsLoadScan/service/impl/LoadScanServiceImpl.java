@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetail
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.LoadCarTaskServiceWSManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -45,6 +46,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
@@ -135,6 +137,9 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Resource
     private StagingServiceWS stagingServiceWS;
+
+    @Resource
+    private LoadCarTaskServiceWSManager loadCarTaskServiceWSManager;
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
@@ -2084,6 +2089,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("LoadScanServiceImpl-checkIsKaWaybillOrNo-error,运单号={},包裹号={},异常信息",waybillCode,packageCode,ex);
         }
         return response;
+    }
+
+    @Override
+    public JdCResponse<Boolean> uploadPhotoCheck(GoodsLoadingReq goodsLoadingReq) {
+        return loadCarTaskServiceWSManager.uploadPhotoCheck(goodsLoadingReq);
     }
 
 }
