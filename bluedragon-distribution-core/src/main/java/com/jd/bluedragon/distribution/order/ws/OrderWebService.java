@@ -106,6 +106,7 @@ public class OrderWebService {
 				return  transDetailForm(dataMap);
 			}
 		}
+		log.error("getInternationDetailById-调用国际化订单接口 error,{}",orderId);
 		return Collections.emptyList();
 	}
 
@@ -242,6 +243,7 @@ public class OrderWebService {
 				return  transForm(dataMap);
 			}
 		}
+		log.error("getInternationOrder-调用国际化订单接口 error,{}",orderId);
 		return null;
 	}
 
