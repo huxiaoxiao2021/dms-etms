@@ -482,7 +482,9 @@ public class ReverseReceiveNotifyStockService {
             chuguanDetailVo.setYn(1);
             chuguanDetailVo.setCaiGouRenNo(item.getSkuId());
             chuguanDetailVo.setBiLv(1);
-            chuguanDetailVo.setProfitLossId(String.valueOf(item.getProfitChannelId()));
+            if(item.getProfitChannelId()!=null){
+                chuguanDetailVo.setProfitLossId(String.valueOf(item.getProfitChannelId()));
+            }
             chuguanDetailVoList.add(chuguanDetailVo);
         }
         return chuguanDetailVoList;
