@@ -109,7 +109,7 @@ public class ProductService {
 			product.setProductId(String.valueOf(orderDetail.getProductId()));
 			product.setPrice(orderDetail.getPrice());
 			if(orderDetail.getProfitChannelId()!=null){
-				product.setProfitChannelId(orderDetail.getProfitChannelId());
+				product.setProfitChannelId(Long.valueOf(orderDetail.getProfitChannelId()));
 			}
 			if(orderDetail.getSkuId() != null){
 				product.setSkuId(orderDetail.getSkuId());
