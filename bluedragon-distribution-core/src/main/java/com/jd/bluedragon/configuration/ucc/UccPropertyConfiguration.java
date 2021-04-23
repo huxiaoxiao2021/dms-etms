@@ -84,9 +84,14 @@ public class UccPropertyConfiguration {
     private String oldLogPageTips;
 
     /**
-     * 离线任务的操作时间的更正时间范围
+     * 离线任务的操作时间在系统时间之后的时间限制范围：24
      */
     private int offlineTaskOperateTimeCorrectHours;
+
+    /**
+     * 离线任务的操作时间在系统时间之前的时间限制范围：96h
+     */
+    private int offlineTaskOperateTimeBeforeNowLimitHours;
 
     /**
      * 自动化称重的入口切换开关
@@ -493,6 +498,14 @@ public class UccPropertyConfiguration {
 
     public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
+
+    public int getOfflineTaskOperateTimeBeforeNowLimitHours() {
+        return offlineTaskOperateTimeBeforeNowLimitHours;
+    }
+
+    public void setOfflineTaskOperateTimeBeforeNowLimitHours(int offlineTaskOperateTimeBeforeNowLimitHours) {
+        this.offlineTaskOperateTimeBeforeNowLimitHours = offlineTaskOperateTimeBeforeNowLimitHours;
     }
 
     public boolean getAutomaticWeightVolumeExchangeSwitch() {
