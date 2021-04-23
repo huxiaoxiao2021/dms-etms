@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -9,6 +10,8 @@ import com.jd.bluedragon.distribution.print.waybill.handler.ScheduleSiteSupportI
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
      * @return
      */
     @Override
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptServiceImpl.checkCrossInfo",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkCrossInfo(String waybillSign, String sendPay , String waybillCode, Integer prepareSiteCode, Integer startSiteCode) {
         InvokeResult<String> result = new InvokeResult<>();
         try {
