@@ -48,6 +48,7 @@ import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,7 +198,7 @@ public class ReverseReceiveNotifyStockService {
 
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
-			if (products.size() == 0) {
+			if (CollectionUtils.isEmpty(products)) {
 				this.log.warn("无商品信息!");
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");

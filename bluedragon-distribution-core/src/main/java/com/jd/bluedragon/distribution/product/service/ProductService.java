@@ -14,6 +14,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,11 +94,11 @@ public class ProductService {
 		List<InternationDetailOrderDto> orderDetails = this.orderWebService.getInternationDetailById(orderId);
 		List<Product> products = new ArrayList<Product>();
 
-		if (orderDetails == null || orderDetails.isEmpty()) {
+		if (CollectionUtils.isEmpty(orderDetails)) {
 			orderDetails = this.getInternationOrderDetailByWaybillMiddleware(orderId);
 		}
 
-		if (orderDetails == null || orderDetails.isEmpty()) {
+		if (CollectionUtils.isEmpty(orderDetails)) {
 			orderDetails = this.getInternationHistoryOrderDetailByOrderMiddleware(orderId);
 		}
 
@@ -149,7 +150,7 @@ public class ProductService {
 		List<InternationDetailOrderDto> orderDetails = new ArrayList<InternationDetailOrderDto>();
 		BigWaybillDto waybillDto = this.waybillService.getWaybillProduct(String.valueOf(orderId));
 
-		if (waybillDto.getGoodsList() != null) {
+		if (CollectionUtils.isNotEmpty(waybillDto.getGoodsList())) {
 			for (Goods goods : waybillDto.getGoodsList()) {
 				InternationDetailOrderDto orderDetail = new InternationDetailOrderDto();
 				orderDetail.setName(goods.getGoodName());
@@ -190,7 +191,7 @@ public class ProductService {
 		List<jd.oom.client.orderfile.OrderDetail> orderFileOrderDetails = this.orderWebService
 				.getHistoryOrderDetailById(orderId.intValue());
 
-		if (orderFileOrderDetails != null) {
+		if (CollectionUtils.isNotEmpty(orderFileOrderDetails)) {
 			for (jd.oom.client.orderfile.OrderDetail orderFileOrderDetail : orderFileOrderDetails) {
 				InternationDetailOrderDto orderDetail = new InternationDetailOrderDto();
 				orderDetail.setName(orderFileOrderDetail.getName());

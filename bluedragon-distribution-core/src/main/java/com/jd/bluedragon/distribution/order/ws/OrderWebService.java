@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.domain.InternationDetailOrderDto;
 import com.jd.bluedragon.distribution.order.domain.InternationOrderDto;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.OrderServiceHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.i18n.order.dict.FieldKeyEnum;
@@ -43,6 +44,9 @@ public class OrderWebService {
 	@Value("${internation.Order.Region:301}")
 	private String region_JD_LOGISTICS;
 
+	@Value("${internation.ComponentBase.AppName}")
+	private String appName;
+
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
@@ -78,7 +82,7 @@ public class OrderWebService {
 		ComponentBase componentBase = new ComponentBase();
 		componentBase.setRegion(region_JD_LOGISTICS);
 		// 必传字段，测试环境或者物理机部署的应用无法自动获取appname，可手动传入，默认取jvm的启动参数deploy.app.name
-		componentBase.setAppName(Constants.UMP_APP_NAME_DMSWEB);
+		componentBase.setAppName(appName);
 		List<String> querys = OrderServiceHelper.getQueryDetailKeys();
 		// 赋值
 		request.setComponentBase(componentBase);
@@ -88,7 +92,14 @@ public class OrderWebService {
 		request.setOrderId(orderId);
 		request.setQueryKeys(querys);
 
+		if(log.isInfoEnabled()){
+			log.info("getInternationDetailById-调用国际化订单接口--入参OrderQueryRequest:{},orderId:{}", JsonHelper.toJsonMs(request),orderId);
+		}
 		OrderQueryResponse response = orderMidd.getOrderData(request);
+		if(log.isInfoEnabled()){
+			log.info("getInternationDetailById-调用国际化订单接口--返回结果response:{},orderId:{}", JsonHelper.toJsonMs(response),orderId);
+		}
+
 		if (response.isSuccess()) {
 			Map<String, Object> dataMap = response.getDataMap();
 			if (dataMap != null && dataMap.size() > 0){
@@ -210,15 +221,21 @@ public class OrderWebService {
 		ComponentBase componentBase = new ComponentBase();
 		componentBase.setRegion(region_JD_LOGISTICS);
 		// 必传字段，测试环境或者物理机部署的应用无法自动获取appname，可手动传入，默认取jvm的启动参数deploy.app.name
-		componentBase.setAppName(Constants.UMP_APP_NAME_DMSWEB);
+		componentBase.setAppName(appName);
 		List<String> querys = OrderServiceHelper.getQueryKeys();
 		// 赋值
 		request.setComponentBase(componentBase);
 		request.setBizType("1");
 		request.setOrderId(orderId);
 		request.setQueryKeys(querys);
+		if(log.isInfoEnabled()){
+			log.info("getInternationOrder-调用国际化订单接口--入参OrderQueryRequest:{},orderId:{}", JsonHelper.toJsonMs(request),orderId);
 
+		}
 		OrderQueryResponse response = newOrderMiddlewareJsfService.getOrderData(request);
+		if(log.isInfoEnabled()){
+			log.info("getInternationOrder-调用国际化订单接口--返回结果response:{},orderId:{}", JsonHelper.toJsonMs(response),orderId);
+		}
 		if (response.isSuccess()) {
 			Map<String, Object> dataMap = response.getDataMap();
 			if (dataMap != null && dataMap.size() > 0){
