@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.test.OrderDataUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.jdorders.component.vo.request.OrderQueryRequest;
+import com.jd.jdorders.component.vo.response.OrderQueryResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
@@ -23,6 +25,7 @@ import mockit.MockUp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -46,11 +49,14 @@ public class ReverseReceiveNotifyStockServiceTest {
     @Mock
     private BaseMajorManager baseMajorManager;
 
-    @Mock
+    @InjectMocks
     private OrderWebService orderWebService;
 
     @Mock
     private ProductService productService;
+
+    @Mock
+    private com.jd.jdorders.component.export.OrderMiddlewareCBDExport  newOrderMiddlewareJsfService;
 
     @Mock
     private OrderBankService orderBankService;
@@ -74,15 +80,17 @@ public class ReverseReceiveNotifyStockServiceTest {
         when(baseMajorManager.getBaseSiteBySiteId(anyInt()))
                 .thenReturn(JsonHelper.fromJson(SITEJSON, BaseStaffSiteOrgDto.class));
 
-        when(orderWebService.getOrder(anyLong())).thenReturn(OrderDataUtil.DX_ORDER);
+       // when(orderWebService.getOrder(anyLong())).thenReturn(OrderDataUtil.DX_ORDER);
 
-        when(productService.getOrderProducts(anyLong())).thenReturn(JsonHelper.jsonToList(PRODUCTS, Product.class));
+       // when(productService.getOrderProducts(anyLong())).thenReturn(JsonHelper.jsonToList(PRODUCTS, Product.class));
 
         when(stockExportManager.queryByWaybillCode(anyString())).thenReturn(JsonHelper.fromJson(KUGUANJSON, KuGuanDomain.class));
 
         when(orderBankService.getOrderBankResponse(anyString())).thenReturn(JsonHelper.fromJson(OrderBankResponseJSON, OrderBankResponse.class));
 
         when(searchOrganizationOtherManager.findFinancialOrg(any(SendpayOrdertype.class))).thenReturn(new Organization());
+
+        when(newOrderMiddlewareJsfService.getOrderData(ArgumentMatchers.<OrderQueryRequest>anyObject())).thenReturn(ArgumentMatchers.<OrderQueryResponse>any());
     }
 
     @Test
@@ -98,6 +106,15 @@ public class ReverseReceiveNotifyStockServiceTest {
         }
 
     }
+
+    @Test
+    public void test2(){
+        orderWebService.getInternationOrder(ORDER_CODE);
+
+    }
+
+
+
 
     //Jmock 方式
     public static class SystemLogUtilMockUp extends MockUp<SystemLogUtil> {
