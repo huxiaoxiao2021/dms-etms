@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -291,6 +292,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	@Override
 	public void export(Map<String, Object> paramMap, BufferedWriter bufferedWriter) {
 		try {
+			long start = System.currentTimeMillis();
 			// 写入表头
 			Map<String, String> headerMap = getHeaderMap();
 			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
@@ -318,6 +320,8 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 					break;
 				}
 			}
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(paramMap), ExportConcurrencyLimitEnum.POP_RECEIVE_ABNORMAL_REPORT.getName(),end-start,queryTotal);
 		}catch (Exception e){
 			log.error("平台收货差异订单数据导出异常",e);
 		}
