@@ -18,6 +18,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -124,6 +126,8 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private ReverseWaybillApi reverseWaybillApi;
     @Autowired
     private WaybillCommonService waybillCommonService;
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 二次换单限制次数
      */
@@ -289,7 +293,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 		WbmsApiResult<SubmitWaybillResponse> rpcResult = null;
         CallerInfo info = null;
     	try {
-    		info = Profiler.registerInfo( UMP_KEY_WBMS_PREFIX + ".queryWaybill",false, true);
+    		info = ProfilerHelper.registerInfo( UMP_KEY_WBMS_PREFIX + ".queryWaybill");
 			rpcResult = this.reverseWaybillApi.queryWaybill(
 					getWbmsRequestProfile(dmsWaybillReverseDTO.getWaybillCode()), 
 					convertReverseWaybillRequest(dmsWaybillReverseDTO));
@@ -327,7 +331,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     	ReverseWaybillRequest requestData = null;
     	long startTime=new Date().getTime();
     	try {
-    		info = Profiler.registerInfo( UMP_KEY_WBMS_PREFIX + ".submitWaybill",false, true);
+    		info = ProfilerHelper.registerInfo( UMP_KEY_WBMS_PREFIX + ".submitWaybill");
     		//初始化参数
     		profile= getWbmsRequestProfile(dmsWaybillReverseDTO.getWaybillCode());
     		requestData = convertReverseWaybillRequest(dmsWaybillReverseDTO);
@@ -482,6 +486,10 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	 * @return
 	 */
 	private boolean needUseNewReverseApi(String waybillCode){
+		//先判断是否开启ucc配置
+		if(!uccPropertyConfiguration.isNeedUseNewReverseApi()) {
+			return false;
+		}
         if(StringHelper.isNotEmpty(waybillCode)){
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, false, false, false);
             if(baseEntity != null
@@ -539,7 +547,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	private Waybill getQuickProduceWabillFromDrecOld(String waybillCode){
 		Waybill waybill= null;
         OrderMsgDTO orderMsgDTO = null;
-        CallerInfo info = Profiler.registerInfo( UMP_KEY_RECEIVE_PREFIX + "GetOrderMsgServiceJsf.getOrderAllMsgByDeliveryId",false, true);
+        CallerInfo info = ProfilerHelper.registerInfo( UMP_KEY_RECEIVE_PREFIX + "GetOrderMsgServiceJsf.getOrderAllMsgByDeliveryId");
         try {
 			orderMsgDTO = getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
 		} catch (Exception e) {
@@ -584,7 +592,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 		GrossReturnResponse grossReturnResponse = null;
 		grossReturnResponse = null;
 		JdResult<String> result = new JdResult<String>();
-		CallerInfo info = Profiler.registerInfo( UMP_KEY_RECEIVE_PREFIX + "GrossReturnSaf.queryDeliveryIdByOldDeliveryId",false, true);
+		CallerInfo info = ProfilerHelper.registerInfo( UMP_KEY_RECEIVE_PREFIX + "GrossReturnSaf.queryDeliveryIdByOldDeliveryId");
 		try {
 			grossReturnResponse = this.grossReturnSaf.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
 		} catch (Exception e) {
