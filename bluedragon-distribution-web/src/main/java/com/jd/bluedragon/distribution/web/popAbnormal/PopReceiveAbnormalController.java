@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.popAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -580,6 +581,8 @@ public class PopReceiveAbnormalController {
 				return result;
 			}
 
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.POP_RECEIVE_ABNORMAL_REPORT.getCode());
+
 			String fileName = "平台收货差异订单数据";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -587,6 +590,7 @@ public class PopReceiveAbnormalController {
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
 			popReceiveAbnormalService.export(paramMap,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.POP_RECEIVE_ABNORMAL_REPORT.getCode());
 		} catch (Exception e) {
 			this.log.error("根据条件查询平台差异订单导出数据异常：", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

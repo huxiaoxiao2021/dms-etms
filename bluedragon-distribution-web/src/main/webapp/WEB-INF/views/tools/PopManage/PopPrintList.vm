@@ -104,7 +104,7 @@
         // 导出数据
         $("#exportData").click(function() {
             checkConcurrencyLimit({
-                currentKey: exportReportEnum.POP_ABNORMAL_REPORT,
+                currentKey: exportReportEnum.POP_RECEIVE_ABNORMAL_REPORT,
                 checkPassCallback: function (result) {
                     // 提交表单-执行导出
                     $("#selectPopList").attr("action", '#springUrl("/popReceiveAbnormal/exportPopAbnormal")');
