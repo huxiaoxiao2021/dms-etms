@@ -58,7 +58,6 @@ public class PopAbnormalController {
 	 * 
 	 * @return
 	 */
-//	@HrmPrivilege("TMS-REPORT-POPCY")
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage() {
@@ -73,7 +72,6 @@ public class PopAbnormalController {
 	 * @param model
 	 * @return
 	 */
-//	@HrmPrivilege("TMS-REPORT-POPCY")
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalDTO popAbnormalDTO, Pager pager, Model model) {
@@ -122,7 +120,6 @@ public class PopAbnormalController {
 	 * 
 	 * @return
 	 */
-//	@HrmPrivilege("TMS-REPORT-POPCY")
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model) {
@@ -204,7 +201,6 @@ public class PopAbnormalController {
 	 * @param popAbnormal
 	 * @return
 	 */
-//	@HrmPrivilege("TMS-REPORT-POPCY")
 	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/savePopAbnormal", method = RequestMethod.POST)
 	@ResponseBody

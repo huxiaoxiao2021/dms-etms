@@ -592,7 +592,7 @@ public class CrossBoxController {
     @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/toExport")
 	@ResponseBody
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.crossbox.CrossBoxController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.crossbox.CrossBoxController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public InvokeResult toExport(CrossBoxRequest crossBoxRequest, HttpServletResponse response) {
 		InvokeResult result = new InvokeResult();
 		BufferedWriter bfw = null;

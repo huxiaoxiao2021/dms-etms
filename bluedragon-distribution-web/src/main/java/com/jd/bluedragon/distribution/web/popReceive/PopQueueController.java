@@ -35,7 +35,14 @@ public class PopQueueController {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
+	/**
+	 * 平台排队号查询
+	 * @param model
+	 * @param popQueueQuery
+	 * @param pager
+	 * @return
+	 */
 	@SuppressWarnings("rawtypes")
 	@Authorization(Constants.DMS_WEB_PTORDER_QUEUE_R)
 	@RequestMapping(value = "/query")
