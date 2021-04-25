@@ -83,6 +83,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     private final static int LOCK_TIME = 60;
 
+    private final static int BIG_LOCK_TIME = 300;
+
 
     @Autowired
     private LoadCarDao loadCarDao;
@@ -138,6 +140,8 @@ public class LoadScanServiceImpl implements LoadScanService {
 
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
+
+    public static final String LOADS_BIG_CAN_LOCK_BEGIN = "LOADS_BIG_CAN_LOCK_";
 
 
     @Autowired
@@ -642,12 +646,21 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("该板号属于重复扫！");
                 return response;
             }
+            //超出最大任务限制包裹数后禁止发货
+            int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
 
+            if(packageCount + insertRecords.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+                if(log.isDebugEnabled()) {
+                    log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+                }
+                response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+                return response;
+            }
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
             // 板上的运单记录
             Map<String, LoadScanDto> waybillMap = new HashMap<>(16);
-
+            
             // 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
             computeLoadAndFilterWaybill(insertRecords, waybillMap, map);
             computeLoadAndFilterWaybill(updateRecords, waybillMap, map);
@@ -748,15 +761,16 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-
+        //增加装车任务以及大宗运单的拦截判断。key即 任务号-运单号
+        String redisKey = taskId + "-" + waybillCode;
         // 校验拦截、包装服务、无重量等发货校验，发货校验规则同【B网快运发货】功能
         if (checkInterceptionValidate(response, taskId, packageCode)) {
             return response;
         }
-
+        String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
         try {
             // 获取锁
-            if (!lock(taskId, waybillCode, null)) {
+            if (!lockUseParamKey(lockKey)) {
                 log.info("运单暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
                         packageCode, transfer, flowDisAccord);
                 response.setCode(JdCResponse.CODE_FAIL);
@@ -808,6 +822,16 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("该运单号属于重复扫！");
                 return response;
             }
+            //超出最大任务限制包裹数后禁止发货
+            int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
+
+            if(packageCount + insertPackageCodes.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+                if(log.isDebugEnabled()) {
+                    log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+                }
+                response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+                return response;
+            }
             GoodsLoadScanRecord record = createGoodsLoadScanRecord(taskId, waybillCode, null, null, transfer,
                     flowDisAccord, user, loadCar);
             // 更新之前取消的为已装
@@ -851,7 +875,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("按运单号暂存逻辑发生错误e=", e);
         } finally {
             // 释放锁
-            unLock(taskId, waybillCode, null);
+//            unLock(taskId, waybillCode, null);
+            unLockByParamKey(lockKey);
         }
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
@@ -1080,7 +1105,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         try{
             List<LoadScanDto> loadScanDto = dmsDisSendService.getLoadScanListByWaybillCode(scanDtoList, createSiteId);
             if (loadScanDto == null || loadScanDto.isEmpty()) {
-                log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
+                log.warn("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据包裹号查询运单库存失败");
                 return response;
@@ -1488,9 +1513,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         try {
             // 获取锁
             if (!lock(taskId, waybillCode, null)) {
-                log.warn("多人同时操作该包裹所在的运单，请稍后重试！");
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
+                return response;
+            }
+            String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
+            // 获取锁
+            if (!lockUseParamKey(lockKey)) {
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("该包裹所在的运单，正在使用大宗操作，请稍后！");
                 return response;
             }
 
@@ -1889,6 +1920,22 @@ public class LoadScanServiceImpl implements LoadScanService {
         return true;
     }
 
+    private boolean lockUseParamKey(String paramKey) {
+        if(StringUtils.isBlank(paramKey)){
+            if(log.isWarnEnabled()){
+                log.warn("加锁时，锁的key为空.");
+            }
+            return false;
+        }
+        try {
+            return jimdbCacheService.setNx(paramKey, StringUtils.EMPTY, BIG_LOCK_TIME, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.error("装车扫描加锁时出现异常,异常信息为{}", e.getMessage(),e);
+            jimdbCacheService.del(paramKey);
+        }
+        return true;
+    }
+
     private String getLockFlag(String waybillCode, String boardCode) {
         if (StringUtils.isNotBlank(boardCode)) {
             return boardCode;
@@ -1903,6 +1950,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             jimdbCacheService.del(lockKey);
         } catch (Exception e) {
             log.error("装车扫描unLock异常:taskId={},waybillCode={},boardCode={},e=", taskId, waybillCode, boardCode, e);
+        }
+    }
+    //根据key解锁
+    private void unLockByParamKey(String paramKey) {
+        try {
+            jimdbCacheService.del(paramKey);
+        } catch (Exception e) {
+            log.error("装车扫描unLockByParamKey异常:{},e=",e.getMessage(), e);
         }
     }
 
@@ -2042,23 +2097,23 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         List<String> unloadPackages;
-        try {
-            // 获取锁
-            if (!lock(taskId, waybillCode, null)) {
-                log.info("未装包裹明细--获取锁失败：taskId={},waybillCode={}", taskId, waybillCode);
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("多人同时查看该运单下未装包裹明细，请稍后重试！");
-                return response;
-            }
+//        try {
+//            // 获取锁
+//            if (!lock(taskId, waybillCode, null)) {
+//                log.info("未装包裹明细--获取锁失败：taskId={},waybillCode={}", taskId, waybillCode);
+//                response.setCode(JdCResponse.CODE_FAIL);
+//                response.setMessage("多人同时查看该运单下未装包裹明细，请稍后重试！");
+//                return response;
+//            }
             // 从包裹记录表查询该运单下所有已装车的包裹
             List<String> packageCodes = goodsLoadScanRecordDao.selectPackageCodesByWaybillCode(taskId, waybillCode);
             // 从ES中根据已装车包裹筛选出未装包裹列表
             unloadPackages = dmsDisSendService.getUnloadPackageCodesByWaybillCode(waybillCode,
                     loadCar.getCreateSiteCode().intValue(), packageCodes);
-        } finally {
-            // 释放锁
-            unLock(taskId, waybillCode, null);
-        }
+//        } finally {
+//            // 释放锁
+//            unLock(taskId, waybillCode, null);
+//        }
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setData(unloadPackages);
         return response;
