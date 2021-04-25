@@ -2,7 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
+import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -25,6 +27,9 @@ public class ReceiveManagerImpl implements ReceiveManager{
      */
     @Autowired
     private GrossReturnSaf receiveExchangeService;
+    
+    @Autowired
+    WaybillReverseManager waybillReverseManager;
 	
 	@Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.grossReturnSaf.queryDeliveryIdByFcode",mState={JProEnum.TP,JProEnum.FunctionError})
@@ -48,11 +53,11 @@ public class ReceiveManagerImpl implements ReceiveManager{
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.grossReturnSaf.queryDeliveryIdByOldDeliveryId",Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<String> targetResult=new InvokeResult<String>();
         try {
-            GrossReturnResponse result = receiveExchangeService.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
+            JdResult<String> result = waybillReverseManager.queryWaybillCodeByOldWaybillCode(oldWaybillCode);
             if (null != result) {
-                targetResult.setCode(result.getResultCode());
-                targetResult.setMessage(result.getResultMsg());
-                targetResult.setData(result.getDeliveryId());
+                targetResult.setCode(result.getMessageCode());
+                targetResult.setMessage(result.getMessage());
+                targetResult.setData(result.getData());
             } else {
                 targetResult.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
             }
@@ -75,11 +80,11 @@ public class ReceiveManagerImpl implements ReceiveManager{
         InvokeResult<RepeatPrint> targetResult=new InvokeResult<RepeatPrint>();
         RepeatPrint repeatPrint =new RepeatPrint();
         try {
-            GrossReturnResponse result = receiveExchangeService.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
+        	JdResult<String> result = waybillReverseManager.queryWaybillCodeByOldWaybillCode(oldWaybillCode);
             if (null != result) {
-                targetResult.setCode(result.getResultCode());
-                targetResult.setMessage(result.getResultMsg());
-                repeatPrint.setNewWaybillCode(result.getDeliveryId());
+                targetResult.setCode(result.getMessageCode());
+                targetResult.setMessage(result.getMessage());
+                repeatPrint.setNewWaybillCode(result.getData());
                 repeatPrint.setOverTime(false);
                 targetResult.setData(repeatPrint);
             } else {
