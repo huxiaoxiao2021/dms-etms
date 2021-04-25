@@ -68,14 +68,6 @@ import java.util.List;
 @Service("ldopManager")
 public class LDOPManagerImpl implements LDOPManager {
 
-    ////退货方式 0 - 按照商家配置 1 - 退库房 2 - 退寄件人 3 - 退备件库 4 - 物流损退备件库 5 - 退指定地址
-    public static final int RETURN_TYPE_0 = 0;
-    public static final int RETURN_TYPE_1 = 1;
-    public static final int RETURN_TYPE_2 = 2;
-    public static final int RETURN_TYPE_3 = 3;
-    public static final int RETURN_TYPE_4 = 4;
-    public static final int RETURN_TYPE_5 = 5;
-    
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.ldop.";
 
     @Autowired
