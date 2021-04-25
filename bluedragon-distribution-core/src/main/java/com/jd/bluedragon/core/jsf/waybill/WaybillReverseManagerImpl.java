@@ -24,7 +24,6 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
@@ -54,12 +53,6 @@ import com.jd.etms.receive.api.saf.GrossReturnSaf;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.business.api.BackAddressInfoApi;
-import com.jd.ldop.center.api.receive.dto.DetailReverseReasonDTO;
-import com.jd.ldop.center.api.receive.dto.PackageDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
-import com.jd.ldop.center.api.update.dto.WaybillAddress;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
 import com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf;
@@ -74,20 +67,20 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private final Logger log = LoggerFactory.getLogger(WaybillReverseManagerImpl.class);
     
     ////退货方式 0 - 按照商家配置 1 - 退库房 2 - 退寄件人 3 - 退备件库 4 - 物流损退备件库 5 - 退指定地址
-    public static final int RETURN_TYPE_0 = 0;
-    public static final int RETURN_TYPE_1 = 1;
-    public static final int RETURN_TYPE_2 = 2;
-    public static final int RETURN_TYPE_3 = 3;
-    public static final int RETURN_TYPE_4 = 4;
-    public static final int RETURN_TYPE_5 = 5;
+    private static final int RETURN_TYPE_0 = 0;
+    private static final int RETURN_TYPE_1 = 1;
+    private static final int RETURN_TYPE_2 = 2;
+    private static final int RETURN_TYPE_3 = 3;
+    private static final int RETURN_TYPE_4 = 4;
+    private static final int RETURN_TYPE_5 = 5;
     /**
      * 代收货款-1
      */
-    public static final Integer PAYMENT_TYPE_1 = 1;
+    private static final Integer PAYMENT_TYPE_1 = 1;
     /**
      * 代收货款-0
      */
-    public static final Integer PAYMENT_TYPE_0 = 0;
+    private static final Integer PAYMENT_TYPE_0 = 0;
     /**
      * 标识逆向业务
      */
@@ -128,7 +121,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private GrossReturnSaf grossReturnSaf;
     
     @Autowired
-    ReverseWaybillApi reverseWaybillApi;
+    private ReverseWaybillApi reverseWaybillApi;
     @Autowired
     private WaybillCommonService waybillCommonService;
     /**
@@ -225,7 +218,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      * @param errorMessage
      * @return
      */
-    public DmsWaybillReverseResponseDTO queryReverseWaybillNew(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
+    private DmsWaybillReverseResponseDTO queryReverseWaybillNew(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
     	JdResult<SubmitWaybillResponse> rpcResult = this.queryWaybill(dmsWaybillReverseDTO);
     	if(rpcResult != null
     			&& rpcResult.isSucceed()) {
