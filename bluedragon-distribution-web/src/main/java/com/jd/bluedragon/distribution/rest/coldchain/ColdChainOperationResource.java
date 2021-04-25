@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.rest.coldchain;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ColdChainTemporaryInRequest;
 import com.jd.bluedragon.distribution.api.response.ColdChainOperationResponse;
+import com.jd.bluedragon.distribution.api.response.ColdChainTemporaryInResponse;
 import com.jd.bluedragon.distribution.coldchain.dto.*;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainOperationService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -345,6 +347,78 @@ public class ColdChainOperationResource {
         }
 
         if (StringUtils.isBlank(request.getPackageCode())) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * 入库
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/coldChain/operation/temporaryIn")
+    @JProfiler(jKey = "DMS.WEB.ColdChainOperationResource.temporaryIn", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ColdChainOperationResponse<ColdChainTemporaryInResponse> temporaryIn(ColdChainTemporaryInRequest request) {
+        ColdChainOperationResponse<ColdChainTemporaryInResponse> response = new ColdChainOperationResponse<>();
+        log.info("[冷链操作-暂存入库]调用service开始,request:" + JsonHelper.toJson(request));
+        try {
+            if (this.checkParams(request)) {
+                response= coldChainOperationService.temporaryIn(request);
+            } else {
+                response.setCode(JdResponse.CODE_PARAM_ERROR);
+                response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            }
+
+        } catch (Exception e) {
+            log.error("[冷链操作-暂存入库]调用service发生异常,request:" + JsonHelper.toJson(request), e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }finally {
+            log.info("[冷链操作-暂存入库]调用service结束,response:" + JsonHelper.toJson(response));
+        }
+        return response;
+    }
+
+    /**
+     * 参数检查
+     *
+     * @param request
+     * @return
+     */
+    private boolean checkParams(ColdChainTemporaryInRequest request) {
+        if (request == null) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getBarCode())) {
+            return false;
+        }
+
+        if (request.getOrgId() == null) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getOrgName())) {
+            return false;
+        }
+
+        if (request.getSiteId() == null) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getSiteName())) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getOperateTime())) {
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getOperateERP())) {
             return false;
         }
 
