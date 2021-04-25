@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferServiceImpl;
 import com.jd.bluedragon.distribution.consumer.reverse.PickWareConsumer;
@@ -15,10 +16,10 @@ import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.util.AsynBufferDemotionUtil;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.worker.InspectionTask;
+import com.jd.bluedragon.utils.AsynBufferDemotionUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
@@ -57,41 +58,8 @@ public class ReverseTest {
 
     @Test
     public void testOffline(){
-        Task task = new Task();
-        task.setBody("[{\n" +
-                "  \"taskType\" : 1200,\n" +
-                "  \"packageCode\" : \"ZYJ000039500042-1-1-\",\n" +
-                "  \"waybillCode\" : \"ZYJ000039500042\",\n" +
-                "  \"boxCode\" : \"BC1001201119160007396227\",\n" +
-                "  \"receiveSiteCode\" : 0,\n" +
-                "  \"sealBoxCode\" : \"\",\n" +
-                "  \"shieldsCarCode\" : \"\",\n" +
-                "  \"carCode\" : \"\",\n" +
-                "  \"sendUserCode\" : \"\",\n" +
-                "  \"sendUser\" : \"\",\n" +
-                "  \"batchCode\" : \"\",\n" +
-                "  \"weight\" : \"0\",\n" +
-                "  \"volume\" : \"0\",\n" +
-                "  \"exceptionType\" : \"\",\n" +
-                "  \"turnoverBoxCode\" : \"\",\n" +
-                "  \"operateType\" : 0,\n" +
-                "  \"goodsType\" : \"\",\n" +
-                "  \"airNo\" : \"\",\n" +
-                "  \"transName\" : \"\",\n" +
-                "  \"railwayNo\" : \"\",\n" +
-                "  \"num\" : 0,\n" +
-                "  \"demo\" : \"\",\n" +
-                "  \"bizSource\" : 67,\n" +
-                "  \"id\" : 26573,\n" +
-                "  \"businessType\" : 10,\n" +
-                "  \"userCode\" : 20113974,\n" +
-                "  \"userName\" : \"杨翠翠\",\n" +
-                "  \"siteCode\" : 67492,\n" +
-                "  \"siteName\" : \"南昌分拣中心\",\n" +
-                "  \"operateTime\" : \"2021-04-07 00:54:24.000\"\n" +
-                "}]");
-
-        task.setCreateSiteCode(67492);
+        String s = "\"type\":1800,\"siteCode\":910,\"keyword1\":\"910\",\"keyword2\":\"\",\"body\":\"[{\\\"taskType\\\":1301,\\\"packageCode\\\":\\\"JDV000516761514-5-5-\\\",\\\"waybillCode\\\":\\\"\\\",\\\"boxCode\\\":\\\"JDV000516761514-5-5-\\\",\\\"receiveSiteCode\\\":0,\\\"sealBoxCode\\\":\\\"\\\",\\\"shieldsCarCode\\\":\\\"\\\",\\\"carCode\\\":\\\"\\\",\\\"sendUserCode\\\":\\\"\\\",\\\"sendUser\\\":\\\"\\\",\\\"batchCode\\\":\\\"910-39-20210421184426455\\\",\\\"weight\\\":\\\"0\\\",\\\"volume\\\":\\\"0\\\",\\\"exceptionType\\\":\\\"\\\",\\\"turnoverBoxCode\\\":\\\"\\\",\\\"operateType\\\":0,\\\"goodsType\\\":\\\"\\\",\\\"airNo\\\":\\\"\\\",\\\"transName\\\":\\\"\\\",\\\"railwayNo\\\":\\\"\\\",\\\"num\\\":0,\\\"demo\\\":\\\"\\\",\\\"bizSource\\\":null,\\\"id\\\":34,\\\"businessType\\\":10,\\\"userCode\\\":17331,\\\"userName\\\":\\\"吴有德\\\",\\\"siteCode\\\":910,\\\"siteName\\\":\\\"北京马驹桥分拣中心\\\",\\\"operateTime\\\":\\\"2021-04-17 10:58:10.880\\\"}]\",\"boxCode\":\"\",\"receiveSiteCode\":910}";
+        TaskRequest task = JsonHelper.fromJson(s,TaskRequest.class);
 
         try {
             int index = 0;
@@ -99,7 +67,7 @@ public class ReverseTest {
                 uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
                 List<Boolean> r = new ArrayList<>();
                 for(int i = 0 ; i< 10 ; i++){
-                    r.add(asynBufferDemotionUtil.isDemotionOfSite(task));
+                    r.add(asynBufferDemotionUtil.isDemotionOfSite(task.getSiteCode(),task.getBody()));
                 }
 
                 System.out.println(JsonHelper.toJson(r));

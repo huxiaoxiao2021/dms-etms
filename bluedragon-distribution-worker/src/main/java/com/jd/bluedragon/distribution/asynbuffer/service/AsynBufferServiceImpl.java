@@ -26,7 +26,6 @@ import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.util.AsynBufferDemotionUtil;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -398,8 +397,6 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Autowired
     private DmsTaskExecutor<Task> offlineCoreTaskExecutor;
 
-    @Autowired
-    private AsynBufferDemotionUtil asynBufferDemotionUtil;
     /**
      * 离线任务
      *
@@ -409,10 +406,6 @@ public class AsynBufferServiceImpl implements AsynBufferService {
      */
     public boolean offlineTaskProcess(Task task) throws Exception {
         try {
-            if(asynBufferDemotionUtil.isDemotionOfSite(task)){
-                // 降级
-                return false;
-            }
            return offlineCoreTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
             log.error("处理离线任务[offline]失败[taskId={}]",task.getId(), e);
