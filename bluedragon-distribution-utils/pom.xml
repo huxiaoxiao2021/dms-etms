@@ -11,11 +11,14 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!--字节单号2.4-->
+        <!--增加运单号规则 2.3-->
         <dependency>
             <groupId>com.jd.etms.waybill</groupId>
             <artifactId>etms-waybillcode-rule</artifactId>
             <version>2.3</version>
         </dependency>
+
         <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
