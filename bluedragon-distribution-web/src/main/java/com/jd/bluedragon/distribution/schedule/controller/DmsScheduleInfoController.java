@@ -6,6 +6,7 @@ import java.io.OutputStreamWriter;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.utils.CsvExporterUtils;
@@ -86,26 +87,6 @@ public class DmsScheduleInfoController extends DmsBaseController{
 		return dmsScheduleInfoService.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
 	}
 
-	@RequestMapping(value = "/checkConcurrencyLimit")
-	@ResponseBody
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
-	@JProfiler(jKey = "com.jd.bluedragon.distribution.schedule.controller.DmsScheduleInfoController.checkConcurrencyLimit", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-	public InvokeResult checkConcurrencyLimit(){
-		InvokeResult result = new InvokeResult();
-		try {
-			//校验并发
-			if(!exportConcurrencyLimitService.checkConcurrencyLimit(Constants.DMS_WEB_EDN_PICKING_R)){
-				result.customMessage(InvokeResult.RESULT_EXPORT_LIMIT_CODE,InvokeResult.RESULT_EXPORT_LIMIT_MESSAGE);
-				return result;
-			}
-		}catch (Exception e){
-			log.error("校验导出并发接口异常-企配仓拣货",e);
-			result.customMessage(InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE,InvokeResult.RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE);
-			return result;
-		}
-		return result;
-	}
-
 	/**
 	 * 导出excel
 	 * @param dmsScheduleInfoCondition
@@ -121,6 +102,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 		BufferedWriter bfw = null;
 		log.info("企配仓拣货导出");
 		try {
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.DMS_SCHEDULE_INFO_REPORT.getCode());
 			String fileName = "企配仓拣货";
 			//设置文件后缀
 			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
@@ -128,6 +110,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 			//设置响应
 			CsvExporterUtils.setResponseHeader(response, fn);
 			dmsScheduleInfoService.export(dmsScheduleInfoCondition,bfw);
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.DMS_SCHEDULE_INFO_REPORT.getCode());
 		} catch (Exception e) {
 			log.error("企配仓拣货导出 toExport:", e);
 			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);

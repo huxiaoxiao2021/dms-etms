@@ -5,6 +5,7 @@ import java.text.Collator;
 import java.util.*;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.DmsScheduleInfoServiceManager;
 import com.jd.bluedragon.distribution.schedule.vo.DmsEdnPickingExportDto;
@@ -140,6 +141,7 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 	@Override
 	public void export(DmsScheduleInfoCondition dmsScheduleInfoCondition, BufferedWriter bufferedWriter) {
 		try {
+			long start = System.currentTimeMillis();
 			// 报表头
 			Map<String, String> headerMap = getThisHeaderMap();
 			//设置最大导出数量
@@ -167,6 +169,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 					break;
 				}
 			}
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(dmsScheduleInfoCondition), ExportConcurrencyLimitEnum.DMS_SCHEDULE_INFO_REPORT.getName(),end-start,queryTotal);
 		}catch (Exception e){
 			log.error("企配仓拣货 export error",e);
 		}
