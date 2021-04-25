@@ -83,6 +83,12 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_CHECK_MATERIAL_ERROR = 20015;
     public static final String MESSAGE_CHECK_MATERIAL_ERROR = "此运单号已绑定循环集包袋，请扫描包裹号操作!";
 
+    public static final Integer CODE_BASIC_SITE_CODE_ERROR = 20016;
+    public static final String  MESSAGE_BASIC_SITE_CODE_ERRPR = "预分拣站点滑道信息获取失败";
+
+    public static final Integer CODE_TARGET_SITE_NO_ROUTE_CONFIRM = 20017;
+    public static final String  MESSAGE_TARGET_SITE_NO_ROUTE_CONFIRM = "调度站点无滑道信息，是否继续操作?";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -73,6 +74,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
+        Waybill waybill = context.getWaybill();
 
         BaseStaffSiteOrgDto scheduleSiteOrgDto;
         try {
@@ -102,8 +104,8 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             }
 
             if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()
-                    ,context.getWaybill().getCodMoney())){
-                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(context.getWaybill().getCodMoney()));
+                    ,waybill.getCodMoney())){
+                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(waybill.getCodMoney()));
                 result.toError(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
                 return result;
             }
@@ -154,7 +156,6 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             result.toError(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
             return result;
         }
-
         return result;
     }
 
