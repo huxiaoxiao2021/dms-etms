@@ -170,7 +170,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             }
             String codMoney = WaybillInfo.getCodMoney();
             if (codMoney != null) {
-                db.setCodAmount(new BigDecimal(codMoney));
+                db.setCodAmount(codMoney);
             }
             db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
             db.setBusinessName(WaybillInfo.getBusiName());
@@ -188,7 +188,7 @@ public class WastePackageServiceImpl implements WastePackageService {
                 BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(prevSiteCode);
                 if(prevSiteDto!=null){
                     db.setPrevSiteName(prevSiteDto.getSiteName());
-                    db.setPrevProvinceCompanyCode(Integer.valueOf(prevSiteDto.getProvinceCompanyCode()));
+                    db.setPrevProvinceCompanyCode(prevSiteDto.getProvinceCompanyCode());
                     db.setPrevProvinceCompanyName(prevSiteDto.getProvinceCompanyName());
                 }
             }

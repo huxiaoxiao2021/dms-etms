@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -40,6 +41,9 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
@@ -51,6 +55,14 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
             result.toError(JdResponse.CODE_PARAM_ERROR,JdResponse.MESSAGE_PACKAGE_ERROR);
             return result;
         }
+
+        if (waybillTraceManager.isWaybillWaste(oldWaybillCode)){
+            LOGGER.info("ReverseChangeInterceptHandler.handle-->该运单{}为弃件单，不允许换单", oldWaybillCode);
+            result.toError(JdResponse.CODE_WAYBILL_WASTE,
+                    JdResponse.MESSAGE_WAYBILL_WASTE);
+            return result;
+        }
+
         /* 是否包裹半收 */
         boolean isHalfPackage = false;
 
