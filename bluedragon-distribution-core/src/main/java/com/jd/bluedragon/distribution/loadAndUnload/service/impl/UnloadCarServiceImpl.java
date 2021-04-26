@@ -636,6 +636,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 }
                 // 路由校验、生成板号
                 routerCheck(request,result);
+                //开板后获取板号
+                currentBoardCode = request.getBoardCode();
                 BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
                 BeanUtils.copyProperties(request,boardCommonRequest);
                 // 是否发货校验
@@ -719,14 +721,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     logger.info("test--log--20210420--组板包裹数={}，组板运单数={}，组板包裹信息=【{}】,组板运单信息=【{}】",
                             boxCount, waybillSet.size(), JsonHelper.toJson(tcResponse.getData()), JsonHelper.toJson(waybillSet));
                 }else{
-                    if(logger.isWarnEnabled()) {
-                        logger.warn("UnloadCarServiceImpl.setBoardCount--未查询到板号明细,板号=【{}】", boardCode);
+                    if(logger.isInfoEnabled()) {
+                        logger.info("UnloadCarServiceImpl.setBoardCount--未查询到板号明细,板号=【{}】", boardCode);
                     }
                 }
             }else {
                 logger.error("UnloadCarServiceImpl.setBoardCount-根据板号查询组板明细错误--error--！,板号=【{}】, 错误信息=【{}】",
                         boardCode, tcResponse.getMesseage());
             }
+        }else {
+            logger.error("UnloadCarServiceImpl.setBoardCount--板号为空，无法获取板箱/板单件数！,dtoInvokeResult=【{}】", JsonHelper.toJson(dtoInvokeResult));
         }
     }
 
