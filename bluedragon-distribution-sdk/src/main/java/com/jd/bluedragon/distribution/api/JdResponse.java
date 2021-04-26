@@ -211,6 +211,10 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_PRINT_WEIGHT_WARNING = 30123;
     public static final String MESSAGE_CODE_PRINT_WEIGHT_WARNING = "包裹重量为{0}，是否确定称重打印？";
 
+    //弃件拦截
+    public static final Integer CODE_WAYBILL_WASTE = 30123;
+    public static final String MESSAGE_WAYBILL_WASTE = "弃件禁止操作换单，请按公司规定进行暂存及按时处理";
+
     public static final Integer CODE_PRINT_WEIGHT_ALTER = 30124;
     public static final String MESSAGE_CODE_PRINT_WEIGHT_ALTER = "重量错误，请重新称重！";
 
