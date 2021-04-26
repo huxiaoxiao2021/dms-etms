@@ -2182,8 +2182,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return false;
         }
         try {
+            Integer nextSiteCode = null;
+            CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+            if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+                unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+                unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+                nextSiteCode = sealCarDto.getData().getEndSiteId();
+            } else {
+                logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+                return false;
+            }
             // 通过工具类从批次号上截取目的场地ID
-            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
+//            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
             if (nextSiteCode == null) {
                 logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
                 return false;
@@ -2230,14 +2240,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
 
-        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
-        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
-            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
-            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
-        } else {
-            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
-            return false;
-        }
+
         try {
             unloadCarDao.add(unloadCar);
         } catch (Exception e) {
