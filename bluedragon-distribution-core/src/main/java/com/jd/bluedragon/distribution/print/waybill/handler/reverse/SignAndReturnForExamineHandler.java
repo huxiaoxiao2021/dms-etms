@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 /**
  * @Author: liming522
@@ -37,26 +36,13 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
             return result;
         }
 
-        String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
         String newWaybillCode = context.getBigWaybillDto().getWaybill().getWaybillCode();
         Integer siteCode = context.getRequest().getSiteCode();
 
-        //包裹补打
-        if(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(operateType)){
-            if(!BusinessUtil.isRefund(waybillSign)){
-                return result;
-            }
+        try {
+            String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
 
-            InvokeResult<Boolean> invokeResult =  signBillReturnApiManager.checkSignBillReturn(newWaybillCode,siteCode);
-            if(!invokeResult.codeSuccess()){
-                result.toFail(invokeResult.getMessage());
-                return result;
-            }
-        }
-
-
-        //换单打印-传递的就是新单号
-        if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(operateType)){
+            //包裹补打、换单打印-传递的就是新单号
             if(!BusinessUtil.isSignBack(waybillSign)){
                 return result;
             }
@@ -66,6 +52,9 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
                 result.toFail(invokeResult.getMessage());
                 return result;
             }
+        }catch (Exception e){
+            logger.error("判断签单返还审批状态接口异常 waybillCode:{},siteCode:{}",newWaybillCode,siteCode,e);
+            result.toError(InvokeResult.SERVER_ERROR_CODE,InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
     }

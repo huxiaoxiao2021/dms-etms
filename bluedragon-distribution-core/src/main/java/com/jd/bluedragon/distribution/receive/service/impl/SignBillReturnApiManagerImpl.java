@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.receive.service.SignBillReturnApiManager;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import erp.ql.station.api.dto.CommonResponseDto;
 import erp.ql.station.api.service.SignBillReturnApi;
 import org.slf4j.Logger;
@@ -21,15 +23,15 @@ import org.springframework.util.StringUtils;
 public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
     private static final Logger log = LoggerFactory.getLogger(SignBillReturnApiManagerImpl.class);
 
-
     @Autowired
     private SignBillReturnApi signBillReturnApi;
 
     @Override
     public InvokeResult<Boolean> checkSignBillReturn(String newWaybillCode, Integer siteId) {
+        CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.setUnloadScanDetail", false, true);
+
         InvokeResult<Boolean>  result = new InvokeResult<>();
         result.success();
-
         CommonResponseDto<Boolean> responseDto = null;
         try {
             responseDto =   signBillReturnApi.checkSignBillReturn(newWaybillCode,siteId);
@@ -58,9 +60,12 @@ public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
                 return result;
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             log.error("调用终端签单返回 审核状态接口异常 waybillCode:{},siteCode:{}",newWaybillCode,siteId,e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }

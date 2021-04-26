@@ -97,6 +97,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
@@ -110,7 +111,6 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="signAndReturnForExamineHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -119,6 +119,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="oldWaybillQueryHandler"/>
@@ -133,7 +134,6 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="signAndReturnForExamineHandler"/>
 			</list>
 		</property>
 	</bean>
