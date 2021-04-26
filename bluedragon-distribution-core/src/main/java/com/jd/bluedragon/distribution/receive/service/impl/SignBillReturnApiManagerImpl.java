@@ -2,12 +2,14 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.receive.service.SignBillReturnApiManager;
+import com.jd.bluedragon.utils.JsonHelper;
 import erp.ql.station.api.dto.CommonResponseDto;
 import erp.ql.station.api.service.SignBillReturnApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 /**
  * @Author: liming522
@@ -31,7 +33,9 @@ public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
         CommonResponseDto<Boolean> responseDto = null;
         try {
             responseDto =   signBillReturnApi.checkSignBillReturn(newWaybillCode,siteId);
-
+            if(log.isInfoEnabled()){
+                log.info("签单返回审批接口返还结果:reponseDto:{},waybillCode:{}", JsonHelper.toJsonMs(responseDto),newWaybillCode);
+            }
             // 返回空结果
             if(responseDto == null){
                 log.error("签单返回审批接口返回空结果 waybillCode:{},siteCode:{}",newWaybillCode,siteId);
@@ -43,14 +47,14 @@ public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
             //异常编码
             if(responseDto.getCode() != CommonResponseDto.CODE_SUCCESS){
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-                result.setMessage(responseDto.getMessage());
+                result.setMessage(StringUtils.isEmpty(responseDto.getMessage())?"签单返还异常不通过":responseDto.getMessage());
                 return result;
             }
 
             //审批不通过
-            if( responseDto.getData() ==null || responseDto.getData().equals(Boolean.FALSE)){
+            if( responseDto.getData() == null || responseDto.getData().equals(Boolean.FALSE)){
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-                result.setMessage(responseDto.getMessage());
+                result.setMessage(StringUtils.isEmpty(responseDto.getMessage())?"签单返还审核不通过":responseDto.getMessage());
                 return result;
             }
         }catch (Exception e){
