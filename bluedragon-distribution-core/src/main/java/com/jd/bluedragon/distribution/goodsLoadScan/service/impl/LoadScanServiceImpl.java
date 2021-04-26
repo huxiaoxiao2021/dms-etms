@@ -650,8 +650,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
 
             if(packageCount + insertRecords.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-                if(log.isDebugEnabled()) {
-                    log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+                if(log.isWarnEnabled()) {
+                    log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
                 }
                 response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
                 return response;
@@ -660,7 +660,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             Map<String, Integer> map = new HashMap<>(16);
             // 板上的运单记录
             Map<String, LoadScanDto> waybillMap = new HashMap<>(16);
-            
+
             // 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
             computeLoadAndFilterWaybill(insertRecords, waybillMap, map);
             computeLoadAndFilterWaybill(updateRecords, waybillMap, map);
@@ -761,17 +761,16 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        //增加装车任务以及大宗运单的拦截判断。key即 任务号-运单号
-        String redisKey = taskId + "-" + waybillCode;
         // 校验拦截、包装服务、无重量等发货校验，发货校验规则同【B网快运发货】功能
         if (checkInterceptionValidate(response, taskId, packageCode)) {
             return response;
         }
+        //增加装车任务以及大宗运单的拦截判断。key即 任务号-运单号
         String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
         try {
             // 获取锁
             if (!lockUseParamKey(lockKey)) {
-                log.info("运单暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
+                log.warn("运单暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
                         packageCode, transfer, flowDisAccord);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
@@ -817,7 +816,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 校验运单号是否属于重复扫
             handlePackagesOfWaybill(waybillCode, loadCar, packageList, insertPackageCodes, updateRecordIds);
             if (insertPackageCodes.isEmpty() && updateRecordIds.isEmpty()) {
-                log.error("该运单号属于重复扫！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                log.warn("该运单号属于重复扫！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该运单号属于重复扫！");
                 return response;
@@ -826,8 +825,8 @@ public class LoadScanServiceImpl implements LoadScanService {
             int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
 
             if(packageCount + insertPackageCodes.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-                if(log.isDebugEnabled()) {
-                    log.debug("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+                if(log.isWarnEnabled()) {
+                    log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
                 }
                 response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
                 return response;
