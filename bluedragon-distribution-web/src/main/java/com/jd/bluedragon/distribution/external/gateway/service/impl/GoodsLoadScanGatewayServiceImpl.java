@@ -608,5 +608,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
         return response;
     }
 
+    @Override
+    public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
+        //必填项
+
+        //操作人erp   当前网点编码    任务ID
+        return null;
+    }
+
 
 }
