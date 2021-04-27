@@ -43,7 +43,7 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
             String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
 
             //包裹补打、换单打印-传递的就是新单号
-            if(!BusinessUtil.isSignBack(waybillSign)){
+            if(!BusinessUtil.isRefund(waybillSign)){
                 return result;
             }
 
