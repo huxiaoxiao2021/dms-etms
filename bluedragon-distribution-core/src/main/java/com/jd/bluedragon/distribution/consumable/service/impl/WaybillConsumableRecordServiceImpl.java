@@ -203,4 +203,17 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             }
         }
     }
+
+    //装卸车需求，只拦截待确认的
+    @Override
+    public Boolean needConfirmed(String waybillCode) {
+        WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
+        if (record == null) {
+            return false;
+        }
+        if(log.isInfoEnabled()) {
+            log.info("运单号{}确认耗材服务结果【0：未确认，1：确认】：{}" ,waybillCode, record.getConfirmStatus());
+        }
+        return UNTREATED_STATE.equals(record.getConfirmStatus());
+    }
 }

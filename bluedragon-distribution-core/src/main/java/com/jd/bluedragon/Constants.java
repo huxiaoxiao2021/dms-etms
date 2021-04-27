@@ -44,6 +44,7 @@ public class Constants {
     public static final String OPERATE_FAIL = "0";
     public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
+    public static final String SEPARATOR_VERTICAL_LINE = "|";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
     public static final int RESULT_SUCCESS = 1; //成功
@@ -1490,6 +1491,11 @@ public class Constants {
      * 卸车任务流水线模式:只验货不组板
      */
     public static final Integer ASSEMBLY_LINE_TYPE = 0;
+
+    /**
+     * 系统名
+     */
+    public static final String SYSTEM_NAME = "QLFJZXJT";
 
     /**
      * 导出并发限制数量
