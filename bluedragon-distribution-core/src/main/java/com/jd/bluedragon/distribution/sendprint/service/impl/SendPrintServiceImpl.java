@@ -1041,7 +1041,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         String waybillCode = StringUtils.isEmpty(sendDetail.getWaybillCode())
                 ? WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()) : sendDetail.getWaybillCode();
         BigWaybillDto bigWaybillDto = getBigWaybillDto(waybillCode);
-        if(bigWaybillDto == null){
+        if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
             log.warn("根据运单号{}获取运单信息为空!", waybillCode);
             return null;
         }
@@ -1098,7 +1098,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         queryParams.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
         queryParams.setBoxCode(sendDetail.getBoxCode());
         List<SendM> sendMList = sendMService.findByParams(queryParams);
-        return sendMList.get(0);
+        return CollectionUtils.isEmpty(sendMList) ? null : sendMList.get(0);
     }
 
     /**
@@ -1295,6 +1295,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private void buildBoardVolumeData(PrintHandoverListDto printHandoverListDto,SendM sendM) {
         String boardCode = sendM.getBoardCode();
+        if(StringUtils.isEmpty(boardCode)){
+            return;
+        }
         printHandoverListDto.setBoardCode(boardCode);
         // 板号对应的体积
         Map<String, Double> boardVolumeMap = getBoardValueMapByBoards(Collections.singletonList(boardCode));
