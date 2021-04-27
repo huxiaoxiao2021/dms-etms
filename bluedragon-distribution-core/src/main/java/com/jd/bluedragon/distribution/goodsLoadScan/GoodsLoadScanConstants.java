@@ -64,5 +64,9 @@ public class GoodsLoadScanConstants {
     public static final Integer UNLOAD_SCAN_YELLOW = 2;
     public static final Integer UNLOAD_SCAN_ORANGE = 3;
     public static final Integer UNLOAD_SCAN_RED = 4;
+    /**
+     * 待装车库存查询时间范围
+     */
+    public static final Integer WAIT_LOAD_RANGE_FROM_HOURS = 15 * 24;
 
 }
