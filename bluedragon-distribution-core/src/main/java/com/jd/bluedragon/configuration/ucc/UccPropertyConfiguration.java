@@ -52,6 +52,11 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+    /**
+     * 离线任务限流数量
+     */
+    private Integer offlineCurrentLimitingCount;
+
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
@@ -369,6 +374,14 @@ public class UccPropertyConfiguration {
 
     public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
         this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
+
+    public Integer getOfflineCurrentLimitingCount() {
+        return offlineCurrentLimitingCount;
+    }
+
+    public void setOfflineCurrentLimitingCount(Integer offlineCurrentLimitingCount) {
+        this.offlineCurrentLimitingCount = offlineCurrentLimitingCount;
     }
 
     public String getAsynbufferEnabledTaskType() {
