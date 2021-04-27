@@ -12,7 +12,10 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_SEE_OTHER = 303;
     public static final String MESSAGE_SEE_OTHER = "See Other";
-    
+
+    public static final Integer CODE_BUSY = 20108;
+    public static final String MESSAGE_BUSY = "系统繁忙，请稍后重试！";
+
     public static final Integer CODE_PARAM_ERROR = 10000;
     public static final String MESSAGE_PARAM_ERROR = "参数错误";
     public static final String MESSAGE_PARAM_ERROR_2 = "网点信息为空，请重新登录再试！";

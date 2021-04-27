@@ -102,6 +102,9 @@
 		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
+		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
+
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -173,6 +176,8 @@
                 <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
+				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
+
 			</list>
 		</property>
 	</bean>

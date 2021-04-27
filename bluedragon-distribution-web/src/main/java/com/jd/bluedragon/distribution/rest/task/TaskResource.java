@@ -85,6 +85,9 @@ public class TaskResource {
     private BoxRelationService boxRelationService;
 
 
+    @Autowired
+    private AsynBufferDemotionUtil asynBufferDemotionUtil;
+
     @POST
     @Path("/tasks/add")
     @JProfiler(jKey = "DMS.WEB.TaskResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -192,6 +195,16 @@ public class TaskResource {
                     this.taskAssemblingAndSave(request, eachJson);
                 }
             } else if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
+
+                //离线限流
+                if(asynBufferDemotionUtil.isDemotionOfSite(request.getSiteCode(),request.getBody())){
+                    //限流
+                    return new TaskResponse(
+                            JdResponse.CODE_BUSY,
+                            JdResponse.MESSAGE_BUSY);
+                }
+
+
 
                 Map<String, Object> itemTask = (Map<String, Object>) element;
                 String operateTime = (String) itemTask.get("operateTime");
