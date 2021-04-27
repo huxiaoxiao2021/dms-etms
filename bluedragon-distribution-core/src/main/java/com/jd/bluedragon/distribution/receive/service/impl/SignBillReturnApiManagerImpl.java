@@ -36,7 +36,7 @@ public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
         try {
             responseDto =   signBillReturnApi.checkSignBillReturn(newWaybillCode,siteId);
             if(log.isInfoEnabled()){
-                log.info("签单返回审批接口返还结果:reponseDto:{},waybillCode:{}", JsonHelper.toJsonMs(responseDto),newWaybillCode);
+                log.info("签单返回审批接口返还结果:responseDto:{},waybillCode:{},siteId:{}", JsonHelper.toJsonMs(responseDto),newWaybillCode,siteId);
             }
             // 返回空结果
             if(responseDto == null){
