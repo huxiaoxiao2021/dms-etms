@@ -36,7 +36,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
     private PrintHandoverListManager printHandoverListManager;
 
     @Override
-    @JProfiler(jKey = "DmsWorkSendDetailConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER,mState = {JProEnum.TP,JProEnum.Heartbeat})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DmsWorkSendDetailConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception{
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
