@@ -63,7 +63,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
             }
             recordPrintHandoverListData(dto);
         }catch(Exception e){
-            log.error("消费发货消息转换成BasicQueryEntity失败:{}",message.getText(),e);
+            log.error("消费发货消息转换成BasicQueryEntity失败:"+message.getText(), e);
             throw e;
         }
     }
