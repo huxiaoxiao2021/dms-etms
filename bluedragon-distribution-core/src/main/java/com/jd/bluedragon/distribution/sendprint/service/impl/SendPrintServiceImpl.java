@@ -1147,7 +1147,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         Waybill waybill = data.getWaybill();
 
-        printHandoverListDto.setDeclaredValue(Double.valueOf(waybill.getCodMoney()));
+        printHandoverListDto.setDeclaredValue(waybill.getCodMoney() == null ? Constants.DOUBLE_ZERO : Double.valueOf(waybill.getCodMoney()));
         printHandoverListDto.setGoodValue(waybill.getPrice() == null ? Constants.DOUBLE_ZERO : Double.valueOf(waybill.getPrice()));
         printHandoverListDto.setGoodWeight(waybill.getGoodWeight() == null ? Constants.DOUBLE_ZERO : waybill.getGoodWeight());
         printHandoverListDto.setAgainWeight(waybill.getAgainWeight() == null ? Constants.DOUBLE_ZERO : waybill.getAgainWeight());
