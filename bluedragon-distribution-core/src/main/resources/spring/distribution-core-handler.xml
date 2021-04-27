@@ -310,6 +310,7 @@
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
@@ -380,6 +381,7 @@
 			<list>
 				<ref bean="reverseChangeInterceptHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -395,6 +397,7 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
+
 			</list>
 		</property>
 	</bean>
