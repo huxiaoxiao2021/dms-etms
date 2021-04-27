@@ -77,6 +77,10 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
     public List<GoodsLoadScan> loadScanRecordIsExist(Long taskId) {
         return super.getSqlSession().selectList(NAMESPACE + ".loadScanRecordIsExist", taskId);
     }
+
+    public List<GoodsLoadScan> findWaybillInfoByIds(List<Long> idList) {
+        return super.getSqlSession().selectList(NAMESPACE + ".findWaybillInfoByIds", idList);
+    }
 }
 
 

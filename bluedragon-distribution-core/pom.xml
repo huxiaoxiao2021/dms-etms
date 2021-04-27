@@ -62,7 +62,8 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.27-SNAPSHOT</version>
+			<!--生产环境 1.1.27-SNAPSHOT   测试环境1.1.27-test-SNAPSHOT-->
+			<version>1.1.27-test-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
