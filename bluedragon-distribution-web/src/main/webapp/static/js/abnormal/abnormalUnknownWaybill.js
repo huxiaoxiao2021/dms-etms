@@ -4,6 +4,7 @@ $(function () {
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
     var queryUrl = '/abnormal/abnormalUnknownWaybill/listData';
+    var exportUrl = "/abnormal/abnormalUnknownWaybill/toExport";
     tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -333,39 +334,54 @@ $(function () {
     //初始化导出按钮
     function initExport(tableInit){
         $("#btn_export").on("click",function(e){
-
-            var url = "/abnormal/abnormalUnknownWaybill/toExport";
             var params = tableInit.getSearchCondition();
-
             var areaId = params["areaId"];
             var dmsSiteCode = params["dmsSiteCode"];
+            var waybillCode = params["waybillCode"];
+            var startTime = params["startTime"];
+            var endTime = params["endTime"];
+
             if(areaId ==null|| dmsSiteCode==null){
                 alert('导出功能 "机构"和"分拣中心"必选');
                 return ;
+            }
+
+            if(waybillCode==null &&(startTime==null||endTime==null)){
+                alert("运单号和上报时间条件不能同时为空")
+                return;
             }
 
             if (isEmptyObject(params)){
                 alert('禁止全量导出，请确定查询范围');
                 return;
             }
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action":url});
 
-            $.each(params,function(key,value){
-
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name":key});
-                if (key == 'startTime' || key == 'endTime'){
-                    input.val(new Date(value));
-                }else{
-                    input.val(value);
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT,
+                checkPassCallback: function (result) {
+                    // 提交表单
+                    var form = $("<form method='post'></form>"),
+                        input;
+                    form.attr({"action":exportUrl});
+                    $.each(params,function(key,value){
+                        input = $("<input type='hidden' class='search-param'>");
+                        input.attr({"name":key});
+                        if (key == 'startTime' || key == 'endTime'){
+                            input.val(new Date(value));
+                        }else{
+                            input.val(value);
+                        }
+                        form.append(input);
+                    });
+                    form.appendTo(document.body);
+                    form.submit();
+                    form.remove();
+                },
+                checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
                 }
-                form.append(input);
             });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
         });
     }
 

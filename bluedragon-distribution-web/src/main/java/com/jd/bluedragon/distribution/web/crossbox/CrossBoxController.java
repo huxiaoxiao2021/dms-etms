@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.web.crossbox;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
 import com.jd.bluedragon.distribution.api.response.CrossBoxResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
@@ -13,10 +16,13 @@ import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +36,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Date;
@@ -52,6 +62,9 @@ public class CrossBoxController {
 
 	@Autowired
 	private BaseMajorManager baseSiteManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping("/index")
@@ -578,7 +591,11 @@ public class CrossBoxController {
 
     @Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@RequestMapping(value = "/toExport")
-	public ModelAndView toExport(CrossBoxRequest crossBoxRequest, Model model) {
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.crossbox.CrossBoxController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult toExport(CrossBoxRequest crossBoxRequest, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
+		BufferedWriter bfw = null;
 		try {
 			if (crossBoxRequest != null) {
 				if (StringUtils.isNotBlank(crossBoxRequest.getCreateDateString())) {
@@ -590,18 +607,31 @@ public class CrossBoxController {
 					crossBoxRequest.setUpdateDate(updatedate);
 				}
 			}
-			List<List<Object>> resultList = crossBoxService.getExportDataByCrossBox(crossBoxRequest);
 
-			model.addAttribute("filename", "crossBoxExport.xls");
-			model.addAttribute("sheetname", "跨箱号中转维护导出结果");
-			model.addAttribute("contents", resultList);
-
-			return new ModelAndView(new DefaultExcelView(), model.asMap());
-
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getCode());
+			String fileName = "跨箱号中转维护导出结果";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+			crossBoxService.export(crossBoxRequest,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getCode());
 		} catch (Exception e) {
-			log.error("toExport:", e);
-			return null;
+				log.error("跨箱号中转维护导出结果 export error",e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+		}finally {
+			try {
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
+				}
+			} catch (IOException es) {
+				log.error("平台收货差异订单数据 流关闭异常", es);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+			}
 		}
+		return  result;
 	}
 
 	private String getFullLine(CrossBox crossDmsBox) {

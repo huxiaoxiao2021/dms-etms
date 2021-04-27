@@ -31,6 +31,7 @@
 <body class="container-fluid">
 <script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
+<script type="text/javascript" src="#springUrl('/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js')"></script>
 <script type="text/javascript" src="#springUrl('/static/js/waybill/rma/list.js')"></script>
 <style type="text/css">
     .txtCenter {

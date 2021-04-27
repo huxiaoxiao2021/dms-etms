@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -20,9 +21,10 @@ public interface ReviewWeightSpotCheckService {
     /**
      * 获取导出数据
      * @param condition
+     * @param bfw
      * @return
      */
-    List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition);
+    void getExportData(WeightAndVolumeCheckCondition condition, BufferedWriter bfw);
 
     /**
      * 校验模板数据

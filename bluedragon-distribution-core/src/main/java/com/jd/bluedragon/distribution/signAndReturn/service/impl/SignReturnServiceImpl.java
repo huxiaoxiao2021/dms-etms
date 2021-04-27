@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.signAndReturn.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao;
 import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
@@ -9,6 +11,7 @@ import com.jd.bluedragon.distribution.signAndReturn.service.SignReturnService;
 import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcelDownFee;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
@@ -41,6 +44,9 @@ public class SignReturnServiceImpl implements SignReturnService {
     @Autowired
     private MergedWaybillService mergedWaybillService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
     //excel表格sheet和表头信息
     private static final String sheettitle = "签单返回合单主表";
     private static final String[] headers = new String[] {"签单返回合单运单号","商家编码","商家名称","返单周期","合单操作日期","合单操作机构","合单操作人","合单运单数"};
@@ -54,8 +60,9 @@ public class SignReturnServiceImpl implements SignReturnService {
      */
     @Override
     public void toExport(PagerResult<SignReturnPrintM> result, HttpServletResponse response) {
-
         try {
+            long start = System.currentTimeMillis();
+
             //获取数据
             List<SignReturnPrintM> list = result.getRows();
             List<MergedWaybill> mergedWaybillList = Collections.emptyList();
@@ -112,6 +119,9 @@ public class SignReturnServiceImpl implements SignReturnService {
             ex.export(workbook,out);
 
             workbook.write(out);
+
+            long  end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(result), ExportConcurrencyLimitEnum.SIGN_RETURN_REPORT.getName(), end-start,dataList.size()+dataListDetail.size());
             out.close();
         } catch (Exception e) {
             this.log.error("根据运单号导出excel失败!");

@@ -300,6 +300,16 @@ public class UccPropertyConfiguration {
      */
     private String weightVolumeRuleStandard;
 
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
+
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -819,5 +829,21 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public Integer getExportConcurrencyLimitNum() {
+        return exportConcurrencyLimitNum;
+    }
+
+    public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
+        this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
+    }
+
+    public Integer getOneQuerySize() {
+        return oneQuerySize;
+    }
+
+    public void setOneQuerySize(Integer oneQuerySize) {
+        this.oneQuerySize = oneQuerySize;
     }
 }

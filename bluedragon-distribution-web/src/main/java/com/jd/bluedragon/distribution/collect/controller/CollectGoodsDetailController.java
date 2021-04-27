@@ -1,16 +1,22 @@
 package com.jd.bluedragon.distribution.collect.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetail;
 import com.jd.bluedragon.distribution.collect.domain.CollectGoodsDetailCondition;
 import com.jd.bluedragon.distribution.collect.service.CollectGoodsDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.CsvExporterUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +26,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +53,9 @@ public class CollectGoodsDetailController {
 
 	@Autowired
 	BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 返回主页面
@@ -128,8 +141,6 @@ public class CollectGoodsDetailController {
 		return rest.getData();
 	}
 
-
-
 	/**
 	 * 获取明细
 	 * @param collectGoodsDetailCondition
@@ -142,22 +153,43 @@ public class CollectGoodsDetailController {
 		rest.setData(collectGoodsDetailService.queryByCondition(collectGoodsDetailCondition));
 		return rest;
 	}
+
 	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
 	@RequestMapping(value = "/toExport")
-	public ModelAndView toExport(CollectGoodsDetailCondition collectGoodsDetailCondition, Model model) {
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.collect.controller.CollectGoodsDetailController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult toExport(CollectGoodsDetailCondition collectGoodsDetailCondition, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
+		BufferedWriter bfw = null;
+		log.info("导出集货报表");
 		try {
+			//导出操作+1
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.COLLECT_GOODS_DETAIL_REPORT.getCode());
 
-			List<List<Object>> resultList = collectGoodsDetailService.getExportData(collectGoodsDetailCondition);
+			String fileName = "集货报表";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+			collectGoodsDetailService.getExportData(collectGoodsDetailCondition,bfw);
 
-			model.addAttribute("filename", "集货报表.xls");
-			model.addAttribute("sheetname", "集货数据");
-			model.addAttribute("contents", resultList);
-
-			return new ModelAndView(new DefaultExcelView(), model.asMap());
-
+			//导出操作-1
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.COLLECT_GOODS_DETAIL_REPORT.getCode());
 		} catch (Exception e) {
-			log.error("toExport:", e);
-			return null;
+			log.error("导出 集货报表异常:", e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+		}finally {
+			try {
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
+				}
+			} catch (IOException es) {
+				log.error("导出集货报表 流关闭异常", es);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+			}
 		}
+		return result;
 	}
 }

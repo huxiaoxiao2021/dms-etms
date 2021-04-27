@@ -372,20 +372,29 @@ $(function() {
 
 			// 导出
             $('#btn_export').click(function () {
-                var params = tableInit().getSearchCondition();
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action": exportUrl});
+                checkConcurrencyLimit({
+                    currentKey: exportReportEnum.STORAGE_PACKAGE_M_REPORT,
+                    checkPassCallback: function (result) {
+                        var params = tableInit().getSearchCondition();
+                        var form = $("<form method='post'></form>"),
+                            input;
+                        form.attr({"action": exportUrl});
 
-                $.each(params, function (key, value) {
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name": key});
-                    input.val(value);
-                    form.append(input);
+                        $.each(params, function (key, value) {
+                            input = $("<input type='hidden' class='search-param'>");
+                            input.attr({"name": key});
+                            input.val(value);
+                            form.append(input);
+                        });
+                        form.appendTo(document.body);
+                        form.submit();
+                        document.body.removeChild(form[0]);
+                    },
+                    checkFailCallback: function (result) {
+                        // 导出校验失败，弹出提示消息
+                        alert(result.message)
+                    }
                 });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
             });
 
             // 储位充足变更

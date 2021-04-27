@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.merchantWeightAndVolume.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.dao.MerchantWeightAndVolumeWhiteListDao;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeCondition;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail;
+import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetailExportDto;
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.service.MerchantWeightAndVolumeWhiteListService;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -25,10 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedWriter;
+import java.util.*;
 
 /**
  * 类描述信息
@@ -46,6 +47,9 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
 
     @Value("${merchant.whiteList.export.maxNum:5000}")
     private Integer exportMaxNum;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 导入导出最大值
@@ -174,39 +178,76 @@ public class MerchantWeightAndVolumeWhiteListServiceImpl implements MerchantWeig
     }
 
     @Override
-    public List<List<Object>> getExportData(MerchantWeightAndVolumeCondition condition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
-        //添加表头
-        heads.add("商家配送编码");
-        heads.add("商家名称");
-        heads.add("操作区域ID");
-        heads.add("操作区域名称");
-        heads.add("操作场站ID");
-        heads.add("操作场站");
-        heads.add("创建人ERP");
-        heads.add("创建人");
-        heads.add("创建时间");
-        resList.add(heads);
-        condition.setLimit(exportMaxNum==null?MERCHANT_WHITELIST_EXPORT_MAX_NUM:exportMaxNum);
-        List<MerchantWeightAndVolumeDetail> dataList = merchantWeightAndVolumeWhiteListDao.exportByCondition(condition);
-        if(dataList != null && dataList.size() > 0){
-            //表格信息
-            for(MerchantWeightAndVolumeDetail detail : dataList){
-                List<Object> body = Lists.newArrayList();
-                body.add(detail.getMerchantCode());
-                body.add(detail.getMerchantName());
-                body.add(detail.getOperateOrgCode());
-                body.add(detail.getOperateOrgName());
-                body.add(detail.getOperateSiteCode());
-                body.add(detail.getOperateSiteName());
-                body.add(detail.getCreateErp());
-                body.add(detail.getCreateUserName());
-                body.add(detail.getCreateTime() == null ? null : DateHelper.formatDate(detail.getCreateTime(), Constants.DATE_FORMAT));
-                resList.add(body);
+    public void getExportData(MerchantWeightAndVolumeCondition condition, BufferedWriter bufferedWriter) {
+        try {
+            long start =System.currentTimeMillis();
+            // 写入表头
+            Map<String, String> headerMap = getHeaderMap();
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+
+            //最大导出数量
+            Integer maxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportMaxNum==null?MERCHANT_WHITELIST_EXPORT_MAX_NUM:exportMaxNum;
+            // 设置单次查询时间
+            condition.setLimit(oneQuery);
+            int queryTotal = 0;
+            int index = 1;
+            while ( index <= (maxSize/oneQuery)+1){
+                condition.setOffset((index-1)* oneQuery);
+                List<MerchantWeightAndVolumeDetail> dataList = merchantWeightAndVolumeWhiteListDao.exportByCondition(condition);
+                index++;
+                if(CollectionUtils.isEmpty(dataList)){
+                    break;
+                }
+
+                List<MerchantWeightAndVolumeDetailExportDto>  exportDtoList = transForm(dataList);
+                // 输出至csv文件中
+                CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, exportDtoList);
+                // 限制导出数量
+                queryTotal += exportDtoList.size();
+                if(queryTotal > maxSize){
+                    break;
+                }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.MERCHANT_WEIGHT_AND_VOLUME_WHITE_REPORT.getName(), end -start,queryTotal);
+        }catch (Exception e){
+            log.error("商家称重量方白名单统计表 export error",e);
         }
-        return  resList;
+    }
+
+    private List<MerchantWeightAndVolumeDetailExportDto> transForm(List<MerchantWeightAndVolumeDetail> dataList) {
+        List<MerchantWeightAndVolumeDetailExportDto> list = new ArrayList<MerchantWeightAndVolumeDetailExportDto>();
+        //表格信息
+        for(MerchantWeightAndVolumeDetail detail : dataList){
+            MerchantWeightAndVolumeDetailExportDto  body = new MerchantWeightAndVolumeDetailExportDto();
+            body.setMerchantCode(detail.getMerchantCode());
+            body.setMerchantName(detail.getMerchantName());
+            body.setOperateOrgCode(detail.getOperateOrgCode());
+            body.setOperateOrgName(detail.getOperateOrgName());
+            body.setOperateSiteCode(detail.getOperateSiteCode());
+            body.setOperateSiteName(detail.getOperateSiteName());
+            body.setCreateErp(detail.getCreateErp());
+            body.setCreateUserName(detail.getCreateUserName());
+            body.setCreateTime(detail.getCreateTime() == null ? null : DateHelper.formatDate(detail.getCreateTime(), Constants.DATE_FORMAT));
+            list.add(body);
+        }
+        return list;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        //添加表头
+        headerMap.put("merchantCode","商家配送编码");
+        headerMap.put("merchantName","商家名称");
+        headerMap.put("operateOrgCode","操作区域ID");
+        headerMap.put("operateOrgName","操作区域名称");
+        headerMap.put("operateSiteCode","操作场站ID");
+        headerMap.put("operateSiteName","操作场站");
+        headerMap.put("createErp","创建人ERP");
+        headerMap.put("createUserName","创建人");
+        headerMap.put("createTime","创建时间");
+        return headerMap;
     }
 
     /**
