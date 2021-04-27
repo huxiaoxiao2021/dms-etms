@@ -4,7 +4,10 @@ import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
+import com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
+
+import java.util.List;
 
 
 /**
@@ -21,6 +24,13 @@ public interface PrintHandoverListManager {
      * @return
      */
     PageData<PrintHandoverListDto> queryPrintHandOverListByQueryCondition(Pager<PrintHandoverLitQueryCondition> pager);
+
+    /**
+     * 打印交接清单 - 汇总查询
+     * @param condition
+     * @return
+     */
+    List<SummaryPrintResult> batchSummaryPrintHandOverListByQueryCondition(PrintHandoverLitQueryCondition condition);
 
     /**
      * 打印交接清单 - 根据条件scroll查询

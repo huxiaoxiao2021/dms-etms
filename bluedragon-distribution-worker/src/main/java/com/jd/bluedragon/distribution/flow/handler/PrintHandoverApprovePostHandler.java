@@ -52,6 +52,9 @@ public class PrintHandoverApprovePostHandler implements ApprovePostHandler {
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWORKER)
     @Override
     public void postApprove(HistoryApprove historyApprove) throws Throwable {
+        if(logger.isInfoEnabled()){
+            logger.info("审批回调结果：{}", JsonHelper.toJson(historyApprove));
+        }
         if(historyApprove == null
                 // 系统不一致
                 || !Objects.equals(historyApprove.getSystem(),Constants.SYSTEM_NAME)
@@ -70,6 +73,7 @@ public class PrintHandoverApprovePostHandler implements ApprovePostHandler {
             addBusinessLog(startTime, historyApprove, null, false);
             return;
         }
+
         ApproveRequestOrder approveRequestOrder = flowServiceManager.getRequestOrder(historyApprove.getProcessInstanceNo());
         if(approveRequestOrder == null || approveRequestOrder.getArgs() == null){
             logger.warn("根据审批工单号【{}】未查询到打印交接单导出的审批流程!", historyApprove.getProcessInstanceNo());
@@ -94,7 +98,7 @@ public class PrintHandoverApprovePostHandler implements ApprovePostHandler {
         // 异步导出发送至提交人咚咚
         boolean exportSuc = false;
         BaseEntity<Boolean> baseEntity = printHandoverListManager.doExportAsync(query);
-        if(baseEntity != null && baseEntity.getData()){
+        if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             logger.info("打印交接清单导出异步发咚咚至ERP【{}】成功!", query.getSearchVo().getUserCode());
             exportSuc = true;
         }
