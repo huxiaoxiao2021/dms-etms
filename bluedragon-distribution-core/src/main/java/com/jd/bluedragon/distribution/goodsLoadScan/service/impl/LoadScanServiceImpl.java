@@ -1540,7 +1540,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
             String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
             // 获取锁
-            if (!lockUseParamKey(lockKey)) {
+            if (existsRedisInfoByParamKey(lockKey)) {
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该包裹所在的运单，正在使用大宗操作，请稍后！");
                 return response;
@@ -1955,6 +1955,21 @@ public class LoadScanServiceImpl implements LoadScanService {
             jimdbCacheService.del(paramKey);
         }
         return true;
+    }
+
+    private boolean existsRedisInfoByParamKey(String paramKey) {
+        if(StringUtils.isBlank(paramKey)){
+            if(log.isWarnEnabled()){
+                log.warn("获取锁信息时，锁的key为空.");
+            }
+            return false;
+        }
+        try {
+            return jimdbCacheService.exists(paramKey);
+        } catch (Exception e) {
+            log.error("装车扫描获取锁时出现异常,异常信息为{}", e.getMessage(),e);
+            return false;
+        }
     }
 
     private String getLockFlag(String waybillCode, String boardCode) {
