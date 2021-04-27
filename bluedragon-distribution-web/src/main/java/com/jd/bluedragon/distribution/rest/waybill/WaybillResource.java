@@ -17,6 +17,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -40,13 +43,6 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.core.base.LdopWaybillUpdateManager;
-import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
@@ -236,6 +232,13 @@ public class WaybillResource {
 
 	@Autowired
 	private RouterService routerService;
+
+    @Autowired
+    private OmsManager omsManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -2448,14 +2451,28 @@ public class WaybillResource {
             result.setMessage("不用取消鸡毛信属性");
             return result;
         }
-        InvokeResult<String> ldopInvokeResult = ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode());
-        if(ldopInvokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+
+        InvokeResult<String> invokeResult;
+        if (uccPropertyConfiguration.isCancelJimaoxinSwitchToOMS() && waybillService.baiChuanEnableSwitch(waybill)) {
+            ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request);
+            invokeResult = omsManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode(), cancelRequest);
+
+            if (log.isInfoEnabled()) {
+                log.info("取消鸡毛信调用OMS服务. req:{}, resp:{}", JsonHelper.toJson(request), JsonHelper.toJson(invokeResult));
+            }
+        }
+        else {
+            invokeResult = ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode());
+        }
+
+
+        if(invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
             result.success();
             result.setMessage("取消鸡毛信成功！");
             return result;
         }
         result.setCode(JdResponse.CODE_SEE_OTHER);
-        result.setMessage("取消鸡毛信失败【"+ldopInvokeResult.getMessage()+"】");
+        result.setMessage("取消鸡毛信失败【"+invokeResult.getMessage()+"】");
         return result;
     }
 

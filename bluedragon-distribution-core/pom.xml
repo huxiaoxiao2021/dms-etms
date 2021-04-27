@@ -1584,7 +1584,14 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>cn.jdl.oms</groupId>
+            <artifactId>jdl-oms-client</artifactId>
+            <version>1.0.3-SNAPSHOT</version>
+        </dependency>
+
+
+    </dependencies>
 
 	<profiles>
 		<!--测试环境  -->

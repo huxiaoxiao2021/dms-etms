@@ -328,6 +328,12 @@ public class UccPropertyConfiguration {
      */
     private boolean checkSiteSubType;
 
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -887,5 +893,13 @@ public class UccPropertyConfiguration {
 
     public void setCheckSiteSubType(boolean checkSiteSubType) {
         this.checkSiteSubType = checkSiteSubType;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
     }
 }

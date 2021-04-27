@@ -105,7 +105,7 @@
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
-
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
 
 	</bean>
 
@@ -181,6 +181,7 @@
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
+                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
 
 			</list>
 		</property>

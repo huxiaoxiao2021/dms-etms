@@ -150,4 +150,12 @@ public interface WaybillService {
      */
     boolean allowFilePackFilter(Integer subType, String waybillSign);
 
+    /**
+     * 百川业务开关，判断omcOrderCode是否有值，有值代表开启百川业务
+     * @param waybill
+     * @return
+     */
+    Boolean baiChuanEnableSwitch(Waybill waybill);
+
+
 }
