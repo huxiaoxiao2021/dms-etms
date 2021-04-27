@@ -17,7 +17,6 @@ import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
 import com.jd.transboard.api.dto.Board;
