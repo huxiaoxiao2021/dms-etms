@@ -1525,6 +1525,11 @@ public class Constants {
     public static final Integer ASSEMBLY_LINE_TYPE = 0;
 
     /**
+     * 系统名
+     */
+    public static final String SYSTEM_NAME = "QLFJZXJT";
+
+    /**
      * 导出并发限制数量
      */
     public static Integer CONCURRENCY_EXPORT_LIMIT = 50;
@@ -1533,9 +1538,4 @@ public class Constants {
      * 导出并发key 缓存有效时间 单位:天
      */
     public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
-
-    /**
-     * 系统名
-     */
-    public static final String SYSTEM_NAME = "QLFJZXJT";
 }

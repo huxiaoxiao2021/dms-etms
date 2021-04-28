@@ -693,10 +693,6 @@
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 
-    <!--运单拦截信息接口-->
-    <jsf:consumer id="blockerQueryWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerQueryWS"
-                  protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
-    </jsf:consumer>
 
     <!--签单返还-->
     <jsf:consumer id="signBillReturnApi" interface="erp.ql.station.api.service.SignBillReturnApi" protocol="jsf"
@@ -717,5 +713,10 @@
         <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
     </jsf:consumer>
 
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="blockerQueryWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerQueryWS"
+                  protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
+    </jsf:consumer>
 
 </beans>

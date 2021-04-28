@@ -106,6 +106,7 @@
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
 		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
 
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -177,9 +178,12 @@
                 <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
+				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
+				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
+
 			</list>
 		</property>
 	</bean>

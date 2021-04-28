@@ -21,6 +21,8 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
@@ -121,17 +124,20 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume.sync", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity) {
         /* 同步处理 */
         return this.dealWeightAndVolume(entity,true);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.weightVolumeRuleCheck", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         return weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.weightVolumeExcessDeal", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public String weightVolumeExcessDeal(WeightVolumeCondition condition) {
         if(!isCInternet(condition.getBarCode())){
             return null;
