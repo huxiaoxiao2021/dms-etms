@@ -96,6 +96,10 @@ public class OmsManagerImpl implements OmsManager {
             RequestProfile profile = OmsReqUtils.genProfile();
             profile.setTraceId(waybillCode + Constants.UNDER_LINE + UUID.randomUUID());
 
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("调用OMS取消服务. profile:{}, request:{}", JsonHelper.toJson(profile), JsonHelper.toJson(request));
+            }
+
             // https://cf.jd.com/pages/viewpage.action?pageId=440443537#id-%E4%BA%8C%E3%80%81%E4%BF%AE%E6%94%B9%E6%9C%8D%E5%8A%A1%EF%BC%88C2C%EF%BC%89-2.3%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0
             ModifyExpressOrderResponse response = modifyExpressOrderService.modifyOrder(profile, request);
             if (response == null) {
