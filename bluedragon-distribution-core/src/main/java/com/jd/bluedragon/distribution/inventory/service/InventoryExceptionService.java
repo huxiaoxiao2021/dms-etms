@@ -7,13 +7,14 @@ import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionConditi
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 public interface InventoryExceptionService extends Service<InventoryException> {
 
     PagerResult<InventoryException> queryByPagerCondition(InventoryExceptionCondition condition);
 
-    List<List<Object>> getExportData(InventoryExceptionCondition condition);
+    void getExportData(InventoryExceptionCondition condition, BufferedWriter bfw);
 
     void generateInventoryException(InventoryBaseRequest inventoryBaseRequest);
 

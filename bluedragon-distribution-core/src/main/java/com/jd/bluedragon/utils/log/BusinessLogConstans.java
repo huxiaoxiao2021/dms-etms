@@ -83,7 +83,9 @@ public class BusinessLogConstans {
 
         ECONOMIC_NET(SourceSys.DMS_OPERATE,2017,"经济网业务"),
 
-        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务");
+        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务"),
+
+        APPROVAL(SourceSys.DMS_OPERATE,2019,"审批流业务");
 
         /**
          * 所属系统；
@@ -221,7 +223,10 @@ public class BusinessLogConstans {
         ECONOMIC_NET_BOX_LOAD(BizTypeEnum.ECONOMIC_NET,20172,"经济网加载箱包关系数据"),
         ECONOMIC_NET_BOX_EQUALIZATION(BizTypeEnum.ECONOMIC_NET,20173,"经济网箱内称重量方均摊"),
 
-        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除");
+        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除"),
+
+        APPROVAL_START_FLOW(BizTypeEnum.APPROVAL,20191,"提交审批单"),
+        APPROVAL_CALLBACK(BizTypeEnum.APPROVAL,20192,"审批结果回调");
 
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**

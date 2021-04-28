@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.sendprint;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.response.HandoverResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
@@ -284,7 +285,26 @@ public class SendPrintResource {
         }
         return sendPrintService.basicPrintQueryForPage(criteria);
     }
-	
+
+    @POST
+    @GZIP
+    @Path("/sendprint/basicPrintExport")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BasicQueryEntityResponse basicPrintExport(PrintQueryCriteria criteria) {
+        BasicQueryEntityResponse response = new BasicQueryEntityResponse();
+        if (checkForPage(criteria)) {
+            response.setCode(JdResponse.CODE_NOT_FOUND);
+            response.setMessage("查询参数不全");
+            return response;
+        }
+        if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(criteria),QueryGapTimeUtil.SEND_PRINT_RESOURCE_EXPORT)){
+            response.setCode(HandoverResponse.CODE_PARAM_ERROR);
+            response.setMessage("您操作的太快了！稍作休息后再操作！");
+            return response;
+        }
+        return sendPrintService.basicPrintExport(criteria);
+    }
+
 	@POST
 	@GZIP
 	@Path("/sendprint/basicPrintQueryOffline")

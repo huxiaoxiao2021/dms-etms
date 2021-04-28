@@ -21,6 +21,7 @@
 <body>
 	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
+	<script type="text/javascript" src="#springUrl('/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js')"></script>
 	<script type="text/javascript" src="#springUrl('/static/js/crossbox/list.js')"></script>
 
 	<script type="text/javascript">

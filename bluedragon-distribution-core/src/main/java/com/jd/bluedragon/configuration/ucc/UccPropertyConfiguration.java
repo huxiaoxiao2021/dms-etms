@@ -52,6 +52,11 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+    /**
+     * 离线任务限流数量
+     */
+    private Integer offlineCurrentLimitingCount;
+
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
@@ -84,9 +89,14 @@ public class UccPropertyConfiguration {
     private String oldLogPageTips;
 
     /**
-     * 离线任务的操作时间的更正时间范围
+     * 离线任务的操作时间在系统时间之后的时间限制范围：24
      */
     private int offlineTaskOperateTimeCorrectHours;
+
+    /**
+     * 离线任务的操作时间在系统时间之前的时间限制范围：96h
+     */
+    private int offlineTaskOperateTimeBeforeNowLimitHours;
 
     /**
      * 自动化称重的入口切换开关
@@ -295,6 +305,29 @@ public class UccPropertyConfiguration {
      */
     private String weightVolumeRuleStandard;
 
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
+
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
+
+    /**
+     * 打印交接清单新查询开通场地
+     *  1)、字符串false代表不开启
+     *  2)、多个场地以,分隔
+     *  3)、字符串true代表全国
+     */
+    private String printHandoverListSites;
+
+    /**
+     * 校验站点子类型是否三方：16
+     */
+    private boolean checkSiteSubType;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -341,6 +374,14 @@ public class UccPropertyConfiguration {
 
     public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
         this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
+
+    public Integer getOfflineCurrentLimitingCount() {
+        return offlineCurrentLimitingCount;
+    }
+
+    public void setOfflineCurrentLimitingCount(Integer offlineCurrentLimitingCount) {
+        this.offlineCurrentLimitingCount = offlineCurrentLimitingCount;
     }
 
     public String getAsynbufferEnabledTaskType() {
@@ -493,6 +534,14 @@ public class UccPropertyConfiguration {
 
     public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
+
+    public int getOfflineTaskOperateTimeBeforeNowLimitHours() {
+        return offlineTaskOperateTimeBeforeNowLimitHours;
+    }
+
+    public void setOfflineTaskOperateTimeBeforeNowLimitHours(int offlineTaskOperateTimeBeforeNowLimitHours) {
+        this.offlineTaskOperateTimeBeforeNowLimitHours = offlineTaskOperateTimeBeforeNowLimitHours;
     }
 
     public boolean getAutomaticWeightVolumeExchangeSwitch() {
@@ -806,5 +855,37 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public Integer getExportConcurrencyLimitNum() {
+        return exportConcurrencyLimitNum;
+    }
+
+    public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
+        this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
+    }
+
+    public Integer getOneQuerySize() {
+        return oneQuerySize;
+    }
+
+    public void setOneQuerySize(Integer oneQuerySize) {
+        this.oneQuerySize = oneQuerySize;
+    }
+
+    public String getPrintHandoverListSites() {
+        return printHandoverListSites;
+    }
+
+    public void setPrintHandoverListSites(String printHandoverListSites) {
+        this.printHandoverListSites = printHandoverListSites;
+    }
+
+    public boolean getCheckSiteSubType() {
+        return checkSiteSubType;
+    }
+
+    public void setCheckSiteSubType(boolean checkSiteSubType) {
+        this.checkSiteSubType = checkSiteSubType;
     }
 }

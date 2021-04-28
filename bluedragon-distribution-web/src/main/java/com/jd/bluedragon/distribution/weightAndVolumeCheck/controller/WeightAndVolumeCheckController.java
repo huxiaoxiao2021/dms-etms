@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -15,6 +17,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +61,9 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
     /**
      * 返回主页面
      * @return
@@ -86,10 +93,11 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping(value = "/toExport")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.WeightAndVolumeCheckController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public void toExport(WeightAndVolumeCheckCondition condition, HttpServletResponse response) {
-
         BufferedWriter bfw = null;
         try{
+             exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
             if(StringUtils.isNotBlank(condition.getBusiName())){
                 condition.setBusiName(URLDecoder.decode(condition.getBusiName(), "UTF-8"));
             }
@@ -100,6 +108,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             weightAndVolumeCheckService.export(condition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
         }catch (Exception e){
             log.error("exportData error", e);
         }finally {
@@ -112,7 +121,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
                 log.error("export-error", e);
             }
         }
-
     }
 
     /**

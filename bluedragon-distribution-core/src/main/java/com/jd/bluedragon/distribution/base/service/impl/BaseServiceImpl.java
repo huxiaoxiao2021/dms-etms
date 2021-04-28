@@ -372,7 +372,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 			if (!CollectionUtils.isEmpty(commonDtoList)) {
 				return commonDtoList;
 			}else{
-				log.warn("请求basicSelectWsManager.getDictList()接口服务成功，获取字典数据为空！carrierParamDto={}", JsonHelper.toJson(carrierDto));
+				log.warn("请求basicSelectWsManager.getCarrierInfoList()接口服务成功，获取承运商列表为空！carrierParamDto={}", JsonHelper.toJson(carrierDto));
 			}
 		}catch(Exception e){
 			log.error("调用basicSelectWsManager.getCarrierInfoList()承运商列表异常，carrierParamDto={}", JsonHelper.toJson(carrierDto), e);

@@ -682,4 +682,22 @@
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 
+    <jsf:consumer id="printHandoverListJsfService"
+                  interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
+                  alias="${jsf.printHandoverList.alias}"
+                  timeout="${jsf.printHandoverList.timeout}">
+    </jsf:consumer>
+
+    <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
+                  alias="${jsf.flowService.alias}">
+        <jsf:parameter key="appKey" value="${flow.appkey}" hide="true"/>
+        <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
+    </jsf:consumer>
+
+
+    <!--运单拦截信息接口-->
+    <jsf:consumer id="blockerQueryWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerQueryWS"
+                  protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
+    </jsf:consumer>
+
 </beans>

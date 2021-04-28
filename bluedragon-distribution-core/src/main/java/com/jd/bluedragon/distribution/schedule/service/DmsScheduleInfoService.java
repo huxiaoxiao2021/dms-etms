@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.schedule.service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -59,12 +60,6 @@ public interface DmsScheduleInfoService extends Service<DmsScheduleInfo> {
 	 */
 	List<DmsScheduleInfo> queryEdnDmsScheduleInfoList(String scheduleBillCode);
 	/**
-	 * 获取导出对象
-	 * @param dmsScheduleInfoCondition
-	 * @return
-	 */
-	List<List<Object>> queryEdnPickingExcelData(DmsScheduleInfoCondition dmsScheduleInfoCondition);
-	/**
 	 * 查询并组装明细页面
 	 * @param scheduleBillCode
 	 * @return
@@ -84,4 +79,10 @@ public interface DmsScheduleInfoService extends Service<DmsScheduleInfo> {
 	JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(String scheduleBillCode,LoginUser user);
 
 	JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(EdnDeliveryReceiptBatchRequest param);
+	/**
+	 * 获取导出对象
+	 * @param dmsScheduleInfoCondition
+	 * @return
+	 */
+    void export(DmsScheduleInfoCondition dmsScheduleInfoCondition, BufferedWriter bfw);
 }

@@ -221,25 +221,31 @@ $(function() {
 			});
 
             $("#btn_export").on("click",function(e){
+               checkConcurrencyLimit({
+                   currentKey: exportReportEnum.COLLECT_GOODS_DETAIL_REPORT,
+                   checkPassCallback: function (result) {
+                       var url = "/collect/collectGoodsDetail/toExport";
+                       var params = tableInit().getSearchCondition();
 
-                var url = "/collect/collectGoodsDetail/toExport";
-                var params = tableInit().getSearchCondition();
+                       var form = $("<form method='post'></form>"),
+                           input;
+                       form.attr({"action":url});
 
-                var form = $("<form method='post'></form>"),
-                    input;
-                form.attr({"action":url});
-
-                $.each(params,function(key,value){
-
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name":key});
-                    input.val(value);
-                    form.append(input);
-                });
-                form.appendTo(document.body);
-                form.submit();
-                document.body.removeChild(form[0]);
-
+                       $.each(params,function(key,value){
+                           input = $("<input type='hidden' class='search-param'>");
+                           input.attr({"name":key});
+                           input.val(value);
+                           form.append(input);
+                       });
+                       form.appendTo(document.body);
+                       form.submit();
+                       document.body.removeChild(form[0]);
+                   },
+                   checkFailCallback: function (result) {
+                       // 导出校验失败，弹出提示消息
+                       alert(result.message)
+                   }
+               });
             });
 
 			$('#btn_submit').click(function() {

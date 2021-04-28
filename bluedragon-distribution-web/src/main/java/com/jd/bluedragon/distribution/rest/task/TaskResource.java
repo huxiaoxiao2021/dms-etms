@@ -85,6 +85,9 @@ public class TaskResource {
     private BoxRelationService boxRelationService;
 
 
+    @Autowired
+    private AsynBufferDemotionUtil asynBufferDemotionUtil;
+
     @POST
     @Path("/tasks/add")
     @JProfiler(jKey = "DMS.WEB.TaskResource.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -192,44 +195,24 @@ public class TaskResource {
                     this.taskAssemblingAndSave(request, eachJson);
                 }
             } else if (Task.TASK_TYPE_OFFLINE.equals(request.getType())) {
-                //离线任务 处理操作时间
-                long startTime = System.currentTimeMillis();
+
+                //离线限流
+                if(asynBufferDemotionUtil.isDemotionOfSite(request.getSiteCode(),request.getBody())){
+                    //限流
+                    return new TaskResponse(
+                            JdResponse.CODE_BUSY,
+                            JdResponse.MESSAGE_BUSY);
+                }
+
 
                 Map<String, Object> itemTask = (Map<String, Object>) element;
                 String operateTime = (String) itemTask.get("operateTime");
                 String dateFormat = DateHelper.getDateFormat(operateTime);
 
                 if (StringHelper.isNotEmpty(dateFormat)) {
-                    String newOperateTime = DateHelper.formatDate(
-                            DateHelper.adjustTimeToNow(
-                                    DateHelper.parseDate(operateTime,dateFormat),
-                                    uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours()),
-                            dateFormat
-                    );
-                    if (StringHelper.isNotEmpty(newOperateTime) && !newOperateTime.equals(operateTime)) {
-                        itemTask.put("operateTime",newOperateTime);
-
-                        log.warn("离线任务的操作时间【{}】超过了设定上传时间范围【{}】，已经被重置当前系统时间【{}】",
-                                operateTime, uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours(), newOperateTime );
-                        log.warn("离线任务上传操作时间纠正，原始任务消息为：{}",JsonHelper.toJson(element));
-
-                        JSONObject logRequest=new JSONObject();
-                        logRequest.putAll(itemTask);
-
-                        JSONObject logResponse=new JSONObject();
-                        logResponse.put("originOperateTime", operateTime);
-                        logResponse.put("correctOperateTime", newOperateTime);
-
-                        BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
-                                .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE)
-                                .methodName("TaskResource#add")
-                                .operateRequest(logRequest)
-                                .operateResponse(logResponse)
-                                .processTime(System.currentTimeMillis(),startTime)
-                                .build();
-
-                        logEngine.addLog(businessLogProfiler);
-
+                    // 离线时间处理
+                    if(!offlineTimeDeal(itemTask)){
+                       continue;
                     }
                     String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                             + JsonHelper.toJson(itemTask)
@@ -276,6 +259,86 @@ public class TaskResource {
 
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
+    }
+
+    /**
+     * 离线时间处理
+     *  1、操作时间在系统时间之前且在96h之前，则返回false（此离线任务为超时无效数据丢弃不处理），否则返回true
+     *  2、操作时间在系统时间之后且在24h之后，则记录操作时间为系统时间，否则记录原始操作时间
+     * @param itemTask
+     */
+    private boolean offlineTimeDeal(Map<String, Object> itemTask) {
+        //离线任务 处理操作时间
+        long startTime = System.currentTimeMillis();
+
+        String operateTime = (String) itemTask.get("operateTime");
+        String dateFormat = DateHelper.getDateFormat(operateTime);
+
+        Date operateTimeDate = DateHelper.parseDate(operateTime, dateFormat);
+        Date systemTimeDate = new Date();
+        if(operateTimeDate == null){
+            log.warn("操作时间格式不正确!");
+            return false;
+        }
+        String newOperateTime = operateTime;
+        if(operateTimeDate.before(systemTimeDate)){
+            // 操作时间在系统时间之前
+            int offlineBeforeNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeBeforeNowLimitHours();
+            Date limitDate = DateHelper.newTimeRangeHoursAgo(systemTimeDate, offlineBeforeNowLimit);
+            if(operateTimeDate.before(limitDate)){
+                log.error("离线任务的操作时间【{}】超过了系统时间【{}】设定上传时间范围【{}h】,此任务为超时无效数据，过滤不接收!",
+                        operateTime,DateHelper.formatDateTime(systemTimeDate),offlineBeforeNowLimit);
+                recordBusinessLog(itemTask, operateTime, newOperateTime, startTime);
+                return false;
+            }
+        } else {
+            // 操作时间在系统时间之后
+            int offlineAfterNowLimit = uccPropertyConfiguration.getOfflineTaskOperateTimeCorrectHours();
+            newOperateTime = DateHelper.formatDate(
+                    DateHelper.adjustTimeToNow(DateHelper.parseDate(operateTime, dateFormat),offlineAfterNowLimit),
+                    dateFormat
+            );
+            if (StringHelper.isNotEmpty(newOperateTime) && !newOperateTime.equals(operateTime)) {
+                log.warn("离线任务的操作时间【{}】超过了设定上传时间范围【{}】，已经被重置当前系统时间【{}】",
+                        operateTime, offlineAfterNowLimit, newOperateTime);
+                log.warn("离线任务上传操作时间纠正，原始任务消息为：{}", JsonHelper.toJson(itemTask));
+
+                // 设置操作时间为系统时间
+                itemTask.put("operateTime", newOperateTime);
+            }
+        }
+        recordBusinessLog(itemTask, operateTime, newOperateTime, startTime);
+        return true;
+    }
+
+    /**
+     * 记录businessLog日志
+     * @param itemTask
+     * @param operateTime
+     * @param newOperateTime
+     * @param startTime
+     */
+    private void recordBusinessLog(Map<String, Object> itemTask, String operateTime, String newOperateTime,long startTime) {
+        try {
+            JSONObject logRequest=new JSONObject();
+            logRequest.putAll(itemTask);
+
+            JSONObject logResponse=new JSONObject();
+            logResponse.put("originOperateTime", operateTime);
+            logResponse.put("correctOperateTime", newOperateTime);
+
+            BusinessLogProfiler businessLogProfiler=new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.OTHER_OTHER_OFFLINE)
+                    .methodName("TaskResource#add")
+                    .operateRequest(logRequest)
+                    .operateResponse(logResponse)
+                    .processTime(System.currentTimeMillis(),startTime)
+                    .build();
+
+            logEngine.addLog(businessLogProfiler);
+        }catch (Exception e){
+            log.error("记录businessLog日志异常!",e);
+        }
     }
 
     /**

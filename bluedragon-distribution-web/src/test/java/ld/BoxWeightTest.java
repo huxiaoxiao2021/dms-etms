@@ -1,6 +1,7 @@
 package ld;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.utils.AsynBufferDemotionUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.avro.data.Json;
 import org.junit.Test;
@@ -21,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,6 +50,35 @@ public class BoxWeightTest {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private AsynBufferDemotionUtil asynBufferDemotionUtil;
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Test
+    public void testOffline(){
+        String s = "{\"type\":1800,\"siteCode\":910,\"keyword1\":\"910\",\"keyword2\":\"\",\"body\":\"[{\\\"taskType\\\":1301,\\\"packageCode\\\":\\\"JDV000516761514-5-5-\\\",\\\"waybillCode\\\":\\\"\\\",\\\"boxCode\\\":\\\"JDV000516761514-5-5-\\\",\\\"receiveSiteCode\\\":0,\\\"sealBoxCode\\\":\\\"\\\",\\\"shieldsCarCode\\\":\\\"\\\",\\\"carCode\\\":\\\"\\\",\\\"sendUserCode\\\":\\\"\\\",\\\"sendUser\\\":\\\"\\\",\\\"batchCode\\\":\\\"910-39-20210421184426455\\\",\\\"weight\\\":\\\"0\\\",\\\"volume\\\":\\\"0\\\",\\\"exceptionType\\\":\\\"\\\",\\\"turnoverBoxCode\\\":\\\"\\\",\\\"operateType\\\":0,\\\"goodsType\\\":\\\"\\\",\\\"airNo\\\":\\\"\\\",\\\"transName\\\":\\\"\\\",\\\"railwayNo\\\":\\\"\\\",\\\"num\\\":0,\\\"demo\\\":\\\"\\\",\\\"bizSource\\\":null,\\\"id\\\":34,\\\"businessType\\\":10,\\\"userCode\\\":17331,\\\"userName\\\":\\\"吴有德\\\",\\\"siteCode\\\":910,\\\"siteName\\\":\\\"北京马驹桥分拣中心\\\",\\\"operateTime\\\":\\\"2021-04-17 10:58:10.880\\\"}]\",\"boxCode\":\"\",\"receiveSiteCode\":910}";
+        TaskRequest task = JsonHelper.fromJson(s,TaskRequest.class);
+
+        try {
+            int index = 0;
+            while (index++ <= 10){
+                uccPropertyConfiguration.setOfflineCurrentLimitingCount(3);
+                List<Boolean> r = new ArrayList<>();
+                for(int i = 0 ; i< 10 ; i++){
+                    r.add(asynBufferDemotionUtil.isDemotionOfSite(task.getSiteCode(),task.getBody()));
+                }
+
+                System.out.println(JsonHelper.toJson(r));
+
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
     @Test
     public void testReceive(){

@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.web.popAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalDetail;
 import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormalQuery;
@@ -36,8 +39,9 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -74,6 +78,9 @@ public class PopReceiveAbnormalController {
 
 	@Autowired
 	private SortCenterServiceManager sortCenterManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 跳转到查询POP差异列表页面
@@ -530,96 +537,52 @@ public class PopReceiveAbnormalController {
      */
     @Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
-	public String exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery,
-			HttpServletResponse response) {
+	@ResponseBody
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.web.popAbnormal.PopReceiveAbnormalController.exportPopReceiveAbnormal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	public InvokeResult exportPopReceiveAbnormal(PopAbnormalQuery popAbnormalQuery, HttpServletResponse response) {
+		InvokeResult result = new InvokeResult();
 		this.log.info("导出平台差异订单数据");
 
-		Boolean checkParamOK = Boolean.TRUE;
-		Map<String, Object> paramMap = new HashMap<String, Object>();
-		try {
-			if (popAbnormalQuery == null) {
-				checkParamOK = Boolean.FALSE;
-			}
-			paramMap = ObjectMapHelper.makeObject2Map(popAbnormalQuery);
-
-		} catch (Exception e) {
-			checkParamOK = Boolean.FALSE;
-		}
-
-		if (checkParamOK) {
-
-			OutputStream os = null;
-			try {
-				List<PopReceiveAbnormal> popReceiveAbnormals = null;
-				try {
-					if (!paramMap.isEmpty()) {
-						popReceiveAbnormals = this.popReceiveAbnormalService
-								.findList(paramMap);
-					}
-				} catch (Exception e) {
-					this.log.error("根据条件查询平台差异订单处理集合异常：", e);
-				}
-				os = response.getOutputStream();
-				String filename = "平台收货差异订单数据"
-						+ DateHelper.formatDate(new Date(), Constants.DATE_TIME_MS_STRING) + ".xls";
-				response.setContentType("application/vnd.ms-excel");
-				response.addHeader("Content-Disposition",
-						"attachment; filename=\""
-								+ new String(filename.getBytes("GB2312"),
-										"ISO8859-1") + "\"");
-
-				WorkBookObject wb = new WorkBookObject(filename);
-				wb.addTitle(new String[] { "差异类型", "区域", "分拣中心", "一级差异类型名称",
-						"二级差异类型名称", "运单号", "订单号", "回复状态", "商家编号", "商家名称",
-						"快递公司名称(1、2)/三方运单号(3)/运营信息(4)/原始数量(5、6)/应发分拣中心(7)",
-						"快递单号(1、2)/商品名称(3)/实际数量(5、6)", "确认数量(5、6)", "发起人",
-						"发起时间", "回复时间" });
-
-				wb.saveTitle();
-
-				if (popReceiveAbnormals != null
-						&& !popReceiveAbnormals.isEmpty()) {
-
-					int maxCount = 5000;
-
-					List<PopReceiveAbnormal> popReceiveAbnormalExports = new ArrayList<PopReceiveAbnormal>();
-
-					if (popReceiveAbnormals.size() > maxCount) {
-						for (int i = 0; i < maxCount; i++) {
-							popReceiveAbnormalExports.add(popReceiveAbnormals
-									.get(i));
-						}
-					} else {
-						popReceiveAbnormalExports = popReceiveAbnormals;
-					}
-
-					String[] tAttrs = new String[] { "mainType", "orgName",
-							"createSiteName", "mainTypeName", "subTypeName",
-							"waybillCode", "orderCode", "abnormalStatus", "popSupNo",
-							"popSupName", "attr1", "attr2", "attr3",
-							"operatorName", "createTime", "updateTime" };
-					wb.saveDataList(popReceiveAbnormalExports,
-							PopReceiveAbnormal.class, tAttrs);
-				}
-
-				wb.getWb().write(os);
-
-				os.flush();
-			} catch (IOException e) {
-				this.log.error("根据条件查询平台差异订单导出数据异常：", e);
-			} finally {
-				try {
-					if (os != null) {
-						os.close();
-					}
-				} catch (IOException e) {
-					this.log.error("关闭数据流 ERROR", e);
-				}
-			}
-		} else {
+		if (popAbnormalQuery == null) {
+			result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,InvokeResult.PARAM_ERROR);
 			this.log.warn("PopReceiveAbnormalController exportPopReceiveAbnormal PARAM ERROR --> 传入参数非法");
+			return result;
 		}
-		return null;
+
+		BufferedWriter bfw = null;
+		try {
+			Map<String, Object> paramMap =  ObjectMapHelper.makeObject2Map(popAbnormalQuery);
+			if(paramMap.isEmpty()){
+				this.log.warn("PopReceiveAbnormalController exportPopReceiveAbnormal PARAM ERROR --> 查询参数为空");
+				result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,InvokeResult.PARAM_ERROR);
+				return result;
+			}
+
+			exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.POP_RECEIVE_ABNORMAL_REPORT.getCode());
+
+			String fileName = "平台收货差异订单数据";
+			//设置文件后缀
+			String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+			bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+			//设置响应
+			CsvExporterUtils.setResponseHeader(response, fn);
+			popReceiveAbnormalService.export(paramMap,bfw);
+			exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.POP_RECEIVE_ABNORMAL_REPORT.getCode());
+		} catch (Exception e) {
+			this.log.error("根据条件查询平台差异订单导出数据异常：", e);
+			result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+		} finally {
+			try {
+				if (bfw != null) {
+					bfw.flush();
+					bfw.close();
+				}
+			} catch (IOException e) {
+				log.error("平台收货差异订单数据 流关闭异常", e);
+				result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+			}
+		}
+		return result;
 	}
 
 	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)

@@ -44,6 +44,7 @@ public class Constants {
     public static final String OPERATE_FAIL = "0";
     public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
+    public static final String SEPARATOR_VERTICAL_LINE = "|";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
     public static final int RESULT_SUCCESS = 1; //成功
@@ -225,6 +226,16 @@ public class Constants {
      * 业务类型-按运单称重
      */
     public static final Integer OPERATE_TYPE_WEIGHT_BY_WAYBILL = 100201;
+    /**
+     * 业务类型-分拣系统导出操作日志
+     */
+    public static final Integer BUSINESS_LOG_EXPORT_OPERATE = 5001;
+    /**
+     * 业务类型-分拣系统-导出操作日志
+     */
+    public static final Integer OPERATE_TYPE_REPORT_OPERATE = 500101;
+
+
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */
@@ -1480,4 +1491,19 @@ public class Constants {
      * 卸车任务流水线模式:只验货不组板
      */
     public static final Integer ASSEMBLY_LINE_TYPE = 0;
+
+    /**
+     * 系统名
+     */
+    public static final String SYSTEM_NAME = "QLFJZXJT";
+
+    /**
+     * 导出并发限制数量
+     */
+    public static Integer CONCURRENCY_EXPORT_LIMIT = 50;
+
+    /**
+     * 导出并发key 缓存有效时间 单位:天
+     */
+    public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
 }
