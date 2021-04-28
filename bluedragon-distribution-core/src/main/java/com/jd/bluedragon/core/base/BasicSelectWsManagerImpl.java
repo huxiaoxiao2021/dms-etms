@@ -36,45 +36,43 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
         //返回的结果
         List<TransportResourceDto> result = new ArrayList<>();
 
-        //请求参数
-        PageDto<TransportResourceDto> page = new PageDto<>();
-        page.setCurrentPage(1);
-        page.setPageSize(1000);
+        transportResourceDto.setQueryCursor(-1L);
+        transportResourceDto.setYn(Constants.YN_YES);
+
+        PageDto<TransportResourceDto> returnPageDto = null;
         try {
-            if(logger.isInfoEnabled()){
-                logger.info("调用运输运力数据分页接口入参page:{},transportResourceDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(transportResourceDto));
-            }
             long  start = System.currentTimeMillis();
-            CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
-            if(commonDto == null  || commonDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS){
-                logger.warn("BasicSelectWS.queryPageTransportResourceWithNodeId return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
-                return result;
-            }else {
-                long firstEnd = System.currentTimeMillis();
-                if(logger.isInfoEnabled()) {
-                    logger.info("调用运输运力数据分页接口首次耗时:" + (firstEnd - start) / 1000 + "s");
+            do {
+                //请求参数
+                PageDto<TransportResourceDto> page = new PageDto<>();
+                page.setCurrentPage(1);
+                page.setPageSize(1000);
+                if(logger.isInfoEnabled()){
+                    logger.info("调用运输运力数据分页接口入参,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto));
                 }
-                page = commonDto.getData();
-                if(!CollectionUtils.isEmpty(page.getResult())){
-                    result.addAll(page.getResult());
+
+                CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
+                if(commonDto != null && commonDto.getCode() == CommonDto.CODE_NORMAL){
+                    returnPageDto = commonDto.getData();
+                }else {
+                    returnPageDto = null;
                 }
-                if (page.getTotalPage() > 1) {
-                    for(int i = 2; i <= page.getTotalPage(); ++i) {
-                        PageDto<TransportResourceDto> temp = new PageDto();
-                        temp.setCurrentPage(i);
-                        temp.setPageSize(1000);
-                        CommonDto<PageDto<TransportResourceDto>> commonTempDto  = basicSelectWs.queryPageTransportResourceWithNodeId(temp,transportResourceDto);
-                        if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
-                            logger.warn("BasicSelectWS.queryPageTransportResourceWithNodeId return error! 入参transportResourceDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(transportResourceDto),JsonHelper.toJsonMs(commonDto));
-                        } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
-                            result.addAll(commonTempDto.getData().getResult());
-                        }
-                    }
+
+                if(returnPageDto != null && CollectionUtils.isNotEmpty(returnPageDto.getResult())){
+                    //单次查询结果处理
+                    List<TransportResourceDto> returnData = returnPageDto.getResult();
+                    result.addAll(returnData);
+
+                    //设置下一次查询的MaxId; 使用MaxId方式调用接口时, 接口实现将以自增主键升序排序
+                    transportResourceDto.setQueryCursor(returnData.get(returnData.size() - 1).getId());
                 }
-            }
+
+            }while (returnPageDto != null && CollectionUtils.isNotEmpty(returnPageDto.getResult()));
+
             long end = System.currentTimeMillis();
+
             if(logger.isInfoEnabled()) {
-                logger.info("调用运输运力数据分页接口总耗时:" + (end - start) + "ms");
+                logger.info("调用运输运力数据分页接口总耗时:" + (end - start) + "ms"+"数据--size:"+result.size());
             }
         }catch (Exception e){
             logger.error("运力编码分页接口请求异常,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto),e);
