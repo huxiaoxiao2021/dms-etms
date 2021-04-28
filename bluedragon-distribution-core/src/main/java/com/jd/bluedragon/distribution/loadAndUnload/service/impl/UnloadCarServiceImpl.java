@@ -3003,10 +3003,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             BeanUtils.copyProperties(result, dtoInvokeResult);
+            setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
             //拦截校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
-                setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                 return dtoInvokeResult;
             }
