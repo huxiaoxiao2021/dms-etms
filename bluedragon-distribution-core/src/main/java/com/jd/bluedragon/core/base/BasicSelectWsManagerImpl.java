@@ -74,7 +74,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
             }
             long end = System.currentTimeMillis();
             if(logger.isInfoEnabled()) {
-                logger.info("调用运输运力数据分页接口总耗时:" + (end - start) / 1000 + "s");
+                logger.info("调用运输运力数据分页接口总耗时:" + (end - start) + "ms");
             }
         }catch (Exception e){
             logger.error("运力编码分页接口请求异常,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto),e);
@@ -104,7 +104,7 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
                 pageDto.setPageSize(1000);
 
                 if(logger.isInfoEnabled()){
-                    logger.info("调用运输运力数据分页接口入参pageDto:{},carrierDto:{}",JsonHelper.toJsonMs(pageDto),JsonHelper.toJsonMs(carrierDto));
+                    logger.info("调用运输承运商数据分页接口入参pageDto:{},carrierDto:{}",JsonHelper.toJsonMs(pageDto),JsonHelper.toJsonMs(carrierDto));
                 }
 
                 CommonDto<PageDto<CarrierDto>> returnCommonDto = basicSelectWs.queryPageCarrier(pageDto, carrierDto);
@@ -125,10 +125,10 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
             }while (returnPageDto != null && CollectionUtils.isNotEmpty(returnPageDto.getResult()));
 
             if(logger.isInfoEnabled()){
-                logger.info("调用运输运力数据分页接口 返回运力数量:size{},carrierDto:{}",result.size(),JsonHelper.toJsonMs(carrierDto));
+                logger.info("调用运输承运商数据分页接口 返回运力数量:size{},carrierDto:{}",result.size(),JsonHelper.toJsonMs(carrierDto));
             }
         }catch (Exception e){
-            logger.error("调用运输运力数据分页接口 异常,carrierDto:{}",JsonHelper.toJsonMs(carrierDto));
+            logger.error("调用运输承运商数据分页接口 异常,carrierDto:{}",JsonHelper.toJsonMs(carrierDto));
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
