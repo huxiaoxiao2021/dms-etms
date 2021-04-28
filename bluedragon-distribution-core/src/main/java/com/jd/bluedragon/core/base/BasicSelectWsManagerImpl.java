@@ -94,42 +94,41 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageCarrier", false, true);
         // 返回承运商列表
         List<CarrierDto>  result = new ArrayList<>();
-
-        //请求参数
-        PageDto<CarrierDto> page = new PageDto<>();
-        page.setCurrentPage(1);
-        page.setPageSize(1000);
         try {
-            if(logger.isInfoEnabled()){
-                logger.info("调用运输运力数据分页接口入参page:{},carrierDto:{}",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
-            }
-            CommonDto<PageDto<CarrierDto>>  commonDto = basicSelectWs.queryPageCarrier(page,carrierDto);
-            if(commonDto==null|| commonDto.getData()==null){
-                logger.error("调用运输 获取承运商信息接口 为空; 入参page:{},carrierDto",JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
-                return null;
-            }
-            if(commonDto.getCode() != Constants.RESULT_SUCCESS){
-                logger.error("BasicSelectWS.queryPageCarrier return message{}, 入参page:{},carrierDto",commonDto.getMessage(),JsonHelper.toJsonMs(page),JsonHelper.toJsonMs(carrierDto));
-                return null;
-            }
-            page = commonDto.getData();
-            if(!CollectionUtils.isEmpty(page.getResult())){
-                result.addAll(page.getResult());
-            }
-            if (page.getTotalPage() > 1) {
-                for(int i = 2; i <= page.getTotalPage(); ++i) {
-                    PageDto<CarrierDto> temp = new PageDto();
-                    temp.setCurrentPage(i);
-                    temp.setPageSize(1000);
-                    CommonDto<PageDto<CarrierDto>> commonTempDto  = basicSelectWs.queryPageCarrier(temp,carrierDto);
-                    if (commonTempDto == null  || commonTempDto.getData()==null || commonDto.getCode() != Constants.RESULT_SUCCESS) {
-                        logger.warn("BasicSelectWS.queryPageCarrier return error! 入参carrierDto:{},返回结果commonDto:{}",JsonHelper.toJsonMs(carrierDto),JsonHelper.toJsonMs(commonDto));
-                    } else if (!CollectionUtils.isEmpty(commonTempDto.getData().getResult())) {
-                        result.addAll(commonTempDto.getData().getResult());
-                    }
+            carrierDto.setQueryCursor(-1L);
+            carrierDto.setYn(Constants.YN_YES);
+            PageDto<CarrierDto> returnPageDto = null;
+            do {
+                PageDto<CarrierDto> pageDto = new PageDto<>();
+                pageDto.setCurrentPage(1);//现有调用方式，每次必须是1
+                pageDto.setPageSize(1000);
+
+                if(logger.isInfoEnabled()){
+                    logger.info("调用运输运力数据分页接口入参pageDto:{},carrierDto:{}",JsonHelper.toJsonMs(pageDto),JsonHelper.toJsonMs(carrierDto));
                 }
+
+                CommonDto<PageDto<CarrierDto>> returnCommonDto = basicSelectWs.queryPageCarrier(pageDto, carrierDto);
+                if(returnCommonDto != null && returnCommonDto.getCode() == CommonDto.CODE_NORMAL){
+                    returnPageDto = returnCommonDto.getData();
+                } else {
+                    returnPageDto = null;
+                }
+
+                if(returnPageDto != null && CollectionUtils.isNotEmpty(returnPageDto.getResult())){
+                    //单次查询结果处理
+                    List<CarrierDto> returnData = returnPageDto.getResult();
+                    result.addAll(returnData);
+
+                    //设置下一次查询的MaxId; 使用MaxId方式调用接口时, 接口实现将以自增主键升序排序
+                    carrierDto.setQueryCursor(returnData.get(returnData.size() - 1).getCarrierId());
+                }
+            }while (returnPageDto != null && CollectionUtils.isNotEmpty(returnPageDto.getResult()));
+
+            if(logger.isInfoEnabled()){
+                logger.info("调用运输运力数据分页接口 返回运力数量:size{},carrierDto:{}",result.size(),JsonHelper.toJsonMs(carrierDto));
             }
         }catch (Exception e){
+            logger.error("调用运输运力数据分页接口 异常,carrierDto:{}",JsonHelper.toJsonMs(carrierDto));
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
