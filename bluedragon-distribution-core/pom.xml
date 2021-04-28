@@ -198,12 +198,6 @@
 
 		</dependency>
         <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>1.9</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>2.7.12</version>
@@ -1281,14 +1275,6 @@
 			<version>2.3.0-SNAPSHOT</version>
 		</dependency>
 
-		<!--中台-->
-		<dependency>
-			<groupId>com.jd.ql.shared.services</groupId>
-			<artifactId>sorting-api</artifactId>
-			<version>1.2-SNAPSHOT</version>
-		</dependency>
-
-
 		<dependency>
 			<groupId>com.jd.ldop.business</groupId>
 			<artifactId>ldop-business-api</artifactId>
@@ -1606,6 +1592,30 @@
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>workbench-report-api</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd.dms.wb</groupId>
+					<artifactId>dms-workbench-utils-sdk</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>dms-workbench-utils-sdk</artifactId>
+			<version>jdk1.7-1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.lsb</groupId>
+			<artifactId>lsb-flow-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

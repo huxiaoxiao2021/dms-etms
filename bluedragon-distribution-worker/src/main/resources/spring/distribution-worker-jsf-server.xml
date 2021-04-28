@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
+
+    <!-- 审批结果回调接口，提供给审批回调使用 -->
+    <jsf:provider id="printHandoverJsfApprovePostHandler"
+                  interface="com.jd.lsb.flow.handler.ApprovePostHandler"
+                  alias="${dms.flow.approvePostHandler.alias}"
+                  ref="printHandoverApprovePostHandler"
+                  server="dmsjsf">
+        <jsf:parameter key="token" value="${dms.flow.approvePostHandler.token}"/>
+    </jsf:provider>
+</beans>

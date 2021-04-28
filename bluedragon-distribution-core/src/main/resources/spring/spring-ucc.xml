@@ -103,7 +103,8 @@
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
-
+		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
+		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
 
 	</bean>
 
@@ -177,7 +178,8 @@
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
-
+				<value>uccPropertyConfiguration.printHandoverListSites</value>
+				<value>uccPropertyConfiguration.checkSiteSubType</value>
 			</list>
 		</property>
 	</bean>

@@ -702,4 +702,20 @@
     <jsf:consumer id="signBillReturnApi" interface="erp.ql.station.api.service.SignBillReturnApi" protocol="jsf"
                   alias="${jsf.signBillReturn.alias}" timeout="${jsf.signBillReturn.timeout}"   retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- 发货交接清单查询接口 -->
+    <jsf:consumer id="printHandoverListJsfService"
+                  interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
+                  alias="${jsf.printHandoverList.alias}"
+                  timeout="${jsf.printHandoverList.timeout}">
+    </jsf:consumer>
+
+    <!-- 流程组件接口 -->
+    <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
+                  alias="${jsf.flowService.alias}">
+        <jsf:parameter key="appKey" value="${flow.appkey}" hide="true"/>
+        <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
+    </jsf:consumer>
+
+
 </beans>
