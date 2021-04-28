@@ -42,15 +42,14 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
         PageDto<TransportResourceDto> returnPageDto = null;
         try {
             long  start = System.currentTimeMillis();
+            if(logger.isInfoEnabled()){
+                logger.info("调用运输运力数据分页接口入参 transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto));
+            }
             do {
                 //请求参数
                 PageDto<TransportResourceDto> page = new PageDto<>();
                 page.setCurrentPage(1);
                 page.setPageSize(1000);
-                if(logger.isInfoEnabled()){
-                    logger.info("调用运输运力数据分页接口入参,transportResourceDto:{}",JsonHelper.toJsonMs(transportResourceDto));
-                }
-
                 CommonDto<PageDto<TransportResourceDto>>  commonDto = basicSelectWs.queryPageTransportResourceWithNodeId(page,transportResourceDto);
                 if(commonDto != null && commonDto.getCode() == CommonDto.CODE_NORMAL){
                     returnPageDto = commonDto.getData();
@@ -92,19 +91,20 @@ public class BasicSelectWsManagerImpl implements BasicSelectWsManager {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.basicSelectWsManagerImpl.queryPageCarrier", false, true);
         // 返回承运商列表
         List<CarrierDto>  result = new ArrayList<>();
+
+        carrierDto.setQueryCursor(-1L);
+        carrierDto.setYn(Constants.YN_YES);
+
+        PageDto<CarrierDto> returnPageDto = null;
+
+        if(logger.isInfoEnabled()){
+            logger.info("调用运输承运商数据分页接口入参 carrierDto:{}",JsonHelper.toJsonMs(carrierDto));
+        }
         try {
-            carrierDto.setQueryCursor(-1L);
-            carrierDto.setYn(Constants.YN_YES);
-            PageDto<CarrierDto> returnPageDto = null;
             do {
                 PageDto<CarrierDto> pageDto = new PageDto<>();
                 pageDto.setCurrentPage(1);//现有调用方式，每次必须是1
                 pageDto.setPageSize(1000);
-
-                if(logger.isInfoEnabled()){
-                    logger.info("调用运输承运商数据分页接口入参pageDto:{},carrierDto:{}",JsonHelper.toJsonMs(pageDto),JsonHelper.toJsonMs(carrierDto));
-                }
-
                 CommonDto<PageDto<CarrierDto>> returnCommonDto = basicSelectWs.queryPageCarrier(pageDto, carrierDto);
                 if(returnCommonDto != null && returnCommonDto.getCode() == CommonDto.CODE_NORMAL){
                     returnPageDto = returnCommonDto.getData();
