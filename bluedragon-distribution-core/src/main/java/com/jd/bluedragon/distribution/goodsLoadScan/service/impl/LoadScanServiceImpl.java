@@ -2147,7 +2147,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
         //查询已验未发未装车数据
         JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = loadScanPackageDetailServiceManager.getInspectNoSendWaybillInfo(loadCar, waitLoadWaybillList);
-        if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes)) {
+        if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes.getCode())) {
                 log.error("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---error--获取流向已验未发待装数据失败， 查询参数req=【{}】, waitLoadWaybillList=【{}】， 返回=【{}】",
                         JsonHelper.toJson(req), JsonHelper.toJson(waitLoadWaybillList), JsonHelper.toJson(inventoryWaybillListRes));
                 res.toFail(inventoryWaybillListRes == null ? "获取库存运单失败" : inventoryWaybillListRes.getMessage());
@@ -2206,9 +2206,9 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadCar loadCarPo = new LoadCar();
         loadCarPo.setEndSiteCode(loadCar.getEndSiteCode());
         loadCarPo.setCreateSiteCode(loadCar.getCreateSiteCode());
-        loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);//只有进行中的任务会操作扫描
+        loadCarPo.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);//只有进行中的任务会操作扫描
         Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
-        loadCar.setCreateTime(fromTime);
+        loadCarPo.setCreateTime(fromTime);
         List<Long> idList = loadService.getIdsByCondition(loadCarPo);
         //todo zcf test log
         log.info("getFlowLoadWaybillInfo--test--2021--loadCar=【{}】, loadCarPo=【{}】, idList=【{}】",
