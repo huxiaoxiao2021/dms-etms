@@ -1084,15 +1084,17 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     @Override
-    public Boolean baiChuanEnableSwitch(Waybill waybill) {
-        if (waybill != null && waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getOmcOrderCode())) {
-            if (log.isInfoEnabled()) {
-                log.info("启用百川业务场景. waybillCode:{}, omcOrderCode:{}", waybill.getWaybillCode(), waybill.getWaybillExt().getOmcOrderCode());
+    public String baiChuanEnableSwitch(Waybill waybill) {
+        String omcOrderCode = null;
+        if (waybill != null && waybill.getWaybillExt() != null) {
+            omcOrderCode = waybill.getWaybillExt().getOmcOrderCode();
+            if (StringUtils.isNotBlank(omcOrderCode)) {
+                if (log.isInfoEnabled()) {
+                    log.info("启用百川业务场景. waybillCode:{}, omcOrderCode:{}", waybill.getWaybillCode(), omcOrderCode);
+                }
             }
-            return true;
         }
 
-        return false;
-
+        return omcOrderCode;
     }
 }

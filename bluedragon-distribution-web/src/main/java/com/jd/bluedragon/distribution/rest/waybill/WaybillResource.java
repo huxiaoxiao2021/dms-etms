@@ -2453,8 +2453,10 @@ public class WaybillResource {
         }
 
         InvokeResult<String> invokeResult;
-        if (uccPropertyConfiguration.isCancelJimaoxinSwitchToOMS() && waybillService.baiChuanEnableSwitch(waybill)) {
-            ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request);
+        String omcOrderCode = waybillService.baiChuanEnableSwitch(waybill);
+        if (uccPropertyConfiguration.isCancelJimaoxinSwitchToOMS() && StringUtils.isNotBlank(omcOrderCode)) {
+
+            ModifyExpressOrderRequest cancelRequest = omsManager.makeCancelLetterRequest(request, omcOrderCode);
             invokeResult = omsManager.cancelFeatherLetterByWaybillCode(request.getWaybillCode(), cancelRequest);
 
             if (log.isInfoEnabled()) {
@@ -2466,7 +2468,7 @@ public class WaybillResource {
         }
 
 
-        if(invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+        if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             result.success();
             result.setMessage("取消鸡毛信成功！");
             return result;

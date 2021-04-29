@@ -16,9 +16,10 @@ public interface OmsManager {
     /**
      *
      * @param request
+     * @param omcOrderCode
      * @return
      */
-    ModifyExpressOrderRequest makeCancelLetterRequest(CancelFeatherLetterRequest request);
+    ModifyExpressOrderRequest makeCancelLetterRequest(CancelFeatherLetterRequest request, String omcOrderCode);
 
     /**
      * 取消鸡毛信

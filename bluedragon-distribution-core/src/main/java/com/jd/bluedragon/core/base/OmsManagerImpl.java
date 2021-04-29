@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.waybill.domain.CancelFeatherLetterRequest;
 import com.jd.bluedragon.dms.utils.ProductTypeConstants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.OmsReqUtils;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class OmsManagerImpl implements OmsManager {
     private WaybillQueryManager waybillQueryManager;
 
     @Override
-    public ModifyExpressOrderRequest makeCancelLetterRequest(CancelFeatherLetterRequest request) {
+    public ModifyExpressOrderRequest makeCancelLetterRequest(CancelFeatherLetterRequest request, String omcOrderCode) {
         ModifyExpressOrderRequest omsRequest = new ModifyExpressOrderRequest();
 
         BusinessIdentity identity = new BusinessIdentity();
@@ -54,7 +55,7 @@ public class OmsManagerImpl implements OmsManager {
 
         omsRequest.setBusinessIdentity(identity);
 
-        omsRequest.setOrderNo(waybillQueryManager.getOrderCodeByWaybillCode(request.getWaybillCode(), true));
+        omsRequest.setOrderNo(omcOrderCode);
 
         ChannelInfo channelInfo = new ChannelInfo();
         channelInfo.setChannelOperateTime(new Date());
