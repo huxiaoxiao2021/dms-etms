@@ -45,6 +45,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -1057,6 +1058,7 @@ public class NewSealVehicleResource {
             }
 
             SealCarNotCollectedPo sealCarNotCollectedPo = new SealCarNotCollectedPo();
+            BeanUtils.copyProperties(request, sealCarNotCollectedPo);
             NewSealVehicleResponse<List<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedList(sealCarNotCollectedPo);
             sealVehicleResponse = pageDataResult;
         } catch (Exception e) {
