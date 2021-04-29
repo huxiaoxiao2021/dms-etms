@@ -1437,6 +1437,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
             Result<List<SealCarNotCollectedDto>> listResult = dmsWbSealCarCollectManager.selectNotCollectedList(paramObj);
             if (!listResult.isSuccess()) {
+                result.setCode(JdResponse.CODE_RETURN_ERROR);
                 result.setMessage("按封车号查询运单未集齐包裹列表失败，请稍后重试");
                 return result;
             }
