@@ -2173,7 +2173,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             dtoTemp.setInspectTime(lcd.getInpectTime());
 
             Integer unloadAmount = 0;
-            if(loadWaybillMap.size() > 0 && loadWaybillMap != null) {
+            if(loadWaybillMap != null && loadWaybillMap.size() > 0) {
                 Integer unloadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
                 if(unloadAmountValue != null) {
                     unloadAmount = unloadAmountValue;
@@ -2216,6 +2216,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         //todo zcf test log
         log.info("getFlowLoadWaybillInfo--test--2021--loadCar=【{}】, loadCarPo=【{}】, idList=【{}】",
                 JsonHelper.toJson(loadCar), JsonHelper.toJson(loadCarPo), JsonHelper.toJson(idList));
+
+        //idList 可能为空  当前任务为15天前任务，反查时查不到
+        if(CollectionUtils.isEmpty(idList)) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getFlowLoadWaybillInfo-- 查询装车流向下最近15天内的任务id集合数据，查询成功，返回为空， 查询参数=【{}】", JsonHelper.toJson(loadCarPo));
+            }
+            res.toSucceed();
+            return res;
+        }
         //根据idList 获取所有已装运单
         List<GoodsLoadScan> waybillInfoList = goodsLoadScanDao.findWaybillInfoByIds(idList);
         res.setData(waybillInfoList);
