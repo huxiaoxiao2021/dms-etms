@@ -293,7 +293,13 @@
         where
             create_site_code = #{createSiteCode,jdbcType=BIGINT}
             and end_site_code = #{endSiteCode,jdbcType=BIGINT}
-            and status = #{status,jdbcType=INTEGER}
+        <if test="statusList != null">
+            and status in
+            <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </if>
         <if test="createTime != null">
             and create_time > #{createTime,jdbcType=TIMESTAMP}
         </if>

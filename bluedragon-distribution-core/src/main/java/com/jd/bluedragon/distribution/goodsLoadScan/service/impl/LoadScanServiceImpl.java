@@ -2206,7 +2206,10 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadCar loadCarPo = new LoadCar();
         loadCarPo.setEndSiteCode(loadCar.getEndSiteCode());
         loadCarPo.setCreateSiteCode(loadCar.getCreateSiteCode());
-        loadCarPo.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);//只有进行中的任务会操作扫描
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
+        statusList.add(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
+        loadCarPo.setStatusList(statusList);
         Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
         loadCarPo.setCreateTime(fromTime);
         List<Long> idList = loadService.getIdsByCondition(loadCarPo);

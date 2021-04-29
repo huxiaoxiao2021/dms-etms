@@ -500,10 +500,10 @@ public class GoodsLoadingScanningServiceImplTest {
         for(int i = 0; i< 10; i++) {
 
             User user = new User();
-            user.setUserErp("zhengchengfa");
+            user.setUserErp("xumigen");
             GoodsLoadingScanningReq req= new GoodsLoadingScanningReq();
-            req.setCreateSiteCode(40240);
-            req.setTaskId(409l);
+            req.setCreateSiteCode(10186);
+            req.setTaskId(711l);
             req.setUser(user);
             JdCResponse<LoadScanDetailDto> res = goodsLoadingScanningService.getInspectNoSendNoLoadWaybillDetail(req);
             System.out.println(JsonHelper.toJson(res));
