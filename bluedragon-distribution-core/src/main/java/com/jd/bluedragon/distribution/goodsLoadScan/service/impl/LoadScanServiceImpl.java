@@ -2173,7 +2173,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             dtoTemp.setInspectTime(lcd.getInpectTime());
 
             Integer unloadAmount = 0;
-            if(loadWaybillMap.size() > 0 && loadWaybillMap != null) {
+            if(loadWaybillMap != null && loadWaybillMap.size() > 0) {
                 Integer unloadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
                 if(unloadAmountValue != null) {
                     unloadAmount = unloadAmountValue;
