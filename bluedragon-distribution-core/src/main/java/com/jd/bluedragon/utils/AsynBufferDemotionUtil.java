@@ -51,13 +51,20 @@ public class AsynBufferDemotionUtil {
 
         List<Integer> includeTaskTypes = Arrays.asList(Task.TASK_TYPE_RECEIVE,Task.TASK_TYPE_INSPECTION,
                 Task.TASK_TYPE_SORTING,Task.TASK_TYPE_SEND_DELIVERY,Task.TASK_TYPE_ACARABILL_SEND_DELIVERY);
-        String key = String.format(OFFLINE_TASK_MAX_E_KEY,siteCode);
         try{
             if(siteCode == null || siteCode <= 0){
-                log.error("离线限流处理跳过，因未获取到当前离线任务归属场地信息 ，{}",taskBody);
-                // 不处理降级
-                return false;
+                //尝试从body解析
+                OfflineLogRequest[] offlineLogRequests = JsonHelper.jsonToArray(taskBody, OfflineLogRequest[].class);
+                if(offlineLogRequests[0] == null || offlineLogRequests[0].getSiteCode() == null || offlineLogRequests[0].getSiteCode() <= 0){
+                    log.error("离线限流处理跳过，因未获取到当前离线任务归属场地信息 ，{}",taskBody);
+                    return false;
+                }else{
+                    //重新赋值siteCode
+                    siteCode = offlineLogRequests[0].getSiteCode();
+                }
             }
+
+            String key = String.format(OFFLINE_TASK_MAX_E_KEY,siteCode);
 
             Integer currentLimitingCount = uccPropertyConfiguration.getOfflineCurrentLimitingCount();
             // 限流数量为正整数时才会启用限流
