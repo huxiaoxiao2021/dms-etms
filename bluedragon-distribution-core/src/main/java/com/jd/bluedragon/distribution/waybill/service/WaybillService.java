@@ -155,7 +155,7 @@ public interface WaybillService {
      * @param waybill
      * @return
      */
-    Boolean baiChuanEnableSwitch(Waybill waybill);
+    String baiChuanEnableSwitch(Waybill waybill);
 
 
 }
