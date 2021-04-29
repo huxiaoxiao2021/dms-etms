@@ -5,6 +5,8 @@ import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 
+import java.util.List;
+
 /**
  * 工作台封车集齐监控查询
  *
@@ -31,4 +33,13 @@ public interface IDmsWbSealCarCollectManager {
      * @time 2021-04-13 09:58:54 周二
      */
     Result<PageData<SealCarNotCollectedDto>> selectNotCollectedPageList(SealCarNotCollectedPo paramObj);
+
+    /**
+     * 查询封车未集齐包裹的运单数据
+     * @param paramObj 查询总数
+     * @return 分页数据
+     * @author fanggang7
+     * @time 2021-04-13 09:58:54 周二
+     */
+    Result<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo paramObj);
 }

@@ -1045,9 +1045,9 @@ public class NewSealVehicleResource {
      * @return 查询结果
      */
     @POST
-    @Path("sealCarCollect/selectNotCollectedPageList")
-    public NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectNotCollectedPageList(SealCarNotCollectedPo request) {
-        NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+    @Path("sealCarCollect/selectNotCollectedList")
+    public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo request) {
+        NewSealVehicleResponse<List<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null) {
                 log.warn("NewSealVehicleResource unseal --> 传入参数非法");
@@ -1057,7 +1057,7 @@ public class NewSealVehicleResource {
             }
 
             SealCarNotCollectedPo sealCarNotCollectedPo = new SealCarNotCollectedPo();
-            NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedPageList(sealCarNotCollectedPo);
+            NewSealVehicleResponse<List<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedList(sealCarNotCollectedPo);
             sealVehicleResponse = pageDataResult;
         } catch (Exception e) {
             this.log.error("NewSealVehicleResource.selectNotCollectedPageList exception ", e);

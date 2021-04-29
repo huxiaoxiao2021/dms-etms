@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.esotericsoftware.minlog.Log;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
@@ -15,14 +13,27 @@ import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedDto;
+import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedPo;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -31,6 +42,8 @@ import org.springframework.stereotype.Service;
  */
 @Service("dmsNewSealVehicleService")
 public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("newSealVehicleResource")
@@ -137,4 +150,39 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
         return newSealVehicleResource.getVehicleNumberOrItemCodeByParam(request);
     }
 
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹分页列表
+     * @param request 查询参数
+     * @return 查询结果
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.selectNotCollectedList",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo request){
+        NewSealVehicleResponse<List<SealCarNotCollectedDto>> response = new NewSealVehicleResponse<>();
+        response.setCode(JdResponse.CODE_SUCCESS);
+        try {
+            com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo  sealCarNotCollectedPo = new com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo ();
+            BeanUtils.copyProperties(request, sealCarNotCollectedPo);
+            NewSealVehicleResponse<List<com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto>> pageDataRaw = newSealVehicleResource.selectNotCollectedList(sealCarNotCollectedPo);
+            if(!Objects.equals(pageDataRaw.getCode(), JdResponse.CODE_SUCCESS)){
+                response.setCode(JdResponse.CODE_FAIL);
+                return response;
+            }
+            List<SealCarNotCollectedDto> dataList = new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(pageDataRaw.getData())){
+                List<com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto> dataRawList = pageDataRaw.getData();
+                for (com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto carNotCollectedDto : dataRawList) {
+                    SealCarNotCollectedDto sealCarNotCollectedDtoTemp = new SealCarNotCollectedDto();
+                    BeanUtils.copyProperties(carNotCollectedDto, sealCarNotCollectedDtoTemp);
+                    dataList.add(sealCarNotCollectedDtoTemp);
+                }
+            }
+            response.setData(dataList);
+        } catch (BeansException e) {
+            log.error("DmsNewSealVehicleServiceImpl.selectNotCollectedList exception ", e);
+            response.setCode(JdResponse.CODE_ERROR);
+        }
+
+        return response;
+    }
 }

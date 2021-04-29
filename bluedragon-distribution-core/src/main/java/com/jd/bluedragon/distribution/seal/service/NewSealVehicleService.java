@@ -224,5 +224,5 @@ public interface NewSealVehicleService {
      * @param paramObj 查询参数
      * @return 查询结果
      */
-    NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectPackageNotFullCollectedPageList(SealCarNotCollectedPo paramObj);
+    NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectPackageNotFullCollectedList(SealCarNotCollectedPo paramObj);
 }

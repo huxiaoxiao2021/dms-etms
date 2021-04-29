@@ -1423,11 +1423,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @return 查询结果
      */
     @Override
-    public NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> selectPackageNotFullCollectedPageList(SealCarNotCollectedPo paramObj){
+    public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectPackageNotFullCollectedList(SealCarNotCollectedPo paramObj){
         if(log.isInfoEnabled()){
             log.info("selectPackageNotFullCollectedPageList param：{}",JsonHelper.toJson(paramObj));
         }
-        NewSealVehicleResponse<PageData<SealCarNotCollectedDto>> result = new NewSealVehicleResponse<>();
+        NewSealVehicleResponse<List<SealCarNotCollectedDto>> result = new NewSealVehicleResponse<>();
         result.setCode(JdResponse.CODE_OK);
         try{
             Result<Void> checkResult = this.checkParam4SelectPackageNotFullCollected(paramObj);
@@ -1435,7 +1435,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 result.setMessage(checkResult.getMessage());
                 return result;
             }
-            Result<PageData<SealCarNotCollectedDto>> listResult = dmsWbSealCarCollectManager.selectNotCollectedPageList(paramObj);
+            Result<List<SealCarNotCollectedDto>> listResult = dmsWbSealCarCollectManager.selectNotCollectedList(paramObj);
             if (!listResult.isSuccess()) {
                 result.setMessage("按封车号查询运单未集齐包裹列表失败，请稍后重试");
                 return result;

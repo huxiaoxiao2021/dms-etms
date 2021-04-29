@@ -8,6 +8,8 @@ import com.jd.dms.workbench.utils.sdk.base.Result;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 工作台封车集齐监控查询
  *
@@ -43,5 +45,17 @@ public class DmsWbSealCarCollectManagerImpl implements IDmsWbSealCarCollectManag
     @Override
     public Result<PageData<SealCarNotCollectedDto>> selectNotCollectedPageList(SealCarNotCollectedPo paramObj) {
         return dmsWbSealCarCollectJsfService.selectNotCollectedPageList(paramObj);
+    }
+
+    /**
+     * 查询封车未集齐包裹的运单数据
+     * @param paramObj 查询总数
+     * @return 分页数据
+     * @author fanggang7
+     * @time 2021-04-13 09:58:54 周二
+     */
+    @Override
+    public Result<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo paramObj) {
+        return dmsWbSealCarCollectJsfService.selectNotCollectedList(paramObj);
     }
 }

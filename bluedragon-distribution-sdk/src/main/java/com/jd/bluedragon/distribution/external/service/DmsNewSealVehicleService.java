@@ -6,6 +6,10 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealBoxResponse;
 import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedDto;
+import com.jd.bluedragon.distribution.sealVehicle.domain.SealCarNotCollectedPo;
+
+import java.util.List;
 
 /**
  * 发往物流网关的接口不要在此类中加方法
@@ -122,4 +126,11 @@ public interface DmsNewSealVehicleService {
      * @return
      */
     TransWorkItemResponse getVehicleNumberOrItemCode(NewSealVehicleRequest request);
+
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹列表
+     * @param request 查询参数
+     * @return 查询结果
+     */
+    NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo request);
 }
