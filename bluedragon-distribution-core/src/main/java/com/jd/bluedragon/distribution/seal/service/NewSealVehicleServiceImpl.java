@@ -46,6 +46,7 @@ import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
@@ -1394,6 +1395,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             if (!countResult.isSuccess()) {
                 result.setCode(JdResponse.CODE_SERVICE_ERROR);
                 result.setMessage("按封车号查询运单是否有未集齐包裹失败，请稍后重试");
+                log.info("selectPackageNotFullCollectedPageList result: {}", JsonHelper.toJson(countResult));
                 return result;
             }
             result.setData(countResult.getData());
@@ -1408,12 +1410,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private Result<Void> checkParam4SelectPackageNotFullCollected(SealCarNotCollectedPo paramObj){
         Result<Void> result = Result.success();
 
-        if(paramObj.getSiteId() == null){
-            return result.toFail("参数错误，siteId不能为空");
+        if(StringUtils.isEmpty(paramObj.getUserId())){
+            return result.toFail("参数错误，userId不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
-
+        if(StringUtils.isEmpty(paramObj.getUserName())){
+            return result.toFail("参数错误，userName不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        }
         if(CollectionUtils.isEmpty(paramObj.getSealCarCodeList())){
-            return result.toFail("参数错误，sealCarCodeList不能为空");
+            return result.toFail("参数错误，sealCarCodeList不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
 
         return result;
@@ -1427,7 +1431,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Override
     public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectPackageNotFullCollectedList(SealCarNotCollectedPo paramObj){
         if(log.isInfoEnabled()){
-            log.info("selectPackageNotFullCollectedPageList param：{}",JsonHelper.toJson(paramObj));
+            log.info("selectPackageNotFullCollectedList param：{}",JsonHelper.toJson(paramObj));
         }
         NewSealVehicleResponse<List<SealCarNotCollectedDto>> result = new NewSealVehicleResponse<>();
         result.setCode(JdResponse.CODE_OK);
@@ -1442,6 +1446,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             if (!listResult.isSuccess()) {
                 result.setCode(JdResponse.CODE_RETURN_ERROR);
                 result.setMessage("按封车号查询运单未集齐包裹列表失败，请稍后重试");
+                log.info("selectPackageNotFullCollectedPageList result: {}", JsonHelper.toJson(listResult));
                 return result;
             }
             result.setData(listResult.getData());
