@@ -1386,11 +1386,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         try{
             Result<Void> checkResult = this.checkParam4SelectPackageNotFullCollected(paramObj);
             if (!checkResult.isSuccess()) {
+                result.setCode(JdResponse.CODE_PARAM_ERROR);
                 result.setMessage(checkResult.getMessage());
                 return result;
             }
             Result<Long> countResult = dmsWbSealCarCollectManager.selectNotCollectedCount(paramObj);
             if (!countResult.isSuccess()) {
+                result.setCode(JdResponse.CODE_SERVICE_ERROR);
                 result.setMessage("按封车号查询运单是否有未集齐包裹失败，请稍后重试");
                 return result;
             }
@@ -1432,6 +1434,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         try{
             Result<Void> checkResult = this.checkParam4SelectPackageNotFullCollected(paramObj);
             if (!checkResult.isSuccess()) {
+                result.setCode(JdResponse.CODE_PARAM_ERROR);
                 result.setMessage(checkResult.getMessage());
                 return result;
             }
