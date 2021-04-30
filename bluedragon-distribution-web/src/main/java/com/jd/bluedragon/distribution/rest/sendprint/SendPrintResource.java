@@ -17,6 +17,7 @@ import com.jd.jsf.gd.msg.ResponseFuture;
 import com.jd.jsf.gd.util.RpcContext;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -288,24 +289,32 @@ public class SendPrintResource {
 
     @POST
     @GZIP
-    @Path("/sendprint/basicPrintExport")
-    @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public BasicQueryEntityResponse basicPrintExport(PrintQueryCriteria criteria) {
-        BasicQueryEntityResponse response = new BasicQueryEntityResponse();
-        if (checkForPage(criteria)) {
-            response.setCode(JdResponse.CODE_NOT_FOUND);
-            response.setMessage("查询参数不全");
-            return response;
+    @Path("/sendprint/batchPrintExport")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.batchPrintExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> batchPrintExport(PrintExportCriteria printExportCriteria) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        if (!checkExportCondition(printExportCriteria)) {
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("查询参数不全");
+            return result;
         }
-        if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(criteria),QueryGapTimeUtil.SEND_PRINT_RESOURCE_EXPORT)){
-            response.setCode(HandoverResponse.CODE_PARAM_ERROR);
-            response.setMessage("您操作的太快了！稍作休息后再操作！");
-            return response;
+        if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(printExportCriteria),QueryGapTimeUtil.SEND_PRINT_RESOURCE_EXPORT)){
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage("您操作的太快了！稍作休息后再操作！");
+            return result;
         }
-        return sendPrintService.basicPrintExport(criteria);
+        return sendPrintService.batchPrintExport(printExportCriteria);
     }
 
-	@POST
+    private boolean checkExportCondition(PrintExportCriteria printExportCriteria) {
+        if(printExportCriteria == null || printExportCriteria.getCreateSiteCode() == null
+                || CollectionUtils.isEmpty(printExportCriteria.getList())){
+            return false;
+        }
+	    return true;
+    }
+
+    @POST
 	@GZIP
 	@Path("/sendprint/basicPrintQueryOffline")
     @JProfiler(jKey = "DMS.WEB.SendPrintResource.basicPrintQueryOffline", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -419,34 +428,19 @@ public class SendPrintResource {
         return result;
     }
 
-    @POST
-    @GZIP
-    @Path("/sendprint/newBasicPrintQuery")
-    @JProfiler(jKey = "DMS.WEB.SendPrintResource.newBasicPrintQuery", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria) {
-        if(check(criteria)){
-            BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
-            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
-            tBasicQueryEntityResponse.setMessage("查询参数不全");
-            tBasicQueryEntityResponse.setData(null);
-            return tBasicQueryEntityResponse;
-        }
-        return sendPrintService.newBasicPrintQuery(criteria);
-    }
-
 
     @POST
     @GZIP
-    @Path("/sendprint/newBatchSummaryPrint")
-    @JProfiler(jKey = "DMS.WEB.SendPrintResource.newBatchSummaryPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SummaryPrintResultResponse newBatchSummaryPrint(PrintQueryCriteria criteria) {
+    @Path("/sendprint/batchSummaryPrintByES")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.batchSummaryPrintByES", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public SummaryPrintESResultResponse batchSummaryPrintByES(PrintQueryCriteria criteria) {
         if(check(criteria)){
-            SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
+            SummaryPrintESResultResponse tSummaryPrintResultResponse = new SummaryPrintESResultResponse();
             tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tSummaryPrintResultResponse.setMessage("查询参数不全");
             tSummaryPrintResultResponse.setData(null);
             return tSummaryPrintResultResponse;
         }
-        return sendPrintService.newBatchSummaryPrintQuery(criteria);
+        return sendPrintService.batchSummaryPrintQueryByES(criteria);
     }
 }
