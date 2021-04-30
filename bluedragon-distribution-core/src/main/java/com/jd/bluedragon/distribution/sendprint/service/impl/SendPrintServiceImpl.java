@@ -1257,7 +1257,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         // 客户信息 fixme 站点为三方敏感数据加密处理
         printHandoverListDto.setReceiverName(waybill.getReceiverName());
-        if (printHandoverListDto.getReceiveSiteType() == BaseContants.SANFANGKUAIDI) {
+        if (Objects.equals(printHandoverListDto.getReceiveSiteType(),BaseContants.SANFANGKUAIDI)) {
             printHandoverListDto.setReceiverAddress(waybill.getReceiverAddress() == null ? Constants.EMPTY_FILL : waybill.getReceiverAddress());
             printHandoverListDto.setReceiverMobile(StringUtils.isEmpty(waybill.getReceiverMobile())
                     ? (StringUtils.isEmpty(waybill.getReceiverTel()) ? SendPrintConstants.TEXT_DOUBLE_BAR : waybill.getReceiverTel())
