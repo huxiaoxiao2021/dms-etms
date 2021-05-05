@@ -433,6 +433,7 @@
         <include refid="Base_Column_List" />
         FROM `discarded_package_storage_temp`
         <include refid="where"/>
+        order by create_time desc
         <if test="pageNumber > 0">
             limit #{offset}, #{pageSize}
         </if>
