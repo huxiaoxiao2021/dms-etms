@@ -1638,8 +1638,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                 : dto.getIsCancel() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
         basicQueryEntity.setLuxury(dto.getLuxury() == null ? SendPrintConstants.TEXT_NO
                 : dto.getLuxury() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
-        basicQueryEntity.setOperateTime(DateHelper.formatDateTime(new Date(dto.getSendTime())));
-        basicQueryEntity.setSealTime(DateHelper.formatDateTime(new Date(dto.getSealTime())));
+        basicQueryEntity.setOperateTime(dto.getSendTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSendTime())));
+        basicQueryEntity.setSealTime(dto.getSealTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSealTime())));
         return basicQueryEntity;
     }
 
