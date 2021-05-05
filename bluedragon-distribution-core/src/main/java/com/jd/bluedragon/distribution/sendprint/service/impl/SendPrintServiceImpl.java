@@ -1253,7 +1253,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         // 库房号
-        printHandoverListDto.setFcNo(data.getWaybillState() == null ? null : data.getWaybillState().getStoreId());
+        printHandoverListDto.setFcNo((data.getWaybillState() == null || data.getWaybillState().getStoreId() == null)
+                ? Constants.NUMBER_ZERO : data.getWaybillState().getStoreId());
 
         // 客户信息 fixme 站点为三方敏感数据加密处理
         printHandoverListDto.setReceiverName(waybill.getReceiverName());
@@ -1638,8 +1639,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                 : dto.getIsCancel() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
         basicQueryEntity.setLuxury(dto.getLuxury() == null ? SendPrintConstants.TEXT_NO
                 : dto.getLuxury() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
-        basicQueryEntity.setOperateTime(DateHelper.formatDateTime(new Date(dto.getSendTime())));
-        basicQueryEntity.setSealTime(DateHelper.formatDateTime(new Date(dto.getSealTime())));
+        basicQueryEntity.setOperateTime(dto.getSendTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSendTime())));
+        basicQueryEntity.setSealTime(dto.getSealTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSealTime())));
         return basicQueryEntity;
     }
 
