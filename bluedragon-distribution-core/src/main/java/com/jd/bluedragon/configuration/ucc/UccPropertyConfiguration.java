@@ -291,16 +291,6 @@ public class UccPropertyConfiguration {
     private Integer exportSpotCheckMaxSize;
 
     /**
-     * 导出并发限制数量
-     */
-    private Integer exportConcurrencyLimitNum;
-
-    /**
-     * 单次查询数据库条数限制
-     */
-    private Integer oneQuerySize;
-
-    /**
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
@@ -315,13 +305,15 @@ public class UccPropertyConfiguration {
      */
     private String weightVolumeRuleStandard;
 
-    public String getWeightVolumeRuleStandard() {
-        return weightVolumeRuleStandard;
-    }
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
 
-    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
-        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
-    }
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
 
     /**
      * 打印交接清单新查询开通场地
@@ -335,6 +327,14 @@ public class UccPropertyConfiguration {
      * 校验站点子类型是否三方：16
      */
     private boolean checkSiteSubType;
+
+    public String getWeightVolumeRuleStandard() {
+        return weightVolumeRuleStandard;
+    }
+
+    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
+        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
+    }
 
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;

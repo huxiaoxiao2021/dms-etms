@@ -374,6 +374,7 @@ $(function () {
             checkConcurrencyLimit({
                 currentKey: exportReportEnum.STORAGE_PACKAGE_M_REPORT,
                 checkPassCallback: function (result) {
+
                     var params = tableInit.getSearchCondition();
 
                     var param = "";
@@ -409,11 +410,12 @@ $(function () {
 
                     $('#btn_export').attr("disabled",true);
                     location.href = exportUrl + "?" + param;
-                    },
-                    checkFailCallback: function (result) {
+
+              },
+              checkFailCallback: function (result) {
                     // 导出校验失败，弹出提示消息
                     alert(result.message)
-                 }
+                }
             });
         });
     }
