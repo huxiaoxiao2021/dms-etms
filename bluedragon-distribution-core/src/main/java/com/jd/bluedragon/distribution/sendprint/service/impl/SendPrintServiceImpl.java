@@ -1253,7 +1253,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         // 库房号
-        printHandoverListDto.setFcNo(data.getWaybillState() == null ? null : data.getWaybillState().getStoreId());
+        printHandoverListDto.setFcNo((data.getWaybillState() == null || data.getWaybillState().getStoreId() == null)
+                ? Constants.NUMBER_ZERO : data.getWaybillState().getStoreId());
 
         // 客户信息 fixme 站点为三方敏感数据加密处理
         printHandoverListDto.setReceiverName(waybill.getReceiverName());
