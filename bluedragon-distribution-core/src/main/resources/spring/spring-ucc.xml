@@ -105,6 +105,7 @@
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
 		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
+		<property name="unSealCarHandlePackageFullCollectedSwitch" value="${unSealCarHandlePackageFullCollectedSwitch:-1}"/> <!-- 解封车查看运单包裹是否集齐 -->
 
 	</bean>
 
@@ -182,6 +183,7 @@
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
+				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
 			</list>
 		</property>
 	</bean>

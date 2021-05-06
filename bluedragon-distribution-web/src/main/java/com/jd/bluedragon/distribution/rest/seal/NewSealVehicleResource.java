@@ -27,6 +27,9 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
+import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -42,6 +45,7 @@ import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -1034,5 +1038,32 @@ public class NewSealVehicleResource {
         } catch (Exception e) {
             log.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
         }
+    }
+
+    /**
+     * 按封车号批量查询运单是否有未集齐包裹分页列表
+     * @param request 查询参数
+     * @return 查询结果
+     */
+    @POST
+    @Path("sealCarCollect/selectNotCollectedList")
+    public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo request) {
+        NewSealVehicleResponse<List<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            if (request == null) {
+                log.warn("NewSealVehicleResource unseal --> 传入参数非法");
+                sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
+            }
+
+            SealCarNotCollectedPo sealCarNotCollectedPo = new SealCarNotCollectedPo();
+            BeanUtils.copyProperties(request, sealCarNotCollectedPo);
+            NewSealVehicleResponse<List<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedList(sealCarNotCollectedPo);
+            sealVehicleResponse = pageDataResult;
+        } catch (Exception e) {
+            this.log.error("NewSealVehicleResource.selectNotCollectedPageList exception ", e);
+        }
+        return sealVehicleResponse;
     }
 }
