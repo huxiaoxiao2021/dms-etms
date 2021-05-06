@@ -207,7 +207,7 @@ public class JdResponse extends JdObject {
 
     //弃件拦截
     public static final Integer CODE_WAYBILL_WASTE = 30123;
-    public static final String MESSAGE_WAYBILL_WASTE = "弃件禁止操作换单，请按公司规定进行暂存及按时处理";
+    public static final String MESSAGE_WAYBILL_WASTE = "弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)";
 
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";
