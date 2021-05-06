@@ -196,7 +196,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private IPrintOnlineService printOnlineService;
-    
+
     @Autowired
     private WaybillTraceManager waybillTraceManager;
 
@@ -931,6 +931,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if(reverseSubType !=null){
         	send.setGuestBackType(reverseSubType.getParentCode());
         }
+        send.setPreSellType(BusinessUtil.getStoreTypeBySendPay(send.getSendPay()));
         if (log.isInfoEnabled()) {
             log.info("2:构建ReverseSendWms对象结果:{}", JSON.toJSONString(send));
         }
@@ -1111,13 +1112,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setStoreId(Integer.valueOf(storeId.trim()));
         } catch (Exception e) {
             this.log.error("青龙发货至仓储WS消息send收货仓信息赋值出错", e);
-        }
-        //处理预售暂存类型
-        BigWaybillDto bigWaybillDto = waybillService.getWaybillState(wallBillCode);
-        if(null != bigWaybillDto){
-            send.setPreSellType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
-        }else{
-            log.warn("sendWMS-获取运单信息失败，运单号：" + wallBillCode);
         }
 
         messageValue = XmlHelper.toXml(send, ReverseSendWms.class);
@@ -1380,7 +1374,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 nomarlSendDetails.add(sd);
             }
         }
-        sendDetails = nomarlSendDetails;//非维修外单集合        
+        sendDetails = nomarlSendDetails;//非维修外单集合
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
 //        pushECLPMessageToSpwms(eclpSendDetails);//ECLP
         //退备件库给ECLP发消息改成jsf接口的形式
@@ -2098,7 +2092,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sendModel.setPackageCodeList(Arrays.asList(send.getPackageCodes()));
         }
         //暂存类型
-        sendModel.setPreSellType(BusinessUtil.getStoreTypeBySendPay(bigWaybillDto.getWaybill().getSendPay()));
+        sendModel.setPreSellType(send.getPreSellType());
         return sendModel;
     }
 
