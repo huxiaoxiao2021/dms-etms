@@ -32,7 +32,7 @@ public class SealCarNotCollectedPo implements Serializable {
     /**
      * 用户id
      */
-    private String userId;
+    private Long userId;
 
     /**
      * 用户id
@@ -71,11 +71,11 @@ public class SealCarNotCollectedPo implements Serializable {
         return this;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public SealCarNotCollectedPo setUserId(String userId) {
+    public SealCarNotCollectedPo setUserId(Long userId) {
         this.userId = userId;
         return this;
     }
