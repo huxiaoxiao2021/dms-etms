@@ -167,6 +167,7 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
             NewSealVehicleResponse<List<com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto>> pageDataRaw = newSealVehicleResource.selectNotCollectedList(sealCarNotCollectedPo);
             if(!Objects.equals(pageDataRaw.getCode(), JdResponse.CODE_SUCCESS)){
                 response.setCode(JdResponse.CODE_FAIL);
+                response.setMessage(pageDataRaw.getMessage());
                 log.error("DmsNewSealVehicleServiceImpl.selectNotCollectedList query fail , result: {}", JsonHelper.toJson(pageDataRaw));
                 return response;
             }
