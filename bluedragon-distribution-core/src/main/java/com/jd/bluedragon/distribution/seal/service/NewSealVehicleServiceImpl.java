@@ -1452,6 +1452,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             result.setData(listResult.getData());
         } catch (Exception e){
             log.error("selectPackageNotFullCollectedPageList exception {}", e.getMessage(), e);
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage("按封车号查询运单未集齐包裹列表异常，请联系分拣小秘");
         }
         return result;
