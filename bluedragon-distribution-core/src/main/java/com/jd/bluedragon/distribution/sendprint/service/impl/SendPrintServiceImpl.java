@@ -1079,8 +1079,9 @@ public class SendPrintServiceImpl implements SendPrintService {
                 baseEntity = printHandoverListManager.doExportAsync(createESQueryCondition(criteria,false));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("目的地【{}】的交接清单导出成功!", criteria.getReceiveSiteCode());
+        }else {
+            log.error("目的地【{}】的交接清单导出失败!失败原因:{}", criteria.getReceiveSiteCode(), baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage());
         }
-        log.warn("打印交接清单导出异常!");
     }
 
     /**
