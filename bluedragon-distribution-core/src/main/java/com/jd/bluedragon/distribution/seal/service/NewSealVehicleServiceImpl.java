@@ -1410,7 +1410,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private Result<Void> checkParam4SelectPackageNotFullCollected(SealCarNotCollectedPo paramObj){
         Result<Void> result = Result.success();
 
-        if(StringUtils.isEmpty(paramObj.getUserId())){
+        if(paramObj.getUserId() == null){
             return result.toFail("参数错误，userId不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
         if(StringUtils.isEmpty(paramObj.getUserName())){
