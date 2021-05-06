@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
@@ -9,6 +10,8 @@ import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
@@ -32,6 +35,7 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -48,7 +52,10 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.asset.dto.MatterPackageRelationDto;
 import com.jd.ql.asset.dto.ResultData;
 import com.jd.ql.asset.enums.ResultStateEnum;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -133,6 +140,19 @@ public class InspectionServiceImpl implements InspectionService {
     @Autowired
     private UccPropertyConfiguration uccConfig;
 
+	@Autowired
+	private DmsOperateHintService dmsOperateHintService;
+
+	@Autowired
+	private RouterService routerService;
+
+	@Autowired
+	@Qualifier("operateHintTrackMQ")
+	private DefaultJMQProducer operateHintTrackMQ;
+
+	@Autowired
+	private BasicPrimaryWS basicPrimaryWS;
+
     public boolean isExists(Integer Storeid)
     {
         int value=(null==Storeid)?0:Storeid.intValue();
@@ -156,6 +176,113 @@ public class InspectionServiceImpl implements InspectionService {
         }
 
     }
+
+	@Override
+	public JdResponse getStorageCode(String barCode, Integer siteCode) {
+		com.jd.ql.dms.common.domain.JdResponse jdResponse = new com.jd.ql.dms.common.domain.JdResponse();
+		//判断是运单号还是包裹号
+		Integer dmsSiteCode = siteCode;
+		String waybillCode = barCode;
+		String packageCode = barCode;
+		boolean isPack = false;
+		if(WaybillUtil.isPackageCode(barCode)){
+			isPack = true;
+			waybillCode = WaybillUtil.getWaybillCode(barCode);
+		}
+		// 运单绑定集包袋校验
+		if(WaybillUtil.isWaybillCode(barCode)
+				&& checkIsBindMaterial(waybillCode)){
+			jdResponse.toFail(com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+			return jdResponse;
+		}
+		InspectionResult inspectionResult = new InspectionResult("");
+		//提取获取操作站点信息
+		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
+
+		try{
+			inspectionResult = getInspectionResult(dmsSiteCode, waybillCode);
+		}catch (Exception e){
+			log.error("获取库位号失败，异常原因：", e);
+		}
+
+		String hintMessage = "";
+		try{
+			hintMessage = dmsOperateHintService.getInspectHintMessageByWaybillCode(waybillCode);
+			inspectionResult.setHintMessage(hintMessage);
+			log.info("验货redis查询运单提示语，运单号：{},结果：{}",waybillCode, hintMessage);
+			if(StringHelper.isNotEmpty(hintMessage)){
+				try {
+					DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+					dmsOperateHintTrack.setWaybillCode(waybillCode);
+					dmsOperateHintTrack.setHintDmsCode(siteCode);
+					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
+					dmsOperateHintTrack.setHintTime(new Date());
+					this.log.info("发送MQ[{}],业务ID[{}]",operateHintTrackMQ.getTopic(),dmsOperateHintTrack.getWaybillCode());
+					operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+				}catch(Exception e){
+					log.error("发货提示语发mq异常,异常原因:" ,e);
+				}
+			}
+		}catch (Exception e){
+			log.error("验货redis查询运单提示语异常，改DB查询，运单号：{}",waybillCode, e);
+		}
+		//金鹏订单拦截提示
+		hintMessage += getHintMessage(dmsSiteCode, waybillCode);
+		//获取路由下一节点
+		BaseStaffSiteOrgDto baseDto = routerService.getRouterNextSite(dmsSiteCode, waybillCode);
+		inspectionResult.setNextRouterSiteName(baseDto==null?null:baseDto.getSiteName());
+		inspectionResult.setHintMessage(hintMessage);
+
+		// B网验货增加笼车号显示
+		this.setTabletrolleyCode(inspectionResult, siteOrgDto, baseDto);
+
+		//增加已验内容
+		if(isPack){
+			setScanPackageSize(inspectionResult,packageCode,waybillCode,dmsSiteCode);
+		}
+		jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
+		jdResponse.setData(inspectionResult);
+		return jdResponse;
+	}
+
+	/**
+	 * B网验货显示下一节点的笼车号
+	 *
+	 * @param inspectionResult
+	 * @param dmsSiteCode
+	 * @param nextDest
+	 */
+	private void setTabletrolleyCode(InspectionResult inspectionResult, BaseStaffSiteOrgDto siteOrgDto, BaseStaffSiteOrgDto nextDest) {
+		if (null == siteOrgDto || null == nextDest)
+			return;
+		if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+			SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(siteOrgDto.getSiteCode(), String.valueOf(nextDest.getSiteCode()));
+			if (log.isInfoEnabled()) {
+				log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", siteOrgDto.getSiteCode(), nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
+			}
+			if (null != sortCrossDetail) {
+				inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
+			}
+		}
+	}
+
+	/**
+	 * 设置已扫包裹数据
+	 * @param inspectionResult
+	 * @param packageCode
+	 * @param waybillCode
+	 * @param siteCode
+	 */
+	private void setScanPackageSize(InspectionResult inspectionResult,String packageCode,String waybillCode,Integer siteCode){
+		Inspection inspection = new Inspection();
+		inspection.setWaybillCode(waybillCode);
+		inspection.setCreateSiteCode(siteCode);
+		inspection.setPackageBarcode(packageCode);
+		//此时返回的已验数据不包含此次扫描包裹
+		Integer scanSize = inspectionCountByWaybill(inspection);
+		inspectionResult.setSacnPackageSize((scanSize==null?0:scanSize)+1);
+
+	}
 
 	/**
 	 * 验货核心操作逻辑
