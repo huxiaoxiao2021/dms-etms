@@ -586,6 +586,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
+        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+
+        //任务创建时间变更为第一个包裹的扫描时间
+        if(CollectionUtils.isEmpty(unloadScanRecordDao.findRecordBySealCarCode(request.getSealCarCode()))) {
+            UnloadCar uc = new UnloadCar();
+            uc.setUpdateTime(new Date());
+            uc.setUpdateUserErp(request.getOperateUserErp());
+            uc.setUpdateUserName(request.getOperateUserName());
+            uc.setSealCarCode(request.getSealCarCode());
+            if(unloadCarDao.updateCreateTime(uc) < 1) {
+                if(logger.isInfoEnabled()) {
+                    logger.error("UnloadCarServiceImpl.packageCodeScanNew--error--首次扫描包裹时修改任务创建时间失败--参数=【{}】", JsonHelper.toJson(uc));
+                }
+                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "任务下首次扫描包裹时修改该任务创建时间失败");
+                return dtoInvokeResult;
+            }
+        }
         //流水线模式：只验货不组板
         if(Constants.ASSEMBLY_LINE_TYPE.equals(request.getType())){
             return assemblyLineScan(request);
@@ -599,7 +616,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (logger.isDebugEnabled()) {
             logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
         }
-        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
@@ -2306,7 +2322,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
-        Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
+        Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {

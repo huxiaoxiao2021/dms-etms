@@ -425,4 +425,14 @@
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
+
+    <update id="updateCreateTime" parameterType="unloadCar">
+        UPDATE unload_car
+        SET
+         create_time = #{updateTime,jdbcType=TIMESTAMP},
+         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+         update_user_name = #{updateUserName, jdbcType=VARCHAR}
+        where
+         seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and yn = 1
+    </update>
 </mapper>
