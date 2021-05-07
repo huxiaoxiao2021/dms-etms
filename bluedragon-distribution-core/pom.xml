@@ -743,7 +743,7 @@
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
-            <version>1.0.2-SNAPSHOT</version>
+            <version>1.1.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jsf</artifactId>
@@ -987,6 +987,19 @@
 			<artifactId>order-ioms-export</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
 		</dependency>
+
+		<!--国际化订单接口  https://cf.jd.com/pages/viewpage.action?pageId=398228541-->
+		<dependency>
+			<groupId>com.jd.ioms</groupId>
+			<artifactId>ioms-export-cbd-sdk</artifactId>
+			<version>3.0.5-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.ioms</groupId>
+			<artifactId>jdorders-export-dict</artifactId>
+			<version>3.0.5-SNAPSHOT</version>
+		</dependency>
+
 		<!-- 备件处置研发部jsf接口 -->
 		<dependency>
 		    <groupId>com.jd.rd.wms</groupId>

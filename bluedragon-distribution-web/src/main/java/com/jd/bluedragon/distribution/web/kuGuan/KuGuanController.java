@@ -55,6 +55,11 @@ public class KuGuanController {
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.KuGuanController.queryOperateLog", mState = JProEnum.TP)
 	public String queryOperateLog(KuGuanDomain kuGuanDomain, Model model) {
+	    // 开关控制新旧页面查询功能
+        if(uccPropertyConfiguration.isChuguanNewPageQuerySwitch()){
+            model.addAttribute("errorMesage", "请使用新库管查询界面操作查询");
+            return "kuguan/kuguan";
+        }
 
 		Map<String, Object> params = ObjectMapHelper
 				.makeObject2Map(kuGuanDomain);
