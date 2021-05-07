@@ -430,6 +430,7 @@
         UPDATE unload_car
         SET
          create_time = #{updateTime,jdbcType=TIMESTAMP},
+         update_time = #{updateTime,jdbcType=TIMESTAMP},
          update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
          update_user_name = #{updateUserName, jdbcType=VARCHAR}
         where
