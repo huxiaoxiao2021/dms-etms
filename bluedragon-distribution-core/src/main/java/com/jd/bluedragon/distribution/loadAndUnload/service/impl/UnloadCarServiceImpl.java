@@ -686,6 +686,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
+
+            privateNetworkCheck(request.getBarCode(), dtoInvokeResult, GoodsLoadScanConstants.BUSINESS_DIMENSION_PACKAGECODE);
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -1213,6 +1215,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             waybillInspectSuccessAfter(request, packageList.size(), surplusPackages);
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), invokeResult, request.getSealCarCode());
+            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            //专网判断
+            privateNetworkCheck(waybillCode, invokeResult, GoodsLoadScanConstants.BUSINESS_DIMENSION_WAYBILLCODE);
         } catch (LoadIllegalException e) {
             logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
@@ -1225,7 +1230,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 释放锁
             unLock(sealCarCode, waybillCode);
         }
-        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+
         return invokeResult;
     }
 
@@ -2935,6 +2940,60 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unLock(request.getSealCarCode(), waybillCode);
         }
         return dtoInvokeResult;
+    }
+
+    /**
+     * 校验是否为专网单
+     * @param businessCode   单号
+     * @param dtoInvokeResult  返回结果
+     * @param scanDimension  单号维度： 1-包裹号； 2-运单号
+     */
+    private void privateNetworkCheck(String businessCode, InvokeResult<UnloadScanDetailDto> dtoInvokeResult, int scanDimension) {
+        if(StringUtils.isBlank(businessCode)) {
+            if(logger.isInfoEnabled()) {
+                logger.info("UnloadCarServiceImpl.privateNetworkCheck--warn--校验是否为专网单子时，单号businessCode为空， 参数dtoInvokeResult=【{}】", JsonHelper.toJson(businessCode));
+            }
+            return;
+        }
+        String waybillCode = (scanDimension == 1) ? WaybillUtil.getWaybillCode(businessCode) : ((scanDimension == 2) ? businessCode : "");
+        if(StringUtils.isBlank(waybillCode) || !WaybillUtil.isWaybillCode(waybillCode)) {
+            if(logger.isInfoEnabled()) {
+                logger.info("UnloadCarServiceImpl.privateNetworkCheck--warn--校验是否为专网单子时，单号=【{}】转化为运单号=【{}】异常, 单号维度值（1-包裹号；2-运单号）scanDimension=【{}】", businessCode, waybillCode, scanDimension);
+            }
+            return;
+        }
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryWaybillT(true);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+
+        if(baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null ){
+            logger.error("UnloadCarServiceImpl.privateNetworkCheck--error--校验是否为专网运单失败，运单号=【{}】, 返回结果=【{}】", waybillCode, baseEntity == null ? "" : JsonHelper.toJson(baseEntity));
+            dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            String temp = (scanDimension == 1) ? "包裹" : ((scanDimension == 2) ? "运单" : "");
+            dtoInvokeResult.setMessage(temp + "【" + businessCode + "】已经扫描成功，专网运单识别出现异常");
+            return;
+        }
+        Waybill waybill = baseEntity.getData().getWaybill();
+        String waybillSign = waybill.getWaybillSign();
+        if(StringUtils.isBlank(waybillSign)){
+            logger.error("UnloadCarServiceImpl.privateNetworkCheck--error--校验是否为专网运单时未查询到运单waybillSign标识，运单号=【{}】, 返回结果=【{}】", waybillCode, JsonHelper.toJson(baseEntity));
+            dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            String temp = (scanDimension == 1) ? "包裹" : ((scanDimension == 2) ? "运单" : "");
+            dtoInvokeResult.setMessage(temp + "【" + businessCode + "】已经扫描成功，专网运单识别出现异常, 原因是未发现该运单打标信息");
+            return;
+        }
+
+        //是否专网
+        if(BusinessUtil.isPrivateNetwork(waybillSign)) {
+            dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            String temp = (scanDimension == 1) ? "包裹" : ((scanDimension == 2) ? "运单" : "");
+            dtoInvokeResult.setMessage(temp + "【" + businessCode + "】是专网" + temp);
+            return;
+        }
     }
 
 }

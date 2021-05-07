@@ -65,4 +65,8 @@ public class GoodsLoadScanConstants {
     public static final Integer UNLOAD_SCAN_ORANGE = 3;
     public static final Integer UNLOAD_SCAN_RED = 4;
 
+    //业务单号维度：  1-包裹号； 2-运单号
+    public static final Integer BUSINESS_DIMENSION_PACKAGECODE = 1;
+    public static final Integer BUSINESS_DIMENSION_WAYBILLCODE = 2;
+
 }
