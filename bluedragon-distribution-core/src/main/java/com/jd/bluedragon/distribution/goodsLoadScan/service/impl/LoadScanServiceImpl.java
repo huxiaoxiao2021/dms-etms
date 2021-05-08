@@ -2121,10 +2121,24 @@ public class LoadScanServiceImpl implements LoadScanService {
             return res;
         }
 
-        //已装运单信息  K=运单号  V=已装运单的未装数量
+        //已装运单信息  K=运单号  V=已装运单的已装数量
         Map<String, Integer> loadWaybillMap = null;
-        //待装运单号集合
-        List<String> waitLoadWaybillList = null;
+
+        //查询已验未发未装车数据
+        JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = loadScanPackageDetailServiceManager.getInspectNoSendWaybillInfo(loadCar, null);
+        if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes.getCode())) {
+                log.error("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---error--获取流向已验未发待装数据失败， 查询参数req=【{}】, 返回=【{}】", JsonHelper.toJson(req), JsonHelper.toJson(inventoryWaybillListRes));
+                res.toFail(inventoryWaybillListRes == null ? "获取库存运单失败" : inventoryWaybillListRes.getMessage());
+                return res;
+        }else if(CollectionUtils.isEmpty(inventoryWaybillListRes.getData())) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---warn--获取流向已验未发待装数据未查询到库存运单， 查询参数req=【{}】, 返回=【{}】", JsonHelper.toJson(req), JsonHelper.toJson(inventoryWaybillListRes));
+            }
+            res.toSucceed("查询库存运单数据为空");
+            return res;
+        }
+
+
         if(CollectionUtils.isEmpty(waybillInfoListRes.getData())) {
             if(log.isInfoEnabled()) {
                 log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---当前装车任务所在流向from=【{}-{}】to【{}-{}】未查询到装车数据",
@@ -2132,34 +2146,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             }
         }else {
             loadWaybillMap = new HashMap<>();
-            waitLoadWaybillList = new ArrayList<>();
-
             for(GoodsLoadScan glc : waybillInfoListRes.getData()) {
                 String waybillCode = glc.getWayBillCode();
-                Integer unloadAmount = glc.getUnloadAmount();
-                loadWaybillMap.put(waybillCode, unloadAmount);
-                //未装为0 表示装齐， 查询库存待装数据时去除该运单
-                if(glc.getUnloadAmount() <= 0) {
-                    waitLoadWaybillList.add(waybillCode);
-                }
+                Integer loadAmount = glc.getLoadAmount();
+                loadWaybillMap.put(waybillCode, loadAmount);
             }
         }
 
-        //查询已验未发未装车数据
-        JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = loadScanPackageDetailServiceManager.getInspectNoSendWaybillInfo(loadCar, waitLoadWaybillList);
-        if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes.getCode())) {
-                log.error("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---error--获取流向已验未发待装数据失败， 查询参数req=【{}】, waitLoadWaybillList=【{}】， 返回=【{}】",
-                        JsonHelper.toJson(req), JsonHelper.toJson(waitLoadWaybillList), JsonHelper.toJson(inventoryWaybillListRes));
-                res.toFail(inventoryWaybillListRes == null ? "获取库存运单失败" : inventoryWaybillListRes.getMessage());
-                return res;
-        }else if(CollectionUtils.isEmpty(inventoryWaybillListRes.getData())) {
-            if(log.isInfoEnabled()) {
-                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---warn--获取流向已验未发待装数据未查询到库存运单， 查询参数req=【{}】, waitLoadWaybillList=【{}】， 返回=【{}】",
-                        JsonHelper.toJson(req), JsonHelper.toJson(waitLoadWaybillList), JsonHelper.toJson(inventoryWaybillListRes));
-            }
-            res.toSucceed("查询库存运单数据为空");
-            return res;
-        }
 
         //组装返回结果
         LoadScanDetailDto resData = new LoadScanDetailDto();
@@ -2172,14 +2165,18 @@ public class LoadScanServiceImpl implements LoadScanService {
             dtoTemp.setGoodsAmount(lcd.getGoodsAmount());
             dtoTemp.setInspectTime(lcd.getInpectTime());
 
-            Integer unloadAmount = 0;
             if(loadWaybillMap != null && loadWaybillMap.size() > 0) {
-                Integer unloadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
-                if(unloadAmountValue != null) {
-                    unloadAmount = unloadAmountValue;
+                Integer loadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
+                if(loadAmountValue == null || lcd.getGoodsAmount() == null) {
+                    continue;
+                }
+                //未装齐：已装数小于库存数
+                if(loadAmountValue < lcd.getGoodsAmount()) {
+                    dtoTemp.setUnloadAmount(lcd.getGoodsAmount() - loadAmountValue);
+                }else {
+                    continue;
                 }
             }
-            dtoTemp.setUnloadAmount(unloadAmount);
             resDtoList.add(dtoTemp);
         }
         resData.setGoodsDetailDtoList(resDtoList);

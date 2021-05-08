@@ -24,6 +24,12 @@ public class LoadScanPackageDetailServiceManagerImpl implements LoadScanPackageD
     private LoadScanPackageDetailService loadScanPackageDetailService;
 
 
+    /**
+     *   查询不包含运单号集合的库存信息
+     * @param loadCar  库存查询条件
+     * @param waybillCodeList   查询库存时需要去除的运单号
+     * @return
+     */
     @Override
     public JdCResponse<List<LoadScanDto>> getInspectNoSendWaybillInfo(LoadCar loadCar, List<String> waybillCodeList) {
         JdCResponse<List<LoadScanDto>> res = new JdCResponse<>();
