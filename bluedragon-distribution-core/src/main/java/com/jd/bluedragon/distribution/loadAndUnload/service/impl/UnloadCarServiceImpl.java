@@ -591,15 +591,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //任务创建时间变更为第一个包裹的扫描时间
         if(CollectionUtils.isEmpty(unloadScanRecordDao.findRecordBySealCarCode(request.getSealCarCode()))) {
             UnloadCar uc = new UnloadCar();
-            uc.setUpdateTime(new Date());
+            Date currTime = new Date();
+            uc.setStartTime(currTime);
+            uc.setUpdateTime(currTime);
             uc.setUpdateUserErp(request.getOperateUserErp());
             uc.setUpdateUserName(request.getOperateUserName());
             uc.setSealCarCode(request.getSealCarCode());
-            if(unloadCarDao.updateCreateTime(uc) < 1) {
+            if(unloadCarDao.updateStartTime(uc) < 1) {
                 if(logger.isInfoEnabled()) {
-                    logger.error("UnloadCarServiceImpl.packageCodeScanNew--error--首次扫描包裹时修改任务创建时间失败--参数=【{}】", JsonHelper.toJson(uc));
+                    logger.error("UnloadCarServiceImpl.packageCodeScanNew--error--首次扫描包裹时修改任务开始时间失败--参数=【{}】", JsonHelper.toJson(uc));
                 }
-                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "任务下首次扫描包裹时修改该任务创建时间失败");
+                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "当前任务下首次扫描包裹时修改该任务开始时间失败，本次扫描未成功");
                 return dtoInvokeResult;
             }
         }
