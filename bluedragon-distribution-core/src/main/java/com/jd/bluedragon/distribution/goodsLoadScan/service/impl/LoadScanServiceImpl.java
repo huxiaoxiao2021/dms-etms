@@ -2167,17 +2167,29 @@ public class LoadScanServiceImpl implements LoadScanService {
 
             if(loadWaybillMap != null && loadWaybillMap.size() > 0) {
                 Integer loadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
-                if(loadAmountValue == null || lcd.getGoodsAmount() == null) {
+                if(lcd.getGoodsAmount() == null) {
                     continue;
+                }
+
+                if(loadAmountValue == null) {
+                    //已装数为空，未装去库存
+                    dtoTemp.setUnloadAmount(lcd.getGoodsAmount());
+                }else {
+                    //已装不为空，小于库存数，计算未装数量
+                    if(loadAmountValue < lcd.getGoodsAmount()) {
+                        dtoTemp.setUnloadAmount(lcd.getGoodsAmount() - loadAmountValue);
+                    }else {
+                        //已装等于库存，说明装齐，不操作
+                        continue;
+                    }
                 }
                 //未装齐：已装数小于库存数
-                if(loadAmountValue < lcd.getGoodsAmount()) {
-                    dtoTemp.setUnloadAmount(lcd.getGoodsAmount() - loadAmountValue);
-                }else {
-                    continue;
-                }
             }
             resDtoList.add(dtoTemp);
+            //只取200个
+            if(CollectionUtils.isNotEmpty(resDtoList) && resDtoList.size() >= 200) {
+                break;
+            }
         }
         resData.setGoodsDetailDtoList(resDtoList);
         res.toSucceed("操作成功");
