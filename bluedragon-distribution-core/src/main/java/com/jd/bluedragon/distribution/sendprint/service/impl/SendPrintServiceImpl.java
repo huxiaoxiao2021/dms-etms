@@ -1472,7 +1472,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Override
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
         // 检查是否走es查询
-        if(checkGoESQuery(criteria.getSiteCode())){
+        if(Objects.equals(BusinessHelper.getOwnSign(),"UAT") || checkGoESQuery(criteria.getSiteCode())){
             return basicPrintQueryForPageByES(criteria);
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQueryForPage", Constants.UMP_APP_NAME_DMSWEB, false, true);
