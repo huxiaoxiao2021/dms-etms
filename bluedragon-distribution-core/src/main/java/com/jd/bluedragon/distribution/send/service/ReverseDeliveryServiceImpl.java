@@ -742,6 +742,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		return new WaybillInfoResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK,JsonHelper.toJson(list));
 	}
 
+    @JProfiler(jKey = "DMSWEB.ReverseDeliveryServiceImpl.getWaybillQuickProduce",
+            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP})
 	@Override
 	public BigWaybillDto getWaybillQuickProduce(String waybillCode) {
 		QuickProduceWabill tQuickProduceWabill = quickProduceService.getQuickProduceWabill(waybillCode);
