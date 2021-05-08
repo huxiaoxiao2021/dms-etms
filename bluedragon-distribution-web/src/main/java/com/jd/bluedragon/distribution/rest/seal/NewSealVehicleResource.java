@@ -1046,9 +1046,9 @@ public class NewSealVehicleResource {
      * @return 查询结果
      */
     @POST
-    @Path("sealCarCollect/selectNotCollectedList")
+    @Path("/sealCarCollect/selectNotCollectedList")
     public NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectNotCollectedList(SealCarNotCollectedPo request) {
-        NewSealVehicleResponse<List<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        NewSealVehicleResponse<List<SealCarNotCollectedDto>> sealVehicleResponse = new NewSealVehicleResponse<>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
             if (request == null) {
                 log.warn("NewSealVehicleResource unseal --> 传入参数非法");
@@ -1060,8 +1060,16 @@ public class NewSealVehicleResource {
             SealCarNotCollectedPo sealCarNotCollectedPo = new SealCarNotCollectedPo();
             BeanUtils.copyProperties(request, sealCarNotCollectedPo);
             NewSealVehicleResponse<List<SealCarNotCollectedDto>> pageDataResult = newsealVehicleService.selectPackageNotFullCollectedList(sealCarNotCollectedPo);
+            if(!Objects.equals(pageDataResult.getCode(), JdResponse.CODE_OK)){
+                sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                sealVehicleResponse.setMessage(pageDataResult.getMessage());
+                log.error("DmsNewSealVehicleServiceImpl.selectNotCollectedList query fail {}", JsonHelper.toJson(pageDataResult));
+                return sealVehicleResponse;
+            }
             sealVehicleResponse = pageDataResult;
         } catch (Exception e) {
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             this.log.error("NewSealVehicleResource.selectNotCollectedPageList exception ", e);
         }
         return sealVehicleResponse;

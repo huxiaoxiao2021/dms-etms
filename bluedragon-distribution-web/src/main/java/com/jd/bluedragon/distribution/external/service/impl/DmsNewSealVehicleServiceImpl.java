@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.SealBoxResponse;
 import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
@@ -166,6 +167,8 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
             NewSealVehicleResponse<List<com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto>> pageDataRaw = newSealVehicleResource.selectNotCollectedList(sealCarNotCollectedPo);
             if(!Objects.equals(pageDataRaw.getCode(), JdResponse.CODE_SUCCESS)){
                 response.setCode(JdResponse.CODE_FAIL);
+                response.setMessage(pageDataRaw.getMessage());
+                log.error("DmsNewSealVehicleServiceImpl.selectNotCollectedList query fail , result: {}", JsonHelper.toJson(pageDataRaw));
                 return response;
             }
             List<SealCarNotCollectedDto> dataList = new ArrayList<>();
