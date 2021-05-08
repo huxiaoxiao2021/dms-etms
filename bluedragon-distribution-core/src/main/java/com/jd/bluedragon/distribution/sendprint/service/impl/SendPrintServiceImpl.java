@@ -199,6 +199,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     @Override
     public SummaryPrintESResultResponse batchSummaryPrintQueryByES(PrintQueryCriteria criteria) {
+        long startTime = System.currentTimeMillis();
         SummaryPrintESResultResponse response = new SummaryPrintESResultResponse();
         // 查询当前站点是否走ES查询
         if(!checkGoESQuery(criteria.getSiteCode())){
@@ -220,6 +221,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             log.error("发货交接清单汇总查询异常!",e);
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        if(log.isInfoEnabled()){
+            log.info("发货交接清单汇总查询耗时：{}", System.currentTimeMillis() - startTime);
         }
         return response;
     }
@@ -1531,6 +1535,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private BasicQueryEntityResponse basicPrintQueryForPageByES(PrintQueryCriteria criteria) {
+        long startTime = System.currentTimeMillis();
         BasicQueryEntityResponse basicQueryEntityResponse = new BasicQueryEntityResponse();
         try {
             PageData<PrintHandoverListDto> pagerResult
@@ -1553,6 +1558,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             log.error("根据条件{}查询打印交接清单异常!",JsonHelper.toJson(criteria),e);
             basicQueryEntityResponse.setCode(JdResponse.CODE_INTERNAL_ERROR);
             basicQueryEntityResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR_C);
+        }
+        if(log.isInfoEnabled()){
+            log.info("发货交接清单分页查询耗时：{}", System.currentTimeMillis() - startTime);
         }
         return basicQueryEntityResponse;
     }
