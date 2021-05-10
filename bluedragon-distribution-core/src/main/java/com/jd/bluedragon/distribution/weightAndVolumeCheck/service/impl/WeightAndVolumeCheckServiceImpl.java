@@ -296,6 +296,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             for (SpotCheckPictureDimensionEnum value : SpotCheckPictureDimensionEnum.values()) {
                 String prefixName = Constants.SPOT_CHECK_B + Constants.UNDER_LINE + barCode + Constants.UNDER_LINE + siteCode
                         + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                if(StringUtils.isEmpty(searchPictureUrlRecent(prefixName))){
+                    // 兼容之前的逻辑（之前上传的图片名称：JDV000690914941_910_1_20210508142931）
+                    prefixName = barCode + Constants.UNDER_LINE + siteCode
+                            + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                }
                 excessPictureUrls.add(searchPictureUrlRecent(prefixName));
             }
             if(excessPictureUrls.isEmpty()){
