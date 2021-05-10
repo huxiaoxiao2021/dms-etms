@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -35,7 +34,6 @@ import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
-import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -57,14 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -218,7 +209,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         /**PDA抽检来源,赋值图片**/
         if (SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(spotCheckData.getFromSource()) && CollectionUtils.isNotEmpty(spotCheckData.getUrls())) {
-           dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), ";"));
+           dto.setPictureAddress(StringUtils.join(spotCheckData.getUrls().toArray(), Constants.SEPARATOR_SEMICOLON));
         }
 
         BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(dto);
@@ -292,6 +283,14 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         return weightAndVolumeCheckService.searchExcessPictureOfB2b(packageCode,siteCode);
     }
 
+    /**
+     * FIX:
+     *      B网上传图片格式：B_JDK000000055923_910_1_202105061830
+     *      C网上传图片格式：JDK000000055923_910_202105061830
+     * @param image
+     * @param request
+     * @return
+     */
     @Override
     public com.jd.bluedragon.distribution.base.domain.InvokeResult uploadExcessPicture(MultipartFile image, HttpServletRequest request) {
 
@@ -317,7 +316,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 return result;
             }
             String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
-            imageName = waybillOrPackageCode + "_" + siteCode + "_" + type + "_" + operateTimeForm + "." + suffixName;
+            imageName =  Constants.SPOT_CHECK_B + Constants.UNDER_LINE + waybillOrPackageCode + Constants.UNDER_LINE + siteCode
+                    + Constants.UNDER_LINE + type + Constants.UNDER_LINE + operateTimeForm + "." + suffixName;
             //上传到jss
             weightAndVolumeCheckService.uploadExcessPicture(imageName,imageSize,image.getInputStream());
         }catch (Exception e){
@@ -370,20 +370,26 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         collectDto.setIsWaybillSpotCheck(spotCheckData.getIsWaybillSpotCheck());
         collectDto.setIsExcess(spotCheckData.getIsExcess());
         collectDto.setIsHasPicture(spotCheckData.getIsExcess());
+        // 默认B网
+        collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());
 
         if(spotCheckData.getIsWaybillSpotCheck() == 1){
             //运单维度
             collectDto.setReviewVolume(spotCheckData.getTotalVolume()*M3_TRANS_TO_CM3);
+            StringBuilder esPictureUrl = createESPictureUrl(spotCheckData.getWaybillCode(), spotCheckData.getCreateSiteCode());
+            collectDto.setPictureAddress(esPictureUrl.toString());
         }else{
             //包裹维度
             collectDto.setReviewVolume(spotCheckData.getTotalVolume());
+            StringBuilder finalEsPictureUrl = new StringBuilder();
+            for (SpotCheckData.packageData packageData : spotCheckData.getPackageDataList()) {
+                StringBuilder esPictureUrl = createESPictureUrl(packageData.getPackageCode(), spotCheckData.getCreateSiteCode());
+                finalEsPictureUrl.append(esPictureUrl).append(Constants.SEPARATOR_SEMICOLON);
+            }
+            collectDto.setPictureAddress(finalEsPictureUrl.toString());
         }
 
-        StringBuilder excessPictureUrl = new StringBuilder();
-        collectDto.setPictureAddress(StringHelper.getStringValue(excessPictureUrl));
-
         if(waybill != null){
-            collectDto.setSpotCheckType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
             collectDto.setBusiCode(waybill.getBusiId());
             collectDto.setBusiName(waybill.getBusiName());
             collectDto.setMerchantCode(waybill.getBusiOrderCode());
@@ -394,8 +400,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 //普通商家
                 collectDto.setIsTrustBusi(0);
             }
-        }else {
-            collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());//B网
         }
 
         String reviewErp = spotCheckData.getLoginErp();
@@ -446,7 +450,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
         List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
         abnormalResultMq.setDetailList(detailList);
-        StringBuilder excessPictureUrl = new StringBuilder();
 
         if(spotCheckData.getIsWaybillSpotCheck() == 1){
             //运单维度
@@ -458,7 +461,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 List<Map<String,String>> imgList = new ArrayList<>();
                 detail.setImgList(imgList);
                 detailList.add(detail);
-                getExcessPictureAddress(excessPictureUrl,imgList,spotCheckData.getWaybillCode(),spotCheckData.getCreateSiteCode());
+                dealIssuePictureUrl(imgList, spotCheckData.getWaybillCode(), spotCheckData.getCreateSiteCode());
+                // 大件上传图片特殊处理
+                specialDealWithPicture(imgList, dto);
             }
         }else{
             //包裹维度
@@ -473,7 +478,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                     List<Map<String, String>> imgList = new ArrayList<>();
                     spotCheckOfPackageDetail.setImgList(imgList);
                     detailList.add(spotCheckOfPackageDetail);
-                    getExcessPictureAddress(excessPictureUrl,imgList,packageData.getPackageCode(),spotCheckData.getCreateSiteCode());
+                    dealIssuePictureUrl(imgList, packageData.getPackageCode(), spotCheckData.getCreateSiteCode());
                 }
             }
         }
@@ -580,18 +585,47 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         return abnormalResultMq;
     }
 
-    private void getExcessPictureAddress(StringBuilder excessPictureUrl,List<Map<String, String>> imgList,
-                                         String waybillCode,Integer siteCode){
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult
-                = searchExcessPicture(waybillCode, siteCode);
+    /**
+     * 超标图片解析
+     * @param imgList
+     * @param dto
+     */
+    private void specialDealWithPicture(List<Map<String, String>> imgList, WeightVolumeCollectDto dto) {
+        try {
+            if(!SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(dto.getFromSource())
+                    || StringUtils.isEmpty(dto.getPictureAddress())) {
+                return;
+            }
+            for (String pictureUrl : dto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON)) {
+                Map<String, String> dimensionMap = new HashMap<>(1);
+                dimensionMap.put("url", pictureUrl);
+                imgList.add(dimensionMap);
+            }
+        }catch (Exception e){
+           log.error("解析大件超标图片异常!", e);
+        }
+    }
+
+    private void dealIssuePictureUrl(List<Map<String, String>> imgList, String waybillCode,Integer siteCode){
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult = searchExcessPicture(waybillCode, siteCode);
         if (invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())) {
             for (String url : invokeResult.getData()) {
                 Map<String, String> map = new LinkedHashMap<>();
                 map.put("url", url);
                 imgList.add(map);
-                excessPictureUrl.append(url).append(";");
             }
         }
+    }
+
+    private StringBuilder createESPictureUrl(String waybillCode, Integer siteCode){
+        StringBuilder stringBuilder = new StringBuilder();
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<List<String>> invokeResult = searchExcessPicture(waybillCode, siteCode);
+        if (invokeResult != null && !CollectionUtils.isEmpty(invokeResult.getData())) {
+            for (String url : invokeResult.getData()) {
+                stringBuilder.append(url).append(Constants.SEPARATOR_SEMICOLON);
+            }
+        }
+        return stringBuilder;
     }
 
     @Override
