@@ -1992,16 +1992,4 @@ public class BusinessUtil {
     public static boolean isNotB2B(String sendPay) {
         return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
     }
-
-    /**
-     * 是否专网标识
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isPrivateNetwork(String waybillSign){
-        if(StringUtils.isEmpty(waybillSign)){
-            return  false;
-        }
-        return BusinessUtil.isSignChar(waybillSign,135,'2');
-    }
 }
