@@ -100,6 +100,10 @@ public class GoodsLoadScanDao extends BaseDao<GoodsLoadScan> {
         }
         return result;
     }
+
+    public List<GoodsLoadScan> findWaybillInfoByIds(List<Long> idList) {
+        return super.getSqlSession().selectList(NAMESPACE + ".findWaybillInfoByIds", idList);
+    }
 }
 
 

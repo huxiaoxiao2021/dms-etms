@@ -90,4 +90,8 @@ public interface LoadScanService {
      */
     JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode);
 
+    /**
+     * 获取已验未发、未装车的运单明细
+     */
+    JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req);
 }

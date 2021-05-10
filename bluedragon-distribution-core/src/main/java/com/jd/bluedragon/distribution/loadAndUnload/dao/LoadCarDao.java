@@ -65,4 +65,7 @@ public class LoadCarDao extends BaseDao<LoadCar> {
         return this.getSqlSession().selectList(namespace + ".selectCreateUserErpByTaskId", taskId);
     }
 
+    public List<Long> getIdsByCondition(LoadCar loadCar) {
+        return this.getSqlSession().selectList(namespace + ".getIdsByCondition", loadCar);
+    }
 }

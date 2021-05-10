@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.loadAndUnload;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: bluedragon-distribution
@@ -87,6 +88,8 @@ public class LoadCar extends DbEntity {
      */
     private Double volume;
 
+
+    private List<Integer> statusList;
 
     public LoadCar() {
     }
@@ -211,5 +214,13 @@ public class LoadCar extends DbEntity {
 
     public void setVolume(Double volume) {
         this.volume = volume;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 }
