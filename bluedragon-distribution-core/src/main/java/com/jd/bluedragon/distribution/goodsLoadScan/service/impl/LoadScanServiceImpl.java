@@ -2183,7 +2183,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                         continue;
                     }
                 }
-                //未装齐：已装数小于库存数
             }
             resDtoList.add(dtoTemp);
             //只取200个
