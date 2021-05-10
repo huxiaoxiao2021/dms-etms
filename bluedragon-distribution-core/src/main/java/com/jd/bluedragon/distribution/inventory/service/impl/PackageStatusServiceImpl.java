@@ -437,13 +437,13 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             siteWithDirection.setDirectionName(dto.getSiteName());
             //todo zcf test log  UAT可保留做数据验证，上线需删除
             log.info("PackageStatusServiceImpl.getDirectionBySiteCode----parameter=【{}】,result=【{}】", siteCode, JsonHelper.toJson(dto));
-//            if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
-//                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);
-//                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_TERMINAL_SITE);
-//            }else if(BusinessUtil.isConvey(dto.getSiteType())){
-//                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_CONVEY);
-//                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_CONVEY);
-//            }
+            if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
+                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);
+                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_TERMINAL_SITE);
+            }else if(BusinessUtil.isConvey(dto.getSiteType())){
+                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_CONVEY);
+                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_CONVEY);
+            }
             return siteWithDirection;
         }
         return null;
