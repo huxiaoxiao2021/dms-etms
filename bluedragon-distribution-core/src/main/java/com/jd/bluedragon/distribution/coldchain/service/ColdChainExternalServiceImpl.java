@@ -108,8 +108,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         boolean isBox = BusinessUtil.isBoxcode(vo.getBarCode());
         boolean isWaybill = !BusinessUtil.isBoxcode(vo.getBarCode()) && WaybillUtil.isWaybillCode(vo.getBarCode());
         boolean isPack = WaybillUtil.isPackageCode(vo.getBarCode());
-        if(!(isBox || isWaybill || isPack)){
-            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确条码");
+        //本次仅支持运单
+        if(!(isWaybill)){
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号");
             result.getData().setForced(true);
             return result;
         }
@@ -130,7 +131,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             JdResponse storageResp = inspectionService.getStorageCode(vo.getBarCode(),vo.getOperateSiteCode());
             if(storageResp.isSucceed()){
                 if(storageResp.getData()!= null){
-                    BeanUtils.copyProperties(storageResp,inspectionCheckResult);
+                    BeanUtils.copyProperties(storageResp.getData(),inspectionCheckResult);
                 }
             }else{
                 result.customMessage(storageResp.getCode(),storageResp.getMessage());
@@ -140,17 +141,22 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
             //包装耗材
             com.jd.ql.dms.common.domain.JdResponse<Boolean> packingConsumableResp = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
-            if(!(packingConsumableResp.isSucceed() && packingConsumableResp.getData())){
-                result.customMessage(packingConsumableResp.getCode(),packingConsumableResp.getMessage());
-                result.getData().setForced(true);
+            //超级恶心的返回值 如果是400 和 500 就不需要处理了，200和 201提示
+            if(!JdResponse.CODE_FAIL.equals(packingConsumableResp.getCode()) && !JdResponse.CODE_ERROR.equals(packingConsumableResp.getCode())){
+                result.customMessage(JdResponse.CODE_FAIL,packingConsumableResp.getMessage());
+                result.getData().setWeak(true);
                 return result;
             }
 
             //暂存校验
             com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> storagePResp =  storagePackageMService.checkIsNeedStorage(vo.getBarCode(), vo.getOperateSiteCode());
-            if(!(storagePResp.codeSuccess() && packingConsumableResp.getData())){
-                result.customMessage(packingConsumableResp.getCode(),storagePResp.getMessage());
-                result.getData().setForced(true);
+            if(!storagePResp.codeSuccess()){
+                result.customMessage(JdResponse.CODE_FAIL,storagePResp.getMessage());
+                if(storagePResp.getData()){
+                    result.getData().setWeak(true);
+                }else{
+                    result.getData().setForced(true);
+                }
                 return result;
             }
         }
@@ -207,8 +213,10 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         boolean isBox = BusinessUtil.isBoxcode(vo.getBoxCode());
         boolean isWaybill = !BusinessUtil.isBoxcode(vo.getBoxCode()) && WaybillUtil.isWaybillCode(vo.getBoxCode());
         boolean isPack = WaybillUtil.isPackageCode(vo.getBoxCode());
-        if(!(isBox || isWaybill || isPack)){
-            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确条码");
+        //本次仅支持运单
+        if(!(isWaybill)){
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号");
+            result.getData().setForced(true);
             return result;
         }
 
@@ -308,8 +316,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         boolean isBox = BusinessUtil.isBoxcode(vo.getBoxCode());
         boolean isWaybill = !BusinessUtil.isBoxcode(vo.getBoxCode()) && WaybillUtil.isWaybillCode(vo.getBoxCode());
         boolean isPack = WaybillUtil.isPackageCode(vo.getBoxCode());
-        if(!(isBox || isWaybill || isPack)){
-            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确条码");
+        //本次仅支持运单
+        if(!(isWaybill)){
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号");
             result.getData().setForced(true);
             return result;
         }

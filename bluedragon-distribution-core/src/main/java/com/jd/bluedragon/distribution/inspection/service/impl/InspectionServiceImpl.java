@@ -922,8 +922,8 @@ public class InspectionServiceImpl implements InspectionService {
             }
         }catch (Exception e){
             log.error("校验运单号【{}】是否绑定集包袋异常",waybillCode,e);
+			return false;
         }
-        return true;
     }
 
     @Override
