@@ -201,6 +201,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     public SummaryPrintESResultResponse batchSummaryPrintQueryByES(PrintQueryCriteria criteria) {
         long startTime = System.currentTimeMillis();
         SummaryPrintESResultResponse response = new SummaryPrintESResultResponse();
+        response.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         // 查询当前站点是否走ES查询
         if(!checkGoESQuery(criteria.getSiteCode())){
             // 自定义编码10000表示：走老查询（非ES查询）
@@ -209,7 +210,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             return response;
         }
         List<com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult> list = new ArrayList<>();
-        response.setData(list);
         try {
             list = printHandoverListManager.batchSummaryPrintHandOverListByQueryCondition(convertToPrintHandoverListQueryCondition(criteria, false));
             if(CollectionUtils.isEmpty(list)){
@@ -222,6 +222,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             response.setCode(InvokeResult.SERVER_ERROR_CODE);
             response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
+        response.setData(list);
         if(log.isInfoEnabled()){
             log.info("发货交接清单汇总查询耗时：{}", System.currentTimeMillis() - startTime);
         }

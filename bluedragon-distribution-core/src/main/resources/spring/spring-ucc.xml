@@ -106,6 +106,8 @@
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
 		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
 		<property name="unSealCarHandlePackageFullCollectedSwitch" value="${unSealCarHandlePackageFullCollectedSwitch:-1}"/> <!-- 解封车查看运单包裹是否集齐 -->
+		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
+
 
 	</bean>
 
@@ -180,10 +182,11 @@
 				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
-				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
+				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
+				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 			</list>
 		</property>
 	</bean>

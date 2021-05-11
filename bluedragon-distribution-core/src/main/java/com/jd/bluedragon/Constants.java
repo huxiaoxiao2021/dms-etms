@@ -1380,6 +1380,11 @@ public class Constants {
     public static final String UNDER_LINE = "_";
 
     /**
+     * B网抽检图片前缀标识：B
+     */
+    public static final String SPOT_CHECK_B = "B";
+
+    /**
      * 众邮称重拦截缓存-生效时间  5分钟的秒数
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;

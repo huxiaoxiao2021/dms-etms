@@ -122,7 +122,7 @@ public class FWaybillFilter implements Filter {
 				return null;
 			}
 
-			logger.info("运单号【{}】调用根据运单号获取运单包裹信息接口成功", waybillCode);
+			logger.info("快生根据运单号获取运单包裹信息接口成功. 运单号【{}】", waybillCode);
 			return waybill.getPaymentType();
 
 		} catch (Exception e) {

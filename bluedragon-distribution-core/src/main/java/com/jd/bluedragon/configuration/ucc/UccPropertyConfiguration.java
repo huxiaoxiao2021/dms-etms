@@ -333,6 +333,11 @@ public class UccPropertyConfiguration {
      */
     private String unSealCarHandlePackageFullCollectedSwitch;
 
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -918,5 +923,13 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
     }
 }

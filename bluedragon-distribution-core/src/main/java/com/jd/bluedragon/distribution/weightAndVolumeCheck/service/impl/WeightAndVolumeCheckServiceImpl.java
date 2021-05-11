@@ -18,10 +18,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.CheckExcessParam;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.ExportWeightVolumeCollectDto;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.StandardDto;
@@ -37,7 +33,7 @@ import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.JingdongStorageService;
 import com.jd.jss.client.Request;
@@ -276,59 +272,66 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     /**
      * 查看超标图片
-     * @param prefixName 图片名前缀
+     * @param barCode 单号
      * @param siteCode 站点id
      * @return
      */
     @Override
-    public InvokeResult<String> searchExcessPicture(String prefixName,Integer siteCode) {
+    public InvokeResult<String> searchExcessPicture(String barCode,Integer siteCode) {
 
         InvokeResult<String> result = new InvokeResult<String>();
         try{
-            List<String> urls = getPictureUrl(prefixName);
+            String prefixName = barCode + Constants.UNDERLINE_FILL +siteCode + Constants.UNDERLINE_FILL;
             //获取最近的对应的图片并返回
-            String excessPictureUrl = getRecentUrl(urls,siteCode);
-            if("".equals(excessPictureUrl)){
+            String excessPictureUrl = searchPictureUrlRecent(prefixName);
+            if(StringUtils.isEmpty(excessPictureUrl)){
                 result.parameterError("图片未上传!"+prefixName);
                 return result;
             }
             result.setData(excessPictureUrl);
         }catch (Exception e){
-            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
-            result.parameterError("查看图片失败!"+prefixName);
+            log.error("根据单号{}站点{}获取图片链接失败!", barCode, siteCode, e);
+            result.parameterError("查看图片失败!"+ barCode);
         }
         return result;
     }
 
     @Override
-    public InvokeResult<List<String>> searchExcessPictureOfB2b(String prefixName, Integer siteCode) {
+    public InvokeResult<List<String>> searchExcessPictureOfB2b(String barCode, Integer siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<>();
         try {
-            List<String> urls = getPictureUrl(prefixName);
-            List<String> excessPictureUrls = getAllTypePictureUrl(urls,siteCode);
+            List<String> excessPictureUrls = new ArrayList<>(5);
+            for (SpotCheckPictureDimensionEnum value : SpotCheckPictureDimensionEnum.values()) {
+                String prefixName = Constants.SPOT_CHECK_B + Constants.UNDER_LINE + barCode + Constants.UNDER_LINE + siteCode
+                        + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                if(StringUtils.isEmpty(searchPictureUrlRecent(prefixName))){
+                    // 兼容之前的逻辑（之前上传的图片名称：JDV000690914941_910_1_20210508142931）
+                    prefixName = barCode + Constants.UNDER_LINE + siteCode
+                            + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                }
+                String pictureUrlRecent = searchPictureUrlRecent(prefixName);
+                if(!StringUtils.isEmpty(pictureUrlRecent)){
+                    excessPictureUrls.add(pictureUrlRecent);
+                }
+            }
             if(excessPictureUrls.isEmpty()){
-                result.parameterError("图片未上传!"+prefixName);
+                result.parameterError(String.format("单号%s站点%s的图片未上传!", barCode ,siteCode));
                 return result;
             }
             result.setData(excessPictureUrls);
         }catch (Exception e){
-            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
-            result.parameterError("查看图片失败!"+prefixName);
+            log.error("{}|{}获取图片链接失败!", barCode, siteCode, e);
+            result.parameterError(String.format("查看单号%s站点%s的图片失败!", barCode ,siteCode));
         }
 
         return result;
     }
 
-    /**
-     * 获取所有单号前缀的图片链接
-     * @param prefixName
-     * @return
-     */
-    private List<String> getPictureUrl(String prefixName){
-        List<String> urls = new ArrayList<>();
+    @Override
+    public String searchPictureUrlRecent(String prefixName) {
         ObjectListing objectListing = listObject(prefixName, null, 100);
-        if(objectListing != null && objectListing.getObjectSummaries() != null &&
-                !objectListing.getObjectSummaries().isEmpty()){
+        if(objectListing != null && CollectionUtils.isNotEmpty(objectListing.getObjectSummaries())){
+            List<String> pictureUrlList = new ArrayList<>(3);
             for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
                 URI uri = getURI(objectSummary.getKey());
                 if(uri != null){
@@ -336,125 +339,51 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     //将内部访问域名替换成外部访问域名
                     uriString = uriString.replaceAll(STORAGE_DOMAIN_LOCAL,STORAGE_DOMAIN_COM);
                     uri = URI.create(uriString);
-                    if(uri != null){
-                        urls.add(uri.toString());
-                    }
+                    pictureUrlList.add(uri.toString());
                 }
             }
+            return findRecentUrl(prefixName, pictureUrlList);
         }
-        return urls;
+        return Constants.EMPTY_FILL;
     }
 
     /**
-     * 获取5种类型图片链接
-     * @param urls
-     * @param siteCode
+     * 获取最近上传的图片链接
+     * @param prefixName
+     * @param pictureUrlList
      * @return
      */
-    private List<String> getAllTypePictureUrl(List<String> urls, Integer siteCode) {
-        List<String> list = new ArrayList<>();
-        Map<String,Long> map1 = new HashMap<>();
-        Map<String,Long> map2 = new HashMap<>();
-        Map<String,Long> map3 = new HashMap<>();
-        Map<String,Long> map4 = new HashMap<>();
-        Map<String,Long> map5 = new HashMap<>();
-        for(String url : urls){
-            String[] packageCodeAndOperateTimes = getArrayByUrl(url);
-            String createSiteCode = packageCodeAndOperateTimes[1];
-            //图片类型 1:重量 2:长 3:宽 4:高 5:面单
-            Integer type = Integer.valueOf(packageCodeAndOperateTimes[2]);
-            String operateTime = packageCodeAndOperateTimes[3];
-            if(packageCodeAndOperateTimes.length != 4 || !siteCode.equals(Integer.valueOf(createSiteCode))){
-                break;
-            }
-            if(type == 1){
-                map1.put(url,Long.parseLong(operateTime));
-            }else if(type == 2){
-                map2.put(url,Long.parseLong(operateTime));
-            }else if(type == 3){
-                map3.put(url,Long.parseLong(operateTime));
-            }else if(type == 4){
-                map4.put(url,Long.parseLong(operateTime));
-            }else if(type == 5){
-                map5.put(url,Long.parseLong(operateTime));
-            }
+    private String findRecentUrl(String prefixName, List<String> pictureUrlList) {
+        if(CollectionUtils.isEmpty(pictureUrlList)){
+            return Constants.EMPTY_FILL;
         }
-        list.add(getRecentUrlOfB2b(map1));
-        list.add(getRecentUrlOfB2b(map2));
-        list.add(getRecentUrlOfB2b(map3));
-        list.add(getRecentUrlOfB2b(map4));
-        list.add(getRecentUrlOfB2b(map5));
-
-        return list;
+        // key：时间，value：url
+        Map<String,String> map = new HashMap<>(3);
+        for (String pictureUrl : pictureUrlList) {
+            map.put(getOperateTimeByUrl(prefixName, pictureUrl), pictureUrl);
+        }
+        if(map.size() == Constants.NUMBER_ZERO){
+            return Constants.EMPTY_FILL;
+        }
+        List<String> list = new ArrayList<>(map.keySet());
+        Collections.sort(list);
+        String recentPictureTime = list.get(list.size() - Constants.CONSTANT_NUMBER_ONE);
+        return map.get(recentPictureTime);
     }
 
-    private String getRecentUrlOfB2b(Map<String,Long> map){
-        String recentUrl = "";
-        Object[] objects = map.values().toArray();
-        Arrays.sort(objects);
-        for(String url : map.keySet()){
-            if(map.get(url) == objects[objects.length-1]){
-                return url;
-            }
-        }
-        return recentUrl;
-    }
-
-    private String getRecentUrl(List<String> urls,Integer siteCode){
-        String recentUrl = "";
-        try{
-            if(urls.size() == 0){
-                return recentUrl;
-            }else if(urls.size() == 1){
-                String[] packageCodeAndOperateTimes = getArrayByUrl(urls.get(0));
-                if(packageCodeAndOperateTimes.length == 3){
-                    return urls.get(0);
-                }
-                return recentUrl;
-            }else{
-
-                Map<String,Long> map = new HashMap<>();
-                for(String url : urls){
-                    String[] packageCodeAndOperateTimes = getArrayByUrl(url);
-                    String operateTime = "";
-                    if(packageCodeAndOperateTimes.length == 3){
-                        String siteCodeFromOSS = packageCodeAndOperateTimes[1];
-                        if(siteCodeFromOSS.equals(siteCode.toString())){
-                            operateTime = packageCodeAndOperateTimes[packageCodeAndOperateTimes.length - 1];
-                        }
-                    }else{
-                        break;
-                    }
-                    if(!"".equals(operateTime)){
-                        long l = Long.parseLong(operateTime);
-                        map.put(url,l);
-                    }
-                }
-                Object[] objects = map.values().toArray();
-                Arrays.sort(objects);
-                for(String url : map.keySet()){
-                    if(map.get(url) == objects[objects.length-1]){
-                        recentUrl = url;
-                        break;
-                    }
-                }
-                return recentUrl;
-            }
-        }catch (Exception e){
-            log.error("获取图片路径异常!");
-            return recentUrl;
-        }
-
-    }
-
-    private String[]  getArrayByUrl(String url) {
-        String[] splits = url.split("/");
-        String pictureName = splits[splits.length - 1];
+    /**
+     * 获取图片链接中的时间
+     * @param prefixName
+     * @param pictureUrl
+     * @return
+     */
+    private String getOperateTimeByUrl(String prefixName, String pictureUrl) {
+        String[] splits = pictureUrl.split("/");
+        String pictureName = splits[splits.length - Constants.CONSTANT_NUMBER_ONE];
         String[] pictureNames = pictureName.split("\\.");
-        String pictureNamePrefix = pictureNames[0];
-        return pictureNamePrefix.split("_");
+        String pictureNamePrefix = pictureNames[Constants.NUMBER_ZERO];
+        return pictureNamePrefix.replace(prefixName, Constants.EMPTY_FILL);
     }
-
 
     /**
      * 发消息并更新es

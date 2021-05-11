@@ -8,10 +8,12 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferServiceImpl;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumer.reverse.PickWareConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.flow.handler.PrintHandoverApprovePostHandlerTest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
@@ -29,8 +31,11 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.record.formula.functions.T;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
@@ -43,6 +48,8 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
 public class ReverseTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ReverseTest.class);
 
     @Autowired
     private ReverseSendService reverseSendService;
@@ -111,8 +118,18 @@ public class ReverseTest {
 
     @Test
     public void getExcessPicture(){
-
-        weightAndVolumeCheckService.searchExcessPicture("JDVB00000516204",910);
+        try {
+            InvokeResult<String> pictureUrlC = weightAndVolumeCheckService.searchExcessPicture("JDK000000055923", 910);
+            System.out.println(pictureUrlC.getData());
+            InvokeResult<List<String>> pictureUrlBList = weightAndVolumeCheckService.searchExcessPictureOfB2b("JDK000000055923", 910);
+            for (String datum : pictureUrlBList.getData()) {
+                System.out.println(datum);
+            }
+            Assert.assertTrue(true);
+        }catch (Exception e){
+            logger.error("服务异常!", e);
+            Assert.fail();
+        }
     }
 
 

@@ -280,8 +280,9 @@ $(function () {
                 },
                 'click .search': function(e, value, row, index) {
                     var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
+                    var fromSource = row.fromSource;
                     var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.isWaybillSpotCheck;
-                    if(spotCheckType == 1){
+                    if(spotCheckType == 1 && fromSource == "SPOT_CHECK_DMS_WEB"){
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
                             +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
