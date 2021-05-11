@@ -351,6 +351,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         for (String pictureUrl : pictureUrlList) {
             map.put(getOperateTimeByUrl(prefixName, pictureUrl), pictureUrl);
         }
+        if(map.size() == Constants.NUMBER_ZERO){
+            return Constants.EMPTY_FILL;
+        }
         List<String> list = new ArrayList<>(map.keySet());
         Collections.sort(list);
         String recentPictureTime = list.get(list.size() - Constants.CONSTANT_NUMBER_ONE);

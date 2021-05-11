@@ -592,14 +592,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      */
     private void specialDealWithPicture(List<Map<String, String>> imgList, WeightVolumeCollectDto dto) {
         try {
-            if(!SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(dto.getFromSource())
-                    || StringUtils.isEmpty(dto.getPictureAddress())) {
-                return;
-            }
-            for (String pictureUrl : dto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON)) {
-                Map<String, String> dimensionMap = new HashMap<>(1);
-                dimensionMap.put("url", pictureUrl);
-                imgList.add(dimensionMap);
+            if(SpotCheckSourceEnum.SPOT_CHECK_ANDROID.name().equals(dto.getFromSource()) && !StringUtils.isEmpty(dto.getPictureAddress())) {
+                for (String pictureUrl : dto.getPictureAddress().split(Constants.SEPARATOR_SEMICOLON)) {
+                    Map<String, String> dimensionMap = new HashMap<>(1);
+                    dimensionMap.put("url", pictureUrl);
+                    imgList.add(dimensionMap);
+                }
             }
         }catch (Exception e){
            log.error("解析大件超标图片异常!", e);
