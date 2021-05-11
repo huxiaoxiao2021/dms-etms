@@ -67,6 +67,6 @@ public class GoodsLoadScanConstants {
     /**
      * 待装车库存查询时间范围  小时
      */
-    public static final Integer WAIT_LOAD_RANGE_FROM_HOURS = 15 * 24;
+    public static final Integer WAIT_LOAD_RANGE_FROM_HOURS = 3 * 24;
 
 }
