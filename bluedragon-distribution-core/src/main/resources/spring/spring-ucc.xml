@@ -105,6 +105,7 @@
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
+		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
 
 
 	</bean>
@@ -181,7 +182,7 @@
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
-
+				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 			</list>
 		</property>
 	</bean>
