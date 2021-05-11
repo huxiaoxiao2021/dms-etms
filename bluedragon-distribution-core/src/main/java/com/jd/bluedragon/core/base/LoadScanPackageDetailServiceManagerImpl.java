@@ -36,8 +36,8 @@ public class LoadScanPackageDetailServiceManagerImpl implements LoadScanPackageD
     @Override
     public JdCResponse<List<LoadScanDto>> getInspectNoSendWaybillInfo(LoadCar loadCar, List<String> waybillCodeList) {
         JdCResponse<List<LoadScanDto>> res = new JdCResponse<>();
+        LoadScanReqDto loadScanReqDto = new LoadScanReqDto();
         try {
-            LoadScanReqDto loadScanReqDto = new LoadScanReqDto();
             loadScanReqDto.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
             loadScanReqDto.setNextSiteId(loadCar.getEndSiteCode().intValue());
             Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
@@ -59,7 +59,7 @@ public class LoadScanPackageDetailServiceManagerImpl implements LoadScanPackageD
             return res;
 
         }catch (Exception e) {
-            log.error("", e);
+            log.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--调用分拣报表查询已验未发jsf异常--，参数=【{}】", JsonHelper.toJson(loadScanReqDto), e);
             res.toFail("JSF调用失败");
             return res;
         }
