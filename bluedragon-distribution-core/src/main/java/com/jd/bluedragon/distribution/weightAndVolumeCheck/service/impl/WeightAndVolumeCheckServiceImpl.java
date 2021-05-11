@@ -301,7 +301,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     prefixName = barCode + Constants.UNDER_LINE + siteCode
                             + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
                 }
-                excessPictureUrls.add(searchPictureUrlRecent(prefixName));
+                String pictureUrlRecent = searchPictureUrlRecent(prefixName);
+                if(!StringUtils.isEmpty(pictureUrlRecent)){
+                    excessPictureUrls.add(pictureUrlRecent);
+                }
             }
             if(excessPictureUrls.isEmpty()){
                 result.parameterError(String.format("单号%s站点%s的图片未上传!", barCode ,siteCode));
