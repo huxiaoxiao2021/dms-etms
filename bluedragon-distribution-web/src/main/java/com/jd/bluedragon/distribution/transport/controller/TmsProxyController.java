@@ -91,9 +91,9 @@ public class TmsProxyController extends DmsBaseController{
     public @ResponseBody
     PagerResult<TransBookBillDto> listData(@RequestBody TmsProxyCondition condition) {
         PagerResult<TransBookBillDto> result = new PagerResult<TransBookBillDto>();
+        TransBookBillQueryDto queryDto = new TransBookBillQueryDto();
         try {
-            TransBookBillQueryDto queryDto = convertQueryDto(condition);
-
+            queryDto = convertQueryDto(condition);
             CommonDto<PageDto<TransBookBillResultDto>> resultDtoPageDto = newsealVehicleService.getTransBookBill(queryDto, convertPageDto(condition));
             if(log.isDebugEnabled()){
                 log.debug("运输委托书查询结果：{}", JsonHelper.toJson(resultDtoPageDto));
@@ -104,10 +104,10 @@ public class TmsProxyController extends DmsBaseController{
                     result.setRows(dealResult(resultDtoPageDto.getData().getResult()));
                 }
             }else{
-                log.warn("运输委托书查询失败：{}", JsonHelper.toJson(resultDtoPageDto));
+                log.warn("运输委托书查询失败：：{} , {}", JsonHelper.toJson(queryDto) , JsonHelper.toJson(resultDtoPageDto));
             }
         }catch (Exception e){
-            log.error("运输委托书查询失败：{}", JsonHelper.toJson(condition), e);
+            log.error("运输委托书查询失败：{} , {}", JsonHelper.toJson(queryDto) , JsonHelper.toJson(condition), e);
         }
         return result;
     }
