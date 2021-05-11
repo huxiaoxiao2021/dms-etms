@@ -594,6 +594,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
+        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+
+        //任务创建时间变更为第一个包裹的扫描时间
+        if(CollectionUtils.isEmpty(unloadScanRecordDao.findRecordBySealCarCode(request.getSealCarCode()))) {
+            UnloadCar uc = new UnloadCar();
+            Date currTime = new Date();
+            uc.setStartTime(currTime);
+            uc.setUpdateTime(currTime);
+            uc.setUpdateUserErp(request.getOperateUserErp());
+            uc.setUpdateUserName(request.getOperateUserName());
+            uc.setSealCarCode(request.getSealCarCode());
+            if(unloadCarDao.updateStartTime(uc) < 1) {
+                if(logger.isInfoEnabled()) {
+                    logger.error("UnloadCarServiceImpl.packageCodeScanNew--error--首次扫描包裹时修改任务开始时间失败--参数=【{}】", JsonHelper.toJson(uc));
+                }
+                dtoInvokeResult.customMessage(JdCResponse.CODE_FAIL, "当前任务下首次扫描包裹时修改该任务开始时间失败，本次扫描未成功");
+                return dtoInvokeResult;
+            }
+        }
         //流水线模式：只验货不组板
         if(Constants.ASSEMBLY_LINE_TYPE.equals(request.getType())){
             return assemblyLineScan(request);
@@ -609,7 +628,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (logger.isDebugEnabled()) {
             logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
         }
-        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
@@ -685,6 +703,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             //返回组板 单/件数量
             setBoardCount(dtoInvokeResult, currentBoardCode);
+
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -1252,6 +1271,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             waybillInspectSuccessAfter(request, packageList.size(), surplusPackages);
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), invokeResult, request.getSealCarCode());
+            invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         } catch (LoadIllegalException e) {
             logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
@@ -1264,7 +1284,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 释放锁
             unLock(sealCarCode, waybillCode);
         }
-        invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+
         return invokeResult;
     }
 
@@ -2366,7 +2386,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
-        Date updateTime = DateHelper.parseDate(unloadCarTaskReq.getOperateTime());
+        Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
