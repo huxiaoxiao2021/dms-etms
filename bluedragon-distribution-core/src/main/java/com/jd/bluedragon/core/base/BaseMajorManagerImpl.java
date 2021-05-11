@@ -18,7 +18,6 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.partner.waybill.api.dto.response.ResultData;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
