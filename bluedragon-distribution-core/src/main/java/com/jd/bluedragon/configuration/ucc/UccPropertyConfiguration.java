@@ -328,6 +328,11 @@ public class UccPropertyConfiguration {
      */
     private boolean checkSiteSubType;
 
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -887,5 +892,13 @@ public class UccPropertyConfiguration {
 
     public void setCheckSiteSubType(boolean checkSiteSubType) {
         this.checkSiteSubType = checkSiteSubType;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
     }
 }
