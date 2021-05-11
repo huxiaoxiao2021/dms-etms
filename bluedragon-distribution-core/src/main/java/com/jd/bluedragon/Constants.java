@@ -103,6 +103,12 @@ public class Constants {
     public static final int B2B_SITE_TYPE = 6420;
 
     /**
+     * 集配站编号
+     */
+    public static final Integer JI_PEI_CODE_9605 = 9605;
+//    后续增加城配的时候再使用，此次增加没有意义.
+//    public static final Integer CHENGPEI_CODE_9606 = 9606;
+    /**
      * B冷链转运中心站点类型
      */
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
@@ -260,10 +266,10 @@ public class Constants {
      */
     public static final Integer SENDUSERTYEP_DRIVER = 1;
     public static final Integer SENDUSERTYEP_CARRIER = 0;
-    
+
     public static final String DEFAULT_OWN_SIGN_KEY = "ownSign";
     public static final String DEFAULT_OWN_SIGN_VALUE = "DMS";
-    
+
     /**
      * 基础资料默认分拣中心所属类型
      */
@@ -273,7 +279,7 @@ public class Constants {
      * 财务专用
      */
     public static final Integer FINANCIAL_SPECIAL_SITE_TYPE = 98;
-    
+
     /**
      * POP订单类型
      */
@@ -282,11 +288,11 @@ public class Constants {
     public static final Integer POP_LBP = 23;
     public static final Integer POP_SOPL = 25;
     public static final Integer ORDER_TYPE_B = 10000;
-    
+
     public static final Integer POP_SOP_EMS_CODE = 999999999;
     public static final String POP_SOP_EMS_NAME = "EMS全国直发";
 
-    
+
     /**
      * POP收货类型
      */
@@ -295,7 +301,7 @@ public class Constants {
     public static final Integer POP_QUEUE_DRIVER = 3;
     public static final Integer POP_QUEUE_SITE = 4;
     public static final Integer POP_QUEUE_PICKUP = 5;
-    
+
     /**
 	 * 打印包裹
 	 */
@@ -304,12 +310,12 @@ public class Constants {
 	 * 打印发票
 	 */
 	public static final Integer PRINT_INVOICE_TYPE = 2;
-    
+
     /**
      * POP补全收货定义收货人
      */
     public static final String POP_RECEIVE_NAME = "分拣中心";
-    
+
     /******************* 订单查询参数中的加载明细参数,可以多个 start ******************/
     /**
      * 只加载订单信息
@@ -359,7 +365,7 @@ public class Constants {
      * 加载订单全部信息(已废弃)
      */
     public static final String QUAN_BU = "全部";
-    
+
     /**
      * 加载订单配送区域信息
      */
@@ -369,7 +375,7 @@ public class Constants {
      * 加载订单其他信息
      */
     public static final String OTHER = "其他";
-    
+
     /******************* 订单查询参数中的加载明细参数,可以多个 end ******************/
 
     /******************* redis 相关   ******************/
@@ -377,7 +383,7 @@ public class Constants {
      * 整体task mode key
      */
 	public static final String TASK_MODE_KEY = "task.mode.key";
-	 
+
     /**
      * 本地缓存默认失效时间
      */
@@ -446,7 +452,7 @@ public class Constants {
      * 省市县镇默认值
      */
     public static final Integer DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE=0;
-    
+
     //运力编码京东自营 -1
     public static final String JDZY = "-1";
 
@@ -787,7 +793,7 @@ public class Constants {
     /**
 	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
 	  */
-    public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";    
+    public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
@@ -864,7 +870,7 @@ public class Constants {
     /**
      * 字典名称-包裹标签打印字典配置标识
      */
-    public static final String DIC_NAME_PACKAGE_PRINT_DIC_CONFIG = "PackagePrintDic";  
+    public static final String DIC_NAME_PACKAGE_PRINT_DIC_CONFIG = "PackagePrintDic";
     /**
      * 字典名称-包裹标签打印字典-Product
      */
@@ -1378,11 +1384,6 @@ public class Constants {
     public static final String STR_ALL = "ALL";
 
     public static final String UNDER_LINE = "_";
-
-    /**
-     * B网抽检图片前缀标识：B
-     */
-    public static final String SPOT_CHECK_B = "B";
 
     /**
      * 众邮称重拦截缓存-生效时间  5分钟的秒数
