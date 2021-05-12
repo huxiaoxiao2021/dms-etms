@@ -10,8 +10,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.jmq.common.message.Message;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,8 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
     private PrintHandoverListManager printHandoverListManager;
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DmsWorkSendDetailConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception{
+        CallerInfo info = Profiler.registerInfo("DmsWorkSendDetailConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
                 log.warn("发货明细消息MQDmsWorkSendDetail-消息体非JSON格式，内容为【{}】", message.getText());
@@ -63,8 +63,11 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
             }
             recordPrintHandoverListData(dto);
         }catch(Exception e){
+            Profiler.functionError(info);
             log.error("消费发货消息转换成BasicQueryEntity失败:"+message.getText(), e);
             throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
