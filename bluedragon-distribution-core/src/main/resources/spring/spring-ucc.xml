@@ -94,6 +94,7 @@
         <property name="BCContainWJNumberLimit" value="${BCContainWJNumberLimit}" />
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
+		<property name="usePdaSorterApi" value="${usePdaSorterApi:1}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
@@ -168,6 +169,7 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
+				<value>uccPropertyConfiguration.usePdaSorterApi</value>
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>

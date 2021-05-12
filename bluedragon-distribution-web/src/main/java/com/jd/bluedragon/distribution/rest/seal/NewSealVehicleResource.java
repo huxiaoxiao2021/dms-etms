@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
+import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
@@ -36,6 +37,7 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
+import com.jd.tms.workbench.dto.TransWorkItemSimpleDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.map.HashedMap;
@@ -115,6 +117,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+    
+    @Autowired
+    private TmsServiceManager tmsServiceManager;
 
     /**
      * 校验并获取运力编码信息
@@ -278,24 +283,24 @@ public class NewSealVehicleResource {
                 sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
             }
-            TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
-            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());
-            transWorkItemWsDto.setVehicleNumber(request.getVehicleNumber());
-            transWorkItemWsDto.setOperateUserCode(request.getUserErp());
-            transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());
-            com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> returnCommonDto = newsealVehicleService.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
-            if (returnCommonDto != null) {
-                if (Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null) {
-                    sealVehicleResponse = getVehicleNumBySimpleCode(returnCommonDto.getData().getTransWorkItemCode());
+            TransWorkItemSimpleDto transWorkItemSimpleDto = new TransWorkItemSimpleDto();
+            transWorkItemSimpleDto.setTransWorkItemCode(request.getTransWorkItemCode());
+            transWorkItemSimpleDto.setVehicleNumber(request.getVehicleNumber());
+            transWorkItemSimpleDto.setOperateUserCode(request.getUserErp());
+            transWorkItemSimpleDto.setOperateNodeCode(request.getDmsCode());
+            
+            JdResult<com.jd.tms.workbench.dto.TransWorkItemDto> rpcResult = tmsServiceManager.getTransWorkItemAndCheckParam(transWorkItemSimpleDto);
+            if (rpcResult != null) {
+                if (rpcResult.isSucceed() && rpcResult.getData() != null) {
+                    sealVehicleResponse = getVehicleNumBySimpleCode(rpcResult.getData().getTransWorkItemCode());
                     this.buildTransWorkItemBySimpleCode(sealVehicleResponse, request.getTransWorkItemCode());
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
-                    sealVehicleResponse.setTransWorkItemCode(returnCommonDto.getData().getTransWorkItemCode());
-                    sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
+                    sealVehicleResponse.setTransWorkItemCode(rpcResult.getData().getTransWorkItemCode());
+                    sealVehicleResponse.setVehicleNumber(rpcResult.getData().getVehicleNumber());
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
-                    sealVehicleResponse.setData(returnCommonDto.getData());
+                    sealVehicleResponse.setMessage("[" + rpcResult.getMessageCode() + ":" + rpcResult.getMessage() + "]");
                 }
             }
         } catch (Exception e) {

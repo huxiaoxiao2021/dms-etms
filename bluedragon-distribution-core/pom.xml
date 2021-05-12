@@ -40,6 +40,7 @@
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
+		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
 	</properties>
 
 	<dependencies>
@@ -557,7 +558,11 @@
             <artifactId>msg-sender-client-service</artifactId>
             <version>1.0.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.workbench</groupId>
+			<artifactId>tms-workbench-api</artifactId>
+			<version>${tms-workbench-api.version}</version>
+		</dependency>
 		<!-- Excel导出 -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
