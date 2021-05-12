@@ -203,7 +203,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         SummaryPrintESResultResponse response = new SummaryPrintESResultResponse();
         response.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         // 查询当前站点是否走ES查询
-        if(!checkGoESQuery(criteria.getSiteCode())){
+        if(!checkGoESQuery(criteria.getSiteCode()) && Objects.equals(BusinessHelper.getOwnSign(),"DMS")){
             // 自定义编码10000表示：走老查询（非ES查询）
             response.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
             response.setMessage("当前场地未开启新查询!（ES）");
