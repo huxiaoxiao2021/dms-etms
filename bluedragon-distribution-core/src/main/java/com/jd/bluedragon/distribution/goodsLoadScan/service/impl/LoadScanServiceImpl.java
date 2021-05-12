@@ -2186,7 +2186,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 }
             }
             //只取200个
-            if(CollectionUtils.isNotEmpty(resDtoList) && resDtoList.size() < 200) {
+            if( resDtoList.size() < 200) {
                 resDtoList.add(dtoTemp);
             }
             resCount++;
