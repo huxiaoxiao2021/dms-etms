@@ -1590,7 +1590,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //获取当前操作网点的信息，用于判断是否集配站或者分拣、城配等。后续迁移时需要考虑分拣发过来的封车信息是从运输取还是从分拣单独拉取数据。此次为了避免线上的影响非集配站的依然按照原逻辑获取。
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
             if (siteOrgDto == null) {
-                logger.error("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}]", createSiteCode);
+                logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
             }
             if(siteOrgDto != null && Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())){
                 logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
@@ -2180,8 +2180,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return false;
         }
         try {
+            Integer nextSiteCode = null;
+            CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+            if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+                unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+                unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+                nextSiteCode = sealCarDto.getData().getEndSiteId();
+            } else {
+                logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+                return false;
+            }
             // 通过工具类从批次号上截取目的场地ID
-            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
+//            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
             if (nextSiteCode == null) {
                 logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
                 return false;
@@ -2228,14 +2238,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
 
-        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
-        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
-            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
-            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
-        } else {
-            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
-            return false;
-        }
+//        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+//        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+//            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+//            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+//        } else {
+//            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+//            return false;
+//        }
         try {
             unloadCarDao.add(unloadCar);
         } catch (Exception e) {
