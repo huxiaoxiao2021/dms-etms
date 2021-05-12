@@ -13,12 +13,14 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -37,6 +39,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -90,6 +93,12 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private ColdChainSendService coldChainSendService;
+
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
 
     /**
      * 冷链验货校验
@@ -316,7 +325,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         }
 
         //发货
-        DeliveryResponse response = deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_LOAD_CAR_SEND);
+        DeliveryResponse response = deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_LOAD_CAR_SEND,Boolean.FALSE);
         if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(response.getCode())){
             if(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING.equals(response.getCode())
                     ||DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING.equals(response.getCode())){
@@ -457,6 +466,40 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
         return result;
 
+    }
+
+    /**
+     * 检查批次号是否已封车
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    public InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
+        result.success();
+
+        String sendCode = vo.getSendCode();
+        String transCode = vo.getTransPlanCode();
+        // 运输计划号存在时优先获取 对应的批次号
+        if(StringUtils.isNotBlank(transCode)){
+            ColdChainSend coldChainSend = coldChainSendService.getByTransCode(transCode);
+            if (coldChainSend != null && org.apache.commons.lang.StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
+                sendCode = coldChainSend.getSendCode();
+            }
+        }
+
+        if(StringUtils.isBlank(sendCode)){
+            //此时仍未获取到批次号直接返回
+            return result;
+        }
+
+        if(newSealVehicleService.checkSendCodeIsSealed(sendCode)){
+            result.setData(Boolean.FALSE);
+            result.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        }
+        return result;
     }
 
 

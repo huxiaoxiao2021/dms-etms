@@ -120,7 +120,7 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             this.log.info("冷链发货 - 开始:{}", JsonHelper.toJson(request));
         }
         try{
-            return deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_CHAIN_SEND);
+            return deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_CHAIN_SEND,Boolean.TRUE);
         } catch (Exception e) {
             log.error("B网冷链发货时发生异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);

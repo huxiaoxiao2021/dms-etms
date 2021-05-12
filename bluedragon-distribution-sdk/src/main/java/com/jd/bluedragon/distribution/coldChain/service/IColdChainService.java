@@ -57,4 +57,11 @@ public interface IColdChainService {
      */
     InvokeResult<Boolean> sendOfKY(SendOfKYVO vo);
 
+    /**
+     * 检查批次号是否已封车
+     * @param vo
+     * @return
+     */
+    InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
+
 }

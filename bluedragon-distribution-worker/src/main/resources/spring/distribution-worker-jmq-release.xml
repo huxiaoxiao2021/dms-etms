@@ -322,6 +322,19 @@
     <!--tms任务取消消费-->
     <jmq:consumer id="jmq.tmsVehicleJobCancelConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tmsVehicleJobCancel}" listener="tmsVehicleJobCancelConsumer"/>
-    </jmq:consumer>    
+    </jmq:consumer>
+
+    <!--冷链验货消费-->
+    <jmq:consumer id="jmq.coldChainInspectionConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.coldChainInspection}" listener="coldChainInspectionConsumer"/>
+    </jmq:consumer>
+    <!--冷链发货消费-->
+    <jmq:consumer id="jmq.coldChainSendConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.coldChainSend}" listener="coldChainSendConsumer"/>
+    </jmq:consumer>
+    <!--冷链快运发货消费-->
+    <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
+    </jmq:consumer>
 </beans>
 

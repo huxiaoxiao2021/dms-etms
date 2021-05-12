@@ -689,10 +689,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum) {
+    public DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum,boolean checkSealCar) {
         DeliveryResponse response;
 
-        response = this.coldChainSendCheckAndFixSendCode(request);
+        response = this.coldChainSendCheckAndFixSendCode(request,checkSealCar);
         if (response != null) {
             return response;
         }
@@ -721,7 +721,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return response;
     }
 
-    private DeliveryResponse coldChainSendCheckAndFixSendCode(List<ColdChainDeliveryRequest> request) {
+    private DeliveryResponse coldChainSendCheckAndFixSendCode(List<ColdChainDeliveryRequest> request,boolean checkSealCar) {
         if (request != null && !request.isEmpty()) {
             ColdChainDeliveryRequest request0 = request.get(0);
             if (StringUtils.isEmpty(request0.getTransPlanCode()) || request0.getBoxCode() == null || request0.getSiteCode() == null || request0.getReceiveSiteCode() == null || request0.getBusinessType() == null) {
@@ -729,7 +729,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             String sendCode = coldChainSendService.getOrGenerateSendCode(request0.getTransPlanCode(), request0.getSiteCode(), request0.getReceiveSiteCode());
             // 批次号封车校验，已封车不能发货
-            if (newSealVehicleService.checkSendCodeIsSealed(sendCode)) {
+            if (checkSealCar && newSealVehicleService.checkSendCodeIsSealed(sendCode)) {
                 return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
             }
             request0.setSendCode(sendCode);
@@ -2320,7 +2320,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         Collections.sort(sendMList);
         // 批次号封车校验，已封车不能发货
-        if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source)
+        if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source) && !SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND.equals(source)
+                && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)
         		&& newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
             return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
         }

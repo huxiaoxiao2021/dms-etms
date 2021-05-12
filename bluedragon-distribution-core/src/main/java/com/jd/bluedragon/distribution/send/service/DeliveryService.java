@@ -33,7 +33,7 @@ public interface DeliveryService {
 
     DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request,SendBizSourceEnum sourceEnum);
 
-    DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum);
+    DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum,boolean checkSealCar);
     /**
      * 有校验且有多次发货取消上次发货逻辑的一车一单发货
      *
