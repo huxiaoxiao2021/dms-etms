@@ -539,6 +539,12 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             // 勾选【包裹号转大宗】
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
+                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+                if(packageNum < 100){
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
+                    return response;
+                }
                 return loadScanService.saveLoadScanByWaybillCode(req, response, loadCar);
             }
         }
