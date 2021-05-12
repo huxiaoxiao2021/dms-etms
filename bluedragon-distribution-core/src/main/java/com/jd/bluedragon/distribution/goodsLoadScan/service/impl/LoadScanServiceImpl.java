@@ -2382,6 +2382,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         LoadScanDetailDto resData = new LoadScanDetailDto();
         List<GoodsDetailDto> resDtoList = new ArrayList<>();
         List<LoadScanDto> inventoryWaybillList = inventoryWaybillListRes.getData();
+        int resCount = 0;
         for(LoadScanDto lcd : inventoryWaybillList) {
             GoodsDetailDto dtoTemp = new GoodsDetailDto();
             dtoTemp.setWayBillCode(lcd.getWayBillCode());
@@ -2408,13 +2409,14 @@ public class LoadScanServiceImpl implements LoadScanService {
                     }
                 }
             }
-            resDtoList.add(dtoTemp);
             //只取200个
-            if(CollectionUtils.isNotEmpty(resDtoList) && resDtoList.size() >= 200) {
-                break;
+            if( resDtoList.size() < 200) {
+                resDtoList.add(dtoTemp);
             }
+            resCount++;
         }
         resData.setGoodsDetailDtoList(resDtoList);
+        resData.setWaybillNum(resCount);
         res.toSucceed("操作成功");
         res.setData(resData);
         return res;
