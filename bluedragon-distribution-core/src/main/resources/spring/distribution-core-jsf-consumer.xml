@@ -732,4 +732,9 @@
                   protocol="jsf" alias="${jsf.dmsWb.report.alias}" timeout="${jsf.dmsWb.report.timeout}" >
     </jsf:consumer>
 
+    <!--运输获取批次下包裹信息接口-->
+    <jsf:consumer id="dataCargoDetailWS" interface="com.jd.tms.data.ws.DataCargoDetailWS"
+                  protocol="jsf" alias="${jsf.dataSelectWS.alias}" timeout="${jsf.dataSelectWS.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
 </beans>
