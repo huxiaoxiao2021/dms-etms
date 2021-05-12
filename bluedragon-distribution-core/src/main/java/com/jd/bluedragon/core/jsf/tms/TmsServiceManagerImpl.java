@@ -175,7 +175,7 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
 	        		&& rest.isSuccess()
 	        		&& rest.getData() != null){
 	            result.setData(rest.getData());
-	            result.toSuccess();
+	            result.toSuccess(rest.getCode(),rest.getMessage());
 	        }else if(null != rest){
 				log.warn("调用tms封车校验失败！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
 				result.toFail(rest.getCode(),rest.getMessage());
@@ -206,7 +206,7 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
 	        		&& Constants.RESULT_SUCCESS == rest.getCode()
 	        		&& rest.getData() != null){
 	            result.setData(toTransWorkItemDto(rest.getData()));
-	            result.toSuccess();
+	            result.toSuccess(rest.getCode(),rest.getMessage());
 	        }else if(null != rest){
 				log.warn("调用tms封车校验失败！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
 				result.toFail(rest.getCode(),rest.getMessage());
