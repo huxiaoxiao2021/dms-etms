@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.half.domain.*;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,7 @@ public class PackageHalfController {
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/toIndex")
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".PackageHalfController.toIndex", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat })
 	public String toIndex() {
 		return "/half/packageHalf";
 	}
@@ -60,6 +63,7 @@ public class PackageHalfController {
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/detail/{id}")
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".PackageHalfController.detail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat })
 	public @ResponseBody JdResponse<PackageHalf> detail(@PathVariable("id") Long id) {
 		JdResponse<PackageHalf> rest = new JdResponse<PackageHalf>();
 		rest.setData(packageHalfService.findById(id));
@@ -72,6 +76,7 @@ public class PackageHalfController {
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/save")
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".PackageHalfController.save", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat })
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfVO packageHalfVO) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		rest.setCode(JdResponse.CODE_SUCCESS);
@@ -161,6 +166,7 @@ public class PackageHalfController {
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/deleteByIds")
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".PackageHalfController.deleteByIds", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat })
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
 		try {
@@ -178,6 +184,7 @@ public class PackageHalfController {
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/listData")
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".PackageHalfController.listData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat })
 	public @ResponseBody PagerResult<PackageHalf> listData(@RequestBody PackageHalfCondition packageHalfCondition) {
 		JdResponse<PagerResult<PackageHalf>> rest = new JdResponse<PagerResult<PackageHalf>>();
 		rest.setData(packageHalfService.queryByPagerCondition(packageHalfCondition));

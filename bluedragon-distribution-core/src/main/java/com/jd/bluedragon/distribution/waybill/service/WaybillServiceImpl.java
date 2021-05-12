@@ -1104,4 +1104,25 @@ public class WaybillServiceImpl implements WaybillService {
         }
         return result;
     }
+
+    /**
+     * 百川业务开关，判断omcOrderCode是否有值，有值代表开启百川业务
+     *
+     * @param waybill
+     * @return
+     */
+    @Override
+    public String baiChuanEnableSwitch(Waybill waybill) {
+        String omcOrderCode = null;
+        if (waybill != null && waybill.getWaybillExt() != null) {
+            omcOrderCode = waybill.getWaybillExt().getOmcOrderCode();
+            if (StringUtils.isNotBlank(omcOrderCode)) {
+                if (log.isInfoEnabled()) {
+                    log.info("启用百川业务场景. waybillCode:{}, omcOrderCode:{}", waybill.getWaybillCode(), omcOrderCode);
+                }
+            }
+        }
+
+        return omcOrderCode;
+    }
 }

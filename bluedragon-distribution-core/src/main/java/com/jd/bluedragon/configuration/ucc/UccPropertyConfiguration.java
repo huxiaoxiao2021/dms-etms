@@ -338,6 +338,12 @@ public class UccPropertyConfiguration {
      */
     private boolean inspectionAssertDemotion;
 
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -931,5 +937,13 @@ public class UccPropertyConfiguration {
 
     public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
         this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
     }
 }

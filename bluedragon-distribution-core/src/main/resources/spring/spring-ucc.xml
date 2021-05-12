@@ -107,7 +107,7 @@
 		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
 		<property name="unSealCarHandlePackageFullCollectedSwitch" value="${unSealCarHandlePackageFullCollectedSwitch:-1}"/> <!-- 解封车查看运单包裹是否集齐 -->
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
-
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
 
 	</bean>
 
@@ -187,6 +187,8 @@
 				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
+                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
+
 			</list>
 		</property>
 	</bean>

@@ -711,6 +711,16 @@
         <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
     </jsf:consumer>
 
+    <!-- OMS 订单修改服务 -->
+    <jsf:consumer id="modifyExpressOrderService"
+                  interface="cn.jdl.oms.api.ModifyExpressOrderService"
+                  alias="${jsf.ModifyExpressOrderService.alias}"
+                  timeout="${jsf.ModifyExpressOrderService.timeout}"
+                  protocol="jsf"
+                  serialization="hessian">
+        <jsf:parameter key="token" hide="true" value="${jsf.ModifyExpressOrderService.token}"/>
+    </jsf:consumer>
+
 
     <!--运单拦截信息接口-->
     <jsf:consumer id="blockerQueryWSJsfService" interface="com.jd.etms.blocker.webservice.BlockerQueryWS"
