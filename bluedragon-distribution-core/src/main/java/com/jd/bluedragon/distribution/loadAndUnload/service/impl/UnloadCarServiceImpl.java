@@ -1600,7 +1600,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 //有效数据
                 cargoDetailDto.setYn(1);
                 //每次去运输获取数据的量;
-                int limitSize = 10000;
+                int limitSize = 1000;
                 int currentSize  = limitSize ;
                 int offset = 0;
                 //只有获取的数据与设置分页数据相同时再去获取数据，当获取的数据少于分页数据时(获取数据为空也属于此种情况)，说明也取尽可不用再获取了。
