@@ -61,6 +61,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
     private static final Logger log = LoggerFactory.getLogger(ColdChainExternalServiceImpl.class);
 
+    private static final String OPE_SITE_ERROR_MSG = "当前操作场地不属于冷链分拣中心，请检查！";
 
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
@@ -156,8 +157,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                     result.getData().setWeak(true);
                 }else{
                     result.getData().setForced(true);
+                    return result;
                 }
-                return result;
             }
         }
 
@@ -175,9 +176,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @JProfiler(jKey = "DMSWEB.ColdChainExternalService.inspection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Boolean> inspection(InspectionVO vo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
         result.success();
 
         if(CollectionUtils.isEmpty(vo.getBarCodes())){
+            return result;
+        }
+        if(!checkOpeSite(vo.getSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.setData(Boolean.FALSE);
             return result;
         }
 
@@ -188,7 +195,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             TaskResponse taskResponse = taskService.add(req);
             if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(taskResponse.getCode())){
                 //失败阻断 允许重试幂等即可
-                result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,taskResponse.getMessage());
+                result.setData(Boolean.FALSE);
+                result.customMessage(JdResponse.CODE_FAIL,taskResponse.getMessage());
                 return result;
             }
         }
@@ -230,8 +238,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             }else{
                 //强拦截
                 result.getData().setForced(true);
+                return result;
             }
-            return result;
         }
         //第二步 金鹏校验
         if(isWaybill || isPack ){
@@ -255,8 +263,19 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             }else{
                 //强拦截
                 result.getData().setForced(true);
+                return result;
             }
-            return result;
+        }else{
+            if(!CollectionUtils.isEmpty(thrResult.getTipMessages())){
+                //存在提示语
+                result.getData().setWeak(true);
+                StringBuilder msg = new StringBuilder();
+                for(String tipMsg : thrResult.getTipMessages()){
+                    msg.append(tipMsg);
+                    msg.append(Constants.SEPARATOR_SEMICOLON);
+                }
+                result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_SEE_OTHER,msg.toString());
+            }
         }
 
         return result;
@@ -272,13 +291,20 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @JProfiler(jKey = "DMSWEB.ColdChainExternalService.send", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Boolean> send(SendVO vo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
         result.success();
 
-        List<DeliveryRequest> request2 = changeTo2(vo);
+        if(!checkOpeSite(vo.getSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.setData(Boolean.FALSE);
+            return result;
+        }
+
         List<ColdChainDeliveryRequest> request = changeTo(vo);
 
-        if(vo.getNeedCheck()){
 
+        if(vo.getNeedCheck()){
+            List<DeliveryRequest> request2 = changeTo2(vo);
             //不齐校验
             ThreeDeliveryResponse threeDeliveryResponse = deliveryService.checkThreePackageForKY(toSendDetailListInFirstIndex(request2));
             if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(threeDeliveryResponse.getCode())){
@@ -292,8 +318,14 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         //发货
         DeliveryResponse response = deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_LOAD_CAR_SEND);
         if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(response.getCode())){
+            if(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING.equals(response.getCode())
+                    ||DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING.equals(response.getCode())){
+                //正在执行时返回成功
+                log.warn("ColdChainExternalService.send warn! req:{}",JsonHelper.toJson(request));
+            }else{
+                result.setData(Boolean.FALSE);
+            }
             result.setMessage(response.getMessage());
-            result.setData(Boolean.FALSE);
             return result;
         }
 
@@ -333,8 +365,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             }else{
                 //强拦截
                 result.getData().setForced(true);
+                return result;
             }
-            return result;
         }
 
 
@@ -359,8 +391,20 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             }else{
                 //强拦截
                 result.getData().setForced(true);
+                return result;
             }
-            return result;
+        }else{
+            if(!CollectionUtils.isEmpty(thrResult.getTipMessages())){
+                //存在提示语
+                result.getData().setWeak(true);
+                StringBuilder msg = new StringBuilder();
+                for(String tipMsg : thrResult.getTipMessages()){
+                    msg.append(tipMsg);
+                    msg.append(Constants.SEPARATOR_SEMICOLON);
+                }
+                result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_SEE_OTHER,msg.toString());
+                return result;
+            }
         }
         return result;
     }
@@ -375,8 +419,14 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendOfKY", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Boolean> sendOfKY(SendOfKYVO vo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
         result.success();
 
+        if(!checkOpeSite(vo.getSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.setData(Boolean.FALSE);
+            return result;
+        }
         List<DeliveryRequest> request = changeTo(vo);
 
         if(vo.getNeedCheck()){
@@ -394,11 +444,17 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         //发货
         DeliveryResponse response = deliveryService.sendDeliveryInfoForKY(request,SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND);
         if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(response.getCode())){
+            if(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING.equals(response.getCode())
+                    ||DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING.equals(response.getCode())){
+                //正在执行时返回成功
+                log.warn("ColdChainExternalService.sendOfKY warn! req:{}",JsonHelper.toJson(request));
+            }else{
+                result.setData(Boolean.FALSE);
+            }
             result.setMessage(response.getMessage());
-            result.setData(Boolean.FALSE);
             return result;
         }
-        result.setData(Boolean.TRUE);
+
         return result;
 
     }
@@ -416,12 +472,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     private List<DeliveryRequest> changeTo(SendOfKYVO vo){
         List<DeliveryRequest> list = new ArrayList<>();
         if(!CollectionUtils.isEmpty(vo.getBarCodes())){
-            DeliveryRequest target = new DeliveryRequest();
-            //暂时用copy
-            BeanUtils.copyProperties(vo,target);
-            target.setOpType(Constants.KY_DELIVERY);
-            target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-            list.add(target);
+            for(String barCode : vo.getBarCodes()){
+                DeliveryRequest target = new DeliveryRequest();
+                //暂时用copy
+                BeanUtils.copyProperties(vo,target);
+                target.setOpType(Constants.KY_DELIVERY);
+                target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+                target.setBoxCode(barCode);
+                list.add(target);
+            }
         }
 
         return list;
@@ -430,12 +489,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     private List<ColdChainDeliveryRequest> changeTo(SendVO vo){
         List<ColdChainDeliveryRequest> list = new ArrayList<>();
         if(!CollectionUtils.isEmpty(vo.getBarCodes())){
-            ColdChainDeliveryRequest target = new ColdChainDeliveryRequest();
-            //暂时用copy
-            BeanUtils.copyProperties(vo,target);
-            target.setOpType(Constants.KY_DELIVERY);
-            target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-            list.add(target);
+            for(String barCode : vo.getBarCodes()) {
+                ColdChainDeliveryRequest target = new ColdChainDeliveryRequest();
+                //暂时用copy
+                BeanUtils.copyProperties(vo, target);
+                target.setOpType(Constants.KY_DELIVERY);
+                target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+                target.setBoxCode(barCode);
+                list.add(target);
+            }
         }
 
         return list;
@@ -444,12 +506,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     private List<DeliveryRequest> changeTo2(SendVO vo){
         List<DeliveryRequest> list = new ArrayList<>();
         if(!CollectionUtils.isEmpty(vo.getBarCodes())){
-            DeliveryRequest target = new DeliveryRequest();
-            //暂时用copy
-            BeanUtils.copyProperties(vo,target);
-            target.setOpType(Constants.KY_DELIVERY);
-            target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-            list.add(target);
+            for(String barCode : vo.getBarCodes()) {
+                DeliveryRequest target = new DeliveryRequest();
+                //暂时用copy
+                BeanUtils.copyProperties(vo, target);
+                target.setOpType(Constants.KY_DELIVERY);
+                target.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+                target.setBoxCode(barCode);
+                list.add(target);
+            }
         }
 
         return list;
@@ -673,6 +738,18 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
         return requests;
 
+    }
+
+    private boolean checkOpeSite(Integer opeSiteCode){
+        //登录人机构不是冷链分拣中心
+        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(opeSiteCode);
+        if (siteOrgDto == null) {
+            return false;
+        }
+        if (!Constants.B2B_CODE_SITE_TYPE.equals(siteOrgDto.getSubType()) ) {
+            return false;
+        }
+        return true;
     }
 
 }

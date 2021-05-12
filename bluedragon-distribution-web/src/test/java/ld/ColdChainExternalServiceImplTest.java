@@ -1,8 +1,6 @@
 package ld;
 
-import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
-import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckVO;
-import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
+import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainExternalServiceImpl;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -42,6 +40,7 @@ public class ColdChainExternalServiceImplTest {
         req.setSiteName("马驹桥测试");
         req.setUserCode(1);
         req.setUserName("刘铎");
+        req.setOperateTime("2021-05-10 06:06:06");
         InvokeResult<Boolean> result =  coldChainExternalService.inspection(req);
 
         Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
@@ -49,17 +48,65 @@ public class ColdChainExternalServiceImplTest {
 
     @Test
     public void sendCheck() {
+
+        SendCheckVO req = new SendCheckVO();
+        req.setReceiveSiteCode(39);
+        req.setBoxCode("JDV000690915751");
+        req.setSiteCode(14336);
+        req.setUserCode(17907);
+        req.setUserName("冷链测试人");
+        req.setOperateTime("2021-05-10 06:06:06");
+        InvokeResult<ColdCheckCommonResult> result =  coldChainExternalService.sendCheck(req);
+
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
     }
 
     @Test
     public void send() {
+
+        SendVO req = new SendVO();
+        req.setTransPlanCode("liuduotest1");
+        req.setReceiveSiteCode(39);
+        req.setBarCodes(Arrays.asList("JDV000690934291"));
+        req.setSiteCode(14336);
+        req.setUserCode(17907);
+        req.setUserName("冷链测试人");
+        req.setOperateTime("2021-05-12 09:06:06");
+        req.setNeedCheck(false);
+        InvokeResult<Boolean> result =  coldChainExternalService.send(req);
+
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
     }
 
     @Test
     public void sendOfKYCheck() {
+
+        SendOfKYCheckVO req = new SendOfKYCheckVO();
+        req.setReceiveSiteCode(39);
+        req.setBoxCode("JDV000690915751");
+        req.setSiteCode(14336);
+        req.setUserCode(17907);
+        req.setUserName("冷链测试人");
+        req.setOperateTime("2021-05-10 06:06:06");
+        InvokeResult<ColdCheckCommonResult> result =  coldChainExternalService.sendOfKYCheck(req);
+
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
     }
 
     @Test
     public void sendOfKY() {
+
+        SendOfKYVO req = new SendOfKYVO();
+        req.setReceiveSiteCode(39);
+        req.setSendCode("14336-39-20210301164876268");
+        req.setBarCodes(Arrays.asList("JDV000690934291"));
+        req.setSiteCode(14336);
+        req.setUserCode(17907);
+        req.setUserName("冷链测试人");
+        req.setOperateTime("2021-05-11 07:07:07");
+        req.setNeedCheck(false);
+        InvokeResult<Boolean> result =  coldChainExternalService.sendOfKY(req);
+
+        Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
     }
 }
