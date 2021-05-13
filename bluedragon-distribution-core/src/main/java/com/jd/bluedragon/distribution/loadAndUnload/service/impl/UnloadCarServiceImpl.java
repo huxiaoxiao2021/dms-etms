@@ -2276,6 +2276,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 totalPackageCodes.addAll(packageCodes);
             }
             if (CollectionUtils.isEmpty(totalPackageCodes)) {
+                logger.warn("封车编码{}下的批次号未获取到对应的包裹信息,不写入卸车任务运单详情信息表.",tmsSealCar.getSealCarCode());
                 return false;
             }
             Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
