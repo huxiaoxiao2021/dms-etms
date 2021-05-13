@@ -166,7 +166,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             // 判断是否走新汇总查询
-            if(checkGoESQuery(criteria.getSiteCode())){
+            if(checkGoESQuery(criteria.getSiteCode()) || Objects.equals(BusinessHelper.getOwnSign(),"UAT")){
                 return newBatchSummaryPrintQuery(criteria);
             }
             SendM nSendM = tosendM(criteria);
@@ -204,6 +204,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria) {
+        long startTime = System.currentTimeMillis();
         SummaryPrintResultResponse response = new SummaryPrintResultResponse();
         response.setCode(JdResponse.CODE_OK);
         response.setMessage(JdResponse.MESSAGE_OK);
@@ -271,6 +272,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.functionError(info);
         }finally {
             Profiler.registerInfoEnd(info);
+            if(log.isInfoEnabled()){
+                log.info("发货交接清单汇总查询耗时:{}", System.currentTimeMillis() - startTime);
+            }
         }
         return response;
     }
