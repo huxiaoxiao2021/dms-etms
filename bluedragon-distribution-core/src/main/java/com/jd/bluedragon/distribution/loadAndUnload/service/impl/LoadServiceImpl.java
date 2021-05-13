@@ -52,4 +52,9 @@ public class LoadServiceImpl implements LoadService {
         return loadCarDao.selectByEndSiteCode(loadCar);
     }
 
+    @Override
+    public List<Long> getIdsByCondition(LoadCar loadCar) {
+        return loadCarDao.getIdsByCondition(loadCar);
+    }
+
 }

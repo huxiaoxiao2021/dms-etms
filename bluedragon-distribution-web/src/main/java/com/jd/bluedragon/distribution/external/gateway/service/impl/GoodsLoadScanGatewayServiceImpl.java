@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
@@ -612,6 +614,46 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             response.addBox(msgBox);
         }
         return response;
+    }
+
+    @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
+        JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
+        try{
+            if(req == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求参数不能为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail---begin---parameter=【{}】", JsonHelper.toJson(req));
+            }
+            if(req.getUser() == null || StringUtils.isBlank(req.getUser().getUserErp())) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求人Erp不能为空");
+                return res;
+            }
+            if(req.getTaskId() == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求任务ID不能为空");
+                return res;
+            }
+            if(req.getCreateSiteCode() == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("当前操作场地ID不能为空");
+                return res;
+            }
+
+            return loadScanService.getInspectNoSendNoLoadWaybillDetail(req);
+
+        }catch (Exception e) {
+            log.error("GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail---error---parameter=【{}】", JsonHelper.toJson(req), e);
+            res.setCode(JdCResponse.CODE_ERROR);
+            res.setMessage("操作失败");
+            return res;
+        }
     }
 
 

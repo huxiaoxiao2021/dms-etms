@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetail
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.LoadScanPackageDetailServiceManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -36,11 +37,13 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.LoadCarDao;
+import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -49,6 +52,7 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
 import com.jd.merchant.api.staging.ws.StagingServiceWS;
+import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -136,6 +140,11 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Resource
     private StagingServiceWS stagingServiceWS;
 
+    @Autowired
+    private LoadService loadService;
+
+    @Autowired
+    private LoadScanPackageDetailServiceManager loadScanPackageDetailServiceManager;
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -2084,6 +2093,176 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("LoadScanServiceImpl-checkIsKaWaybillOrNo-error,运单号={},包裹号={},异常信息",waybillCode,packageCode,ex);
         }
         return response;
+    }
+
+    @Override
+    public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
+        JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
+
+        //查看任务是否已完成
+        JdCResponse<LoadCar> taskStatus = checkTaskStatus(req.getTaskId());
+        if(!JdCResponse.CODE_SUCCESS.equals(taskStatus.getCode())) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail--error--根据任务ID={}查询任务装车异常， 任务信息=【{}】", req.getTaskId(), JsonHelper.toJson(taskStatus));
+            }
+            res.toFail(taskStatus.getMessage());
+            return res;
+        }
+
+        LoadCar loadCar = taskStatus.getData();
+
+        //获取流向下一机构的已装车数据
+        JdCResponse<List<GoodsLoadScan>> waybillInfoListRes = getFlowLoadWaybillInfo(loadCar);
+        if(waybillInfoListRes == null || !JdCResponse.CODE_SUCCESS.equals(waybillInfoListRes.getCode())) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail--warn--获取流向下一机构的已装车数据失败， 查询参数loadCar=【{}】", JsonHelper.toJson(loadCar));
+            }
+            res.toFail(taskStatus.getMessage());
+            return res;
+        }
+
+        //已装运单信息  K=运单号  V=已装运单的已装数量
+        Map<String, Integer> loadWaybillMap = null;
+
+        //查询已验未发未装车数据
+        JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = loadScanPackageDetailServiceManager.getInspectNoSendWaybillInfo(loadCar, null);
+        if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes.getCode())) {
+                log.error("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---error--获取流向已验未发待装数据失败， 查询参数req=【{}】, 返回=【{}】", JsonHelper.toJson(req), JsonHelper.toJson(inventoryWaybillListRes));
+                res.toFail(inventoryWaybillListRes == null ? "获取库存运单失败" : inventoryWaybillListRes.getMessage());
+                return res;
+        }else if(CollectionUtils.isEmpty(inventoryWaybillListRes.getData())) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---warn--获取流向已验未发待装数据未查询到库存运单， 查询参数req=【{}】, 返回=【{}】", JsonHelper.toJson(req), JsonHelper.toJson(inventoryWaybillListRes));
+            }
+            res.toSucceed("查询库存运单数据为空");
+            return res;
+        }
+
+
+        if(CollectionUtils.isEmpty(waybillInfoListRes.getData())) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---当前装车任务所在流向from=【{}-{}】to【{}-{}】未查询到装车数据",
+                        loadCar.getCreateSiteCode(), loadCar.getCreateSiteName(), loadCar.getEndSiteCode(), loadCar.getEndSiteName());
+            }
+        }else {
+            loadWaybillMap = new HashMap<>();
+            for(GoodsLoadScan glc : waybillInfoListRes.getData()) {
+                String waybillCode = glc.getWayBillCode();
+                Integer loadAmount = glc.getLoadAmount();
+                loadWaybillMap.put(waybillCode, loadAmount);
+            }
+        }
+
+
+        //组装返回结果
+        LoadScanDetailDto resData = new LoadScanDetailDto();
+        List<GoodsDetailDto> resDtoList = new ArrayList<>();
+        List<LoadScanDto> inventoryWaybillList = inventoryWaybillListRes.getData();
+        int resCount = 0;
+        for(LoadScanDto lcd : inventoryWaybillList) {
+            GoodsDetailDto dtoTemp = new GoodsDetailDto();
+            dtoTemp.setWayBillCode(lcd.getWayBillCode());
+            dtoTemp.setPackageAmount(lcd.getPackageAmount());
+            dtoTemp.setGoodsAmount(lcd.getGoodsAmount());
+            dtoTemp.setInspectTime(lcd.getInpectTime());
+
+            if(loadWaybillMap != null && loadWaybillMap.size() > 0) {
+                Integer loadAmountValue = loadWaybillMap.get(lcd.getWayBillCode());
+                if(lcd.getGoodsAmount() == null) {
+                    continue;
+                }
+
+                if(loadAmountValue == null) {
+                    //已装数为空，未装去库存
+                    dtoTemp.setUnloadAmount(lcd.getGoodsAmount());
+                }else {
+                    //已装不为空，小于库存数，计算未装数量
+                    if(loadAmountValue < lcd.getGoodsAmount()) {
+                        dtoTemp.setUnloadAmount(lcd.getGoodsAmount() - loadAmountValue);
+                    }else {
+                        //已装等于库存，说明装齐，不操作
+                        continue;
+                    }
+                }
+            }
+            //只取200个
+            if( resDtoList.size() < 200) {
+                resDtoList.add(dtoTemp);
+            }
+            resCount++;
+        }
+        resData.setGoodsDetailDtoList(resDtoList);
+        resData.setWaybillNum(resCount);
+        res.toSucceed("操作成功");
+        res.setData(resData);
+        return res;
+    }
+
+    /**
+     * 获取流向下一机构的已装车数据
+     * @param loadCar
+     */
+    private JdCResponse<List<GoodsLoadScan>> getFlowLoadWaybillInfo(LoadCar loadCar) {
+        JdCResponse<List<GoodsLoadScan>> res = new JdCResponse();
+        //校验任务流向
+        if(loadCar == null || loadCar.getCreateSiteCode() == null || loadCar.getEndSiteCode() == null) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getFlowLoadWaybillInfo--warn--获取流向下一机构的已装车数据时，任务信息为空，或当前网点为空，或流向信息为空， loadCar=【{}】", JsonHelper.toJson(loadCar));
+            }
+            res.toFail("获取任务流向失败");
+            return res;
+        }
+        //根据流向查询所有任务idList
+        LoadCar loadCarPo = new LoadCar();
+        loadCarPo.setEndSiteCode(loadCar.getEndSiteCode());
+        loadCarPo.setCreateSiteCode(loadCar.getCreateSiteCode());
+        List<Integer> statusList = new ArrayList<>();
+        statusList.add(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
+        statusList.add(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN);
+        loadCarPo.setStatusList(statusList);
+        Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
+        loadCarPo.setCreateTime(fromTime);
+        List<Long> idList = loadService.getIdsByCondition(loadCarPo);
+
+        //idList 可能为空  当前任务为15天前任务，反查时查不到
+        if(CollectionUtils.isEmpty(idList)) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.getFlowLoadWaybillInfo-- 查询装车流向下最近15天内的任务id集合数据，查询成功，返回为空， 查询参数=【{}】", JsonHelper.toJson(loadCarPo));
+            }
+            res.toSucceed();
+            return res;
+        }
+        //根据idList 获取所有已装运单
+        List<GoodsLoadScan> waybillInfoList = goodsLoadScanDao.findWaybillInfoByIds(idList);
+        res.setData(waybillInfoList);
+        res.toSucceed();
+        return res;
+    }
+
+    private JdCResponse<LoadCar> checkTaskStatus(Long taskId) {
+        JdCResponse<LoadCar> res = new JdCResponse();
+        res.toSucceed("操作成功");
+
+        LoadCar loadCar = loadService.findLoadCarById(taskId);
+        if(loadCar == null) {
+            if(log.isInfoEnabled()) {
+                log.info("LoadScanServiceImpl.checkTaskStatus--根据任务ID【{}】查不到该任务信息", taskId);
+            }
+            res.toFail("无法查询到该任务信息，请确认任务是否存在");
+            return res;
+        }
+
+        Integer taskStatus = loadCar.getStatus();
+        if(taskStatus == null) {
+            res.toFail("该任务状态存在异常,无法发货");
+            return res;
+
+        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(taskStatus)) {
+            res.toFail("该任务已经完成发货，请勿重复发货");
+            return res;
+        }
+        res.setData(loadCar);
+        return res;
     }
 
 }

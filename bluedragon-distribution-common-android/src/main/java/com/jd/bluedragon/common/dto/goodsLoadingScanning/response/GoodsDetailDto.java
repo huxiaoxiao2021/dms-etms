@@ -10,7 +10,7 @@ public class GoodsDetailDto implements Serializable {
     /**
      * 运单号
      */
-    private String wayBillCode;
+        private String wayBillCode;
 
     /**
      * 总包裹数量
@@ -36,6 +36,8 @@ public class GoodsDetailDto implements Serializable {
      * 运单颜色状态--0无特殊颜色,1绿色,2橙色,3黄色,4红色
      */
     private Integer status;
+
+    private Long inspectTime;
 
     public String getWayBillCode() {
         return wayBillCode;
@@ -83,5 +85,13 @@ public class GoodsDetailDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Long getInspectTime() {
+        return inspectTime;
+    }
+
+    public void setInspectTime(Long inspectTime) {
+        this.inspectTime = inspectTime;
     }
 }
