@@ -220,6 +220,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private BoardCombinationService boardCombinationService;
 
+    //大宗操作运单上限
+    @Value("${waybill.package.operate.max:100}")
+    private Integer waybillPackageOperateMax = 100;
+
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
@@ -1189,7 +1193,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < 1000){
+            if(packageNum < waybillPackageOperateMax){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }

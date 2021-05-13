@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -51,6 +52,10 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
 
     @Autowired
     WaybillTraceManager waybillTraceManager;
+
+    //大宗操作运单上限
+    @Value("${waybill.package.operate.max:100}")
+    private Integer waybillPackageOperateMax = 100;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -540,7 +545,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                if(packageNum < 100){
+                if(packageNum < waybillPackageOperateMax){
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
                     return response;
