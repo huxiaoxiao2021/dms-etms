@@ -183,6 +183,7 @@
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
+				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 			</list>
 		</property>
 	</bean>
