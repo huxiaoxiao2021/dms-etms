@@ -1521,6 +1521,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         queryParams.setCreateSiteCode(sendDetail.getCreateSiteCode());
         queryParams.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
         queryParams.setBoxCode(sendDetail.getBoxCode());
+        queryParams.setSendCode(sendDetail.getSendCode());
         List<SendM> sendMList = sendMService.findByParams(queryParams);
         return CollectionUtils.isEmpty(sendMList) ? null : sendMList.get(0);
     }
@@ -1540,16 +1541,13 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         printHandoverListDto.setSendCode(sendDetail.getSendCode());
         printHandoverListDto.setBoxCode(sendDetail.getBoxCode());
-        printHandoverListDto.setWaybillCode(StringUtils.isEmpty(sendDetail.getWaybillCode())
-                ? WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()) : sendDetail.getWaybillCode());
+        printHandoverListDto.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
         printHandoverListDto.setPackageCode(sendDetail.getPackageBarcode());
-        printHandoverListDto.setPackageNum(sendDetail.getPackageNum());
-        printHandoverListDto.setInvoice(sendDetail.getPickupCode());
 
         printHandoverListDto.setSendUser(sendM.getCreateUser());
         printHandoverListDto.setSendUserCode(sendM.getCreateUserCode());
 
-        printHandoverListDto.setIsCancel(Byte.valueOf(String.valueOf(sendDetail.getIsCancel())));
+        printHandoverListDto.setIsCancel((byte)Constants.CONSTANT_NUMBER_ONE);
         printHandoverListDto.setIsNew(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
 
         printHandoverListDto.setSendTime(sendM.getOperateTime() == null ? null : sendM.getOperateTime().getTime());
