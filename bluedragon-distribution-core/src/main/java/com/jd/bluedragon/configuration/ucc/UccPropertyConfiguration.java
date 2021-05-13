@@ -333,6 +333,12 @@ public class UccPropertyConfiguration {
      */
     private boolean inspectionAssertDemotion;
 
+    /**
+     * 大宗可扫描包裹下限数量
+     * @return
+     */
+    private Integer dazongPackageOperateMax;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -900,5 +906,13 @@ public class UccPropertyConfiguration {
 
     public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
         this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public Integer getDazongPackageOperateMax() {
+        return dazongPackageOperateMax;
+    }
+
+    public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
+        this.dazongPackageOperateMax = dazongPackageOperateMax;
     }
 }

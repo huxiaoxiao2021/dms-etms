@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -220,9 +221,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private BoardCombinationService boardCombinationService;
 
-    //大宗操作运单上限
-    @Value("${waybill.package.operate.max:100}")
-    private Integer waybillPackageOperateMax = 100;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -1193,7 +1193,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < waybillPackageOperateMax){
+            if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }
@@ -2269,7 +2269,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 通过工具类从批次号上截取目的场地ID
 //            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
             if (nextSiteCode == null) {
-                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
+                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!返回对象中的下一网点id为{},下一网点code为{},下一网点名称为{}", unloadCar.getSealCarCode(), batchCodes.get(0),sealCarDto.getData().getEndSiteId(),sealCarDto.getData().getEndSiteCode(),sealCarDto.getData().getEndSiteName());
                 return false;
             }
             boolean isExpressCenterSite = isExpressCenterSite(nextSiteCode);

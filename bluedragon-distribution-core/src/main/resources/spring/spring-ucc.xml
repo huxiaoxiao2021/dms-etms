@@ -106,7 +106,7 @@
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
-
+		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 
 	</bean>
 

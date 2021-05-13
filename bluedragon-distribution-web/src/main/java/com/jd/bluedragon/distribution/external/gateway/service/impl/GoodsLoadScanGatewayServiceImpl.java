@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
@@ -53,9 +54,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Autowired
     WaybillTraceManager waybillTraceManager;
 
-    //大宗操作运单上限
-    @Value("${waybill.package.operate.max:100}")
-    private Integer waybillPackageOperateMax = 100;
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -545,7 +545,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
                 int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-                if(packageNum < waybillPackageOperateMax){
+                if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
                     response.setCode(JdCResponse.CODE_FAIL);
                     response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
                     return response;
