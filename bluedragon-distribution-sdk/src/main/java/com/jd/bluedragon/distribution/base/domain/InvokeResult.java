@@ -57,9 +57,6 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_GROUP_CODE = 307;
     public static final String RESULT_NO_GROUP_MESSAGE = "查询同组箱号异常";
 
-    public static final int RESULT_CONFIRM_CODE = 310;
-    public static final String RESULT_CONFIRM_MESSAGE = "调度站点无滑道信息，是否继续操作?";
-
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
