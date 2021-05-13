@@ -69,6 +69,7 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -209,6 +210,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     WaybillPackageApi waybillPackageApi;
+
+    @Autowired
+    private CargoDetailServiceManager cargoDetailServiceManager;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -1113,6 +1117,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         request.setWaybillCode(waybillCode);
 
         try {
+            int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
+            if(packageNum < 1000){
+                invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
+                return invokeResult;
+            }
             //校验是否为KA运单 如果是不支持按大宗操作 66为3 强制拦截
             JdVerifyResponse jdVerifyResponse = loadScanService.checkIsKaWaybillOrNo(waybillCode,packageCode);
             if(!Objects.equals(JdVerifyResponse.CODE_SUCCESS,jdVerifyResponse.getCode())){
@@ -1578,14 +1587,60 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     private List<String> querySendPackageBySendCode(Integer createSiteCode, String batchCode) {
         List<String> packageCodeList = new ArrayList<>();
         try {
-            SendDetailDto params = new SendDetailDto();
-            params.setCreateSiteCode(createSiteCode);
-            params.setSendCode(batchCode);
-            params.setIsCancel(0);
-            packageCodeList = sendDatailDao.queryPackageCodeBySendCode(params);
+            //获取当前操作网点的信息，用于判断是否集配站或者分拣、城配等。后续迁移时需要考虑分拣发过来的封车信息是从运输取还是从分拣单独拉取数据。此次为了避免线上的影响非集配站的依然按照原逻辑获取。
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+            if (siteOrgDto == null) {
+                logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
+            }
+            if(siteOrgDto != null && Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())){
+                logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+                //集配站的批次号，通过运输接口获取相应的批次下包裹信息。
+                CargoDetailDto cargoDetailDto = new CargoDetailDto();
+                //批次号
+                cargoDetailDto.setBatchCode(batchCode);
+                //有效数据
+                cargoDetailDto.setYn(1);
+                //每次去运输获取数据的量;
+                int limitSize = 1000;
+                int currentSize  = limitSize ;
+                int offset = 0;
+                //只有获取的数据与设置分页数据相同时再去获取数据，当获取的数据少于分页数据时(获取数据为空也属于此种情况)，说明也取尽可不用再获取了。
+                while(currentSize == limitSize){
+                    com.jd.tms.data.dto.CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
+                    if(cargoDetailReturn != null && cargoDetailReturn.getCode() == CommonDto.CODE_SUCCESS && cargoDetailReturn.getData() != null && !cargoDetailReturn.getData().isEmpty()){
+                        List<CargoDetailDto> cargoDetailDtoList =  cargoDetailReturn.getData();
+                        logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{},获取到的包裹信息数量为{}",batchCode,createSiteCode,cargoDetailDtoList.size());
+                        for(CargoDetailDto cargoDetailDtoTemp:cargoDetailDtoList){
+                            packageCodeList.add(cargoDetailDtoTemp.getPackageCode());
+                        }
+                        currentSize = cargoDetailDtoList.size();
+                        logger.info("批次号{}获取批次下的包裹数据条件：offset={},limitSize={},获取到的数据条数为{}",batchCode,offset,limitSize,currentSize);
+                        offset =  offset + limitSize;
+                    }else{
+                        logger.warn("批次号{}获取批次下的包裹数据条件：offset={},limitSize={},获取到的数据条数为0或者调用接口反回的code异常code={},不再获取数据",batchCode,offset,limitSize,cargoDetailReturn.getCode());
+                        currentSize = 0;
+                    }
+                }
+            }else{
+                //从分拣获取批次下的包裹数据。
+                SendDetailDto params = new SendDetailDto();
+                params.setCreateSiteCode(createSiteCode);
+                params.setSendCode(batchCode);
+                params.setIsCancel(0);
+                packageCodeList = sendDatailDao.queryPackageCodeBySendCode(params);
+            }
         }catch (Exception e){
             logger.error("查询批次【{}】的包裹数异常",batchCode,e);
         }
+//        try {
+//            SendDetailDto params = new SendDetailDto();
+//            params.setCreateSiteCode(createSiteCode);
+//            params.setSendCode(batchCode);
+//            params.setIsCancel(0);
+//            packageCodeList = sendDatailDao.queryPackageCodeBySendCode(params);
+//        }catch (Exception e){
+//            logger.error("查询批次【{}】的包裹数异常",batchCode,e);
+//        }
         return packageCodeList;
     }
 
@@ -2125,8 +2180,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return false;
         }
         try {
+            Integer nextSiteCode = null;
+            CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+            if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+                unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+                unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+                nextSiteCode = sealCarDto.getData().getEndSiteId();
+            } else {
+                logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+                return false;
+            }
             // 通过工具类从批次号上截取目的场地ID
-            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
+//            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
             if (nextSiteCode == null) {
                 logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
                 return false;
@@ -2173,14 +2238,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
 
-        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
-        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
-            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
-            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
-        } else {
-            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
-            return false;
-        }
+//        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+//        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+//            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+//            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+//        } else {
+//            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+//            return false;
+//        }
         try {
             unloadCarDao.add(unloadCar);
         } catch (Exception e) {
@@ -2211,6 +2276,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 totalPackageCodes.addAll(packageCodes);
             }
             if (CollectionUtils.isEmpty(totalPackageCodes)) {
+                logger.warn("封车编码{}下的批次号未获取到对应的包裹信息,不写入卸车任务运单详情信息表.",tmsSealCar.getSealCarCode());
                 return false;
             }
             Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();
