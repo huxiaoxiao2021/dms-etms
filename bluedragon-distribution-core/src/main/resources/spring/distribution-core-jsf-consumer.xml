@@ -709,4 +709,10 @@
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
     </jsf:consumer>
 
+    <jsf:consumer id="guaranteeConfigApi" interface="com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi"
+                  alias="${jsf.alias.configCenter}"
+                  protocol="jsf"
+                  timeout="${jsf.timeout.configCenter}">
+    </jsf:consumer>
+
 </beans>

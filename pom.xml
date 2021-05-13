@@ -38,6 +38,7 @@
 		<!-- mq.sender update@2012.06.11 -->
 		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
 		<waybill.cache.version>1.0.3</waybill.cache.version>
+		<business-sdk.version>1.0.9-test-SNAPSHOT</business-sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -182,6 +183,12 @@
                 <artifactId>etms-common</artifactId>
                 <version>1.1.7</version>
             </dependency>
+
+			<dependency>
+				<groupId>com.jd.bluedragon</groupId>
+				<artifactId>business-sdk</artifactId>
+				<version>${business-sdk.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

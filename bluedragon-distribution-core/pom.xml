@@ -1599,6 +1599,11 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>business-sdk</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<profiles>
