@@ -50,4 +50,11 @@ public interface LoadAndUnloadCarGatewayService {
 
     JdCResponse<Void> combinationBoardComplete(UnloadCarScanRequest request);
 
+    /**
+     * 获取erp下的历史添加协助人信息
+     * @param erp
+     * @return
+     */
+    JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
+
 }
