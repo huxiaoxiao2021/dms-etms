@@ -1512,4 +1512,9 @@ public class Constants {
      * 导出并发key 缓存有效时间 单位:天
      */
     public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
+
+    /**
+     * B网抽检图片前缀标识：B
+     */
+    public static final String SPOT_CHECK_B = "B";
 }
