@@ -2292,6 +2292,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
                 logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
                 if (!isSuccess) {
+                    logger.warn("封车编码{}写入运单维度数据不成功！",unloadCar.getSealCarCode());
                     return false;
                 }
             } else {
@@ -2304,7 +2305,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCar.setPackageNum(packageNum);
             }
         } catch (Exception e) {
-            logger.error("查询运单数或者包裹数失败!",e);
+            logger.error("封车编码{}查询运单数或者包裹数失败!",unloadCar.getSealCarCode(),e);
             return false;
         }
         unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
