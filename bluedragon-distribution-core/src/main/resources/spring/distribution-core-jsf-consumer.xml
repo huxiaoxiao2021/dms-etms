@@ -709,6 +709,11 @@
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
     </jsf:consumer>
 
+    <!--运输获取批次下包裹信息接口-->
+    <jsf:consumer id="dataCargoDetailWS" interface="com.jd.tms.data.ws.DataCargoDetailWS"
+                  protocol="jsf" alias="${jsf.dataSelectWS.alias}" timeout="${jsf.dataSelectWS.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
     <jsf:consumer id="guaranteeConfigApi" interface="com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi"
                   alias="${jsf.alias.configCenter}"
                   protocol="jsf"

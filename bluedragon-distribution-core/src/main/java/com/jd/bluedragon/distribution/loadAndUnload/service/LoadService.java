@@ -25,4 +25,6 @@ public interface LoadService {
     List<Long> selectByCreateUserErp(String loginUserErp);
 
     List<LoadCar> selectByEndSiteCode(LoadCar loadCar);
+
+    List<Long> getIdsByCondition(LoadCar loadCarPo);
 }

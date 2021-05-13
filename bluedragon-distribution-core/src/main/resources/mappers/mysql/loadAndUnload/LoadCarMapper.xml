@@ -285,4 +285,25 @@
         from load_car
         where yn = 1 and batch_code = #{batchCode,jdbcType=VARCHAR}
     </select>
+
+    <!-- 获取流向下所有进行中的任务ID -->
+    <select id="getIdsByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" resultType="java.lang.Long">
+        select id
+        from load_car
+        where
+            create_site_code = #{createSiteCode,jdbcType=BIGINT}
+            and end_site_code = #{endSiteCode,jdbcType=BIGINT}
+        <if test="statusList != null">
+            and status in
+            <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+        </if>
+        <if test="createTime != null">
+            and create_time > #{createTime,jdbcType=TIMESTAMP}
+        </if>
+        and yn = 1
+
+    </select>
 </mapper>

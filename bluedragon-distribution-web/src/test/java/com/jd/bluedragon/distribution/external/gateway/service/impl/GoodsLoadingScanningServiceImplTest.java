@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.*;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
 import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -46,7 +47,7 @@ import java.util.Map;
  * @Author zhengchengfa
  * @Date 2020年10月22日
  */
-@ContextConfiguration(locations = {"classpath:spring/distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class GoodsLoadingScanningServiceImplTest {
 
@@ -490,6 +491,23 @@ public class GoodsLoadingScanningServiceImplTest {
         String str="[{\"currentOperate\":{\"siteCode\":39,\"siteName\":\"石景山营业部\"},\"operateTime\":\"2021-04-12 15:51:21\",\"taskCode\":\"PDA1618213809124\",\"taskStatus\":2,\"type\":1,\"user\":{\"userCode\":0,\"userErp\":\"bjxings\",\"userName\":\"刑松\"}}]";
         UnloadCarTaskReq unloadCarTaskReq= JsonHelper.fromJson(str,UnloadCarTaskReq.class);
         loadAndUnloadCarGatewayService.startUnloadTask(unloadCarTaskReq);
+
+    }
+
+
+    @Test
+    public void testgetInspectNoSendNoLoadWaybillDetail(){
+        for(int i = 0; i< 10; i++) {
+
+            User user = new User();
+            user.setUserErp("xumigen");
+            GoodsLoadingScanningReq req= new GoodsLoadingScanningReq();
+            req.setCreateSiteCode(10186);
+            req.setTaskId(711l);
+            req.setUser(user);
+            JdCResponse<LoadScanDetailDto> res = goodsLoadingScanningService.getInspectNoSendNoLoadWaybillDetail(req);
+            System.out.println(JsonHelper.toJson(res));
+        }
 
     }
 }
