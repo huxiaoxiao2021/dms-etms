@@ -93,7 +93,7 @@ public class JdRequest extends JdObject {
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
     }
-    
+
     @Override
     public String toString() {
         return "JdRequest [userCode=" + this.userCode + ", userName=" + this.userName

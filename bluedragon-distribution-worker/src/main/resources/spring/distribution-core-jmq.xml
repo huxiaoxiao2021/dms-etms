@@ -406,7 +406,10 @@
     <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
     </bean>
-
+    <!-- 冷链 - 暂存入库消息 -->
+    <bean id="ccTemporaryInProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.temporaryIn}"/>
+    </bean>
     <!-- 滞留上报消息 -->
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
@@ -507,6 +510,11 @@
     <bean id="dmsWeightVolumeFlowProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.weight.volume.flow}"/>
         <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--  修改箱状态记录 -->
+    <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.status.change.log}"/>
     </bean>
 
 </beans>

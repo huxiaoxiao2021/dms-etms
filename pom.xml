@@ -20,7 +20,6 @@
    		<module>bluedragon-distribution-saf</module>
         <module>bluedragon-distribution-utils</module>
         <module>bluedragon-distribution-common-android</module>
-        <module>bluedragon-distribution-external-sdk</module>
     </modules>
 	
 	<properties>
@@ -145,12 +144,6 @@
 			</dependency>
 			
 			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>1.6</version>
-			</dependency>
-
-			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-all</artifactId>
 				<version>1.9.5</version>
@@ -188,12 +181,6 @@
                 <groupId>com.jd.etms</groupId>
                 <artifactId>etms-common</artifactId>
                 <version>1.1.7</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.jd.bluedragon</groupId>
-                <artifactId>bluedragon-distribution-external-sdk</artifactId>
-                <version>1.0.0</version>
             </dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -288,27 +275,27 @@
                     </dependency>
                 </dependencies>
             </plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-site-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<reportPlugins>
-						<plugin>
-							<groupId>org.codehaus.mojo</groupId>
-							<artifactId>findbugs-maven-plugin</artifactId>
-							<version>2.3.1</version>
-						</plugin>
-						<plugin>
-							<artifactId>maven-pmd-plugin</artifactId>
-							<version>2.7.1</version>
-							<configuration>
-								<targetJdk>1.6</targetJdk>
-							</configuration>
-						</plugin>
-					</reportPlugins>
-				</configuration>
-			</plugin>
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-site-plugin</artifactId>-->
+<!--				<version>3.0</version>-->
+<!--				<configuration>-->
+<!--					<reportPlugins>-->
+<!--						<plugin>-->
+<!--							<groupId>org.codehaus.mojo</groupId>-->
+<!--							<artifactId>findbugs-maven-plugin</artifactId>-->
+<!--							<version>2.3.1</version>-->
+<!--						</plugin>-->
+<!--						<plugin>-->
+<!--							<artifactId>maven-pmd-plugin</artifactId>-->
+<!--							<version>2.7.1</version>-->
+<!--							<configuration>-->
+<!--								<targetJdk>1.6</targetJdk>-->
+<!--							</configuration>-->
+<!--						</plugin>-->
+<!--					</reportPlugins>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
 			<plugin>
 				<groupId>org.sonarsource.scanner.maven</groupId>
 				<artifactId>sonar-maven-plugin</artifactId>

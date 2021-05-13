@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.api.response.AbnormalOrderResponse;
 import com.jd.bluedragon.distribution.api.response.RefundReasonResponse;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,7 @@ public class AbnormalOrderResource {
 	
 	@GET
 	@Path("/abnormalorder/refundreason")
+	@JProfiler(jKey = "DMS.WEB.AbnormalOrderResource.queryRefundReason", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public RefundReasonResponse queryRefundReason(){
 		try{
 			RefundReasonResponse response = new RefundReasonResponse();
@@ -79,6 +82,7 @@ public class AbnormalOrderResource {
 	
 	@GET
 	@Path("/abnormalorder/query")
+	@JProfiler(jKey = "DMS.WEB.AbnormalOrderResource.queryAbnormalorder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AbnormalOrderResponse queryAbnormalorder(@QueryParam("orderId")String orderId,@QueryParam("type")Integer type){
 		AbnormalOrderResponse response = new AbnormalOrderResponse();
 		try{			
@@ -122,6 +126,7 @@ public class AbnormalOrderResource {
 	
     @POST
     @Path("/abnormalorder/pushAbnormalOrder")
+	@JProfiler(jKey = "DMS.WEB.AbnormalOrderResource.pushAbnormalOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AbnormalOrderResponse pushAbnormalOrder(AbnormalOrderRequest request){
 		AbnormalOrderResponse response = new AbnormalOrderResponse();
 		try{
@@ -150,6 +155,7 @@ public class AbnormalOrderResource {
 	}
 	@POST
 	@Path("/abnormalorder/pushAbnormalOrders")
+	@JProfiler(jKey = "DMS.WEB.AbnormalOrderResource.pushAbnormalOrders", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AbnormalOrderResponse pushAbnormalOrders(AbnormalOrderRequest request){
 		AbnormalOrderResponse response = new AbnormalOrderResponse();
 		response.setCode(JdResponse.CODE_OK);
@@ -189,6 +195,7 @@ public class AbnormalOrderResource {
 	}
 	@GET
 	@Path("/abnormalorder/clear")
+	@JProfiler(jKey = "DMS.WEB.AbnormalOrderResource.clear", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AbnormalOrderResponse clear(){
 		abnormalOrderService.clear();
 		

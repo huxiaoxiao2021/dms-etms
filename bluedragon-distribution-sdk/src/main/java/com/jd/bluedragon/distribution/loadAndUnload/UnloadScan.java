@@ -50,6 +50,11 @@ public class UnloadScan implements Serializable {
     private Integer loadAmount;
 
     /**
+     * 多卸数量
+     */
+    private Integer surplusAmount;
+
+    /**
      * 未卸数量
      */
     private Integer unloadAmount;
@@ -271,5 +276,13 @@ public class UnloadScan implements Serializable {
 
     public void setWaybillPackageNumInfoList(List<WaybillPackageNumInfo> waybillPackageNumInfoList) {
         this.waybillPackageNumInfoList = waybillPackageNumInfoList;
+    }
+
+    public Integer getSurplusAmount() {
+        return surplusAmount;
+    }
+
+    public void setSurplusAmount(Integer surplusAmount) {
+        this.surplusAmount = surplusAmount;
     }
 }

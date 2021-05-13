@@ -10,6 +10,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +54,7 @@ public class PopSigninResource {
 	@POST
 	@GET
 	@Path("/popSignin/getPopSigninList")
+	@JProfiler(jKey = "DMS.WEB.PopSigninResource.getPopSigninList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public PopSigninResponse getPopSigninList(PopSigninRequest popSigninRequest) {
 		log.debug("查询三方交接打印.....");
 		PopSigninResponse response = new PopSigninResponse();
@@ -111,6 +114,7 @@ public class PopSigninResource {
 	@POST
 	@GET
 	@Path("/popSignin/insert")
+	@JProfiler(jKey = "DMS.WEB.PopSigninResource.insertPopSignin", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public String insertPopSignin() {
 		PopSignin popSignin = new PopSignin();
 		popSignin.setCreateSiteCode(1610);

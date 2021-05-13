@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressB
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
@@ -80,6 +81,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //封装记录
             ExpressBillExceptionReport record = this.assembleRecord(reportRequest);
+
+            //封装商城订单号
+            this.assembleWayBillOrderId(reportRequest.getPackageCode(),record);
+
             //3.数据增加
             expressBillExceptionReportDao.insertReport(record);
             result.toSucceed("举报成功");
@@ -90,6 +95,20 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.setData(false);
         }
         return result;
+    }
+
+    /**
+     * 活动包裹订单号
+     * @param packageCode
+     */
+    private void assembleWayBillOrderId(String packageCode,ExpressBillExceptionReport record) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        String orderId =  waybillQueryManager.getOrderCodeByWaybillCode(waybillCode,true);
+        if(StringUtils.isNotEmpty(orderId)){
+            record.setOrderId(orderId);
+        }else {
+            log.warn("面单异常举报获取运单订单号为空 waybillCode:{}",waybillCode);
+        }
     }
 
     /**
@@ -181,8 +200,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     }
 
     private Map<Integer,String > getDictMap(){
-        List<DmsBaseDict> list = dmsBaseDictService.queryListByParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
-        Map<Integer, String> map = new HashMap<Integer, String>();
+        DmsBaseDictCondition condition = new DmsBaseDictCondition();
+        condition.setParentId(Constants.EXPRESS_BILL_REPORT_PARENT_ID);
+        List<DmsBaseDict> list = dmsBaseDictService.queryOrderByCondition(condition);
+        Map<Integer, String> map = new LinkedHashMap<>();
         for (int i = 0; i < list.size(); i++) {
             map.put(list.get(i).getTypeCode(), list.get(i).getMemo());
         }

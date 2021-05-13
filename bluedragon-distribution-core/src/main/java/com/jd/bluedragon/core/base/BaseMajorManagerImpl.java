@@ -18,8 +18,6 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.partner.waybill.api.WaybillManagerApi;
-import com.jd.partner.waybill.api.dto.response.ResultData;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
@@ -34,6 +32,8 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
+import com.jd.ql.dms.report.SiteQueryService;
+import com.jd.ql.dms.report.domain.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -80,15 +80,14 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
     @Autowired
-    @Qualifier("allianceWaybillManagerApi")
-    private WaybillManagerApi allianceWaybillManagerApi;
-
-    @Autowired
     @Qualifier("commonUseMenuApi")
     private CommonUseMenuApi commonUseMenuApi;
 
     @Autowired
     private BasicSiteUpdateService basicSiteUpdateService;
+
+    @Autowired
+    private SiteQueryService siteQueryService;
 
     /**
      * 站点ID
@@ -707,14 +706,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Override
     @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.allianceBusiMoneyEnough", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean allianceBusiMoneyEnough(String allianceBusiId) {
-        ResultData resultData = allianceWaybillManagerApi.checkReceiveOrder(allianceBusiId,Constants.UMP_APP_NAME_DMSWEB);
-        if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
-            return true;
-        }else{
-            log.warn("加盟商预付款返回失败或不充足:{}|{}",allianceBusiId,(resultData != null?resultData.getResultMsg():""));
-            return false;
-        }
-
+        //加盟商无流量下掉 jsf 调用 WaybillManagerApi
+        return false;
     }
 
     /**
@@ -797,5 +790,45 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }else {
             return false;
         }
+    }
+
+    /**
+     * 根据条件查询站点
+     * @param siteQueryCondition
+     * @param limit
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.querySiteByConditionFromEs", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public List<BasicSite> querySiteByConditionFromEs(SiteQueryCondition siteQueryCondition, Integer limit) {
+        return siteQueryService.querySiteByConditionFromEs(siteQueryCondition, limit);
+    }
+
+    /**
+     * 根据条件查询站点
+     * 		<p>
+     * 		    查询精简站点数据
+     * 		</p>
+     * @param siteQueryCondition
+     * @param limit
+     * @return
+     */
+    @Override
+    public List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.querySiteByConditionFromStreamlinedSite",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try{
+            BaseEntity<List<StreamlinedBasicSite>> baseEntity = siteQueryService.querySiteByConditionFromStreamlinedSite(siteQueryCondition, limit);
+            if(baseEntity == null || !baseEntity.isSuccess()){
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            log.error("根据条件查询站点异常！",e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
     }
 }

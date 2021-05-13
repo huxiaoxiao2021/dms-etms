@@ -12,7 +12,10 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_SEE_OTHER = 303;
     public static final String MESSAGE_SEE_OTHER = "See Other";
-    
+
+    public static final Integer CODE_BUSY = 20108;
+    public static final String MESSAGE_BUSY = "系统繁忙，请稍后重试！";
+
     public static final Integer CODE_PARAM_ERROR = 10000;
     public static final String MESSAGE_PARAM_ERROR = "参数错误";
     public static final String MESSAGE_PARAM_ERROR_2 = "网点信息为空，请重新登录再试！";
@@ -201,6 +204,10 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_RE_PRINT_REPEAT = 30122;
     public static final String MESSAGE_RE_PRINT_REPEAT = "此条码已操作过补打，是否再次打印？";
+
+    //弃件拦截
+    public static final Integer CODE_WAYBILL_WASTE = 30123;
+    public static final String MESSAGE_WAYBILL_WASTE = "弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)";
 
     public static final Integer CODE_DATA_OVERFLOW = 10001;
     public static final String MESSAGE_DATA_OVERFLOW = "每批上传包裹数量不能超过200";

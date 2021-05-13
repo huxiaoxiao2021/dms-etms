@@ -61,7 +61,7 @@ public class UnloadCarServiceImplTest {
 
     @Test
     public void testFindUnloadScan() {
-        List<UnloadScan> unloadScan = unloadScanDao.findUnloadScanByBySealCarCode("SC20050800003129");
+        List<UnloadScan> unloadScan = unloadScanDao.findUnloadScanBySealCarCode("SC20050800003129");
         System.out.println(unloadScan);
     }
 
@@ -77,7 +77,7 @@ public class UnloadCarServiceImplTest {
 
     @Test
     public void testUpdateUnloadScan() {
-        UnloadScan unloadScan = unloadScanDao.findUnloadByBySealAndWaybillCode("SC20050800003129", "JD0003334775397");
+        UnloadScan unloadScan = unloadScanDao.findUnloadBySealAndWaybillCode("SC20050800003129", "JD0003334775397");
         if (unloadScan != null) {
             boolean result = unloadScanDao.updateByPrimaryKey(unloadScan);
             System.out.println(result);

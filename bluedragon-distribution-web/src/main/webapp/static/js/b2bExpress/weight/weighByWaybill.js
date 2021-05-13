@@ -28,6 +28,7 @@
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
     var NO_NEED_WEIGHT = 201; //不需要称重
     var WAYBILL_STATES_FINISHED=202; //
+    var KAWAYBILL_NEEDPACKAGE_WEIGHT = 203;
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
@@ -113,6 +114,10 @@
                     {
                         $.messager.alert('提示',res.message,'warning');
                     }else if(res.code==WAYBILL_STATES_FINISHED){
+                        $.messager.alert('提示',res.message,'error');
+                    }else if(res.code==KAWAYBILL_NEEDPACKAGE_WEIGHT){
+                        $('#waybill-weight-btn').linkbutton('disable');
+                        $('#waybill-weight-import-btn').linkbutton('disable');
                         $.messager.alert('提示',res.message,'error');
                     }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
@@ -258,6 +263,13 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                     $.messager.alert('提示',res.message,'warning');
                     return ;
                 }
+                //KA运单
+                if(res.code == KAWAYBILL_NEEDPACKAGE_WEIGHT){
+                    $.messager.alert('提示',res.message,'error');
+                    $('#waybill-weight-btn').linkbutton('disable');
+                    $('#waybill-weight-import-btn').linkbutton('disable');
+                    return ;
+                }
                 if(res.code == WAYBILL_STATES_FINISHED){
                     $.messager.alert('提示',res.message,'error');
                     return ;
@@ -273,6 +285,7 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                         }
                     }
                 );
+
                 /*******************************************************************************/
             }
         });
@@ -761,7 +774,7 @@ function checkFileInput(input) {
 		$.messager.alert('导入异常','附件过大，不要超过2M！');
 	} 
 	return flag;
-   } 
+   }
 /*
 });*/
 

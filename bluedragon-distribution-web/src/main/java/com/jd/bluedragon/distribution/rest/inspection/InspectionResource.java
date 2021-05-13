@@ -108,6 +108,7 @@ public class InspectionResource {
 
 	@POST
 	@Path("/inspection/exceptionQueryExpand")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.inspectionExceptionByBoxOrThird", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InspectionECResponse inspectionExceptionByBoxOrThird(
 			InspectionECRequest inspectionECRequest) {
 		if (null == inspectionECRequest
@@ -133,6 +134,7 @@ public class InspectionResource {
 	 */
 	@POST
 	@Path("/inspection/exceptionQuery")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.inspectionException", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InspectionECResponse inspectionException(
 			InspectionECRequest inspectionECRequest) {
 		if (null == inspectionECRequest) {
@@ -221,6 +223,7 @@ public class InspectionResource {
 	 */
 	@POST
 	@Path("/inspection/exception/dispose")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.inspectionExceptionCancel", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse inspectionExceptionCancel(
 			InspectionECRequest inspectionECRequest) {
 
@@ -343,6 +346,7 @@ public class InspectionResource {
 	 */
 	@GET
 	@Path("/inspection/getWaybillPackage/{packageOrWaybillCode}/{siteCode}/{receiveSiteCodeORBoxCode}")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.getWaybillPackage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse get(
 			@PathParam("packageOrWaybillCode") String code,
 			@PathParam("siteCode") Integer siteCode,
@@ -391,6 +395,7 @@ public class InspectionResource {
 
 	@GET
 	@Path("/inspection")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.inspection", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public HandoverResponse get(@QueryParam("type") String type,
 			@QueryParam("createSiteCode") int createSiteCode,
 			@QueryParam("startTime") String startTime,
@@ -453,6 +458,7 @@ public class InspectionResource {
 
 	@POST
 	@Path("/inspection/returnWarehouse")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.getReturnWarehouse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public HandoverResponse getReturnWarehouse(
 			InspectionFCRequest inspectionFCRequest) {
 		List<HandoverDetailResponse> data = new ArrayList<HandoverDetailResponse>();
@@ -492,6 +498,7 @@ public class InspectionResource {
 
 	@POST
 	@Path("/inspection/turnoverBox")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.turnoverBox", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResponse turnoverBox(TurnoverBoxRequest turnoverBoxRequest) {
 		if (null == turnoverBoxRequest
 				|| turnoverBoxRequest.getBusinessType() == null) {
@@ -543,6 +550,7 @@ public class InspectionResource {
 
 	@GET
 	@Path("/inspection/hintInfo/{packageOrWaybillCode}/{siteCode}")
+	@JProfiler(jKey = "DMS.WEB.InspectionResource.getStorageCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
 			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode){

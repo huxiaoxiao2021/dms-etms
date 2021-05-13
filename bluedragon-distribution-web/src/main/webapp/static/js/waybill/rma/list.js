@@ -81,7 +81,16 @@ function exportBtn() {
                     idList = idList + "," + $(checkedKeys[i]).val()
                 }
             }
-            openPostWindow(url, "idList", idList);
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.RMA_HAND_OVER_REPORT,
+                checkPassCallback: function (result) {
+                    openPostWindow(url, "idList", idList);
+                },
+                checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
+                }
+            });
         } else {
             jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
         }

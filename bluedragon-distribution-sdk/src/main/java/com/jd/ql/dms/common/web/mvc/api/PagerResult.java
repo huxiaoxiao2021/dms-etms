@@ -1,5 +1,6 @@
 package com.jd.ql.dms.common.web.mvc.api;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -11,8 +12,11 @@ import java.util.List;
  * 
  * @param <E>
  */
-public class PagerResult<E> {
-	/**
+public class PagerResult<E> implements Serializable {
+
+    private static final long serialVersionUID = -4633010083450405487L;
+
+    /**
 	 * 数据总数
 	 */
 	private int total;

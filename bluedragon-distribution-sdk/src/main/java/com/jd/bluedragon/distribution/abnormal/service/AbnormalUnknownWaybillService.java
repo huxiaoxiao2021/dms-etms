@@ -7,6 +7,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -48,7 +49,7 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * @param arBookingSpaceCondition
      * @return
      */
-    public List<List<Object>> getExportData(AbnormalUnknownWaybillCondition arBookingSpaceCondition);
+    public void export(AbnormalUnknownWaybillCondition arBookingSpaceCondition, BufferedWriter bfw);
 
     /**
      * 加载数据

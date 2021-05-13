@@ -225,6 +225,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否奢侈品
+     * @param sendPay
+     * @return
+     */
+    public static boolean isLuxury(String sendPay) {
+        return isSignChar(sendPay, 19,'1');
+    }
+
+    /**
      * 根据waybillSign和sendSign判断是否城配运单
      *
      * @param waybillSign 36为1
@@ -294,7 +303,7 @@ public class BusinessUtil {
      */
     public static boolean isB2b(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
-        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5')
         				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
         						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
@@ -1765,13 +1774,13 @@ public class BusinessUtil {
             //去除号码中间的空白字符
         	String hidePhone = phone.replaceAll("\\s*", "");
             if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
-                return hidePhone.substring(0,PHONE_FIRST_NUMBER) 
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER)
                 		+ hidePlaceStr
                 		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
             }
         }
         return phone;
-    } 
+    }
     /**
      * 隐藏姓名：1位以上地址返回前1位+^_^，否则返回原值
      * @param name 姓名
@@ -1847,6 +1856,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 特定开头的箱号
+     * @param boxCode
+     * @param codePrefix
+     * @return
+     */
+    public static boolean boxCodeMatchPrefix(String boxCode, String codePrefix) {
+        if (StringUtils.isBlank(boxCode) || StringUtils.isBlank(codePrefix)) {
+            return false;
+        }
+        return isBoxcode(boxCode) && boxCode.trim().toUpperCase().startsWith(codePrefix);
+    }
+
+    /**
      *  判断是否为C 网
      *  40 位为0:C网,   非0:B网
      */
@@ -1878,6 +1900,97 @@ public class BusinessUtil {
      */
     public static boolean isFYWZ(String waybillSign) {
         return isSignChar(waybillSign, 82, '6');
+    }
+    /**
+     * 判断包裹维度是否有增值服务信息，waybillSign86位=2或者3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPackageHavePickUpOrNo(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_86,
+                WaybillSignConstants.CHAR_86_2,WaybillSignConstants.CHAR_86_3);
+    }
+
+    /**
+     * 判断是否是返单
+     */
+    public static boolean isRefund(String waybillSign) {
+        return isSignChar(waybillSign, 1, '7');
+    }
+
+    /**
+     * 判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 去获取包裹的
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isKaPackageOrNo(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ;
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否需要打印包裹维度商品名称信息，waybillSign66位=3 或者2 包裹标签需要打印商品名称信息。
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needPrintPackageName(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3) ||
+                BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_2);
+        return isSignChars;
+    }
+
+    /**
+     * 根据waybillSign判断是否必须称重量方,waybillSign66位=3 必须称重量方
+     * @param waybillSign
+     * @return
+     */
+    public static boolean needWeighingSquare(String waybillSign){
+        boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3);
+        return isSignChars;
+    }
+
+    /**
+     * 当 WaybillSign40=2且 WaybillSign1≠7时，则查运单接口
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNeedCheckWeightOrNo(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                    && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
+
+    }
+
+    /**
+     * 校验是否需要校验重量(装卸车)
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNeedCheckWeightBusiness2OrNo(String waybillSign){
+        return isSignInChars(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_4)
+                && !isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,WaybillSignConstants.CHAR_1_7);
+
+    }
+
+
+    /**
+     * 判断是否支持按包裹维度批量导入-当WaybillSign66=0或1时，不支持
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isNotSupportUpWeightByPackage(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66,
+                WaybillSignConstants.CHAR_66_1, WaybillSignConstants.CHAR_66_0);
+    }
+
+
+    /**
+     * 非B2B运单
+     * @param sendPay
+     * @return
+     */
+    public static boolean isNotB2B(String sendPay) {
+        return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
     }
 
 

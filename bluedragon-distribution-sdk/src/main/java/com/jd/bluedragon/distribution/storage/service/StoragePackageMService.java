@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -109,9 +110,10 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * 根据条件导出
      *
      * @param condition
+     * @param bfw
      * @return
      */
-    List<List<Object>> getExportData(StoragePackageMCondition condition);
+    void getExportData(StoragePackageMCondition condition, BufferedWriter bfw);
 
     /**
      * 获取分拣中心储位状态

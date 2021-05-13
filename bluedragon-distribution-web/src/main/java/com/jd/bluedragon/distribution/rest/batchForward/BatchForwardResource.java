@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class BatchForwardResource {
 
     @GET
     @Path("/batchForward/checkSendCode/{sendCode}/{flage}")
+    @JProfiler(jKey = "DMS.WEB.BatchForwardResource.checkSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CreateAndReceiveSiteInfo> checkSendCode(
             @PathParam("sendCode") String sendCode,@PathParam("flage") Integer flage){
 
@@ -64,6 +67,7 @@ public class BatchForwardResource {
      */
     @POST
     @Path("/batchForward/batchForwardSend")
+    @JProfiler(jKey = "DMS.WEB.BatchForwardResource.batchForwardSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult batchForwardSend(BatchForwardRequest request){
         if(log.isInfoEnabled()){
             log.info(JsonHelper.toJsonUseGson(request));

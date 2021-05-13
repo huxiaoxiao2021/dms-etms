@@ -25,7 +25,15 @@
     <bean id="sessionTemplateBusiness" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
     </bean>
+    <bean id="businessSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
+    <bean id="sessionTemplateBase" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
+    <bean id="loadUnloadSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactoryBusiness"/>
+    </bean>
     <tx:annotation-driven transaction-manager="transactionManagerBusiness"/>
     <!--###########################bd_dms_business dataSource###############################-->
-
 </beans>

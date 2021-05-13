@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.*;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.unloadCar.CreateUnloadTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanDao;
 import com.jd.bluedragon.distribution.goodsLoadScan.dao.GoodsLoadScanRecordDao;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.report.domain.LoadScanDto;
+import com.jd.service.common.json.JSON;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -481,5 +483,13 @@ public class GoodsLoadingScanningServiceImplTest {
         req.setTaskId(204L);
         req.setPackageCode("JDV000503436330-1640-20000-");
         goodsLoadingScanningService.checkPackageCode(req);
+    }
+
+    @Test
+    public void testStartUnloadTask(){
+        String str="[{\"currentOperate\":{\"siteCode\":39,\"siteName\":\"石景山营业部\"},\"operateTime\":\"2021-04-12 15:51:21\",\"taskCode\":\"PDA1618213809124\",\"taskStatus\":2,\"type\":1,\"user\":{\"userCode\":0,\"userErp\":\"bjxings\",\"userName\":\"刑松\"}}]";
+        UnloadCarTaskReq unloadCarTaskReq= JsonHelper.fromJson(str,UnloadCarTaskReq.class);
+        loadAndUnloadCarGatewayService.startUnloadTask(unloadCarTaskReq);
+
     }
 }

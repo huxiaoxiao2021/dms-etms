@@ -52,6 +52,11 @@ public class CombinationBoardRequest implements Serializable {
      */
     private boolean forceCombination;
 
+    /**
+     * 错组标识: 1是错组，0是非错组
+     */
+    private Integer flowDisaccord;
+
     @Override
     public String toString() {
         return "CombinationBoardRequest{" +
@@ -119,5 +124,13 @@ public class CombinationBoardRequest implements Serializable {
 
     public void setForceCombination(boolean forceCombination) {
         this.forceCombination = forceCombination;
+    }
+
+    public Integer getFlowDisaccord() {
+        return flowDisaccord;
+    }
+
+    public void setFlowDisaccord(Integer flowDisaccord) {
+        this.flowDisaccord = flowDisaccord;
     }
 }

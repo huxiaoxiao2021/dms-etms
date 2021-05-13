@@ -1,13 +1,10 @@
 package com.jd.bluedragon.distribution.newseal.dao.impl;
 
-import java.util.List;
-
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.newseal.dao.TmsVehicleRouteDao;
 import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRoute;
-import com.jd.bluedragon.distribution.newseal.entity.TmsVehicleRouteCondition;
 
 /**
  * @ClassName: TmsVehicleRouteDaoImpl
@@ -38,10 +35,5 @@ public class TmsVehicleRouteDaoImpl extends BaseDao<TmsVehicleRoute> implements 
 	@Override
 	public TmsVehicleRoute queryByVehicleRouteCode(String vehicleRouteCode) {
 		return this.getSqlSession().selectOne(namespace + ".queryByVehicleRouteCode", vehicleRouteCode);
-	}
-
-	@Override
-	public List<TmsVehicleRoute> queryByCondition(TmsVehicleRouteCondition condition) {
-		return this.getSqlSession().selectList(namespace + ".queryByCondition", condition);
 	}
 }

@@ -1,5 +1,12 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Created by xumei3 on 2017/12/15.
  */
@@ -45,6 +52,11 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+    /**
+     * 离线任务限流数量
+     */
+    private Integer offlineCurrentLimitingCount;
+
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
@@ -77,9 +89,14 @@ public class UccPropertyConfiguration {
     private String oldLogPageTips;
 
     /**
-     * 离线任务的操作时间的更正时间范围
+     * 离线任务的操作时间在系统时间之后的时间限制范围：24
      */
     private int offlineTaskOperateTimeCorrectHours;
+
+    /**
+     * 离线任务的操作时间在系统时间之前的时间限制范围：96h
+     */
+    private int offlineTaskOperateTimeBeforeNowLimitHours;
 
     /**
      * 自动化称重的入口切换开关
@@ -239,6 +256,91 @@ public class UccPropertyConfiguration {
     * */
     private boolean preSortOnSiteSwitchOn;
 
+    /**
+     * BC箱号绑定WJ数量限制
+     */
+    private int BCContainWJNumberLimit;
+
+    /**
+     * WJ装箱包裹数限制
+     */
+    private int WJPackageNumberLimit;
+
+    /**
+     * 是否走老逻辑检查箱是否发货开关
+     */
+    private boolean checkBoxSendedSwitchOn;
+
+    /**
+     * BC箱号强制绑定循环集包袋开关(黑名单)
+     * 配置的走新的逻辑，不配置的走以前的逻辑
+     * 注: 仅为了上线使用
+     * @return
+     */
+    private String allBCBoxFilterWebSite;
+
+
+    /**
+     * 站点查询数量最大限制
+     */
+    private Integer siteQueryLimit;
+
+    /**
+     * 抽检导出最大限制
+     */
+    private Integer exportSpotCheckMaxSize;
+
+    /**
+     * PDA通知自动拉取间隔时间(单位秒)
+     */
+    private Integer pdaNoticePullIntervalTime;
+
+    /**
+     * 离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
+     */
+    private String offlineTaskReportInterceptSites;
+
+    /**
+     * 称重良方规则标准
+     */
+    private String weightVolumeRuleStandard;
+
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
+
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
+
+    /**
+     * 打印交接清单新查询开通场地
+     *  1)、字符串false代表不开启
+     *  2)、多个场地以,分隔
+     *  3)、字符串true代表全国
+     */
+    private String printHandoverListSites;
+
+    /**
+     * 校验站点子类型是否三方：16
+     */
+    private boolean checkSiteSubType;
+
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
+    public String getWeightVolumeRuleStandard() {
+        return weightVolumeRuleStandard;
+    }
+
+    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
+        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
+    }
+
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
     }
@@ -277,6 +379,14 @@ public class UccPropertyConfiguration {
 
     public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
         this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
+
+    public Integer getOfflineCurrentLimitingCount() {
+        return offlineCurrentLimitingCount;
+    }
+
+    public void setOfflineCurrentLimitingCount(Integer offlineCurrentLimitingCount) {
+        this.offlineCurrentLimitingCount = offlineCurrentLimitingCount;
     }
 
     public String getAsynbufferEnabledTaskType() {
@@ -429,6 +539,14 @@ public class UccPropertyConfiguration {
 
     public void setOfflineTaskOperateTimeCorrectHours(int offlineTaskOperateTimeCorrectHours) {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
+    }
+
+    public int getOfflineTaskOperateTimeBeforeNowLimitHours() {
+        return offlineTaskOperateTimeBeforeNowLimitHours;
+    }
+
+    public void setOfflineTaskOperateTimeBeforeNowLimitHours(int offlineTaskOperateTimeBeforeNowLimitHours) {
+        this.offlineTaskOperateTimeBeforeNowLimitHours = offlineTaskOperateTimeBeforeNowLimitHours;
     }
 
     public boolean getAutomaticWeightVolumeExchangeSwitch() {
@@ -661,5 +779,126 @@ public class UccPropertyConfiguration {
 
     public void setDeliverHideSites(String deliverHideSites) {
         this.deliverHideSites = deliverHideSites;
+    }
+
+    public int getBCContainWJNumberLimit() {
+        return BCContainWJNumberLimit;
+    }
+
+    public void setBCContainWJNumberLimit(int BCContainWJNumberLimit) {
+        this.BCContainWJNumberLimit = BCContainWJNumberLimit;
+    }
+
+    public int getWJPackageNumberLimit() {
+        return WJPackageNumberLimit;
+    }
+
+    public void setWJPackageNumberLimit(int WJPackageNumberLimit) {
+        this.WJPackageNumberLimit = WJPackageNumberLimit;
+    }
+
+    public boolean getCheckBoxSendedSwitchOn() {
+        return checkBoxSendedSwitchOn;
+    }
+
+    public void setCheckBoxSendedSwitchOn(boolean checkBoxSendedSwitchOn) {
+        this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
+    }
+
+    public String getAllBCBoxFilterWebSite() {
+        return allBCBoxFilterWebSite;
+    }
+
+    public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
+        this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
+    }
+
+    public Integer getSiteQueryLimit() {
+        return siteQueryLimit;
+    }
+
+    public void setSiteQueryLimit(Integer siteQueryLimit) {
+        this.siteQueryLimit = siteQueryLimit;
+    }
+
+    public Integer getExportSpotCheckMaxSize() {
+        return exportSpotCheckMaxSize;
+    }
+
+    public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
+        this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
+    }
+
+    public Integer getPdaNoticePullIntervalTime() {
+        return pdaNoticePullIntervalTime;
+    }
+
+    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
+        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
+    }
+
+    public String getOfflineTaskReportInterceptSites() {
+        return offlineTaskReportInterceptSites;
+    }
+
+    public void setOfflineTaskReportInterceptSites(String offlineTaskReportInterceptSites) {
+        this.offlineTaskReportInterceptSites = offlineTaskReportInterceptSites;
+    }
+
+    public Boolean getOfflineTaskReportInterceptNeedHandle(Integer siteId) {
+        if(StringUtils.isBlank(offlineTaskReportInterceptSites)){
+            return false;
+        }
+        if(Objects.equals("0", offlineTaskReportInterceptSites)){
+            return true;
+        }
+        if(Objects.equals("-1", offlineTaskReportInterceptSites)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(offlineTaskReportInterceptSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
+
+    public Integer getExportConcurrencyLimitNum() {
+        return exportConcurrencyLimitNum;
+    }
+
+    public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
+        this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
+    }
+
+    public Integer getOneQuerySize() {
+        return oneQuerySize;
+    }
+
+    public void setOneQuerySize(Integer oneQuerySize) {
+        this.oneQuerySize = oneQuerySize;
+    }
+
+    public String getPrintHandoverListSites() {
+        return printHandoverListSites;
+    }
+
+    public void setPrintHandoverListSites(String printHandoverListSites) {
+        this.printHandoverListSites = printHandoverListSites;
+    }
+
+    public boolean getCheckSiteSubType() {
+        return checkSiteSubType;
+    }
+
+    public void setCheckSiteSubType(boolean checkSiteSubType) {
+        this.checkSiteSubType = checkSiteSubType;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
     }
 }

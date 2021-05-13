@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -36,6 +37,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -43,6 +45,8 @@ import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -55,6 +59,8 @@ import java.util.*;
  * @date : 2019/7/20
  */
 public class SendGatewayServiceImpl implements SendGatewayService {
+
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     @Qualifier("deliveryResource")
@@ -75,6 +81,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @Autowired
     private SendCodeService sendCodeService;
 
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request) {
@@ -88,6 +97,10 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
+        // 按运单发货设置bizSource
+        if (Objects.equals(SendBizSourceEnum.WAYBILL_SEND.getCode().toString(), cRequest.getBizSource())) {
+            request.setBizSource( SendBizSourceEnum.WAYBILL_SEND.getCode());
+        }
         request.setIsForceSend(cRequest.isForceSend());
         request.setIsCancelLastSend(cRequest.isCancelLastSend());
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
@@ -313,6 +326,29 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         return res;
+    }
+
+    /**
+     * 冷链发货校验
+     * @param request 单个发货参数
+     * @return 校验结果
+     * @author fanggang7
+     * @time 2021-03-23 11:28:33 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.checkColdChainSendDelivery",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Boolean> checkColdChainSendDelivery(DeliveryRequest request) {
+        log.info("SendGatewayServiceImpl.checkColdChainSendDelivery param {}", JsonHelper.toJson(request));
+        JdCResponse<Boolean> result = new JdCResponse<>();
+        result.toSucceed();
+        try {
+            SortingJsfResponse checkResult = sortingCheckService.coldChainSendCheckAndReportIntercept(request);
+            result.init(checkResult.getCode(), checkResult.getMessage());
+        } catch (Exception e) {
+            log.error("SendGatewayServiceImpl.checkColdChainSendDelivery exception {}", e.getMessage(), e);
+            result.toFail("操作异常");
+        }
+        return result;
     }
 
     @Override

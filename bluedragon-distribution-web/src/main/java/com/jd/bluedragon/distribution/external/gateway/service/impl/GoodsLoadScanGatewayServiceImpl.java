@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
@@ -17,6 +19,7 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,6 +47,8 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Resource
     private LoadScanCacheService loadScanCacheService;
 
+    @Autowired
+    WaybillTraceManager waybillTraceManager;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -557,6 +562,50 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
         return loadScanService.findUnloadPackages(req, response);
+    }
+
+    //跟进传入信息，判断对应的运单是否已经妥投，使用场景新老订单误扫问题现场判断是否继续操作，后续使用请加入当前知道的使用场景，谢谢。
+    @Override
+    @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.checkWaybillIsFinish",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdVerifyResponse<Void> checkWaybillIsFinish(String scanBarString) {
+        JdVerifyResponse<Void> response = new JdVerifyResponse<>();
+        response.setCode(JdCResponse.CODE_SUCCESS);
+        //返回信息的类型 共4种，便于app匹配接下来的动作.
+        //参数校验缺一不可.
+        if(StringUtils.isEmpty(scanBarString)){
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，缺少相应的包裹号或者运单号,请检查是否扫描.");
+            return response;
+        }
+
+        Boolean  isPackage = WaybillUtil.isPackageCode(scanBarString);
+        Boolean  isWaybillCode = WaybillUtil.isWaybillCode(scanBarString);
+        String  waybillCode = null;
+        //
+        if(isPackage){
+            waybillCode = WaybillUtil.getWaybillCode(scanBarString);
+        }else if(isWaybillCode){
+            waybillCode = scanBarString;
+        }else{
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，输入的信息非法,请输入包裹号或者运单号!传入信息为:"+scanBarString);
+            return response;
+        }
+        if(StringUtils.isEmpty(waybillCode)){
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，根据入参获取到的运单号为空!传入信息为:"+scanBarString);
+            return response;
+        }
+        Boolean isFinished = waybillTraceManager.isWaybillFinished(waybillCode);
+        if(isFinished){
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+//            response.setCode(JdCResponse.CODE_CONFIRM);
+            msgBox.setMsg("运单已妥投,请确认是否继续操作.传入信息:"+scanBarString);
+            response.addBox(msgBox);
+        }
+        return response;
     }
 
 

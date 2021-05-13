@@ -4,8 +4,6 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -65,6 +63,13 @@ public class FilterContext {
      * 分拣操作时，箱号已分拣的包裹数
      */
     private Integer hasSortingPackageNum;
+
+    /**
+     * 操作站点
+     */
+    private Site createSite;
+
+    private Integer onlineStatus;
 
     public String getBoxCode() {
         return boxCode;
@@ -254,4 +259,19 @@ public class FilterContext {
 		this.hasSortingPackageNum = hasSortingPackageNum;
 	}
 
+    public Site getCreateSite() {
+        return createSite;
+    }
+
+    public void setCreateSite(Site createSite) {
+        this.createSite = createSite;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
+    }
 }

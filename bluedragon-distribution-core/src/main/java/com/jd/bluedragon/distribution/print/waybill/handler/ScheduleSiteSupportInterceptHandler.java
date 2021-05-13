@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -47,6 +50,9 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
 
     @Autowired
     private WaybillPrintService waybillPrintService;
+
+    @Autowired
+    private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -134,6 +140,13 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                         }
                     }
                 }
+            }
+
+            //规则4-已退款的禁止 操作现场预分拣
+            JdCResponse jdCResponse = blockerQueryWSJsfManager.queryExceptionOrders(waybillCode);
+            if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
+                result.toError(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
+                return result;
             }
 
         } catch (Exception e) {

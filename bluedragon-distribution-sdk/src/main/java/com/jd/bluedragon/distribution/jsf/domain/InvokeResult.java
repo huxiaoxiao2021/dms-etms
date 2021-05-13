@@ -8,6 +8,9 @@ import java.io.Serializable;
 public class InvokeResult<T> implements Serializable {
 
     private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
+
+    public static final int RESULT_SUCCESS_CODE = 200;
+
     public InvokeResult(){
         this.code=200;
     }
@@ -82,5 +85,12 @@ public class InvokeResult<T> implements Serializable {
     public void customMessage(int code,String message){
         this.code=code;
         this.message=message;
+    }
+
+    /**
+     * 成功
+     */
+    public boolean codeSuccess() {
+        return this.code == RESULT_SUCCESS_CODE;
     }
 }

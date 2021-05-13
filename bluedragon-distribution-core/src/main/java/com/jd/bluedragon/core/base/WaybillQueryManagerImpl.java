@@ -2,13 +2,18 @@ package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
+import com.jd.coo.ucc.common.utils.JsonUtils;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
@@ -16,11 +21,23 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.*;
+import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.GoodsDto;
+import com.jd.etms.waybill.dto.GoodsQueryDto;
+import com.jd.etms.waybill.dto.OrderParentChildDto;
+import com.jd.etms.waybill.dto.SkuPackRelationDto;
+import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillAttachmentDto;
+import com.jd.etms.waybill.dto.WaybillPickupVasDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -28,7 +45,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +54,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -69,12 +88,28 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Autowired
     private WaybillUpdateApi waybillUpdateApi;
 
+    @Autowired
+    private EclpItemManager eclpItemManager;
+
     /**
      * 大包裹运单缓存开关
      */
     private final static String BIG_WAYBILL_PACKAGE_CACHE_SWITCH = PropertiesHelper.newInstance().getValue("big.waybill.package.cache.switch");
 
     private static final String SWITCH_ON = "1";
+
+    private static Map<String,String> mapValues = new HashMap<>(16,0.75f);
+    static {
+        mapValues.put("保价金额","保价");
+        mapValues.put("代收货款","代收");
+        mapValues.put("重货上楼","上楼");
+        mapValues.put("包装服务","包装");
+        mapValues.put("暂存服务","预约");
+        mapValues.put("特安服务","特安");
+        mapValues.put("大件开箱通电","通电");
+        mapValues.put("大件送装一体","送装");
+        mapValues.put("大件取旧服务","取旧");
+    }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByReturnWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
@@ -754,4 +789,324 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	public  BaseEntity<List<WaybillAttachmentDto>> getWaybillAttachmentByWaybillCodeAndType(String waybill, Integer attachmentType){
         return waybillQueryApi.getWaybillAttachmentByWaybillCodeAndType(waybill,attachmentType);
     }
+
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.doGetPackageVasInfo" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Map<String,String> doGetPackageVasInfo(String wayBillCode) {
+        //查询出一个属于一个包裹的所有商品的增值服务明细 key->包裹号 value->增值服务信息
+        Map<String,String> packageUpVasMap = new HashMap<>();
+        //获取包裹增值服务
+        GoodsQueryDto goodsQueryDto = new GoodsQueryDto();
+        goodsQueryDto.setQueryGoodsVas(true);
+        goodsQueryDto.setWaybillCode(wayBillCode);
+        try {
+            BaseEntity<List<GoodsDto>> baseEntity = waybillQueryApi.queryGoodsDataByWCode(goodsQueryDto);
+            log.info("查询运单下商品明细-支持扩展属性,运单号:{},获取数据:{}",wayBillCode,JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getData() != null && baseEntity.getResultCode() == 1) {
+                List<GoodsDto> dataList = baseEntity.getData();
+                if(dataList!= null && dataList.size()>0){
+                    if(log.isWarnEnabled()){
+                        this.log.warn("获取到运单下商品明细信息,运单号:{}",wayBillCode);
+                    }
+                    for (GoodsDto goodsDto:dataList) {
+                        //保存商品增值服务明细list
+                        StringBuilder sbString = new StringBuilder();
+                        String packPickUpVas = packageUpVasMap.get(goodsDto.getPackBarcode());
+                        //商品增值服务明细
+                        List<WaybillPickupVasDto> waybillPickupVasDtoList = goodsDto.getWaybillPickupVasDtoList();
+                        if(CollectionUtils.isNotEmpty(waybillPickupVasDtoList)){
+                            for(WaybillPickupVasDto waybillPickupVasDto :waybillPickupVasDtoList){
+                                Map<String,Object> vasExtMap = waybillPickupVasDto.getVasExt();
+                                if(vasExtMap != null && !vasExtMap.isEmpty()){
+                                    if(vasExtMap.get("vasName") != null) sbString.append(" ").append(simpleValues(vasExtMap.get("vasName")));
+                                }
+                            }
+                        }
+                        if(StringUtils.isNotBlank(packPickUpVas)){
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),new StringBuilder(packPickUpVas).append(sbString).toString());
+                        }else{
+                            packageUpVasMap.put(goodsDto.getPackBarcode(),sbString.toString());
+                        }
+                    }
+                }
+            }else{
+                if(log.isWarnEnabled()){
+                    log.warn("查询运单下商品明细支持扩展属性接口失败！return:{}",JsonHelper.toJson(baseEntity));
+                }
+            }
+        }catch (Exception e){
+            if(log.isWarnEnabled()){
+                log.error("查询运单下商品明细支持扩展属性接口失败！运单号:{},异常信息:{}",wayBillCode,e);
+            }
+        }
+        log.info("获取商品增值信息成功,运单号:{},返回增值信息:{}",wayBillCode,packageUpVasMap);
+        return packageUpVasMap;
+    }
+
+    private static String simpleValues(Object vasName){
+
+        String newVasName = vasName.toString().trim();
+        String simpleValues = mapValues.get(newVasName);
+        if(StringUtils.isNotBlank(simpleValues)){
+            return simpleValues;
+        }else {
+            return newVasName;
+        }
+    }
+
+    @Override
+    public Map<String, String> doGetPackageGoodsVasInfo(String wayBillCode) {
+        WChoice wChoice = new WChoice();
+        //只查询运单下的商品列表
+        wChoice.setQueryGoodList(true);
+        try {
+            BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(wayBillCode, wChoice);
+            log.info("调用运单明细自定义查询接口成功,运单号:{},返回数据:{}",wayBillCode, JsonUtils.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+                BigWaybillDto waybillDto = baseEntity.getData();
+                //商品明细
+                List<Goods> goodsList = waybillDto.getGoodsList();
+                //获取商品信息
+                if(CollectionUtils.isNotEmpty(goodsList)){
+                    Map<String,String> packageNameVasMap = new HashMap<>(goodsList.size());
+                    //保存商品名称明细list
+                    for(Goods good : goodsList){
+                        StringBuilder sbString = new StringBuilder();
+                        String packageName = packageNameVasMap.get(good.getPackBarcode());
+                        if(StringUtils.isNotBlank(good.getGoodName())) sbString.append(good.getGoodName());
+                        //说明该包裹下不止一个商品 获取其他商品信息并拼接
+                        if(StringUtils.isNotBlank(packageName)){
+                            packageNameVasMap.put(good.getPackBarcode(),new StringBuilder(packageName).append(" ").append(sbString).toString());
+                        }else{//该包裹下目前为止仅一个商品
+                            packageNameVasMap.put(good.getPackBarcode(),sbString.toString());
+                        }
+                    }
+                    log.info("WaybillQueryManagerImpl-doGetPackageGoodsVasInfo-运单号:{},返回map:{}",wayBillCode,packageNameVasMap);
+                    return packageNameVasMap;
+                }else {
+                    log.warn("调用运单明细自定义查询接口查询出goods信息为空");
+                }
+            }else{
+                log.warn("调用运单明细自定义查询接口失败,运单号:{},返回信息:{}",wayBillCode,JsonUtils.toJson(baseEntity));
+            }
+        }catch (Exception ex){
+            log.error("WaybillQueryManagerImpl-doGetPackageGoodsVasInfo异常,运单号:{},异常信息",wayBillCode,ex);
+        }
+        return new HashMap<>();
+    }
+
+    /**
+     * 根据运单信息获取运输产品类型
+     * 判断waybill_sign,按以下规则设置产品名称
+     序号	标记位	   产品名称	面单打印形式
+     1	55位=0且31位=5	微小件	特惠送
+     2	55位=0且31位=B	函速达	函速达
+     3	31=7且29位=8	特瞬送同城	极速达
+     4	55位=0且31位=7且29位=8	同城速配	同城速配
+     5	31=0	特惠送	特惠送
+     6	55位=0且31位=3	特瞬送城际	城际即日
+     7	55位=0且31位=A	生鲜特惠	生鲜特惠
+     8	55位=0且31位=9	生鲜特快	生鲜特快
+     9	55位=1且84位=3代表航空 55位=1且84位≠3代表非航空	生鲜专送	生鲜专送
+     10	（55位=0且31位=1且116位=0）或（55位=0且31位=1且116位=1）	特快送	特快送
+     11	（55位=0且31位=2且16位=1,2,3,7,8）或（55位=0且31位=1且116位=2）	特快送"同城即日"	特快送即日
+     12	55位=0且31位=4或55位=0且31位=1且116位=3	特快送“特快次晨”	特快送次晨
+     13	31=6	京准达+其他主产品	京准达
+     14	31=6	京准达	京准达
+     15	55位=0且31位=1且116位=4	特快陆运	特快送
+     16	55位=0且31位=C	特惠小包	特惠包裹
+     * @param waybill
+     * @return
+     */
+    @Override
+    public String getTransportMode(Waybill waybill){
+        String res="";
+
+        if(waybill == null){
+            return res;
+        }
+        String waybillSign = waybill.getWaybillSign();
+        if(StringHelper.isEmpty(waybillSign)){
+            return res;
+        }
+
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_0)){
+            //5-特惠送
+            res = TextConstants.PRODUCT_NAME_THS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_6)){
+            //13\14-京准达
+            res = TextConstants.PRODUCT_NAME_JZD;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_F)){
+            //31 = F  特惠小件
+            res = TextConstants.PRODUCT_NAME_THXJ;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)){
+            //31 = G  冷链专送
+            res = TextConstants.PRODUCT_NAME_LLZS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
+                && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+                //4-同城速配
+                res = TextConstants.PRODUCT_NAME_TCSP;
+            }else{
+                //3-极速达
+                res = TextConstants.PRODUCT_NAME_JSD;
+            }
+        }
+        if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
+            if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_5)){
+                //1-特惠送
+                res = TextConstants.PRODUCT_NAME_THS;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_B)){
+                //2-函速达
+                res = TextConstants.PRODUCT_NAME_HSD;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_3)){
+                //6-城际即日
+                res = TextConstants.PRODUCT_NAME_CJJR;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_A)){
+                //7-生鲜特惠
+                res = TextConstants.PRODUCT_NAME_SXTH;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_9)){
+                //8-生鲜特快
+                res = TextConstants.PRODUCT_NAME_SXTK;
+                // 8.1 - 生鲜特快下运营类型
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
+                    res += TextConstants.PRODUCT_NAME_SXTK_JR;
+                }
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)) {
+                    res += TextConstants.PRODUCT_NAME_SXTK_CC;
+                }
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
+                //16-特惠包裹
+                res = TextConstants.PRODUCT_NAME_THBG;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_0,WaybillSignConstants.CHAR_116_1)){
+                //10-特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }else if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
+                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1,WaybillSignConstants.CHAR_16_2
+                    ,WaybillSignConstants.CHAR_16_3,WaybillSignConstants.CHAR_16_7,WaybillSignConstants.CHAR_16_8))
+                    ||
+                    (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2))){
+                //11-特快送即日
+                res = TextConstants.PRODUCT_NAME_TKSJR;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                    ||
+                    (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3))){
+                //12-特快送次晨
+                res = TextConstants.PRODUCT_NAME_TKSCC;
+            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_4)){
+                //15-特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }
+
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_1)){
+            //9-生鲜专送
+            res = TextConstants.PRODUCT_NAME_SXZS;
+        }
+
+        return res;
+    }
+
+    /**
+     * 根据运单信息获取托寄物名称
+     * @param bigWaybillDto
+     * @return
+     */
+    @Override
+    public String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto){
+        // 1.查询运单商品信息
+        String name = this.getConsignmentNameFromGoods(bigWaybillDto.getGoodsList());
+        if (name != null) {
+            return name;
+        }
+        // 2.查询ECLP全程跟踪
+        name = this.getConsignmentNameFromECLP(bigWaybillDto.getWaybill().getBusiOrderCode());
+        if (name != null) {
+            return name;
+        }
+        // 3.查询运单托寄物信息
+        name = this.getConsignmentNameFromWaybillExt(bigWaybillDto.getWaybill().getWaybillExt());
+        if (name != null) {
+            return name;
+        }
+        return null;
+    }
+
+    /**
+     * 查询运单商品信息
+     *
+     * @param goods
+     * @return
+     */
+    private String getConsignmentNameFromGoods(List<Goods> goods) {
+        if (goods != null && goods.size() > 0) {
+            StringBuilder name = new StringBuilder();
+            for (int i = 0; i < goods.size(); i++) {
+                //明细内容： 商品编码SKU：商品名称*数量
+                name.append(goods.get(i).getSku());
+                name.append(":");
+                name.append(goods.get(i).getGoodName());
+                name.append(" * ");
+                name.append(goods.get(i).getGoodCount());
+                if (i != goods.size() - 1) {
+                    //除了最后一个，其他拼完加个,
+                    name.append(",");
+                }
+            }
+            return name.toString();
+        }
+        return null;
+    }
+
+    /***
+     * 调用ECLP获取商品信息
+     *
+     * @param busiOrderCode
+     * @return
+     */
+    private String getConsignmentNameFromECLP(String busiOrderCode) {
+        //第二步 查eclp
+        //如果运单上没有明细 就判断是不是eclp订单 如果是，调用eclp接口
+        if (WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)) {
+            StringBuilder name = new StringBuilder();
+            List<ItemInfo> itemInfoList = eclpItemManager.getltemBySoNo(busiOrderCode);
+            if (itemInfoList != null && itemInfoList.size() > 0) {
+                for (int i = 0; i < itemInfoList.size(); i++) {
+                    //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty  eclp负责人宫体雷
+                    name.append(itemInfoList.get(i).getGoodsName());
+                    name.append(" * ");
+                    name.append(itemInfoList.get(i).getDeptRealOutQty() == null ? itemInfoList.get(i).getRealOutstoreQty() : itemInfoList.get(i).getDeptRealOutQty());
+                    if (i != itemInfoList.size() - 1) {
+                        //除了最后一个，其他拼完加个,
+                        name.append(",");
+                    }
+                }
+                return name.toString();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 查询运单托寄物信息
+     *
+     * @param waybillExt
+     * @return
+     */
+    private String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
+        //第三步 查运单的托寄物
+        if (waybillExt != null && org.apache.commons.lang.StringUtils.isNotEmpty(waybillExt.getConsignWare())) {
+            StringBuilder name = new StringBuilder();
+            name.append(waybillExt.getConsignWare());
+            name.append(waybillExt.getConsignCount() == null ? "" : " * " + waybillExt.getConsignCount());
+            return name.toString();
+        }
+        return null;
+    }
+
 }

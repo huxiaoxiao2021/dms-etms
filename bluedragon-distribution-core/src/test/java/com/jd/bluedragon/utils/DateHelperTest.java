@@ -46,7 +46,7 @@ public class DateHelperTest {
 	@Test
 	public void testGetDateFormat() {
 		String[] dateStrList = new String[]{
-				"2020-03-06 11:16:15",
+				"2021-04-21 10:23:15",
 				"2020-03-06 11:16:15.124",
 				"2020/03/06 11:16:15",
 				"2020/03/06 11:16:15.123",
@@ -67,5 +67,15 @@ public class DateHelperTest {
 			}
 		}
 		System.out.println("----:" + DateHelper.getDateFormat(null));
+	}
+	@Test
+	public void testParseTmsCarTime() {
+		String[] dateStrList = new String[]{
+				"1D10:00",
+				"-1D 10:10"
+				};
+		for (String dateStr : dateStrList) {
+			System.out.println("----:" + DateHelper.parseTmsCarTime("2021-01-01",dateStr));
+		}
 	}
 }

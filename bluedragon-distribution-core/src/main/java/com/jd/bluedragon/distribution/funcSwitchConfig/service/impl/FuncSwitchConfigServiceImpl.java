@@ -5,7 +5,6 @@ import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -25,7 +24,6 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.rule.dao.RuleDao;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
-import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -39,6 +37,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -48,7 +48,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -886,6 +885,56 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         }
         List<String> siteCodes = Arrays.asList(uccStr.split(Constants.SEPARATOR_COMMA));
         return siteCodes.contains(String.valueOf(siteCode));
+    }
+
+    @Override
+    @JProfiler(jKey = Constants.UMP_APP_NAME_DMSWEB + ".FuncSwitchConfigService.getFuncStatusByAllDimension", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.FunctionError })
+    public boolean getFuncStatusByAllDimension(Integer funcCode, Integer siteCode, String userErp) {
+
+        // 未配置的功能开关返回false
+        if (null == funcCode || null == FuncSwitchConfigEnum.getEnumByKey(funcCode)) {
+            return false;
+        }
+        // 按全国维度查开关，配置状态是有效
+        if (!this.getAllCountryFromCacheOrDb(funcCode)) {
+            return true;
+        }
+
+        // 按场地维度查开关，配置状态是有效
+        if (null != siteCode && !this.getSiteFlagFromCacheOrDb(funcCode, siteCode)) {
+            return true;
+        }
+
+        // 按个人维度查开关，配置状态是有效
+        if (StringUtils.isNotBlank(userErp) && !this.getErpFlagFromCacheOrDb(funcCode, userErp)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取BC箱号拦截状态
+     * @param menuCode
+     * @param siteCode
+     * true 拦截  false 不拦截
+     * @return
+     */
+    public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
+        if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
+            //ucc 配置为1 全国不拦截  配置站点编码:
+            if(isNeedCheckBlack(uccPropertyConfiguration.getAllBCBoxFilterWebSite(),siteCode)){
+                return  true;
+            }
+            return false;
+        }
+
+        //不是全国-查询站点维度
+        if(siteCode!=null){
+            //当缓存中存在时
+            return getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+        }
+        return true;
     }
 
 }

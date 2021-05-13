@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
+import com.jd.bluedragon.distribution.api.response.box.GroupBoxDto;
+
+import java.util.List;
+
 
 /**
  * 箱号与集包编号绑定、删除操作请求对象
@@ -27,6 +31,31 @@ public class BoxMaterialRelationRequest extends JdRequest {
      * 操作人ERP
      */
     private String operatorERP;
+
+    /**
+     * 是否查询一组箱号绑定情况
+     * true 查询  false 不查询
+     */
+    private boolean groupSearch;
+
+
+    private List<GroupBoxDto> groupList;
+
+    public List<GroupBoxDto> getGroupList() {
+        return groupList;
+    }
+
+    public void setGroupList(List<GroupBoxDto> groupList) {
+        this.groupList = groupList;
+    }
+
+    public boolean getGroupSearch() {
+        return groupSearch;
+    }
+
+    public void setGroupSearch(boolean groupSearch) {
+        this.groupSearch = groupSearch;
+    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;

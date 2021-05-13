@@ -131,4 +131,10 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
 	 * @return
 	 */
 	List<String> findOtherUuidsByCreateAndReceive(PreSealVehicleCondition condition);
+	/**
+	 * 一键封车-查询预封车数据
+	 * @param condition
+	 * @return
+	 */
+	List<PreSealVehicle> queryUnSealVehicleInfo(PreSealVehicleCondition condition);
 }

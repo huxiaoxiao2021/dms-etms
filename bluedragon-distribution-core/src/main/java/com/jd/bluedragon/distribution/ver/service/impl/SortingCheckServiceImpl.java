@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.ver.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.IllegalWayBillCodeException;
@@ -174,6 +176,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      * 分拣校验
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse sortingCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest){
         return this.sortingCheck(pdaOperateRequest, true);
     }
@@ -208,6 +211,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setSiteName(pdaOperateRequest.getCreateSiteName());
             saveInterceptMsgDto.setOperateUserCode(pdaOperateRequest.getOperateUserCode());
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
+            saveInterceptMsgDto.setOnlineStatus(filterContext.getOnlineStatus());
 
             String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
@@ -262,7 +266,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             try {
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
-                DeliveryFilterChain deliveryFilterChain = getDeliveryFilterChain();
+                DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } catch (IllegalWayBillCodeException e) {
                 logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
@@ -293,7 +297,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.singleSendCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck) {
         return this.singleSendCheck(sortingCheck, true);
     }
@@ -305,7 +309,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.boardCombinationCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BoardCombinationJsfResponse boardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest) {
         return this.boardCombinationCheck(boardCombinationRequest, true);
     }
@@ -384,6 +388,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         pdaOperateRequest.setOperateTime(sortingCheck.getOperateTime());
         pdaOperateRequest.setOperateType(sortingCheck.getOperateType());
         pdaOperateRequest.setOperateNode(sortingCheck.getOperateNode());
+        pdaOperateRequest.setOnlineStatus(sortingCheck.getOnlineStatus());
         if(sortingCheck.getIsLoss() == null){
             pdaOperateRequest.setIsLoss(0);
         }else{
@@ -419,6 +424,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         } else {
             filterContext.setReceiveSite(receiveSite);
         }
+
+        // 操作站点
+        Site createSite = this.siteService.get(filterContext.getCreateSiteCode());
+        filterContext.setCreateSite(createSite);
 
         String sReceiveSiteSubType = String.valueOf(receiveSite.getSubType());
         filterContext.setsReceiveSiteSubType(sReceiveSiteSubType);
@@ -515,6 +524,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
+        filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
         return filterContext;
     }
 
@@ -541,6 +551,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setBusinessType(boardCombinationRequest.getBusinessType());
         filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
         filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
+        filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
 
         return filterContext;
     }
@@ -642,6 +653,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     private DeliveryFilterChain getDeliveryFilterChain(){
         return (DeliveryFilterChain) beanFactory.getBean("deliveryFilterChain");
     }
+    /**
+     * 获取按运单发货校验链
+     */
+    private DeliveryFilterChain getDeliveryByWaybillFilterChain(){
+        return (DeliveryFilterChain) beanFactory.getBean("deliveryByWaybillFilterChain");
+    }
 
     /**
      * 获取发货校验链
@@ -673,6 +690,100 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         sortingCheck.setReceiveSiteCode(request.getReceiveSiteCode());
         sortingCheck.setIsLoss(request.getIsLoss());
         return sortingCheck;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.coldChainSendCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse coldChainSendCheckAndReportIntercept(DeliveryRequest request) {
+        return this.coldChainSendCheck(request, true);
+    }
+
+    /**
+     * 冷链发货主校验
+     *
+     * @param request 单个请求参数
+     * @return 校验结果
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.coldChainSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse coldChainSendCheck(DeliveryRequest request) {
+        return this.coldChainSendCheck(request, false);
+    }
+
+    /**
+     * 冷链发货主校验
+     * @param request 单个请求参数
+     * @param reportIntercept 是否记录拦截记录到报表
+     * @return 校验结果
+     */
+    @Override
+    public SortingJsfResponse coldChainSendCheck(DeliveryRequest request, boolean reportIntercept) {
+        if (request == null) {
+            return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        SortingJsfResponse response = new SortingJsfResponse(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK);
+
+        FilterContext filterContext = null;
+        try {
+            PdaOperateRequest pdaOperateRequest = this.convertPdaOperateRequest(request);
+            //初始化拦截链上下文
+            filterContext = this.initContext(pdaOperateRequest);
+            ColdChainDeliveryFilterChain coldChainDeliveryFilterChain = this.getColdChainDeliveryFilterChain();
+            coldChainDeliveryFilterChain.doFilter(filterContext, coldChainDeliveryFilterChain);
+
+        } catch (IllegalWayBillCodeException e) {
+            logger.error("发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
+            response.setCode(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(e.getMessage());
+        } catch (Exception ex) {
+            if (ex instanceof SortingCheckException) {
+                SortingCheckException checkException = (SortingCheckException) ex;
+                response.setCode(checkException.getCode());
+                response.setMessage(checkException.getMessage());
+                if (reportIntercept) {
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
+            } else {
+                logger.error("发货验证服务异常，参数：{}", JsonHelper.toJson(request), ex);
+                response.setCode(com.jd.bluedragon.distribution.api.JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            }
+        }
+        return response;
+    }
+
+    /*
+     * 参数转换
+     * */
+    private PdaOperateRequest convertPdaOperateRequest(DeliveryRequest request) {
+        PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+        pdaOperateRequest.setOperateNode(OperateNodeConstants.SEND);
+        pdaOperateRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+        pdaOperateRequest.setBoxCode(request.getBoxCode());
+        pdaOperateRequest.setPackageCode(request.getBoxCode());
+        pdaOperateRequest.setBusinessType(request.getBusinessType());
+        pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
+        pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
+        if(request.getCurrentOperate() != null && request.getCurrentOperate().getOperateTime() != null){
+            pdaOperateRequest.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
+        } else {
+            pdaOperateRequest.setOperateTime(DateUtil.format(new Date(), DateUtil.FORMAT_DATE_TIME));
+        }
+        // pdaOperateRequest.setOperateType(request.getOperateType());
+        // pdaOperateRequest.setOperateNode(request.getOperateNode());
+        return pdaOperateRequest;
+    }
+
+    /**
+     * 获取冷链发货校验链
+     * @return 校验链
+     * @author fanggang7
+     * @time 2021-03-25 20:56:42 周四
+     */
+    private ColdChainDeliveryFilterChain getColdChainDeliveryFilterChain() {
+        return (ColdChainDeliveryFilterChain) this.beanFactory.getBean("coldChainDeliveryFilterChain");
     }
 
 }

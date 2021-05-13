@@ -405,6 +405,10 @@
     <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
     </bean>
+    <!-- 冷链 - 暂存入库消息 -->
+    <bean id="ccTemporaryInProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.temporaryIn}"/>
+    </bean>
     <!-- 滞留上报消息 -->
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
@@ -474,6 +478,10 @@
     <bean id="disposeAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
     </bean>
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <bean id="dmsBusinessOperateOfflineTaskSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.offline.task.send}"/>
+    </bean>
 
     <!--  卸车完成消息  -->
     <bean id="unloadCompleteProducer" parent="dmsWebDefaultJMQProducer">
@@ -489,4 +497,10 @@
         <property name="topic" value="${jmq.topic.dms.weight.volume.flow}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--  修改箱状态记录 -->
+    <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.status.change.log}"/>
+    </bean>
+
 </beans>

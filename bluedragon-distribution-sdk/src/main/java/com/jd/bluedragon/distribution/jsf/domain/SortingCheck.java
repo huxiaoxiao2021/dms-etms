@@ -51,10 +51,16 @@ public class SortingCheck {
      */
     Integer isLoss;
 
+    Integer bizSourceType;
     /**
      * 业务操作节点，区分是分拣、发货等其他节点
      */
     Integer operateNode;
+
+    /**
+     * 在线状态，1-在线，2-离线
+     */
+    Integer onlineStatus;
 
     public Integer getOperateType() {
         return operateType;
@@ -150,5 +156,21 @@ public class SortingCheck {
 
     public void setOperateNode(Integer operateNode) {
         this.operateNode = operateNode;
+    }
+
+    public Integer getBizSourceType() {
+        return bizSourceType;
+    }
+
+    public void setBizSourceType(Integer bizSourceType) {
+        this.bizSourceType = bizSourceType;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 }

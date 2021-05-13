@@ -318,6 +318,7 @@
         <!-- 通知栏 -->
         <mapper resource="mappers/mysql/notice/NoticeMapper.xml"/>
         <mapper resource="mappers/mysql/notice/NoticeAttachmentMapper.xml"/>
+        <mapper resource="mappers/mysql/notice/NoticeToUserMapper.xml"/>
 
         <!-- 冷链发货 -->
         <mapper resource="mappers/mysql/coldchain/ColdChainSendMapper.xml"/>
@@ -372,6 +373,8 @@
         <!-- 功能开关配置 -->
         <mapper resource="mappers/mysql/funcSwitchConfig/funcSwitchConfigMapper.xml" />
 
+        <mapper resource="mappers/mysql/box/BoxRelationMapper.xml" />
+
 <!--        &lt;!&ndash; 装卸车业务 &ndash;&gt;-->
 <!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarHelperMapper.xml" />-->
 <!--        <mapper resource="mappers/mysql/loadAndUnload/LoadCarMapper.xml" />-->
@@ -381,6 +384,7 @@
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
         <!--面单异常举报-->
-      <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/discardedPackageStorageTemp/DiscardedPackageStorageTempMapper.xml" />
     </mappers>
 </configuration>

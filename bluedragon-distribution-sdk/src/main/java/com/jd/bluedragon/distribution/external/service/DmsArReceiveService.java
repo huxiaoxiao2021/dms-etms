@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
-import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
 
@@ -53,4 +51,15 @@ public interface DmsArReceiveService {
      * @return
      */
     JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate);
+
+    /**
+     * 计提查询空铁提货总数
+     */
+
+    JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request);
+
+    /**
+     * 计提查询空铁提货明细
+     */
+    JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request);
 }

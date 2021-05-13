@@ -1,42 +1,42 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
-import com.alibaba.fastjson.JSON;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.URLDecoder;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName: WeightAndVolumeCheckController
@@ -60,6 +60,9 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 返回主页面
@@ -88,29 +91,36 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         return result;
     }
 
-    /**
-     * 导出
-     * @return
-     */
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
-
-        this.log.info("导出重量体积抽验统计表");
-        List<List<Object>> resultList;
+    @RequestMapping(value = "/toExport")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.WeightAndVolumeCheckController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public void toExport(WeightAndVolumeCheckCondition condition, HttpServletResponse response) {
+        BufferedWriter bfw = null;
         try{
-            model.addAttribute("filename", "重量体积抽验统计表.xls");
-            model.addAttribute("sheetname", "重量体积抽验统计结果");
-            resultList = weightAndVolumeCheckService.getExportData(condition);
+             exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
+            if(StringUtils.isNotBlank(condition.getBusiName())){
+                condition.setBusiName(URLDecoder.decode(condition.getBusiName(), "UTF-8"));
+            }
+            String fileName = "重量体积抽检统计表";
+            //设置文件后缀
+            String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+            bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+            //设置响应
+            CsvExporterUtils.setResponseHeader(response, fn);
+            weightAndVolumeCheckService.export(condition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
         }catch (Exception e){
-            this.log.error("导出重量体积抽验统计表失败:" , e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出重量体积抽验统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
+            log.error("exportData error", e);
+        }finally {
+            try {
+                if (bfw != null) {
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException e) {
+                log.error("export-error", e);
+            }
         }
-        model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
     }
 
     /**

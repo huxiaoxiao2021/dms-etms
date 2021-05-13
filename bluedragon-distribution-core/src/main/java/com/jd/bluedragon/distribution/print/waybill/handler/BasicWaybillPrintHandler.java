@@ -330,41 +330,61 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         	commonWaybill.setRoad(roadCode);
         	commonWaybill.setRoadCode(roadCode);
 
-        if(tmsWaybill.getPayment()!=null){
-            if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
-                commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
+            if(tmsWaybill.getPayment()!=null){
+                if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
+                    commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
+                }
             }
-        }
-        commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
-        commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
-        //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
-        String receiverMobile = tmsWaybill.getReceiverMobile();
-        String receiverTel = tmsWaybill.getReceiverTel();
-        if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
-            commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
-        }
-        if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
-            commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
-        }
-        if(null!=tmsWaybillManageDomain){
-            commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
-            //commonWaybill.setStoreName(tmsWaybillManageDomain);
-        }
-        List<PrintPackage> packageList=new ArrayList<PrintPackage>();
-        if(null!=bigWaybillDto.getPackageList()){
-            for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
-                PrintPackage pack=new PrintPackage();
-                pack.setPackageCode(item.getPackageBarcode());
-                //设置包裹序号和包裹号后缀
-                pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
-                pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
-                pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
-                pack.setWeightAndUnit(item.getGoodWeight(), Constants.MEASURE_UNIT_NAME_KG);
-                packageList.add(pack);
+            commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
+            commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
+            String receiverMobile = tmsWaybill.getReceiverMobile();
+            String receiverTel = tmsWaybill.getReceiverTel();
+            if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
             }
-        }
+            if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
+            if(null!=tmsWaybillManageDomain){
+                commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
+                //commonWaybill.setStoreName(tmsWaybillManageDomain);
+            }
+            // 什么类型的单子才打印包裹增值服务 所有的包裹
+            //waybillsign86=3或2 表示包裹有增值服务
+            Map<String,String> pickUpMap = new HashMap();
+            boolean isPackageHavePickUpOrNo = BusinessUtil.isPackageHavePickUpOrNo(tmsWaybill.getWaybillSign());
+            if(isPackageHavePickUpOrNo){
+                pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
+            }
+            //包裹维度商品信息展示 waybillsign 66=3 展示;否则不展示
+            Map<String,String> packageNameMap = new HashMap<>();
+            boolean isPrintPackageNameOrNo = BusinessUtil.needPrintPackageName(tmsWaybill.getWaybillSign());
+            if(isPrintPackageNameOrNo){
+                packageNameMap = waybillQueryManager.doGetPackageGoodsVasInfo(waybillCode);
+            }
+            List<PrintPackage> packageList=new ArrayList<PrintPackage>();
+            if(null!=bigWaybillDto.getPackageList()){
+                for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
+                	PrintPackage pack=new PrintPackage();
+                    pack.setPackageCode(item.getPackageBarcode());
+                    //设置包裹增值服务信息
+                    pack.setPackageSpecialRequirement(pickUpMap.get(item.getPackageBarcode()));
+                    //设置包裹商品名称
+                    pack.setPackageGoodsName(packageNameMap.get(item.getPackageBarcode()));
+                    //设置包裹序号和包裹号后缀
+                    pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
+                    pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
+                    pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
+                    if(NumberHelper.gt0(item.getAgainWeight())){
+                        pack.setWeightAndUnit(item.getAgainWeight(), Constants.MEASURE_UNIT_NAME_KG);
+                    }
+
+                    packageList.add(pack);
+                }
+            }
 
         commonWaybill.setPackList(packageList);
 
@@ -411,7 +431,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //打标增值服务
         markingWaybillVasSign(context);
         //加载始发站点信息
-        waybillCommonService.loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
+        waybillCommonService.loadOriginalDmsInfo(context,commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
@@ -529,7 +549,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 for(PrintPackage pack : commonWaybill.getPackList()){
                     DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
                     if(deliveryPackageD != null){
-                    	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
+                    	//设置包裹重量，使用AgainWeight
                     	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
                             pack.setWeightAndUnit(deliveryPackageD.getAgainWeight(), Constants.MEASURE_UNIT_NAME_KG);
                         }

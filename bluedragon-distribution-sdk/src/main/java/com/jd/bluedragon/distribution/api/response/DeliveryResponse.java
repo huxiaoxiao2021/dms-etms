@@ -97,10 +97,16 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_DELIVERY_EXIST_PROCESSING = "部分发货成功，存在[{0}]个单号正在发货处理中，请等待处理完成后再查看或操作";
 
     public static final Integer CODE_DELIVERY_ALL_PROCESSING = 30010;
-    public static final String MESSAGE_DELIVERY_ALL_PROCESSING = "操作的所有单号正在发货处理中，请等待处理完成后再查看或操作";
+    public static final String MESSAGE_DELIVERY_ALL_PROCESSING = "该运单正在处理中，请等待处理完成";
 
     public static final Integer CODE_DELIVERY_SEND_CODE_IS_COMMITTED = 30011;
     public static final String MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED = "该批次的发货操作已提交，请勿重复操作";
+
+    public static final Integer CODE_DELIVERY_BY_WAYBILL_PROCESSING = 30012;
+    public static final String MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING = "该单号下的所有包裹正在按运单发货处理中，请等待处理完成";
+
+    public static final Integer CODE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = 30013;
+    public static final String MESSAGE_DELIVERY_BY_WAYBILL_HAS_SEND_PACK = "该单号下已有包裹发货，请继续按包裹发货";
 
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
@@ -109,6 +115,10 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
+
+    public static final Integer CODE_20020 = 20020;
+    public static final String MESSAGE_20020 = "文件包裹未集包禁止发货";
+
     /**
      * 快运-拦截标识
      */
@@ -151,8 +161,10 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = 40019;
     public static final String MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME = "当前众邮箱号无分拣复重重量或复重体积，请复重量方后再发货";
 
-    /**取消发货校验提示语 End*/
+    public static final Integer CODE_WAYBILL_IS_WASTE = 40020;
+    public static final String MESSAGE_WAYBILL_IS_WASTE = "弃件禁止操作，请按公司规定暂存";
 
+    /**取消发货校验提示语 End*/
 
     /**
      * 单纯的提示语

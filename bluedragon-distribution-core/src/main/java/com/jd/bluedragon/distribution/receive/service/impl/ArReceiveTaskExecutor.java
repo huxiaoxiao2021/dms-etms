@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -172,4 +173,24 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
         task.setOwnSign(BusinessHelper.getOwnSign());
         return task;
     }
+
+	/**
+	 * 保存收货确认信息并发送全程跟踪
+	 *
+	 * @param taskContext
+	 */
+	@Override
+	public List<CenConfirm> saveCenConfirmAndSendTrack(TaskContext<ArReceive> taskContext,boolean saveOrUpdateCenConfirmFlg) {
+		ArReceive receive = taskContext.getBody();
+		addOperationLog(receive,"BaseReceiveTaskExecutor#saveCenConfirmAndSendTrack");// 记录日志
+		List<CenConfirm> cenConfirmList = new ArrayList<>();
+		CenConfirm cenConfirm = cenConfirmService
+				.createCenConfirmByReceive(receive);
+		cenConfirmList.add(cenConfirm);
+		if(saveOrUpdateCenConfirmFlg){
+			cenConfirmService.saveOrUpdateCenConfirmOnly(cenConfirm);
+		}
+		sendTrack(taskContext,cenConfirm);
+		return cenConfirmList;
+	}
 }

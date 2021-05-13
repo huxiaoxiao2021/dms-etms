@@ -10,10 +10,13 @@ import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -62,6 +65,7 @@ public class ArReceiveResource {
      */
     @POST
     @Path("/arreceive/getARWaitReceive")
+    @JProfiler(jKey = "DMS.WEB.ArReceiveResource.getARWaitReceive", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
@@ -259,6 +263,7 @@ public class ArReceiveResource {
     @POST
     @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
+    @JProfiler(jKey = "DMS.WEB.ArReceiveResource.getArSendRegisterByBarcode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
         JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
         if (StringHelper.isEmpty(barcode)) {
@@ -279,6 +284,22 @@ public class ArReceiveResource {
             log.warn("根据包裹号/箱号获取空铁登记信息，不存在或未操作空铁发货登记.{}", barcode);
         }
 
+        return rest;
+    }
+
+    public JdResponse<Integer> queryArReceiveCountForWorking(ArReceiveCondition request) {
+        JdResponse<Integer> rest = new JdResponse<>();
+        log.info("计提查询空铁提货count参数：{}", JsonHelper.toJsonMs(request));
+        rest.setData(arReceiveService.queryArReceiveCountForWorking(request));
+        log.info("计提查询空铁提货count返回值：{}", JsonHelper.toJsonMs(rest));
+        return rest;
+    }
+
+    public JdResponse<List<ArReceiveVo>> queryArReceiveDetailForWorking(ArReceiveCondition request) {
+        JdResponse<List<ArReceiveVo>> rest = new JdResponse<>();
+        log.info("计提查询空铁提货detail参数：{}", JsonHelper.toJsonMs(request));
+        rest.setData(arReceiveService.queryArReceiveDetailForWorking(request));
+        log.info("计提查询空铁提货detail返回数据量：{}", rest.getData() == null ? 0 : rest.getData().size());
         return rest;
     }
 

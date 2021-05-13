@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
@@ -14,11 +16,9 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.CheckExcessParam;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.ExportWeightVolumeCollectDto;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.StandardDto;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
@@ -26,10 +26,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -48,23 +45,21 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
-import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.*;
 import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
-import com.jd.ql.dms.report.domain.Pager;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import com.jd.ql.dms.report.domain.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -106,22 +101,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Value("${spotCheck.fourSumLWH:70}")
     public String fourSumLWH;
 
-    /**
-     * 抽检导出最大阈值
-     * */
-    @Value("${export.spot.check:10000}")
-    private long exportSpotCheckMaxSize;
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * C网超标下发MQ天数
      * */
     @Value("${b2c.spotCheck.interval.days:3}")
     private int defaultIntervalDays;
-
-    /**
-     * 导出分页阈值
-     * */
-    private static final Integer EXPORT_THRESHOLD_SIZE = 2000;
 
     /** 对象存储 **/
     /**外部 访问域名 */
@@ -186,7 +173,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Qualifier("weightAndVolumeCheckBHandler")
     private WeightAndVolumeCheckStandardHandler weightAndVolumeCheckBHandler;
 
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
     /**
      * 不允许第二个分拣中心称重的返回码
      */
@@ -276,59 +264,66 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     /**
      * 查看超标图片
-     * @param prefixName 图片名前缀
+     * @param barCode 单号
      * @param siteCode 站点id
      * @return
      */
     @Override
-    public InvokeResult<String> searchExcessPicture(String prefixName,Integer siteCode) {
+    public InvokeResult<String> searchExcessPicture(String barCode,Integer siteCode) {
 
         InvokeResult<String> result = new InvokeResult<String>();
         try{
-            List<String> urls = getPictureUrl(prefixName);
+            String prefixName = barCode + Constants.UNDERLINE_FILL +siteCode + Constants.UNDERLINE_FILL;
             //获取最近的对应的图片并返回
-            String excessPictureUrl = getRecentUrl(urls,siteCode);
-            if("".equals(excessPictureUrl)){
+            String excessPictureUrl = searchPictureUrlRecent(prefixName);
+            if(StringUtils.isEmpty(excessPictureUrl)){
                 result.parameterError("图片未上传!"+prefixName);
                 return result;
             }
             result.setData(excessPictureUrl);
         }catch (Exception e){
-            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
-            result.parameterError("查看图片失败!"+prefixName);
+            log.error("根据单号{}站点{}获取图片链接失败!", barCode, siteCode, e);
+            result.parameterError("查看图片失败!"+ barCode);
         }
         return result;
     }
 
     @Override
-    public InvokeResult<List<String>> searchExcessPictureOfB2b(String prefixName, Integer siteCode) {
+    public InvokeResult<List<String>> searchExcessPictureOfB2b(String barCode, Integer siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<>();
         try {
-            List<String> urls = getPictureUrl(prefixName);
-            List<String> excessPictureUrls = getAllTypePictureUrl(urls,siteCode);
+            List<String> excessPictureUrls = new ArrayList<>(5);
+            for (SpotCheckPictureDimensionEnum value : SpotCheckPictureDimensionEnum.values()) {
+                String prefixName = Constants.SPOT_CHECK_B + Constants.UNDER_LINE + barCode + Constants.UNDER_LINE + siteCode
+                        + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                if(StringUtils.isEmpty(searchPictureUrlRecent(prefixName))){
+                    // 兼容之前的逻辑（之前上传的图片名称：JDV000690914941_910_1_20210508142931）
+                    prefixName = barCode + Constants.UNDER_LINE + siteCode
+                            + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+                }
+                String pictureUrlRecent = searchPictureUrlRecent(prefixName);
+                if(!StringUtils.isEmpty(pictureUrlRecent)){
+                    excessPictureUrls.add(pictureUrlRecent);
+                }
+            }
             if(excessPictureUrls.isEmpty()){
-                result.parameterError("图片未上传!"+prefixName);
+                result.parameterError(String.format("单号%s站点%s的图片未上传!", barCode ,siteCode));
                 return result;
             }
             result.setData(excessPictureUrls);
         }catch (Exception e){
-            log.error("{}|{}获取图片链接失败!",prefixName, siteCode, e);
-            result.parameterError("查看图片失败!"+prefixName);
+            log.error("{}|{}获取图片链接失败!", barCode, siteCode, e);
+            result.parameterError(String.format("查看单号%s站点%s的图片失败!", barCode ,siteCode));
         }
 
         return result;
     }
 
-    /**
-     * 获取所有单号前缀的图片链接
-     * @param prefixName
-     * @return
-     */
-    private List<String> getPictureUrl(String prefixName){
-        List<String> urls = new ArrayList<>();
+    @Override
+    public String searchPictureUrlRecent(String prefixName) {
         ObjectListing objectListing = listObject(prefixName, null, 100);
-        if(objectListing != null && objectListing.getObjectSummaries() != null &&
-                !objectListing.getObjectSummaries().isEmpty()){
+        if(objectListing != null && CollectionUtils.isNotEmpty(objectListing.getObjectSummaries())){
+            List<String> pictureUrlList = new ArrayList<>(3);
             for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
                 URI uri = getURI(objectSummary.getKey());
                 if(uri != null){
@@ -336,125 +331,51 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     //将内部访问域名替换成外部访问域名
                     uriString = uriString.replaceAll(STORAGE_DOMAIN_LOCAL,STORAGE_DOMAIN_COM);
                     uri = URI.create(uriString);
-                    if(uri != null){
-                        urls.add(uri.toString());
-                    }
+                    pictureUrlList.add(uri.toString());
                 }
             }
+            return findRecentUrl(prefixName, pictureUrlList);
         }
-        return urls;
+        return Constants.EMPTY_FILL;
     }
 
     /**
-     * 获取5种类型图片链接
-     * @param urls
-     * @param siteCode
+     * 获取最近上传的图片链接
+     * @param prefixName
+     * @param pictureUrlList
      * @return
      */
-    private List<String> getAllTypePictureUrl(List<String> urls, Integer siteCode) {
-        List<String> list = new ArrayList<>();
-        Map<String,Long> map1 = new HashMap<>();
-        Map<String,Long> map2 = new HashMap<>();
-        Map<String,Long> map3 = new HashMap<>();
-        Map<String,Long> map4 = new HashMap<>();
-        Map<String,Long> map5 = new HashMap<>();
-        for(String url : urls){
-            String[] packageCodeAndOperateTimes = getArrayByUrl(url);
-            String createSiteCode = packageCodeAndOperateTimes[1];
-            //图片类型 1:重量 2:长 3:宽 4:高 5:面单
-            Integer type = Integer.valueOf(packageCodeAndOperateTimes[2]);
-            String operateTime = packageCodeAndOperateTimes[3];
-            if(packageCodeAndOperateTimes.length != 4 || !siteCode.equals(Integer.valueOf(createSiteCode))){
-                break;
-            }
-            if(type == 1){
-                map1.put(url,Long.parseLong(operateTime));
-            }else if(type == 2){
-                map2.put(url,Long.parseLong(operateTime));
-            }else if(type == 3){
-                map3.put(url,Long.parseLong(operateTime));
-            }else if(type == 4){
-                map4.put(url,Long.parseLong(operateTime));
-            }else if(type == 5){
-                map5.put(url,Long.parseLong(operateTime));
-            }
+    private String findRecentUrl(String prefixName, List<String> pictureUrlList) {
+        if(CollectionUtils.isEmpty(pictureUrlList)){
+            return Constants.EMPTY_FILL;
         }
-        list.add(getRecentUrlOfB2b(map1));
-        list.add(getRecentUrlOfB2b(map2));
-        list.add(getRecentUrlOfB2b(map3));
-        list.add(getRecentUrlOfB2b(map4));
-        list.add(getRecentUrlOfB2b(map5));
-
-        return list;
+        // key：时间，value：url
+        Map<String,String> map = new HashMap<>(3);
+        for (String pictureUrl : pictureUrlList) {
+            map.put(getOperateTimeByUrl(prefixName, pictureUrl), pictureUrl);
+        }
+        if(map.size() == Constants.NUMBER_ZERO){
+            return Constants.EMPTY_FILL;
+        }
+        List<String> list = new ArrayList<>(map.keySet());
+        Collections.sort(list);
+        String recentPictureTime = list.get(list.size() - Constants.CONSTANT_NUMBER_ONE);
+        return map.get(recentPictureTime);
     }
 
-    private String getRecentUrlOfB2b(Map<String,Long> map){
-        String recentUrl = "";
-        Object[] objects = map.values().toArray();
-        Arrays.sort(objects);
-        for(String url : map.keySet()){
-            if(map.get(url) == objects[objects.length-1]){
-                return url;
-            }
-        }
-        return recentUrl;
-    }
-
-    private String getRecentUrl(List<String> urls,Integer siteCode){
-        String recentUrl = "";
-        try{
-            if(urls.size() == 0){
-                return recentUrl;
-            }else if(urls.size() == 1){
-                String[] packageCodeAndOperateTimes = getArrayByUrl(urls.get(0));
-                if(packageCodeAndOperateTimes.length == 3){
-                    return urls.get(0);
-                }
-                return recentUrl;
-            }else{
-
-                Map<String,Long> map = new HashMap<>();
-                for(String url : urls){
-                    String[] packageCodeAndOperateTimes = getArrayByUrl(url);
-                    String operateTime = "";
-                    if(packageCodeAndOperateTimes.length == 3){
-                        String siteCodeFromOSS = packageCodeAndOperateTimes[1];
-                        if(siteCodeFromOSS.equals(siteCode.toString())){
-                            operateTime = packageCodeAndOperateTimes[packageCodeAndOperateTimes.length - 1];
-                        }
-                    }else{
-                        break;
-                    }
-                    if(!"".equals(operateTime)){
-                        long l = Long.parseLong(operateTime);
-                        map.put(url,l);
-                    }
-                }
-                Object[] objects = map.values().toArray();
-                Arrays.sort(objects);
-                for(String url : map.keySet()){
-                    if(map.get(url) == objects[objects.length-1]){
-                        recentUrl = url;
-                        break;
-                    }
-                }
-                return recentUrl;
-            }
-        }catch (Exception e){
-            log.error("获取图片路径异常!");
-            return recentUrl;
-        }
-
-    }
-
-    private String[]  getArrayByUrl(String url) {
-        String[] splits = url.split("/");
-        String pictureName = splits[splits.length - 1];
+    /**
+     * 获取图片链接中的时间
+     * @param prefixName
+     * @param pictureUrl
+     * @return
+     */
+    private String getOperateTimeByUrl(String prefixName, String pictureUrl) {
+        String[] splits = pictureUrl.split("/");
+        String pictureName = splits[splits.length - Constants.CONSTANT_NUMBER_ONE];
         String[] pictureNames = pictureName.split("\\.");
-        String pictureNamePrefix = pictureNames[0];
-        return pictureNamePrefix.split("_");
+        String pictureNamePrefix = pictureNames[Constants.NUMBER_ZERO];
+        return pictureNamePrefix.replace(prefixName, Constants.EMPTY_FILL);
     }
-
 
     /**
      * 发消息并更新es
@@ -1227,102 +1148,43 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
-    /**
-     * 导出
-     * @param condition
-     * @return
-     */
-    @Override
-    public List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
-        //添加表头
-        heads.add("复核日期");
-        heads.add("运单号");
-        heads.add("扫描条码");
-        heads.add("业务类型");
-        heads.add("产品标识");
-        heads.add("配送商家编号");
-        heads.add("商家名称");
-        heads.add("信任商家");
-        heads.add("复核区域");
-        heads.add("复核分拣");
-        heads.add("机构类型");
-        heads.add("复核人erp");
-        heads.add("分拣复重kg");
-        heads.add("复核长宽高cm");
-        heads.add("计泡系数");
-        heads.add("复核体积重量");
-        heads.add("较大重量值");
-        heads.add("计费操作区域");
-        heads.add("计费操作片区");
-        heads.add("计费操作单位");
-        heads.add("计费操作人ERP");
-        heads.add("计费结算重量");
-        heads.add("计费重量kg");
-        heads.add("计费体积cm³");
-        heads.add("计费体积重量");
-        heads.add("计费结算重量差异");
-        heads.add("误差标准值");
-        heads.add("是否超标");
-        heads.add("重量差异");
-        heads.add("体积重量差异");
-        heads.add("体积重量是否超标");
-        heads.add("数据来源");
-        heads.add("有无图片");
-        heads.add("图片链接");
-        resList.add(heads);
-
-        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = getByParamForWeightVolume(condition);
-
-        if(baseEntity.isSuccess() && CollectionUtils.isNotEmpty(baseEntity.getData())){
-            List<WeightVolumeCollectDto> list = baseEntity.getData();
-            //表格信息
-            for(WeightVolumeCollectDto weightVolumeCollectDto : list){
-                List<Object> body = Lists.newArrayList();
-                body.add(weightVolumeCollectDto.getReviewDate() == null ? null : DateHelper.formatDate(weightVolumeCollectDto.getReviewDate(), Constants.DATE_TIME_FORMAT));
-                body.add(weightVolumeCollectDto.getWaybillCode());
-                body.add(weightVolumeCollectDto.getPackageCode());
-                body.add(weightVolumeCollectDto.getSpotCheckType()==null?"C网":(weightVolumeCollectDto.getSpotCheckType()==1?"B网":"C网"));
-                body.add(weightVolumeCollectDto.getProductTypeName());
-                body.add(weightVolumeCollectDto.getMerchantCode());
-                body.add(weightVolumeCollectDto.getBusiName());
-                body.add(weightVolumeCollectDto.getIsTrustBusi()==null?"":weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
-                body.add(weightVolumeCollectDto.getReviewOrgName());
-                body.add(weightVolumeCollectDto.getReviewSiteName());
-                body.add((weightVolumeCollectDto.getReviewSubType()==null || weightVolumeCollectDto.getReviewSubType()==-1)?"":weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
-                body.add(weightVolumeCollectDto.getReviewErp());
-                body.add(weightVolumeCollectDto.getReviewWeight());
-                body.add(weightVolumeCollectDto.getReviewLWH());
-                body.add(weightVolumeCollectDto.getVolumeRate());
-                body.add(weightVolumeCollectDto.getReviewVolumeWeight());
-                body.add(weightVolumeCollectDto.getMoreBigWeight());
-                body.add(weightVolumeCollectDto.getBillingOrgName());
-                body.add(weightVolumeCollectDto.getBillingDeptName());
-                body.add(weightVolumeCollectDto.getBillingCompany());
-                body.add(weightVolumeCollectDto.getBillingErp());
-                body.add(weightVolumeCollectDto.getBillingCalcWeight());
-                body.add(weightVolumeCollectDto.getBillingWeight());
-                body.add(weightVolumeCollectDto.getBillingVolume());
-                body.add(weightVolumeCollectDto.getBillingVolumeWeight());
-                body.add(weightVolumeCollectDto.getBillingWeightDifference());
-                body.add(weightVolumeCollectDto.getDiffStandard());
-                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess().equals(1)?"超标":weightVolumeCollectDto.getIsExcess().equals(0)?"未超标":"");
-                body.add(weightVolumeCollectDto.getWeightDiff());
-                body.add(weightVolumeCollectDto.getVolumeWeightDiff());
-                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(1)?"超标":weightVolumeCollectDto.getVolumeWeightIsExcess().equals(0)?"未超标":"");
-                body.add(getFromSource(weightVolumeCollectDto.getFromSource()));
-                body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
-                body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());
-                resList.add(body);
-            }
-        }else{
-            List<Object> list = new ArrayList<>();
-            list.add(baseEntity.getMessage());
-            resList = new ArrayList<>();
-            resList.add(list);
-        }
-        return  resList;
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        headerMap.put("reviewDate","复核日期");
+        headerMap.put("waybillCode","运单号");
+        headerMap.put("packageCode","扫描条码");
+        headerMap.put("spotCheckType","业务类型");
+        headerMap.put("productTypeCode","产品标识");
+        headerMap.put("merchantCode","配送商家编号");
+        headerMap.put("busiName","商家名称");
+        headerMap.put("isTrustBusi","信任商家");
+        headerMap.put("reviewOrgName","复核区域");
+        headerMap.put("reviewSiteName","复核分拣");
+        headerMap.put("reviewSubType","机构类型");
+        headerMap.put("reviewErp","复核人erp");
+        headerMap.put("reviewWeight","分拣复重kg");
+        headerMap.put("reviewLWH","复核长宽高cm");
+        headerMap.put("volumeRate","计泡系数");
+        headerMap.put("reviewVolumeWeight","复核体积重量");
+        headerMap.put("moreBigWeight","较大重量值");
+        headerMap.put("billingOrgName","计费操作区域");
+        headerMap.put("billingDeptName","计费操作片区");
+        headerMap.put("BillingCompany","计费操作单位");
+        headerMap.put("billingErp","计费操作人ERP");
+        headerMap.put("billingCalcWeight","计费结算重量");
+        headerMap.put("billingWeight","计费重量kg");
+        headerMap.put("billingVolume","计费体积cm");
+        headerMap.put("billingVolumeWeight","计费体积重量");
+        headerMap.put("billingWeightDifference","计费结算重量差异");
+        headerMap.put("diffStandard","误差标准值");
+        headerMap.put("isExcess","是否超标");
+        headerMap.put("weightDiff","重量差异");
+        headerMap.put("volumeWeightDiff","体积重量差异");
+        headerMap.put("volumeWeightIsExcess","体积重量是否超标");
+        headerMap.put("fromSource","数据来源");
+        headerMap.put("isHasPicture","有无图片");
+        headerMap.put("pictureAddress","图片链接");
+        return headerMap;
     }
 
     /**
@@ -1352,57 +1214,66 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      *
      * @param condition
      */
-    private BaseEntity<List<WeightVolumeCollectDto>> getByParamForWeightVolume(WeightAndVolumeCheckCondition condition) {
-        BaseEntity<List<WeightVolumeCollectDto>> response = new BaseEntity<>();
-        List<WeightVolumeCollectDto> list = new ArrayList<>();
+    @Override
+    public void export(WeightAndVolumeCheckCondition condition, BufferedWriter innerBfw) {
         try {
-            int pageNo = 1;
-            WeightVolumeQueryCondition transform = transform(condition);
-            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-            pager.setSearchVo(transform);
-            pager.setPageSize(EXPORT_THRESHOLD_SIZE);
-            pager.setPageNo(pageNo);
-            BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity
-                    = reportExternalService.getPagerByConditionForWeightVolume(pager);
-            if(baseEntity == null || baseEntity.getData() == null
-                    || baseEntity.getData().getTotal() == null
-                    || CollectionUtils.isEmpty(baseEntity.getData().getData())){
-                response.setCode(BaseEntity.CODE_SERVICE_ERROR);
-                response.setMessage("导出数据为空!");
-                return response;
-            }
+            long start = System.currentTimeMillis();
+            // 写入表头
+            Map<String, String> headerMap = getHeaderMap();
+            CsvExporterUtils.writeTitleOfCsv(headerMap, innerBfw, headerMap.values().size());
+            // 分页查询记录
+            WeightVolumeQueryCondition weightVolumeQueryCondition = transform(condition);
 
-            Long total = baseEntity.getData().getTotal();
-            list.addAll(baseEntity.getData().getData());
+            // 设置总导出数据
+            Integer uccSpotCheckMaxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
 
-            // 设置最大导出数量
-            if(total > exportSpotCheckMaxSize){
-                log.info("导出超出" + exportSpotCheckMaxSize + "条");
-                total = exportSpotCheckMaxSize;
-            }
-
-            long totalPageNum = (total + EXPORT_THRESHOLD_SIZE - 1) / EXPORT_THRESHOLD_SIZE;
-            for (int i = 2; i <= totalPageNum; i++) {
-                pager.setPageNo(i);
-                BaseEntity<Pager<WeightVolumeCollectDto>> nextBaseEntity
-                        = reportExternalService.getPagerByConditionForWeightVolume(pager);
-                if(nextBaseEntity != null && nextBaseEntity.getData() != null
-                        && CollectionUtils.isNotEmpty(nextBaseEntity.getData().getData())){
-                    list.addAll(nextBaseEntity.getData().getData());
-                }else {
-                    log.warn("获取重量体积抽检数据第【{}】页数据为空，共【{}】页，查询条件【{}】",i,totalPageNum,JsonHelper.toJson(pager));
-                    response.setCode(BaseEntity.CODE_SERVICE_ERROR);
-                    response.setMessage("导出数据失败!");
-                    return response;
+            int queryTotal = 0;
+            int index = 1;
+            while (index++ <= 1000) {
+                BaseEntity<WeightVolumeCollectScrollResult> baseEntity = reportExternalService.queryWeightVolumeByScroll(weightVolumeQueryCondition);
+                if(baseEntity == null || !baseEntity.isSuccess()
+                        || baseEntity.getData() == null || CollectionUtils.isEmpty(baseEntity.getData().getList())){
+                    log.warn("scroll查询抽检明细数据为空!");
+                    break;
+                }
+                // 设置scrollId
+                weightVolumeQueryCondition.setScrollId(baseEntity.getData().getScrollId());
+                // 输出至excel
+                CsvExporterUtils.writeCsvByPage(innerBfw, headerMap, trans2ExportDto(baseEntity.getData().getList()));
+                // 限制导出数量
+                queryTotal += baseEntity.getData().getList().size();
+                if(queryTotal > uccSpotCheckMaxSize){
+                    break;
                 }
             }
-            response.setData(list);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getName(), end-start,queryTotal);
         }catch (Exception e){
             log.error("分页获取导出数据失败",e);
-            response.setCode(BaseEntity.CODE_SERVICE_ERROR);
-            response.setMessage("导出数据失败!");
         }
-        return response;
+    }
+
+    /**
+     * es对象转换为导出对象
+     * @param weightVolumeCollectDtoList
+     * @return
+     */
+    private List<ExportWeightVolumeCollectDto> trans2ExportDto(List<WeightVolumeCollectDto> weightVolumeCollectDtoList) {
+        List<ExportWeightVolumeCollectDto> list = new ArrayList<ExportWeightVolumeCollectDto>();
+        for (WeightVolumeCollectDto dto : weightVolumeCollectDtoList) {
+            ExportWeightVolumeCollectDto exportWeightVolumeCollectDto = new ExportWeightVolumeCollectDto();
+            BeanUtils.copyProperties(dto,exportWeightVolumeCollectDto);
+            exportWeightVolumeCollectDto.setIsTrustBusi(Objects.equals(dto.getIsTrustBusi(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
+            exportWeightVolumeCollectDto.setSpotCheckType(Objects.equals(dto.getSpotCheckType(),Constants.CONSTANT_NUMBER_ONE) ? "B网":"C网");
+            exportWeightVolumeCollectDto.setReviewSubType(Objects.equals(dto.getReviewSubType(),Constants.CONSTANT_NUMBER_ONE) ? "分拣中心":"转运中心");
+            exportWeightVolumeCollectDto.setIsExcess(Objects.equals(dto.getIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
+            exportWeightVolumeCollectDto.setVolumeWeightIsExcess(Objects.equals(dto.getVolumeWeightIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
+            exportWeightVolumeCollectDto.setIsHasPicture(Objects.equals(dto.getIsHasPicture(),Constants.CONSTANT_NUMBER_ONE) ? "有" : "无");
+            exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
+            exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
+            list.add(exportWeightVolumeCollectDto);
+        }
+        return list;
     }
 
 

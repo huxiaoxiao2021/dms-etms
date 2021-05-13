@@ -4,9 +4,13 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDetailDto;
 import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,11 +30,11 @@ import java.util.Collections;
 public class HandoverWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
-    @Qualifier("opeWeightProducer")
-    private DefaultJMQProducer opeWeightProducer;
-
-    @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
+
+    @Override
+    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
+                                                Waybill waybill,InvokeResult<Boolean> result) {}
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

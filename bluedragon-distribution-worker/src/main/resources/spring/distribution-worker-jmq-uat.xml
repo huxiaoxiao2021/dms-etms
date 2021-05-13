@@ -111,6 +111,10 @@
     <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailGoodsPrintConsumer"/>
     </jmq:consumer>
+    <!-- 消费取消发货明细MQ 用于取消打印交接清单数据 -->
+    <jmq:consumer id="jmq.cancelSendDetailPrintHandoverConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailPrintHandoverConsumer"/>
+    </jmq:consumer>
 
     <!-- 空铁转陆运 提报异常 -->
     <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.uatDmsWeb.transport">
@@ -222,6 +226,15 @@
     <!--统一称重量方消息监听-->
     <jmq:consumer id="jmq.dmsWeightVolumeFlowConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dms.weight.volume.flow}" listener="dmsWeightVolumeFlowConsumer"/>
+    </jmq:consumer>
+    <!--tms任务取消消费-->
+    <jmq:consumer id="jmq.tmsVehicleJobCancelConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.tmsVehicleJobCancel}" listener="tmsVehicleJobCancelConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费发货消息处理打印交接清单数据 -->
+    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="dmsWorkSendDetailConsumer"/>
     </jmq:consumer>
 </beans>
 

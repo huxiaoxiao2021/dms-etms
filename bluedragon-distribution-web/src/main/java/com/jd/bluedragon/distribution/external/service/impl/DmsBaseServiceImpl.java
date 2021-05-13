@@ -56,6 +56,34 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     public LoginUserResponse clientLogin(LoginRequest request) {
         return userService.jsfLogin(request);
     }
+
+    /**
+     * 客户端登录获取登录信息接口(安卓PDA)，增加token信息
+     *
+     * @param request
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLoginNew", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public LoginUserResponse clientLoginNew(LoginRequest request) {
+        return userService.jsfLoginWithToken(request);
+    }
+
+    /**
+     * 客户端登录token验证
+     *
+     * @return
+     * @author fanggang7
+     * @time 2021-03-09 19:32:02 周二
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.verifyClientLoginToken", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult verifyClientLoginToken(String userErp, String deviceId, String token) {
+        return userService.verifyClientLoginToken(userErp, deviceId, token);
+    }
+
     @Override
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.getSite", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseResponse getSite(String code) {

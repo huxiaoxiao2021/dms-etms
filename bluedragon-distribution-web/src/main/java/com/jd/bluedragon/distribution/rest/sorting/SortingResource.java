@@ -140,6 +140,7 @@ public class SortingResource {
 	 */
 	@POST
 	@Path("/sorting/batchCancel")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.cancelWarehouse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SortingResponse cancelWarehouse(SortingRequest sortingRequest) {
 
 		Map<String, Integer> results = new HashMap<String, Integer>();
@@ -211,6 +212,7 @@ public class SortingResource {
 
 	@GET
 	@Path("/sorting/box")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.queryPackages", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<SortingResponse> queryPackages(@QueryParam("boxCode") String boxCode,
 			@QueryParam("siteCode") Integer siteCode) {
 		this.log.debug("boxCode is {}" , boxCode);
@@ -283,6 +285,7 @@ public class SortingResource {
 	 */
 	@GET
 	@Path("/sortingRet/haveSortingRet")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.isSortingRet", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SortingResponse isSortingRet(@QueryParam("packageCode") String packageCodeOrWaybillCode) {
 		try {
 			this.log.debug("调用SortingResource.haveSortingRet 判断是否已经操作分拣退货[{}]", packageCodeOrWaybillCode);
@@ -313,6 +316,7 @@ public class SortingResource {
 	 */
 	@GET
 	@Path("/sortingRet/checkReDispatch")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.checkReDispatch", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SortingResponse checkReDispatch(@QueryParam("packageCode") String packageCode) {
 		try {
 			this.log.debug("调用SortingResource.checkReDispatch 判断是否已经操作站点反调度[{}]", packageCode);
@@ -353,6 +357,7 @@ public class SortingResource {
 
     @POST
     @Path("/sorting/pushStatusTask")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.pushSortingTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> pushSortingTask(Sorting sorting) {
         InvokeResult<Boolean> res = new InvokeResult<Boolean>();
         sortingService.addSortingAdditionalTask(sorting);
@@ -367,6 +372,7 @@ public class SortingResource {
 	 */
 	@GET
 	@Path("/sorting/getWaybillCodes/{boxCode}")
+	@JProfiler(jKey = "DMS.WEB.SortingResource.getWaybillCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<List<String>> getWaybillCodes(@PathParam("boxCode") String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
 		this.log.debug("box code's {}" , boxCode);
@@ -383,6 +389,7 @@ public class SortingResource {
 	@POST
 	@Path("/sorting/post/check")
 	@BusinessLog(sourceSys = 1,bizType = 700,operateType = 60016)
+	@JProfiler(jKey = "DMS.WEB.SortingResource.check", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public SortingJsfResponse check(PdaOperateRequest pdaOperateRequest) {
 		String boxCode = pdaOperateRequest.getBoxCode();
 		Integer createSiteCode = pdaOperateRequest.getCreateSiteCode();

@@ -83,7 +83,9 @@ public class BusinessLogConstans {
 
         ECONOMIC_NET(SourceSys.DMS_OPERATE,2017,"经济网业务"),
 
-        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务");
+        COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务"),
+
+        APPROVAL(SourceSys.DMS_OPERATE,2020,"审批流业务");
 
         /**
          * 所属系统；
@@ -141,6 +143,8 @@ public class BusinessLogConstans {
         SEND_REVERSE_SPWMS_SEND(BizTypeEnum.SEND,1021,"逆向发货SPWMS"),
         SEND_PARTNER_WAY_BILL(BizTypeEnum.SEND,1011,"运单号关联包裹信息"),
         SEND_COLDCHAIN_SMS(BizTypeEnum.SEND,1022,"冷链卡班暂存计费发短信"),
+        SEND_FILE_BOX(BizTypeEnum.SEND,1023,"文件箱号发货"),
+        SEND_FILE_BOX_CANCEL(BizTypeEnum.SEND,1024,"文件箱号取消发货"),
 
         OUTER_WAYBILL_EXCHANGE_WAYBILL(BizTypeEnum.OUTER_WAYBILL_EXCHANGE,1900002,"触发外单换单"),
         TASK_CONSUME_FAIL(BizTypeEnum.TASK,20062,"消费失败落库"),
@@ -219,7 +223,10 @@ public class BusinessLogConstans {
         ECONOMIC_NET_BOX_LOAD(BizTypeEnum.ECONOMIC_NET,20172,"经济网加载箱包关系数据"),
         ECONOMIC_NET_BOX_EQUALIZATION(BizTypeEnum.ECONOMIC_NET,20173,"经济网箱内称重量方均摊"),
 
-        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除");
+        COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除"),
+
+        APPROVAL_START_FLOW(BizTypeEnum.APPROVAL,20201,"提交审批单"),
+        APPROVAL_CALLBACK(BizTypeEnum.APPROVAL,20202,"审批结果回调");
 
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**

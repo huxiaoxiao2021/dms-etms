@@ -414,6 +414,10 @@
     <bean id="ccInAndOutBoundProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.coldChain.inAndOutBound}"/>
     </bean>
+    <!-- 冷链 - 暂存入库消息 -->
+    <bean id="ccTemporaryInProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.coldChain.temporaryIn}"/>
+    </bean>
     <!-- 滞留上报消息 -->
     <bean id="strandReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report}"/>
@@ -467,4 +471,38 @@
         <property name="topic" value="${jmq.topic.goods.load.task.deal}"/>
     </bean>
 
+    <!--  修改箱状态记录 -->
+    <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.box.status.change.log}"/>
+    </bean>
+
+    <!-- 业务操作拦截原始动作记录 -->
+    <bean id="businessOperateInterceptActionSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.action.send}"/>
+    </bean>
+
+    <!-- 拦截后处理原始动作数据发出消息 -->
+    <bean id="disposeActionAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeActionAfterIntercept.send}"/>
+    </bean>
+
+    <!-- 拦截后处理数据发送给拦截报表 -->
+    <bean id="disposeAfterInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.disposeAfterIntercept.send}"/>
+    </bean>
+
+    <!-- 离线操作任务上传后发出mq消息 -->
+    <bean id="dmsBusinessOperateOfflineTaskSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.offline.task.send}"/>
+    </bean>
+
+    <!--  卸车完成消息  -->
+    <bean id="unloadCompleteProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.unload.car.task.complete}"/>
+    </bean>
+
+    <!-- 业务操作拦截消息发送给拦截报表 -->
+    <bean id="businessOperateInterceptSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.business.operate.intercept.send}"/>
+    </bean>
 </beans>

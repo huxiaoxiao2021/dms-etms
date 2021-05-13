@@ -507,6 +507,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="noticeToUserDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeToUserDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!-- 冷链发货 -->
     <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -556,6 +560,11 @@
 
     <!-- 箱号与集包袋绑定 -->
     <bean id="boxMaterialRelationDao" class="com.jd.bluedragon.distribution.cyclebox.dao.BoxMaterialRelationDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 回流包裹 -->
+    <bean id="reflowPackageDao" class="com.jd.bluedragon.distribution.reflowPackage.dao.ReflowPackageDao">
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
     </bean>
 
@@ -655,11 +664,21 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 弃件暂存 -->
+    <bean id="discardedPackageStorageTempDao" class="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
         <property name="sqlSession" ref="sessionTemplate"/>
         <property name="sequenceGenAdaptor" ref="sequenceGenAdaptor"/>
     </bean>
+
+    <!--  分拣箱号关联  -->
+    <bean id="boxRelationDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.box.dao.impl.BoxRelationDaoImpl" />
+
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>

@@ -35,6 +35,7 @@ public class Box {
 	public static final String TYPE_TS = "TS"; // 退货奢侈品箱号
 	public static final String TYPE_GC = "GC"; // 取件普通箱号
 	public static final String TYPE_GS = "GS"; // 取件奢侈品箱号
+    public static final String TYPE_WJ = "WJ"; // 文件类型箱号
 
 	public static final Integer TRANSPORT_TYPE_AIR = 1;//运输方式  航空
 
@@ -133,6 +134,30 @@ public class Box {
 	 * 包裹数
 	 */
 	private Integer packageNum = 0;
+
+	/**
+	 * 当前节点
+	 */
+	private Integer lastNodeType;
+
+    /**
+     * 箱号来源
+     */
+	private String boxSource;
+
+	/**
+	 * 绑定的循环集包袋
+	 */
+	private String materialCode;
+
+
+	public String getMaterialCode() {
+		return materialCode;
+	}
+
+	public void setMaterialCode(String materialCode) {
+		this.materialCode = materialCode;
+	}
 
 	public String getGroupSendCode() {
 		return groupSendCode;
@@ -410,4 +435,18 @@ public class Box {
 		this.packageNum = packageNum;
 	}
 
+	public Integer getLastNodeType() {
+		return lastNodeType;
+	}
+
+	public void setLastNodeType(Integer lastNodeType) {
+		this.lastNodeType = lastNodeType;
+	}
+    public String getBoxSource() {
+        return boxSource;
+    }
+
+    public void setBoxSource(String boxSource) {
+        this.boxSource = boxSource;
+    }
 }

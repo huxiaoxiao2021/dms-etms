@@ -1,5 +1,8 @@
 package com.jd.bluedragon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
@@ -41,6 +44,7 @@ public class Constants {
     public static final String OPERATE_FAIL = "0";
     public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
+    public static final String SEPARATOR_VERTICAL_LINE = "|";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
     public static final int RESULT_SUCCESS = 1; //成功
@@ -104,6 +108,16 @@ public class Constants {
     public static final Integer B2B_CODE_SITE_TYPE = 6460;
     /** 经济网网点类型 **/
     public static final Integer THIRD_ENET_SITE_TYPE= 10000;
+
+    /**
+     * 二级分拣中心
+     */
+    public static final Integer SITE_SUBTYPE_SECOND = 6409;
+
+    /**
+     * 三级分拣中心
+      */
+    public static final Integer SITE_SUBTYPE_THIRD = 6410;
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -212,6 +226,16 @@ public class Constants {
      * 业务类型-按运单称重
      */
     public static final Integer OPERATE_TYPE_WEIGHT_BY_WAYBILL = 100201;
+    /**
+     * 业务类型-分拣系统导出操作日志
+     */
+    public static final Integer BUSINESS_LOG_EXPORT_OPERATE = 5001;
+    /**
+     * 业务类型-分拣系统-导出操作日志
+     */
+    public static final Integer OPERATE_TYPE_REPORT_OPERATE = 500101;
+
+
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */
@@ -1004,6 +1028,11 @@ public class Constants {
      */
     public static final String WAYBILLTRACE_FINISHED = "150";
 
+    /**
+     * 运单状态  弃件
+     */
+    public static final String WAYBILLTRACE_WASTE = "620";
+
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
 
@@ -1351,6 +1380,11 @@ public class Constants {
     public static final String UNDER_LINE = "_";
 
     /**
+     * B网抽检图片前缀标识：B
+     */
+    public static final String SPOT_CHECK_B = "B";
+
+    /**
      * 众邮称重拦截缓存-生效时间  5分钟的秒数
      */
     public static final int  ALL_MAIL_CACHE_SECONDS = 5;
@@ -1359,6 +1393,11 @@ public class Constants {
      * 常量值：1
      * */
     public static final int  CONSTANT_NUMBER_ONE = 1;
+    /**
+     * 常量值：2
+     * */
+    public static final int  CONSTANT_NUMBER_TWO = 2;
+
     /**
      * 组板转移标识
      */
@@ -1404,4 +1443,72 @@ public class Constants {
      * 抽检PDA来源标识
      */
     public static final Integer PDA_SOURCE = 1;
+
+    /**
+     * 快运发货标识
+     */
+    public static final Integer KY_DELIVERY = 1;
+
+    /**
+     * 暂存预约接口成功响应码
+     */
+    public static final Integer STAGING_CHECK_SUCCESS_CODE = 0;
+
+    /**
+     * 暂存预约提示语
+     */
+    public static final String PDA_STAGING_CONFIRM_MESSAGE = "此单为暂存预约单，请暂存上架";
+
+    /**
+     * 数字：0
+     */
+    public static final Integer NUMBER_ZERO = 0;
+
+    /**
+     * 线路类型-默认值0
+     */
+    public static Integer LINE_TYPE_DEFAULT = 0;
+
+    /**
+     * 换行符
+     */
+    public static String LINE_NEXT_CHAR = "\n";
+    /**
+     * 传摆线路类型列表
+     */
+    public static List<Integer> CUAN_BAI_LINE_TYPES = new ArrayList<Integer>();
+    static{
+    	//11-市内传站
+    	CUAN_BAI_LINE_TYPES.add(11);
+    	//5-摆渡
+    	CUAN_BAI_LINE_TYPES.add(5);
+    	//9-市内传站返回
+    	CUAN_BAI_LINE_TYPES.add(9);
+    	//10-长途传站
+    	CUAN_BAI_LINE_TYPES.add(10);
+    	//34-长途传站返回
+    	CUAN_BAI_LINE_TYPES.add(34);
+    }
+    //DeliveryPackageD信任包裹称重
+    public static Integer isTrust = 1;
+
+    /**
+     * 卸车任务流水线模式:只验货不组板
+     */
+    public static final Integer ASSEMBLY_LINE_TYPE = 0;
+
+    /**
+     * 系统名
+     */
+    public static final String SYSTEM_NAME = "QLFJZXJT";
+
+    /**
+     * 导出并发限制数量
+     */
+    public static Integer CONCURRENCY_EXPORT_LIMIT = 50;
+
+    /**
+     * 导出并发key 缓存有效时间 单位:天
+     */
+    public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
 }

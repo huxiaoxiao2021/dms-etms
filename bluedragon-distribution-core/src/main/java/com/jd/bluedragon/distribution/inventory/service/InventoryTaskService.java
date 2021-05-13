@@ -9,13 +9,14 @@ import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 public interface InventoryTaskService extends Service<InventoryTask> {
 
     PagerResult<InventoryTask> queryByPagerCondition(InventoryTaskCondition condition);
 
-    List<List<Object>> getExportData(InventoryTaskCondition condition);
+    void getExportData(InventoryTaskCondition condition, BufferedWriter bfw);
 
     List<SiteEntity> getInventoryDirectionList(Integer createSiteCode);
 

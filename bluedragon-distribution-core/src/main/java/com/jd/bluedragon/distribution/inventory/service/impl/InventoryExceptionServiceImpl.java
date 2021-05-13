@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao;
@@ -12,6 +14,7 @@ import com.jd.bluedragon.distribution.inventory.service.InventoryExceptionServic
 import com.jd.bluedragon.distribution.inventory.service.InventoryInfoService;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -21,12 +24,14 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -54,6 +59,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     @Autowired
     private PackageStatusService packageStatusService;
 
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
     @Override
     public Dao<InventoryException> getDao() {
         return this.inventoryExceptionDao;
@@ -67,63 +75,100 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     /**
      * 导出
      * @param condition
+     * @param bufferedWriter
      * @return
      */
     @Override
-    public List<List<Object>> getExportData(InventoryExceptionCondition condition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<>();
-        //添加表头
-        heads.add("区域");
-        heads.add("操作场地");
-        heads.add("任务码");
-        heads.add("盘点范围");
-        heads.add("运单号");
-        heads.add("包裹号");
-        heads.add("盘点卡位");
-        heads.add("异常类型");
-        heads.add("异常描述");
-        heads.add("最新物流状态");
-        heads.add("处理状态");
-        heads.add("异常处理人");
-        heads.add("异常处理时间");
-        heads.add("盘点任务创建人");
-        heads.add("盘点创建时间");
-        heads.add("盘点扫描人");
-        heads.add("盘点扫描时间");
+    public void getExportData(InventoryExceptionCondition condition, BufferedWriter bufferedWriter) {
+      try {
+          long start = System.currentTimeMillis();
+          // 报表头
+          Map<String, String> headerMap = getHeaderMap();
+          //设置最大导出数量
+          Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+          Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+          //设置单次导出数量
+          condition.setLimit(oneQuery);
+          CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
-        resList.add(heads);
-        List<InventoryException> list = inventoryExceptionDao.getExportResultByCondition(condition);
-        if (list != null && ! list.isEmpty()) {
-            //表格信息
-            for(InventoryException inventoryException : list){
-                List<Object> body = Lists.newArrayList();
-                body.add(inventoryException.getOrgName());
-                body.add(inventoryException.getInventorySiteName());
-                body.add(inventoryException.getInventoryTaskId());
-                body.add(InventoryScopeEnum.getDescByCode(inventoryException.getInventoryScope()));
-                body.add(inventoryException.getWaybillCode());
-                body.add(inventoryException.getPackageCode());
-                body.add(inventoryException.getDirectionName());
-                body.add(InventoryExpTypeEnum.getDescByCode(inventoryException.getExpType()));
-                body.add(inventoryException.getExpDesc());
-                body.add(inventoryException.getLatestPackStatus());
-                body.add(inventoryException.getExpStatus() == 0 ? "未处理" : "已处理");
-                body.add(inventoryException.getExpUserErp());
-                body.add(DateHelper.formatDate(inventoryException.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
-                body.add(inventoryException.getTaskCreateUser() == null ? "" : inventoryException.getTaskCreateUser());
-                body.add(DateHelper.formatDate(inventoryException.getTaskCreateTime(), Constants.DATE_TIME_FORMAT));
-                body.add(inventoryException.getInventoryUserErp() == null ? "" : inventoryException.getInventoryUserErp());
-                body.add(DateHelper.formatDate(inventoryException.getInventoryTime(), Constants.DATE_TIME_FORMAT));
-                resList.add(body);
-            }
+          int queryTotal = 0;
+          int index = 1;
+          while (index <= (MaxSize/oneQuery)+1){
+              condition.setOffset((index-1) * oneQuery);
+              index ++;
+              List<InventoryException> list = inventoryExceptionDao.getExportResultByCondition(condition);
+              if(CollectionUtils.isEmpty(list)){
+                  break;
+              }
+
+              List<InventoryExceptionExportDto> dataList = transForm(list);
+              // 输出至csv文件中
+              CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+              // 限制导出数量
+              queryTotal += dataList.size();
+              if(queryTotal > MaxSize ){
+                  break;
+              }
+          }
+          long end = System.currentTimeMillis();
+          exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.INVENTORY_EXCEPTION_REPORT.getName(),end-start,queryTotal);
+      }catch (Exception e){
+          log.error("出转运清场异常统计表 export error",e);
+      }
+    }
+
+    private List<InventoryExceptionExportDto> transForm(List<InventoryException> list) {
+        List<InventoryExceptionExportDto> dataList = new ArrayList<InventoryExceptionExportDto>();
+        //表格信息
+        for(InventoryException inventoryException : list){
+            InventoryExceptionExportDto body =  new InventoryExceptionExportDto();
+            body.setOrgName(inventoryException.getOrgName());
+            body.setInventorySiteName(inventoryException.getInventorySiteName());
+            body.setInventoryTaskId(inventoryException.getInventoryTaskId());
+            body.setInventoryScopeStr(InventoryScopeEnum.getDescByCode(inventoryException.getInventoryScope()));
+            body.setWaybillCode(inventoryException.getWaybillCode());
+            body.setPackageCode(inventoryException.getPackageCode());
+            body.setDirectionName(inventoryException.getDirectionName());
+            body.setExpTypeStr(InventoryExpTypeEnum.getDescByCode(inventoryException.getExpType()));
+            body.setExpDesc(inventoryException.getExpDesc());
+            body.setLatestPackStatus(inventoryException.getLatestPackStatus());
+            body.setExpStatus(inventoryException.getExpStatus() == 0 ? "未处理" : "已处理");
+            body.setExpUserErp(inventoryException.getExpUserErp());
+            body.setExpOperateTime(DateHelper.formatDate(inventoryException.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
+            body.setTaskCreateUser(inventoryException.getTaskCreateUser() == null ? "" : inventoryException.getTaskCreateUser());
+            body.setTaskCreateTime(DateHelper.formatDate(inventoryException.getTaskCreateTime(), Constants.DATE_TIME_FORMAT));
+            body.setInventoryUserErp(inventoryException.getInventoryUserErp() == null ? "" : inventoryException.getInventoryUserErp());
+            body.setInventoryTime(DateHelper.formatDate(inventoryException.getInventoryTime(), Constants.DATE_TIME_FORMAT));
+            dataList.add(body);
         }
-        return resList;
+        return  dataList;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String,String> headerMap = new LinkedHashMap<>();
+        //添加表头
+        headerMap.put("orgName","区域");
+        headerMap.put("inventorySiteName","操作场地");
+        headerMap.put("inventoryTaskId","任务码");
+        headerMap.put("inventoryScopeStr","盘点范围");
+        headerMap.put("waybillCode","运单号");
+        headerMap.put("packageCode","包裹号");
+        headerMap.put("directionName","盘点卡位");
+        headerMap.put("expTypeStr","异常类型");
+        headerMap.put("expDesc","异常描述");
+        headerMap.put("latestPackStatus","最新物流状态");
+        headerMap.put("expStatus","处理状态");
+        headerMap.put("expUserErp","异常处理人");
+        headerMap.put("expOperateTime","异常处理时间");
+        headerMap.put("taskCreateUser","盘点任务创建人");
+        headerMap.put("taskCreateTime","盘点创建时间");
+        headerMap.put("inventoryUserErp","盘点扫描人");
+        headerMap.put("inventoryTime","盘点扫描时间");
+        return headerMap;
     }
 
     @Override
     public void generateInventoryException(InventoryBaseRequest inventoryBaseRequest) {
-
         int exceptionCount = 0;
 
         Integer type = inventoryBaseRequest.getType();

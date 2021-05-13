@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.storage.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
@@ -11,24 +13,14 @@ import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
-import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
-import com.jd.bluedragon.distribution.storage.domain.StorageCheckDto;
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageMStatusEnum;
-import com.jd.bluedragon.distribution.storage.domain.StorageSourceEnum;
+import com.jd.bluedragon.distribution.storage.domain.*;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.WaybillRouteEnum;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkCustDetailResp;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -54,16 +46,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.BufferedWriter;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -135,6 +119,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	public Dao<StoragePackageM> getDao() {
 		return this.storagePackageMDao;
 	}
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 强制发货
@@ -979,13 +966,26 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"运单信息不存在!");
             return result;
         }
-        if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
-            return result;
+        //企配仓校验
+        boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
+
+        //如果是企配仓的运单并且不是B2B的运单的时候 ，校验当前操作场地是末级场地。
+        if(qpcWaybill&& BusinessUtil.isNotB2B(waybill.getSendPay())){
+            if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
+                return result;
+            }
         }
+        //暂存(非企配仓)
+        if(!qpcWaybill){
+            if(!loginSiteIsLast(waybill,waybillCode,siteCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地非末级分拣中心，禁止上架!");
+                return result;
+            }
+        }
+
         try {
             storageCheckDto.setPlanDeliveryTime(DateHelper.formatDateTime(waybill.getRequireTime()));
-            boolean qpcWaybill = BusinessUtil.isEdn(waybill.getSendPay(), waybill.getWaybillSign());
             if(waybillCommonService.isStorageWaybill(waybillCode)
                     || qpcWaybill){
                 storageCheckDto.setStorageSource(StorageSourceEnum.KY_STORAGE.getCode());
@@ -1144,11 +1144,6 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                 return o2.getPlanOperateTime().compareTo(o1.getPlanOperateTime());
             }
         });
-//        for(WaybillRouteLinkCustDetailResp waybillRoute : list){
-//            if(siteCode.equals(waybillRoute.getPlanNodeCode())){
-//                return waybillRoute.getPlanOperateTime().getTime();
-//            }
-//        }
         return 0;
     }
 
@@ -1156,51 +1151,89 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
      * 根据条件导出
      *
      * @param condition
+     * @param bufferedWriter
      * @return
      */
     @Override
-    public List<List<Object>> getExportData(StoragePackageMCondition condition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-        List<Object> heads = new ArrayList<Object>();
-        //添加表头
-        heads.add("来源");
-        heads.add("履约单号");
-        heads.add("运单号");
-        heads.add("系统包裹数");
-        heads.add("上架包裹数");
-        heads.add("储位号");
-        heads.add("暂存状态");
-        heads.add("预计送达时间");
-        heads.add("上架时间");
-        heads.add("上架人erp");
-        heads.add("下架时间");
-        heads.add("所属分拣中心");
-        heads.add("全部上架完成时间");
-        heads.add("全部下架完成时间");
-        resList.add(heads);
-        List<StoragePackageM> dataList = storagePackageMDao.queryExportByCondition(condition);
-        if(dataList != null && dataList.size() > 0){
-            //表格信息
-            for(StoragePackageM detail : dataList){
-                List<Object> body = Lists.newArrayList();
-                body.add(StorageSourceEnum.getNameByKey(detail.getSource()));
-                body.add(detail.getPerformanceCode());
-                body.add(detail.getWaybillCode());
-                body.add(detail.getPackageSum());
-                body.add(detail.getPutawayPackageSum());
-                body.add(detail.getStorageCode());
-                body.add(detail.getStatus()==null?null:detail.getStatus()==1?"已上架":detail.getStatus()==2?"可发货":detail.getStatus()==3?"强制可发货":detail.getStatus()==4?"已发货":"未知状态");
-                body.add(detail.getPlanDeliveryTime() == null ? null : DateHelper.formatDate(detail.getPlanDeliveryTime(), Constants.DATE_TIME_FORMAT));
-                body.add(detail.getPutawayTime() == null ? null : DateHelper.formatDate(detail.getPutawayTime(), Constants.DATE_TIME_FORMAT));
-                body.add(detail.getCreateUser());
-                body.add(detail.getDownAwayTime() == null ? null : DateHelper.formatDate(detail.getDownAwayTime(), Constants.DATE_TIME_FORMAT));
-                body.add(detail.getCreateSiteName());
-                body.add(detail.getPutAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getPutAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
-                body.add(detail.getDownAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getDownAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
-                resList.add(body);
+    public void getExportData(StoragePackageMCondition condition, BufferedWriter bufferedWriter) {
+        try {
+            long start = System.currentTimeMillis();
+            // 报表头
+            Map<String, String> headerMap = getHeaderMap();
+            //设置最大导出数量
+            Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+            //设置单次导出数量
+            condition.setLimit(oneQuery);
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+
+            int queryTotal = 0;
+            int index = 1;
+            while (index <= (MaxSize/oneQuery)+1){
+                condition.setOffset((index-1) * oneQuery);
+                index++;
+                List<StoragePackageM> list = storagePackageMDao.queryExportByCondition(condition);
+                if(CollectionUtils.isEmpty(list)){
+                    break;
+                }
+
+                List<StoragePackageMExportDto>  dataList =  transForm(list);
+                // 输出至csv文件中
+                CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+                // 限制导出数量
+                queryTotal += dataList.size();
+                if(queryTotal > MaxSize ){
+                    break;
+                }
             }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition), ExportConcurrencyLimitEnum.STORAGE_PACKAGE_M_REPORT.getName(), end-start,queryTotal);
+        }catch (Exception e){
+            log.error("暂存管理 export error",e);
         }
-        return  resList;
+    }
+
+    private List<StoragePackageMExportDto> transForm(List<StoragePackageM> list) {
+        List<StoragePackageMExportDto> dataList = new ArrayList<>();
+        for(StoragePackageM detail : list){
+            StoragePackageMExportDto body = new StoragePackageMExportDto();
+            body.setSource(StorageSourceEnum.getNameByKey(detail.getSource()));
+            body.setPerformanceCode(detail.getPerformanceCode());
+            body.setWaybillCode(detail.getWaybillCode());
+            body.setPackageSum(detail.getPackageSum());
+            body.setPutawayPackageSum(detail.getPutawayPackageSum());
+            body.setStorageCode(detail.getStorageCode());
+            body.setStatus(detail.getStatus()==null?null:detail.getStatus()==1?"已上架":detail.getStatus()==2?"可发货":detail.getStatus()==3?"强制可发货":detail.getStatus()==4?"已发货":"未知状态");
+            body.setPlanDeliveryTime(detail.getPlanDeliveryTime() == null ? null : DateHelper.formatDate(detail.getPlanDeliveryTime(), Constants.DATE_TIME_FORMAT));
+            body.setPutawayTime(detail.getPutawayTime() == null ? null : DateHelper.formatDate(detail.getPutawayTime(), Constants.DATE_TIME_FORMAT));
+            body.setCreateUser(detail.getCreateUser());
+            body.setDownAwayTime(detail.getDownAwayTime() == null ? null : DateHelper.formatDate(detail.getDownAwayTime(), Constants.DATE_TIME_FORMAT));
+            body.setCreateSiteName(detail.getCreateSiteName());
+            body.setPutAwayCompleteTime(detail.getPutAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getPutAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
+            body.setDownAwayCompleteTime(detail.getDownAwayCompleteTime() == null ? null : DateHelper.formatDate(detail.getDownAwayCompleteTime(), Constants.DATE_TIME_FORMAT));
+            dataList.add(body);
+        }
+        return dataList;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String,String> headerMap = new LinkedHashMap<>();
+        //添加表头
+        headerMap.put("source","来源");
+        headerMap.put("performanceCode","履约单号");
+        headerMap.put("waybillCode","运单号");
+        headerMap.put("packageSum","系统包裹数");
+        headerMap.put("putawayPackageSum","上架包裹数");
+        headerMap.put("storageCode","储位号");
+        headerMap.put("status","暂存状态");
+        headerMap.put("planDeliveryTime","预计送达时间");
+        headerMap.put("putawayTime","上架时间");
+        headerMap.put("createUser","上架人erp");
+        headerMap.put("downAwayTime","下架时间");
+        headerMap.put("createSiteName","所属分拣中心");
+        headerMap.put("putAwayCompleteTime","全部上架完成时间");
+        headerMap.put("downAwayCompleteTime","全部下架完成时间");
+        return headerMap;
     }
 
     /**

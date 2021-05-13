@@ -274,10 +274,20 @@ function importDataBtn() {
 }
 
 function exportDataBtn() {
-	var contextPath = $("#contextPath").val();
-	var url = contextPath + "/base/crossbox/toExport";
-	$("#dataForm").attr("action", url);
-	$("#dataForm").submit();
+	checkConcurrencyLimit({
+		currentKey: exportReportEnum.CROSS_BOX_REPORT,
+		checkPassCallback: function (result) {
+			// 提交表单
+			var contextPath = $("#contextPath").val();
+			var url = contextPath + "/base/crossbox/toExport";
+			$("#dataForm").attr("action", url);
+			$("#dataForm").submit();
+		},
+		checkFailCallback: function (result) {
+			// 导出校验失败，弹出提示消息
+			alert(result.message)
+		}
+	});
 }
 
 function add0(m) {

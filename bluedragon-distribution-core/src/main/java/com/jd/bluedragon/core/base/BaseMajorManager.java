@@ -11,6 +11,7 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.dms.report.domain.*;
 
 import java.util.List;
 import java.util.Map;
@@ -175,4 +176,23 @@ public interface BaseMajorManager {
      * @return
      */
     boolean updateBaseSiteBasicProperty(BaseStaffSiteDTO baseStaffSiteDTO);
+
+	/**
+	 * 根据条件查询站点
+	 * @param siteQueryCondition
+	 * @param limit
+	 * @return
+	 */
+    List<BasicSite> querySiteByConditionFromEs(SiteQueryCondition siteQueryCondition, Integer limit);
+
+	/**
+	 * 根据条件查询站点
+	 * 		<p>
+	 * 		    查询精简站点数据
+	 * 		</p>
+	 * @param siteQueryCondition
+	 * @param limit
+	 * @return
+	 */
+	List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit);
 }

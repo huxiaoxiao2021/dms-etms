@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.fBarCode.domain.FBarCode;
 import com.jd.bluedragon.distribution.fBarCode.service.FBarCodeService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.receive.api.response.GrossReturnResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class FBarCodeResource {
 
     @POST
     @Path("/fbarcodes")
+    @JProfiler(jKey = "DMS.WEB.FBarCodeResource.getBatchFBarCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public FBarCodeResponse getBatchFBarCodes(FBarCodeRequest request) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
@@ -71,6 +74,7 @@ public class FBarCodeResource {
 
     @GET
     @Path("fbarcode/getwaybillfbarcodes/{code}")
+    @JProfiler(jKey = "DMS.WEB.FBarCodeResource.getWaybillFBarCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<GrossReturnResponse> getWaybillFBarCodes(@PathParam("code") String code ) {
         InvokeResult<GrossReturnResponse> result=new InvokeResult<GrossReturnResponse>();
         Assert.notNull(code, "fbarcode must not be null");

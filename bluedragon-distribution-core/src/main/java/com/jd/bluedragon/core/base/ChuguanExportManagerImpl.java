@@ -16,6 +16,7 @@ import com.jd.stock.iwms.export.vo.ChuguanDetailVo;
 import com.jd.stock.iwms.export.vo.ChuguanVo;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +51,15 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
             CallerParam callerParam = getCallerParam();
             ChuguanResult result = chuguanExport.insertChuguan(chuguanParamList, callerParam);
             if(result == null){
-                log.warn("新出管接口写入返回null-chuguanParamList[{}][{}]", JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam));
+                log.warn("新出管接口写入返回null-chuguanParamList[{}],[{}]", JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam));
                 return 0;
             }
             if(result.getCode() != 1){
-                log.warn("新出管接口写入返回失败chuguanParamList[{}]callerParam[{}]result[{}]"
+                log.warn("新出管接口写入返回失败chuguanParamList[{}],callerParam[{}],result[{}]"
                         ,JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(callerParam),JsonHelper.toJson(result));
                 return 0;
             }
-            log.info("新出管接口写入成功-chuguanParamList[{}]result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
+            log.info("新出管接口写入成功-chuguanParamList[{}],result[{}]",JsonHelper.toJson(chuguanParamList),JsonHelper.toJson(result));
             return 1;//表示推送成功
         }catch(Exception e){
             log.error("新出管接口写入报错chuguanParamList[{}]",JsonHelper.toJson(chuguanParamList),e);
@@ -117,7 +118,7 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
                 return null;
             }
             result = chuguanDataResult.getChuguanVoList();
-            if(result != null){
+            if(CollectionUtils.isNotEmpty(result)){
                 log.warn("新出管接口调用成功-有数据chuguanQueryParam[{}]chuguanDataResult[{}]"
                         ,JsonHelper.toJson(chuguanQueryParam),JsonHelper.toJson(chuguanDataResult));
             }else {

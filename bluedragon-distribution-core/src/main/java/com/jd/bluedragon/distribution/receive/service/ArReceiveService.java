@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.receive.service;
 
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
+import com.jd.bluedragon.distribution.transport.domain.ArReceiveCondition;
+import com.jd.bluedragon.distribution.transport.domain.ArReceiveVo;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+
+import java.util.List;
 
 /**
 *
@@ -18,4 +22,14 @@ public interface ArReceiveService extends Service<ArReceive> {
 	 * @return
 	 */
 	ArSendCode getLastArSendCodeByBarcode(String barcode);
+
+	/**
+	 * 计提查询空铁提货总数
+	 */
+	Integer queryArReceiveCountForWorking(ArReceiveCondition request);
+
+	/**
+	 * 计提查询空铁提货明细
+	 */
+	List<ArReceiveVo> queryArReceiveDetailForWorking(ArReceiveCondition request);
 }
