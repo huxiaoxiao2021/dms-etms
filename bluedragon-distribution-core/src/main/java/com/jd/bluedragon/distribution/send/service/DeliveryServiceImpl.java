@@ -5090,26 +5090,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         private final Logger log = LoggerFactory.getLogger(ForwardSendDiffrence.class);
         @Autowired
         private WaybillCommonService waybillCommonService;
-
-        @Autowired
-        private SiteService siteService;
-
         @Override
         public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList = null;
-                BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
-
-                if(null != waybill && site!=null){
-                    Integer wmsType = Integer.valueOf(PropertiesHelper.newInstance().getValue("wms_type"));
-                    if (BusinessUtil.preSellAndUnpaidBalance(getOldWaybillSendPay(waybill))
-                            && wmsType.equals(site.getSiteType())){//预售到仓且未付尾款的运单(到仓)，不做集齐校验
-                        return 0;
-                    }
-                }
-
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
                     geneList = new ArrayList<String>(waybill.getPackList().size());
                     for (Pack p : waybill.getPackList()) {
@@ -5141,24 +5127,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 diffrenceList.addAll(noScanList);
             }
             return hasDiff;
-        }
-        /**
-         * 获取sendPay
-         * 如果有换单，返回老的sendPay
-         * @param waybill
-         * @return
-         */
-        private  String getOldWaybillSendPay(com.jd.bluedragon.common.domain.Waybill waybill) {
-            String result = waybill.getSendPay();
-            if(BusinessUtil.isWaybillMarkForward(waybill.getWaybillSign())){
-                return result;
-            }
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<com.jd.bluedragon.common.domain.Waybill> waybillInvokeResult = waybillCommonService.getReverseWaybill(waybill.getWaybillCode());
-            if (null == waybillInvokeResult || null == waybillInvokeResult.getData()){
-                return  result;
-            }
-            result = waybillInvokeResult.getData().getSendPay();
-            return result;
         }
     }
 
