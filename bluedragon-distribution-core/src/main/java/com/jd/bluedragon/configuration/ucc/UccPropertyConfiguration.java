@@ -334,6 +334,11 @@ public class UccPropertyConfiguration {
     private String unSealCarHandlePackageFullCollectedSwitch;
 
     /**
+     * 发货交接清单-汇总scrollId查询单批次查询数量
+     */
+    private int scrollQuerySize;
+
+    /**
      * 验货集包袋依赖降级， true时不依赖集包袋服务
      */
     private boolean inspectionAssertDemotion;
@@ -929,6 +934,14 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public int getScrollQuerySize() {
+        return scrollQuerySize;
+    }
+
+    public void setScrollQuerySize(int scrollQuerySize) {
+        this.scrollQuerySize = scrollQuerySize;
     }
 
     public boolean getInspectionAssertDemotion() {
