@@ -1571,13 +1571,15 @@ public class BusinessUtil {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1);
     }
     /**
-     * 预售未付款退仓,297位为1 且 228位为1或2
+     * 预售未付款退仓,297位为1 且 228位为1、2、6
      * @param sendPay
      * @return
      */
     public static boolean isPreSellWithNoPayToWms(String sendPay) {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
-                && isSignInChars(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2);
+                && isSignInChars(sendPay,
+                		SendPayConstants.POSITION_228,
+                		SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2,SendPayConstants.CHAR_228_6);
     }
     /**
      * 预售未付款暂存分拣,297位为1 且 228位为4
@@ -1997,28 +1999,21 @@ public class BusinessUtil {
 
     /**
      * 根据sendPay表位判断预售暂存类型
-     * 如果sendPay 228位等于1或2，表示预售暂存到仓
-     * 如果sendPay 228位等于4或5，表示预售暂存到配
+     * 如果sendPay 228位等于1、2、6，表示预售暂存到仓
+     * 如果sendPay 228位等于4、5、7，表示预售暂存到配
      */
     public static Integer getStoreTypeBySendPay(String sendPay){
         Integer result = null;
-        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
-                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_2)){
+        if (BusinessUtil.isSignInChars(sendPay,
+        		SendPayConstants.POSITION_228,
+        		SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2,SendPayConstants.CHAR_228_6)){
             result = PreSellTypeEnum.TOWAREHOUSE.getValue();
         }
-        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4) ||
-                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_5)){
+        if (BusinessUtil.isSignInChars(sendPay,
+        		SendPayConstants.POSITION_228,
+        		SendPayConstants.CHAR_228_4,SendPayConstants.CHAR_228_5,SendPayConstants.CHAR_228_7)){
             result = PreSellTypeEnum.TODELIVERY.getValue();
         }
         return result;
-    }
-
-    //预售到仓且未付尾款
-    public static boolean preSellAndUnpaidBalance(String sendPay){
-        return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
-                isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
-                ) &&
-                isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
-                ?Boolean.TRUE:Boolean.FALSE;
     }
 }

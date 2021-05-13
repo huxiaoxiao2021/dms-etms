@@ -5695,7 +5695,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 return 0;
                             }
                             Integer wmsType = Integer.valueOf(PropertiesHelper.newInstance().getValue("wms_type"));
-                            if (BusinessUtil.preSellAndUnpaidBalance(getOldWaybillSendPay(waybill))
+                            if (BusinessUtil.isPreSellWithNoPayToWms(getOldWaybillSendPay(waybill))
                                     && wmsType.equals(site.getSiteType())){//预售到仓且未付尾款的运单(到仓)，不做集齐校验
                                 return 0;
                             }
