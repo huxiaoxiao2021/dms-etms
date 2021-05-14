@@ -110,6 +110,7 @@
 		<property name="unSealCarHandlePackageFullCollectedSwitch" value="${unSealCarHandlePackageFullCollectedSwitch:-1}"/> <!-- 解封车查看运单包裹是否集齐 -->
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
         <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
+		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 
 	</bean>
 
@@ -192,7 +193,7 @@
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
                 <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
-
+				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 			</list>
 		</property>
 	</bean>
