@@ -10,8 +10,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.jmq.common.message.Message;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +36,8 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
     private PrintHandoverListManager printHandoverListManager;
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DmsWorkSendDetailConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception{
+        CallerInfo info = Profiler.registerInfo("DmsWorkSendDetailConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
                 log.warn("发货明细消息MQDmsWorkSendDetail-消息体非JSON格式，内容为【{}】", message.getText());
@@ -49,33 +49,20 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
                 log.warn("DmsWorkSendDetailConsumer:消息体[{}]转换实体失败或没有合法的包裹号",message.getText());
                 return;
             }
-            // 校验是否存在发货数据
-            SendDetail sendDetail = querySendRecord(sendDetailMQ);
-            if(sendDetail == null){
-                log.warn("根据包裹号{}未查询到发货数据!",sendDetailMQ.getPackageBarcode());
-                return;
-            }
             // 组装basicQueryEntity对象，写入es
-            PrintHandoverListDto dto = sendPrintService.buildPrintHandoverListDto(sendDetail);
+            PrintHandoverListDto dto = sendPrintService.buildPrintHandoverListDto(sendDetailMQ);
             if(dto == null){
                 log.warn("构建打印交接清单数据为空!");
                 return;
             }
             recordPrintHandoverListData(dto);
         }catch(Exception e){
+            Profiler.functionError(info);
             log.error("消费发货消息转换成BasicQueryEntity失败:"+message.getText(), e);
             throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
-    }
-
-    private SendDetail querySendRecord(SendDetail sendDetailMQ) {
-        // 通过包裹号查询发货明细
-        SendDetail querySendDetail = new SendDetail();
-        querySendDetail.setCreateSiteCode(sendDetailMQ.getCreateSiteCode());
-        querySendDetail.setReceiveSiteCode(sendDetailMQ.getReceiveSiteCode());
-        querySendDetail.setPackageBarcode(sendDetailMQ.getPackageBarcode());
-        querySendDetail.setSendCode(sendDetailMQ.getSendCode());
-        return sendDatailDao.queryOneSendDetailByPackageCode(querySendDetail);
     }
 
     private void recordPrintHandoverListData(PrintHandoverListDto dto) {
