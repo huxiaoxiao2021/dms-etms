@@ -714,4 +714,8 @@
                   protocol="jsf" alias="${jsf.dataSelectWS.alias}" timeout="${jsf.dataSelectWS.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <!--签单返还-->
+    <jsf:consumer id="signBillReturnApi" interface="erp.ql.station.api.service.SignBillReturnApi" protocol="jsf"
+                  alias="${jsf.signBillReturn.alias}" timeout="${jsf.signBillReturn.timeout}"   retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>
