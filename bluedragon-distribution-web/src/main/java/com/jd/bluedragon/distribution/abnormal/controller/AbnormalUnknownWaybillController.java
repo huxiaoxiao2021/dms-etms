@@ -204,6 +204,12 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
         BufferedWriter bfw = null;
         try {
             if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
+                    && (abnormalUnknownWaybillCondition.getStartTime() == null || abnormalUnknownWaybillCondition.getEndTime() == null)){
+                result.error("运单号和上报时间条件不能同时为空！");
+                return result;
+            }
+
+            if(StringUtils.isEmpty(abnormalUnknownWaybillCondition.getWaybillCode())
                     && DateHelper.daysBetween(abnormalUnknownWaybillCondition.getStartTime(),abnormalUnknownWaybillCondition.getEndTime()) >
                     queryLimitDay){
                 result.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,"上报时间相差不能超过"+ queryLimitDay +"天！");
