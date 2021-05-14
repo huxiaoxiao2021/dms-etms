@@ -210,50 +210,39 @@ public class SendPrintServiceImpl implements SendPrintService {
         response.setMessage(JdResponse.MESSAGE_OK);
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.newBatchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            // 分页查询es获取数据
-            PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(criteria, false);
-            Long totalRow = printHandoverListManager.queryPrintHandOverListTotal(condition);
-            if(totalRow == null){
-                response.setCode(JdResponse.CODE_OK_NULL);
-                response.setMessage(JdResponse.MESSAGE_OK_NULL);
-                return response;
-            }
-
             // 批次对应的基础数据
             Map<String,SummaryPrintResult> batchBasicMap = new HashMap<>();
             // 批次对应的箱号，箱号对应的信息
             Map<String,Map<String,SummaryPrintBoxEntity>> batchBoxMap = new HashMap<>();
+            // 批次对应的箱号集合
+            Map<String,Set<String>> batchBoxSetMap = new HashMap<>();
 
-            // 指定单次scrollId查询数量
-            long batchSize = uccPropertyConfiguration.getScrollQuerySize();
-            long currentBatchSize = batchSize;
-            if(totalRow < batchSize){
-                currentBatchSize = totalRow;
-            }
-            long batchCount = totalRow % batchSize == Constants.NUMBER_ZERO ? totalRow / batchSize : totalRow / batchSize + Constants.CONSTANT_NUMBER_ONE;
+            // 单次scroll查询数量、scroll查询最大限制次数
+            int batchSize = uccPropertyConfiguration.getScrollQuerySize();
+            int printScrollQueryCountLimit = uccPropertyConfiguration.getPrintScrollQueryCountLimit();
+
             Pager<PrintHandoverLitQueryCondition> query = new Pager<PrintHandoverLitQueryCondition>();
             query.setPageNo(Constants.CONSTANT_NUMBER_ONE);
-            query.setSearchVo(condition);
-            query.setScrollId(null);
-            for (int i = 1; i <= batchCount; i++) {
-                if(batchSize * i > totalRow){
-                    currentBatchSize = totalRow - (i - 1) * batchSize;
-                }
+            query.setPageSize(batchSize);
+            query.setSearchVo(convertToPrintHandoverListQueryCondition(criteria, false));
+            int count = Constants.NUMBER_ZERO;
+            while (count < printScrollQueryCountLimit){
                 // 通过scrollId查询发货交接汇总数据
-                query.setPageSize(Integer.parseInt(String.valueOf(currentBatchSize)));
                 PageData<PrintHandoverListDto> printHandoverListDtoPageData = printHandoverListManager.queryPrintHandOverListByScroll(query);
                 if(printHandoverListDtoPageData == null ||  CollectionUtils.isEmpty(printHandoverListDtoPageData.getRecords())){
                     log.warn("scroll查询发货交接清单汇总数据为空!");
                     break;
                 }
-                // 第二次以后设置scrollId值
+                // 设置scrollId值
                 query.setScrollId(printHandoverListDtoPageData.getScrollId());
 
                 // 通过明细获取单次的汇总数据
-                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(printHandoverListDtoPageData.getRecords());
+                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxSetMap, printHandoverListDtoPageData.getRecords());
 
                 // 处理单批次的汇总数据
-                singleDealPrintHandoverData(batchBasicMap, batchBoxMap, singleSummaryPrintResult);
+                singleDealPrintHandoverData(batchBasicMap, batchBoxSetMap, batchBoxMap, singleSummaryPrintResult);
+
+                count ++;
             }
 
             // 获取最终汇总数据
@@ -309,6 +298,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param singleSummaryPrintResult
      */
     private void singleDealPrintHandoverData(Map<String, SummaryPrintResult> batchBasicMap,
+                                             Map<String,Set<String>> batchBoxSetMap,
                                              Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap,
                                              List<SummaryPrintResult> singleSummaryPrintResult) {
         if(CollectionUtils.isEmpty(singleSummaryPrintResult)){
@@ -318,9 +308,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             // 批次对应的基础数据处理
             if(batchBasicMap.containsKey(summaryPrintResult.getSendCode())){
                 SummaryPrintResult computeSummaryPrintResult = batchBasicMap.get(summaryPrintResult.getSendCode());
-                computeSummaryPrintResult.setTotalBoxNum(computeSummaryPrintResult.getTotalBoxNum() + summaryPrintResult.getTotalBoxNum());
                 computeSummaryPrintResult.setTotalPackageNum(computeSummaryPrintResult.getTotalPackageNum() + summaryPrintResult.getTotalPackageNum());
-                computeSummaryPrintResult.setTotalBoxAndPackageNum(computeSummaryPrintResult.getTotalBoxAndPackageNum() + summaryPrintResult.getTotalBoxAndPackageNum());
+                computeSummaryPrintResult.setTotalBoxAndPackageNum(computeSummaryPrintResult.getTotalBoxNum() + computeSummaryPrintResult.getTotalPackageNum());
                 computeSummaryPrintResult.setTotalShouldSendPackageNum(computeSummaryPrintResult.getTotalShouldSendPackageNum() + summaryPrintResult.getTotalShouldSendPackageNum());
                 computeSummaryPrintResult.setTotalRealSendPackageNum(computeSummaryPrintResult.getTotalRealSendPackageNum() + summaryPrintResult.getTotalRealSendPackageNum());
                 computeSummaryPrintResult.setTotalBoardVolume(computeSummaryPrintResult.getTotalBoardVolume() + summaryPrintResult.getTotalBoardVolume());
@@ -330,6 +319,10 @@ public class SendPrintServiceImpl implements SendPrintService {
             }else {
                 batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
             }
+            // 单独设置批次下箱号数量
+            Set<String> boxSet = batchBoxSetMap.get(summaryPrintResult.getSendCode());
+            int totalBoxNum = CollectionUtils.isEmpty(boxSet) ? Constants.NUMBER_ZERO : boxSet.size();
+            batchBasicMap.get(summaryPrintResult.getSendCode()).setTotalBoxNum(totalBoxNum);
             // 批次对应的箱号，箱号对应的数据处理
             if(batchBoxMap.containsKey(summaryPrintResult.getSendCode())){
                 // 箱号对应的数据处理
@@ -368,7 +361,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param records
      * @return
      */
-    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(List<PrintHandoverListDto> records) {
+    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Set<String>> batchBoxSetMap, List<PrintHandoverListDto> records) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.getSummaryResultByPrintHandoverData", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             //按批次分类
@@ -390,7 +383,12 @@ public class SendPrintServiceImpl implements SendPrintService {
                 summaryPrintResult.setSendCode(sendCode);
                 summaryPrintResult.setSendSiteName(records.get(0).getCreateSiteName());
                 summaryPrintResult.setReceiveSiteName(records.get(0).getReceiveSiteName());
-                summaryPrintResultList.add(singleSendSummary(summaryPrintResult,sendBaseMap.get(sendCode)));
+                Set<String> boxSet = new HashSet<>();
+                if(batchBoxSetMap.containsKey(sendCode)){
+                    boxSet = batchBoxSetMap.get(sendCode);
+                }
+                summaryPrintResultList.add(singleSendSummary(boxSet,summaryPrintResult,sendBaseMap.get(sendCode)));
+                batchBoxSetMap.put(sendCode, boxSet);
             }
             return summaryPrintResultList;
         }catch (Exception e){
@@ -408,7 +406,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param singlePrintHandoverList
      * @return
      */
-    private SummaryPrintResult singleSendSummary(SummaryPrintResult summaryPrintResult,List<PrintHandoverListDto> singlePrintHandoverList){
+    private SummaryPrintResult singleSendSummary(Set<String> boxSet,SummaryPrintResult summaryPrintResult,List<PrintHandoverListDto> singlePrintHandoverList){
         Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
         List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
 
@@ -461,7 +459,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     boxMap.put(printHandoverListDto.getBoxCode(),summaryEntity);
                     totalBoxNum ++;
                 }
-
+                boxSet.add(printHandoverListDto.getBoxCode());
             } else {
                 //按包裹号处理的
                 summaryEntity = new SummaryPrintBoxEntity();

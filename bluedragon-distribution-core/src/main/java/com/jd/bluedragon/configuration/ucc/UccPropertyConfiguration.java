@@ -337,6 +337,10 @@ public class UccPropertyConfiguration {
      * 发货交接清单-汇总scrollId查询单批次查询数量
      */
     private int scrollQuerySize;
+    /**
+     * 发货交接清单-汇总scrollId最大次数限制
+     */
+    private int printScrollQueryCountLimit;
 
     /**
      * 验货集包袋依赖降级， true时不依赖集包袋服务
@@ -950,6 +954,14 @@ public class UccPropertyConfiguration {
 
     public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
         this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public int getPrintScrollQueryCountLimit() {
+        return printScrollQueryCountLimit;
+    }
+
+    public void setPrintScrollQueryCountLimit(int printScrollQueryCountLimit) {
+        this.printScrollQueryCountLimit = printScrollQueryCountLimit;
     }
 
     public boolean isCancelJimaoxinSwitchToOMS() {
