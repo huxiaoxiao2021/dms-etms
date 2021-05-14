@@ -240,13 +240,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxSetMap, printHandoverListDtoPageData.getRecords());
 
                 // 处理单批次的汇总数据
-                singleDealPrintHandoverData(batchBasicMap, batchBoxSetMap, batchBoxMap, singleSummaryPrintResult);
+                singleDealPrintHandoverData(batchBasicMap, batchBoxMap, singleSummaryPrintResult);
 
                 count ++;
             }
 
             // 获取最终汇总数据
-            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxMap);
+            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxSetMap, batchBoxMap);
             if(CollectionUtils.isEmpty(list)){
                 response.setCode(JdResponse.CODE_OK_NULL);
                 response.setMessage(JdResponse.MESSAGE_OK_NULL);
@@ -275,6 +275,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private List<SummaryPrintResult> computeFinalSummaryResult(Map<String, SummaryPrintResult> batchBasicMap,
+                                                               Map<String,Set<String>> batchBoxSetMap,
                                                                Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap) {
         List<SummaryPrintResult> list = new ArrayList<>();
         if(batchBasicMap.isEmpty() || batchBoxMap.isEmpty()){
@@ -282,6 +283,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         for (Map.Entry<String, SummaryPrintResult> batchEntry : batchBasicMap.entrySet()) {
             SummaryPrintResult summaryPrintResult = batchEntry.getValue();
+            if(batchBoxSetMap.containsKey(batchEntry.getKey())){
+                // 设置箱号数量、箱+包数量
+                int boxSize = batchBoxSetMap.get(batchEntry.getKey()).size();
+                summaryPrintResult.setTotalBoxNum(boxSize);
+                summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
+            }
             if(batchBoxMap.containsKey(batchEntry.getKey())){
                 Map<String, SummaryPrintBoxEntity> boxEntityMap = batchBoxMap.get(batchEntry.getKey());
                 summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
@@ -298,7 +305,6 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param singleSummaryPrintResult
      */
     private void singleDealPrintHandoverData(Map<String, SummaryPrintResult> batchBasicMap,
-                                             Map<String,Set<String>> batchBoxSetMap,
                                              Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap,
                                              List<SummaryPrintResult> singleSummaryPrintResult) {
         if(CollectionUtils.isEmpty(singleSummaryPrintResult)){
@@ -309,7 +315,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             if(batchBasicMap.containsKey(summaryPrintResult.getSendCode())){
                 SummaryPrintResult computeSummaryPrintResult = batchBasicMap.get(summaryPrintResult.getSendCode());
                 computeSummaryPrintResult.setTotalPackageNum(computeSummaryPrintResult.getTotalPackageNum() + summaryPrintResult.getTotalPackageNum());
-                computeSummaryPrintResult.setTotalBoxAndPackageNum(computeSummaryPrintResult.getTotalBoxNum() + computeSummaryPrintResult.getTotalPackageNum());
                 computeSummaryPrintResult.setTotalShouldSendPackageNum(computeSummaryPrintResult.getTotalShouldSendPackageNum() + summaryPrintResult.getTotalShouldSendPackageNum());
                 computeSummaryPrintResult.setTotalRealSendPackageNum(computeSummaryPrintResult.getTotalRealSendPackageNum() + summaryPrintResult.getTotalRealSendPackageNum());
                 computeSummaryPrintResult.setTotalBoardVolume(computeSummaryPrintResult.getTotalBoardVolume() + summaryPrintResult.getTotalBoardVolume());
@@ -319,10 +324,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             }else {
                 batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
             }
-            // 单独设置批次下箱号数量
-            Set<String> boxSet = batchBoxSetMap.get(summaryPrintResult.getSendCode());
-            int totalBoxNum = CollectionUtils.isEmpty(boxSet) ? Constants.NUMBER_ZERO : boxSet.size();
-            batchBasicMap.get(summaryPrintResult.getSendCode()).setTotalBoxNum(totalBoxNum);
             // 批次对应的箱号，箱号对应的数据处理
             if(batchBoxMap.containsKey(summaryPrintResult.getSendCode())){
                 // 箱号对应的数据处理
@@ -1553,7 +1554,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         printHandoverListDto.setSendUser(sendM.getCreateUser());
         printHandoverListDto.setSendUserCode(sendM.getCreateUserCode());
 
-        printHandoverListDto.setIsCancel((Byte.valueOf(String.valueOf(Constants.DOUBLE_ZERO)));
+        printHandoverListDto.setIsCancel((Byte.valueOf(String.valueOf(Constants.DOUBLE_ZERO))));
         printHandoverListDto.setIsNew(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
 
         printHandoverListDto.setSendTime(sendM.getOperateTime() == null ? null : sendM.getOperateTime().getTime());
