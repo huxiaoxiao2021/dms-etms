@@ -136,11 +136,11 @@ $(function() {
                 alert('结束时间不允许为空');
                 return;
             }
-            /*var dates = Math.abs((temp['requirePickupTimeEnd'] - temp['requirePickupTimeBegin']))/(1000*60*60*24);
-            if(dates>30){
-                alert("时间间隔不允许超过30天");
+            var dates = Math.abs((temp['requirePickupTimeEnd'] - temp['requirePickupTimeBegin']))/(1000*60*60*24);
+            if(dates>7){
+                alert("预约提货时间范围不允许超过7天，如果想获取更早的数据请将结束时间设置的早一点~");
                 return;
-            }*/
+            }
             // dates=Math.abs((new  Date()- temp['requirePickupTimeBegin']))/(1000*60*60*24);
             // if(dates>30){
             //     Jd.alert("只允许查询30天内的数据");
