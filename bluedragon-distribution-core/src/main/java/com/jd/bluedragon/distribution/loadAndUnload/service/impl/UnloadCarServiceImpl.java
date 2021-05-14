@@ -217,10 +217,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     WaybillPackageApi waybillPackageApi;
 
     @Autowired
-    private BoardCombinationService boardCombinationService;
+    private CargoDetailServiceManager cargoDetailServiceManager;
 
     @Autowired
-    private CargoDetailServiceManager cargoDetailServiceManager;
+    private BoardCombinationService boardCombinationService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -707,7 +707,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             //返回组板 单/件数量
             setBoardCount(dtoInvokeResult, currentBoardCode);
-
         }catch (LoadIllegalException e){
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return dtoInvokeResult;
@@ -1665,9 +1664,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //获取当前操作网点的信息，用于判断是否集配站或者分拣、城配等。后续迁移时需要考虑分拣发过来的封车信息是从运输取还是从分拣单独拉取数据。此次为了避免线上的影响非集配站的依然按照原逻辑获取。
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
             if (siteOrgDto == null) {
-                logger.error("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}]", createSiteCode);
+                logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
             }
             if(siteOrgDto != null && Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())){
+                logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
                 //集配站的批次号，通过运输接口获取相应的批次下包裹信息。
                 CargoDetailDto cargoDetailDto = new CargoDetailDto();
                 //批次号
@@ -1683,6 +1683,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     com.jd.tms.data.dto.CommonDto<List<CargoDetailDto>> cargoDetailReturn = cargoDetailServiceManager.getCargoDetailInfoByBatchCode(cargoDetailDto,offset,limitSize);
                     if(cargoDetailReturn != null && cargoDetailReturn.getCode() == CommonDto.CODE_SUCCESS && cargoDetailReturn.getData() != null && !cargoDetailReturn.getData().isEmpty()){
                         List<CargoDetailDto> cargoDetailDtoList =  cargoDetailReturn.getData();
+                        logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{},获取到的包裹信息数量为{}",batchCode,createSiteCode,cargoDetailDtoList.size());
                         for(CargoDetailDto cargoDetailDtoTemp:cargoDetailDtoList){
                             packageCodeList.add(cargoDetailDtoTemp.getPackageCode());
                         }
@@ -2313,7 +2314,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
 
-
+//        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+//        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+//            unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+//            unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+//        } else {
+//            logger.error("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+//            return false;
+//        }
         try {
             unloadCarDao.add(unloadCar);
         } catch (Exception e) {
@@ -2344,6 +2352,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 totalPackageCodes.addAll(packageCodes);
             }
             if (CollectionUtils.isEmpty(totalPackageCodes)) {
+                logger.warn("封车编码{}下的批次号未获取到对应的包裹信息,不写入卸车任务运单详情信息表.",tmsSealCar.getSealCarCode());
                 return false;
             }
             Map<String, WaybillPackageNumInfo> waybillMap = new HashMap<>();

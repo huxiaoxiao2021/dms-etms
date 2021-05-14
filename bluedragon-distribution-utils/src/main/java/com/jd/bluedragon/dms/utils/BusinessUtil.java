@@ -303,7 +303,7 @@ public class BusinessUtil {
      */
     public static boolean isB2b(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
-        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5')
         				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
         						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
@@ -1571,13 +1571,15 @@ public class BusinessUtil {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1);
     }
     /**
-     * 预售未付款退仓,297位为1 且 228位为1或2
+     * 预售未付款退仓,297位为1 且 228位为1、2、6
      * @param sendPay
      * @return
      */
     public static boolean isPreSellWithNoPayToWms(String sendPay) {
         return isSignChar(sendPay,SendPayConstants.POSITION_297,SendPayConstants.CHAR_297_1)
-                && isSignInChars(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2);
+                && isSignInChars(sendPay,
+                		SendPayConstants.POSITION_228,
+                		SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2,SendPayConstants.CHAR_228_6);
     }
     /**
      * 预售未付款暂存分拣,297位为1 且 228位为4
@@ -1784,13 +1786,13 @@ public class BusinessUtil {
             //去除号码中间的空白字符
         	String hidePhone = phone.replaceAll("\\s*", "");
             if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
-                return hidePhone.substring(0,PHONE_FIRST_NUMBER) 
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER)
                 		+ hidePlaceStr
                 		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
             }
         }
         return phone;
-    } 
+    }
     /**
      * 隐藏姓名：1位以上地址返回前1位+^_^，否则返回原值
      * @param name 姓名
@@ -1912,6 +1914,15 @@ public class BusinessUtil {
         return BusinessUtil.isSignChar(waybillSign,31,'1');
     }
     /**
+     * 判断是否防疫物资绿色通道(82位6)
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isFYWZ(String waybillSign) {
+        return isSignChar(waybillSign, 82, '6');
+    }
+    /**
      * 判断包裹维度是否有增值服务信息，waybillSign86位=2或者3 去获取包裹的
      * @param waybillSign
      * @return
@@ -2020,5 +2031,27 @@ public class BusinessUtil {
      */
     public static boolean isNotB2B(String sendPay) {
         return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
+    }
+
+
+
+    /**
+     * 根据sendPay表位判断预售暂存类型
+     * 如果sendPay 228位等于1、2、6，表示预售暂存到仓
+     * 如果sendPay 228位等于4、5、7，表示预售暂存到配
+     */
+    public static Integer getStoreTypeBySendPay(String sendPay){
+        Integer result = null;
+        if (BusinessUtil.isSignInChars(sendPay,
+        		SendPayConstants.POSITION_228,
+        		SendPayConstants.CHAR_228_1,SendPayConstants.CHAR_228_2,SendPayConstants.CHAR_228_6)){
+            result = PreSellTypeEnum.TOWAREHOUSE.getValue();
+    }
+        if (BusinessUtil.isSignInChars(sendPay,
+        		SendPayConstants.POSITION_228,
+        		SendPayConstants.CHAR_228_4,SendPayConstants.CHAR_228_5,SendPayConstants.CHAR_228_7)){
+            result = PreSellTypeEnum.TODELIVERY.getValue();
+        }
+        return result;
     }
 }
