@@ -68,7 +68,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 返回企配仓拣货主页面
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	/**@Authorization(Constants.DMS_WEB_EDN_PICKING_R)**/
 	@RequestMapping(value = "/toDmsEdnPickingIndex")
 	public String toIndex(Model model) {
 		LoginUser loginUser = this.getLoginUser();
