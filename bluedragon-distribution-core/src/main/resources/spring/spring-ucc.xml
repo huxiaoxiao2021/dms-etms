@@ -109,6 +109,7 @@
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
+		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
 
 	</bean>
 
@@ -188,6 +189,7 @@
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
+				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 			</list>
 		</property>
 	</bean>
