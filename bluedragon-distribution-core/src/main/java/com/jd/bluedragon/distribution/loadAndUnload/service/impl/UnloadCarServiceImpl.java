@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -221,6 +222,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     private BoardCombinationService boardCombinationService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -1191,7 +1195,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         try {
             int packageNum = WaybillUtil.getPackNumByPackCode(request.getBarCode());
-            if(packageNum < 1000){
+            if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "此单非大宗超量运单，请进行逐包裹扫描操作！");
                 return invokeResult;
             }
@@ -2269,7 +2273,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 通过工具类从批次号上截取目的场地ID
 //            Integer nextSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCodes.get(0));
             if (nextSiteCode == null) {
-                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!", unloadCar.getSealCarCode(), batchCodes.get(0));
+                logger.warn("封车编码【{}】批次号【{}】没有符合的下一场地!返回对象中的下一网点id为{},下一网点code为{},下一网点名称为{}", unloadCar.getSealCarCode(), batchCodes.get(0),sealCarDto.getData().getEndSiteId(),sealCarDto.getData().getEndSiteCode(),sealCarDto.getData().getEndSiteName());
                 return false;
             }
             boolean isExpressCenterSite = isExpressCenterSite(nextSiteCode);
@@ -2292,6 +2296,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 boolean isSuccess = batchSaveUnloadScan(tmsSealCar, unloadCar);
                 logger.info("当前封车消息属于快运中心：sealCarCode={},isSuccess={}", tmsSealCar.getSealCarCode(), isSuccess);
                 if (!isSuccess) {
+                    logger.warn("封车编码{}写入运单维度数据不成功！",unloadCar.getSealCarCode());
                     return false;
                 }
             } else {
@@ -2304,7 +2309,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCar.setPackageNum(packageNum);
             }
         } catch (Exception e) {
-            logger.error("查询运单数或者包裹数失败!",e);
+            logger.error("封车编码{}查询运单数或者包裹数失败!",unloadCar.getSealCarCode(),e);
             return false;
         }
         unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());

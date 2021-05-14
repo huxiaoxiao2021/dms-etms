@@ -353,6 +353,12 @@ public class UccPropertyConfiguration {
     private boolean cancelJimaoxinSwitchToOMS;
 
 
+    /**
+     * 大宗可扫描包裹下限数量
+     * @return
+     */
+    private Integer dazongPackageOperateMax;
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -970,5 +976,13 @@ public class UccPropertyConfiguration {
 
     public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
         this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
+    }
+
+    public Integer getDazongPackageOperateMax() {
+        return dazongPackageOperateMax;
+    }
+
+    public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
+        this.dazongPackageOperateMax = dazongPackageOperateMax;
     }
 }
