@@ -173,10 +173,10 @@ public interface UnloadCarService {
      */
     InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
 
-
-    JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
     /**
      * 卸车扫描(空任务卸车最新版)
      */
     InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request);
+
+    JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
 }

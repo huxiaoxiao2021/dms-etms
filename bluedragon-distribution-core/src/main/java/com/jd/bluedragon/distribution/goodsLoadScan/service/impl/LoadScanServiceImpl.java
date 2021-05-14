@@ -2447,9 +2447,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
         loadCarPo.setCreateTime(fromTime);
         List<Long> idList = loadService.getIdsByCondition(loadCarPo);
-        //todo zcf test log
-        log.info("getFlowLoadWaybillInfo--test--2021--loadCar=【{}】, loadCarPo=【{}】, idList=【{}】",
-                JsonHelper.toJson(loadCar), JsonHelper.toJson(loadCarPo), JsonHelper.toJson(idList));
 
         //idList 可能为空  当前任务为15天前任务，反查时查不到
         if(CollectionUtils.isEmpty(idList)) {
