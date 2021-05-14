@@ -1892,16 +1892,6 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否防疫物资绿色通道(82位6)
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isFYWZ(String waybillSign) {
-        return isSignChar(waybillSign, 82, '6');
-    }
-
-    /**
      * 判断是否是快运
      * 31位 为1 是特快送
      * @param waybillSign
@@ -1969,27 +1959,7 @@ public class BusinessUtil {
         boolean isSignChars = BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_3);
         return isSignChars;
     }
-    public static Integer getStoreTypeBySendPay(String sendPay){
-        Integer result = null;
-        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
-                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_2)){
-            result = PreSellTypeEnum.TOWAREHOUSE.getValue();
-        }
-        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4) ||
-                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_5)){
-            result = PreSellTypeEnum.TODELIVERY.getValue();
-        }
-        return result;
-    }
 
-    //预售到仓且未付尾款
-    public static boolean preSellAndUnpaidBalance(String sendPay){
-        return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
-                isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
-        ) &&
-                isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
-                ?Boolean.TRUE:Boolean.FALSE;
-    }
     /**
      * 当 WaybillSign40=2且 WaybillSign1≠7时，则查运单接口
      * @param waybillSign
