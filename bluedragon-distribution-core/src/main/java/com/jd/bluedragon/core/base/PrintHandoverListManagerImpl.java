@@ -63,6 +63,17 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
         return null;
     }
 
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.queryPrintHandOverListTotal", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Long queryPrintHandOverListTotal(PrintHandoverLitQueryCondition condition) {
+        BaseEntity<Long> baseEntity = printHandoverListJsfService.queryPrintHandOverListTotal(condition);
+        if(baseEntity != null && baseEntity.isSuccess()){
+            return baseEntity.getData();
+        }
+        return null;
+    }
+
     @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.recordForPrintHandoverList", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override

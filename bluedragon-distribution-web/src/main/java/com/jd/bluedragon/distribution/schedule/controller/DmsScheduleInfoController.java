@@ -68,7 +68,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 返回企配仓拣货主页面
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	/**@Authorization(Constants.DMS_WEB_EDN_PICKING_R)**/
 	@RequestMapping(value = "/toDmsEdnPickingIndex")
 	public String toIndex(Model model) {
 		LoginUser loginUser = this.getLoginUser();
@@ -80,8 +80,8 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 根据条件分页查询数据信息
 	 * @param dmsScheduleInfoCondition
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R) */
 	@RequestMapping(value = "/queryEdnPickingList")
 	public @ResponseBody PagerResult<DmsEdnPickingVo> queryEdnPickingList(@RequestBody DmsScheduleInfoCondition dmsScheduleInfoCondition) {
 		return dmsScheduleInfoService.queryEdnPickingListByPagerCondition(dmsScheduleInfoCondition);
@@ -92,8 +92,8 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * @param dmsScheduleInfoCondition
 	 * @param response
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_COLLECT_REPORT)
+
+	@Authorization(Constants.DMS_WEB_COLLECT_REPORT) */
 	@RequestMapping(value = "/exportEdnPickingList")
 	@ResponseBody
 	@JProfiler(jKey = "com.jd.bluedragon.distribution.schedule.controller.DmsScheduleInfoController.exportEdnPickingList", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
@@ -132,8 +132,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 根据scheduleBillCode获取基本信息
 	 * @param scheduleBillCode
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R) */
 	@RequestMapping(value = "/queryEdnPickingVo/{scheduleBillCode}")
 	public @ResponseBody JdResponse<DmsEdnPickingVo> queryEdnPickingVo(@PathVariable("scheduleBillCode") String scheduleBillCode) {
 		JdResponse<DmsEdnPickingVo> rest = new JdResponse<DmsEdnPickingVo>();
@@ -144,8 +143,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 根据scheduleBillCode打印取件单
 	 * @param scheduleBillCode
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)	 */
 	@RequestMapping(value = "/printEdnPickingList/{scheduleBillCode}")
 	public @ResponseBody JdResponse<String> printEdnPickingList(@PathVariable("scheduleBillCode") String scheduleBillCode) {
 		return dmsScheduleInfoService.printEdnPickingList(scheduleBillCode,this.getLoginUser());
@@ -154,8 +152,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 * 根据scheduleBillCode打印交接单
 	 * @param scheduleBillCode
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)	 */
 	@RequestMapping(value = "/printEdnDeliveryReceipt/{scheduleBillCode}")
 	public @ResponseBody JdResponse<List<DmsEdnBatchVo>> printEdnDeliveryReceipt(@PathVariable("scheduleBillCode") String scheduleBillCode) {
 		return dmsScheduleInfoService.printEdnDeliveryReceipt(scheduleBillCode,this.getLoginUser());
@@ -165,8 +162,7 @@ public class DmsScheduleInfoController extends DmsBaseController{
 	 *  批量打印
 	 * @param param
 	 * @return
-	 */
-	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)
+	@Authorization(Constants.DMS_WEB_EDN_PICKING_R)	 */
 	@RequestMapping(value = "/generatePdfUrlByBatchList")
 	@ResponseBody
 	public JdResponse<EdnDeliveryReceiptBatchPdfDto> generatePdfUrlByBatchList(@RequestBody EdnDeliveryReceiptBatchRequest param){

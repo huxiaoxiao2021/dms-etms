@@ -102,6 +102,8 @@
 		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
 		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
+		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
+		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
@@ -181,6 +183,8 @@
 				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
+				<value>uccPropertyConfiguration.scrollQuerySize</value>
+				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
