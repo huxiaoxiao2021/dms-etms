@@ -1399,7 +1399,15 @@ public class BusinessUtil {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_25,
                 WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_5);
     }
-
+    /**
+     * 是否是寄付现结
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isPrepaid(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_1);
+    }
     /**
      * 是否是特惠送
      * @param waybillSign
