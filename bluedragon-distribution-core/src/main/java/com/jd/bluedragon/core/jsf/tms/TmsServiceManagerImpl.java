@@ -13,15 +13,22 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.BasicSelectWS;
+import com.jd.tms.tfc.dto.TransWorkItemWsDto;
+import com.jd.tms.tfc.ws.TfcSelectWS;
+import com.jd.tms.workbench.api.PdaSorterApi;
+import com.jd.tms.workbench.dto.TransWorkItemDto;
+import com.jd.tms.workbench.dto.TransWorkItemSimpleDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -37,6 +44,9 @@ import com.jd.ump.profiler.proxy.Profiler;
 public class TmsServiceManagerImpl implements TmsServiceManager{
     private static final Logger log = LoggerFactory.getLogger(TmsServiceManagerImpl.class);
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.tms.TmsServiceManagerImpl.";
+    private static final String UMP_KEY_PREFIX_PDASORTERAPI = "dmsWeb.jsf.client.tms.pdaSorterApi.";
+    private static final String UMP_KEY_PREFIX_TFCSELECTWS = "dmsWeb.jsf.client.tms.tfcSelectWS.";
+    
     
     @Autowired
     @Qualifier("carrierQueryWSManger")
@@ -44,6 +54,15 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     
     @Autowired
     private BasicSelectWS basicSelectWs;
+    
+    @Autowired
+    private PdaSorterApi pdaSorterApi;
+    
+	@Autowired
+	private TfcSelectWS tfcSelectWS;
+	
+	@Autowired
+	UccPropertyConfiguration uccPropertyConfiguration;
     
 	@Override
 	public JdResult<TransportResource> getTransportResourceByTransCode(String transCode) {
@@ -138,4 +157,102 @@ public class TmsServiceManagerImpl implements TmsServiceManager{
     	}
     	return null;
     }
+    /**
+     * 调用tms封车校验
+     * @param transWorkItemSimpleDto
+     * @return
+     */
+    public JdResult<TransWorkItemDto> getTransWorkItemAndCheckParam(TransWorkItemSimpleDto transWorkItemSimpleDto){
+    	//开关控制调用新接口
+    	if(!BusinessHelper.isTrue(uccPropertyConfiguration.getUsePdaSorterApi())) {
+    		return this.getVehicleNumberOrItemCodeByParam(transWorkItemSimpleDto);
+    	}
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX_PDASORTERAPI + "getTransWorkItemAndCheckParam");
+    	JdResult<TransWorkItemDto> result = new JdResult<TransWorkItemDto>();
+    	try {
+    		com.jd.tms.workbench.dto.CommonDto<TransWorkItemDto> rest = pdaSorterApi.getTransWorkItemAndCheckParam(transWorkItemSimpleDto);
+	        if(null != rest 
+	        		&& rest.isSuccess()
+	        		&& rest.getData() != null){
+	            result.setData(rest.getData());
+	            result.toSuccess(rest.getCode(),rest.getMessage());
+	        }else if(null != rest){
+				log.warn("调用tms封车校验失败！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
+				result.toFail(rest.getCode(),rest.getMessage());
+	        }else {
+				log.warn("调用tms封车校验返回值为空！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
+				result.toFail("调用tms封车校验返回值为空！");
+	        }
+		} catch (Exception e) {
+			log.error("调用tms封车校验异常！request={}",e,JsonHelper.toJson(transWorkItemSimpleDto));
+			result.toError("调用tms封车校验异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+        return result;
+    }
+    /**
+     * 旧接口
+     * @param transWorkItemSimpleDto
+     * @return
+     */
+    private JdResult<TransWorkItemDto> getVehicleNumberOrItemCodeByParam(TransWorkItemSimpleDto transWorkItemSimpleDto){
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX_TFCSELECTWS + "getVehicleNumberOrItemCodeByParam");
+    	JdResult<TransWorkItemDto> result = new JdResult<TransWorkItemDto>();
+    	try {
+    		com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> rest = tfcSelectWS.getVehicleNumberOrItemCodeByParam(toTransWorkItemSimpleDto(transWorkItemSimpleDto));
+	        if(null != rest 
+	        		&& Constants.RESULT_SUCCESS == rest.getCode()
+	        		&& rest.getData() != null){
+	            result.setData(toTransWorkItemDto(rest.getData()));
+	            result.toSuccess(rest.getCode(),rest.getMessage());
+	        }else if(null != rest){
+				log.warn("调用tms封车校验失败！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
+				result.toFail(rest.getCode(),rest.getMessage());
+	        }else {
+				log.warn("调用tms封车校验返回值为空！request={},返回值：{}",JsonHelper.toJson(transWorkItemSimpleDto),JsonHelper.toJson(rest));
+				result.toFail("调用tms封车校验返回值为空！");
+	        }
+		} catch (Exception e) {
+			log.error("调用tms封车校验异常！request={}",e,JsonHelper.toJson(transWorkItemSimpleDto));
+			result.toError("调用tms封车校验异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+        return result;
+    }
+    /**
+     * 对象转换
+     * @param transWorkItemWsDto
+     * @return
+     */
+	private TransWorkItemDto toTransWorkItemDto(TransWorkItemWsDto transWorkItemWsDto) {
+		if(transWorkItemWsDto != null) {
+			TransWorkItemDto transWorkItemDto = new TransWorkItemDto();
+			transWorkItemWsDto.setTransWorkItemCode(transWorkItemWsDto.getTransWorkItemCode());
+			transWorkItemWsDto.setOperateNodeCode(transWorkItemWsDto.getOperateNodeCode());
+			transWorkItemWsDto.setOperateUserCode(transWorkItemWsDto.getOperateUserCode());
+			transWorkItemWsDto.setVehicleNumber(transWorkItemWsDto.getVehicleNumber());
+			return transWorkItemDto;
+		}
+		return null;
+	}
+	/**
+	 * 对象转换
+	 * @param transWorkItemSimpleDto
+	 * @return
+	 */
+	private TransWorkItemWsDto toTransWorkItemSimpleDto(TransWorkItemSimpleDto transWorkItemSimpleDto) {
+		if(transWorkItemSimpleDto != null) {
+			TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
+			transWorkItemWsDto.setTransWorkItemCode(transWorkItemSimpleDto.getTransWorkItemCode());
+			transWorkItemWsDto.setOperateNodeCode(transWorkItemSimpleDto.getOperateNodeCode());
+			transWorkItemWsDto.setOperateUserCode(transWorkItemSimpleDto.getOperateUserCode());
+			transWorkItemWsDto.setVehicleNumber(transWorkItemSimpleDto.getVehicleNumber());
+			return transWorkItemWsDto;
+		}
+		return null;
+	}
 }

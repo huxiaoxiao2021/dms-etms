@@ -960,4 +960,18 @@ public class BusinessHelper {
         }
         return Boolean.FALSE;
     }
+    /**
+     * 判断传入的Integer是否为1，1代表true
+     * @return
+     */
+    public static boolean isTrue(Integer val) {
+    	return Constants.INTEGER_FLG_TRUE.equals(val);
+    }
+    /**
+     * 判断传入的Integer是否为0，0代表false
+     * @return
+     */
+    public static boolean isFalse(Integer val) {
+    	return Constants.INTEGER_FLG_FALSE.equals(val);
+    }
 }

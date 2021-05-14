@@ -270,6 +270,11 @@ public class UccPropertyConfiguration {
      * 是否走老逻辑检查箱是否发货开关
      */
     private boolean checkBoxSendedSwitchOn;
+    
+    /**
+     * 启用运输新接口-开关 1-开启 0-关闭
+     */
+    private Integer usePdaSorterApi;
 
     /**
      * BC箱号强制绑定循环集包袋开关(黑名单)
@@ -831,7 +836,15 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
-    public String getAllBCBoxFilterWebSite() {
+    public Integer getUsePdaSorterApi() {
+		return usePdaSorterApi;
+	}
+
+	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
+		this.usePdaSorterApi = usePdaSorterApi;
+	}
+
+	public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
 

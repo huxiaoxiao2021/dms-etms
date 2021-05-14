@@ -3,6 +3,8 @@ package com.jd.bluedragon.core.jsf.tms;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.tms.workbench.dto.TransWorkItemDto;
+import com.jd.tms.workbench.dto.TransWorkItemSimpleDto;
 
 /**
  * 
@@ -27,4 +29,11 @@ public interface TmsServiceManager {
      * @return
      */
 	JdResult<List<TransportResource>> loadTransportResources(String startNodeCode, String endNodeCode, List<Integer> filterTransTypes);
+	/**
+	 * https://cf.jd.com/pages/viewpage.action?pageId=480043448
+	 * 调用tms封车校验
+	 * @param transWorkItemSimpleDto
+	 * @return
+	 */
+	JdResult<TransWorkItemDto> getTransWorkItemAndCheckParam(TransWorkItemSimpleDto transWorkItemSimpleDto);
 }

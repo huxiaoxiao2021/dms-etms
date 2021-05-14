@@ -83,7 +83,9 @@
     <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
                   alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-
+    <jsf:consumer id="pdaSorterApi" interface="com.jd.tms.workbench.api.PdaSorterApi" protocol="jsf"
+                  alias="${tms.jsf.pdaSorterApi.alias}" serialization="hessian" timeout="${tms.jsf.pdaSorterApi.timeout}" retries="${tms.jsf.pdaSorterApi.retries}">
+    </jsf:consumer>
     <jsf:consumer id="carrierQueryWS" interface="com.jd.tms.basic.ws.CarrierQueryWS" protocol="jsf"
                   alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
