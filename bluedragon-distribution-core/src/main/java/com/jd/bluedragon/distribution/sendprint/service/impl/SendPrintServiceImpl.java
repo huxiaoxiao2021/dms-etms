@@ -1544,7 +1544,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         printHandoverListDto.setSendUser(sendM.getCreateUser());
         printHandoverListDto.setSendUserCode(sendM.getCreateUserCode());
 
-        printHandoverListDto.setIsCancel((Byte.valueOf(String.valueOf(Constants.DOUBLE_ZERO))));
+        printHandoverListDto.setIsCancel((Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO))));
         printHandoverListDto.setIsNew(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
 
         printHandoverListDto.setSendTime(sendM.getOperateTime() == null ? null : sendM.getOperateTime().getTime());
