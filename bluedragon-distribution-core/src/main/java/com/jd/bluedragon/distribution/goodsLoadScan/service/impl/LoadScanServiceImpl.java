@@ -604,7 +604,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 根据包裹号查板号
         Board board = getBoardCodeByPackageCode(loadCar.getCreateSiteCode().intValue(), packageCode);
         if (board == null) {
-            log.error("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
+            log.warn("根据包裹号没有找到对应的板号！taskId={},packageCode={}", taskId, packageCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据包裹号没有找到对应的板号");
             return response;
@@ -614,9 +614,19 @@ public class LoadScanServiceImpl implements LoadScanService {
         Response<List<String>> result = groupBoardManager.getBoxesByBoardCode(boardCode);
         if (result == null || result.getCode() != ResponseEnum.SUCCESS.getIndex()
                 || CollectionUtils.isEmpty(result.getData())) {
-            log.error("根据板号没有找到对应的包裹列表！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
+            log.warn("根据板号没有找到对应的包裹列表！taskId={},packageCode={},boardCode={}", taskId, packageCode, boardCode);
             response.setCode(JdCResponse.CODE_FAIL);
             response.setMessage("根据板号没有找到对应的包裹列表");
+            return response;
+        }
+
+        //超出最大任务限制包裹数后禁止发货，先获取当前已装的包裹数
+        int currentPackageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
+        //获取组板的包裹数,上一步已经判断了板下包裹为空的情况,当前可直接获取板上的包裹数量.
+        int boardPackageNum = result.getData().size();
+        if(currentPackageCount + boardPackageNum > uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
             return response;
         }
 
@@ -757,6 +767,16 @@ public class LoadScanServiceImpl implements LoadScanService {
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+
+        //超出最大任务限制包裹数后禁止发货，先获取当前已装的包裹数
+        int currentPackageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
+        //获取大宗运单的包裹数,通过解析包裹号来获取。
+        int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+        if(currentPackageCount + packageNum > uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+            return response;
+        }
 
         // 校验拦截、包装服务、无重量等发货校验，发货校验规则同【B网快运发货】功能
         if (checkInterceptionValidate(response, taskId, packageCode)) {
@@ -1066,7 +1086,14 @@ public class LoadScanServiceImpl implements LoadScanService {
         // 是否多扫标识
         Integer flowDisAccord = req.getFlowDisaccord();
         User user = req.getUser();
+        //超出最大任务限制包裹数后禁止发货
+        int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(req.getTaskId());
 
+        if(packageCount >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
+            log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
+            response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
+            return response;
+        }
         if (log.isDebugEnabled()) {
             log.debug("常规包裹号后续校验开始：taskId={},packageCode={},flowDisAccord={}", taskId, packageCode, flowDisAccord);
         }
