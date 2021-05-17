@@ -739,4 +739,10 @@
                   protocol="jsf" alias="${jsf.dataSelectWS.alias}" serialization="hessian" timeout="${jsf.dataSelectWS.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="guaranteeConfigApi" interface="com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi"
+                  alias="${jsf.alias.configCenter}"
+                  protocol="jsf"
+                  timeout="${jsf.timeout.configCenter}">
+    </jsf:consumer>
+
 </beans>
