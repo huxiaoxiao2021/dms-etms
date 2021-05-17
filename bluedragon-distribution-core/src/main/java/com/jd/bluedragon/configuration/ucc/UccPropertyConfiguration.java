@@ -364,6 +364,20 @@ public class UccPropertyConfiguration {
      */
     private Integer dazongPackageOperateMax;
 
+    /**
+     * 是否校验签单返还
+     * true 校验 false 不校验
+     */
+    private boolean checkSignAndReturn;
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }

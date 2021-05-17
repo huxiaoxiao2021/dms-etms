@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.reverse;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -25,10 +26,16 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
     @Autowired
     private SignBillReturnApiManager signBillReturnApiManager;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.debug("签单返还拦截校验");
         InterceptResult<String> result = context.getResult();
+        if(!uccConfiguration.getCheckSignAndReturn()){
+             return result;
+        }
 
         // 只有(打印客户端的和站长工作台的) 包裹补打和换单打印走以下逻辑
         Integer operateType = context.getRequest().getOperateType();
