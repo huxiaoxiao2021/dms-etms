@@ -1315,6 +1315,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Override
     public InvokeResult<Boolean> batchPrintExport(PrintExportCriteria printExportCriteria) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.setMessage("发货交接清单excel稍后将发送至您咚咚，请注意查收!");
         boolean isGoESQuery = checkGoESQuery(printExportCriteria.getCreateSiteCode());
         if(!isGoESQuery){
             // 自定义编码10000表示：走老查询（非ES查询）
@@ -1322,71 +1323,38 @@ public class SendPrintServiceImpl implements SendPrintService {
             result.setMessage("当前场地未开启新查询!（ES）");
             return result;
         }
-        JSONObject logRequest = new JSONObject();
-        List<Integer> receiveList = new ArrayList<>();
-        logRequest.put("failList", receiveList);
-        logRequest.put("queryCondition", printExportCriteria.getList().get(0));
-        for (PrintQueryCriteria criteria : printExportCriteria.getList()){
-            try {
-                JSONObject isThirdExport = new JSONObject();
-                singleExport(criteria, isThirdExport);
-                // 只要一个目的地是三方则提示前台需走审批流
-                if(isThirdExport.get("isThirdExport") != null && Boolean.parseBoolean(JsonHelper.toJson(isThirdExport.get("isThirdExport")))){
-                    result.setCode(THIRD_EXPORT_SUC_CODE);
-                }
-            }catch (Exception e){
-                log.error("目的地【{}】的发货交接清单导出异常！单个目的地的请求【{}】", criteria.getReceiveSiteCode(), JsonHelper.toJson(criteria), e);
-                receiveList.add(criteria.getReceiveSiteCode());
-            }
+        // 校验是否审批
+        boolean isApproval = checkIsApproval(printExportCriteria);
+        if(isApproval){
+            result.setCode(THIRD_EXPORT_SUC_CODE);
+            result.setMessage("目的地包含三方站点需上级领导审批，审批通过后发送至您咚咚，请注意查收!");
         }
-        // 添加导出失败的目的站点日志
-        if(CollectionUtils.isNotEmpty(receiveList)){
-            addExportFailSiteLog(logRequest);
-        }
+
+        batchPrintExportASync(printExportCriteria, isApproval);
+
         return result;
     }
 
-    private void addExportFailSiteLog(JSONObject logRequest) {
-        try {
-            BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
-                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.APPROVAL_START_FLOW)
-                    .methodName("SendPrintServiceImpl#basicPrintExport")
-                    .operateRequest(logRequest)
-                    .operateResponse(new JSONObject())
-                    .processTime(System.currentTimeMillis(),System.currentTimeMillis())
-                    .build();
-            logEngine.addLog(businessLogProfiler);
-        }catch (Exception e){
-            log.error("记录businessLog日志异常!", e);
-        }
-    }
-
     /**
-     * 单个目的地的导出
-     * @param criteria
-     * @param isThirdExport 是否三方导出
-     * @return
+     * 发货交接清单批量导出
+     * @param printExportCriteria
+     * @param isApproval
      */
-    private void singleExport(PrintQueryCriteria criteria, JSONObject isThirdExport) {
+    private void batchPrintExportASync(PrintExportCriteria printExportCriteria, boolean isApproval) {
         long startTime = System.currentTimeMillis();
-        isThirdExport.put("isThirdExport",false);
-        Integer receiveSiteType = toSiteType(criteria.getReceiveSiteCode());
-        if(receiveSiteType == null){
-            log.warn("目的站点类型不存在!");
-            return;
-        }
         // 三方站点则接入审批
-        if(receiveSiteType == Constants.RETURN_PARTNER_SITE_TYPE && switchSiteSubTypeCheck(criteria.getReceiveSiteCode())){
+        if(isApproval){
             // OA数据
             Map<String,Object> oaMap = new HashMap<>();
             oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
-            oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
+            oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER);
             List<String> mainColList = new ArrayList<>();
             oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
-            mainColList.add("发货始发地:" + toSiteName(criteria.getSiteCode()));
-            mainColList.add("发货目的地:" + toSiteName(criteria.getReceiveSiteCode()));
-            mainColList.add("发货开始时间:" + criteria.getStartTime());
-            mainColList.add("发货结束时间:" + criteria.getEndTime());
+            PrintQueryCriteria printQueryCriteria = printExportCriteria.getList().get(0);
+            mainColList.add("发货始发地：" + toSiteName(printExportCriteria.getCreateSiteCode()));
+            mainColList.add("发货目的地：" + toSiteName(printQueryCriteria.getReceiveSiteCode()) + "...等等");
+            mainColList.add("发货开始时间：" + printQueryCriteria.getStartTime());
+            mainColList.add("发货结束时间：" + printQueryCriteria.getEndTime());
 
             // 业务数据
             Map<String,Object> businessMap = new HashMap<>();
@@ -1394,28 +1362,44 @@ public class SendPrintServiceImpl implements SendPrintService {
             businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY,FlowConstants.FLOW_CODE_PRINT_HANDOVER + Constants.SEPARATOR_VERTICAL_LINE
                     + FlowConstants.FLOW_VERSION + Constants.SEPARATOR_VERTICAL_LINE + System.currentTimeMillis());
             // 设置业务的查询条件
-            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(criteria,true)));
+            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, true)));
 
             // 提交申请单
             String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
-                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, criteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
 
             if(log.isInfoEnabled() && StringUtils.isNotEmpty(flowWorkNo)){
                 log.info("打印交接清单导出已提交申请单【{}】业务唯一标识码【{}】", flowWorkNo, businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY));
             }
             // 记录businessLog
-            addBusinessLog(startTime, criteria, true, flowWorkNo);
-            isThirdExport.put("isThirdExport",true);
+            addBusinessLog(startTime, printExportCriteria, true, flowWorkNo);
+            return;
         }
         // 记录businessLog
-        addBusinessLog(startTime, criteria, false, null);
+        addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doExportAsync(createESQueryCondition(criteria,false));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, false));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
-            log.info("目的地【{}】的交接清单导出成功!", criteria.getReceiveSiteCode());
+            log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
-            log.error("目的地【{}】的交接清单导出失败!失败原因:{}", criteria.getReceiveSiteCode(), baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage());
+            log.error("操作人【{}】始发地【{}】的交接清单导出失败!失败原因:{}", printExportCriteria.getUserCode(),
+                    printExportCriteria.getCreateSiteCode(), baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage());
         }
+    }
+
+    /**
+     * 校验是否需要审批
+     * @param printExportCriteria
+     * @return
+     */
+    private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
+        for (PrintQueryCriteria item : printExportCriteria.getList()) {
+            if(Objects.equals(toSiteType(item.getReceiveSiteCode()), Constants.RETURN_PARTNER_SITE_TYPE)
+                    && switchSiteSubTypeCheck(item.getReceiveSiteCode())){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -1425,17 +1409,14 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private boolean switchSiteSubTypeCheck(Integer receiveSiteCode) {
         return uccPropertyConfiguration.getCheckSiteSubType()
-                && Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
+                || Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
     }
 
-    private void addBusinessLog(long startTime, PrintQueryCriteria criteria, boolean isTripartite, String flowWorkNo) {
+    private void addBusinessLog(long startTime, PrintExportCriteria printExportCriteria, boolean isTripartite, String flowWorkNo) {
         try {
             JSONObject logRequest = new JSONObject();
-            logRequest.put("siteCode", criteria.getSiteCode());
-            logRequest.put("packageCode", criteria.getPackageBarcode());
-            logRequest.put("boxCode", criteria.getBoxCode());
-            logRequest.put("sendCode", criteria.getSendCode());
-            logRequest.put("operatorCode", criteria.getUserCode());
+            logRequest.put("createSiteCode", printExportCriteria.getCreateSiteCode());
+            logRequest.put("operatorCode", printExportCriteria.getUserCode());
 
             JSONObject logResponse = new JSONObject();
             logResponse.put("isTripartite", isTripartite);
@@ -1443,7 +1424,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
             BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
                     .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.APPROVAL_START_FLOW)
-                    .methodName("SendPrintServiceImpl#basicPrintExport")
+                    .methodName("SendPrintServiceImpl#batchPrintExportASync")
                     .operateRequest(logRequest)
                     .operateResponse(logResponse)
                     .processTime(System.currentTimeMillis(),startTime)
@@ -1899,6 +1880,25 @@ public class SendPrintServiceImpl implements SendPrintService {
         pager.setPageNo(criteria.getPageNo());
         pager.setPageSize(criteria.getPageSize());
         pager.setSearchVo(convertToPrintHandoverListQueryCondition(criteria,sensitiveQuery));
+        return pager;
+    }
+
+    /**
+     * 构建批量导出es查询条件
+     * @param printExportCriteria
+     * @return
+     */
+    private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintExportCriteria printExportCriteria, boolean isApproval) {
+        Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
+        pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
+        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        Set<Integer> receiveSiteSet = new HashSet<>();
+        for (PrintQueryCriteria item : printExportCriteria.getList()) {
+            receiveSiteSet.add(item.getReceiveSiteCode());
+        }
+        PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(printExportCriteria.getList().get(0), isApproval);
+        condition.setReceiveSiteCodeList(new ArrayList<Integer>(receiveSiteSet));
+        pager.setSearchVo(condition);
         return pager;
     }
 

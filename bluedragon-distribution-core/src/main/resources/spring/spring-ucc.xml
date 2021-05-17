@@ -101,7 +101,7 @@
 		<property name="offlineTaskReportInterceptSites" value="${offlineTaskReportInterceptSites:-1}"/> <!-- 离线任务处理上报拦截数据开关 -->
 		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
-		<property name="checkSiteSubType" value="${checkSiteSubType:true}"/>
+		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
 		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
 		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>

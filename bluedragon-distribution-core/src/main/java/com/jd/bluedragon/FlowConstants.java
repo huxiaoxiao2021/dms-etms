@@ -39,7 +39,11 @@ public class FlowConstants {
     /**
      * 申请单主题-发货交接清单
      */
-    public static final String FLOW_FLOW_WORK_THEME_PRINT_HANDOVER = "发货交接清单导出申请单";
+    public static final String FLOW_FLOW_WORK_THEME_PRINT_HANDOVER = "发货交接清单敏感数据导出申请单";
+    /**
+     * 申请单备注-发货交接清单
+     */
+    public static final String FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER = "三方目的地的发货交接清单敏感字段导出申请";
 
 
     /**

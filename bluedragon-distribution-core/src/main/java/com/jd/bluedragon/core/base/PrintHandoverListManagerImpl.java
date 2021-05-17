@@ -103,4 +103,10 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
         return printHandoverListJsfService.doExportAsync(query);
     }
 
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.doBatchExportAsync", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query) {
+        return printHandoverListJsfService.doBatchExportAsync(query);
+    }
 }
