@@ -124,6 +124,13 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.getData().setForced(true);
             return result;
         }
+        //冷链场地操作
+        if(!checkOpeSite(vo.getOperateSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.getData().setForced(true);
+            return result;
+        }
+
         String waybillCode = WaybillUtil.getWaybillCode(vo.getBarCode());
 
         //扫描的是包裹或运单校验逻辑
@@ -236,7 +243,12 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.getData().setForced(true);
             return result;
         }
-
+        //冷链场地操作
+        if(!checkOpeSite(vo.getSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.getData().setForced(true);
+            return result;
+        }
         //冷链发货校验
         SortingJsfResponse sortingJsfResponse = sortingCheckService.coldChainSendCheckAndReportIntercept(changeTo2(vo));
         if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(sortingJsfResponse.getCode())){
@@ -363,7 +375,12 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.getData().setForced(true);
             return result;
         }
-
+        //冷链场地操作
+        if(!checkOpeSite(vo.getSiteCode())){
+            result.customMessage(JdResponse.CODE_FAIL,OPE_SITE_ERROR_MSG);
+            result.getData().setForced(true);
+            return result;
+        }
         //第一步校验
         JdResult<CheckBeforeSendResponse> firstResult =  deliveryService.checkBeforeSend(changeTo(vo));
         if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(firstResult.getCode())){
