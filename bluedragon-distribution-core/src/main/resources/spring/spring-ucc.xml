@@ -110,6 +110,8 @@
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
+		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+
 
 	</bean>
 
@@ -190,6 +192,7 @@
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
+				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
 			</list>
 		</property>
 	</bean>

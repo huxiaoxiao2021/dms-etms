@@ -627,6 +627,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
         JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
         try{
+            if(uccPropertyConfiguration.getInspectNoSendNoLoadWaybillDemotion()){
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("该服务已操作降级处理，暂时不支持查询，请联系研发处理");
+                return res;
+            }
             if(req == null) {
                 res.setCode(JdCResponse.CODE_FAIL);
                 res.setMessage("请求参数不能为空");
