@@ -110,7 +110,7 @@
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
-
+        <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -190,6 +190,7 @@
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
+				<value>uccPropertyConfiguration.backDispatchCheck</value>
 			</list>
 		</property>
 	</bean>

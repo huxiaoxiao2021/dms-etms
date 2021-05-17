@@ -362,6 +362,20 @@ public class UccPropertyConfiguration {
         this.checkSignAndReturn = checkSignAndReturn;
     }
 
+    /**
+     * 反调度校验滑道信息 开关
+     * true :检验 false 不校验
+     */
+    private boolean backDispatchCheck;
+
+    public boolean getBackDispatchCheck() {
+        return backDispatchCheck;
+    }
+
+    public void setBackDispatchCheck(boolean backDispatchCheck) {
+        this.backDispatchCheck = backDispatchCheck;
+    }
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
