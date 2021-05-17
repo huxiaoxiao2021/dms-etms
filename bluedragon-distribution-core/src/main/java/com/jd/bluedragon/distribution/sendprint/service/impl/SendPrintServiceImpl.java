@@ -1351,10 +1351,10 @@ public class SendPrintServiceImpl implements SendPrintService {
             List<String> mainColList = new ArrayList<>();
             oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
             PrintQueryCriteria printQueryCriteria = printExportCriteria.getList().get(0);
-            mainColList.add("发货始发地：" + toSiteName(printExportCriteria.getCreateSiteCode()));
-            mainColList.add("发货目的地：" + toSiteName(printQueryCriteria.getReceiveSiteCode()) + "...等等");
-            mainColList.add("发货开始时间：" + printQueryCriteria.getStartTime());
-            mainColList.add("发货结束时间：" + printQueryCriteria.getEndTime());
+            mainColList.add("发货始发地:" + toSiteName(printExportCriteria.getCreateSiteCode()));
+            mainColList.add("发货目的地:" + toSiteName(printQueryCriteria.getReceiveSiteCode()) + "...等等");
+            mainColList.add("发货开始时间:" + printQueryCriteria.getStartTime());
+            mainColList.add("发货结束时间:" + printQueryCriteria.getEndTime());
 
             // 业务数据
             Map<String,Object> businessMap = new HashMap<>();
