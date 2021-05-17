@@ -288,6 +288,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
+				<ref bean="sitePlateInterceptHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
 				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="promiseWaybillHandler"/>
