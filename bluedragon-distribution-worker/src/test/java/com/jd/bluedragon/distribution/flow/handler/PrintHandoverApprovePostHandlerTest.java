@@ -61,7 +61,7 @@ public class PrintHandoverApprovePostHandlerTest {
         // OA数据
         Map<String,Object> oaMap = new HashMap<>();
         oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
-        oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
+        oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER);
         List<String> mainColList = new ArrayList<>();
         oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
         mainColList.add("发货始发地：北京马驹桥分拣中心");
