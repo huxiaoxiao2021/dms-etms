@@ -67,4 +67,11 @@ public interface PrintHandoverListManager {
      */
     BaseEntity<Boolean> doExportAsync(Pager<PrintHandoverLitQueryCondition> query);
 
+    /**
+     * 打印交接清单 - 批量导出
+     * @param query
+     * @return
+     */
+    BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query);
+
 }
