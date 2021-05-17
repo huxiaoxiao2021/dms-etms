@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -111,6 +112,7 @@ public class XmlHelper {
     public static <T> T xmlToObject(String xml, String aliasName, Class<T> clazz,
                                     Converter converter) {
         XStream xStream = toSafeXStream();
+        xStream.ignoreUnknownElements();
         xStream.alias(aliasName, clazz);
         if (null != converter) {
             xStream.registerConverter(converter);
@@ -132,6 +134,23 @@ public class XmlHelper {
         }
 
         return Boolean.FALSE;
+    }
+
+    public static void main(String[] args) {
+        try {
+            final Boolean xml = XmlHelper.isXml("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest>\n" +
+                    "  <sendCode>847554-1539754-20210514154357091</sendCode>\n" +
+                    "  <orderId>JDVD01734513555</orderId>\n" +
+                    "  <operateTime>2021-05-16 11:06:02</operateTime>\n" +
+                    "  <userName>yxyangguanghuai</userName>\n" +
+                    "  <receiveType>5</receiveType>\n" +
+                    "  <canReceive>1</canReceive>\n" +
+                    "  <newWayBill>JDVC08383189241</newWayBill>\n" +
+                    "</ReceiveRequest>", ReceiveRequest.class, null);
+            System.out.println(xml);
+        } catch (Exception e) {
+            log.error("exception ", e);
+        }
     }
 
     /**
