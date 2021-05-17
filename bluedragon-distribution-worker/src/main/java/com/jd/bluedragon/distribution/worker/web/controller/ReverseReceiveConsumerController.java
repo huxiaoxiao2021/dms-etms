@@ -6,7 +6,6 @@ import com.jd.jmq.common.message.Message;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,9 +22,9 @@ public class ReverseReceiveConsumerController extends DmsBaseWorkerController {
     @Qualifier("reverseReceiveConsumer")
     private ReverseReceiveConsumer reverseReceiveConsumer;
 
-    @RequestMapping(value = "/consume", method = RequestMethod.GET)
+    @RequestMapping(value = "/consume", method = RequestMethod.POST)
     @ResponseBody
-    public JdResult<Boolean> checkResult(@RequestBody String content) throws Exception {
+    public JdResult<Boolean> checkResult(String content) throws Exception {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();
         result.setData(true);
