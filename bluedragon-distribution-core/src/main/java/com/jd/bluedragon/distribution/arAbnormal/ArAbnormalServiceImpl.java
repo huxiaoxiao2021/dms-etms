@@ -576,16 +576,16 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
         // 航空转陆运 && 异常原因为违禁品 && 违禁品原因是带违禁品标识的 则将二级原因编码设置196，否则设置0
         if(Objects.equals(request.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
-                && Objects.equals(ArAbnormalReasonEnum.CONTRABAND_GOODS.getCode(), request.getTranspondReason())
                 && ArContrabandReasonEnum.getContrabandFlagReason().contains(request.getContrabandReason())){
             dto.setSecondLevelCode(ArAbnormalReasonEnum.CONTRABAND_GOODS.getFxmId());
             dto.setSecondLevelName(ArAbnormalReasonEnum.CONTRABAND_GOODS.getDesc());
             dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
-            return;
+        }else {
+            dto.setAbnormalType(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelCode(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelName(abnormalReason == null ? null : abnormalReason.getDesc());
+            dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
         }
-        dto.setSecondLevelCode(String.valueOf(Constants.NUMBER_ZERO));
-        dto.setSecondLevelName(abnormalReason == null ? null : abnormalReason.getDesc());
-        dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
     }
 
     /**
