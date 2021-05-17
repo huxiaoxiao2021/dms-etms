@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -111,6 +112,7 @@ public class XmlHelper {
     public static <T> T xmlToObject(String xml, String aliasName, Class<T> clazz,
                                     Converter converter) {
         XStream xStream = toSafeXStream();
+        xStream.ignoreUnknownElements();
         xStream.alias(aliasName, clazz);
         if (null != converter) {
             xStream.registerConverter(converter);
