@@ -2029,4 +2029,16 @@ public class BusinessUtil {
                 isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
                 ?Boolean.TRUE:Boolean.FALSE;
     }
+
+    /**
+     * 是否专网标识
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPrivateNetwork(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,135,'2');
+    }
 }

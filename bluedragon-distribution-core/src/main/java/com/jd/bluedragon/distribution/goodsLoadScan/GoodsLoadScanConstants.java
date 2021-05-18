@@ -69,4 +69,14 @@ public class GoodsLoadScanConstants {
      */
     public static final Integer WAIT_LOAD_RANGE_FROM_HOURS = 3 * 24;
 
+    //业务单号维度：  1-包裹号； 2-运单号
+    public static final Integer BUSINESS_DIMENSION_PACKAGECODE = 1;
+    public static final Integer BUSINESS_DIMENSION_WAYBILLCODE = 2;
+
+    //大宗扫描专网提醒
+    public static final String PRIVATE_NETWORK_WAYBILL = "专网保障包裹！";
+    //非大宗专网提醒
+    public static final String PRIVATE_NETWORK_PACKAGE = "专网包裹仅验货，不组板";
+
+
 }
