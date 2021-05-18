@@ -44,6 +44,7 @@ public class Constants {
     public static final String OPERATE_FAIL = "0";
     public static final String UNDERLINE_FILL = "_";
     public static final String EMPTY_FILL = "";
+    public static final String SEPARATOR_ASTERISK = "*";
     public static final String SEPARATOR_VERTICAL_LINE = "|";
     public static final String MIXED_SITE_NAME_PREFIX = "【集】";
 
@@ -1517,4 +1518,14 @@ public class Constants {
      * B网抽检图片前缀标识：B
      */
     public static final String SPOT_CHECK_B = "B";
+
+    /**
+     * 默认泡重比：8000
+     * */
+    public static final Integer DEFAULT_VOLUME_RATE = 8000;
+
+    /**
+     * 快运使用的泡重比:6000
+     */
+    public static final Integer EXPRESS_VOLUME_RATE= 6000;
 }
