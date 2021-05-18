@@ -111,6 +111,9 @@
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
         <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
+		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -191,6 +194,7 @@
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 				<value>uccPropertyConfiguration.backDispatchCheck</value>
+				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
 			</list>
 		</property>
 	</bean>

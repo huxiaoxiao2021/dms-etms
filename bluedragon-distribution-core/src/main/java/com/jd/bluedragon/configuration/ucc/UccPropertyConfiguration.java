@@ -354,6 +354,11 @@ public class UccPropertyConfiguration {
      */
     private boolean checkSignAndReturn;
 
+    /**
+     * 按流向查询已验未发未装运单数据查询jsf接口降级： true时jsf接口做降级提示，不操作查询
+     */
+    private boolean inspectNoSendNoLoadWaybillDemotion;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -968,4 +973,14 @@ public class UccPropertyConfiguration {
     public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
         this.dazongPackageOperateMax = dazongPackageOperateMax;
     }
+
+    public boolean getInspectNoSendNoLoadWaybillDemotion() {
+        return inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public void setInspectNoSendNoLoadWaybillDemotion(boolean inspectNoSendNoLoadWaybillDemotion) {
+        this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
+    }
+
+
 }
