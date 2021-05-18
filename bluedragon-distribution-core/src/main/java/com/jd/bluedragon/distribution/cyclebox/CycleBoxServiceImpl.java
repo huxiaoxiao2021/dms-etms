@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
@@ -37,6 +38,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -344,6 +347,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CycleBoxServiceImpl.boxMaterialRelationAlter", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request){
         InvokeResult result = new InvokeResult();
         result.success();
@@ -357,6 +361,19 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
 
+        // 如果本地场地已经绑定了箱号 而且已发货 ，不能再绑定
+        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
+        if(boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())){
+            queryPara.setBoxCode(boxMaterial.getBoxCode());
+            queryPara.setCreateSiteCode(request.getSiteCode());
+           sendMList = sendMManager.findSendMByBoxCode(queryPara);
+            if (CollectionUtils.isNotEmpty(sendMList)) {
+                result.customMessage(InvokeResult.RESULT_RFID_BIND_BOX_SENT_CODE, InvokeResult.RESULT_RFID_BIND_BOX_SENT_MESSAGE);
+                return result;
+            }
+        }
+
+
         BoxMaterialRelation par = new BoxMaterialRelation();
         par.setBoxCode(request.getBoxCode());
         par.setMaterialCode(request.getMaterialCode());
@@ -367,22 +384,21 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         //如果从未绑定过
         if (boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
-            if (boxMaterialRelationService.add(par)>0){
-                return result;
-            }
-            else {
+            if (boxMaterialRelationService.add(par)==0){
                 result.error(InvokeResult.SERVER_ERROR_MESSAGE);
                 return result;
             }
+
         }
 
-        if (boxMaterialRelationService.update(par)>0){
-            return result;
-        }
-        else {
+        if (boxMaterialRelationService.update(par)==0){
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
         }
+        //其他绑定了该循环集包袋的都解绑
+        int count = boxMaterialRelationService.updateUnBindByMaterialCode(par);
+        return result;
+
     }
 
     /**

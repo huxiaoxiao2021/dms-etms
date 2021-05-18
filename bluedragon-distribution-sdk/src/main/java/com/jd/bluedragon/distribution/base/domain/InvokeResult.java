@@ -36,6 +36,8 @@ public class InvokeResult<T> implements Serializable {
 
 
 
+
+
     public static final int RESULT_NULL_WAYBILLCODE_CODE=201;
     public static final String RESULT_NULL_WAYBILLCODE_MESSAGE = "无运单数据";
 
@@ -66,6 +68,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static  final int RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_CODE = 310;
     public static final  String RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE= "校验导出并发接口异常";
+
+    public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
+    public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="循环集包袋绑的箱号已在本场地发货，不能再更换";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
