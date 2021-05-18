@@ -70,7 +70,7 @@ public class InvokeResult<T> implements Serializable {
     public static final  String RESULT_EXPORT_CHECK_CONCURRENCY_LIMIT_MESSAGE= "校验导出并发接口异常";
 
     public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
-    public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="循环集包袋绑的箱号已在本场地发货，不能再更换";
+    public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="该循环集包袋已绑定箱号已发货，不能更换";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
