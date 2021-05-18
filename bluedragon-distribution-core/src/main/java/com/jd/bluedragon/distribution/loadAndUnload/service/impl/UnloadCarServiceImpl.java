@@ -1693,7 +1693,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         logger.info("批次号{}获取批次下的包裹数据条件：offset={},limitSize={},获取到的数据条数为{}",batchCode,offset,limitSize,currentSize);
                         offset =  offset + limitSize;
                     }else{
-                        logger.warn("批次号{}获取批次下的包裹数据条件：offset={},limitSize={},获取到的数据条数为0或者调用接口反回的code异常code={},不再获取数据",batchCode,offset,limitSize,cargoDetailReturn.getCode());
+                        logger.warn("批次号{}获取批次下的包裹数据条件：offset={},limitSize={},获取到的数据条数为0或者调用接口返回的code异常code={},不再获取数据",batchCode,offset,limitSize,cargoDetailReturn == null ? "返回对象为空" : cargoDetailReturn.getCode());
                         currentSize = 0;
                     }
                 }
