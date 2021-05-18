@@ -160,7 +160,7 @@ public class ReversePrintResource {
         Integer packNum = request.getPackageNumber();
         try {
             if (waybillTraceManager.isWaybillWaste(oldWaybillCode)){
-                result.toFail("弃件禁止操作换单，请按公司规定进行暂存及按时处理");
+                result.toFail("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
                 return result;
             }
 
