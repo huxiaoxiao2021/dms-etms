@@ -23,6 +23,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.avro.data.Json;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -175,6 +176,7 @@ public class CycleBoxResource {
             //执行数据库操作
             result = cycleBoxService.boxMaterialRelationAlter(request);
         } catch (Exception e) {
+            log.error("绑定循环集包袋系统异常请求参数:{}", JsonHelper.toJson(request));
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
