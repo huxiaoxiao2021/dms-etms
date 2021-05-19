@@ -23,7 +23,9 @@ import java.util.Map;
  */
 public interface InspectionService {
 
-	
+
+	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(String barCode,Integer siteCode);
+
 	/**
 	 * 用于自营和退货
 	 * 

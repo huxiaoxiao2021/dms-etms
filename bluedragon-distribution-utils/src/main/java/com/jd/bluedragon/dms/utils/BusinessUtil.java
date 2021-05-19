@@ -2033,4 +2033,25 @@ public class BusinessUtil {
         }
         return result;
     }
+
+    //预售到仓且未付尾款
+    public static boolean preSellAndUnpaidBalance(String sendPay){
+        return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
+                isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
+                ) &&
+                isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
+                ?Boolean.TRUE:Boolean.FALSE;
+    }
+
+    /**
+     * 是否专网标识
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPrivateNetwork(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,135,'2');
+    }
 }

@@ -1023,6 +1023,7 @@ public class WaybillServiceImpl implements WaybillService {
      * 2.只有重货网的运单现场调度站点可以选择京东帮类型的站点
      * 3.是否取消
      * 4.是否已退款
+     * 5.预分拣站点校验滑道信息
      * @param waybillForPreSortOnSiteRequest
      * @return
      */

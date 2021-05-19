@@ -301,4 +301,13 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
+    <!-- 冷链操作 提供给gateway 工程使用 不允许外部工程直接调用 -->
+    <jsf:provider id="coldChainJsfService"
+                  interface="com.jd.bluedragon.distribution.coldChain.service.IColdChainService"
+                  alias="${dms.jsf.alias}"
+                  ref="coldChainExternalService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

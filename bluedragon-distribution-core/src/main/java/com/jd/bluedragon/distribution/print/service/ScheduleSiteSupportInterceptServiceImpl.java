@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -32,6 +33,9 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     @Autowired
     private BaseMinorManager baseMinorManager;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 预分拣目的站点滑道信息校验
      * @param prepareSiteCode  预分拣目的站点
@@ -43,6 +47,10 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<String> checkCrossInfo(String waybillSign, String sendPay , String waybillCode, Integer prepareSiteCode, Integer startSiteCode) {
         InvokeResult<String> result = new InvokeResult<>();
+        if(!uccPropertyConfiguration.getBackDispatchCheck()){
+            return result;
+        }
+
         try {
             //获取始发道口类型
             Integer originalCrossType = BusinessUtil.getOriginalCrossType(waybillSign, sendPay);

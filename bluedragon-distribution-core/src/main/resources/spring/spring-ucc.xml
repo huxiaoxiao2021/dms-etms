@@ -113,6 +113,9 @@
         <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
+        <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
+		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+
 
 	</bean>
 
@@ -198,6 +201,8 @@
                 <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
+				<value>uccPropertyConfiguration.backDispatchCheck</value>
+				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
 			</list>
 		</property>
 	</bean>
