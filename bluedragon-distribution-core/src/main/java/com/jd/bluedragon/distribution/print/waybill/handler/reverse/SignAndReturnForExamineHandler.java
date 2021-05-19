@@ -33,9 +33,9 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
     public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.debug("签单返还拦截校验");
         InterceptResult<String> result = context.getResult();
-        if(!uccConfiguration.getCheckSignAndReturn()){
+        /*if(!uccConfiguration.getCheckSignAndReturn()){
              return result;
-        }
+        }*/
 
         // 只有(打印客户端的和站长工作台的) 包裹补打和换单打印走以下逻辑
         Integer operateType = context.getRequest().getOperateType();
