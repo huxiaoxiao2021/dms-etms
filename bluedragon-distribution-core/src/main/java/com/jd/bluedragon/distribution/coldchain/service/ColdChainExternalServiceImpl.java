@@ -139,7 +139,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             if(!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
                 if(!allianceBusiDeliveryDetailService.checkMoney(waybillCode)){
                     //校验失败
-                    result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
+                    result.customMessage(JdResponse.CODE_FAIL,InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
                     result.getData().setForced(true);
                     return result;
                 }
@@ -168,7 +168,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             //暂存校验
             com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> storagePResp =  storagePackageMService.checkIsNeedStorage(vo.getBarCode(), vo.getOperateSiteCode());
             if(!storagePResp.codeSuccess()){
-                result.customMessage(JdResponse.CODE_FAIL,storagePResp.getMessage());
+                result.customMessage(storagePResp.getCode(),storagePResp.getMessage());
                 if(storagePResp.getData()){
                     result.getData().setWeak(true);
                 }else{
@@ -295,7 +295,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                     msg.append(tipMsg);
                     msg.append(Constants.SEPARATOR_SEMICOLON);
                 }
-                result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_SEE_OTHER,msg.toString());
+                result.customMessage(thrResult.getCode(),msg.toString());
             }
         }
 
@@ -428,7 +428,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                     msg.append(tipMsg);
                     msg.append(Constants.SEPARATOR_SEMICOLON);
                 }
-                result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_SEE_OTHER,msg.toString());
+                result.customMessage(thrResult.getCode(),msg.toString());
                 return result;
             }
         }
