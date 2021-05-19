@@ -532,43 +532,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     }
 
     /**
-     * 汇总聚合查询（es）
-     * @param criteria
-     * @return
-     */
-    @Override
-    public SummaryPrintESResultResponse batchSummaryPrintQueryByES(PrintQueryCriteria criteria) {
-        long startTime = System.currentTimeMillis();
-        SummaryPrintESResultResponse response = new SummaryPrintESResultResponse();
-        response.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-        // 查询当前站点是否走ES查询
-        if(!checkGoESQuery(criteria.getSiteCode()) && Objects.equals(BusinessHelper.getOwnSign(),"DMS")){
-            // 自定义编码10000表示：走老查询（非ES查询）
-            response.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
-            response.setMessage("当前场地未开启新查询!（ES）");
-            return response;
-        }
-        List<com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult> list = new ArrayList<>();
-        try {
-            list = printHandoverListManager.batchSummaryPrintHandOverListByQueryCondition(convertToPrintHandoverListQueryCondition(criteria, false));
-            if(CollectionUtils.isEmpty(list)){
-                response.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                response.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
-                return response;
-            }
-        }catch (Exception e){
-            log.error("发货交接清单汇总查询异常!",e);
-            response.setCode(InvokeResult.SERVER_ERROR_CODE);
-            response.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-        }
-        response.setData(list);
-        if(log.isInfoEnabled()){
-            log.info("发货交接清单汇总查询耗时：{}", System.currentTimeMillis() - startTime);
-        }
-        return response;
-    }
-
-    /**
      * 解析参数
      */
     private SendM tosendM(PrintQueryCriteria criteria) {
@@ -1924,12 +1887,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         condition.setBoxCode(criteria.getBoxCode());
         condition.setWaybillCode(criteria.getWaybillcode());
         condition.setPackageCode(criteria.getPackageBarcode());
-        condition.setFcNo(criteria.getFc());
+//        condition.setFcNo(criteria.getFc());
         condition.setSendUserCode(criteria.getSendUserCode());
         condition.setSendStartTime(DateHelper.parseDateTime(criteria.getStartTime()).getTime());
         condition.setSendEndTime(DateHelper.parseDateTime(criteria.getEndTime()).getTime());
-        condition.setIs211(criteria.isIs211() ? Byte.parseByte(String.valueOf(Constants.CONSTANT_NUMBER_ONE))
-                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
+//        condition.setIs211(criteria.isIs211() ? Byte.parseByte(String.valueOf(Constants.CONSTANT_NUMBER_ONE))
+//                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
         condition.setUserCode(criteria.getUserCode());
         condition.setSensitiveQuery(sensitiveQuery);
         return condition;
