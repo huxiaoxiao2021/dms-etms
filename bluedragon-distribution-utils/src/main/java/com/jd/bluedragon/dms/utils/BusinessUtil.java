@@ -303,7 +303,7 @@ public class BusinessUtil {
      */
     public static boolean isB2b(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
-        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5')
         				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
         						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
@@ -1399,7 +1399,15 @@ public class BusinessUtil {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_25,
                 WaybillSignConstants.CHAR_25_0,WaybillSignConstants.CHAR_25_5);
     }
-
+    /**
+     * 是否是寄付现结
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isPrepaid(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_1);
+    }
     /**
      * 是否是特惠送
      * @param waybillSign
@@ -1774,13 +1782,13 @@ public class BusinessUtil {
             //去除号码中间的空白字符
         	String hidePhone = phone.replaceAll("\\s*", "");
             if(hidePhone.length() >= PHONE_LEAST_NUMBER ){
-                return hidePhone.substring(0,PHONE_FIRST_NUMBER) 
+                return hidePhone.substring(0,PHONE_FIRST_NUMBER)
                 		+ hidePlaceStr
                 		+ hidePhone.substring(hidePhone.length() - PHONE_HIGHLIGHT_NUMBER);
             }
         }
         return phone;
-    } 
+    }
     /**
      * 隐藏姓名：1位以上地址返回前1位+^_^，否则返回原值
      * @param name 姓名
@@ -1991,5 +1999,46 @@ public class BusinessUtil {
      */
     public static boolean isNotB2B(String sendPay) {
         return BusinessUtil.isSignInChars(sendPay, SendPayConstants.POSITION_315, SendPayConstants.CHAR_315_0);
+    }
+
+
+
+    /**
+     * 根据sendPay表位判断预售暂存类型
+     * 如果sendPay 228位等于1或2，表示预售暂存到仓
+     * 如果sendPay 228位等于4或5，表示预售暂存到配
+     */
+    public static Integer getStoreTypeBySendPay(String sendPay){
+        Integer result = null;
+        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_1) ||
+                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_2)){
+            result = PreSellTypeEnum.TOWAREHOUSE.getValue();
+        }
+        if (BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_4) ||
+                BusinessUtil.isSignChar(sendPay,SendPayConstants.POSITION_228,SendPayConstants.CHAR_228_5)){
+            result = PreSellTypeEnum.TODELIVERY.getValue();
+        }
+        return result;
+    }
+
+    //预售到仓且未付尾款
+    public static boolean preSellAndUnpaidBalance(String sendPay){
+        return (isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_1) ||
+                isSignChar(sendPay, SendPayConstants.POSITION_228, SendPayConstants.CHAR_228_2)
+                ) &&
+                isSignChar(sendPay, SendPayConstants.POSITION_297, SendPayConstants.CHAR_297_1)
+                ?Boolean.TRUE:Boolean.FALSE;
+    }
+
+    /**
+     * 是否专网标识
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isPrivateNetwork(String waybillSign){
+        if(StringUtils.isEmpty(waybillSign)){
+            return  false;
+        }
+        return BusinessUtil.isSignChar(waybillSign,135,'2');
     }
 }

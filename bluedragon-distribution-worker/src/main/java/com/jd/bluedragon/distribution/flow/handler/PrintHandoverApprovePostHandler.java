@@ -97,7 +97,7 @@ public class PrintHandoverApprovePostHandler implements ApprovePostHandler {
         }
         // 异步导出发送至提交人咚咚
         boolean exportSuc = false;
-        BaseEntity<Boolean> baseEntity = printHandoverListManager.doExportAsync(query);
+        BaseEntity<Boolean> baseEntity = printHandoverListManager.doBatchExportAsync(query);
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             logger.info("打印交接清单导出异步发咚咚至ERP【{}】成功!", query.getSearchVo().getUserCode());
             exportSuc = true;

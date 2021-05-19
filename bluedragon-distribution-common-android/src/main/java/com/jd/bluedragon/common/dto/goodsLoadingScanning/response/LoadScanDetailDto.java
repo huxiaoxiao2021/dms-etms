@@ -21,6 +21,8 @@ public class LoadScanDetailDto implements Serializable {
 
     private String nextSiteName;
 
+    private Integer waybillNum;
+
     public String getBatchCode() {
         return batchCode;
     }
@@ -75,5 +77,13 @@ public class LoadScanDetailDto implements Serializable {
 
     public void setNextSiteName(String nextSiteName) {
         this.nextSiteName = nextSiteName;
+    }
+
+    public Integer getWaybillNum() {
+        return waybillNum;
+    }
+
+    public void setWaybillNum(Integer waybillNum) {
+        this.waybillNum = waybillNum;
     }
 }

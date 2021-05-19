@@ -86,6 +86,9 @@ public class InspectionServiceImpl implements InspectionService {
 	private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
 	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
+
+	@Autowired
 	private InspectionDao inspectionDao;
 	
 	@Autowired
@@ -904,6 +907,10 @@ public class InspectionServiceImpl implements InspectionService {
     public boolean checkIsBindMaterial(String waybillCode) {
 
         try {
+        	if(uccPropertyConfiguration.getInspectionAssertDemotion()){
+        		//降级 不依赖集包袋服务
+        		return false;
+			}
             MatterPackageRelationDto dto = new MatterPackageRelationDto();
             dto.setWaybillCode(waybillCode);
             ResultData<List<String>> result = assertQueryManager.queryBindMaterialByCode(dto);

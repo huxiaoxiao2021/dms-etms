@@ -120,7 +120,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			xrequest = (ReceiveRequest) XmlHelper.toObject(messageContent, ReceiveRequest.class);
 			this.log.debug("逆向收货消息ReverseReceiveRequest：{}" , xrequest.toString());
 			reverseReceive.setSendCode(xrequest.getSendCode());
-			if(StringUtils.isNotBlank(xrequest.getWaybillCode())){
+			if(StringUtils.isNotBlank(xrequest.getNewWayBill())){
+				//新运单号不为空 按新运单处理
+				reverseReceive.setPackageCode(xrequest.getNewWayBill());
+				reverseReceive.setOrderId(xrequest.getNewWayBill());
+			}else if(StringUtils.isNotBlank(xrequest.getWaybillCode())){
 				//运单号字段非空  用运单号处理
 				//Fixme 找时间统一orderId  packageCode waybillCode 含义 避免后续开发人员看不懂
 				reverseReceive.setPackageCode(xrequest.getWaybillCode());

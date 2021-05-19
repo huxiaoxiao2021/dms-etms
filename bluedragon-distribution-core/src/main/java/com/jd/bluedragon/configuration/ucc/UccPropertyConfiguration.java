@@ -328,6 +328,59 @@ public class UccPropertyConfiguration {
      */
     private boolean checkSiteSubType;
 
+    /**
+     * 发货交接清单-汇总scrollId查询单批次查询数量
+     */
+    private int scrollQuerySize;
+    /**
+     * 发货交接清单-汇总scrollId最大次数限制
+     */
+    private int printScrollQueryCountLimit;
+
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
+    /**
+     * 大宗可扫描包裹下限数量
+     * @return
+     */
+    private Integer dazongPackageOperateMax;
+
+    /**
+     * 是否校验签单返还
+     * true 校验 false 不校验
+     */
+    private boolean checkSignAndReturn;
+
+    /**
+     * 按流向查询已验未发未装运单数据查询jsf接口降级： true时jsf接口做降级提示，不操作查询
+     */
+    private boolean inspectNoSendNoLoadWaybillDemotion;
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    /**
+     * 反调度校验滑道信息 开关
+     * true :检验 false 不校验
+     */
+    private boolean backDispatchCheck;
+
+    public boolean getBackDispatchCheck() {
+        return backDispatchCheck;
+    }
+
+    public void setBackDispatchCheck(boolean backDispatchCheck) {
+        this.backDispatchCheck = backDispatchCheck;
+    }
+
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
     }
@@ -888,4 +941,46 @@ public class UccPropertyConfiguration {
     public void setCheckSiteSubType(boolean checkSiteSubType) {
         this.checkSiteSubType = checkSiteSubType;
     }
+
+    public int getScrollQuerySize() {
+        return scrollQuerySize;
+    }
+
+    public void setScrollQuerySize(int scrollQuerySize) {
+        this.scrollQuerySize = scrollQuerySize;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public int getPrintScrollQueryCountLimit() {
+        return printScrollQueryCountLimit;
+    }
+
+    public void setPrintScrollQueryCountLimit(int printScrollQueryCountLimit) {
+        this.printScrollQueryCountLimit = printScrollQueryCountLimit;
+    }
+
+    public Integer getDazongPackageOperateMax() {
+        return dazongPackageOperateMax;
+    }
+
+    public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
+        this.dazongPackageOperateMax = dazongPackageOperateMax;
+    }
+
+    public boolean getInspectNoSendNoLoadWaybillDemotion() {
+        return inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public void setInspectNoSendNoLoadWaybillDemotion(boolean inspectNoSendNoLoadWaybillDemotion) {
+        this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
+    }
+
+
 }

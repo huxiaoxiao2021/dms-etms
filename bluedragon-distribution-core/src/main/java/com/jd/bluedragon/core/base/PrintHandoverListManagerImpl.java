@@ -63,6 +63,17 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
         return null;
     }
 
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.queryPrintHandOverListTotal", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Long queryPrintHandOverListTotal(PrintHandoverLitQueryCondition condition) {
+        BaseEntity<Long> baseEntity = printHandoverListJsfService.queryPrintHandOverListTotal(condition);
+        if(baseEntity != null && baseEntity.isSuccess()){
+            return baseEntity.getData();
+        }
+        return null;
+    }
+
     @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.recordForPrintHandoverList", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -92,4 +103,10 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
         return printHandoverListJsfService.doExportAsync(query);
     }
 
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.doBatchExportAsync", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query) {
+        return printHandoverListJsfService.doBatchExportAsync(query);
+    }
 }

@@ -45,6 +45,9 @@ public class IndexController {
     @Value("${mixedConfigUrl}")
     private String mixedConfigUrl;
 
+    @Value("${zyWeightConfigUrl:}")
+    private String zyWeightConfigUrl;
+
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
@@ -120,6 +123,7 @@ public class IndexController {
             erpUser = ErpUserClient.getCurrUser();
 
             model.addAttribute("mixedConfigUrl", mixedConfigUrl);
+            model.addAttribute("zyWeightConfigUrl",zyWeightConfigUrl);
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
         } catch (Exception e) {

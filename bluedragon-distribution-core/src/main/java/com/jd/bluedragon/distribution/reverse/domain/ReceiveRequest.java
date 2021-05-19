@@ -41,6 +41,10 @@ public class ReceiveRequest {
     private String userCode;
     /** 操作人 */
     private String userName;
+	/**
+	 * 新单号
+	 */
+	private String newWayBill;
     public String getCanReceive() {
 		return canReceive;
 	}
@@ -161,5 +165,14 @@ public class ReceiveRequest {
 
 	public void setWaybillCode(String waybillCode) {
 		this.waybillCode = waybillCode;
+	}
+
+	public String getNewWayBill() {
+		return newWayBill;
+	}
+
+	public ReceiveRequest setNewWayBill(String newWayBill) {
+		this.newWayBill = newWayBill;
+		return this;
 	}
 }

@@ -252,4 +252,15 @@
         where task_id = #{taskId,jdbcType=BIGINT} and yn = 1 limit 1
     </select>
 
+    <select id="findWaybillInfoByIds" parameterType="java.lang.Long" resultMap="goodsLoadScan">
+        select
+        <include refid="Base_Column_List"/>
+        from load_scan
+        where  yn = 1 and task_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
 </mapper>

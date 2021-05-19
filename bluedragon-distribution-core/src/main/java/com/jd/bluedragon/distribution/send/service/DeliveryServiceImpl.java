@@ -448,7 +448,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
      */
     private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
-    
+
     private final int BIG_SEND_NUM = 1000;
     /**
      * 发货任务类型-发货处理关系
@@ -2066,7 +2066,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setSubType(Task.TASK_SUB_TYPE_BATCH_SEND);
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
         tTaskService.add(tTask, true);
-        
+
         tTask.setSubType(null);
         tTask.setKeyword1("2");// 2回传周转箱号
         tTask.setFingerprint(sendM.getSendCode() + "_" + tTask.getKeyword1());
@@ -3866,7 +3866,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 	            tSendDetail.setReceiveSiteCode(newSendM.getReceiveSiteCode());
 	            tSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
 	            sendDetailListTemp = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
-	
+
 	            for (SendDetail dSendDetail : sendDetailListTemp) {
 	                //只处理未发货的数据, 如果已发货则跳过
 	                if (dSendDetail.getStatus().equals(Constants.CONTAINER_RELATION_SEND_STATUS_YES)) {
@@ -6098,7 +6098,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         private final Logger log = LoggerFactory.getLogger(ForwardSendDiffrence.class);
         @Autowired
         private WaybillCommonService waybillCommonService;
-
         @Override
         public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList,Integer receiveSiteCode) {
             int hasDiff = 0;
@@ -6137,8 +6136,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             return hasDiff;
         }
-
     }
+
+
+
 
     /**
      * 逆向发货差异对比
@@ -6177,6 +6178,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 //纯配非C2C的可半退至备件库 不验证集齐
                                 return 0;
                             }
+                            Integer wmsType = Integer.valueOf(PropertiesHelper.newInstance().getValue("wms_type"));
+                            if (BusinessUtil.preSellAndUnpaidBalance(getOldWaybillSendPay(waybill))
+                                    && wmsType.equals(site.getSiteType())){//预售到仓且未付尾款的运单(到仓)，不做集齐校验
+                                return 0;
+                            }
                         }
                     }
 
@@ -6210,6 +6216,25 @@ public class DeliveryServiceImpl implements DeliveryService {
                 diffrenceList.addAll(noScanList);
             }
             return hasDiff;
+        }
+
+        /**
+         * 获取sendPay
+         * 如果有换单，返回老的sendPay
+         * @param waybill
+         * @return
+         */
+        private  String getOldWaybillSendPay(com.jd.bluedragon.common.domain.Waybill waybill) {
+            String result = waybill.getSendPay();
+            if(BusinessUtil.isWaybillMarkForward(waybill.getWaybillSign())){
+                return result;
+            }
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<com.jd.bluedragon.common.domain.Waybill> waybillInvokeResult = waybillCommonService.getReverseWaybill(waybill.getWaybillCode());
+            if (null == waybillInvokeResult || null == waybillInvokeResult.getData()){
+                return  result;
+            }
+            result = waybillInvokeResult.getData().getSendPay();
+            return result;
         }
     }
 

@@ -197,6 +197,17 @@
         <jsf:parameter key="token" value="${order.middle.jsf.token}" hide="true"/>
     </jsf:consumer>
 
+    <!--国际化订单接口  测试环境 不需要参数 -->
+    <jsf:consumer id="newOrderMiddlewareJsfService"
+                  interface="com.jd.jdorders.component.export.OrderMiddlewareCBDExport"
+                  alias="${new.order.middle.jsf.alias}" protocol="jsf" timeout="${new.order.middle.jsf.timeout}" retries="${jsf.retries}">
+        <!-- 藏经阁生成token 藏经阁生成token-->
+        <jsf:parameter key="authToken" value="${new.order.middle.jsf.token}" hide="true" />
+        <!-- 藏经阁客户端名称 藏经阁的客户端名称-->
+        <jsf:parameter key="clientName" value="${new.order.middle.jsf.clientName}" hide="true" />
+        <!-- 藏经阁JSF分组名，和上边的alias一致 -->
+        <jsf:parameter key="alias" value="${new.order.middle.jsf.alias}" hide="true" />
+    </jsf:consumer>
 
     <!-- 台账 宏亮 张子敬-->
     <jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
@@ -452,9 +463,7 @@
     </jsf:consumer>
 
 
-    <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
-                  alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
-    </jsf:consumer>
+
 
     <jsf:consumer id="commonUseMenuApi" interface="com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi" protocol="jsf"
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
@@ -473,7 +482,7 @@
                   protocol="jsf" alias="${jsf.ufo.SearchOrganizationOtherService.alias}" timeout="${jsf.ufo.SearchOrganizationOtherService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
-    <jsf:consumer id="chuguanExport" interface="com.jd.stock.iwms.export.ChuguanExport" alias="${jsf.chuguan.alias}">
+    <jsf:consumer id="chuguanExport" interface="com.jd.stock.iwms.export.ChuguanExport" alias="${jsf.chuguan.alias}" protocol="jsf" retries="${jsf.retries}">
         <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀 测试环境没有-->
         <jsf:parameter key="clientName" value="${jsf.chuguan.cjg.clientName}" hide="true" />
         <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token 测试环境没有-->
@@ -700,4 +709,13 @@
                   protocol="jsf" alias="${jsf.etms.blocker.alias}" timeout="${jsf.etms.blocker.timeout}" >
     </jsf:consumer>
 
+    <!--运输获取批次下包裹信息接口-->
+    <jsf:consumer id="dataCargoDetailWS" interface="com.jd.tms.data.ws.DataCargoDetailWS"
+                  protocol="jsf" alias="${jsf.dataSelectWS.alias}" serialization="hessian" timeout="${jsf.dataSelectWS.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!--签单返还-->
+    <jsf:consumer id="signBillReturnApi" interface="erp.ql.station.api.service.SignBillReturnApi" protocol="jsf"
+                  alias="${jsf.signBillReturn.alias}" timeout="${jsf.signBillReturn.timeout}"   retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

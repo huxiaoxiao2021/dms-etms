@@ -52,6 +52,7 @@ public class PrintHandoverApprovePostHandlerTest {
         condition.setReceiveSiteCode(39);
         condition.setSendStartTime(System.currentTimeMillis());
         condition.setSendEndTime(System.currentTimeMillis());
+        condition.setReceiveSiteCodeList(Arrays.asList(39,40,50));
 
         query.setSearchVo(condition);
         query.setPageNo(1);
@@ -59,14 +60,14 @@ public class PrintHandoverApprovePostHandlerTest {
 
         // OA数据
         Map<String,Object> oaMap = new HashMap<>();
-        oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME,"发货交接清单导出申请单");
-        oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS,"发货交接清单导出申请单");
+        oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
+        oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER);
         List<String> mainColList = new ArrayList<>();
         oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
-        mainColList.add("发货始发地:北京马驹桥分拣中心");
-        mainColList.add("发货目的地:石景山营业部");
-        mainColList.add("发货开始时间:" + DateHelper.formatDateTime(new Date()));
-        mainColList.add("发货结束时间:" + DateHelper.formatDateTime(new Date()));
+        mainColList.add("发货始发地：北京马驹桥分拣中心");
+        mainColList.add("发货目的地：石景山营业部...等等");
+        mainColList.add("发货开始时间：" + DateHelper.formatDateTime(new Date()));
+        mainColList.add("发货结束时间：" + DateHelper.formatDateTime(new Date()));
 
 
         // 业务数据

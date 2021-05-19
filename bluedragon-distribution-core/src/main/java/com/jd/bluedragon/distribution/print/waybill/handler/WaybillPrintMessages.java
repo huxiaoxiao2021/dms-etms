@@ -67,7 +67,10 @@ public class WaybillPrintMessages{
 	 * 该运单已是终结点并且是补打时提示信息
 	 * */
 	public static final String MESSAGE_WAYBILL_FINISHED_REPRINT = "当前面单已【%s】状态，且已操作过补打，请确认是否打印";
-
+	/**
+	 * B2C&C2C寄付现结的单子禁止打印
+	 */
+	public static final String MESSAGE_B2C_C2C_PREPAID_INTERCEPT="寄付现结订单，请在揽收端完成称重！";
 	/**
 	 * 该运单未揽收完成时提示信息
 	 */

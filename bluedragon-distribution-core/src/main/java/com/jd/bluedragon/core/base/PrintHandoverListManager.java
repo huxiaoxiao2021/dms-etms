@@ -40,6 +40,13 @@ public interface PrintHandoverListManager {
     PageData<PrintHandoverListDto> queryPrintHandOverListByScroll(Pager<PrintHandoverLitQueryCondition> query);
 
     /**
+     * 打印交接清单 - 根据条件查询总数
+     * @param condition
+     * @return
+     */
+    Long queryPrintHandOverListTotal(PrintHandoverLitQueryCondition condition);
+
+    /**
      * 打印交接清单 - 新增记录
      * @param dto
      * @return
@@ -59,5 +66,12 @@ public interface PrintHandoverListManager {
      * @return
      */
     BaseEntity<Boolean> doExportAsync(Pager<PrintHandoverLitQueryCondition> query);
+
+    /**
+     * 打印交接清单 - 批量导出
+     * @param query
+     * @return
+     */
+    BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query);
 
 }

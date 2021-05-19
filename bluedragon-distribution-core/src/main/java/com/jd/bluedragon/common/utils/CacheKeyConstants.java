@@ -145,4 +145,9 @@ public class CacheKeyConstants {
      * 用户登录设备记录缓存过期时间
      */
     public static final int CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME = 24;
+
+    /**
+     * 卸车负责人Key
+     */
+    public static final String CACHE_KEY_UNLOAD_MAIN_ERP = "unload.main.erp-";
 }

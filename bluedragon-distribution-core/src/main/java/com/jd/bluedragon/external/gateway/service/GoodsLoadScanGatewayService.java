@@ -81,4 +81,9 @@ public interface GoodsLoadScanGatewayService {
     JdVerifyResponse<Void> checkWaybillIsFinish(String scanBarString);
 
 
+    /**
+     * 获取已验未发、未装车的运单明细
+     */
+    JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req);
+
 }

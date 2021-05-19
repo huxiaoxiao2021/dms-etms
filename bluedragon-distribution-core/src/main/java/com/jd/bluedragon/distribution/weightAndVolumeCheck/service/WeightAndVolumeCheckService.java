@@ -57,6 +57,13 @@ public interface WeightAndVolumeCheckService {
     InvokeResult<List<String>> searchExcessPictureOfB2b(String packageCode, Integer siteCode);
 
     /**
+     * 根据前缀获取最近上传的图片
+     * @param prefixName
+     * @return
+     */
+    String searchPictureUrlRecent(String prefixName);
+
+    /**
      * 根据条件查询
      * @param condition
      * @return
