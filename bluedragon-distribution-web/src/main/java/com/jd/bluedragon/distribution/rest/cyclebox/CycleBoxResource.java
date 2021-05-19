@@ -176,7 +176,7 @@ public class CycleBoxResource {
             //执行数据库操作
             result = cycleBoxService.boxMaterialRelationAlter(request);
         } catch (Exception e) {
-            log.error("绑定循环集包袋系统异常请求参数:{}", JsonHelper.toJson(request));
+            log.error("绑定循环集包袋系统异常请求参数:{}", JsonHelper.toJson(request), e);
             result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
