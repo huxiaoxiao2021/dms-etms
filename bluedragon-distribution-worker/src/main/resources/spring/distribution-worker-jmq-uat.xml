@@ -237,5 +237,17 @@
     <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="dmsWorkSendDetailConsumer"/>
     </jmq:consumer>
+    <!--冷链验货消费-->
+    <jmq:consumer id="jmq.coldChainInspectionConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.coldChainInspection}" listener="coldChainInspectionConsumer"/>
+    </jmq:consumer>
+    <!--冷链发货消费-->
+    <jmq:consumer id="jmq.coldChainSendConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.coldChainSend}" listener="coldChainSendConsumer"/>
+    </jmq:consumer>
+    <!--冷链快运发货消费-->
+    <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
+    </jmq:consumer>
 </beans>
 
