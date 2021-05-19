@@ -179,4 +179,7 @@ public interface UnloadCarService {
     InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request);
 
     JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
+
+    //卸车任务补全司机信息。
+    public void distributeUnloadCarTask(TmsSealCar tmsSealCar)
 }

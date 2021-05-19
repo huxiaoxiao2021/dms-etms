@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.consumer.UnloadCar;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
-import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
-import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -16,9 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author lijie
@@ -53,7 +49,7 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
             }
             // 消费解封车状态，自动分配卸车任务
             if (UNSEAL_CAR_STATUS.equals(tmsSealCar.getStatus())) {
-                distributeUnloadCarTask(tmsSealCar);
+                unloadCarService.distributeUnloadCarTask(tmsSealCar);
                 return;
             }
 
@@ -74,29 +70,5 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
         }
     }
 
-    private void distributeUnloadCarTask(TmsSealCar tmsSealCar) {
-        // 根据封车编码查询卸车任务
-        UnloadCar unloadCar = unloadCarService.selectBySealCarCode(tmsSealCar.getSealCarCode());
-        if (unloadCar == null) {
-            log.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务，tmsSealCar={}", JsonHelper.toJson(tmsSealCar));
-            return;
-        }
-        // 卸车任务ID列表
-        List<Integer> unloadCarIds = new ArrayList<>();
-        unloadCarIds.add(unloadCar.getUnloadCarId().intValue());
-        // 封车编码列表
-        List<String> sealCarCodes = new ArrayList<>();
-        sealCarCodes.add(tmsSealCar.getSealCarCode());
 
-        // 组装分配卸车任务参数
-        DistributeTaskRequest request = new DistributeTaskRequest();
-        request.setUnloadCarIds(unloadCarIds);
-        request.setUnloadUserErp(tmsSealCar.getOperateUserCode());
-        request.setUnloadUserName(tmsSealCar.getOperateUserName());
-        request.setRailWayPlatForm(null);
-        request.setUpdateUserErp(tmsSealCar.getOperateUserCode());
-        request.setUpdateUserName(tmsSealCar.getOperateUserName());
-        request.setSealCarCodes(sealCarCodes);
-        unloadCarService.distributeTask(request);
-    }
 }
