@@ -114,7 +114,9 @@
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
         <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
+        <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
 		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
 
 
 	</bean>
@@ -202,7 +204,10 @@
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 				<value>uccPropertyConfiguration.backDispatchCheck</value>
+				<value>uccPropertyConfiguration.closeAsynBufferSaveTaskToDb</value>
 				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
+				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
+
 			</list>
 		</property>
 	</bean>

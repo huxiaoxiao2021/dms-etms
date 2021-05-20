@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.jmq.asynBuffer;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
@@ -61,7 +62,16 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 
 	@Override
 	public boolean process(List<Task> tasks) {
-		boolean result =  super.process(tasks);
+		boolean result = super.process(tasks);
+
+		// JMQ消费失败，不降级TB任务
+		if (Constants.SWITCH_OPEN.equals(uccPropertyConfiguration.getCloseAsynBufferSaveTaskToDb())) {
+		    if (log.isInfoEnabled()) {
+		        log.info("异步缓冲框架关闭DB模式");
+            }
+            return result;
+        }
+
 		//如果消费失败，落库
 		if(!result){
 			return saveConsumerFailedTask(tasks);

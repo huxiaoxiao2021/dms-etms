@@ -67,6 +67,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+    /**
+     * 大运单告警数量
+     */
+    private Integer bigWaybillWaringSize;
 
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
@@ -374,6 +378,11 @@ public class UccPropertyConfiguration {
      * 按流向查询已验未发未装运单数据查询jsf接口降级： true时jsf接口做降级提示，不操作查询
      */
     private boolean inspectNoSendNoLoadWaybillDemotion;
+
+    /**
+     * 异步缓冲框架，JMQ消费失败不再降级为TB任务
+     */
+    private String closeAsynBufferSaveTaskToDb;
 
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
@@ -749,6 +758,14 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
+    public Integer getBigWaybillWaringSize() {
+        return bigWaybillWaringSize;
+    }
+
+    public void setBigWaybillWaringSize(Integer bigWaybillWaringSize) {
+        this.bigWaybillWaringSize = bigWaybillWaringSize;
+    }
+
     public boolean isControlCheckPackage() {
         return controlCheckPackage;
     }
@@ -1040,5 +1057,11 @@ public class UccPropertyConfiguration {
         this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
     }
 
+    public String getCloseAsynBufferSaveTaskToDb() {
+        return closeAsynBufferSaveTaskToDb;
+    }
 
+    public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
+        this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
 }
