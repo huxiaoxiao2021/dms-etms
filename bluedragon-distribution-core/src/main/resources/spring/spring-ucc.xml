@@ -112,6 +112,7 @@
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
         <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
 		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
 
 
 	</bean>
@@ -195,6 +196,8 @@
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 				<value>uccPropertyConfiguration.backDispatchCheck</value>
 				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
+				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
+
 			</list>
 		</property>
 	</bean>

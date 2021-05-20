@@ -67,6 +67,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+    /**
+     * 大运单告警数量
+     */
+    private Integer bigWaybillWaringSize;
 
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
@@ -731,6 +735,14 @@ public class UccPropertyConfiguration {
 
     public void setEconomicNetValidateWeightSwitch(boolean economicNetValidateWeightSwitch) {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
+    }
+
+    public Integer getBigWaybillWaringSize() {
+        return bigWaybillWaringSize;
+    }
+
+    public void setBigWaybillWaringSize(Integer bigWaybillWaringSize) {
+        this.bigWaybillWaringSize = bigWaybillWaringSize;
     }
 
     public boolean isControlCheckPackage() {
