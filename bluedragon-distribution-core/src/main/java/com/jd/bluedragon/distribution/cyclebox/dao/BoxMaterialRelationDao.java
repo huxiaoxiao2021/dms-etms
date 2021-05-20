@@ -58,4 +58,9 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
     public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".getDataByMaterialCode", materialCode);
     }
+
+    public int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation){
+        return this.getSqlSession().update(NAMESPACE + ".updateUnBindByMaterialCode", boxMaterialRelation);
+
+    }
 }
