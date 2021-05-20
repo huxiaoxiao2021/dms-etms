@@ -354,6 +354,11 @@ public class UccPropertyConfiguration {
      */
     private boolean checkSignAndReturn;
 
+    /**
+     * C网抽检是否下发MQ条件卡控
+     */
+    private boolean spotCheckIssueControl;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -967,5 +972,13 @@ public class UccPropertyConfiguration {
 
     public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
         this.dazongPackageOperateMax = dazongPackageOperateMax;
+    }
+
+    public boolean getSpotCheckIssueControl() {
+        return spotCheckIssueControl;
+    }
+
+    public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
+        this.spotCheckIssueControl = spotCheckIssueControl;
     }
 }

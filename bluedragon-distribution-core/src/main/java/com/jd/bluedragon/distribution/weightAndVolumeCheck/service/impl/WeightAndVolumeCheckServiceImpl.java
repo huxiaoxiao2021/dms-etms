@@ -543,8 +543,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
 
         // 核对区域、核对操作站点、核对erp三者缺一则不下发
-        if(weightVolumeCollectDto.getBillingOrgCode() == null || StringUtils.isEmpty(weightVolumeCollectDto.getBillingCompany())
-                || StringUtils.isEmpty(weightVolumeCollectDto.getBillingErp())){
+        if(uccPropertyConfiguration.getSpotCheckIssueControl()
+                && (weightVolumeCollectDto.getBillingOrgCode() == null || StringUtils.isEmpty(weightVolumeCollectDto.getBillingCompany())
+                || StringUtils.isEmpty(weightVolumeCollectDto.getBillingErp()))){
             return null;
         }
         abnormalResultMq.setFirstLevelId(String.valueOf(weightVolumeCollectDto.getBillingOrgCode()));
