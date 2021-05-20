@@ -116,6 +116,16 @@ public class UnloadCar extends DbEntity {
      */
     private Date startTime;
 
+    private Date endTime;
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
     public Long getUnloadCarId() {
         return unloadCarId;
     }

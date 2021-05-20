@@ -2772,8 +2772,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             UnloadCar unloadCarSearch = new UnloadCar();
             unloadCarSearch.setEndSiteCode(curSiteId);
             unloadCarSearch.setVehicleNumber(tmsSealCar.getVehicleNumber());
+            //增加创建时间判断。空任务创建完也可能不操作.
+            Calendar executeDate = Calendar.getInstance();
+            executeDate.set(Calendar.HOUR_OF_DAY, 0);
+            executeDate.set(Calendar.MINUTE, 0);
+            executeDate.set(Calendar.SECOND, 0);
+            Date startDate = executeDate.getTime();
+            executeDate.add(executeDate.DATE,1);
+            Date endDate = executeDate.getTime();
+            unloadCarSearch.setStartTime(startDate);
+            unloadCarSearch.setEndTime(endDate);
             List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCarSearch);
-            if(CollectionUtils.isEmpty(list)){
+            if(CollectionUtils.isNotEmpty(list)){
                 logger.warn("封车编码【{}】对应的车牌号{},已生成卸车任务，此次不写入卸车任务!", unloadCar.getSealCarCode(),tmsSealCar.getVehicleNumber());
                 return ;
             }
@@ -2808,7 +2818,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //写入卸车任务时,需要获取封车信息中的封车网点.
             tmsSealCar.setOperateSiteId(fromSiteId);
             tmsSealCar.setBatchCodes(batchCodes);
-            this.batchSaveUnloadScan(tmsSealCar, unloadCar);
+            boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
+            if(!unloadScanSaveFlag){
+                logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", unloadCar.getSealCarCode());
+                return;
+            }
             //组装卸车任务参数
             unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(batchCodes)));
             unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
