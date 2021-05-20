@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.utils.BusiWaringUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -37,6 +38,9 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private BusiWaringUtil busiWaringUtil;
 
     /**
      * 调用运单的分页接口一次获取的包裹数量，分页大小定值1000，则获取数据为实时，其他则非实时
@@ -210,6 +214,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             }
             log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
         }
+
+        busiWaringUtil.bigWaybillWarning(waybillCode,packageList.size());
 
         return result;
     }
