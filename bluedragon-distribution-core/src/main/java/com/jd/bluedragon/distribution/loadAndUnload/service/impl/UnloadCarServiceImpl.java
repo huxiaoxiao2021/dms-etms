@@ -2809,6 +2809,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             //写入卸车任务时,需要获取封车信息中的封车网点.
             tmsSealCar.setOperateSiteId(fromSiteId);
+            tmsSealCar.setBatchCodes(batchCodes);
             this.batchSaveUnloadScan(tmsSealCar, unloadCar);
             //组装卸车任务参数
             unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(batchCodes)));
