@@ -300,12 +300,12 @@ public class NewSealVehicleResource {
                         //任务简码输入：返回车牌、运力类型、其他派车任务明细
                         if(hasSimpleCode) {
                         	sealVehicleResponse.setVehicleNumber(rpcResult.getData().getVehicleNumber());
-                        	sealVehicleResponse.setTransType(rpcResult.getData().getTransWay());
                         	this.buildTransWorkItemBySimpleCode(sealVehicleResponse, transWorkItemSimpleDto.getSimpleCode());
                         }else {
                         	//车牌输入：返回任务简码
                         	sealVehicleResponse.setTransWorkItemCode(rpcResult.getData().getSimpleCode());
                         }
+                        sealVehicleResponse.setTransType(rpcResult.getData().getTransWay());
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
                     } else {
