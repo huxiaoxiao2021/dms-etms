@@ -60,7 +60,7 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
     }
 
     public int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation){
-        return this.getSqlSession().selectOne(NAMESPACE + ".updateUnBindByMaterialCode", boxMaterialRelation);
+        return this.getSqlSession().update(NAMESPACE + ".updateUnBindByMaterialCode", boxMaterialRelation);
 
     }
 }
