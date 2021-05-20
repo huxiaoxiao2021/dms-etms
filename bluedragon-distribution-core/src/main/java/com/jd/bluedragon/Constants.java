@@ -1549,4 +1549,9 @@ public class Constants {
      * 系统名
      */
     public static final String SYSTEM_NAME = "QLFJZXJT";
+
+    /**
+     * 开启状态 1
+     */
+    public static final String SWITCH_OPEN = "1";
 }

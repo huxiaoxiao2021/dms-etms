@@ -375,6 +375,11 @@ public class UccPropertyConfiguration {
      */
     private boolean inspectNoSendNoLoadWaybillDemotion;
 
+    /**
+     * 异步缓冲框架，JMQ消费失败不再降级为TB任务
+     */
+    private String closeAsynBufferSaveTaskToDb;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1040,5 +1045,11 @@ public class UccPropertyConfiguration {
         this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
     }
 
+    public String getCloseAsynBufferSaveTaskToDb() {
+        return closeAsynBufferSaveTaskToDb;
+    }
 
+    public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
+        this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
 }
