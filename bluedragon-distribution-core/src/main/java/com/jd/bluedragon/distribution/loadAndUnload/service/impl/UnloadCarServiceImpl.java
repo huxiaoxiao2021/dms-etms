@@ -2783,6 +2783,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             List<String> batchCodes = null;
             CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
             if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+                unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+                unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
                 batchCodes = sealCarDto.getData().getBatchCodes();
                 fromSiteId = sealCarDto.getData().getSealSiteId();
             } else {
