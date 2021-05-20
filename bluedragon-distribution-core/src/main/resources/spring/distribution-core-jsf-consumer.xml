@@ -718,4 +718,11 @@
     <jsf:consumer id="signBillReturnApi" interface="erp.ql.station.api.service.SignBillReturnApi" protocol="jsf"
                   alias="${jsf.signBillReturn.alias}" timeout="${jsf.signBillReturn.timeout}"   retries="${jsf.retries}">
     </jsf:consumer>
+
+    <jsf:consumer id="guaranteeConfigApi" interface="com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi"
+                  alias="${jsf.alias.configCenter}"
+                  protocol="jsf"
+                  timeout="${jsf.timeout.configCenter}">
+    </jsf:consumer>
+
 </beans>

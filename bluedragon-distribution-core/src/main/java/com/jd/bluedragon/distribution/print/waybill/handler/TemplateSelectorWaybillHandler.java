@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.google.common.collect.ImmutableList;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -8,8 +9,13 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.*;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi;
+import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +27,9 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import static com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE;
 import static java.util.Arrays.asList;
 
 @Service
@@ -55,10 +63,8 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
     @Autowired
     private SiteService siteService;
 
-    @Value("${time.dubboEleven}")
-    private String timeDubboEleven;//双十一期间需要达标的日期, 以逗号分隔
-    @Value("${mask.dubboEleven}")
-    private String maskDubboEleven;//每天对应的标签
+    @Autowired
+    private GuaranteeConfigApi guaranteeConfigApi;
 
 
 	@Override
@@ -160,20 +166,31 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         if (! (TEMPlATE_NAME_C1010_MAIN.equals(templateName)  || TEMPlATE_NAME_C_MAIN.equals(templateName))){
             return;
         }
-        if (context == null || context.getBigWaybillDto() == null || context.getBigWaybillDto().getWaybill() == null ||
-                context.getBigWaybillDto().getWaybill().getRequireTime() == null){
+        if (context == null || context.getBigWaybillDto() == null || context.getBigWaybillDto().getWaybill() == null){
             return;
         }
-        String currentDate = DateHelper.formatDate(context.getBigWaybillDto().getWaybill().getRequireTime(),DateHelper.DATE_FORMAT_YYYYMMDD);
-        List<String> dubboElevenTimes = Arrays.asList(this.timeDubboEleven.split(","));
-        List<String> masks = Arrays.asList(this.maskDubboEleven.split(","));
-        if (CollectionUtils.isEmpty(dubboElevenTimes) || CollectionUtils.isEmpty(masks) || !dubboElevenTimes.contains(currentDate)){
-            return;
+        String waybillCode = context.getWaybill().getWaybillCode();
+        List<String> barcodes = ImmutableList.of(waybillCode);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            BaseResult<Map<String, String>> baseResult = guaranteeConfigApi.getBatchGuaranteeFlagByBarcode(barcodes);
+            if(baseResult != null ){
+                if(SUCCESS_CODE == baseResult.getStatusCode() && MapUtils.isNotEmpty(baseResult.getData()) &&
+                        StringUtils.isNotBlank(baseResult.getData().get(waybillCode))){
+                    context.getBasePrintWaybill().setTransportModeFlag(baseResult.getData().get(waybillCode));
+                }else if(SUCCESS_CODE != baseResult.getStatusCode()){
+                    log.error("单号:{}获取大促配置时失败返回编码:{}消息:{}", waybillCode, baseResult.getStatusCode(),
+                            baseResult.getStatusMessage());
+                }
+            }
+        }catch (Exception e){
+            log.error("获取大促配置时异常",e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
-        int index = dubboElevenTimes.indexOf(currentDate);
-        String mask = index < masks.size() ? masks.get(index) : null;
-        if (!StringUtils.isEmpty(mask)){
-            context.getBasePrintWaybill().setTransportModeFlag(mask);
-        }
+
+
+
     }
 }
