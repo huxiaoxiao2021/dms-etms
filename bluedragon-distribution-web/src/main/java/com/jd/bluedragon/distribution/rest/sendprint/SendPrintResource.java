@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.rest.sendprint;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.HandoverResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
@@ -426,21 +425,5 @@ public class SendPrintResource {
             result.setMessage(InvokeResult.PARAM_ERROR);
         }
         return result;
-    }
-
-
-    @POST
-    @GZIP
-    @Path("/sendprint/batchSummaryPrintByES")
-    @JProfiler(jKey = "DMS.WEB.SendPrintResource.batchSummaryPrintByES", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SummaryPrintESResultResponse batchSummaryPrintByES(PrintQueryCriteria criteria) {
-        if(check(criteria)){
-            SummaryPrintESResultResponse tSummaryPrintResultResponse = new SummaryPrintESResultResponse();
-            tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
-            tSummaryPrintResultResponse.setMessage("查询参数不全");
-            tSummaryPrintResultResponse.setData(null);
-            return tSummaryPrintResultResponse;
-        }
-        return sendPrintService.batchSummaryPrintQueryByES(criteria);
     }
 }
