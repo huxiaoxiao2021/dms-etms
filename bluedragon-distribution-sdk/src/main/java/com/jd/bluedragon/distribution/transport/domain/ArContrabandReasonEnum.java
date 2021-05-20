@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author lixin39
  * @Description 违禁品原因枚举值
@@ -114,5 +117,19 @@ public enum ArContrabandReasonEnum {
             }
         }
         return null;
+    }
+
+    /**
+     * 获取所有带违禁品标识的违禁品原因
+     * @return
+     */
+    public static List<Integer> getContrabandFlagReason(){
+        List<Integer> list = new ArrayList<Integer>();
+        list.add(LIQUID_OR_PASTE.getCode());
+        list.add(POWDER.getCode());
+        list.add(BATTERY.getCode());
+        list.add(MAGNET.getCode());
+        list.add(DANGEROUS_GOODS.getCode());
+        return list;
     }
 }
