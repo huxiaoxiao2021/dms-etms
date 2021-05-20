@@ -2764,6 +2764,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCar unloadCar = this.selectBySealCarCode(tmsSealCar.getSealCarCode());
         //如果未查询到判断是否验收的卸车任务,是的话 需要根据创建卸车任务，并初始化相应的运单维度数据.
         if (unloadCar == null) {
+            unloadCar = new UnloadCar();
             logger.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务,接下来走补偿逻辑，tmsSealCar={}", JsonHelper.toJson(tmsSealCar));
             //解封车操作网点
             Integer curSiteId = tmsSealCar.getOperateSiteId();
