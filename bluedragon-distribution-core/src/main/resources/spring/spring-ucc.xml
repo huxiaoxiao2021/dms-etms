@@ -112,6 +112,7 @@
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
         <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
+        <property name="spotCheckIssueControlPre" value="${spotCheckIssueControl:false}"></property>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -193,6 +194,7 @@
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 				<value>uccPropertyConfiguration.backDispatchCheck</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
+				<value>uccPropertyConfiguration.spotCheckIssueControlPre</value>
 			</list>
 		</property>
 	</bean>

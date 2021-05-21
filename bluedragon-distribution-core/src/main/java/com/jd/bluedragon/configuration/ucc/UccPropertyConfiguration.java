@@ -359,6 +359,11 @@ public class UccPropertyConfiguration {
      */
     private boolean spotCheckIssueControl;
 
+    /**
+     * C网抽检是否按以前逻辑下发MQ
+     */
+    private boolean spotCheckIssueControlPre;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -980,5 +985,13 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
         this.spotCheckIssueControl = spotCheckIssueControl;
+    }
+
+    public boolean getSpotCheckIssueControlPre() {
+        return spotCheckIssueControlPre;
+    }
+
+    public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
+        this.spotCheckIssueControlPre = spotCheckIssueControlPre;
     }
 }
