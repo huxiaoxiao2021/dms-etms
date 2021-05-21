@@ -2747,6 +2747,142 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
+    public void distributeUnloadCarTask(TmsSealCar tmsSealCar) {
+        //解封车消息报文
+        //{"sealCarCode":"SC21051894360237","status":20,"operateUserCode":"zhengying34","operateUserName":"郑英","operateTime":"2021-05-18 11:26:50",
+        // "sealCarType":30,"batchCodes":null,"transBookCode":null,"volume":null,"weight":null,"transWay":null,"vehicleNumber":"川AR8810","operateSiteId":821602,
+        // "operateSiteCode":"028F029","operateSiteName":"成都新都分拣中心","warehouseCode":null,"largeCargoDetails":null,"pieceCount":null}
+//          封车消息报文
+//        {"sealCarCode":"SC21051894361044","status":10,"operateUserCode":"00491749","operateUserName":"陈诗铭","operateTime":"2021-05-18 11:26:55","sealCarType":30,
+//        "batchCodes":["R1394494286313459712"],"transBookCode":null,"volume":null,"weight":null,"transWay":2,"vehicleNumber":"粤A9D2L6","operateSiteId":122503,
+//        "operateSiteCode":"595Y013","operateSiteName":"泉州狮城营业部","warehouseCode":null,"largeCargoDetails":null,"pieceCount":null}
+        // 根据封车编码查询卸车任务
+        UnloadCar unloadCar = this.selectBySealCarCode(tmsSealCar.getSealCarCode());
+        //如果未查询到判断是否验收的卸车任务,是的话 需要根据创建卸车任务，并初始化相应的运单维度数据.
+        if (unloadCar == null) {
+            unloadCar = new UnloadCar();
+            logger.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务,接下来走补偿逻辑，tmsSealCar={}", JsonHelper.toJson(tmsSealCar));
+            //解封车操作网点
+            Integer curSiteId = tmsSealCar.getOperateSiteId();
+            if (curSiteId == null) {
+                logger.warn("封车编码【{}】解封车消息未写入操作网点,不写入卸车任务!", unloadCar.getSealCarCode());
+                return ;
+            }
+            //先查询按照车牌号是否已经创建了空任务。若已创建,则不继续走逻辑。
+            UnloadCar unloadCarSearch = new UnloadCar();
+            unloadCarSearch.setEndSiteCode(curSiteId);
+            unloadCarSearch.setVehicleNumber(tmsSealCar.getVehicleNumber());
+            //增加创建时间判断。空任务创建完也可能不操作.
+            Calendar executeDate = Calendar.getInstance();
+            executeDate.set(Calendar.HOUR_OF_DAY, 0);
+            executeDate.set(Calendar.MINUTE, 0);
+            executeDate.set(Calendar.SECOND, 0);
+            Date startDate = executeDate.getTime();
+            executeDate.add(executeDate.DATE,1);
+            Date endDate = executeDate.getTime();
+            unloadCarSearch.setStartTime(startDate);
+            unloadCarSearch.setEndTime(endDate);
+            List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCarSearch);
+            if(CollectionUtils.isNotEmpty(list)){
+                logger.warn("封车编码【{}】对应的车牌号{},已生成卸车任务，此次不写入卸车任务!", tmsSealCar.getSealCarCode(),tmsSealCar.getVehicleNumber());
+                return ;
+            }
+            //封车网点
+            Integer fromSiteId = null;
+            //封车编码对应的批次号
+            List<String> batchCodes = null;
+            CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
+            if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
+                unloadCar.setEndSiteCode(sealCarDto.getData().getEndSiteId());
+                unloadCar.setEndSiteName(sealCarDto.getData().getEndSiteName());
+                batchCodes = sealCarDto.getData().getBatchCodes();
+                fromSiteId = sealCarDto.getData().getSealSiteId();
+            } else {
+                logger.warn("调用运输的接口获取下游机构信息失败，请求体：{}，返回值：{}",tmsSealCar.getSealCarCode(),JsonHelper.toJson(sealCarDto));
+                return ;
+            }
+            if (fromSiteId == null) {
+                logger.warn("封车编码【{}】根据封车编码未获取到封车网点,不写入卸车任务!", tmsSealCar.getSealCarCode());
+                return ;
+            }
+            if (batchCodes == null) {
+                logger.warn("封车编码【{}】没有获取到对应的批次信息!", tmsSealCar.getSealCarCode());
+                return ;
+            }
+            boolean isExpressCenterSite = this.isExpressCenterSite(curSiteId);
+            //解封车时当前操作网点非快运网点的,不写入卸车任务
+            if(!isExpressCenterSite){
+                logger.warn("封车编码【{}】当前解封车网点非快运网点,不写入卸车任务!", tmsSealCar.getSealCarCode());
+                return;
+            }
+            //写入卸车任务时,需要获取封车信息中的封车网点.
+            tmsSealCar.setOperateSiteId(fromSiteId);
+            tmsSealCar.setBatchCodes(batchCodes);
+            List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanBySealCarCode(tmsSealCar.getSealCarCode());
+            if(CollectionUtils.isNotEmpty(unloadScans)){
+                unloadCar.setWaybillNum(unloadScans.size());
+                int totalForceAmount = 0;
+                for(UnloadScan unloadScan : unloadScans){
+                    totalForceAmount += unloadScan.getForceAmount();
+                }
+                unloadCar.setPackageNum(totalForceAmount);
+                logger.warn("封车编码【{}】解封车创建卸车任务时已存在运单维度数据，暂不创建卸车运单维度数据!", tmsSealCar.getSealCarCode());
+            }else{
+                boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
+                if(!unloadScanSaveFlag){
+                    logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", tmsSealCar.getSealCarCode());
+                    return;
+                }
+            }
+            //组装卸车任务参数
+            unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(batchCodes)));
+            unloadCar.setSealCarCode(tmsSealCar.getSealCarCode());
+            unloadCar.setVehicleNumber(tmsSealCar.getVehicleNumber());
+            unloadCar.setSealTime(tmsSealCar.getOperateTime());
+            unloadCar.setStartSiteCode(tmsSealCar.getOperateSiteId());
+            unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
+            unloadCar.setCreateTime(new Date());
+            unloadCar.setUnloadUserErp(tmsSealCar.getOperateUserCode());
+            unloadCar.setUnloadUserName(tmsSealCar.getOperateUserName());
+            unloadCar.setDistributeTime(new Date());
+            unloadCar.setOperateUserErp(tmsSealCar.getOperateUserCode());
+            unloadCar.setOperateUserName(tmsSealCar.getOperateUserName());
+            //同步卸车负责人与卸车任务之间关系
+            UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
+            unloadCarDistribution.setSealCarCode(tmsSealCar.getSealCarCode());
+            unloadCarDistribution.setUnloadUserErp(tmsSealCar.getOperateUserCode());
+            unloadCarDistribution.setUnloadUserName(tmsSealCar.getOperateUserName());
+            unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
+            unloadCarDistribution.setCreateTime(new Date());
+            try {
+                unloadCarDao.add(unloadCar);
+                unloadCarDistributionDao.add(unloadCarDistribution);
+            } catch (Exception e) {
+                logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
+            }
+            //自动生成任务逻辑走完,不论成功与否,不再重试，后续逻辑也不用走
+            logger.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务,已触发卸车任务生成封车编码={}", tmsSealCar.getSealCarCode());
+            return;
+        }
+        // 卸车任务ID列表
+        List<Integer> unloadCarIds = new ArrayList<>();
+        unloadCarIds.add(unloadCar.getUnloadCarId().intValue());
+        // 封车编码列表
+        List<String> sealCarCodes = new ArrayList<>();
+        sealCarCodes.add(tmsSealCar.getSealCarCode());
+
+        // 组装分配卸车任务参数
+        DistributeTaskRequest request = new DistributeTaskRequest();
+        request.setUnloadCarIds(unloadCarIds);
+        request.setUnloadUserErp(tmsSealCar.getOperateUserCode());
+        request.setUnloadUserName(tmsSealCar.getOperateUserName());
+        request.setRailWayPlatForm(null);
+        request.setUpdateUserErp(tmsSealCar.getOperateUserCode());
+        request.setUpdateUserName(tmsSealCar.getOperateUserName());
+        request.setSealCarCodes(sealCarCodes);
+        this.distributeTask(request);
+    }
+
     private int getBatchNumber(String batchCode) {
         String[] batchList = batchCode.split(",");
         return batchList.length;
@@ -3043,7 +3179,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * 判断当前操作场地是否是快运中心
      * @param dmsSiteId 当前场地ID
      */
-    private boolean isExpressCenterSite(Integer dmsSiteId) {
+    public boolean isExpressCenterSite(Integer dmsSiteId) {
         // 根据当前网点ID查询网点基础信息
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dmsSiteId);
         if (siteOrgDto == null) {

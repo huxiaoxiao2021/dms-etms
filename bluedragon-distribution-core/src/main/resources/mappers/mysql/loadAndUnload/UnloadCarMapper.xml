@@ -408,6 +408,12 @@
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
         and yn=1
         and status in (0,1)
+        <if test="startTime != null">
+            and create_time &gt; #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            and create_time &lt; #{endTime,jdbcType=TIMESTAMP}
+        </if>
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
