@@ -163,40 +163,53 @@ $(function () {
             align: 'center'
         },{
             field: 'billingOrgName',
-            title: '计费操作区域',
+            title: '核对操作区域',
             align: 'center'
         },{
             field: 'billingDeptName',
-            title: '计费操作片区',
+            title: '核对操作片区',
             align: 'center'
         },{
             field: 'billingCompany',
-            title: '计费操作单位',
+            title: '核对操作单位',
             align: 'center'
         },{
             field: 'billingErp',
-            title: '计费操作人ERP',
+            title: '核对操作人ERP',
             align: 'center'
         },{
             field: 'billingCalcWeight',
             title: '计费结算重量kg',
-            align: 'center'
+            align: 'center',
+            formatter : function (value, row, index) {
+                if(row.contrastSourceFrom == 0 || row.contrastSourceFrom == null){
+                    return value;
+                }
+                return null;
+            }
         },{
             field: 'billingWeight',
-            title: '计费重量',
+            title: '核对重量',
             align: 'center'
         },{
             field: 'billingVolume',
-            title: '计费体积',
+            title: '核对体积',
             align: 'center'
         },{
             field: 'billingVolumeWeight',
-            title: '计费体积重量',
+            title: '核对体积重量',
             align: 'center'
         },{
             field: 'billingWeightDifference',
             title: '计费结算重量差异',
             align: 'center'
+        },{
+            field: 'contrastSourceFrom',
+            title: '核对来源',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "运单" : "计费";
+            }
         },{
             field: 'diffStandard',
             title: '误差标准值',

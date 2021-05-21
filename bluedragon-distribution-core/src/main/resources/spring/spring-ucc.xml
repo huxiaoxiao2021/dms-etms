@@ -117,8 +117,7 @@
         <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
 		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
-
-
+        <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -207,7 +206,7 @@
 				<value>uccPropertyConfiguration.closeAsynBufferSaveTaskToDb</value>
 				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
-
+				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
 			</list>
 		</property>
 	</bean>

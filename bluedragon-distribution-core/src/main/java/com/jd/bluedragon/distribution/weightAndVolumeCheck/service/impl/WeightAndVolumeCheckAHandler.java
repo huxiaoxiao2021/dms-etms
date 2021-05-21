@@ -31,7 +31,8 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
 
     /**
      * 校验标准A:
-     *    1. 分拣【较大值】小于等于1公斤，不论误差多少均判断为正常
+     *    1. 分拣【较大值】<= 1 && 核对较大值 <= 1，不论误差多少均判断为正常
+     *    1.分拣【较大值】<=1 && 核对较大值 > 1，误差标准正负0.5 kg（含）
      *    2. 分拣【较大值】1公斤至20公斤（含),误差标准正负0.5 kg（含）
      *    3. 分拣【较大值】20公斤至50公斤（含),误差标准正负1 kg（含）
      *    4. 分拣【较大值】50公斤以上，误差标准为重量的正负2%（含）
@@ -41,6 +42,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
      */
     private boolean isExcess(CheckExcessParam checkExcessParam){
         Double moreBigValue = checkExcessParam.getMoreBigValue();
+        Double checkMoreBigValue = checkExcessParam.getCheckMoreBigValue();
         Double differenceValue = checkExcessParam.getDifferenceValue();
         Double reviewWeight = checkExcessParam.getReviewWeight();
         // 特殊处理-如果 较大值 <=1kg 都算未超标
@@ -59,7 +61,13 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         BigDecimal  thirdStage002 = new BigDecimal(thirdStage);
 
         if(moreBigValue <= firstWeight1.doubleValue()){
-            return false;
+            if(checkMoreBigValue <= firstWeight1.doubleValue()){
+                return false;
+            }
+            if(differenceValue > firstStage05.doubleValue()){
+                return true;
+            }
+            return  false;
         }
 
         if(firstWeight1.doubleValue() < moreBigValue && moreBigValue <= secondWeight20.doubleValue()){

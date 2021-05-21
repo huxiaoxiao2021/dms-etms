@@ -274,7 +274,7 @@ public class UccPropertyConfiguration {
      * 是否走老逻辑检查箱是否发货开关
      */
     private boolean checkBoxSendedSwitchOn;
-    
+
     /**
      * 启用运输新接口-开关 1-开启 0-关闭
      */
@@ -383,6 +383,11 @@ public class UccPropertyConfiguration {
      * 异步缓冲框架，JMQ消费失败不再降级为TB任务
      */
     private String closeAsynBufferSaveTaskToDb;
+
+    /**
+     * C网抽检是否下发MQ条件卡控
+     */
+    private boolean spotCheckIssueControl;
 
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
@@ -1063,5 +1068,13 @@ public class UccPropertyConfiguration {
 
     public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
         this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
+
+    public boolean getSpotCheckIssueControl() {
+        return spotCheckIssueControl;
+    }
+
+    public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
+        this.spotCheckIssueControl = spotCheckIssueControl;
     }
 }
