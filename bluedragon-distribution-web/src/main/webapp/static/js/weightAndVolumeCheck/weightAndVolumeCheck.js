@@ -208,7 +208,7 @@ $(function () {
             title: '核对来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value === "0" || value == null) ? "计费" : value === "1" ? "运单" : "";
+                return value == "1" ? "运单" : "计费";
             }
         },{
             field: 'diffStandard',

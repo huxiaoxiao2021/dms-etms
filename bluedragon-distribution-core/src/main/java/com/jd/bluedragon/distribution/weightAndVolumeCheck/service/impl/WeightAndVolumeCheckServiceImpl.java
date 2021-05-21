@@ -562,6 +562,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setBusinessObjectId(weightVolumeCollectDto.getBusiCode());
         abnormalResultMq.setBusinessObject(weightVolumeCollectDto.getBusiName());
 
+        // 防止上线后无数据，兼容之前逻辑
+        compatiblePrevious(abnormalResultMq);
+
         abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
         abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
         abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
@@ -597,6 +600,43 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setIsNeedBlame(1);
         abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
         return abnormalResultMq;
+    }
+
+    /**
+     * 兼容之前老逻辑，待上线后无问题则删除此处代码
+     * @param abnormalResultMq
+     */
+    private void compatiblePrevious(AbnormalResultMq abnormalResultMq) {
+        if(abnormalResultMq.getDutyType() == null){
+            String waybillCode = WaybillUtil.getWaybillCode(abnormalResultMq.getBillCode());
+            BizDutyDTO bizDutyDTO;
+            try {
+                ResponseDTO<BizDutyDTO> responseDto
+                        = businessFinanceManager.queryDutyInfo(waybillCode);
+                if(responseDto == null || responseDto.getStatusCode() != 0
+                        || responseDto.getData() == null){
+                    log.warn("根据运单【{}】查询计费信息为空",waybillCode);
+                    return;
+                }
+                bizDutyDTO = responseDto.getData();
+            }catch (Exception e){
+                log.error("根据运单【{}】查询计费信息异常",waybillCode);
+                return;
+            }
+            abnormalResultMq.setFirstLevelId(bizDutyDTO.getFirstLevelId());
+            abnormalResultMq.setFirstLevelName(bizDutyDTO.getFirstLevelName());
+            abnormalResultMq.setSecondLevelId(bizDutyDTO.getSecondLevelId());
+            abnormalResultMq.setSecondLevelName(bizDutyDTO.getSecondLevelName());
+            abnormalResultMq.setThreeLevelId(bizDutyDTO.getThreeLevelId());
+            abnormalResultMq.setThreeLevelName(bizDutyDTO.getThreeLevelName());
+            abnormalResultMq.setWeight(bizDutyDTO.getWeight());
+            abnormalResultMq.setVolume(bizDutyDTO.getVolume());
+            abnormalResultMq.setDutyType(bizDutyDTO.getDutyType());
+            abnormalResultMq.setReviewDutyType(bizDutyDTO.getDutyType());
+            abnormalResultMq.setDutyErp(bizDutyDTO.getDutyErp());
+            abnormalResultMq.setBusinessObjectId(bizDutyDTO.getBusinessObjectId());
+            abnormalResultMq.setBusinessObject(bizDutyDTO.getBusinessObject());
+        }
     }
 
     /**
@@ -664,7 +704,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 针对C抽B的 特殊处理 --是否超标不填
+     * 1、针对C抽B的：是否超标不填
+     * 2、生鲜：分拣较大值 < 计费结算重量（核对较大值）则不超标
      * @param weightVolumeCollectDto
      * @param waybill
      */
@@ -673,8 +714,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO_KNOW.getCode());
             return;
         }
-        double checkWeight = weightVolumeCollectDto.getBillingWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingWeight();
-        if(BusinessUtil.isFresh(waybill.getWaybillSign()) && weightVolumeCollectDto.getReviewWeight() < checkWeight){
+        // 分拣复核较大值
+        double reviewMore = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
+        // 计费结算重量或核对较大值
+        double checkMore = weightVolumeCollectDto.getBillingCalcWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingCalcWeight();
+        if(BusinessUtil.isFresh(waybill.getWaybillSign()) && reviewMore < checkMore){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
         }
     }
@@ -1013,7 +1057,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingCompany(dto == null ? null : dto.getSiteName());
                 weightVolumeCollectDto.setBillingWeight(bizDutyDTO.getWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getWeight().doubleValue());
                 weightVolumeCollectDto.setBillingVolume(bizDutyDTO.getVolume() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getVolume().doubleValue());
-                // 核对较大值：核对重量和核对体积重量的较大值
+                // 核对较大值：计费结算重量
                 weightVolumeCollectDto.setBillingCalcWeight(bizDutyDTO.getCalcWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getCalcWeight().doubleValue());
             }
         }catch (Exception e){
@@ -1024,7 +1068,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         dealWaybillFlow(weightVolumeCollectDto);
 
         int volumeRate = weightVolumeCollectDto.getVolumeRate();
-        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(weightVolumeCollectDto.getBillingVolume()/volumeRate));
+        double billingVolume = weightVolumeCollectDto.getBillingVolume() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingVolume();
+        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
 
     }
 
@@ -1159,15 +1204,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         Date measureTime = measureList.get(0).getWeighTime();
 
         // 获取最早操作的记录
+        if(measureTime == null){
+            return weightList.get(0);
+        }
         if(weightTime == null){
-            if(measureTime == null){
-                return weightList.get(0);
-            }
             return measureList.get(0);
         }else {
-            if(measureTime == null){
-                return weightList.get(0);
-            }
             return weightTime.before(measureTime) ? weightList.get(0) : measureList.get(0);
         }
 
