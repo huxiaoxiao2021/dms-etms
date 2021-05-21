@@ -2824,6 +2824,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             tmsSealCar.setBatchCodes(batchCodes);
             List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanBySealCarCode(tmsSealCar.getSealCarCode());
             if(CollectionUtils.isNotEmpty(unloadScans)){
+                unloadCar.setWaybillNum(unloadScans.size());
+                int totalForceAmount = 0;
+                for(UnloadScan unloadScan : unloadScans){
+                    totalForceAmount += unloadScan.getForceAmount();
+                }
+                unloadCar.setPackageNum(totalForceAmount);
                 logger.warn("封车编码【{}】解封车创建卸车任务时已存在运单维度数据，暂不创建卸车运单维度数据!", tmsSealCar.getSealCarCode());
             }else{
                 boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
