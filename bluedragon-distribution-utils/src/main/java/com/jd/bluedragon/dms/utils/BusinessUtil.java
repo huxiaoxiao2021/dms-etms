@@ -2041,4 +2041,16 @@ public class BusinessUtil {
         }
         return BusinessUtil.isSignChar(waybillSign,135,'2');
     }
+
+    /**
+     * 是否生鲜
+     *  生鲜特快：31 = 9
+     *  生鲜特惠：31 = A
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isFresh(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_31,
+                WaybillSignConstants.CHAR_31_9,WaybillSignConstants.CHAR_31_A);
+    }
 }

@@ -368,6 +368,11 @@ public class UccPropertyConfiguration {
      */
     private String closeAsynBufferSaveTaskToDb;
 
+    /**
+     * C网抽检是否下发MQ条件卡控
+     */
+    private boolean spotCheckIssueControl;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1005,5 +1010,13 @@ public class UccPropertyConfiguration {
 
     public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
         this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
+
+    public boolean getSpotCheckIssueControl() {
+        return spotCheckIssueControl;
+    }
+
+    public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
+        this.spotCheckIssueControl = spotCheckIssueControl;
     }
 }
