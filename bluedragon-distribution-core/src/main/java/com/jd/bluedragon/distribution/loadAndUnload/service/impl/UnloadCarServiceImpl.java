@@ -2818,10 +2818,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             //写入卸车任务时,需要获取封车信息中的封车网点.
             tmsSealCar.setOperateSiteId(fromSiteId);
             tmsSealCar.setBatchCodes(batchCodes);
-            boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
-            if(!unloadScanSaveFlag){
-                logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", tmsSealCar.getSealCarCode());
-                return;
+            List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanBySealCarCode(tmsSealCar.getSealCarCode());
+            if(CollectionUtils.isNotEmpty(unloadScans)){
+                logger.warn("封车编码【{}】解封车创建卸车任务时已存在运单维度数据，暂不创建卸车运单维度数据!", tmsSealCar.getSealCarCode());
+            }else{
+                boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
+                if(!unloadScanSaveFlag){
+                    logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", tmsSealCar.getSealCarCode());
+                    return;
+                }
             }
             //组装卸车任务参数
             unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(batchCodes)));
