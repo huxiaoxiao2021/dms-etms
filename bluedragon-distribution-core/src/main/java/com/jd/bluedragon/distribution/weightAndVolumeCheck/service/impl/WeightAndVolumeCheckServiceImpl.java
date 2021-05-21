@@ -550,12 +550,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         abnormalResultMq.setFirstLevelId(String.valueOf(weightVolumeCollectDto.getBillingOrgCode()));
         abnormalResultMq.setFirstLevelName(weightVolumeCollectDto.getBillingOrgName());
-        abnormalResultMq.setSecondLevelId(String.valueOf(weightVolumeCollectDto.getBillingDeptCode()));
+        abnormalResultMq.setSecondLevelId(weightVolumeCollectDto.getBillingDeptCode() == null
+                ? null : String.valueOf(weightVolumeCollectDto.getBillingDeptCode()));
         abnormalResultMq.setSecondLevelName(weightVolumeCollectDto.getBillingDeptName());
         abnormalResultMq.setThreeLevelId(weightVolumeCollectDto.getBillingThreeLevelId());
         abnormalResultMq.setThreeLevelName(weightVolumeCollectDto.getBillingThreeLevelName());
-        abnormalResultMq.setWeight(BigDecimal.valueOf(weightVolumeCollectDto.getBillingWeight()));
-        abnormalResultMq.setVolume(BigDecimal.valueOf(weightVolumeCollectDto.getBillingVolume()));
+        abnormalResultMq.setWeight(weightVolumeCollectDto.getBillingWeight() == null
+                ? new BigDecimal(Constants.DOUBLE_ZERO) : BigDecimal.valueOf(weightVolumeCollectDto.getBillingWeight()));
+        abnormalResultMq.setVolume(weightVolumeCollectDto.getBillingVolume() == null
+                ? new BigDecimal(Constants.DOUBLE_ZERO) : BigDecimal.valueOf(weightVolumeCollectDto.getBillingVolume()));
         abnormalResultMq.setDutyType(weightVolumeCollectDto.getDutyType());
         abnormalResultMq.setDutyErp(weightVolumeCollectDto.getBillingErp());
         abnormalResultMq.setReviewDutyType(weightVolumeCollectDto.getDutyType());
