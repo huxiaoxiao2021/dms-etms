@@ -550,8 +550,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         abnormalResultMq.setFirstLevelId(String.valueOf(weightVolumeCollectDto.getBillingOrgCode()));
         abnormalResultMq.setFirstLevelName(weightVolumeCollectDto.getBillingOrgName());
-        abnormalResultMq.setSecondLevelId(weightVolumeCollectDto.getBillingDeptCode() == null
-                ? null : String.valueOf(weightVolumeCollectDto.getBillingDeptCode()));
+        abnormalResultMq.setSecondLevelId(weightVolumeCollectDto.getBillingDeptCodeStr());
         abnormalResultMq.setSecondLevelName(weightVolumeCollectDto.getBillingDeptName());
         abnormalResultMq.setThreeLevelId(weightVolumeCollectDto.getBillingThreeLevelId());
         abnormalResultMq.setThreeLevelName(weightVolumeCollectDto.getBillingThreeLevelName());
