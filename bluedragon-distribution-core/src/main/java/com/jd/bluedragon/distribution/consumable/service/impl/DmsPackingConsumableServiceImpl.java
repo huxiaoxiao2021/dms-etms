@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.service.impl;
+package com.jd.bluedragon.distribution.consumable.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;

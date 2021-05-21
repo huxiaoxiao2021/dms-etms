@@ -119,64 +119,15 @@ public class ColdChainDeliveryResource extends DeliveryResource{
         if(log.isInfoEnabled()){
             this.log.info("冷链发货 - 开始:{}", JsonHelper.toJson(request));
         }
-        DeliveryResponse response;
-        try {
-            response = this.coldChainSendCheckAndFixSendCode(request);
-            if (response != null) {
-                return response;
-            }
-
-            // 组装运单号维度sendM对象
-            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
-            // 组装非运单号（箱号，包裹号）维度sendM对象
-            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
-
-            /** 冷链发货 */
-            if (waybillCodeSendMList.size() == 0) {
-                response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
-            } else {
-                response = deliveryService.dellDeliveryMessageWithLock(SendBizSourceEnum.COLD_CHAIN_SEND, waybillCodeSendMList);
-                if (JdResponse.CODE_OK.equals(response.getCode()) &&
-                        otherSendMList!=null && otherSendMList.size()>0) {
-                    response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, otherSendMList);
-                }
-            }
-
-            if (JdResponse.CODE_OK.equals(response.getCode())) {
-                coldChainSendService.batchAdd(waybillCodeSendMList, request.get(0).getTransPlanCode());
-                coldChainSendService.batchAdd(otherSendMList, request.get(0).getTransPlanCode());
-            }
-            return response;
+        try{
+            return deliveryService.coldChainSendDelivery(request,SendBizSourceEnum.COLD_CHAIN_SEND,Boolean.TRUE);
         } catch (Exception e) {
             log.error("B网冷链发货时发生异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
         }
     }
 
-    private DeliveryResponse coldChainSendCheckAndFixSendCode(List<ColdChainDeliveryRequest> request) {
-        if (request != null && !request.isEmpty()) {
-            ColdChainDeliveryRequest request0 = request.get(0);
-            if (StringUtils.isEmpty(request0.getTransPlanCode()) || request0.getBoxCode() == null || request0.getSiteCode() == null || request0.getReceiveSiteCode() == null || request0.getBusinessType() == null) {
-                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-            }
-            String sendCode = coldChainSendService.getOrGenerateSendCode(request0.getTransPlanCode(), request0.getSiteCode(), request0.getReceiveSiteCode());
-            // 批次号封车校验，已封车不能发货
-            if (newSealVehicleService.checkSendCodeIsSealed(sendCode)) {
-                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
-            }
-            request0.setSendCode(sendCode);
 
-            for (int i = 1; i < request.size(); i++) {
-                DeliveryRequest deliveryRequest = request.get(i);
-                if (StringUtils.isEmpty(request0.getTransPlanCode()) || deliveryRequest.getBoxCode() == null || deliveryRequest.getSiteCode() == null || deliveryRequest.getReceiveSiteCode() == null || deliveryRequest.getBusinessType() == null) {
-                    return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-                }
-                deliveryRequest.setSendCode(sendCode);
-            }
-            return null;
-        }
-        return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-    }
 
     /**
      * 根据始发和目的站点获取当日的运输计划信息

@@ -13,13 +13,6 @@ public interface SendPrintService {
 
     SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria);
 
-	/**
-	 * 发货交接清单汇总查询（es）
-	 * @param criteria
-	 * @return
-	 */
-	SummaryPrintESResultResponse batchSummaryPrintQueryByES(PrintQueryCriteria criteria);
-
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
 
 	/**

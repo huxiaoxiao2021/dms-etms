@@ -31,7 +31,7 @@
                   alias="${dms.jsf.alias}"
                   ref="josReadService" server="dmsjsf">
     </jsf:provider>
-    
+
     <bean id="waybillSafService"
 		class="com.jd.bluedragon.distribution.saf.WaybillSafServiceImpl" />
 
@@ -39,11 +39,11 @@
 		class="com.jd.bluedragon.distribution.saf.OrdersResourceSafServiceImpl">
 		<property name="ordersResource" ref="ordersResource"></property>
 	</bean>
-    
+
   	<bean id="getWaybillSafService"
 		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
-    <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
-				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService" 
+    <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService"
+				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService"
 				  alias="${dms.jsf.alias}"/>
 
     <!-- 分拣中心内部系统jsf接口 -->
@@ -294,4 +294,13 @@
                   ref="cycleBoxJsfService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 冷链操作 提供给gateway 工程使用 不允许外部工程直接调用 -->
+    <jsf:provider id="coldChainJsfService"
+                  interface="com.jd.bluedragon.distribution.coldChain.service.IColdChainService"
+                  alias="${dms.jsf.alias}"
+                  ref="coldChainExternalService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

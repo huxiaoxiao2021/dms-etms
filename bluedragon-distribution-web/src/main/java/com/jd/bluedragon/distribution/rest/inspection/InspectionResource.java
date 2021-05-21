@@ -82,24 +82,10 @@ public class InspectionResource {
 	@Autowired
 	ReceiveService receiveService;
 
-    @Autowired
-    private DmsOperateHintService dmsOperateHintService;
 
 	@Autowired
 	private InspectionService inspectionService;
 
-	@Autowired
-	private RouterService routerService;
-
-	@Autowired
-	@Qualifier("operateHintTrackMQ")
-	private DefaultJMQProducer operateHintTrackMQ;
-
-	@Autowired
-    private BasicPrimaryWS basicPrimaryWS;
-
-	@Autowired
-    private SiteService siteService;
 
 	@Autowired
 	private QueryGapTimeUtil queryGapTimeUtil;
@@ -554,71 +540,7 @@ public class InspectionResource {
 	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
 			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode){
-		com.jd.ql.dms.common.domain.JdResponse jdResponse = new com.jd.ql.dms.common.domain.JdResponse();
-		DmsStorageArea dmsStorageArea = new DmsStorageArea();
-		//判断是运单号还是包裹号
-		Integer dmsSiteCode = siteCode;
-		String waybillCode = packageBarOrWaybillCode;
-		String packageCode = packageBarOrWaybillCode;
-		boolean isPack = false;
-        if(WaybillUtil.isPackageCode(packageBarOrWaybillCode)){
-			isPack = true;
-            waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
-        }
-        // 运单绑定集包袋校验
-        if(WaybillUtil.isWaybillCode(packageBarOrWaybillCode)
-                && inspectionService.checkIsBindMaterial(waybillCode)){
-            jdResponse.toFail(JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
-            return jdResponse;
-        }
-		InspectionResult inspectionResult = new InspectionResult("");
-        //提取获取操作站点信息
-		BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(dmsSiteCode);
-
-        try{
-			inspectionResult = inspectionService.getInspectionResult(dmsSiteCode, waybillCode);
-		}catch (Exception e){
-			log.error("获取库位号失败，异常原因：", e);
-		}
-
-		String hintMessage = "";
-		try{
-			hintMessage = dmsOperateHintService.getInspectHintMessageByWaybillCode(waybillCode);
-			inspectionResult.setHintMessage(hintMessage);
-			log.info("验货redis查询运单提示语，运单号：{},结果：{}",waybillCode, hintMessage);
-			if(StringHelper.isNotEmpty(hintMessage)){
-				try {
-					DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
-					dmsOperateHintTrack.setWaybillCode(waybillCode);
-					dmsOperateHintTrack.setHintDmsCode(siteCode);
-					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
-					dmsOperateHintTrack.setHintTime(new Date());
-					this.log.info("发送MQ[{}],业务ID[{}]",operateHintTrackMQ.getTopic(),dmsOperateHintTrack.getWaybillCode());
-					operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
-				}catch(Exception e){
-					log.error("发货提示语发mq异常,异常原因:" ,e);
-				}
-			}
-		}catch (Exception e){
-			log.error("验货redis查询运单提示语异常，改DB查询，运单号：{}",waybillCode, e);
-		}
-		//金鹏订单拦截提示
-		hintMessage += inspectionService.getHintMessage(dmsSiteCode, waybillCode);
-		//获取路由下一节点
-		BaseStaffSiteOrgDto baseDto = routerService.getRouterNextSite(dmsSiteCode, waybillCode);
-		inspectionResult.setNextRouterSiteName(baseDto==null?null:baseDto.getSiteName());
-		inspectionResult.setHintMessage(hintMessage);
-
-		// B网验货增加笼车号显示
-		this.setTabletrolleyCode(inspectionResult, siteOrgDto, baseDto);
-
-		//增加已验内容
-		if(isPack){
-			setScanPackageSize(inspectionResult,packageCode,waybillCode,dmsSiteCode);
-		}
-		jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
-		jdResponse.setData(inspectionResult);
-		return jdResponse;
+		return inspectionService.getStorageCode(packageBarOrWaybillCode,siteCode);
 	}
 
 	@GET
@@ -648,43 +570,6 @@ public class InspectionResource {
 
 		return result;
 	}
-    /**
-     * B网验货显示下一节点的笼车号
-     *
-     * @param inspectionResult
-     * @param dmsSiteCode
-     * @param nextDest
-     */
-	private void setTabletrolleyCode(InspectionResult inspectionResult, BaseStaffSiteOrgDto siteOrgDto, BaseStaffSiteOrgDto nextDest) {
-        if (null == siteOrgDto || null == nextDest)
-            return;
-        if (null != siteOrgDto && siteOrgDto.getSubType() != null && siteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
-            SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(siteOrgDto.getSiteCode(), String.valueOf(nextDest.getSiteCode()));
-            if (log.isInfoEnabled()) {
-                log.info("Get table trolley code from basic. dmsId:{}, siteCode:{}, ret:[{}]", siteOrgDto.getSiteCode(), nextDest.getSiteCode(), JsonHelper.toJson(sortCrossDetail));
-            }
-            if (null != sortCrossDetail) {
-                inspectionResult.setTabletrolleyCode(sortCrossDetail.getTabletrolleyCode());
-            }
-        }
-    }
 
-	/**
-	 * 设置已扫包裹数据
-	 * @param inspectionResult
-	 * @param packageCode
-	 * @param waybillCode
-	 * @param siteCode
-	 */
-    private void setScanPackageSize(InspectionResult inspectionResult,String packageCode,String waybillCode,Integer siteCode){
-		Inspection inspection = new Inspection();
-		inspection.setWaybillCode(waybillCode);
-		inspection.setCreateSiteCode(siteCode);
-		inspection.setPackageBarcode(packageCode);
-		//此时返回的已验数据不包含此次扫描包裹
-		Integer scanSize = inspectionService.inspectionCountByWaybill(inspection);
-		inspectionResult.setSacnPackageSize((scanSize==null?0:scanSize)+1);
-
-	}
 
 }

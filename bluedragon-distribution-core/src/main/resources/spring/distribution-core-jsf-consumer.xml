@@ -388,8 +388,8 @@
 
     <!-- automatic分拣自动化：获取发货方案配置的接口 -->
     <jsf:consumer id="areaDestJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService"
-                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
-        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+                  protocol="jsf" alias="${jsf.automatic.areaDest.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.automatic.areaDest.token}" hide="true"/>
     </jsf:consumer>
     <!-- 外单商家相关接口 -->
     <jsf:consumer id="orderInfoServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf"
@@ -570,7 +570,7 @@
     </jsf:consumer>
 
     <jsf:consumer id="sortingExceptionJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.sorting.SortingExceptionJsfService"
-                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}">
+                  protocol="jsf" alias="${jsf.automatic.sortingException.alias}" timeout="${jsf.automatic.timeout}">
     </jsf:consumer>
 
     <jsf:consumer id="verCommonJsfApi" interface="com.jd.dms.ver.service.VerCommonJsfApi"
