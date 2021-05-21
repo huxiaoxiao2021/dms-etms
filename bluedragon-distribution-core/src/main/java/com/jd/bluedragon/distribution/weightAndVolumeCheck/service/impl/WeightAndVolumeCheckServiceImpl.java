@@ -609,7 +609,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param abnormalResultMq
      */
     private void compatiblePrevious(AbnormalResultMq abnormalResultMq) {
-        if(abnormalResultMq.getDutyType() == null){
+        if(uccPropertyConfiguration.getSpotCheckIssueControlPre()){
             String waybillCode = WaybillUtil.getWaybillCode(abnormalResultMq.getBillCode());
             BizDutyDTO bizDutyDTO;
             try {
