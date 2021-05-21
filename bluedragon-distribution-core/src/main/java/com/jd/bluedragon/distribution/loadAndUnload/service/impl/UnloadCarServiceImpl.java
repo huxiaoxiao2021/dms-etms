@@ -2788,7 +2788,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarSearch.setEndTime(endDate);
             List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCarSearch);
             if(CollectionUtils.isNotEmpty(list)){
-                logger.warn("封车编码【{}】对应的车牌号{},已生成卸车任务，此次不写入卸车任务!", unloadCar.getSealCarCode(),tmsSealCar.getVehicleNumber());
+                logger.warn("封车编码【{}】对应的车牌号{},已生成卸车任务，此次不写入卸车任务!", tmsSealCar.getSealCarCode(),tmsSealCar.getVehicleNumber());
                 return ;
             }
             //封车网点
@@ -2806,26 +2806,31 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return ;
             }
             if (fromSiteId == null) {
-                logger.warn("封车编码【{}】根据封车编码未获取到封车网点,不写入卸车任务!", unloadCar.getSealCarCode());
+                logger.warn("封车编码【{}】根据封车编码未获取到封车网点,不写入卸车任务!", tmsSealCar.getSealCarCode());
                 return ;
             }
             if (batchCodes == null) {
-                logger.warn("封车编码【{}】没有获取到对应的批次信息!", unloadCar.getSealCarCode());
+                logger.warn("封车编码【{}】没有获取到对应的批次信息!", tmsSealCar.getSealCarCode());
                 return ;
             }
             boolean isExpressCenterSite = this.isExpressCenterSite(curSiteId);
             //解封车时当前操作网点非快运网点的,不写入卸车任务
             if(!isExpressCenterSite){
-                logger.warn("封车编码【{}】当前解封车网点非快运网点,不写入卸车任务!", unloadCar.getSealCarCode());
+                logger.warn("封车编码【{}】当前解封车网点非快运网点,不写入卸车任务!", tmsSealCar.getSealCarCode());
                 return;
             }
             //写入卸车任务时,需要获取封车信息中的封车网点.
             tmsSealCar.setOperateSiteId(fromSiteId);
             tmsSealCar.setBatchCodes(batchCodes);
-            boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
-            if(!unloadScanSaveFlag){
-                logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", unloadCar.getSealCarCode());
-                return;
+            List<UnloadScan> unloadScans = unloadScanDao.findUnloadScanBySealCarCode(tmsSealCar.getSealCarCode());
+            if(CollectionUtils.isNotEmpty(unloadScans)){
+                logger.warn("封车编码【{}】解封车创建卸车任务时已存在运单维度数据，暂不创建卸车运单维度数据!", tmsSealCar.getSealCarCode());
+            }else{
+                boolean unloadScanSaveFlag = this.batchSaveUnloadScan(tmsSealCar, unloadCar);
+                if(!unloadScanSaveFlag){
+                    logger.warn("封车编码【{}】解封车创建卸车任务时不存在运单维度数据，暂不创建卸车任务!", tmsSealCar.getSealCarCode());
+                    return;
+                }
             }
             //组装卸车任务参数
             unloadCar.setBatchCode(getStrByBatchCodes(new ArrayList<String>(batchCodes)));
