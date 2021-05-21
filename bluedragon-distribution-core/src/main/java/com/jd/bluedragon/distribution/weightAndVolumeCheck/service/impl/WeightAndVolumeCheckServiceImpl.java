@@ -1345,15 +1345,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         headerMap.put("volumeRate","计泡系数");
         headerMap.put("reviewVolumeWeight","复核体积重量");
         headerMap.put("moreBigWeight","较大重量值");
-        headerMap.put("billingOrgName","计费操作区域");
-        headerMap.put("billingDeptName","计费操作片区");
-        headerMap.put("BillingCompany","计费操作单位");
-        headerMap.put("billingErp","计费操作人ERP");
-        headerMap.put("billingCalcWeight","计费结算重量");
-        headerMap.put("billingWeight","计费重量kg");
-        headerMap.put("billingVolume","计费体积cm");
-        headerMap.put("billingVolumeWeight","计费体积重量");
+        headerMap.put("billingOrgName","核对操作区域");
+        headerMap.put("billingDeptName","核对操作片区");
+        headerMap.put("BillingCompany","核对操作单位");
+        headerMap.put("billingErp","核对操作人ERP");
+        headerMap.put("billingCalcWeight","计费结算重量kg");
+        headerMap.put("billingWeight","核对重量kg");
+        headerMap.put("billingVolume","核对体积cm");
+        headerMap.put("billingVolumeWeight","核对体积重量");
         headerMap.put("billingWeightDifference","计费结算重量差异");
+        headerMap.put("contrastSourceFrom","核对来源");
         headerMap.put("diffStandard","误差标准值");
         headerMap.put("isExcess","是否超标");
         headerMap.put("weightDiff","重量差异");
@@ -1449,6 +1450,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             exportWeightVolumeCollectDto.setIsHasPicture(Objects.equals(dto.getIsHasPicture(),Constants.CONSTANT_NUMBER_ONE) ? "有" : "无");
             exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
             exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
+            exportWeightVolumeCollectDto.setContrastSourceFrom(Objects.equals(dto.getContrastSourceFrom(),Constants.CONSTANT_NUMBER_ONE) ? "运单" : "计费");
             list.add(exportWeightVolumeCollectDto);
         }
         return list;
