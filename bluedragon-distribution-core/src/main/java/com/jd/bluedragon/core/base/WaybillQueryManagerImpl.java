@@ -966,6 +966,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)){
             //31 = G  冷链专送
             res = TextConstants.PRODUCT_NAME_LLZS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_H)){
+            //31 = H  特快包裹
+        	res = TextConstants.PRODUCT_NAME_TKBG;
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
                 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
             if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){
