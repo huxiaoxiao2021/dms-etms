@@ -78,6 +78,7 @@ public class ExportWeightVolumeCollectDto implements Serializable {
     private Double moreBigWeight;
     private Double billingCalcWeight;
     private Double billingWeightDifference;
+    private String contrastSourceFrom;
 
     public Date getReviewDate() {
         return reviewDate;
@@ -429,5 +430,13 @@ public class ExportWeightVolumeCollectDto implements Serializable {
 
     public void setBillingWeightDifference(Double billingWeightDifference) {
         this.billingWeightDifference = billingWeightDifference;
+    }
+
+    public String getContrastSourceFrom() {
+        return contrastSourceFrom;
+    }
+
+    public void setContrastSourceFrom(String contrastSourceFrom) {
+        this.contrastSourceFrom = contrastSourceFrom;
     }
 }

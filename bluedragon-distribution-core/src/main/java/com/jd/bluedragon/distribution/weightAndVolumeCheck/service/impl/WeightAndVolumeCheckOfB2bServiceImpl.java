@@ -432,7 +432,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         }
 
         // 设置产品类型
-        weightAndVolumeCheckService.setProductType(collectDto);
+        weightAndVolumeCheckService.setProductType(collectDto, waybill);
         return collectDto;
     }
 

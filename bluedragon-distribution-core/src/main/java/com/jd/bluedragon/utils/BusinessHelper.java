@@ -892,11 +892,10 @@ public class BusinessHelper {
      * @param waybillSign
      */
     public static Integer getSpotCheckTypeBorC(String waybillSign){
-        //0:C网    1:B网
         if(BusinessUtil.isCInternet(waybillSign)){
-            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode();//C网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode();
         }else {
-            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode();//B网
+            return SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode();
         }
     }
 
