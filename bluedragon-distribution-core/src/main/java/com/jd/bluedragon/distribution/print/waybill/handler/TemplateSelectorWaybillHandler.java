@@ -171,7 +171,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         }
         String waybillCode = context.getWaybill().getWaybillCode();
         List<String> barcodes = ImmutableList.of(waybillCode);
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.TemplateSelectorWaybillHandler.setMask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseResult<Map<String, String>> baseResult = guaranteeConfigApi.getBatchGuaranteeFlagByBarcode(barcodes);
             if(baseResult != null ){
