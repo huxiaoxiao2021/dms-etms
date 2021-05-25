@@ -12,6 +12,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi;
 import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
@@ -169,13 +171,25 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         }
         String waybillCode = context.getWaybill().getWaybillCode();
         List<String> barcodes = ImmutableList.of(waybillCode);
-        BaseResult<Map<String, String>> baseResult =   guaranteeConfigApi.getBatchGuaranteeFlagByBarcode(barcodes);
-        if(baseResult != null ){
-            if(SUCCESS_CODE == baseResult.getStatusCode() && MapUtils.isNotEmpty(baseResult.getData()) &&
-                    StringUtils.isNotBlank(baseResult.getData().get(waybillCode))){
-                context.getBasePrintWaybill().setTransportModeFlag(baseResult.getData().get(waybillCode));
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.TemplateSelectorWaybillHandler.setMask", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            BaseResult<Map<String, String>> baseResult = guaranteeConfigApi.getBatchGuaranteeFlagByBarcode(barcodes);
+            if(baseResult != null ){
+                if(SUCCESS_CODE == baseResult.getStatusCode() && MapUtils.isNotEmpty(baseResult.getData()) &&
+                        StringUtils.isNotBlank(baseResult.getData().get(waybillCode))){
+                    context.getBasePrintWaybill().setTransportModeFlag(baseResult.getData().get(waybillCode));
+                }else if(SUCCESS_CODE != baseResult.getStatusCode()){
+                    log.error("单号:{}获取大促配置时失败返回编码:{}消息:{}", waybillCode, baseResult.getStatusCode(),
+                            baseResult.getStatusMessage());
+                }
             }
+        }catch (Exception e){
+            log.error("获取大促配置时异常",e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
+
 
 
     }

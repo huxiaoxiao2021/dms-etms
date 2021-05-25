@@ -37,7 +37,7 @@
                   alias="${dms.jsf.alias}"
                   ref="josReadService" server="dmsjsf">
     </jsf:provider>
-    
+
     <bean id="waybillSafService"
 		class="com.jd.bluedragon.distribution.saf.WaybillSafServiceImpl" />
 
@@ -45,11 +45,11 @@
 		class="com.jd.bluedragon.distribution.saf.OrdersResourceSafServiceImpl">
 		<property name="ordersResource" ref="ordersResource"></property>
 	</bean>
-    
+
   	<bean id="getWaybillSafService"
 		class="com.jd.bluedragon.distribution.saf.GetWaybillSafServiceImpl" />
-    <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService" 
-				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService" 
+    <jsf:provider id="jsfGetWaybillServer" server="dmsjsf" ref="getWaybillSafService"
+				  interface="com.jd.bluedragon.distribution.saf.service.GetWaybillSafService"
 				  alias="${dms.jsf.alias}"/>
 
     <!-- 分拣中心内部系统jsf接口 -->
