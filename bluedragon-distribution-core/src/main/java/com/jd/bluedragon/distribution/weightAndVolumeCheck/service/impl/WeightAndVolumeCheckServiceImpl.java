@@ -1127,8 +1127,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private BaseStaffSiteOrgDto getDutyBaseStaffSiteOrgDto(PackFlowDetail packFlowDetail) {
         String billingErp = StringUtils.isEmpty(packFlowDetail.getMeasureUserErp()) ? packFlowDetail.getWeighUserErp() : packFlowDetail.getMeasureUserErp();
         if(StringUtils.isEmpty(billingErp)){
-            String billingUserId = packFlowDetail.getMeasureUserId() == null ? packFlowDetail.getWeighUserId() : packFlowDetail.getMeasureUserId();
-            if (billingUserId == null){
+            String billingUserId = StringUtils.isEmpty(packFlowDetail.getMeasureUserId()) ? packFlowDetail.getWeighUserId() : packFlowDetail.getMeasureUserId();
+            if (StringUtils.isEmpty(billingUserId)){
                 return null;
             }
             return baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.valueOf(billingUserId));
