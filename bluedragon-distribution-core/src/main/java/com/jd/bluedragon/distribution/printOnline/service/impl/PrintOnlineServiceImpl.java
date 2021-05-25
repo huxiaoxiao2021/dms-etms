@@ -16,6 +16,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,10 +98,10 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
         criteria.setSiteCode(createSiteCode);
         //获取打印汇总数据
         SummaryPrintResultResponse resultResponse = sendPrintService.batchSummaryPrintQuery(criteria);
-        if(resultResponse!=null){
+        if(resultResponse != null){
             List<SummaryPrintResult> summaryPrintResults = resultResponse.getData();
             //此操作仅仅一个批次 所以summaryPrintResults只有一条记录
-            if(!summaryPrintResults.isEmpty()) {
+            if(CollectionUtils.isNotEmpty(summaryPrintResults)) {
                 SummaryPrintResult summaryPrintResult = summaryPrintResults.get(0);
                 //组装箱号列表信息
                 pojo.setBoxes(makeBoxsDTO(summaryPrintResult));
