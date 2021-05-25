@@ -27,7 +27,7 @@ public class WaybillQueryManagerImplTestCase {
 
 	}
 	/**
-	 * 海运标识测试
+	 * 31H-打印特快包裹测试
 	 * @throws Exception
 	 */
     @Test
@@ -39,7 +39,7 @@ public class WaybillQueryManagerImplTestCase {
 				"000",
 				UtilsForTestCase.getSignString(500,31,'0'),
 				UtilsForTestCase.getSignString(500,31,'H'),};
-		boolean[] sendPayChecks ={
+		boolean[] resultChecks ={
 				false,
 				false,
 				false,
@@ -53,7 +53,7 @@ public class WaybillQueryManagerImplTestCase {
 				String getTransportMode = waybillQueryManagerImpl.getTransportMode(waybill);
 				//‘特快包裹’验证
 				boolean hasFlag = ("特快包裹".equals(getTransportMode));
-				Assert.assertEquals(sendPayChecks[i],hasFlag);
+				Assert.assertEquals(resultChecks[i],hasFlag);
 			}
 		}
 }
