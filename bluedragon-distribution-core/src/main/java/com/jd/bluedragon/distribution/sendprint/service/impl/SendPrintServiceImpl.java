@@ -1879,8 +1879,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         condition.setPackageCode(criteria.getPackageBarcode());
 //        condition.setFcNo(criteria.getFc());
         condition.setSendUserCode(criteria.getSendUserCode());
-        condition.setSendStartTime(DateHelper.parseDateTime(criteria.getStartTime()).getTime());
-        condition.setSendEndTime(DateHelper.parseDateTime(criteria.getEndTime()).getTime());
+        condition.setSendStartTime(criteria.getStartTime() == null ? null : DateHelper.parseDateTime(criteria.getStartTime()).getTime());
+        condition.setSendEndTime(criteria.getEndTime() == null ? null : DateHelper.parseDateTime(criteria.getEndTime()).getTime());
 //        condition.setIs211(criteria.isIs211() ? Byte.parseByte(String.valueOf(Constants.CONSTANT_NUMBER_ONE))
 //                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
         condition.setUserCode(criteria.getUserCode());
