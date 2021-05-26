@@ -682,4 +682,8 @@
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" >
     </jsf:consumer>
 
+    <jsf:consumer id="loadCarTaskServiceWS" interface="com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.tys.loadCarTaskServiceWS.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
 </beans>
