@@ -24,14 +24,25 @@ public class SitePlateInterceptHandlerTestCase {
     @Test
     public void test() throws Exception{
     	WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		// 是现结 b2c c2c
+		// 非现结 b2c c2c
+		// 现结   非b2c c2c
+		// 非现结  非b2c c2c
 		String[] waybillSigns = {
 				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 25, '1'),29,'8'),
-				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 25, '1'),29,'1'),};
-		
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 25, '6'),29,'8'),
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 25, '1'),28,'1'),
+				UtilsForTestCase.markSignChar(UtilsForTestCase.markSignChar("", 25, '6'),28,'1'),
+		};
+
+
 		context.getRequest().setOperateType(100102);
 		boolean[] checkResults ={
 				true,
-				true,};
+				false,
+				false,
+				false
+		};
 		for(int i=0 ; i < waybillSigns.length; i++ ){
 				System.err.println(waybillSigns[i]);
 				context.setBasePrintWaybill(context.getResponse());
