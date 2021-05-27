@@ -108,4 +108,11 @@ public interface LoadCarTaskGateWayService {
      * @return
      */
     JdCResponse<LoadCarInfoDto> getCarInfoByType(Integer vehicleType);
+
+    /**
+     * 获取默认车型列表信息
+     *
+     * @return
+     */
+    JdCResponse<List<LoadCarInfoDto>> getDefaultCarList();
 }

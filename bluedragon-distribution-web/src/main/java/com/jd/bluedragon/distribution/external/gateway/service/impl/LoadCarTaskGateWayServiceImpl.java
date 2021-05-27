@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
+import com.jd.bluedragon.enums.CarTypeEnum;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -472,7 +473,6 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         LoadCarInfoDto loadCarInfoDto = new LoadCarInfoDto();
         loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
         loadCarInfoDto.setVolume(dto.getVolume());
-        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
         loadCarInfoDto.setWeight(dto.getWeight());
         jdCResponse.toSucceed();
         jdCResponse.setData(loadCarInfoDto);
@@ -516,6 +516,20 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         loadCarInfoDto.setWeight(dto.getWeight());
         jdCResponse.setData(loadCarInfoDto);
         jdCResponse.toSucceed();
+        return jdCResponse;
+    }
+
+    /**
+     * 获取默认车型列表信息
+     *
+     * @return
+     */
+    @Override
+    public JdCResponse<List<LoadCarInfoDto>> getDefaultCarList() {
+        JdCResponse<List<LoadCarInfoDto>> jdCResponse = new JdCResponse<>();
+        List<LoadCarInfoDto> carInfoDtoList = CarTypeEnum.getCarTypeList();
+        jdCResponse.toSucceed("操作成功！");
+        jdCResponse.setData(carInfoDtoList);
         return jdCResponse;
     }
 
