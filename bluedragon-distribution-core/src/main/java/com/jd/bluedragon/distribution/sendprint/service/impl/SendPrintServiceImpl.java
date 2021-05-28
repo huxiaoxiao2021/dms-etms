@@ -1290,7 +1290,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setMessage("发货交接清单excel稍后将发送至您咚咚，请注意查收!");
         boolean isGoESQuery = checkGoESQuery(printExportCriteria.getCreateSiteCode());
-        if(!isGoESQuery && Objects.equals(BusinessHelper.getOwnSign(),"DMS") ){
+        if(!uccPropertyConfiguration.getNewPrintHandoverListSwitch() ){
             // 自定义编码10000表示：走老查询（非ES查询）
             result.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
             result.setMessage("当前场地未开启新查询!（ES）");
