@@ -331,6 +331,10 @@ public class UccPropertyConfiguration {
      *  3)、字符串true代表全国
      */
     private String printHandoverListSites;
+    /**
+     * 是否开启新发货交接逻辑
+     */
+    private boolean newPrintHandoverListSwitch;
 
     /**
      * 校验站点子类型是否三方：16
@@ -1089,5 +1093,13 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
         this.spotCheckIssueControlPre = spotCheckIssueControlPre;
+    }
+
+    public boolean getNewPrintHandoverListSwitch() {
+        return newPrintHandoverListSwitch;
+    }
+
+    public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
+        this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
     }
 }
