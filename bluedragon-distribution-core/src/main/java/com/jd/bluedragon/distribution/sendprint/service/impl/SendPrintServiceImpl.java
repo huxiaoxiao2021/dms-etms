@@ -166,7 +166,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             // 判断是否走新汇总查询
-            if(uccPropertyConfiguration.getSpotCheckIssueControl()){
+            if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
                 return newBatchSummaryPrintQuery(criteria);
             }
             SendM nSendM = tosendM(criteria);
@@ -1758,7 +1758,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Override
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
         // 检查是否走es查询
-        if(uccPropertyConfiguration.getSpotCheckIssueControl()){
+        if(uccPropertyConfiguration.getNewPrintHandoverListSwitch()){
             return basicPrintQueryForPageByES(criteria);
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQueryForPage", Constants.UMP_APP_NAME_DMSWEB, false, true);
