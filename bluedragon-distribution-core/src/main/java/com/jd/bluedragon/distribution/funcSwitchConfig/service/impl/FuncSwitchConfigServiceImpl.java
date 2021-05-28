@@ -912,4 +912,29 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
 
         return false;
     }
+
+    /**
+     * 获取BC箱号拦截状态
+     * @param menuCode
+     * @param siteCode
+     * true 拦截  false 不拦截
+     * @return
+     */
+    public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
+        if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
+            //ucc 配置为1 全国不拦截  配置站点编码:
+            if(isNeedCheckBlack(uccPropertyConfiguration.getAllBCBoxFilterWebSite(),siteCode)){
+                return  true;
+            }
+            return false;
+        }
+
+        //不是全国-查询站点维度
+        if(siteCode!=null){
+            //当缓存中存在时
+            return getSiteFlagFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+        }
+        return true;
+    }
+
 }

@@ -1,8 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.utils.BusiWaringUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -13,6 +16,7 @@ import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +38,9 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private BusiWaringUtil busiWaringUtil;
 
     /**
      * 调用运单的分页接口一次获取的包裹数量，分页大小定值1000，则获取数据为实时，其他则非实时
@@ -208,6 +215,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
         }
 
+        busiWaringUtil.bigWaybillWarning(waybillCode,packageList.size());
+
         return result;
     }
 
@@ -276,5 +285,27 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             log.error("根据运单"+waybillCode+"查询运单称重流水数据失败!");
             return null;
         }
+    }
+
+    @Override
+    public DeliveryPackageD getPackageInfoByPackageCode(String packageCode) {
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(  "DMS.BASE.WaybillPackageManagerImpl.getPackageInfoByPackageCode");
+        try {
+            BaseEntity<DeliveryPackageD> baseEntity = waybillPackageApi.getPackageInfoByPackageCode(packageCode);
+            if(baseEntity != null
+                    && baseEntity.getResultCode() == 1 && baseEntity.getData() != null){
+                return baseEntity.getData();
+            }else {
+                log.error("根据包裹号:{}"+packageCode+"获取包裹信息数据失败!");
+                return null;
+            }
+        }catch (Exception ex){
+            log.error("调用根据包裹号获取包裹信息接口异常！包裹号={}",ex,packageCode);
+            Profiler.functionError(callerInfo);
+            return null;
+        }finally{
+            Profiler.registerInfoEnd(callerInfo);
+        }
+
     }
 }

@@ -57,6 +57,11 @@ public class SortingCheck {
      */
     Integer operateNode;
 
+    /**
+     * 在线状态，1-在线，2-离线
+     */
+    Integer onlineStatus;
+
     public Integer getOperateType() {
         return operateType;
     }
@@ -159,5 +164,13 @@ public class SortingCheck {
 
     public void setBizSourceType(Integer bizSourceType) {
         this.bizSourceType = bizSourceType;
+    }
+
+    public Integer getOnlineStatus() {
+        return onlineStatus;
+    }
+
+    public void setOnlineStatus(Integer onlineStatus) {
+        this.onlineStatus = onlineStatus;
     }
 }

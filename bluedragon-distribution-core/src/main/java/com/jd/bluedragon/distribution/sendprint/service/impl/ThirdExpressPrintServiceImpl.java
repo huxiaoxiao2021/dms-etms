@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendprint.domain.ExpressInfo;
 import com.jd.bluedragon.distribution.sendprint.service.ThirdExpressPrintService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +50,8 @@ public class ThirdExpressPrintServiceImpl implements ThirdExpressPrintService {
      * @return
      */
     @Override
-
+    @JProfiler(jKey = "DMSWEB.ThirdExpressPrintServiceImpl.getThirdExpress",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<ExpressInfo> getThirdExpress(String packageCode) {
         if(log.isInfoEnabled()){
             log.info("调用获取三方面单接口，包裹号为[{}]",packageCode);

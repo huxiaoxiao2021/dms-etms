@@ -7,6 +7,7 @@
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
+    <script src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
     <script src="/static/js/consumable/waybillConsumableRecord.js"></script>
 </head>
 <body class="container-fluid">

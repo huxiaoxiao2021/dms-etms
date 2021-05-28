@@ -24,7 +24,6 @@
 		<property name="objectIdService" ref="objectIdService"/>
 	</bean>
 
-
 	<bean id="baseSetConfig" class="com.jd.bluedragon.distribution.base.domain.BaseSetConfig">
 		<property name="erroral">
 			<list>

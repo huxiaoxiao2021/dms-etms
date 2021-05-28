@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
@@ -17,6 +20,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +60,9 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
 	/**
 	 * 返回主页面
@@ -218,8 +226,10 @@ public class WaybillConsumableRecordController extends DmsBaseController{
      */
 	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/export")
+	@JProfiler(jKey = "com.jd.bluedragon.distribution.consumable.controller.WaybillConsumableRecordController.exportByCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public @ResponseBody JdResponse<Boolean> exportByCondition(WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
+
         if (StringUtils.isEmpty(condition.getStartTimeStr()) || StringUtils.isEmpty(condition.getEndTimeStr()) ) {
             rest.toFail("导出参数未指定时间范围！");
             return rest;
@@ -238,7 +248,12 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             rest.toFail("导出数据量超过最大限制，请缩短导出时间段，最大限制：" + WaybillConsumableRecordService.MAX_ROWS);
             return rest;
         }
+
+        long start = System.currentTimeMillis();
+  		exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getCode());
         List rows = waybillConsumableRecordService.exportInfoByWebCondition(condition);
+		exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getCode());
+
         for(Object data : rows){
 			WaybillConsumableExportDto dto = (WaybillConsumableExportDto)data;
         	dto.setReceiveTimeStr(DateHelper.formatDateTime(dto.getReceiveTime()));
@@ -249,6 +264,8 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                     WaybillConsumableExportCol.PROPERTYS,
                     WaybillConsumableExportCol.TITLES,
                     rows, ExportExcel.EXPORT_TYPE_EXCEL);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(condition),ExportConcurrencyLimitEnum.WAYBILL_CONSUMABLE_RECORD_REPORT.getName(), end-start,rows.size());
         }catch (Exception e){
             log.error("B网耗材明细导出失败：,导出条件：{}", JsonHelper.toJson(condition) , e);
             rest.toFail("导出失败，服务异常！");

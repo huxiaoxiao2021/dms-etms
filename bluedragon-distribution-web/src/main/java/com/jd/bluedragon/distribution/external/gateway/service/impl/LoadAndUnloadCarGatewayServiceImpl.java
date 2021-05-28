@@ -6,7 +6,9 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
@@ -15,7 +17,13 @@ import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.transboard.api.dto.Response;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +42,8 @@ import java.util.Objects;
 @Service("loadAndUnloadCarGatewayService")
 public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatewayService {
 
+    private final Logger logger = LoggerFactory.getLogger(LoadAndUnloadCarGatewayServiceImpl.class);
+
     @Autowired
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
 
@@ -43,6 +53,10 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Autowired
     private UnloadCarService unloadCarService;
 
+    @Autowired
+    private BoardCombinationService boardCombinationService;
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCar", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadCarScanResult> getUnloadCar(String sealCarCode) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
@@ -56,6 +70,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadCarScanResult> getUnloadScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
@@ -72,6 +87,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.barCodeScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
@@ -85,6 +101,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.packageCodeScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
@@ -111,6 +128,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return response;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.waybillScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> response = new JdCResponse<>();
@@ -121,6 +139,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return response;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<UnloadCarDetailScanResult>> getUnloadCarDetail(String sealCarCode) {
         JdCResponse<List<UnloadCarDetailScanResult>> jdCResponse = new JdCResponse<List<UnloadCarDetailScanResult>>();
@@ -134,6 +153,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<UnloadCarTaskDto>> getUnloadCarTask(UnloadCarTaskReq unloadCarTaskReq) {
         JdCResponse<List<UnloadCarTaskDto>> jdCResponse = new JdCResponse<>();
@@ -151,6 +171,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.updateUnloadCarTaskStatus", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<UnloadCarTaskDto>> updateUnloadCarTaskStatus(UnloadCarTaskReq unloadCarTaskReq) {
         JdCResponse<List<UnloadCarTaskDto>> jdCResponse = new JdCResponse<>();
@@ -168,6 +189,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarTaskHelpers", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<HelperDto>> getUnloadCarTaskHelpers(String taskCode) {
         JdCResponse<List<HelperDto>> jdCResponse = new JdCResponse<>();
@@ -184,6 +206,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.updateUnloadCarTaskHelpers", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<HelperDto>> updateUnloadCarTaskHelpers(TaskHelpersReq taskHelpersReq) {
         JdCResponse<List<HelperDto>> jdCResponse = new JdCResponse<>();
@@ -198,6 +221,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarTaskScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<UnloadCarTaskDto>> getUnloadCarTaskScan(TaskHelpersReq taskHelpersReq) {
         JdCResponse<List<UnloadCarTaskDto>> jdCResponse = new JdCResponse<>();
@@ -212,23 +236,30 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.startUnloadTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<Void> startUnloadTask(UnloadCarTaskReq unloadCarTaskReq) {
         JdCResponse<Void> jdcResponse = new JdCResponse<>();
-        if (unloadCarTaskReq == null) {
-            jdcResponse.toError("参数错误");
-            return jdcResponse;
-        }
-        InvokeResult<Void> result = loadAndUnloadVehicleResource.startUnloadTask(unloadCarTaskReq);
-        if (!Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
-            jdcResponse.toError(result.getMessage());
-            return jdcResponse;
-        }
-        jdcResponse.toSucceed(result.getMessage());
-        jdcResponse.setData(result.getData());
+        try {
+           if (unloadCarTaskReq == null) {
+               jdcResponse.toError("参数错误");
+               return jdcResponse;
+           }
+           InvokeResult<Void> result = loadAndUnloadVehicleResource.startUnloadTask(unloadCarTaskReq);
+           if (!Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+               jdcResponse.toError(result.getMessage());
+               return jdcResponse;
+           }
+           jdcResponse.toSucceed(result.getMessage());
+           jdcResponse.setData(result.getData());
+           return jdcResponse;
+       }catch (Exception e){
+           logger.error("卸车任务开始接口异常={}",e);
+       }
         return jdcResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.unloadScan", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest req) {
         JdCResponse<UnloadScanDetailDto> jdCResponse = new JdCResponse<UnloadScanDetailDto>();
@@ -245,6 +276,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return jdCResponse;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.packageCodeScanNew", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdVerifyResponse<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest req) {
         JdVerifyResponse<UnloadScanDetailDto> response = new JdVerifyResponse<>();
@@ -282,6 +314,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return response;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.waybillScanNew", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadScanDetailDto> response = new JdCResponse<>();
@@ -310,6 +343,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         return code;
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.createUnloadTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<String> createUnloadTask(CreateUnloadTaskReq req) {
         JdCResponse<String> jdCResponse = new JdCResponse<>();
@@ -377,4 +411,51 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         jdCResponse.setData(sealCarCode);
         return jdCResponse;
     }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.combinationBoardComplete", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public JdCResponse<Void> combinationBoardComplete(UnloadCarScanRequest request) {
+        JdCResponse<Void> jdcResponse = new JdCResponse<>();
+        if (request == null || StringUtils.isBlank(request.getBoardCode())) {
+            jdcResponse.toFail("板号不能为空");
+            return jdcResponse;
+        }
+        try {
+            Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(request.getBoardCode());
+            // 关板失败
+            if (!JdResponse.CODE_OK.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()) {
+                logger.warn("组板完成调用TC关板失败,板号：{}，关板结果：{}", request.getBoardCode(), JsonHelper.toJson(closeBoardResponse));
+                jdcResponse.toFail(closeBoardResponse.getMesseage());
+                return jdcResponse;
+            }
+            jdcResponse.toSucceed();
+            return jdcResponse;
+        } catch (Exception e) {
+            logger.error("组板完成调用TC关板异常：板号={}" , request.getBoardCode(), e);
+            jdcResponse.toError("组板完成发生异常");
+            return jdcResponse;
+        }
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarHistoryHelper", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp) {
+        if(logger.isInfoEnabled()) {
+            logger.info("LoadAndUnloadCarGatewayServiceImpl.getUnloadCarHistoryHelper--begin--参数={}", erp);
+        }
+        JdCResponse<List<String>> jdcResponse = new JdCResponse<>();
+        if (StringUtils.isBlank(erp)) {
+            jdcResponse.toFail("参数不能为空");
+            return jdcResponse;
+        }
+        try {
+            return unloadCarService.getUnloadCarHistoryHelper(erp);
+        } catch (Exception e) {
+            logger.info("LoadAndUnloadCarGatewayServiceImpl.getUnloadCarHistoryHelper--error--参数={}", erp, e);
+            jdcResponse.toError("查询卸车协助人历史记录失败");
+            return jdcResponse;
+        }
+    }
+
+
 }

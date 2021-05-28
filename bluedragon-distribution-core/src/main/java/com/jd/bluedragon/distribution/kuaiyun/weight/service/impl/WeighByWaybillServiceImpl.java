@@ -40,6 +40,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,9 +52,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -223,6 +223,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
+        }else if(waybill.getWaybillSign() != null && BusinessUtil.needWeighingSquare(waybill.getWaybillSign())){
+            //waybillsign66=3
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNeedPackageWeightException);
         }
 
         //校验是否已经妥投
@@ -549,6 +552,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param vo
      */
     private void sendWaybillTrace(WaybillWeightVO vo){
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WeighByWaybillServiceImpl.sendWaybillTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = this.getWaybillStatus(vo);
             // 添加到task表
@@ -556,6 +560,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         } catch (Exception e) {
             log.error("B网转C网全称跟踪发送失败:{}",JsonHelper.toJson(vo), e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.loadAndUnload.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.TmsSealCar;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
@@ -106,6 +108,11 @@ public interface UnloadCarService {
     boolean insertUnloadCar(TmsSealCar tmsSealCar);
 
     /**
+     * 根据封车编码查询卸车任务
+     */
+    public UnloadCar selectBySealCarCode(String sealCarCode);
+
+    /**
      * 获取分配给责任人的任务
      *
      * @param unloadCarTaskReq
@@ -161,5 +168,18 @@ public interface UnloadCarService {
      */
     InvokeResult<String> interceptValidateUnloadCar(String barCode);
 
+    /***
+     * KA运单拦截
+     */
+    InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
 
+    /**
+     * 卸车扫描(空任务卸车最新版)
+     */
+    InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request);
+
+    JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
+
+    //卸车任务补全司机信息。
+    public void distributeUnloadCarTask(TmsSealCar tmsSealCar);
 }

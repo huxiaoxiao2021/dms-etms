@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressCondit
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -15,12 +16,6 @@ import java.util.List;
  *
  */
 public interface BusinessReturnAdressService extends Service<BusinessReturnAdress> {
-	/**
-	 * 获取导出数据
-	 * @param businessReturnAdressCondition
-	 * @return
-	 */
-	List<List<Object>> queryBusinessReturnAdressExcelData(BusinessReturnAdressCondition businessReturnAdressCondition);
 	/**
 	 * 分页查询
 	 * @param businessReturnAdressCondition
@@ -73,4 +68,11 @@ public interface BusinessReturnAdressService extends Service<BusinessReturnAdres
      * @param businessId
      */
     int updateStatusByBusinessId(Integer businessId);
+
+	/**
+	 * 数据导出
+	 * @param businessReturnAdressCondition
+	 * @param bfw
+	 */
+	void export(BusinessReturnAdressCondition businessReturnAdressCondition, BufferedWriter bfw);
 }

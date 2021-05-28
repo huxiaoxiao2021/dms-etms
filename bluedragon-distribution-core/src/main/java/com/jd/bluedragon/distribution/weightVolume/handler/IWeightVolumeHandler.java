@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 
 /**
  * <p>
@@ -13,5 +14,7 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 public interface IWeightVolumeHandler {
 
     InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity);
+
+    InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition);
 
 }

@@ -272,4 +272,38 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
+
+
+    /**
+     * 暂存类型枚举值
+     */
+    public enum PreSellTypeEnum {
+        TOWAREHOUSE(1,"预售暂存到仓"),
+        TODELIVERY(2,"预售暂存到配");
+        //值
+        private Integer value;
+        //名
+        private String name;
+
+        PreSellTypeEnum(Integer value, String name) {
+            this.value = value;
+            this.name = name;
+        }
+
+        public Integer getValue() {
+            return value;
+        }
+
+        public void setValue(Integer value) {
+            this.value = value;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
 }

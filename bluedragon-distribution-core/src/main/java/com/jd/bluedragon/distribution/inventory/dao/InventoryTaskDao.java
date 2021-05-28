@@ -66,10 +66,6 @@ public interface InventoryTaskDao extends Dao<InventoryTask> {
      */
     List<InventoryTask> getInventoryTaskByCreateUser(Integer createSiteCode,Integer createUserCode);
 
-    /**
-     * 查询导出数量
-     */
-    int getExportCountByCondition(InventoryTaskCondition pagerCondition);
 
     /**
      * 查询导出结果

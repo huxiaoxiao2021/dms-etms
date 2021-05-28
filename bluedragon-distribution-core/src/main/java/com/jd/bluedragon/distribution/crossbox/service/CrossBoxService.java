@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
+import java.io.BufferedWriter;
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +25,6 @@ public interface CrossBoxService {
     int deleteById(CrossBox crossDmsBox);
 
     String handleCrossBoxData(List<CrossBox> data, String userName);
-
-    List<List<Object>> getExportDataByCrossBox(CrossBoxRequest paramDto);
 
     int activeCrossBox(Task task);
 
@@ -49,4 +48,6 @@ public interface CrossBoxService {
     public BoxResponse getCrossDmsBoxByBoxCode(String boxCode);
 
     public CrossBoxResult<CrossBox> getCrossDmsBoxByOriAndDes(Integer originalDmsId, Integer destinationDmsId);
+
+    void export(CrossBoxRequest crossBoxRequest, BufferedWriter bfw);
 }

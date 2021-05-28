@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsExceptionScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingScanningReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.GoodsExceptionScanningDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetailDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.ExceptionScanDto;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanException;
@@ -17,13 +21,16 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -44,6 +51,11 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
     @Resource
     private LoadScanCacheService loadScanCacheService;
 
+    @Autowired
+    WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
     @Override
     @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.goodsRemoveScanning",
@@ -532,6 +544,12 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             // 勾选【包裹号转大宗】
             if (GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL.equals(req.getTransfer())) {
                 log.info("暂存包裹--包裹号转大宗：taskId={},packageCode={}", req.getTaskId(), req.getPackageCode());
+                int packageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+                if(packageNum < uccPropertyConfiguration.getDazongPackageOperateMax()){
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    response.setMessage("此单非大宗超量运单，请进行逐包裹扫描操作！");
+                    return response;
+                }
                 return loadScanService.saveLoadScanByWaybillCode(req, response, loadCar);
             }
         }
@@ -557,6 +575,95 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             return response;
         }
         return loadScanService.findUnloadPackages(req, response);
+    }
+
+    //跟进传入信息，判断对应的运单是否已经妥投，使用场景新老订单误扫问题现场判断是否继续操作，后续使用请加入当前知道的使用场景，谢谢。
+    @Override
+    @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.checkWaybillIsFinish",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    public JdVerifyResponse<Void> checkWaybillIsFinish(String scanBarString) {
+        JdVerifyResponse<Void> response = new JdVerifyResponse<>();
+        response.setCode(JdCResponse.CODE_SUCCESS);
+        //返回信息的类型 共4种，便于app匹配接下来的动作.
+        //参数校验缺一不可.
+        if(StringUtils.isEmpty(scanBarString)){
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，缺少相应的包裹号或者运单号,请检查是否扫描.");
+            return response;
+        }
+
+        Boolean  isPackage = WaybillUtil.isPackageCode(scanBarString);
+        Boolean  isWaybillCode = WaybillUtil.isWaybillCode(scanBarString);
+        String  waybillCode = null;
+        //
+        if(isPackage){
+            waybillCode = WaybillUtil.getWaybillCode(scanBarString);
+        }else if(isWaybillCode){
+            waybillCode = scanBarString;
+        }else{
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，输入的信息非法,请输入包裹号或者运单号!传入信息为:"+scanBarString);
+            return response;
+        }
+        if(StringUtils.isEmpty(waybillCode)){
+            response.setCode(JdCResponse.CODE_FAIL);
+            response.setMessage("判断运单是否妥投，根据入参获取到的运单号为空!传入信息为:"+scanBarString);
+            return response;
+        }
+        Boolean isFinished = waybillTraceManager.isWaybillFinished(waybillCode);
+        if(isFinished){
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
+//            response.setCode(JdCResponse.CODE_CONFIRM);
+            msgBox.setMsg("运单已妥投,请确认是否继续操作.传入信息:"+scanBarString);
+            response.addBox(msgBox);
+        }
+        return response;
+    }
+
+    @JProfiler(jKey = "DMS.BASE.GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
+        JdCResponse<LoadScanDetailDto> res = new JdCResponse<>();
+        try{
+            if(uccPropertyConfiguration.getInspectNoSendNoLoadWaybillDemotion()){
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("该服务已操作降级处理，暂时不支持查询，请联系研发处理");
+                return res;
+            }
+            if(req == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求参数不能为空");
+                return res;
+            }
+            if(log.isInfoEnabled()) {
+                log.info("GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail---begin---parameter=【{}】", JsonHelper.toJson(req));
+            }
+            if(req.getUser() == null || StringUtils.isBlank(req.getUser().getUserErp())) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求人Erp不能为空");
+                return res;
+            }
+            if(req.getTaskId() == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("请求任务ID不能为空");
+                return res;
+            }
+            if(req.getCreateSiteCode() == null) {
+                res.setCode(JdCResponse.CODE_FAIL);
+                res.setMessage("当前操作场地ID不能为空");
+                return res;
+            }
+
+            return loadScanService.getInspectNoSendNoLoadWaybillDetail(req);
+
+        }catch (Exception e) {
+            log.error("GoodsLoadScanGatewayServiceImpl.getInspectNoSendNoLoadWaybillDetail---error---parameter=【{}】", JsonHelper.toJson(req), e);
+            res.setCode(JdCResponse.CODE_ERROR);
+            res.setMessage("操作失败");
+            return res;
+        }
     }
 
 

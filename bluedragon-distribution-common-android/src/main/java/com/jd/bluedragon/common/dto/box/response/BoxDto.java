@@ -47,6 +47,18 @@ public class BoxDto implements Serializable{
      **/
     private Integer siteType;
 
+    /**
+     * 箱号类型
+     */
+    private String  boxType;
+
+    /**
+     * 循环集包袋
+     */
+    private String materialCode;
+
+    public BoxDto() {
+    }
 
     public String getBoxCode() {
         return boxCode;
@@ -102,5 +114,21 @@ public class BoxDto implements Serializable{
 
     public void setSiteType(Integer siteType) {
         this.siteType = siteType;
+    }
+
+    public String getBoxType() {
+        return boxType;
+    }
+
+    public void setBoxType(String boxType) {
+        this.boxType = boxType;
+    }
+
+    public String getMaterialCode() {
+        return materialCode;
+    }
+
+    public void setMaterialCode(String materialCode) {
+        this.materialCode = materialCode;
     }
 }

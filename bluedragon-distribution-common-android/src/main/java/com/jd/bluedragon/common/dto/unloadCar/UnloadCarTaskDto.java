@@ -22,6 +22,10 @@ public class UnloadCarTaskDto implements Serializable {
     private Integer packageNum;
     private Integer taskStatus;
     private String taskStatusName;
+    /**
+     * 卸车模式: 1-人工, 0-流水线
+     */
+    private Integer type;
 
     public Integer getSerialNumber() {
         return serialNumber;
@@ -101,5 +105,13 @@ public class UnloadCarTaskDto implements Serializable {
 
     public void setTaskStatusName(String taskStatusName) {
         this.taskStatusName = taskStatusName;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

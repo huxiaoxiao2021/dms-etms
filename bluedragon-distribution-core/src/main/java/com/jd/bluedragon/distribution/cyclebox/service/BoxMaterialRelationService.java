@@ -31,4 +31,13 @@ public interface BoxMaterialRelationService {
      * @return
      */
     BoxMaterialRelation getDataByBoxCode(String boxCode);
+
+    /**
+     * 根据集包袋编号查询单条数据
+     * @param materialCode
+     * @return
+     */
+    BoxMaterialRelation getDataByMaterialCode(String materialCode);
+
+    int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation);
 }

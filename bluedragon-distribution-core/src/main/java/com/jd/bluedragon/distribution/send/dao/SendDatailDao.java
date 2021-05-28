@@ -363,15 +363,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     /**
-     * 根据始发分拣中心，目的分拣中心，包裹号查询一条发货记录
+     * 根据始发分拣中心，目的分拣中心，批次号、包裹号查询一条发货记录
      * @param sendDetail
      * @return
      */
     public SendDetail queryOneSendDetailByPackageCode(SendDetail sendDetail){
         if (sendDetail == null || sendDetail.getCreateSiteCode() == null ||
                 sendDetail.getReceiveSiteCode() == null ||
+                StringUtils.isBlank(sendDetail.getSendCode()) ||
                 StringUtils.isBlank(sendDetail.getPackageBarcode())) {
-            throw new IllegalArgumentException("始发分拣、目的分拣、包裹号不能为空.");
+            throw new IllegalArgumentException("始发分拣、目的分拣、批次号、包裹号不能为空.");
         }
         return this.getSqlSession().selectOne(namespace+".queryOneSendDetailByPackageCode",sendDetail);
     }

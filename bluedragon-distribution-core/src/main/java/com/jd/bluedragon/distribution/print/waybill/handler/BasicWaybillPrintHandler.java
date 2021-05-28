@@ -359,6 +359,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(isPackageHavePickUpOrNo){
                 pickUpMap = waybillQueryManager.doGetPackageVasInfo(waybillCode);
             }
+            //包裹维度商品信息展示 waybillsign 66=3 展示;否则不展示
+            Map<String,String> packageNameMap = new HashMap<>();
+            boolean isPrintPackageNameOrNo = BusinessUtil.needPrintPackageName(tmsWaybill.getWaybillSign());
+            if(isPrintPackageNameOrNo){
+                packageNameMap = waybillQueryManager.doGetPackageGoodsVasInfo(waybillCode);
+            }
             List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
                 for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
@@ -366,11 +372,16 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageCode(item.getPackageBarcode());
                     //设置包裹增值服务信息
                     pack.setPackageSpecialRequirement(pickUpMap.get(item.getPackageBarcode()));
+                    //设置包裹商品名称
+                    pack.setPackageGoodsName(packageNameMap.get(item.getPackageBarcode()));
                     //设置包裹序号和包裹号后缀
                     pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
-                    pack.setWeightAndUnit(item.getGoodWeight(), Constants.MEASURE_UNIT_NAME_KG);
+                    if(NumberHelper.gt0(item.getAgainWeight())){
+                        pack.setWeightAndUnit(item.getAgainWeight(), Constants.MEASURE_UNIT_NAME_KG);
+                    }
+
                     packageList.add(pack);
                 }
             }
@@ -538,7 +549,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 for(PrintPackage pack : commonWaybill.getPackList()){
                     DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
                     if(deliveryPackageD != null){
-                    	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
+                    	//设置包裹重量，使用AgainWeight
                     	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
                             pack.setWeightAndUnit(deliveryPackageD.getAgainWeight(), Constants.MEASURE_UNIT_NAME_KG);
                         }

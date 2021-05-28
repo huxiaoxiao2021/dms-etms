@@ -77,6 +77,9 @@ public class DateHelper {
     public static final String DATE_FORMAT_YYYYMMDD = "yyyy-MM-dd";
 
     public static final String DATE_FORMAT_HHmmss = "HH:mm:ss";
+
+    public static final String DATE_FORMATE_yyyyMMdd = "yyyyMMdd";
+
     /**
      * 日期-格式yyyy-MM-dd HH:mm
      */
@@ -489,6 +492,18 @@ public class DateHelper {
 				&& sendCarTimeStr.length() >= SEND_CAR_TIME_LENGTH) {
 			String timeStr = sendCarTimeStr.substring(sendCarTimeStr.length() - SEND_CAR_TIME_LENGTH);
 			return DateHelper.parseDate(String.format(SEND_CAR_TIME_FORMAT, dayStr,timeStr), DateHelper.DATE_TIME_FORMAT_YYYY_MM_DD_HH_MM);
+		}
+		return null;
+    }
+    /**
+     * 运输时间截取时间
+     * @param sendCarTimeStr 1D10:10
+     * @return
+     */
+    public static String subTmsCarTime(String sendCarTimeStr) {
+		if(StringHelper.isNotEmpty(sendCarTimeStr)
+				&& sendCarTimeStr.length() >= SEND_CAR_TIME_LENGTH) {
+			return sendCarTimeStr.substring(sendCarTimeStr.length() - SEND_CAR_TIME_LENGTH);
 		}
 		return null;
     }

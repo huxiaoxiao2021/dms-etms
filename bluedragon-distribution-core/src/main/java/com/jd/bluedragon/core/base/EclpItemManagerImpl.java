@@ -128,7 +128,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
             request.setInboundSource(inboundSource);
             response = inboundOrderService.cancelInboundOrder(request);
 
-            result = STRINGAPIRESPONE_SUCCESS == response.getCode();
+            result = (STRINGAPIRESPONE_SUCCESS == response.getCode() || NON_EXISTENT == response.getCode());
 
             if(!result){
                 log.warn("EclpItemManagerImpl-cancelInboundOrder返回失败{},{},{},{}",deptNo,isvInboundOrderNo,inboundSource,JsonHelper.toJson(response));

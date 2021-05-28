@@ -75,5 +75,15 @@ public interface GoodsLoadScanGatewayService {
      */
     JdCResponse<List<String>> findUnloadPackages(GoodsLoadingScanningReq req);
 
+    /**
+     * 校验对应的包裹或者运单是否妥投.
+     */
+    JdVerifyResponse<Void> checkWaybillIsFinish(String scanBarString);
+
+
+    /**
+     * 获取已验未发、未装车的运单明细
+     */
+    JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req);
 
 }

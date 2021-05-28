@@ -75,4 +75,10 @@ public interface WaybillPackageManager {
      * @return
      */
     Page<PackFlowDetail> getOpeDetailByCode(String waybillCode,Page<PackFlowDetail> page);
+
+    /**
+     * 根据包裹号获取包裹信息
+     * @Param packageCode 包裹号
+     */
+    DeliveryPackageD getPackageInfoByPackageCode(String packageCode);
 }

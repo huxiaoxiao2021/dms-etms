@@ -235,6 +235,13 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC = 15500;
     public static final Integer WAYBILL_STATUS_DOWNAWAY_STORAGE_KYZC = 15600;
 
+    /**
+     * 弃件暂存全程跟踪
+     */
+    public static final Integer WAYBILL_TRACK_WASTE_WAYBILL = 16800;
+    public static final String WAYBILL_TRACK_WASTE_WAYBILL_MSG = "已操作弃件暂存";
+
+
     private Long id;
 
     private String sendCode;

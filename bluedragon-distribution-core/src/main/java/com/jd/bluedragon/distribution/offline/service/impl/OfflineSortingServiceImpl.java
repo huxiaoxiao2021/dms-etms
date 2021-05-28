@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.offline.service.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import org.apache.commons.lang.StringUtils;
@@ -13,8 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
@@ -58,6 +54,8 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	private InspectionDao inspectionDao;
 	@Autowired
 	private OperationLogService operationLogService;    //操作日志service
+	@Autowired
+	private IOfflineTaskCheckBusinessInterceptService offlineTaskCheckBusinessInterceptService;
 
 	public static final String OFFLINE_SORTING_REMARK = "离线分拣";    //离线分拣操作备注
 
@@ -75,14 +73,16 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				List<DeliveryPackageD> packageList = baseEntity.getData();
 				if (packageList != null && packageList.size() > 0) {
 					for (DeliveryPackageD deliveryPackageD : packageList) {
-						request.setPackageCode(deliveryPackageD
-								.getPackageBarcode());
+						request.setPackageCode(deliveryPackageD.getPackageBarcode());
 						Task task = this.toTask(request);
 						if (task == null) {
 							request.setPackageCode(null);
 							return 0;
 						}
+						log.info("OfflineSortingServiceImpl.insert task {}", JsonHelper.toJson(task));
 						int m = this.taskService.add(task);
+						// 发送拦截需要的mq消息
+						this.sendOfflineSortingBusinessInterceptTaskMq(task);
 						addOperationLog(request,"OfflineSortingServiceImpl#insert");    //添加离线分拣操作日志
 						request.setPackageCode(null);
 						n += m;
@@ -102,7 +102,9 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 				log.warn("离线分拣数据转task失败:{}",request);
 				return 0;
 			}
+			log.info("OfflineSortingServiceImpl.insert task {}", JsonHelper.toJson(task));
 			n = this.taskService.add(task);
+			this.sendOfflineSortingBusinessInterceptTaskMq(task);
 			addOperationLog(request,"OfflineSortingServiceImpl#insert");    //添加离线分拣操作日志
 			if(n==0){
 				log.warn("离线分拣:执行新增task返回结果为0");
@@ -111,6 +113,23 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		}
 		return n;
 	}
+
+    /**
+     * 增加离线处理mq
+     * @param task 任务
+     */
+    private void sendOfflineSortingBusinessInterceptTaskMq(Task task) {
+        String body = task.getBody();
+        OfflineLogRequest[] offlineLogRequests = JsonHelper.jsonToArray(body, OfflineLogRequest[].class);
+        if (offlineLogRequests == null) {
+            return;
+        }
+        List<OfflineLogRequest> offlineLogRequestsList = new ArrayList<>(Arrays.asList(offlineLogRequests));
+        for (OfflineLogRequest offlineLogRequest : offlineLogRequestsList) {
+            offlineLogRequest.setTaskType(Task.TASK_TYPE_SORTING);
+        }
+        offlineTaskCheckBusinessInterceptService.batchSendOfflineTaskMq(offlineLogRequestsList);
+    }
 
 	/**
 	 * 封箱

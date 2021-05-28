@@ -27,6 +27,17 @@ public class NoticeDao extends BaseDao<Notice> {
     }
 
     /**
+     * 按条件查询一行数据
+     * @param noticeQuery 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2020-07-02 16:27:55 周四
+     */
+    public Notice selectOne(NoticeQuery noticeQuery) {
+        return this.getSqlSession().selectOne(NoticeDao.NAMESPACE + ".selectOne", noticeQuery);
+    }
+
+    /**
      * 按条件查询总数
      * @param noticeQuery 查询参数
      * @return 数据列表

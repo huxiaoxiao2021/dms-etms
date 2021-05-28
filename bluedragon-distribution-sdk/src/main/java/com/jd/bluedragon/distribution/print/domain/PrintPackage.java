@@ -18,7 +18,7 @@ public class PrintPackage implements Serializable {
     /**
      * 包裹重量
      */
-    private Double weight;
+    private Double weight=0.00;
 
     /**
      * 包裹是否已打印
@@ -33,7 +33,7 @@ public class PrintPackage implements Serializable {
     /**
      * 包裹重量
      */
-    public String packageWeight;
+    public String packageWeight="";
 
     /**
      * 包裹号后缀
@@ -49,6 +49,19 @@ public class PrintPackage implements Serializable {
      * 包裹增值服务信息
      */
     public String packageSpecialRequirement;
+
+    /**
+     * 包裹维度商品名称
+     */
+    public String packageGoodsName;
+
+    public String getPackageGoodsName() {
+        return packageGoodsName;
+    }
+
+    public void setPackageGoodsName(String packageGoodsName) {
+        this.packageGoodsName = packageGoodsName;
+    }
 
     public String getPackageSpecialRequirement() {
         return packageSpecialRequirement;
@@ -103,6 +116,7 @@ public class PrintPackage implements Serializable {
         	}
     	}else{
     		this.packageWeight = "";
+            this.weight = 0.00;
     	}
     }
     /**

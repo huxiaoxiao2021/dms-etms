@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWei
 import com.jd.bluedragon.distribution.merchantWeightAndVolume.domain.MerchantWeightAndVolumeDetail;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
+import java.io.BufferedWriter;
 import java.util.List;
 
 /**
@@ -37,8 +38,9 @@ public interface MerchantWeightAndVolumeWhiteListService {
     /**
      * 获取所有数据
      * @param condition
+     * @param bfw
      * @return*/
-    List<List<Object>> getExportData(MerchantWeightAndVolumeCondition condition);
+    void getExportData(MerchantWeightAndVolumeCondition condition, BufferedWriter bfw);
 
 
     /**

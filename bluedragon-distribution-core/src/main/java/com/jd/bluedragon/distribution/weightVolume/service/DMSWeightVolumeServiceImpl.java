@@ -1,21 +1,35 @@
 package com.jd.bluedragon.distribution.weightVolume.service;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * <p>
@@ -42,8 +56,12 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     @Value("${businessIntercept.dispose.node.weightAndVolume}")
     private Integer disposeNodeWeightAndVolume;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity, boolean isSync) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.success();
@@ -106,8 +124,74 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.dealWeightAndVolume.sync", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> dealWeightAndVolume(WeightVolumeEntity entity) {
         /* 同步处理 */
         return this.dealWeightAndVolume(entity,true);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.weightVolumeRuleCheck", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
+        return weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.weightVolumeExcessDeal", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public String weightVolumeExcessDeal(WeightVolumeCondition condition) {
+        if(!isCInternet(condition.getBarCode())){
+            return null;
+        }
+        JSONObject remark = new JSONObject();
+        if(condition.getWeight() > WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C){
+            remark.put("weight",condition.getWeight());
+            condition.setWeight(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C)));
+        }
+        if(!Objects.equals(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name(),condition.getSourceCode())){
+            return remark.isEmpty() ? null : remark.toJSONString();
+        }
+        if(condition.getVolume() == null || condition.getVolume() <= Constants.DOUBLE_ZERO){
+            condition.setVolume(condition.getLength()*condition.getWidth()*condition.getHeight());
+        }
+        if(condition.getVolume() > WeightVolumeRuleConstant.VOLUME_MAX_LIMIT_RECORD_C
+                || condition.getLength() * condition.getWidth() * condition.getHeight() > WeightVolumeRuleConstant.VOLUME_MAX_LIMIT_RECORD_C){
+            remark.put("volume",condition.getVolume());
+            condition.setVolume(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.VOLUME_MAX_LIMIT_RECORD_C)));
+        }
+        if(condition.getLength() > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C){
+            remark.put("length",condition.getLength());
+            condition.setLength(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C)));
+        }
+        if(condition.getWidth() > Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C))){
+            remark.put("width",condition.getWidth());
+            condition.setWidth(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C)));
+        }
+        if(condition.getHeight() > Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C))){
+            remark.put("height",condition.getHeight());
+            condition.setHeight(Double.parseDouble(String.valueOf(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C)));
+        }
+        return remark.isEmpty() ? null : remark.toJSONString();
+    }
+
+    /**
+     * 判断是否是C网运单
+     * @param barCode
+     * @return
+     */
+    private boolean isCInternet(String barCode) {
+        // 是否C网标识
+        boolean isCInternet = false;
+        try {
+            if(WaybillUtil.isWaybillCode(barCode) || WaybillUtil.isPackageCode(barCode)){
+                BaseEntity<String> baseEntity
+                        = waybillQueryManager.getWaybillSignByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+                if(baseEntity != null && BusinessUtil.isCInternet(baseEntity.getData())){
+                    isCInternet = true;
+                }
+            }
+        }catch (Exception e){
+            logger.error("根据单号{}查询运单异常!",barCode);
+        }
+        return isCInternet;
     }
 }

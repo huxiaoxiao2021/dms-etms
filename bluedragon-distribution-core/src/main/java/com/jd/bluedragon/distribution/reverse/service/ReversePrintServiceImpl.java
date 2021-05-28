@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.eclp.EclpImportServiceManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -180,6 +181,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private BasicTraderIntegrateOutAPI basicTraderIntegrateOutAPI;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
@@ -627,7 +631,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return result;
         }
 
-        //2.获取运单信息判断是否拒收或妥投
+        //2.判断运单是否为弃件，如果是弃件禁止换单
+        if (waybillTraceManager.isWaybillWaste(wayBillCode)){
+            result.setData(false);
+            result.setMessage("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+            return result;
+        }
+
+        //3.获取运单信息判断是否拒收或妥投
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillM(true);
@@ -642,18 +653,18 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             return result;
         }
         WaybillManageDomain wdomain = waybillDto.getWaybillState();
-        //2.1妥投运单，不可以操作逆向换单
+        //3.1妥投运单，不可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_DELIVERED_CODE.equals(wdomain.getWaybillState())){
             result.setData(false);
             result.setMessage("该订单已经妥投，不能触发逆向新单");
             return result;
         }
-        //2.2拒收运单，可以操作逆向换单
+        //3.2拒收运单，可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
             reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
             return result;
         }
-        //3.查询运单是否操作异常处理
+        //4.查询运单是否操作异常处理
         AbnormalWayBill abnormalWayBill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(wayBillCode, siteCode);
         //异常操作运单，可以操作逆向换单
         if(abnormalWayBill == null || !wayBillCode.equals(abnormalWayBill.getWaybillCode())){
@@ -662,7 +673,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }else{
             reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         }
-        // 4. 校验运单暂存拦截，如果存在则不允许逆向换单
+        // 5. 校验运单暂存拦截，如果存在则不允许逆向换单
         InvokeResult<Boolean> checkClaimDamagedCancelResult = this.checkClaimDamagedCancel(wayBillCode, siteCode);
         if(!checkClaimDamagedCancelResult.getData()){
             result.setData(false);

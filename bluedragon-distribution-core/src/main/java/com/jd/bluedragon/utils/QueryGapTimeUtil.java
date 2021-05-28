@@ -40,6 +40,11 @@ public class QueryGapTimeUtil {
     public static String SEND_PRINT_RESOURCE_SOP_PRINT_QUERY = "2";
 
     public static String INSPECTION_RESOURCE_RETURN_WAREHOUSE = "3";
+
+    /**
+     * 打印交接清单导出
+     */
+    public static String SEND_PRINT_RESOURCE_EXPORT = "4";
     /**
      * 检查是否允许通过
      * @param jsonStr

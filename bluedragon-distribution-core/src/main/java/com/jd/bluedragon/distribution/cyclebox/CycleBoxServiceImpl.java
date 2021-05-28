@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
+
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
@@ -10,10 +13,18 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.OrderBindMessageRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
+import com.jd.bluedragon.distribution.api.response.box.BCGroupBinDingDto;
+import com.jd.bluedragon.distribution.api.response.box.GroupBoxDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.cyclebox.service.BoxMaterialRelationService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.impl.FuncSwitchConfigServiceImpl;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -23,21 +34,23 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
@@ -72,7 +85,20 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     BoxMaterialRelationService boxMaterialRelationService;
 
     @Autowired
+    private BoxService boxService;
+
+    @Autowired
+    private FuncSwitchConfigServiceImpl funcSwitchConfigService;
+
+    @Autowired
+    private GroupBoxService groupBoxService;
+
+    @Autowired
     private SendMManager sendMManager;
+
+    @Value("${materialCode.bind.boxCode.send.time:4}")
+    private Integer materialCodeBoxCodeSendTime;
+
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
@@ -327,6 +353,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CycleBoxServiceImpl.boxMaterialRelationAlter", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request){
         InvokeResult result = new InvokeResult();
         result.success();
@@ -340,6 +367,27 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
 
+        // 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
+        if(boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())){
+            queryPara.setBoxCode(boxMaterial.getBoxCode());
+            queryPara.setCreateSiteCode(request.getSiteCode());
+           sendMList = sendMManager.findSendMByBoxCode(queryPara);
+           //改箱号是否在四小时内已经发货
+            if (CollectionUtils.isNotEmpty(sendMList)) {
+                Date nowSubtract4Hour = DateHelper.add(new Date(), Calendar.HOUR, -4);
+                for(SendM sendM : sendMList){
+                    if(sendM.getOperateTime().getTime() > nowSubtract4Hour.getTime()){
+                        result.customMessage(InvokeResult.RESULT_RFID_BIND_BOX_SENT_CODE,
+                                InvokeResult.RESULT_RFID_BIND_BOX_SENT_MESSAGE);
+                        return result;
+                    }
+                }
+
+            }
+        }
+
+
         BoxMaterialRelation par = new BoxMaterialRelation();
         par.setBoxCode(request.getBoxCode());
         par.setMaterialCode(request.getMaterialCode());
@@ -350,22 +398,21 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         //如果从未绑定过
         if (boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
-            if (boxMaterialRelationService.add(par)>0){
+            if (boxMaterialRelationService.add(par)==0){
+                result.error("保存循环集包袋绑定关系失败！");
                 return result;
             }
-            else {
-                result.error(InvokeResult.SERVER_ERROR_MESSAGE);
-                return result;
-            }
+
         }
 
-        if (boxMaterialRelationService.update(par)>0){
+        if (boxMaterialRelationService.update(par)==0){
+            result.error("箱号已绑定其他循环集包袋，更新绑定关系失败！");
             return result;
         }
-        else {
-            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
-            return result;
-        }
+        //其他绑定了该循环集包袋的都解绑
+        int count = boxMaterialRelationService.updateUnBindByMaterialCode(par);
+        return result;
+
     }
 
     /**
@@ -383,6 +430,87 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         return result;
     }
 
+    /**
+     * 判断单个箱号绑定情况
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<BoxCodeGroupBinDingDto> checkBingResult(BoxMaterialRelationRequest request) {
+        InvokeResult<BoxCodeGroupBinDingDto> result = new InvokeResult();
+        BoxCodeGroupBinDingDto boxCodeGroupBinDingDto = new BoxCodeGroupBinDingDto();
+        result.success();
+        result.setData(boxCodeGroupBinDingDto);
+        String  boxCode  = request.getBoxCode();
+        // 1.先查询箱信息
+        Box box = boxService.findBoxByCode(boxCode);
+        if(box==null){
+            result.customMessage(InvokeResult.RESULT_NO_BOX_CODE,InvokeResult.RESULT_NO_BOX_MESSAGE);
+            return result;
+        }
+
+        //2.查询箱号绑定关系(BC非BC均查询)
+        String boxMaterialCode = this.getBoxMaterialRelation(boxCode);
+        if(StringUtils.isEmpty(boxMaterialCode)){
+            // 2.1 不是BC的不拦截
+            if(!BusinessHelper.isBCBoxType(box.getType())){
+                return result;
+            }
+
+            //2.2 判断BC箱号绑定循环集包袋拦截状态
+            if(!getBCFilterFlag(request.getSiteCode())){
+                return result;
+            }
+
+            // 未绑定循环集包袋
+            result.customMessage(InvokeResult.RESULT_BC_BOX_NO_BINDING_CODE,InvokeResult.RESULT_BC_BOX_NO_BINDING_MESSAGE);
+            return result;
+        }
+        result.getData().setBinDingMaterialCode(boxMaterialCode);
+        return result;
+    }
+
+    /**
+     * 查询分组绑定循环集包袋状态
+     * @param request
+     * @return
+     */
+    public InvokeResult<BCGroupBinDingDto> checkGroupBingResult(BoxMaterialRelationRequest request){
+        InvokeResult<BCGroupBinDingDto> result = new InvokeResult();
+        result.success();
+
+        BCGroupBinDingDto bcGroupBinDingDto = new BCGroupBinDingDto();
+         // 3.开启分组扫描添加(且是拦截状态)-查询分组绑定情况
+        List<GroupBoxDto> noBinDingList = new ArrayList<GroupBoxDto>(); // 没绑定的
+        List<GroupBoxDto> binDingList = new ArrayList<GroupBoxDto>(); // 没绑定的
+        for (GroupBoxDto  groupBoxDto: request.getGroupList()){
+            // 只统计BC 箱号类型
+            if(groupBoxDto.getBoxType().equals(BoxTypeEnum.TYPE_BC.getCode())){
+                String materialCode =  this.getBoxMaterialRelation(groupBoxDto.getBoxCode());
+                if(StringUtils.isEmpty(materialCode)){
+                    noBinDingList.add(groupBoxDto);
+                }else {
+                    groupBoxDto.setMaterialCode(materialCode);
+                    binDingList.add(groupBoxDto);
+                }
+            }
+        }
+        bcGroupBinDingDto.setBinDingList(binDingList);
+        bcGroupBinDingDto.setNoBingDingList(noBinDingList);
+        result.setData(bcGroupBinDingDto);
+
+        if(CollectionUtils.isNotEmpty(noBinDingList)){
+            result.customMessage(InvokeResult.RESULT_BC_BOX_GROUP_NO_BINDING_CODE,"同组箱号"+noBinDingList.get(0).getBoxCode()+"未绑定循环集包袋,分组共"+noBinDingList.size()+"个未绑定");
+            return result;
+        }
+        return result;
+    }
+
+
+    //获取开关状态
+    private boolean getBCFilterFlag(Integer siteCode){
+       return   funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode);
+    }
 
 
     /**

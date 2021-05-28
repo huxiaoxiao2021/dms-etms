@@ -29,7 +29,8 @@
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-	</resultMap>
+        <result column="type" property="type" javaType="java.lang.Integer" jdbcType="TINYINT" />
+    </resultMap>
 
     <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
         <id column="unload_car_id" property="unloadCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
@@ -63,7 +64,7 @@
     <sql id="Base_Column_List" >
 		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,yn
+		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,type,yn
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -147,6 +148,9 @@
             <if test="operateUserName != null and operateUserName!=''">
                 operate_user_name,
             </if>
+            <if test="type != null">
+                type,
+            </if>
             yn
         </trim>
         )
@@ -224,6 +228,9 @@
             </if>
             <if test="operateUserName != null and operateUserName!=''">
                 #{operateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="type != null">
+                #{type,jdbcType=TINYINT},
             </if>
             1
         </trim>
@@ -329,6 +336,9 @@
         status = #{status,jdbcType=TINYINT},
         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
         update_user_name = #{updateUserName, jdbcType=VARCHAR},
+        <if test="type != null">
+            type=#{type, jdbcType=TINYINT},
+        </if>
         update_time = #{updateTime, jdbcType=TIMESTAMP}
         <where>
             YN = 1
@@ -398,6 +408,12 @@
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
         and yn=1
         and status in (0,1)
+        <if test="startTime != null">
+            and create_time &gt; #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            and create_time &lt; #{endTime,jdbcType=TIMESTAMP}
+        </if>
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
@@ -415,4 +431,15 @@
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
+
+    <update id="updateStartTime" parameterType="unloadCar">
+        UPDATE unload_car
+        SET
+         start_time = #{startTime,jdbcType=TIMESTAMP},
+         update_time = #{updateTime,jdbcType=TIMESTAMP},
+         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+         update_user_name = #{updateUserName, jdbcType=VARCHAR}
+        where
+         seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and yn = 1
+    </update>
 </mapper>

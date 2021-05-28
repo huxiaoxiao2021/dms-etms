@@ -57,6 +57,7 @@
         <property name="newLogPageTips" value="${newLogPageTips:''}"/>
         <property name="oldLogPageTips" value="${newLogPageTips:''}"/>
 		<property name="offlineTaskOperateTimeCorrectHours" value="${offlineTaskOperateTimeCorrectHours:24}"/>
+		<property name="offlineTaskOperateTimeBeforeNowLimitHours" value="${offlineTaskOperateTimeBeforeNowLimitHours:96}"/>
 		<property name="automaticWeightVolumeExchangeSwitch" value="${automaticWeightVolumeExchangeSwitch:false}"/>
 		<property name="automaticWeightVolumeExchangeSiteCode" value="${automaticWeightVolumeExchangeSiteCode:''}"/>
         <property name="sealVolumeCheckSites" value="${sealVolumeCheckSites:-1}"/>
@@ -94,7 +95,27 @@
         <property name="WJPackageNumberLimit" value="${WJPackageNumberLimit}" />
 		<property name="checkBoxSendedSwitchOn" value="${checkBoxSendedSwitchOn:true}" />
 		<property name="siteQueryLimit" value="${siteQueryLimit:500}" />
-
+		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
+		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
+		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
+		<property name="offlineTaskReportInterceptSites" value="${offlineTaskReportInterceptSites:-1}"/> <!-- 离线任务处理上报拦截数据开关 -->
+		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
+		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
+		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
+		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
+		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
+		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
+		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
+		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
+		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
+		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
+		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
+        <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
+        <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
+		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
+		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
+        <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
+        <property name="spotCheckIssueControlPre" value="${spotCheckIssueControl:false}"></property>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -122,6 +143,7 @@
 				<value>uccPropertyConfiguration.newLogPageTips</value>
 				<value>uccPropertyConfiguration.oldLogPageTips</value>
 				<value>uccPropertyConfiguration.offlineTaskOperateTimeCorrectHours</value>
+				<value>uccPropertyConfiguration.offlineTaskOperateTimeBeforeNowLimitHours</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSwitch</value>
 				<value>uccPropertyConfiguration.automaticWeightVolumeExchangeSiteCode</value>
 				<value>uccPropertyConfiguration.sealVolumeCheckSites</value>
@@ -158,6 +180,27 @@
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
+                <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
+				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
+				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
+				<value>uccPropertyConfiguration.offlineTaskReportInterceptSites</value> <!-- 离线任务处理上报拦截数据开关 -->
+                <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
+				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
+				<value>uccPropertyConfiguration.oneQuerySize</value>
+				<value>uccPropertyConfiguration.printHandoverListSites</value>
+				<value>uccPropertyConfiguration.checkSiteSubType</value>
+				<value>uccPropertyConfiguration.scrollQuerySize</value>
+				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
+				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
+				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
+				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
+				<value>uccPropertyConfiguration.checkSignAndReturn</value>
+				<value>uccPropertyConfiguration.backDispatchCheck</value>
+				<value>uccPropertyConfiguration.closeAsynBufferSaveTaskToDb</value>
+				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
+				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
+				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
+				<value>uccPropertyConfiguration.spotCheckIssueControlPre</value>
 			</list>
 		</property>
 	</bean>

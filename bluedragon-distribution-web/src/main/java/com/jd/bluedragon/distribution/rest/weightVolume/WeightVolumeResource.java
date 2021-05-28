@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -34,6 +35,17 @@ public class WeightVolumeResource {
     private DMSWeightVolumeService dmsWeightVolumeService;
 
     /**
+     * 称重量方数据校验
+     * @param condition
+     * @return
+     */
+    @POST
+    @Path("/weightVolume/weightVolumeRuleCheck")
+    public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
+        return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
+    }
+
+    /**
      * 单条上传接口
      * @param condition
      * @return
@@ -42,6 +54,8 @@ public class WeightVolumeResource {
     @Path("/weightVolume/upload")
     public InvokeResult<Boolean> upload(WeightVolumeCondition condition) {
         InvokeResult<Boolean> result = new InvokeResult<>();
+        // 称重数据超额处理
+        String remark = dmsWeightVolumeService.weightVolumeExcessDeal(condition);
         WeightVolumeEntity entity = new WeightVolumeEntity()
                 .barCode(condition.getBarCode())
                 .businessType(WeightVolumeBusinessTypeEnum.valueOf(condition.getBusinessType()))
@@ -50,7 +64,7 @@ public class WeightVolumeResource {
                 .operateSiteCode(condition.getOperateSiteCode()).operateSiteName(condition.getOperateSiteName())
                 .operatorId(condition.getOperatorId()).operatorCode(condition.getOperatorCode()).operatorName(condition.getOperatorName())
                 .operateTime(new Date(condition.getOperateTime())).longPackage(condition.getLongPackage())
-                .machineCode(condition.getMachineCode());
+                .machineCode(condition.getMachineCode()).remark(remark);
         InvokeResult<Boolean> invokeResult = dmsWeightVolumeService.dealWeightAndVolume(entity, Boolean.FALSE);
         result.setCode(invokeResult.getCode());
         result.setMessage(invokeResult.getMessage());

@@ -1,16 +1,17 @@
 package com.jd.bluedragon.distribution.sendprint.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.FlowConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
@@ -31,8 +32,16 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
+import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
+import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
+import com.jd.dms.wb.report.api.dto.base.Pager;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
@@ -41,17 +50,14 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.BoardMeasureDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -108,6 +114,22 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Autowired
     private SendCodeService sendCodeService;
 
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private PrintHandoverListManager printHandoverListManager;
+
+    @Autowired
+    private FlowServiceManager flowServiceManager;
+
+    @Autowired
+    private SendDetailService sendDetailService;
+
+    @Autowired
+    private LogEngine logEngine;
+
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
     public final static Integer ASM_TYPE = Integer.parseInt(PropertiesHelper.newInstance().getValue("asm_type"));
@@ -127,6 +149,10 @@ public class SendPrintServiceImpl implements SendPrintService {
      */
     private final static int QUERY_SENDM_SIZE = 500;
 
+    private final static int THIRD_EXPORT_SUC_CODE = 201;
+
+    private final static int BATCH_SUMMARY_QUERY_ES_CODE = 10000;
+
     /**
      * 批次汇总&&批次汇总打印
      */
@@ -137,6 +163,10 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
+            // 判断是否走新汇总查询
+            if(checkGoESQuery(criteria.getSiteCode())){
+                return newBatchSummaryPrintQuery(criteria);
+            }
             SendM nSendM = tosendM(criteria);
             Date startDate = new Date();
             log.debug("打印交接清单-批次汇总开始:{}" , DateHelper.formatDate(startDate));
@@ -161,8 +191,338 @@ public class SendPrintServiceImpl implements SendPrintService {
         }finally {
             Profiler.registerInfoEnd(info);
         }
-
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tSummaryPrintResultResponse;
+    }
+
+    /**
+     * 根据es数据汇总查询
+     * @param criteria
+     * @return
+     */
+    private SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria) {
+        SummaryPrintResultResponse response = new SummaryPrintResultResponse();
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.newBatchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            // 批次对应的基础数据
+            Map<String,SummaryPrintResult> batchBasicMap = new HashMap<>();
+            // 批次对应的箱号，箱号对应的信息
+            Map<String,Map<String,SummaryPrintBoxEntity>> batchBoxMap = new HashMap<>();
+            // 批次对应的箱号集合
+            Map<String,Set<String>> batchBoxSetMap = new HashMap<>();
+
+            // 单次scroll查询数量、scroll查询最大限制次数
+            int batchSize = uccPropertyConfiguration.getScrollQuerySize();
+            int printScrollQueryCountLimit = uccPropertyConfiguration.getPrintScrollQueryCountLimit();
+
+            Pager<PrintHandoverLitQueryCondition> query = new Pager<PrintHandoverLitQueryCondition>();
+            query.setPageNo(Constants.CONSTANT_NUMBER_ONE);
+            query.setPageSize(batchSize);
+            query.setSearchVo(convertToPrintHandoverListQueryCondition(criteria, false));
+            int count = Constants.NUMBER_ZERO;
+            while (count < printScrollQueryCountLimit){
+                // 通过scrollId查询发货交接汇总数据
+                PageData<PrintHandoverListDto> printHandoverListDtoPageData = printHandoverListManager.queryPrintHandOverListByScroll(query);
+                if(printHandoverListDtoPageData == null ||  CollectionUtils.isEmpty(printHandoverListDtoPageData.getRecords())){
+                    log.warn("scroll查询发货交接清单汇总数据为空!");
+                    break;
+                }
+                // 设置scrollId值
+                query.setScrollId(printHandoverListDtoPageData.getScrollId());
+
+                // 通过明细获取单次的汇总数据
+                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxSetMap, printHandoverListDtoPageData.getRecords());
+
+                // 处理单批次的汇总数据
+                singleDealPrintHandoverData(batchBasicMap, batchBoxMap, singleSummaryPrintResult);
+
+                count ++;
+            }
+
+            // 获取最终汇总数据
+            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxSetMap, batchBoxMap);
+            if(CollectionUtils.isEmpty(list)){
+                response.setCode(JdResponse.CODE_OK_NULL);
+                response.setMessage(JdResponse.MESSAGE_OK_NULL);
+                return response;
+            }
+            response.setData(list);
+            return response;
+        }catch (Exception e){
+            log.error("批次汇总新查询异常!", e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return response;
+    }
+
+    /**
+     * 计算最终汇总数据
+     * @param batchBasicMap
+     * @param batchBoxMap
+     * @return
+     */
+    private List<SummaryPrintResult> computeFinalSummaryResult(Map<String, SummaryPrintResult> batchBasicMap,
+                                                               Map<String,Set<String>> batchBoxSetMap,
+                                                               Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap) {
+        List<SummaryPrintResult> list = new ArrayList<>();
+        if(batchBasicMap.isEmpty() || batchBoxMap.isEmpty()){
+            return null;
+        }
+        for (Map.Entry<String, SummaryPrintResult> batchEntry : batchBasicMap.entrySet()) {
+            SummaryPrintResult summaryPrintResult = batchEntry.getValue();
+            if(batchBoxSetMap.containsKey(batchEntry.getKey())){
+                // 设置箱号数量、箱+包数量
+                int boxSize = batchBoxSetMap.get(batchEntry.getKey()).size();
+                summaryPrintResult.setTotalBoxNum(boxSize);
+                summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
+            }
+            if(batchBoxMap.containsKey(batchEntry.getKey())){
+                Map<String, SummaryPrintBoxEntity> boxEntityMap = batchBoxMap.get(batchEntry.getKey());
+                summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
+            }
+            list.add(summaryPrintResult);
+        }
+        return list;
+    }
+
+    /**
+     * 处理单批次汇总数据
+     * @param batchBasicMap
+     * @param batchBoxMap
+     * @param singleSummaryPrintResult
+     */
+    private void singleDealPrintHandoverData(Map<String, SummaryPrintResult> batchBasicMap,
+                                             Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap,
+                                             List<SummaryPrintResult> singleSummaryPrintResult) {
+        if(CollectionUtils.isEmpty(singleSummaryPrintResult)){
+            return;
+        }
+        for (SummaryPrintResult summaryPrintResult : singleSummaryPrintResult) {
+            // 批次对应的基础数据处理
+            if(batchBasicMap.containsKey(summaryPrintResult.getSendCode())){
+                SummaryPrintResult computeSummaryPrintResult = batchBasicMap.get(summaryPrintResult.getSendCode());
+                computeSummaryPrintResult.setTotalPackageNum(computeSummaryPrintResult.getTotalPackageNum() + summaryPrintResult.getTotalPackageNum());
+                computeSummaryPrintResult.setTotalShouldSendPackageNum(computeSummaryPrintResult.getTotalShouldSendPackageNum() + summaryPrintResult.getTotalShouldSendPackageNum());
+                computeSummaryPrintResult.setTotalRealSendPackageNum(computeSummaryPrintResult.getTotalRealSendPackageNum() + summaryPrintResult.getTotalRealSendPackageNum());
+                computeSummaryPrintResult.setTotalBoardVolume(computeSummaryPrintResult.getTotalBoardVolume() + summaryPrintResult.getTotalBoardVolume());
+                computeSummaryPrintResult.setTotalOutVolumeDynamic(computeSummaryPrintResult.getTotalOutVolumeDynamic() + summaryPrintResult.getTotalOutVolumeDynamic());
+                computeSummaryPrintResult.setTotalOutVolumeStatic(computeSummaryPrintResult.getTotalOutVolumeStatic() + summaryPrintResult.getTotalOutVolumeStatic());
+                computeSummaryPrintResult.setTotalInVolume(computeSummaryPrintResult.getTotalInVolume() + summaryPrintResult.getTotalInVolume());
+            }else {
+                batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
+            }
+            // 批次对应的箱号，箱号对应的数据处理
+            if(batchBoxMap.containsKey(summaryPrintResult.getSendCode())){
+                // 箱号对应的数据处理
+                Map<String, SummaryPrintBoxEntity> boxEntityMap = batchBoxMap.get(summaryPrintResult.getSendCode());
+                if(CollectionUtils.isEmpty(summaryPrintResult.getDetails())){
+                    continue;
+                }
+                for (SummaryPrintBoxEntity detail : summaryPrintResult.getDetails()) {
+                    if(boxEntityMap.containsKey(detail.getBoxCode())){
+                        SummaryPrintBoxEntity summaryPrintBoxEntity = boxEntityMap.get(detail.getBoxCode());
+                        summaryPrintBoxEntity.setWaybillNum(summaryPrintBoxEntity.getWaybillNum() + detail.getWaybillNum());
+                        summaryPrintBoxEntity.setPackageBarNum(summaryPrintBoxEntity.getPackageBarNum() + detail.getPackageBarNum());
+                        summaryPrintBoxEntity.setPackageBarRecNum(summaryPrintBoxEntity.getPackageBarRecNum() + detail.getPackageBarRecNum());
+                        summaryPrintBoxEntity.setVolume(summaryPrintBoxEntity.getVolume() + detail.getVolume());
+                    }else {
+                        boxEntityMap.put(detail.getBoxCode(), detail);
+                    }
+                }
+            }else {
+                Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<>();
+                if(CollectionUtils.isEmpty(summaryPrintResult.getDetails())){
+                    continue;
+                }
+                for (SummaryPrintBoxEntity detail : summaryPrintResult.getDetails()) {
+                    boxMap.put(detail.getBoxCode(), detail);
+                }
+                batchBoxMap.put(summaryPrintResult.getSendCode(), boxMap);
+            }
+        }
+
+    }
+
+
+    /**
+     * 获取单批次的汇总数据
+     * @param records
+     * @return
+     */
+    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Set<String>> batchBoxSetMap, List<PrintHandoverListDto> records) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.getSummaryResultByPrintHandoverData", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            //按批次分类
+            Map<String,List<PrintHandoverListDto>> sendBaseMap = new HashMap<String, List<PrintHandoverListDto>>();
+            for (PrintHandoverListDto record : records) {
+                String sendCode = record.getSendCode();
+                if(sendBaseMap.containsKey(sendCode)){
+                    sendBaseMap.get(sendCode).add(record);
+                }else {
+                    List<PrintHandoverListDto> entities =  new ArrayList<PrintHandoverListDto>();
+                    entities.add(record);
+                    sendBaseMap.put(sendCode,entities);
+                }
+            }
+            //遍历批次，分别组装
+            List<SummaryPrintResult> summaryPrintResultList = new ArrayList<SummaryPrintResult>();
+            for(String sendCode : sendBaseMap.keySet()){
+                SummaryPrintResult summaryPrintResult = new SummaryPrintResult();
+                summaryPrintResult.setSendCode(sendCode);
+                summaryPrintResult.setSendSiteName(records.get(0).getCreateSiteName());
+                summaryPrintResult.setReceiveSiteName(records.get(0).getReceiveSiteName());
+                Set<String> boxSet = new HashSet<>();
+                if(batchBoxSetMap.containsKey(sendCode)){
+                    boxSet = batchBoxSetMap.get(sendCode);
+                }
+                summaryPrintResultList.add(singleSendSummary(boxSet,summaryPrintResult,sendBaseMap.get(sendCode)));
+                batchBoxSetMap.put(sendCode, boxSet);
+            }
+            return summaryPrintResultList;
+        }catch (Exception e){
+            log.error("处理单批次的汇总数据异常!", e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return null;
+    }
+
+    /**
+     * 获取单个批次号的汇总数据
+     * @param summaryPrintResult
+     * @param singlePrintHandoverList
+     * @return
+     */
+    private SummaryPrintResult singleSendSummary(Set<String> boxSet,SummaryPrintResult summaryPrintResult,List<PrintHandoverListDto> singlePrintHandoverList){
+        Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
+        List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
+
+        Integer totalBoxNum = Constants.NUMBER_ZERO ; //单个批次内的箱子数量
+        Integer totalPackageNum = Constants.NUMBER_ZERO; //单个批次内的包裹数量
+        Double totalBoardVolume = Constants.DOUBLE_ZERO;  //总的板体积
+        Double totalOutVolumeDy = Constants.DOUBLE_ZERO;  //总的应付自动测量体积
+        Double totalOutVolumeSt = Constants.DOUBLE_ZERO;  //总的应付人工测量体积
+        Double totalInVolume = Constants.DOUBLE_ZERO;     //总的应收体积
+
+        String roadCode  = null; //路区号
+        String sendTime = Constants.EMPTY_FILL;//发货时间
+
+        /** 已经处理过的板号集合，每条记录的托盘体积都是整个托盘的体积，所以只需记一次 **/
+        Set<String> boardVolumeSet = new HashSet<String>();
+        /** 已经处理过的箱号集合，每条记录的箱体积都是整个箱的体积，所以只需记一次 **/
+        Set<String> boxVolumeSet = new HashSet<String>();
+
+        //循环处理批次内的每一条记录完成统计功能
+        for(PrintHandoverListDto printHandoverListDto : singlePrintHandoverList) {
+            //取每个批次中第一单的路区号
+            if(StringUtils.isBlank(roadCode) && StringUtils.isNotBlank(printHandoverListDto.getRoadCode())){
+                roadCode = printHandoverListDto.getRoadCode();
+            }
+            //发货时间
+            if(StringUtils.isBlank(sendTime)){
+                sendTime = DateHelper.formatDateTime(new Date(printHandoverListDto.getSendTime()));
+            }
+
+            SummaryPrintBoxEntity summaryEntity = null;
+            //如果是按箱处理的，把箱里的包裹进行组装
+            if (BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())) {
+                if (boxMap.containsKey(printHandoverListDto.getBoxCode())) {
+                    summaryEntity = boxMap.get(printHandoverListDto.getBoxCode());
+                    summaryEntity.setWaybillNum(summaryEntity.getWaybillNum() + Constants.CONSTANT_NUMBER_ONE);
+                    summaryEntity.setPackageBarNum(summaryEntity.getPackageBarNum() + Constants.CONSTANT_NUMBER_ONE);
+                    summaryEntity.setPackageBarRecNum(summaryEntity.getPackageBarRecNum() + Constants.CONSTANT_NUMBER_ONE);
+                } else {
+                    summaryEntity = new SummaryPrintBoxEntity();
+                    summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
+                    summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
+                    summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
+                    summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
+                    //设置封签号、封车时间和箱的体积
+                    summaryEntity.setSealNo1(printHandoverListDto.getSealNo());
+                    summaryEntity.setSealNo2(Constants.EMPTY_FILL);
+                    summaryEntity.setLockTime(printHandoverListDto.getSealTime() == null
+                            ? null : DateHelper.formatDateTime(new Date(printHandoverListDto.getSealTime())));//封车时间
+                    summaryEntity.setVolume(Constants.DOUBLE_ZERO);
+                    boxMap.put(printHandoverListDto.getBoxCode(),summaryEntity);
+                    totalBoxNum ++;
+                }
+                boxSet.add(printHandoverListDto.getBoxCode());
+            } else {
+                //按包裹号处理的
+                summaryEntity = new SummaryPrintBoxEntity();
+                summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
+                summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
+                summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
+                summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
+                summaryEntity.setSealNo1(Constants.EMPTY_FILL);
+                summaryEntity.setSealNo2(Constants.EMPTY_FILL);
+                summaryEntity.setVolume(printHandoverListDto.getGoodVolume());
+
+                details.add(summaryEntity);
+
+                totalPackageNum ++;
+            }
+
+            /**
+             * 体积汇总逻辑：
+             * 有板体积以板的体积为主；
+             * 没有板体积，有箱体积，则以箱体积为主；
+             * 没有板体积，也没有箱体积，则以包裹体积为主；
+             */
+
+            //如果有板的体积，把已经计算过体积的板号写入boardVolumeSet，避免重复计算
+            if(StringUtils.isNotBlank(printHandoverListDto.getBoardCode()) && NumberHelper.gt0(printHandoverListDto.getBoardVolume())){
+                if(!boardVolumeSet.contains(printHandoverListDto.getBoardCode())){
+                    boardVolumeSet.add(printHandoverListDto.getBoardCode());
+                    totalBoardVolume += printHandoverListDto.getBoardVolume();
+                    totalOutVolumeSt += printHandoverListDto.getBoardVolume(); //板的体积算作静态测量体积
+                }
+            }else if(StringUtils.isNotBlank(printHandoverListDto.getBoxCode()) && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
+                //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
+                if(boxVolumeSet.contains(printHandoverListDto.getBoxCode())){
+                    continue;
+                }
+                boxVolumeSet.add(printHandoverListDto.getBoxCode());
+
+                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic();
+
+            }else{
+                //按包裹测量
+                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic();
+            }
+
+            //应收体积
+            totalInVolume += printHandoverListDto.getGoodVolume();
+        }
+
+        //map转换成list
+        details.addAll(boxMap.values());
+
+        summaryPrintResult.setSendTime(sendTime);
+        summaryPrintResult.setRoadCode(roadCode);
+        summaryPrintResult.setTotalBoxNum(totalBoxNum);
+        summaryPrintResult.setTotalPackageNum(totalPackageNum);
+        summaryPrintResult.setTotalBoxAndPackageNum(totalBoxNum+totalPackageNum);
+        summaryPrintResult.setTotalShouldSendPackageNum(singlePrintHandoverList.size());
+        summaryPrintResult.setTotalRealSendPackageNum(singlePrintHandoverList.size());
+        summaryPrintResult.setTotalBoardVolume(totalBoardVolume);
+        summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
+        summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt);
+        summaryPrintResult.setTotalInVolume(totalInVolume);
+
+        summaryPrintResult.setDetails(details);
+
+        return summaryPrintResult;
     }
 
     /**
@@ -919,6 +1279,424 @@ public class SendPrintServiceImpl implements SendPrintService {
         return sendDatailDao.queryWaybillCountBySendCode(sendDetail);
     }
 
+    @Override
+    public InvokeResult<Boolean> batchPrintExport(PrintExportCriteria printExportCriteria) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.setMessage("发货交接清单excel稍后将发送至您咚咚，请注意查收!");
+        boolean isGoESQuery = checkGoESQuery(printExportCriteria.getCreateSiteCode());
+        if(!isGoESQuery){
+            // 自定义编码10000表示：走老查询（非ES查询）
+            result.setCode(BATCH_SUMMARY_QUERY_ES_CODE);
+            result.setMessage("当前场地未开启新查询!（ES）");
+            return result;
+        }
+        // 校验是否审批
+        boolean isApproval = checkIsApproval(printExportCriteria);
+        if(isApproval){
+            result.setCode(THIRD_EXPORT_SUC_CODE);
+            result.setMessage("目的地包含三方站点需上级领导审批，审批通过后发送至您咚咚，请注意查收!");
+        }
+
+        batchPrintExportASync(printExportCriteria, isApproval);
+
+        return result;
+    }
+
+    /**
+     * 发货交接清单批量导出
+     * @param printExportCriteria
+     * @param isApproval
+     */
+    private void batchPrintExportASync(PrintExportCriteria printExportCriteria, boolean isApproval) {
+        long startTime = System.currentTimeMillis();
+        // 三方站点则接入审批
+        if(isApproval){
+            // OA数据
+            Map<String,Object> oaMap = new HashMap<>();
+            oaMap.put(FlowConstants.FLOW_OA_JMEREQNAME, FlowConstants.FLOW_FLOW_WORK_THEME_PRINT_HANDOVER);
+            oaMap.put(FlowConstants.FLOW_OA_JMEREQCOMMENTS, FlowConstants.FLOW_FLOW_WORK_REMARK_PRINT_HANDOVER);
+            List<String> mainColList = new ArrayList<>();
+            oaMap.put(FlowConstants.FLOW_OA_JMEMAINCOLLIST,mainColList);
+            PrintQueryCriteria printQueryCriteria = printExportCriteria.getList().get(0);
+            mainColList.add("发货始发地:" + toSiteName(printExportCriteria.getCreateSiteCode()));
+            mainColList.add("发货目的地:" + toSiteName(printQueryCriteria.getReceiveSiteCode()) + "...等等");
+            mainColList.add("发货开始时间:" + printQueryCriteria.getStartTime());
+            mainColList.add("发货结束时间:" + printQueryCriteria.getEndTime());
+
+            // 业务数据
+            Map<String,Object> businessMap = new HashMap<>();
+            // 设置业务唯一编码
+            businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY,FlowConstants.FLOW_CODE_PRINT_HANDOVER + Constants.SEPARATOR_VERTICAL_LINE
+                    + FlowConstants.FLOW_VERSION + Constants.SEPARATOR_VERTICAL_LINE + System.currentTimeMillis());
+            // 设置业务的查询条件
+            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, true)));
+
+            // 提交申请单
+            String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
+                    FlowConstants.FLOW_CODE_PRINT_HANDOVER, printExportCriteria.getUserCode(), String.valueOf(businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY)));
+
+            if(log.isInfoEnabled() && StringUtils.isNotEmpty(flowWorkNo)){
+                log.info("打印交接清单导出已提交申请单【{}】业务唯一标识码【{}】", flowWorkNo, businessMap.get(FlowConstants.FLOW_BUSINESS_NO_KEY));
+            }
+            // 记录businessLog
+            addBusinessLog(startTime, printExportCriteria, true, flowWorkNo);
+            return;
+        }
+        // 记录businessLog
+        addBusinessLog(startTime, printExportCriteria, false, null);
+        com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, false));
+        if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
+            log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
+        }else {
+            log.error("操作人【{}】始发地【{}】的交接清单导出失败!失败原因:{}", printExportCriteria.getUserCode(),
+                    printExportCriteria.getCreateSiteCode(), baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage());
+        }
+    }
+
+    /**
+     * 校验是否需要审批
+     * @param printExportCriteria
+     * @return
+     */
+    private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
+        for (PrintQueryCriteria item : printExportCriteria.getList()) {
+            if(Objects.equals(toSiteType(item.getReceiveSiteCode()), Constants.RETURN_PARTNER_SITE_TYPE)
+                    && switchSiteSubTypeCheck(item.getReceiveSiteCode())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 是否校验站点子类型为三方
+     * @param receiveSiteCode
+     * @return
+     */
+    private boolean switchSiteSubTypeCheck(Integer receiveSiteCode) {
+        return uccPropertyConfiguration.getCheckSiteSubType()
+                || Objects.equals(toSiteSubType(receiveSiteCode), Constants.RETURN_PARTNER_SITE_TYPE);
+    }
+
+    private void addBusinessLog(long startTime, PrintExportCriteria printExportCriteria, boolean isTripartite, String flowWorkNo) {
+        try {
+            JSONObject logRequest = new JSONObject();
+            logRequest.put("createSiteCode", printExportCriteria.getCreateSiteCode());
+            logRequest.put("operatorCode", printExportCriteria.getUserCode());
+
+            JSONObject logResponse = new JSONObject();
+            logResponse.put("isTripartite", isTripartite);
+            logResponse.put("flowWorkNo", flowWorkNo);
+
+            BusinessLogProfiler businessLogProfiler = new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(BusinessLogConstans.OperateTypeEnum.APPROVAL_START_FLOW)
+                    .methodName("SendPrintServiceImpl#batchPrintExportASync")
+                    .operateRequest(logRequest)
+                    .operateResponse(logResponse)
+                    .processTime(System.currentTimeMillis(),startTime)
+                    .build();
+            logEngine.addLog(businessLogProfiler);
+        }catch (Exception e){
+            log.error("记录businessLog日志异常!", e);
+        }
+
+    }
+
+    @Override
+    public PrintHandoverListDto buildPrintHandoverListDto(SendDetail sendDetail) {
+
+        // 获取运单对象
+        String waybillCode = StringUtils.isEmpty(sendDetail.getWaybillCode())
+                ? WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()) : sendDetail.getWaybillCode();
+        BigWaybillDto bigWaybillDto = getBigWaybillDto(waybillCode);
+        if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
+            log.warn("根据运单号{}获取运单信息为空!", waybillCode);
+            return null;
+        }
+        // 获取发货sendM对象
+        SendM sendM = getSendMDto(sendDetail);
+        if(sendM == null){
+            log.warn("根据始发{}目的{}箱号{}获取发货sendM为空!",sendDetail.getCreateSiteCode(),sendDetail.getReceiveSiteCode(),sendDetail.getBoxCode());
+            return null;
+        }
+
+        // 构建打印接交接对象的基础属性
+        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM);
+
+        // 构建打印接交接对象的运单属性
+        buildWaybillData(bigWaybillDto,printHandoverListDto);
+
+        // 构建打印接交接对象的包裹属性
+        buildPackageData(printHandoverListDto);
+
+        // 构建取件单信息
+        buildPickupData(printHandoverListDto);
+
+        // 构建打印交接清单对象的应付量方属性
+        buildDmsOutWeightData(printHandoverListDto);
+
+        // 构建打印交接清单对象的板属性
+        buildBoardVolumeData(printHandoverListDto,sendM);
+
+        // 构建打印交接清单对象的封车数据
+        buildSealCarData(printHandoverListDto);
+
+        return printHandoverListDto;
+    }
+
+    /**
+     * 获取运单数据
+     * @param waybillCode
+     * @return
+     */
+    private BigWaybillDto getBigWaybillDto(String waybillCode) {
+        BaseEntity<BigWaybillDto> baseEntity
+                = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+        return baseEntity == null ? null : baseEntity.getData();
+    }
+
+    /**
+     * 获取发货sendM记录
+     * @param sendDetail
+     * @return
+     */
+    private SendM getSendMDto(SendDetail sendDetail) {
+        SendM queryParams = new SendM();
+        queryParams.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        queryParams.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+        queryParams.setBoxCode(sendDetail.getBoxCode());
+        queryParams.setSendCode(sendDetail.getSendCode());
+        List<SendM> sendMList = sendMService.findByParams(queryParams);
+        return CollectionUtils.isEmpty(sendMList) ? null : sendMList.get(0);
+    }
+
+    /**
+     * 构建打印接交接对象的基础属性
+     * @param sendDetail
+     * @return
+     */
+    private PrintHandoverListDto buildBasicData(SendDetail sendDetail,SendM sendM) {
+        PrintHandoverListDto printHandoverListDto = new PrintHandoverListDto();
+        printHandoverListDto.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        printHandoverListDto.setCreateSiteName(toSiteName(sendDetail.getCreateSiteCode()));
+        printHandoverListDto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+        printHandoverListDto.setReceiveSiteName(toSiteName(sendDetail.getReceiveSiteCode()));
+        printHandoverListDto.setReceiveSiteType(toSiteType(sendDetail.getReceiveSiteCode()));
+
+        printHandoverListDto.setSendCode(sendDetail.getSendCode());
+        printHandoverListDto.setBoxCode(sendDetail.getBoxCode());
+        printHandoverListDto.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        printHandoverListDto.setPackageCode(sendDetail.getPackageBarcode());
+
+        printHandoverListDto.setSendUser(sendM.getCreateUser());
+        printHandoverListDto.setSendUserCode(sendM.getCreateUserCode());
+
+        printHandoverListDto.setIsCancel((Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO))));
+        printHandoverListDto.setIsNew(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
+
+        printHandoverListDto.setSendTime(sendM.getOperateTime() == null ? null : sendM.getOperateTime().getTime());
+
+        printHandoverListDto.setPackageWeight(Constants.DOUBLE_ZERO);
+        printHandoverListDto.setPackageAgainWeight(Constants.DOUBLE_ZERO);
+        printHandoverListDto.setSiteCode(Constants.NUMBER_ZERO);
+        printHandoverListDto.setFcNo(Constants.NUMBER_ZERO);
+        // 包裹还是箱号
+        printHandoverListDto.setIsPack(BusinessUtil.isBoxcode(sendDetail.getBoxCode())
+                ? Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)) : (byte)Constants.CONSTANT_NUMBER_ONE);
+
+        return printHandoverListDto;
+    }
+
+    /**
+     * 构建打印接交接对象的运单属性
+     * @param data
+     * @param printHandoverListDto
+     */
+    private void buildWaybillData(BigWaybillDto data, PrintHandoverListDto printHandoverListDto) {
+
+        Waybill waybill = data.getWaybill();
+
+        printHandoverListDto.setDeclaredValue(waybill.getCodMoney() == null ? Constants.DOUBLE_ZERO : Double.valueOf(waybill.getCodMoney()));
+        printHandoverListDto.setGoodValue(waybill.getPrice() == null ? Constants.DOUBLE_ZERO : Double.valueOf(waybill.getPrice()));
+        printHandoverListDto.setGoodWeight(waybill.getGoodWeight() == null ? Constants.DOUBLE_ZERO : waybill.getGoodWeight());
+        printHandoverListDto.setAgainWeight(waybill.getAgainWeight() == null ? Constants.DOUBLE_ZERO : waybill.getAgainWeight());
+        printHandoverListDto.setPackageNum(waybill.getGoodNumber() == null ? Constants.CONSTANT_NUMBER_ONE : waybill.getGoodNumber());
+        printHandoverListDto.setWaybillType(waybill.getWaybillType());
+        printHandoverListDto.setRoadCode(waybill.getRoadCode());
+
+        Integer oldSiteId = waybill.getOldSiteId();
+        if (oldSiteId != null) {
+            printHandoverListDto.setSiteCode(oldSiteId);
+            BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(oldSiteId);
+            printHandoverListDto.setSiteName(bDto == null ? null : bDto.getSiteName());
+            printHandoverListDto.setSiteType(bDto == null ? null : bDto.getSiteType());
+        }
+
+        // 库房号
+        printHandoverListDto.setFcNo((data.getWaybillState() == null || data.getWaybillState().getStoreId() == null)
+                ? Constants.NUMBER_ZERO : data.getWaybillState().getStoreId());
+
+        // 客户信息 fixme 站点为三方敏感数据加密处理
+        printHandoverListDto.setReceiverName(waybill.getReceiverName());
+        if (Objects.equals(printHandoverListDto.getReceiveSiteType(),BaseContants.SANFANGKUAIDI)) {
+            printHandoverListDto.setReceiverAddress(waybill.getReceiverAddress() == null ? Constants.EMPTY_FILL : waybill.getReceiverAddress());
+            printHandoverListDto.setReceiverMobile(StringUtils.isEmpty(waybill.getReceiverMobile())
+                    ? (StringUtils.isEmpty(waybill.getReceiverTel()) ? SendPrintConstants.TEXT_DOUBLE_BAR : waybill.getReceiverTel())
+                    : waybill.getReceiverMobile());
+        } else {
+            printHandoverListDto.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
+        }
+
+        // 支付方式
+        Integer payment = waybill.getPayment();
+        if (payment == null) {
+            printHandoverListDto.setPayment(Constants.NUMBER_ZERO);
+        } else {
+            printHandoverListDto.setPayment(payment);
+            if (payment != 1 && payment != 3) {
+                printHandoverListDto.setDeclaredValue(Constants.DOUBLE_ZERO);
+            }
+        }
+
+        // 是否是奢侈品、是否211时效订单
+        if (BusinessUtil.isLuxury(waybill.getSendPay())) {
+            printHandoverListDto.setLuxury(Byte.valueOf(String.valueOf(Constants.CONSTANT_NUMBER_ONE)));
+        } else {
+            printHandoverListDto.setLuxury(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
+        }
+        if (BusinessHelper.is211(waybill.getSendPay())) {
+            printHandoverListDto.setIs211(Byte.valueOf(String.valueOf(Constants.CONSTANT_NUMBER_ONE)));
+        } else {
+            printHandoverListDto.setIs211(Byte.valueOf(String.valueOf(Constants.NUMBER_ZERO)));
+        }
+    }
+
+    /**
+     * 构建打印接交接对象的包裹属性
+     * @param printHandoverListDto
+     */
+    private void buildPackageData(PrintHandoverListDto printHandoverListDto) {
+        // 包裹重量
+        DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(printHandoverListDto.getPackageCode());
+        if (deliveryPackageD != null) {
+            printHandoverListDto.setPackageWeight(deliveryPackageD.getGoodWeight());
+            printHandoverListDto.setPackageAgainWeight(deliveryPackageD.getAgainWeight());
+        }
+        // fixme：包裹体积只有汇总查询中用到，分页查询未使用(使用运单查询影响性能，最好使用包裹查询接口)
+        double packageVolume = Constants.DOUBLE_ZERO;
+//        try {
+//            BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(printHandoverListDto.getWaybillCode());
+//            if (packageOpe != null && CollectionUtils.isNotEmpty(packageOpe.getData())) {
+//                for (PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
+//                    if(!Objects.equals(packOpeFlowDto.getPackageCode(),printHandoverListDto.getPackageCode())){
+//                        continue;
+//                    }
+//                    if (null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+//                            && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+//                        packageVolume = packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh();
+//                    }
+//                }
+//            }
+//        }catch (Exception e){
+//            log.error("根据包裹号{}获取包裹体积异常!",printHandoverListDto.getPackageCode(),e);
+//        }
+        printHandoverListDto.setGoodVolume(packageVolume);
+    }
+
+    /**
+     * 构建打印交接清单-取件单信息
+     * @param printHandoverListDto
+     */
+    private void buildPickupData(PrintHandoverListDto printHandoverListDto) {
+        if(StringUtils.isEmpty(printHandoverListDto.getInvoice())){
+            return;
+        }
+        try {
+            BaseEntity<PickupTask> baseEntity = waybillPickupTaskApi.getPickTaskByPickCode(printHandoverListDto.getInvoice());
+            if(baseEntity != null && baseEntity.getData() != null){
+                PickupTask pickupTask = baseEntity.getData();
+                printHandoverListDto.setInvoice(pickupTask.getInvoiceId());
+                if (StringUtils.isNotEmpty(pickupTask.getNewWaybillCode())) {
+                    printHandoverListDto.setIsNew(Byte.valueOf(String.valueOf(Constants.CONSTANT_NUMBER_ONE)));
+                }
+            }
+        }catch (Exception e){
+            log.error("打印交接清单-根据{}获取件单基础信息调用发生异常",printHandoverListDto.getWaybillCode(),e);
+        }
+
+    }
+
+    /**
+     * 构建打印交接清单-应付量方属性
+     *  1）、如果包裹装在箱里，按照箱操作过应付量方，该包裹的体积赋值为箱的体积
+     *  2）、如果没有装在箱里，则赋值为包裹的应付体积
+     * @param printHandoverListDto
+     */
+    private void buildDmsOutWeightData(PrintHandoverListDto printHandoverListDto) {
+        Double outVolumeDynamic = Constants.DOUBLE_ZERO;
+        Double outVolumeStatic = Constants.DOUBLE_ZERO;
+        try {
+            DmsOutWeightAndVolume weightAndVolume
+                    = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(printHandoverListDto.getBoxCode(), printHandoverListDto.getCreateSiteCode());
+            if(weightAndVolume == null && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
+                weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(printHandoverListDto.getPackageCode(),printHandoverListDto.getCreateSiteCode());
+            }
+            if (weightAndVolume != null) {
+                Double volume = weightAndVolume.getVolume();
+                //将cm³转换成m³
+                volume = BigDecimalHelper.div(volume, PARAM_CM3_M3, 6);
+                if (weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
+                    outVolumeStatic = volume;
+                } else {
+                    outVolumeDynamic = volume;
+                }
+            }
+        } catch (Exception e) {
+            log.error("发货交接清单打印-明细打印-查询分拣中心[{}]操作对该箱号/包裹[{}]的体积.", printHandoverListDto.getBoxCode(), printHandoverListDto.getCreateSiteCode(), e);
+        }
+        printHandoverListDto.setDmsOutVolumeDynamic(outVolumeDynamic);
+        printHandoverListDto.setDmsOutVolumeStatic(outVolumeStatic);
+    }
+
+    /**
+     * 构建打印交接清单对象的板属性
+     * @param printHandoverListDto
+     * @param sendM
+     */
+    private void buildBoardVolumeData(PrintHandoverListDto printHandoverListDto,SendM sendM) {
+        String boardCode = sendM.getBoardCode();
+        if(StringUtils.isEmpty(boardCode)){
+            return;
+        }
+        printHandoverListDto.setBoardCode(boardCode);
+        // 板号对应的体积
+        Map<String, Double> boardVolumeMap = getBoardValueMapByBoards(Collections.singletonList(boardCode));
+
+        printHandoverListDto.setBoardVolume(boardVolumeMap.get(boardCode));
+        //板体积不为null或0 应付静态量方取板体积
+        if (printHandoverListDto.getBoardVolume() != null && NumberHelper.gt0(printHandoverListDto.getBoardVolume())) {
+            printHandoverListDto.setDmsOutVolumeStatic(printHandoverListDto.getBoardVolume());
+        }
+
+    }
+
+    /**
+     * 构建打印交接清单对象的封车数据
+     * @param printHandoverListDto
+     */
+    private void buildSealCarData(PrintHandoverListDto printHandoverListDto) {
+        try {
+            SealBox tSealBox = tSealBoxService.findByBoxCode(printHandoverListDto.getBoxCode());
+            if (tSealBox != null) {
+                printHandoverListDto.setSealNo(tSealBox.getCode());
+                printHandoverListDto.setSealTime(tSealBox.getCreateTime() == null ? null : tSealBox.getCreateTime().getTime());
+            }
+        }catch (Exception e){
+            log.error("根据箱号{}获取封车时间异常!",printHandoverListDto.getBoxCode());
+        }
+    }
+
     /**
      * 基本查询
      */
@@ -933,6 +1711,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             List<SendM> sendMs = this.selectUniquesSendMs(qSendM);
             if (sendMs != null && !sendMs.isEmpty()) {
                 tBasicQueryEntityResponse = detailPrintQuery(sendMs, criteria);
+            }else {
+                tBasicQueryEntityResponse.setCode(JdResponse.CODE_OK_NULL);
+                tBasicQueryEntityResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
             }
         } catch (Exception e) {
             Profiler.functionError(info);
@@ -945,17 +1726,35 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tBasicQueryEntityResponse;
     }
 
-    @Autowired
-    private SendDetailService sendDetailService;
+    /**
+     * 记录安全日志
+     * @param criteria
+     */
+    private void writeSecurityLog(PrintQueryCriteria criteria) {
+        try {
+            if(criteria == null || StringUtils.isEmpty(criteria.getUserCode())){
+                return;
+            }
+            SecurityLog.reportQuerySecurityLogRecordRequest(SendPrintServiceImpl.class.getName(),criteria.getUserCode(),JsonHelper.toJson(criteria));
+        }catch (Exception e){
+            log.error("打印交接清单上传安全日日志失败.入参:{}",JsonHelper.toJson(criteria),e);
+        }
+    }
 
     /**
      * 基本查询
      */
     @Override
     public BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria) {
+        // 检查是否走es查询
+        if(checkGoESQuery(criteria.getSiteCode())){
+            return basicPrintQueryForPageByES(criteria);
+        }
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQueryForPage", Constants.UMP_APP_NAME_DMSWEB, false, true);
         long startTime = System.currentTimeMillis();
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -976,7 +1775,173 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
+        // 记录安全日志
+        writeSecurityLog(criteria);
         return tBasicQueryEntityResponse;
+    }
+
+    /**
+     * 检查是否走es查询
+     *  1、字符串false表示不开启
+     *  2、字符串true表示开启全国场地的es查询
+     *  3、多个场地开启es查询以,分隔
+     * @return
+     */
+    private boolean checkGoESQuery(Integer siteCode) {
+        String printHandoverListSites;
+        try {
+            printHandoverListSites = uccPropertyConfiguration.getPrintHandoverListSites();
+            if(Boolean.TRUE.toString().equals(printHandoverListSites)){
+                return true;
+            }else if(Boolean.FALSE.toString().equals(printHandoverListSites)){
+                return false;
+            }else {
+                List<String> printHandoverListSiteList = Arrays.asList(printHandoverListSites.split(Constants.SEPARATOR_COMMA));
+                return CollectionUtils.isNotEmpty(printHandoverListSiteList) && printHandoverListSiteList.contains(String.valueOf(siteCode));
+            }
+        }catch (Exception e){
+            log.error("查询ucc配置异常!");
+        }
+        return false;
+    }
+
+    /**
+     * 打印交接清单es查询
+     * @param criteria
+     * @return
+     */
+    private BasicQueryEntityResponse basicPrintQueryForPageByES(PrintQueryCriteria criteria) {
+        BasicQueryEntityResponse basicQueryEntityResponse = new BasicQueryEntityResponse();
+        try {
+            PageData<PrintHandoverListDto> pagerResult
+                    = printHandoverListManager.queryPrintHandOverListByQueryCondition(createESQueryCondition(criteria,false));
+            if(pagerResult != null && CollectionUtils.isNotEmpty(pagerResult.getRecords())){
+                List<BasicQueryEntity> basicQueryEntityList = new ArrayList<>();
+                // 循环组装前台对象
+                List<PrintHandoverListDto> printHandoverListDtos = pagerResult.getRecords();
+                for (PrintHandoverListDto dto : printHandoverListDtos) {
+                    basicQueryEntityList.add(convertToBasicQueryEntity(dto));
+                }
+                basicQueryEntityResponse.setCode(JdResponse.CODE_OK);
+                basicQueryEntityResponse.setData(basicQueryEntityList);
+                return basicQueryEntityResponse;
+            }
+            // 未查询到结果
+            basicQueryEntityResponse.setCode(JdResponse.CODE_OK_NULL);
+            basicQueryEntityResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
+        }catch (Exception e){
+            log.error("根据条件{}查询打印交接清单异常!",JsonHelper.toJson(criteria),e);
+            basicQueryEntityResponse.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            basicQueryEntityResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR_C);
+        }
+        return basicQueryEntityResponse;
+    }
+
+    /**
+     * 构建es查询对象
+     * @param criteria
+     * @return
+     */
+    private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintQueryCriteria criteria, boolean sensitiveQuery) {
+        Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
+        pager.setPageNo(criteria.getPageNo());
+        pager.setPageSize(criteria.getPageSize());
+        pager.setSearchVo(convertToPrintHandoverListQueryCondition(criteria,sensitiveQuery));
+        return pager;
+    }
+
+    /**
+     * 构建批量导出es查询条件
+     * @param printExportCriteria
+     * @return
+     */
+    private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(PrintExportCriteria printExportCriteria, boolean isApproval) {
+        Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
+        pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
+        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        Set<Integer> receiveSiteSet = new HashSet<>();
+        for (PrintQueryCriteria item : printExportCriteria.getList()) {
+            receiveSiteSet.add(item.getReceiveSiteCode());
+        }
+        PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(printExportCriteria.getList().get(0), isApproval);
+        condition.setReceiveSiteCodeList(new ArrayList<Integer>(receiveSiteSet));
+        pager.setSearchVo(condition);
+        return pager;
+    }
+
+    private PrintHandoverLitQueryCondition convertToPrintHandoverListQueryCondition(PrintQueryCriteria criteria,boolean sensitiveQuery) {
+        PrintHandoverLitQueryCondition condition = new PrintHandoverLitQueryCondition();
+        condition.setCreateSiteCode(criteria.getSiteCode());
+        condition.setReceiveSiteCode(criteria.getReceiveSiteCode());
+        condition.setSendCode(criteria.getSendCode());
+        condition.setBoxCode(criteria.getBoxCode());
+        condition.setWaybillCode(criteria.getWaybillcode());
+        condition.setPackageCode(criteria.getPackageBarcode());
+//        condition.setFcNo(criteria.getFc());
+        condition.setSendUserCode(criteria.getSendUserCode());
+        condition.setSendStartTime(criteria.getStartTime() == null ? null : DateHelper.parseDateTime(criteria.getStartTime()).getTime());
+        condition.setSendEndTime(criteria.getEndTime() == null ? null : DateHelper.parseDateTime(criteria.getEndTime()).getTime());
+//        condition.setIs211(criteria.isIs211() ? Byte.parseByte(String.valueOf(Constants.CONSTANT_NUMBER_ONE))
+//                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
+        condition.setUserCode(criteria.getUserCode());
+        condition.setSensitiveQuery(sensitiveQuery);
+        return condition;
+    }
+
+    private BasicQueryEntity convertToBasicQueryEntity(PrintHandoverListDto dto) {
+        BasicQueryEntity basicQueryEntity = new BasicQueryEntity();
+        basicQueryEntity.setReceiveSiteName(dto.getReceiveSiteName());
+        basicQueryEntity.setReceiveSiteCode(dto.getReceiveSiteCode());
+        basicQueryEntity.setSiteName(dto.getSiteName());
+        basicQueryEntity.setSiteCode(dto.getSiteCode());
+        basicQueryEntity.setSendCode(dto.getSendCode());
+        basicQueryEntity.setBoxCode(dto.getBoxCode());
+        basicQueryEntity.setFcNo(dto.getFcNo());
+        basicQueryEntity.setGoodWeight(dto.getGoodWeight());
+        basicQueryEntity.setPayment(dto.getPayment());
+        basicQueryEntity.setSendUser(dto.getSendUser());
+        basicQueryEntity.setSendUserCode(dto.getSendUserCode());
+
+        // 查询结果不显示敏感数据
+        basicQueryEntity.setReceiverName(SendPrintConstants.TEXT_DOUBLE_BAR);
+        basicQueryEntity.setReceiverAddress(SendPrintConstants.TEXT_DOUBLE_BAR);
+        basicQueryEntity.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
+
+        basicQueryEntity.setSealNo(dto.getSealNo());
+        basicQueryEntity.setReworkNo(dto.getReworkNo());
+        basicQueryEntity.setInvoice(dto.getInvoice());
+        basicQueryEntity.setReceiveSiteType(dto.getReceiveSiteType());
+        basicQueryEntity.setGoodVolume(dto.getGoodVolume());
+        basicQueryEntity.setBoardCode(dto.getBoardCode());
+        basicQueryEntity.setBoardVolume(dto.getBoardVolume());
+        basicQueryEntity.setDmsOutVolumeDynamic(dto.getDmsOutVolumeDynamic());
+        basicQueryEntity.setDmsOutVolumeStatic(dto.getDmsOutVolumeStatic());
+        basicQueryEntity.setRoadCode(dto.getRoadCode());
+        basicQueryEntity.setIs211(Integer.valueOf(dto.getIs211()));
+
+        basicQueryEntity.setSendSiteName(dto.getCreateSiteName());
+        if (dto.getSiteType() != null && dto.getSiteType() != BaseContants.SANFANGKUAIDI) {
+            basicQueryEntity.setSiteType(SendPrintConstants.TEXT_SELF_SUPPORT);
+        }
+        basicQueryEntity.setWaybill(dto.getWaybillCode());
+        basicQueryEntity.setPackageBarNum(dto.getPackageNum());
+        basicQueryEntity.setPackageBar(dto.getPackageCode());
+        basicQueryEntity.setPackageBarWeight(dto.getPackageWeight());
+        basicQueryEntity.setGoodWeight2(dto.getAgainWeight());
+        basicQueryEntity.setPackageBarWeight2(dto.getPackageAgainWeight());
+        basicQueryEntity.setSendPay(dto.getPayment() == null ? null : getSendPay(dto.getPayment()));
+        basicQueryEntity.setWaybillType(dto.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : getWaybillType(dto.getWaybillType()));
+        basicQueryEntity.setDeclaredValue(String.valueOf(dto.getDeclaredValue()));
+        basicQueryEntity.setGoodValue(String.valueOf(dto.getGoodValue()));
+        basicQueryEntity.setIsnew(dto.getIsNew() == null ? SendPrintConstants.TEXT_NO
+                : dto.getIsNew() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
+        basicQueryEntity.setIscancel(dto.getIsCancel() == null ? SendPrintConstants.TEXT_NO
+                : dto.getIsCancel() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
+        basicQueryEntity.setLuxury(dto.getLuxury() == null ? SendPrintConstants.TEXT_NO
+                : dto.getLuxury() == Constants.CONSTANT_NUMBER_ONE ? SendPrintConstants.TEXT_YES : SendPrintConstants.TEXT_NO);
+        basicQueryEntity.setOperateTime(dto.getSendTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSendTime())));
+        basicQueryEntity.setSealTime(dto.getSealTime() == null ? null : DateHelper.formatDateTime(new Date(dto.getSealTime())));
+        return basicQueryEntity;
     }
 
     private List<String> getWaybillCodeList(List<SendDetail> sendDetails){
@@ -1033,18 +1998,18 @@ public class SendPrintServiceImpl implements SendPrintService {
         List<String> boxCodes = this.getBoxCodeList(sendDetails);
         List<String> packageCodes = this.getPackageCodeList(sendDetails);
 
-        // 预加载组板体积信息
+        // 预加载组板体积信息(箱号对应的板的体积)
         Map<String, Double> boardVolumeMap = this.getBoxCodeBoardVolumeByParam(criteria, boxCodes);
-        // 预加载运单维度的商品体积
+        // 预加载运单维度的商品体积（包裹号对应的包裹体积）
         Map<String, Double> goodVolumeMap = this.getAllGoodVolume(waybillCodes);
-        // 预加载运单信息 批量获取不包含包裹信息的运单信息对象
+        // 预加载运单信息 批量获取不包含包裹信息的运单信息对象（运单号对应的不含包裹信息的运单对象）
         HashMap<String, BigWaybillDto> waybillDtoMap = this.getBigWaybillDtoMap(waybillCodes, false);
-        // 批量获取包裹称重上传信息
+        // 批量获取包裹称重上传信息（包裹号对应的包裹重量对象）
         Map<String, PackageWeight> packageWeightMap = this.getWaybillPackageWeight(packageCodes);
-        // 批量获取应付体积信息
+        // 批量获取应付体积信息（箱号对应的应付量方体积对象）
         Map<String, DmsOutWeightAndVolume> dmsOutWeightAndVolumeMap = this.getDmsOutVolume(boxCodes, criteria.getSiteCode());
 
-        // 批量获取封签号
+        // 批量获取封签号（箱号对应的封签号）
         Map<String, String> sealNoCache = this.getSealNoMap(boxCodes);
 
         List<BasicQueryEntity> resultList = new ArrayList<>();
@@ -1395,6 +2360,14 @@ public class SendPrintServiceImpl implements SendPrintService {
         return bDto.getSiteType();
     }
 
+    private Integer toSiteSubType(Integer siteCode) {
+        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
+        if (bDto == null) {
+            return null;
+        }
+        return bDto.getSubType();
+    }
+
     private HashMap<String, BigWaybillDto> sendToWaybill(HashMap<String, BigWaybillDto> deliveryPackageMap, List<String> waybillCodes, Boolean isPackList) {
         BaseEntity<List<BigWaybillDto>> results = this.waybillQueryManager.getDatasByChoice(waybillCodes, true, true, true, isPackList);
         if (results != null && results.getResultCode() > 0) {
@@ -1742,211 +2715,6 @@ public class SendPrintServiceImpl implements SendPrintService {
         Date endDate = new Date();
         log.debug("打印交接清单-detailPrintQuery结束-{}" , (startDate.getTime() - endDate.getTime()));
         return tBasicQueryEntityResponse;
-    }
-
-
-    public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria){
-        Date startDate = new Date();
-        log.debug("打印交接清单-基本信息查询开始:{}" , DateHelper.formatDate(startDate));
-        BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
-        try {
-            List<BasicQueryEntity> data = new ArrayList<BasicQueryEntity>();//
-            // TODO: 2018/9/18 查es接口获取值
-            tBasicQueryEntityResponse.setData(data);
-        } catch (Exception e) {
-            log.error("打印明细基本查询异常:{}",JsonHelper.toJson(criteria), e);
-            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
-            tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
-            return tBasicQueryEntityResponse;
-        }
-        Date endDate = new Date();
-        log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
-        return tBasicQueryEntityResponse;
-    }
-    /**
-     * 批次汇总&&批次汇总打印 -- 新接口
-     */
-    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria) {
-        SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
-
-        // TODO: 2018/9/17 查es接口
-        List<BasicQueryEntity> basicQueryEntityList = new ArrayList<BasicQueryEntity>();
-
-        //没有查到相关数据的情况
-        if (basicQueryEntityList == null || basicQueryEntityList.size() < 1) {
-            tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK_NULL);
-            tSummaryPrintResultResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
-            return tSummaryPrintResultResponse;
-        }
-
-        //按批次分类
-        Map<String,List<BasicQueryEntity>> sendBaseMap = new HashMap<String, List<BasicQueryEntity>>();
-        for (BasicQueryEntity basicQueryEntity : basicQueryEntityList) {
-            String sendCode = basicQueryEntity.getSendCode();
-            if(sendBaseMap.containsKey(sendCode)){
-                sendBaseMap.get(sendCode).add(basicQueryEntity);
-            }else {
-                List<BasicQueryEntity> entities =  new ArrayList<BasicQueryEntity>();
-                entities.add(basicQueryEntity);
-                sendBaseMap.put(sendCode,entities);
-            }
-        }
-
-        //遍历批次，分别组装
-        List<SummaryPrintResult> summaryPrintResultList = new ArrayList<SummaryPrintResult>();
-        for(String sendCode : sendBaseMap.keySet()){
-            SummaryPrintResult summaryPrintResult = new SummaryPrintResult();
-            summaryPrintResult.setSendCode(sendCode);
-            summaryPrintResult.setSendSiteName(toSiteName(criteria.getSiteCode()));
-            summaryPrintResult.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
-
-            summaryPrintResultList.add(singleSendSummary(summaryPrintResult,sendBaseMap.get(sendCode)));
-        }
-
-        //设置返回值的data
-        tSummaryPrintResultResponse.setData(summaryPrintResultList);
-
-        return tSummaryPrintResultResponse;
-
-    }
-
-    /**
-     * 单批次数据汇总
-     * @param summaryPrintResult
-     * @param basicQueryEntityList
-     * @return
-     */
-    private SummaryPrintResult singleSendSummary(SummaryPrintResult summaryPrintResult,List<BasicQueryEntity> basicQueryEntityList){
-        Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
-        List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
-
-        Integer totalBoxNum = 0 ; //单个批次内的箱子数量
-        Integer totalPackageNum = 0; //单个批次内的包裹数量
-        Double totalBoardVolume = 0.0;  //总的板体积
-        Double totalOutVolumeDy = 0.0;  //总的应付自动测量体积
-        Double totalOutVolumeSt = 0.0;  //总的应付人工测量体积
-        Double totalInVolume = 0.0;     //总的应收体积
-
-        String roadCode  = null; //路区号
-        String sendTime = "";//发货时间
-
-        /** 已经处理过的板号集合，每条记录的托盘体积都是整个托盘的体积，所以只需记一次 **/
-        Set<String> boardVolumeSet = new HashSet<String>();
-        /** 已经处理过的箱号集合，每条记录的箱体积都是整个箱的体积，所以只需记一次 **/
-        Set<String> boxVolumeSet = new HashSet<String>();
-
-        //循环处理批次内的每一条记录完成统计功能
-        for(BasicQueryEntity basicQueryEntity : basicQueryEntityList) {
-            //取每个批次中第一单的路区号
-            if(StringUtils.isBlank(roadCode) && StringUtils.isNotBlank(basicQueryEntity.getRoadCode())){
-                roadCode = basicQueryEntity.getRoadCode();
-            }
-            //发货时间
-            if(StringUtils.isBlank(sendTime) && StringUtils.isNotBlank(basicQueryEntity.getOperateTime())){
-                sendTime = basicQueryEntity.getOperateTime();
-            }
-
-            SummaryPrintBoxEntity summaryEntity = null;
-            //如果是按箱处理的，把箱里的包裹进行组装
-            if (BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())) {
-                if (boxMap.containsKey(basicQueryEntity.getBoxCode())) {
-                    summaryEntity = boxMap.get(basicQueryEntity.getBoxCode());
-                    summaryEntity.setWaybillNum(summaryEntity.getWaybillNum() + 1);
-                    summaryEntity.setPackageBarNum(summaryEntity.getPackageBarNum() + 1);
-                    summaryEntity.setPackageBarRecNum(summaryEntity.getPackageBarRecNum() + 1);
-                } else {
-                    summaryEntity = new SummaryPrintBoxEntity();
-                    summaryEntity.setBoxCode(basicQueryEntity.getBoxCode());
-                    summaryEntity.setWaybillNum(1);
-                    summaryEntity.setPackageBarNum(1);
-                    summaryEntity.setPackageBarRecNum(1);
-                    //设置封签号、封车时间和箱的体积
-                    summaryEntity.setSealNo1(basicQueryEntity.getSealNo());
-                    summaryEntity.setSealNo2("");
-                    summaryEntity.setLockTime(basicQueryEntity.getSealTime());//封车时间
-                    Box box = null;
-                    try {
-                        box = boxService.findBoxByCode(basicQueryEntity.getBoxCode());
-                    } catch (Exception e) {
-                        log.error("打印交接清单获取箱号失败：{}",basicQueryEntity.getBoxCode(), e);
-                    }
-                    if (null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
-                            && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
-                        summaryEntity.setVolume(Double.valueOf(box.getLength() * box.getWidth() * box.getHeight()));
-                    }
-                    boxMap.put(basicQueryEntity.getBoxCode(),summaryEntity);
-                }
-
-                totalBoxNum ++;
-            } else {
-                //按包裹号处理的
-                summaryEntity = new SummaryPrintBoxEntity();
-                summaryEntity.setBoxCode(basicQueryEntity.getBoxCode());
-                summaryEntity.setWaybillNum(1);
-                summaryEntity.setPackageBarNum(1);
-                summaryEntity.setPackageBarRecNum(1);
-                summaryEntity.setSealNo1("");
-                summaryEntity.setSealNo2("");
-                summaryEntity.setVolume(basicQueryEntity.getGoodVolume());
-
-                details.add(summaryEntity);
-
-                totalPackageNum++;
-            }
-
-            /**
-             * 体积汇总逻辑：
-             * 有板体积以板的体积为主；
-             * 没有板体积，有箱体积，则以箱体积为主；
-             * 没有板体积，也没有箱体积，则以包裹体积为主；
-             */
-
-            //如果有板的体积，把已经计算过体积的板号写入boardVolumeSet，避免重复计算
-            if(StringUtils.isNotBlank(basicQueryEntity.getBoardCode()) && NumberHelper.gt0(basicQueryEntity.getBoardVolume())){
-                if(!boardVolumeSet.contains(basicQueryEntity.getBoardCode())){
-                    boardVolumeSet.add(basicQueryEntity.getBoardCode());
-                    totalBoardVolume += basicQueryEntity.getBoardVolume();
-                    totalOutVolumeSt += basicQueryEntity.getBoardVolume(); //板的体积算作静态测量体积
-                }
-            }else if(StringUtils.isNotBlank(basicQueryEntity.getBoxCode()) && BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())){
-                //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
-                if(boxVolumeSet.contains(basicQueryEntity.getBoxCode())){
-                    continue;
-                }
-                boxVolumeSet.add(basicQueryEntity.getBoxCode());
-
-                totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
-                totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
-
-            }else{
-                //按包裹测量
-                totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
-                totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
-            }
-
-            //应收体积
-            totalInVolume += basicQueryEntity.getGoodVolume();
-        }
-
-        //map转换成list
-        details.addAll(boxMap.values());
-
-        summaryPrintResult.setSendTime(sendTime);
-        summaryPrintResult.setRoadCode(roadCode);
-        summaryPrintResult.setTotalBoxNum(totalBoxNum);
-        summaryPrintResult.setTotalPackageNum(totalPackageNum);
-        summaryPrintResult.setTotalBoxAndPackageNum(totalBoxNum+totalPackageNum);
-        summaryPrintResult.setTotalShouldSendPackageNum(basicQueryEntityList.size());
-        summaryPrintResult.setTotalRealSendPackageNum(basicQueryEntityList.size());
-        summaryPrintResult.setTotalBoardVolume(totalBoardVolume);
-        summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
-        summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt);
-        summaryPrintResult.setTotalInVolume(totalInVolume);
-
-        summaryPrintResult.setDetails(details);
-
-        return summaryPrintResult;
     }
 
     class PackageWeight{

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -28,6 +29,12 @@ public interface BoardCombinationService {
      * 回传板标绑定的箱号或包裹号
      */
     public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception;
+
+    /**
+     * 回传板标绑定的箱号或包裹号(新版)
+     */
+    public Integer sendBoardBindingsNew(BoardCombinationRequest request, BoardResponse boardResponse, Board oldBoard,
+                                        CombinationBoardRequest combinationBoardRequest) throws Exception;
 
     /**
      * 回传板标的发货状态

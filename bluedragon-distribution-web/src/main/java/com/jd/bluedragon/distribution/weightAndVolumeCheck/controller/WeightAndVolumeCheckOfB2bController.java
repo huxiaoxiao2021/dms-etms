@@ -59,13 +59,11 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        Integer createSiteCode = new Integer(-1);
+        Integer createSiteCode = -1;
         LoginUser loginUser = getLoginUser();
         String loginErp = null;
         if(loginUser != null){
-            if(loginUser.getSiteType() == 64){
-                createSiteCode = loginUser.getSiteCode();
-            }
+            createSiteCode = loginUser.getSiteCode();
             loginErp = loginUser.getUserErp();
         }
         model.addAttribute("createSiteCode",createSiteCode);

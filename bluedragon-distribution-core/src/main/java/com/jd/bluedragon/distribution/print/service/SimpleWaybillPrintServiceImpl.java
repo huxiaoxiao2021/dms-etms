@@ -331,7 +331,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
                 	PrintPackage pack=new PrintPackage();
                     pack.setPackageCode(item.getPackageBarcode());
-                    pack.setWeightAndUnit(item.getGoodWeight(), Constants.MEASURE_UNIT_NAME_KG);
+                    if(NumberHelper.gt0(item.getAgainWeight())){
+                        pack.setWeightAndUnit(item.getAgainWeight(), Constants.MEASURE_UNIT_NAME_KG);
+                    }
+
                     packageList.add(pack);
                 }
             }

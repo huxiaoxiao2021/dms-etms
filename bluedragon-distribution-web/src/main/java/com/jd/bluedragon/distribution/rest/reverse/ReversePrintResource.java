@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ExchangePrintRequest;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
@@ -65,6 +66,9 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     /**
      * 外单逆向换单打印提交数据
@@ -155,6 +159,11 @@ public class ReversePrintResource {
         String oldWaybillCode = request.getOldWaybillCode();
         Integer packNum = request.getPackageNumber();
         try {
+            if (waybillTraceManager.isWaybillWaste(oldWaybillCode)){
+                result.toFail("弃件禁换单，每月5、20日原运单返到货传站分拣中心，用箱号纸打印“返分拣弃件”贴面单同侧(禁手写/遮挡面单)");
+                return result;
+            }
+
             InvokeResult<RepeatPrint> invokeResult = reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
             result.setData(invokeResult.getData());
             String newWaybillCode = null;

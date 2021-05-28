@@ -1,14 +1,19 @@
 package com.jd.bluedragon.distribution.business.service.impl;
 
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.business.dao.BusinessReturnAdressDao;
+import com.jd.bluedragon.distribution.business.entity.BusinessReturnAddressExportDto;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressCondition;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -21,8 +26,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: BusinessReturnAdressServiceImpl
@@ -36,60 +44,18 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 
 	private static final Logger logger = LoggerFactory.getLogger(BusinessReturnAdressServiceImpl.class);
 
-	/**
-     * 商家退货地址导出限制条数，默认：5000
-     * */
-    @Value("${business.return.export.max:5000}")
-	private Integer businessReturnExportMax;
-
-	/**
-	 * 导出excel头
-	 */
-	private static final List<Object> EXCELL_HEADS = new ArrayList<Object>();
-	static {
-		EXCELL_HEADS.add("场地ID");
-		EXCELL_HEADS.add("场地名称");
-		EXCELL_HEADS.add("最新换单时间");
-		EXCELL_HEADS.add("商家ID");
-		EXCELL_HEADS.add("商家名称");
-		EXCELL_HEADS.add("签约区域");
-		EXCELL_HEADS.add("此时是否已维护退货信息");
-		EXCELL_HEADS.add("退货量");
-	}
 	@Autowired
 	@Qualifier("businessReturnAdressDao")
 	private BusinessReturnAdressDao businessReturnAdressDao;
     @Autowired
 	private LDOPManager lDOPManager;
+
+	@Autowired
+	private ExportConcurrencyLimitService exportConcurrencyLimitService;
     
 	@Override
 	public Dao<BusinessReturnAdress> getDao() {
 		return this.businessReturnAdressDao;
-	}
-
-	@Override
-	public List<List<Object>> queryBusinessReturnAdressExcelData(BusinessReturnAdressCondition businessReturnAdressCondition) {
-		List<List<Object>> resList = new ArrayList<List<Object>>();
-		resList.add(EXCELL_HEADS);
-		businessReturnAdressCondition.setLimit(businessReturnExportMax);
-		PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
-		if(result != null
-				&& result.getRows() != null){
-			for(BusinessReturnAdress row : result.getRows()){
-				loadReturnAdressStatusDesc(row);
-				List<Object> body = new ArrayList<Object>();
-				body.add(row.getDmsSiteCode());
-				body.add(row.getDmsSiteName());
-				body.add(DateHelper.formatDateTime(row.getLastOperateTime()));
-				body.add(row.getBusinessId());
-				body.add(row.getBusinessName());
-				body.add(row.getDeptNo());
-				body.add(row.getReturnAdressStatusDesc());
-				body.add(row.getReturnQuantity());
-				resList.add(body);
-			}
-		}
-		return resList;
 	}
 
 	@Override
@@ -104,8 +70,7 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
 			}
 		}
 		PagerResult<BusinessReturnAdress> result = this.businessReturnAdressDao.queryListByConditionWithPage(businessReturnAdressCondition);
-		if(result != null
-				&& result.getRows() != null){
+		if(result != null && result.getRows() != null){
 			int rowNum = 1;
 			for(BusinessReturnAdress businessReturnAdress : result.getRows()){
 				businessReturnAdress.setRowNum(rowNum ++);
@@ -174,4 +139,75 @@ public class BusinessReturnAdressServiceImpl extends BaseService<BusinessReturnA
         return businessReturnAdressDao.updateStatusByBusinessId(businessId);
     }
 
+	@Override
+	public void export(BusinessReturnAdressCondition businessReturnAdressCondition, BufferedWriter bufferedWriter) {
+		try {
+			long  start = System.currentTimeMillis();
+			// 写入表头
+			Map<String, String> headerMap = getHeaderMap();
+			CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+
+			Integer MaxSize  =  exportConcurrencyLimitService.uccSpotCheckMaxSize();
+			Integer oneQuery =  exportConcurrencyLimitService.getOneQuerySizeLimit();
+
+			int queryTotal = 0;
+			int index = 1;
+			businessReturnAdressCondition.setLimit(oneQuery);
+			while (index <= (MaxSize/oneQuery)+1) {
+				businessReturnAdressCondition.setOffset((index-1) * oneQuery);
+				index++;
+				PagerResult<BusinessReturnAdress> result = this.queryBusinessReturnAdressListByPagerCondition(businessReturnAdressCondition);
+
+				if(result != null && result.getRows() != null){
+					List<BusinessReturnAddressExportDto> dataList =  transForm(result.getRows());
+					// 输出至csv文件中
+					CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, dataList);
+					// 限制导出数量
+					queryTotal += dataList.size();
+					if(queryTotal > MaxSize ){
+						break;
+					}
+				}
+			}
+			long end = System.currentTimeMillis();
+			exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(businessReturnAdressCondition), ExportConcurrencyLimitEnum.BUSINESS_RETURN_ADDRESS_REPORT.getName(),end-start,queryTotal);
+		}catch (Exception e){
+			log.error("商家退货地址 export error",e);
+		}
+	}
+
+	/**
+	 * 转化导出对象
+	 * @param rows
+	 * @return
+	 */
+	private List<BusinessReturnAddressExportDto> transForm(List<BusinessReturnAdress> rows) {
+		List<BusinessReturnAddressExportDto> dataList = new ArrayList<>();
+		for(BusinessReturnAdress row : rows){
+			BusinessReturnAddressExportDto body = new BusinessReturnAddressExportDto();
+			body.setDmsSiteCode(row.getDmsSiteCode());
+			body.setDmsSiteName(row.getDmsSiteName());
+			body.setLastOperateTime(DateHelper.formatDateTime(row.getLastOperateTime()));
+			body.setBusinessId(row.getBusinessId());
+			body.setBusinessName(row.getBusinessName());
+			body.setDeptNo(row.getDeptNo());
+			body.setReturnAdressStatusDesc(row.getReturnAdressStatusDesc());
+			body.setReturnQuantity(row.getReturnQuantity());
+			dataList.add(body);
+		}
+		return dataList;
+	}
+
+	private Map<String, String> getHeaderMap() {
+		Map<String, String> headerMap = new LinkedHashMap<>();
+		headerMap.put("dmsSiteCode","场地ID");
+		headerMap.put("dmsSiteName","场地名称");
+		headerMap.put("lastOperateTime","最新换单时间");
+		headerMap.put("businessId","商家ID");
+		headerMap.put("businessName","商家名称");
+		headerMap.put("deptNo","签约区域");
+		headerMap.put("returnAdressStatusDesc","此时是否已维护退货信息");
+		headerMap.put("returnQuantity","退货量");
+		return  headerMap;
+	}
 }

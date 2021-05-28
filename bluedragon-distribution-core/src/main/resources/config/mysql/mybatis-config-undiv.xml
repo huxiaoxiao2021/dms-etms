@@ -318,6 +318,7 @@
         <!-- 通知栏 -->
         <mapper resource="mappers/mysql/notice/NoticeMapper.xml"/>
         <mapper resource="mappers/mysql/notice/NoticeAttachmentMapper.xml"/>
+        <mapper resource="mappers/mysql/notice/NoticeToUserMapper.xml"/>
 
         <!-- 冷链发货 -->
         <mapper resource="mappers/mysql/coldchain/ColdChainSendMapper.xml"/>
@@ -383,6 +384,7 @@
 <!--        <mapper resource="mappers/mysql/loadscan/GoodsLoadScanRecordMapper.xml" />-->
 
         <!--面单异常举报-->
-      <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
+        <mapper resource="mappers/mysql/discardedPackageStorageTemp/DiscardedPackageStorageTempMapper.xml" />
     </mappers>
 </configuration>

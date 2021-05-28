@@ -7,6 +7,7 @@
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
     #parse("system/common/baseImport.vm")
+    <script src="/static/js/exportConcurrencyLimit/exportConcurrencyLimit.js"></script>
     <script src="/static/js/weightAndVolumeCheck/weightAndVolumeCheck.js"></script>
 </head>
 <body>
@@ -152,7 +153,7 @@
             <button id="btn_query" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
             </button>
-            <button id="btn_export" type="button" class="btn btn-default">
+            <button id="btn_export" type="button" class="btn btn-default" data-toggle="tooltip"  title="再导出需重新查询">
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
             </button>
         </div>

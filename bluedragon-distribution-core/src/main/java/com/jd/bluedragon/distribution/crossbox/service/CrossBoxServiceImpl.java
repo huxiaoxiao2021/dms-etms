@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.crossbox.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -11,6 +13,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.crossbox.dao.CrossBoxDao;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxExportDto;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -19,6 +22,7 @@ import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,10 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.io.BufferedWriter;
+import java.util.*;
 
 @Service("crossBoxService")
 public class CrossBoxServiceImpl implements CrossBoxService {
@@ -51,6 +53,9 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     @Override
     public int addCrossBox(CrossBox crossBox) {
@@ -117,58 +122,6 @@ public class CrossBoxServiceImpl implements CrossBoxService {
         Map<String, Object> params = ObjectMapHelper.makeObject2Map(crossBoxRequest);
         list = crossBoxDao.queryByCondition(params);
         return list;
-    }
-
-    @Override
-    public List<List<Object>> getExportDataByCrossBox(CrossBoxRequest crossBoxRequest) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
-
-        List<Object> heads = new ArrayList<Object>();
-
-        heads.add("序号");
-        heads.add("始发分拣中心_Id");
-        heads.add("始发分拣中心");
-        heads.add("中转1_Id");
-        heads.add("中转1");
-        heads.add("中转2_Id");
-        heads.add("中转2");
-        heads.add("中转3_Id");
-        heads.add("中转3");
-        heads.add("目的分拣中心_Id");
-        heads.add("目的分拣中心");
-        heads.add("完整线路");
-        heads.add("维护(更新)时间");
-        heads.add("维护人员");
-        heads.add("生效时间");
-
-        resList.add(heads);
-
-        List<CrossBox> dataList = this.queryByConditionForExport(crossBoxRequest);
-        if (dataList == null) {
-            return resList;
-        }
-
-        for (CrossBox item : dataList) {
-            List<Object> row = new ArrayList<Object>();
-            row.add(item.getId() == null ? "" : item.getId());
-            row.add(item.getOriginalDmsId() == null ? "" : item.getOriginalDmsId());
-            row.add(item.getOriginalDmsName() == null ? "" : item.getOriginalDmsName());
-            row.add(item.getTransferOneId() == null ? "" : item.getTransferOneId());
-            row.add(item.getTransferOneName() == null ? "" : item.getTransferOneName());
-            row.add(item.getTransferTwoId() == null ? "" : item.getTransferTwoId());
-            row.add(item.getTransferTwoName() == null ? "" : item.getTransferTwoName());
-            row.add(item.getTransferThreeId() == null ? "" : item.getTransferThreeId());
-            row.add(item.getTransferThreeName() == null ? "" : item.getTransferThreeName());
-            row.add(item.getDestinationDmsId() == null ? "" : item.getDestinationDmsId());
-            row.add(item.getDestinationDmsName() == null ? "" : item.getDestinationDmsName());
-            row.add(item.getFullLine() == null ? "" : item.getFullLine());
-            row.add(item.getUpdateTime() == null ? "" : DateHelper.formatDateTime(item.getUpdateTime()));
-            row.add(item.getUpdateOperatorName() == null ? "" : item.getUpdateOperatorName());
-            row.add(item.getEffectiveDate() == null ? "" : DateHelper.formatDateTime(item.getEffectiveDate()));
-            resList.add(row);
-        }
-
-        return resList;
     }
 
     @Override
@@ -320,6 +273,90 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             Profiler.registerInfoEnd(info);
         }
         return result;
+    }
+
+    @Override
+    public void export(CrossBoxRequest crossBoxRequest, BufferedWriter bufferedWriter) {
+        try {
+            long start = System.currentTimeMillis();
+            // 写入表头
+            Map<String, String> headerMap = getHeaderMap();
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
+
+            // 设置总导出数据
+            Integer maxSize = exportConcurrencyLimitService.uccSpotCheckMaxSize();
+            Integer oneQuery = exportConcurrencyLimitService.getOneQuerySizeLimit();
+
+            // 设置单次查询数据库条数限制
+            crossBoxRequest.setPageSize(oneQuery);
+            int queryTotal = 0;
+            int index = 1;
+            while (index <= (maxSize/oneQuery)+1 ){
+                crossBoxRequest.setStartIndex((index-1) * oneQuery);
+                index++;
+                List<CrossBox> dataList = this.queryByConditionForExport(crossBoxRequest);
+                if (CollectionUtils.isEmpty(dataList)) {
+                    break;
+                }
+
+               List<CrossBoxExportDto> exportDtoList   = transForm(dataList);
+                // 输出至csv文件中
+                CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, exportDtoList);
+                // 限制导出数量
+                queryTotal += exportDtoList.size();
+                if(queryTotal > maxSize){
+                    break;
+                }
+            }
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(crossBoxRequest), ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getName(),end-start,queryTotal);
+        }catch (Exception e){
+            log.error("跨箱号中转维护导出结果异常",e);
+        }
+    }
+
+    private List<CrossBoxExportDto> transForm(List<CrossBox> dataList) {
+        List<CrossBoxExportDto> list = new ArrayList<CrossBoxExportDto>();
+        for (CrossBox item : dataList) {
+            CrossBoxExportDto body = new CrossBoxExportDto();
+            body.setId(item.getId());
+            body.setOriginalDmsId(item.getOriginalDmsId());
+            body.setOriginalDmsName(item.getOriginalDmsName());
+            body.setTransferOneId(item.getTransferOneId());
+            body.setTransferOneName(item.getTransferOneName());
+            body.setTransferTwoId(item.getTransferTwoId());
+            body.setTransferTwoName(item.getTransferTwoName());
+            body.setTransferThreeId(item.getTransferThreeId());
+            body.setTransferThreeName(item.getTransferThreeName());
+            body.setDestinationDmsId(item.getDestinationDmsId());
+            body.setDestinationDmsName(item.getDestinationDmsName());
+            body.setFullLine(item.getFullLine());
+            body.setUpdateTime(item.getUpdateTime() == null ? "" : DateHelper.formatDateTime(item.getUpdateTime()));
+            body.setUpdateOperatorName(item.getUpdateOperatorName());
+            body.setEffectiveDate(item.getEffectiveDate() == null ? "" : DateHelper.formatDateTime(item.getEffectiveDate()));
+            list.add(body);
+        }
+        return list;
+    }
+
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        headerMap.put("id","序号");
+        headerMap.put("originalDmsId","始发分拣中心_Id");
+        headerMap.put("originalDmsName","始发分拣中心");
+        headerMap.put("transferOneId","中转1_Id");
+        headerMap.put("transferOneName","中转1");
+        headerMap.put("transferTwoId","中转2_Id");
+        headerMap.put("transferTwoName","中转2");
+        headerMap.put("transferThreeId","中转3_Id");
+        headerMap.put("transferThreeName","中转3");
+        headerMap.put("destinationDmsId","目的分拣中心_Id");
+        headerMap.put("destinationDmsName","目的分拣中心");
+        headerMap.put("fullLine","完整线路");
+        headerMap.put("updateTime","维护(更新)时间");
+        headerMap.put("updateOperatorName","维护人员");
+        headerMap.put("effectiveDate","生效时间");
+        return  headerMap;
     }
 
     /**

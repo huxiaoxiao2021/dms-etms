@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
@@ -13,9 +16,13 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckExcelData;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
+import com.jd.bluedragon.utils.CsvExporterUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +32,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -42,6 +54,9 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
     @Autowired
     private ReviewWeightSpotCheckService reviewWeightSpotCheckService;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
     /**
      * 返回主页面
@@ -69,8 +84,8 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.ReviewWeightSpotCheckController.listData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
-
         PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition);
         return result;
     }
@@ -82,6 +97,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
     @RequestMapping(value = "/toImport", method = RequestMethod.POST)
     @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.ReviewWeightSpotCheckController.toImport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {
         log.debug("uploadExcelFile begin...");
         JdResponse response = new JdResponse();
@@ -112,23 +128,37 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
      */
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
-
+    @ResponseBody
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.weightAndVolumeCheck.controller.ReviewWeightSpotCheckController.toExport", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult toExport(WeightAndVolumeCheckCondition condition,  HttpServletResponse response) {
+        InvokeResult result = new InvokeResult();
+        BufferedWriter bfw = null;
         this.log.info("分拣复重抽查任务统计表");
-        List<List<Object>> resultList;
         try{
-            model.addAttribute("filename", "分拣复重抽检任务统计表.xls");
-            model.addAttribute("sheetname", "分拣复重抽检任务统计结果");
-            resultList = reviewWeightSpotCheckService.getExportData(condition);
+            exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.REVIEW_WEIGHT_SPOT_CHECK_REPORT.getCode());
+            String fileName = "分拣复重抽查任务统计表";
+            //设置文件后缀
+            String fn = fileName.concat(DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS) + ".csv");
+            bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
+            //设置响应
+            CsvExporterUtils.setResponseHeader(response, fn);
+            reviewWeightSpotCheckService.getExportData(condition,bfw);
+            exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.REVIEW_WEIGHT_SPOT_CHECK_REPORT.getCode());
         }catch (Exception e){
             this.log.error("导出分拣复重抽检任务统计表失败:", e);
-            List<Object> list = new ArrayList<>();
-            list.add("导出分拣复重抽检任务统计表失败!");
-            resultList = new ArrayList<>();
-            resultList.add(list);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE);
+        }finally {
+            try {
+                if (bfw != null) {
+                    bfw.flush();
+                    bfw.close();
+                }
+            } catch (IOException es) {
+                log.error("分拣复重抽查任务统计表 流关闭异常", es);
+                result.customMessage(InvokeResult.SERVER_ERROR_CODE,InvokeResult.RESULT_EXPORT_MESSAGE+"流关闭异常");
+            }
         }
-        model.addAttribute("contents", resultList);
-        return new ModelAndView(new DefaultExcelView(), model.asMap());
+        return result;
     }
 
     /**
@@ -155,5 +185,4 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         model.addAttribute("contents", resultList);
         return new ModelAndView(new DefaultExcelView(), model.asMap());
     }
-
 }

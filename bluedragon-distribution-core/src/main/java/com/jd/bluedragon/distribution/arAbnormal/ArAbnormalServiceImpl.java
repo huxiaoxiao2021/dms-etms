@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.arAbnormal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -27,13 +26,14 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
-import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,10 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tangchunqing
@@ -70,9 +67,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     @Autowired
     private SendDatailDao sendDatailDao;
-
-    @Autowired
-    private EclpItemManager eclpItemManager;
 
     @Autowired
     @Qualifier("arTransportModeChangeProducer")
@@ -481,7 +475,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
                 //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign()) || request.getTranspondType()==60) {
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())
+                        || Objects.equals(ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE.getCode(), request.getTranspondType())) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
             } else {
@@ -525,25 +520,12 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     private List<Message> assembleMessageList(ArAbnormalRequest request, BigWaybillDto bigWaybillDto, List<String> packageCodeList) {
         Waybill waybill = bigWaybillDto.getWaybill();
         ArTransportModeChangeDto dto = new ArTransportModeChangeDto();
-        ArTransportChangeModeEnum transformChangeMode = ArTransportChangeModeEnum.getEnum(request.getTranspondType());
-        ArAbnormalReasonEnum abnormalReason = ArAbnormalReasonEnum.getEnum(request.getTranspondReason());
-        ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
-
-        // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setTransformType(transformChangeMode.getFxmId());
         dto.setWaybillCode(waybill.getWaybillCode());
-        // 异常类型 (航空违禁品)
-        dto.setAbnormalType(abnormalReason.getFxmId());
-        // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setFirstLevelCode(transformChangeMode.getFxmId());
-        dto.setFirstLevelName(transformChangeMode.getDesc());
-        // 异常类型 (航空违禁品)
-        dto.setSecondLevelCode(abnormalReason.getFxmId());
-        dto.setSecondLevelName(abnormalReason.getDesc());
-        // 违禁品原因
-        dto.setThirdLevel(contrabandReason.getDesc());
         dto.setOperatorErp(request.getUserErp());
         dto.setSiteCode(request.getSiteCode());
+
+        // 原因处理
+        dealWithReasons(request, dto);
 
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
         if (siteOrgDto != null) {
@@ -566,7 +548,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         dto.setBusiId(waybill.getBusiId());
         // 商家名称
         dto.setBusiName(waybill.getBusiName());
-        dto.setConsignmentName(this.getConsignmentNameByWaybillDto(bigWaybillDto));
+        dto.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
         List<Message> messageList = new ArrayList<>(packageCodeList.size());
         for (String packageCode : packageCodeList) {
             dto.setPackageCode(packageCode);
@@ -576,100 +558,34 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     }
 
     /**
-     * 根据运单信息获取托寄物名称
-     *
-     * @param bigWaybillDto
+     * 一、二、三级原因处理
+     * @param request
      * @return
      */
-    private String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto) {
-        // 1.查询运单商品信息
-        String name = this.getConsignmentNameFromGoods(bigWaybillDto.getGoodsList());
-        if (name != null) {
-            return name;
-        }
-        // 2.查询ECLP全程跟踪
-        name = this.getConsignmentNameFromECLP(bigWaybillDto.getWaybill().getBusiOrderCode());
-        if (name != null) {
-            return name;
-        }
-        // 3.查询运单托寄物信息
-        name = this.getConsignmentNameFromWaybillExt(bigWaybillDto.getWaybill().getWaybillExt());
-        if (name != null) {
-            return name;
-        }
-        return null;
-    }
+    private void dealWithReasons(ArAbnormalRequest request, ArTransportModeChangeDto dto) {
+        ArTransportChangeModeEnum transformChangeMode = ArTransportChangeModeEnum.getEnum(request.getTranspondType());
+        ArAbnormalReasonEnum abnormalReason = ArAbnormalReasonEnum.getEnum(request.getTranspondReason());
+        ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
+        // 转发方式 (航空转陆运 或 航空转高铁)
+        dto.setTransformType(transformChangeMode == null ? null :transformChangeMode.getFxmId());
+        // 异常类型 (航空违禁品)
+        dto.setAbnormalType(abnormalReason == null ? null : abnormalReason.getFxmId());
+        // 转发方式 (航空转陆运 或 航空转高铁)
+        dto.setFirstLevelCode(transformChangeMode == null ? null : transformChangeMode.getFxmId());
+        dto.setFirstLevelName(transformChangeMode == null ? null : transformChangeMode.getDesc());
 
-    /**
-     * 查询运单商品信息
-     *
-     * @param goods
-     * @return
-     */
-    private String getConsignmentNameFromGoods(List<Goods> goods) {
-        if (goods != null && goods.size() > 0) {
-            StringBuilder name = new StringBuilder();
-            for (int i = 0; i < goods.size(); i++) {
-                //明细内容： 商品编码SKU：商品名称*数量
-                name.append(goods.get(i).getSku());
-                name.append(":");
-                name.append(goods.get(i).getGoodName());
-                name.append(" * ");
-                name.append(goods.get(i).getGoodCount());
-                if (i != goods.size() - 1) {
-                    //除了最后一个，其他拼完加个,
-                    name.append(",");
-                }
-            }
-            return name.toString();
+        // 航空转陆运 && 异常原因为违禁品 && 违禁品原因是带违禁品标识的 则将二级原因编码设置196，否则设置0
+        if(Objects.equals(request.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
+                && ArContrabandReasonEnum.getContrabandFlagReason().contains(request.getContrabandReason())){
+            dto.setSecondLevelCode(ArAbnormalReasonEnum.CONTRABAND_GOODS.getFxmId());
+            dto.setSecondLevelName(ArAbnormalReasonEnum.CONTRABAND_GOODS.getDesc());
+            dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
+        }else {
+            dto.setAbnormalType(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelCode(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelName(abnormalReason == null ? null : abnormalReason.getDesc());
+            dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
         }
-        return null;
-    }
-
-    /***
-     * 调用ECLP获取商品信息
-     *
-     * @param busiOrderCode
-     * @return
-     */
-    private String getConsignmentNameFromECLP(String busiOrderCode) {
-        //第二步 查eclp
-        //如果运单上没有明细 就判断是不是eclp订单 如果是，调用eclp接口
-        if (WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)) {
-            StringBuilder name = new StringBuilder();
-            List<ItemInfo> itemInfoList = eclpItemManager.getltemBySoNo(busiOrderCode);
-            if (itemInfoList != null && itemInfoList.size() > 0) {
-                for (int i = 0; i < itemInfoList.size(); i++) {
-                    //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty  eclp负责人宫体雷
-                    name.append(itemInfoList.get(i).getGoodsName());
-                    name.append(" * ");
-                    name.append(itemInfoList.get(i).getDeptRealOutQty() == null ? itemInfoList.get(i).getRealOutstoreQty() : itemInfoList.get(i).getDeptRealOutQty());
-                    if (i != itemInfoList.size() - 1) {
-                        //除了最后一个，其他拼完加个,
-                        name.append(",");
-                    }
-                }
-                return name.toString();
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 查询运单托寄物信息
-     *
-     * @param waybillExt
-     * @return
-     */
-    private String getConsignmentNameFromWaybillExt(WaybillExt waybillExt) {
-        //第三步 查运单的托寄物
-        if (waybillExt != null && StringUtils.isNotEmpty(waybillExt.getConsignWare())) {
-            StringBuilder name = new StringBuilder();
-            name.append(waybillExt.getConsignWare());
-            name.append(waybillExt.getConsignCount() == null ? "" : " * " + waybillExt.getConsignCount());
-            return name.toString();
-        }
-        return null;
     }
 
     /**

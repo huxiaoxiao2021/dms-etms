@@ -45,6 +45,7 @@ public interface SendPayConstants {
     char CHAR_228_1 = '1';
     char CHAR_228_2 = '2';
     char CHAR_228_4 = '4';
+	char CHAR_228_5 = '5';
 	/**
 	 * SendPay第293位,1-海运标识
 	 */
@@ -57,6 +58,12 @@ public interface SendPayConstants {
 	char CHAR_314_1 = '1';
 	char CHAR_314_2 = '2';
 	/**
+	 * SendPay第315位,CHAR_315_0 = '0' -非B2B运单
+	 */
+	int POSITION_315 = 315;
+	char CHAR_315_0 = '0';
+
+	/**
 	 * 第307位,1-无人车配送
 	 */
 	int POSITION_307 = 307;
@@ -66,4 +73,5 @@ public interface SendPayConstants {
 	 */
 	int POSITION_292 = 292;
 	char CHAR_292_1 = 1;
+
 }

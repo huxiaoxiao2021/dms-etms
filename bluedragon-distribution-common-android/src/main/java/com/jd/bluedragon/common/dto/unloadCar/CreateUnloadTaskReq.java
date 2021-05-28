@@ -37,6 +37,11 @@ public class CreateUnloadTaskReq implements Serializable {
      */
     private String createSiteName;
 
+    /**
+     * 卸车模式: 1-人工, 0-流水线
+     */
+    private Integer type;
+
     public CreateUnloadTaskReq() {
     }
 
@@ -78,5 +83,13 @@ public class CreateUnloadTaskReq implements Serializable {
 
     public void setCreateSiteName(String createSiteName) {
         this.createSiteName = createSiteName;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

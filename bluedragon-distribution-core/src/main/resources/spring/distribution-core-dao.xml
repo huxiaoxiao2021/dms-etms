@@ -507,6 +507,10 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <bean id="noticeToUserDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeToUserDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
     <!-- 冷链发货 -->
     <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -657,6 +661,11 @@
 
     <!-- 功能开关配置表 -->
     <bean id="funcSwitchConfigDao" class="com.jd.bluedragon.distribution.funcSwitchConfig.dao.FuncSwitchConfigDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 弃件暂存 -->
+    <bean id="discardedPackageStorageTempDao" class="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 

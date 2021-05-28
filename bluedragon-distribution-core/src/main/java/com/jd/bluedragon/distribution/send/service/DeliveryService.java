@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -16,6 +20,20 @@ import java.util.List;
 
 public interface DeliveryService {
 
+    JdResult<CheckBeforeSendResponse> checkBeforeSend(DeliveryRequest deliveryRequest);
+
+    DeliveryResponse doCheckDeliveryInfo(String boxCode,
+                                         Integer siteCode,
+                                         Integer receiveSiteCode,
+                                         Integer businessType,
+                                         Integer opType);
+
+
+    DeliveryResponse checkThreeDelivery(DeliveryRequest request,Integer flag);
+
+    DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request,SendBizSourceEnum sourceEnum);
+
+    DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum,boolean checkSealCar);
     /**
      * 有校验且有多次发货取消上次发货逻辑的一车一单发货
      *

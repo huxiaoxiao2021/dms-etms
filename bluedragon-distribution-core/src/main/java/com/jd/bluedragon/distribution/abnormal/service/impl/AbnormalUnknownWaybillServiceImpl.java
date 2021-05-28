@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
@@ -12,6 +14,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.dao.AbnormalUnknownWaybillDao;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
+import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillExportDto;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillRequest;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -21,10 +24,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
-import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.*;
@@ -36,6 +36,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
 import java.util.*;
 
 /**
@@ -83,6 +85,10 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
 
     @Override
     public Dao<AbnormalUnknownWaybill> getDao() {
@@ -619,44 +625,77 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      * @param abnormalUnknownWaybillCondition
      * @return
      */
-    public List<List<Object>> getExportData(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
-        List<List<Object>> resList = new ArrayList<List<Object>>();
+    public void export(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, BufferedWriter bufferedWriter) {
+        try {
+            long start = System.currentTimeMillis();
+            // 写入表头
+            Map<String, String> headerMap = getHeaderMap();
+            CsvExporterUtils.writeTitleOfCsv(headerMap, bufferedWriter, headerMap.values().size());
 
-        List<Object> heads = new ArrayList<Object>();
+            abnormalUnknownWaybillCondition.setLimit(-1);
+            PagerResult<AbnormalUnknownWaybill> pagerResult = this.queryByPagerCondition(abnormalUnknownWaybillCondition);
+            List<AbnormalUnknownWaybill> rows = pagerResult.getRows();
 
-        //添加表头
-        heads.add("运单号");
-        heads.add("第几次上报");
-        heads.add("商家名称");
-        heads.add("机构名称");
-        heads.add("区域名称");
-        heads.add("是否回复");
-        heads.add("回复时间");
-        heads.add("回复来源");
-        heads.add("托寄物");
-        heads.add("提报人");
-        resList.add(heads);
-
-        abnormalUnknownWaybillCondition.setLimit(-1);
-        PagerResult<AbnormalUnknownWaybill> pagerResult = this.queryByPagerCondition(abnormalUnknownWaybillCondition);
-        List<AbnormalUnknownWaybill> rows = pagerResult.getRows();
-        if (rows != null && rows.size() > 0) {
-            for (AbnormalUnknownWaybill abnormalUnknownWaybill : rows) {
-                List<Object> body = Lists.newArrayList();
-                body.add(abnormalUnknownWaybill.getWaybillCode());//运单号
-                body.add(abnormalUnknownWaybill.getOrderNumber());//第几次上报
-                body.add(abnormalUnknownWaybill.getTraderName());//商家名称
-                body.add(abnormalUnknownWaybill.getDmsSiteName());//机构名称
-                body.add(abnormalUnknownWaybill.getAreaName());//区域名称
-                body.add(abnormalUnknownWaybill.getIsReceipt() == null ? null : abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
-                body.add(abnormalUnknownWaybill.getReceiptTime() == null ? null : DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
-                body.add(abnormalUnknownWaybill.getReceiptFrom() == null ? null : AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
-                body.add(abnormalUnknownWaybill.getReceiptContent());
-                body.add(abnormalUnknownWaybill.getCreateUserName());
-                resList.add(body);
+            //返回的数据
+            List<AbnormalUnknownWaybillExportDto> body = new ArrayList<>();
+            int  queryTotal = 0;
+            if (CollectionUtils.isNotEmpty(rows)) {
+                for (AbnormalUnknownWaybill abnormalUnknownWaybill : rows) {
+                    //导出限制
+                    if(queryTotal > exportConcurrencyLimitService.uccSpotCheckMaxSize()){
+                        break;
+                    }
+                    queryTotal ++;
+                    body.add(transObject(abnormalUnknownWaybill));
+                }
             }
+            // 输出至excel
+            CsvExporterUtils.writeCsvByPage(bufferedWriter, headerMap, body);
+            long end = System.currentTimeMillis();
+            exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(abnormalUnknownWaybillCondition),ExportConcurrencyLimitEnum.ABNORMAL_UNKNOWN_WAYBILL_REPORT.getName(),end-start,queryTotal);
+        }catch (Exception e){
+            log.error("三无托寄物核实结果分页获取导出数据失败",e);
         }
-        return resList;
+    }
+
+    /**
+     * 转成前端导出文件使用的对象
+     * @param abnormalUnknownWaybill
+     * @return
+     */
+    private AbnormalUnknownWaybillExportDto transObject(AbnormalUnknownWaybill abnormalUnknownWaybill){
+        AbnormalUnknownWaybillExportDto newBody = new AbnormalUnknownWaybillExportDto();
+        newBody.setWaybillCode(abnormalUnknownWaybill.getWaybillCode());//运单号
+        newBody.setOrderNumber(abnormalUnknownWaybill.getOrderNumber());//第几次上报
+        newBody.setTraderName(abnormalUnknownWaybill.getTraderName());//商家名称
+        newBody.setDmsSiteName(abnormalUnknownWaybill.getDmsSiteName());//机构名称
+        newBody.setAreaName(abnormalUnknownWaybill.getAreaName());//区域名称
+        newBody.setIsReceipt(abnormalUnknownWaybill.getIsReceipt() == null ? null : abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
+        newBody.setReceiptTime(abnormalUnknownWaybill.getReceiptTime() == null ? null : DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
+        newBody.setReceiptFrom(abnormalUnknownWaybill.getReceiptFrom() == null ? null : AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
+        newBody.setReceiptContent(abnormalUnknownWaybill.getReceiptContent());
+        newBody.setCreateUserName(abnormalUnknownWaybill.getCreateUserName());
+        return newBody;
+    }
+
+    /**
+     * 设置表头
+     * @return
+     */
+    private Map<String, String> getHeaderMap() {
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        //添加表头
+        headerMap.put("waybillCode","运单号");
+        headerMap.put("orderNumber","第几次上报");
+        headerMap.put("traderName","商家名称");
+        headerMap.put("dmsSiteName","机构名称");
+        headerMap.put("areaName","区域名称");
+        headerMap.put("isReceipt","是否回复");
+        headerMap.put("receiptTime","回复时间");
+        headerMap.put("receiptFrom","回复来源");
+        headerMap.put("receiptContent","托寄物");
+        headerMap.put("createUserName","提报人");
+        return headerMap;
     }
 
     @Override
@@ -721,7 +760,6 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             if (abnormalUnknownWaybillCondition.getWaybillCode() != null) {//代表前端输入的一个运单号
                 //肯定就是那一个了
                 return pagerResult;
-
             } else {//代表输入的多个运单号
                 //补上没查到的单号
                 List<AbnormalUnknownWaybill> data = pagerResult.getRows();

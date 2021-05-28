@@ -1,5 +1,6 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
+    var checkOverExportLimitUrl = '/weightAndVolumeCheck/checkOverExportLimit';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
     var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
@@ -162,40 +163,53 @@ $(function () {
             align: 'center'
         },{
             field: 'billingOrgName',
-            title: '计费操作区域',
+            title: '核对操作区域',
             align: 'center'
         },{
             field: 'billingDeptName',
-            title: '计费操作片区',
+            title: '核对操作片区',
             align: 'center'
         },{
             field: 'billingCompany',
-            title: '计费操作单位',
+            title: '核对操作单位',
             align: 'center'
         },{
             field: 'billingErp',
-            title: '计费操作人ERP',
+            title: '核对操作人ERP',
             align: 'center'
         },{
             field: 'billingCalcWeight',
             title: '计费结算重量kg',
-            align: 'center'
+            align: 'center',
+            formatter : function (value, row, index) {
+                if(row.contrastSourceFrom == 0 || row.contrastSourceFrom == null){
+                    return value;
+                }
+                return null;
+            }
         },{
             field: 'billingWeight',
-            title: '计费重量',
+            title: '核对重量',
             align: 'center'
         },{
             field: 'billingVolume',
-            title: '计费体积',
+            title: '核对体积',
             align: 'center'
         },{
             field: 'billingVolumeWeight',
-            title: '计费体积重量',
+            title: '核对体积重量',
             align: 'center'
         },{
             field: 'billingWeightDifference',
             title: '计费结算重量差异',
             align: 'center'
+        },{
+            field: 'contrastSourceFrom',
+            title: '核对来源',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "运单" : "计费";
+            }
         },{
             field: 'diffStandard',
             title: '误差标准值',
@@ -279,8 +293,9 @@ $(function () {
                 },
                 'click .search': function(e, value, row, index) {
                     var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
+                    var fromSource = row.fromSource;
                     var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.isWaybillSpotCheck;
-                    if(spotCheckType == 1){
+                    if(spotCheckType == 1 && (fromSource == "SPOT_CHECK_DMS_WEB" || fromSource == "SPOT_CHECK_ANDROID")){
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
                             +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
@@ -347,6 +362,7 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
+                $('#btn_export').attr("disabled",false);
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
                 if(days > 30){
                     Jd.alert("查询时间不能超过30天，请缩小时间范围!");
@@ -369,22 +385,56 @@ $(function () {
                 Jd.alert("只能导出一天的数据,请缩短复核时间范围!");
                 return;
             }
-            var params = tableInit.getSearchCondition();
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action": exportUrl});
+            checkConcurrencyLimit({
+                currentKey: exportReportEnum.STORAGE_PACKAGE_M_REPORT,
+                checkPassCallback: function (result) {
 
-            $.each(params, function (key, value) {
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": key});
-                input.val(value);
-                form.append(input);
+                    var params = tableInit.getSearchCondition();
+
+                    var param = "";
+                    if(params.reviewOrgCode != undefined && params.reviewOrgCode != "undefined"){
+                        param = "&reviewOrgCode=" + params.reviewOrgCode;
+                    }
+                    if(params.createSiteCode != undefined && params.createSiteCode != "undefined"){
+                        param += "&createSiteCode=" +  params.createSiteCode;
+                    }
+                    if(params.isExcess != undefined && params.isExcess != "undefined"){
+                        param += "&isExcess=" +  params.isExcess;
+                    }
+                    param += "&startTime=" +  $("#startTime").val();
+                    param += "&endTime=" +  $("#endTime").val();
+                    if(params.waybillCode != undefined && params.waybillCode != "undefined"){
+                        param += "&waybillCode=" +  params.waybillCode;
+                    }
+                    if(params.waybillOrPackCode != undefined && params.waybillOrPackCode != "undefined"){
+                        param += "&waybillOrPackCode=" +  params.waybillOrPackCode;
+                    }
+                    if(params.busiName != undefined && params.busiName != "undefined"){
+                        param += "&busiName=" +  encodeURI(encodeURI(params.busiName));
+                    }
+                    if(params.reviewErp != undefined && params.reviewErp != "undefined"){
+                        param += "&reviewErp=" +  params.reviewErp;
+                    }
+                    if(params.billingErp != undefined && params.billingErp != "undefined"){
+                        param += "&billingErp=" +  params.billingErp;
+                    }
+                    if(params.spotCheckType != undefined && params.spotCheckType != "undefined"){
+                        param += "&spotCheckType=" +  params.spotCheckType;
+                    }
+
+                    $('#btn_export').attr("disabled",true);
+                    location.href = exportUrl + "?" + param;
+
+              },
+              checkFailCallback: function (result) {
+                    // 导出校验失败，弹出提示消息
+                    alert(result.message)
+                }
             });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
         });
     }
+
+    $("[data-toggle='tooltip']").tooltip();
 
     initSelect();
     initOrg();

@@ -1,5 +1,12 @@
 package com.jd.bluedragon.configuration.ucc;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * Created by xumei3 on 2017/12/15.
  */
@@ -45,6 +52,11 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+    /**
+     * 离线任务限流数量
+     */
+    private Integer offlineCurrentLimitingCount;
+
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
@@ -55,6 +67,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+    /**
+     * 大运单告警数量
+     */
+    private Integer bigWaybillWaringSize;
 
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
@@ -77,9 +93,14 @@ public class UccPropertyConfiguration {
     private String oldLogPageTips;
 
     /**
-     * 离线任务的操作时间的更正时间范围
+     * 离线任务的操作时间在系统时间之后的时间限制范围：24
      */
     private int offlineTaskOperateTimeCorrectHours;
+
+    /**
+     * 离线任务的操作时间在系统时间之前的时间限制范围：96h
+     */
+    private int offlineTaskOperateTimeBeforeNowLimitHours;
 
     /**
      * 自动化称重的入口切换开关
@@ -255,9 +276,137 @@ public class UccPropertyConfiguration {
     private boolean checkBoxSendedSwitchOn;
 
     /**
+     * BC箱号强制绑定循环集包袋开关(黑名单)
+     * 配置的走新的逻辑，不配置的走以前的逻辑
+     * 注: 仅为了上线使用
+     * @return
+     */
+    private String allBCBoxFilterWebSite;
+
+
+    /**
      * 站点查询数量最大限制
      */
     private Integer siteQueryLimit;
+
+    /**
+     * 抽检导出最大限制
+     */
+    private Integer exportSpotCheckMaxSize;
+
+    /**
+     * PDA通知自动拉取间隔时间(单位秒)
+     */
+    private Integer pdaNoticePullIntervalTime;
+
+    /**
+     * 离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
+     */
+    private String offlineTaskReportInterceptSites;
+
+    /**
+     * 称重良方规则标准
+     */
+    private String weightVolumeRuleStandard;
+
+    /**
+     * 导出并发限制数量
+     */
+    private Integer exportConcurrencyLimitNum;
+
+    /**
+     * 单次查询数据库条数限制
+     */
+    private Integer oneQuerySize;
+
+    /**
+     * 打印交接清单新查询开通场地
+     *  1)、字符串false代表不开启
+     *  2)、多个场地以,分隔
+     *  3)、字符串true代表全国
+     */
+    private String printHandoverListSites;
+
+    /**
+     * 校验站点子类型是否三方：16
+     */
+    private boolean checkSiteSubType;
+
+    /**
+     * 发货交接清单-汇总scrollId查询单批次查询数量
+     */
+    private int scrollQuerySize;
+    /**
+     * 发货交接清单-汇总scrollId最大次数限制
+     */
+    private int printScrollQueryCountLimit;
+
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
+    /**
+     * 大宗可扫描包裹下限数量
+     * @return
+     */
+    private Integer dazongPackageOperateMax;
+
+    /**
+     * 是否校验签单返还
+     * true 校验 false 不校验
+     */
+    private boolean checkSignAndReturn;
+
+    /**
+     * 按流向查询已验未发未装运单数据查询jsf接口降级： true时jsf接口做降级提示，不操作查询
+     */
+    private boolean inspectNoSendNoLoadWaybillDemotion;
+
+    /**
+     * 异步缓冲框架，JMQ消费失败不再降级为TB任务
+     */
+    private String closeAsynBufferSaveTaskToDb;
+
+    /**
+     * C网抽检是否下发MQ条件卡控
+     */
+    private boolean spotCheckIssueControl;
+
+    /**
+     * C网抽检是否按以前逻辑下发MQ
+     */
+    private boolean spotCheckIssueControlPre;
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    /**
+     * 反调度校验滑道信息 开关
+     * true :检验 false 不校验
+     */
+    private boolean backDispatchCheck;
+
+    public boolean getBackDispatchCheck() {
+        return backDispatchCheck;
+    }
+
+    public void setBackDispatchCheck(boolean backDispatchCheck) {
+        this.backDispatchCheck = backDispatchCheck;
+    }
+
+    public String getWeightVolumeRuleStandard() {
+        return weightVolumeRuleStandard;
+    }
+
+    public void setWeightVolumeRuleStandard(String weightVolumeRuleStandard) {
+        this.weightVolumeRuleStandard = weightVolumeRuleStandard;
+    }
 
     public boolean getENetSyncWaybillCodeAndBoxCode() {
         return eNetSyncWaybillCodeAndBoxCode;
@@ -297,6 +446,14 @@ public class UccPropertyConfiguration {
 
     public void setLogToBusinessLogByKafka(boolean logToBusinessLogByKafka) {
         this.logToBusinessLogByKafka = logToBusinessLogByKafka;
+    }
+
+    public Integer getOfflineCurrentLimitingCount() {
+        return offlineCurrentLimitingCount;
+    }
+
+    public void setOfflineCurrentLimitingCount(Integer offlineCurrentLimitingCount) {
+        this.offlineCurrentLimitingCount = offlineCurrentLimitingCount;
     }
 
     public String getAsynbufferEnabledTaskType() {
@@ -451,6 +608,14 @@ public class UccPropertyConfiguration {
         this.offlineTaskOperateTimeCorrectHours = offlineTaskOperateTimeCorrectHours;
     }
 
+    public int getOfflineTaskOperateTimeBeforeNowLimitHours() {
+        return offlineTaskOperateTimeBeforeNowLimitHours;
+    }
+
+    public void setOfflineTaskOperateTimeBeforeNowLimitHours(int offlineTaskOperateTimeBeforeNowLimitHours) {
+        this.offlineTaskOperateTimeBeforeNowLimitHours = offlineTaskOperateTimeBeforeNowLimitHours;
+    }
+
     public boolean getAutomaticWeightVolumeExchangeSwitch() {
         return automaticWeightVolumeExchangeSwitch;
     }
@@ -587,6 +752,14 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
+    public Integer getBigWaybillWaringSize() {
+        return bigWaybillWaringSize;
+    }
+
+    public void setBigWaybillWaringSize(Integer bigWaybillWaringSize) {
+        this.bigWaybillWaringSize = bigWaybillWaringSize;
+    }
+
     public boolean isControlCheckPackage() {
         return controlCheckPackage;
     }
@@ -707,11 +880,156 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
+    public String getAllBCBoxFilterWebSite() {
+        return allBCBoxFilterWebSite;
+    }
+
+    public void setAllBCBoxFilterWebSite(String allBCBoxFilterWebSite) {
+        this.allBCBoxFilterWebSite = allBCBoxFilterWebSite;
+    }
+
     public Integer getSiteQueryLimit() {
         return siteQueryLimit;
     }
 
     public void setSiteQueryLimit(Integer siteQueryLimit) {
         this.siteQueryLimit = siteQueryLimit;
+    }
+
+    public Integer getExportSpotCheckMaxSize() {
+        return exportSpotCheckMaxSize;
+    }
+
+    public void setExportSpotCheckMaxSize(Integer exportSpotCheckMaxSize) {
+        this.exportSpotCheckMaxSize = exportSpotCheckMaxSize;
+    }
+
+    public Integer getPdaNoticePullIntervalTime() {
+        return pdaNoticePullIntervalTime;
+    }
+
+    public void setPdaNoticePullIntervalTime(Integer pdaNoticePullIntervalTime) {
+        this.pdaNoticePullIntervalTime = pdaNoticePullIntervalTime;
+    }
+
+    public String getOfflineTaskReportInterceptSites() {
+        return offlineTaskReportInterceptSites;
+    }
+
+    public void setOfflineTaskReportInterceptSites(String offlineTaskReportInterceptSites) {
+        this.offlineTaskReportInterceptSites = offlineTaskReportInterceptSites;
+    }
+
+    public Boolean getOfflineTaskReportInterceptNeedHandle(Integer siteId) {
+        if(StringUtils.isBlank(offlineTaskReportInterceptSites)){
+            return false;
+        }
+        if(Objects.equals("0", offlineTaskReportInterceptSites)){
+            return true;
+        }
+        if(Objects.equals("-1", offlineTaskReportInterceptSites)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(offlineTaskReportInterceptSites.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(siteId + "")){
+            return true;
+        }
+        return false;
+    }
+
+    public Integer getExportConcurrencyLimitNum() {
+        return exportConcurrencyLimitNum;
+    }
+
+    public void setExportConcurrencyLimitNum(Integer exportConcurrencyLimitNum) {
+        this.exportConcurrencyLimitNum = exportConcurrencyLimitNum;
+    }
+
+    public Integer getOneQuerySize() {
+        return oneQuerySize;
+    }
+
+    public void setOneQuerySize(Integer oneQuerySize) {
+        this.oneQuerySize = oneQuerySize;
+    }
+
+    public String getPrintHandoverListSites() {
+        return printHandoverListSites;
+    }
+
+    public void setPrintHandoverListSites(String printHandoverListSites) {
+        this.printHandoverListSites = printHandoverListSites;
+    }
+
+    public boolean getCheckSiteSubType() {
+        return checkSiteSubType;
+    }
+
+    public void setCheckSiteSubType(boolean checkSiteSubType) {
+        this.checkSiteSubType = checkSiteSubType;
+    }
+
+    public int getScrollQuerySize() {
+        return scrollQuerySize;
+    }
+
+    public void setScrollQuerySize(int scrollQuerySize) {
+        this.scrollQuerySize = scrollQuerySize;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public int getPrintScrollQueryCountLimit() {
+        return printScrollQueryCountLimit;
+    }
+
+    public void setPrintScrollQueryCountLimit(int printScrollQueryCountLimit) {
+        this.printScrollQueryCountLimit = printScrollQueryCountLimit;
+    }
+
+    public Integer getDazongPackageOperateMax() {
+        return dazongPackageOperateMax;
+    }
+
+    public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
+        this.dazongPackageOperateMax = dazongPackageOperateMax;
+    }
+
+    public boolean getInspectNoSendNoLoadWaybillDemotion() {
+        return inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public void setInspectNoSendNoLoadWaybillDemotion(boolean inspectNoSendNoLoadWaybillDemotion) {
+        this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public String getCloseAsynBufferSaveTaskToDb() {
+        return closeAsynBufferSaveTaskToDb;
+    }
+
+    public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
+        this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
+
+    public boolean getSpotCheckIssueControl() {
+        return spotCheckIssueControl;
+    }
+
+    public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
+        this.spotCheckIssueControl = spotCheckIssueControl;
+    }
+
+    public boolean getSpotCheckIssueControlPre() {
+        return spotCheckIssueControlPre;
+    }
+
+    public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
+        this.spotCheckIssueControlPre = spotCheckIssueControlPre;
     }
 }
