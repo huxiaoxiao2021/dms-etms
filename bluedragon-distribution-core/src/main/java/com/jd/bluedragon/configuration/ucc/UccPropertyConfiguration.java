@@ -378,6 +378,26 @@ public class UccPropertyConfiguration {
      */
     private boolean spotCheckIssueControlPre;
 
+    /**
+     * 隐藏特殊始发场地名称开关，0-关，1-开
+     */
+    private int hideSpecialStartSitePrintSwitch;
+
+    /**
+     * 隐藏特殊始发场地名单
+     */
+    private String hideSpecialStartSitePrintStartSiteList;
+
+    /**
+     * 隐藏特殊始发场地目的场地名单
+     */
+    private String hideSpecialStartSitPrintDestinationSiteList;
+
+    /**
+     * 隐藏特殊始发场地替换字符
+     */
+    private String hideSpecialStartSitePrintReplaceSymbol;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1031,5 +1051,70 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
         this.spotCheckIssueControlPre = spotCheckIssueControlPre;
+    }
+
+    public int getHideSpecialStartSitePrintSwitch() {
+        return hideSpecialStartSitePrintSwitch;
+    }
+
+    public boolean getHidePrintSpecialStartSiteNameSwitchOn() {
+        return Objects.equals(Constants.YN_YES, hideSpecialStartSitePrintSwitch);
+    }
+
+    public UccPropertyConfiguration setHideSpecialStartSitePrintSwitch(int hideSpecialStartSitePrintSwitch) {
+        this.hideSpecialStartSitePrintSwitch = hideSpecialStartSitePrintSwitch;
+        return this;
+    }
+
+    public String getHideSpecialStartSitePrintStartSiteList() {
+        return hideSpecialStartSitePrintStartSiteList;
+    }
+
+    public UccPropertyConfiguration setHideSpecialStartSitePrintStartSiteList(String hideSpecialStartSitePrintStartSiteList) {
+        this.hideSpecialStartSitePrintStartSiteList = hideSpecialStartSitePrintStartSiteList;
+        return this;
+    }
+
+    public boolean matchHidePrintSpecialStartSiteStartSiteList(int siteId) {
+        if(StringUtils.isBlank(hideSpecialStartSitePrintStartSiteList)){
+            return false;
+        }
+        List<String> siteCodes = Arrays.asList(hideSpecialStartSitePrintStartSiteList.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getHideSpecialStartSitPrintDestinationSiteList() {
+        return hideSpecialStartSitPrintDestinationSiteList;
+    }
+
+    public UccPropertyConfiguration setHideSpecialStartSitPrintDestinationSiteList(String hideSpecialStartSitPrintDestinationSiteList) {
+        this.hideSpecialStartSitPrintDestinationSiteList = hideSpecialStartSitPrintDestinationSiteList;
+        return this;
+    }
+
+    public boolean matchHidePrintSpecialStartSitDestinationSiteList(int siteId) {
+        if(StringUtils.isBlank(hideSpecialStartSitPrintDestinationSiteList)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, hideSpecialStartSitPrintDestinationSiteList)){
+            return true;
+        }
+        List<String> siteCodes = Arrays.asList(hideSpecialStartSitPrintDestinationSiteList.split(Constants.SEPARATOR_COMMA));
+        if(siteCodes.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public String getHideSpecialStartSitePrintReplaceSymbol() {
+        return hideSpecialStartSitePrintReplaceSymbol != null ? hideSpecialStartSitePrintReplaceSymbol : "";
+    }
+
+    public UccPropertyConfiguration setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
+        this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
+        return this;
     }
 }
