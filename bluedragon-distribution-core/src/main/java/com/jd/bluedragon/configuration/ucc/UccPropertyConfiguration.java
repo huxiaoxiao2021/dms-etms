@@ -1136,6 +1136,9 @@ public class UccPropertyConfiguration {
     }
 
     public List<String> getHideSpecialStartSitPrintDestinationSiteStrList() {
+        if(hideSpecialStartSitPrintDestinationSiteList == null){
+            return new ArrayList<>();
+        }
         return Arrays.asList(hideSpecialStartSitPrintDestinationSiteList.split(Constants.SEPARATOR_COMMA));
     }
 
