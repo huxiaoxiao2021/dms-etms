@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -23,6 +24,9 @@ import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 public class PackagePrintServiceTestCase {
 	@Autowired
 	PackagePrintService packagePrintService;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	
     @Test
     public void testUseNewTemplate() throws Exception{
@@ -95,6 +99,7 @@ public class PackagePrintServiceTestCase {
 
 		printRequest.setData(JsonHelper.toJson(packagePrintRequest));
 
+		uccPropertyConfiguration.setHideSpecialStartSitPrintDestinationSiteList(null);
 		JdResult<Map<String, Object>> printResult = packagePrintService.getPrintInfo(printRequest);
 		Map<String, Object> printDataMap = printResult.getData();
 		String originalDmsName = (String) printDataMap.get("originalDmsName");
