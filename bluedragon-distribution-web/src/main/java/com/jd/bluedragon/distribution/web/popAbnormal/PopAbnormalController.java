@@ -14,6 +14,8 @@ import com.jd.bluedragon.utils.*;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -285,7 +287,7 @@ public class PopAbnormalController {
 			CsvExporterUtils.setResponseHeader(response, fn);
 
 			Map<String, Object>  dmsUserMap = checkUser();
-			if (!checkUser().isEmpty()) {
+			if (MapUtils.isNotEmpty(dmsUserMap)) {
 				// 设置用户分拣中心信息
 				paramMap.putAll(dmsUserMap);
 			}

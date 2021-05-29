@@ -1095,12 +1095,21 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 获取运单流水最早的记录
         PackFlowDetail packFlowDetail = getFirstOperateWeight(weightVolumeCollectDto.getWaybillCode());
         if(packFlowDetail == null){
-            log.warn("未获取到{}称重流水!", weightVolumeCollectDto.getWaybillCode());
+            log.warn("根据单号{}未获取到称重流水!", weightVolumeCollectDto.getWaybillCode());
             return;
         }
-        // 责任人ERP
-        String billingErp = StringUtils.isEmpty(packFlowDetail.getMeasureUserErp()) ? packFlowDetail.getWeighUserErp() : packFlowDetail.getMeasureUserErp();
-        weightVolumeCollectDto.setBillingErp(billingErp);
+        // 责任人
+        BaseStaffSiteOrgDto dutyBaseStaffSiteOrgDto = getDutyBaseStaffSiteOrgDto(packFlowDetail);
+        if(dutyBaseStaffSiteOrgDto == null || StringUtils.isEmpty(dutyBaseStaffSiteOrgDto.getAccountNumber())){
+            log.warn("根据单号{}获取运单称重流水最早操作人为空!", weightVolumeCollectDto.getWaybillCode());
+            return;
+        }
+
+        weightVolumeCollectDto.setBillingErp(dutyBaseStaffSiteOrgDto.getAccountNumber());
+        // 处理责任类型
+        dealDutyType(dutyBaseStaffSiteOrgDto, weightVolumeCollectDto);
+
+
         weightVolumeCollectDto.setBillingWeight(packFlowDetail.getpWeight());
         double billingVolume;
         if(packFlowDetail.getpLength() == null || packFlowDetail.getpWidth() == null
@@ -1115,9 +1124,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         Double billingCalcWeight = packFlowDetail.getpWeight() == null
                 ? billingVolume/volumeRate : packFlowDetail.getpWeight() > billingVolume/volumeRate ? packFlowDetail.getpWeight() : billingVolume/volumeRate;
         weightVolumeCollectDto.setBillingCalcWeight(billingCalcWeight);
+    }
 
-        // 处理责任类型
-        dealDutyType(billingErp, weightVolumeCollectDto);
+    /**
+     * 获取责任人
+     * @param packFlowDetail
+     * @return
+     */
+    private BaseStaffSiteOrgDto getDutyBaseStaffSiteOrgDto(PackFlowDetail packFlowDetail) {
+        String billingErp = StringUtils.isEmpty(packFlowDetail.getMeasureUserErp()) ? packFlowDetail.getWeighUserErp() : packFlowDetail.getMeasureUserErp();
+        if(StringUtils.isEmpty(billingErp)){
+            String billingUserId = StringUtils.isEmpty(packFlowDetail.getMeasureUserId()) ? packFlowDetail.getWeighUserId() : packFlowDetail.getMeasureUserId();
+            if (StringUtils.isEmpty(billingUserId)){
+                return null;
+            }
+            return baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.valueOf(billingUserId));
+        }else {
+            return baseMajorManager.getBaseStaffByErpNoCache(billingErp);
+        }
     }
 
     /**
@@ -1125,11 +1149,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      *  分拣：1级表示区域，2级表示分拣，3级无
      *  站点：1级表示区域，2级表示片区，3级表示站点
      *  仓：1级表示区域，2级表示配送中心，3级表示仓对应的站点
-     * @param dutyErp
+     * @param dto
      * @return
      */
-    private void dealDutyType(String dutyErp, WeightVolumeCollectDto weightVolumeCollectDto) {
-        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(dutyErp);
+    private void dealDutyType(BaseStaffSiteOrgDto dto, WeightVolumeCollectDto weightVolumeCollectDto) {
         // 一级
         weightVolumeCollectDto.setBillingOrgCode(dto.getOrgId());
         weightVolumeCollectDto.setBillingOrgName(dto.getOrgName());
