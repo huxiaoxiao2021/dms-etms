@@ -83,16 +83,15 @@ public class PackagePrintServiceTestCase {
 	public void testHideStartSitePrint() throws Exception{
 		JdCommand<String> printRequest = new JdCommand<String>();
 		printRequest.setSystemCode("dms");
-		printRequest.setSecretKey("123456");
-		printRequest.setBusinessType(1003);
-		printRequest.setOperateType(100302);
+		printRequest.setBusinessType(1001);
+		printRequest.setOperateType(100103);
 
 		PackagePrintRequest packagePrintRequest = new PackagePrintRequest();
 		packagePrintRequest.setUserCode(1000);
 		packagePrintRequest.setUserName("testUser");
 		packagePrintRequest.setSiteCode(910);
 		packagePrintRequest.setSiteName("北京马驹桥分拣中心");
-		packagePrintRequest.setBarCode("JDAZ00000020805");
+		packagePrintRequest.setBarCode("JD0003358717772");
 
 		printRequest.setData(JsonHelper.toJson(packagePrintRequest));
 
