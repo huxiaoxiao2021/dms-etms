@@ -50,6 +50,7 @@ public class HideSpecialStartSiteNameHandler implements InterceptHandler<Waybill
                 basePrintWaybill.setConsigneeCompany(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 basePrintWaybill.setConsignerTelText(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 basePrintWaybill.setConsignerPrefixText(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
+                basePrintWaybill.setSenderCompany(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 // 隐藏路由信息
                 basePrintWaybill.setRouterNode1(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 basePrintWaybill.setRouterNode2(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
