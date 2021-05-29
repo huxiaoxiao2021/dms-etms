@@ -39,6 +39,7 @@ public class HideSpecialStartSiteNameHandler implements InterceptHandler<Waybill
             final BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
             Integer purposefulDmsCode = basePrintWaybill.getPurposefulDmsCode();
             if(purposefulDmsCode != null && uccPropertyConfiguration.matchHidePrintSpecialStartSitDestinationSiteList(purposefulDmsCode)){
+                log.info("hideSpecialStartSiteNameHandler match waybillCode [{}], purposefulDmsCode [{}]", basePrintWaybill.getWaybillCode(), purposefulDmsCode);
                 // 始发分拣中心名称改为空
                 basePrintWaybill.setOriginalDmsName(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 // 寄件人信息修改为空

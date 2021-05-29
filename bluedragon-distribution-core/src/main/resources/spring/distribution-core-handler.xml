@@ -287,8 +287,8 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
 			</list>
 		</property>
 	</bean>			
@@ -360,8 +360,8 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
 			</list>
 		</property>
 	</bean>
@@ -477,8 +477,8 @@
                 <ref bean="excessSpecialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 				<ref bean="pddCustomerAndConsigneeInfoHandler"/>
-				<ref bean="pdfLocalGenerateHandler"/>
 				<ref bean="hideSpecialStartSiteNameHandler"/>
+				<ref bean="pdfLocalGenerateHandler"/>
             </list>
         </property>
     </bean>
