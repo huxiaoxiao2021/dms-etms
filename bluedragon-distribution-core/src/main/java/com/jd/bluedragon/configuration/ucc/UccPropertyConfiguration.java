@@ -1079,6 +1079,9 @@ public class UccPropertyConfiguration {
         if(StringUtils.isBlank(hideSpecialStartSitePrintStartSiteList)){
             return false;
         }
+        if(Objects.equals(Constants.STR_ALL, hideSpecialStartSitPrintDestinationSiteList)){
+            return true;
+        }
         List<String> siteCodes = Arrays.asList(hideSpecialStartSitePrintStartSiteList.split(Constants.SEPARATOR_COMMA));
         if(siteCodes.contains(String.valueOf(siteId))){
             return true;
