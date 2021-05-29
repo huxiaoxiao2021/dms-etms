@@ -384,11 +384,6 @@ public class UccPropertyConfiguration {
     private int hideSpecialStartSitePrintSwitch;
 
     /**
-     * 隐藏特殊始发场地名单
-     */
-    private String hideSpecialStartSitePrintStartSiteList;
-
-    /**
      * 隐藏特殊始发场地目的场地名单
      */
     private String hideSpecialStartSitPrintDestinationSiteList;
@@ -1064,29 +1059,6 @@ public class UccPropertyConfiguration {
     public UccPropertyConfiguration setHideSpecialStartSitePrintSwitch(int hideSpecialStartSitePrintSwitch) {
         this.hideSpecialStartSitePrintSwitch = hideSpecialStartSitePrintSwitch;
         return this;
-    }
-
-    public String getHideSpecialStartSitePrintStartSiteList() {
-        return hideSpecialStartSitePrintStartSiteList;
-    }
-
-    public UccPropertyConfiguration setHideSpecialStartSitePrintStartSiteList(String hideSpecialStartSitePrintStartSiteList) {
-        this.hideSpecialStartSitePrintStartSiteList = hideSpecialStartSitePrintStartSiteList;
-        return this;
-    }
-
-    public boolean matchHidePrintSpecialStartSiteStartSiteList(int siteId) {
-        if(StringUtils.isBlank(hideSpecialStartSitePrintStartSiteList)){
-            return false;
-        }
-        if(Objects.equals(Constants.STR_ALL, hideSpecialStartSitPrintDestinationSiteList)){
-            return true;
-        }
-        List<String> siteCodes = Arrays.asList(hideSpecialStartSitePrintStartSiteList.split(Constants.SEPARATOR_COMMA));
-        if(siteCodes.contains(String.valueOf(siteId))){
-            return true;
-        }
-        return false;
     }
 
     public String getHideSpecialStartSitPrintDestinationSiteList() {
