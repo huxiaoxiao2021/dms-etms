@@ -37,10 +37,8 @@ public class HideSpecialStartSiteNameHandler implements InterceptHandler<Waybill
                 return interceptResult;
             }
             final BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
-            Integer originalDmsCode = basePrintWaybill.getOriginalDmsCode();
             Integer purposefulDmsCode = basePrintWaybill.getPurposefulDmsCode();
-            if(originalDmsCode != null && uccPropertyConfiguration.matchHidePrintSpecialStartSiteStartSiteList(originalDmsCode)
-                && purposefulDmsCode != null && uccPropertyConfiguration.matchHidePrintSpecialStartSitDestinationSiteList(purposefulDmsCode)){
+            if(purposefulDmsCode != null && uccPropertyConfiguration.matchHidePrintSpecialStartSitDestinationSiteList(purposefulDmsCode)){
                 // 始发分拣中心名称改为空
                 basePrintWaybill.setOriginalDmsName(uccPropertyConfiguration.getHideSpecialStartSitePrintReplaceSymbol());
                 // 寄件人信息修改为空
