@@ -355,6 +355,10 @@ public class UccPropertyConfiguration {
      * 发货交接清单-汇总scrollId最大次数限制
      */
     private int printScrollQueryCountLimit;
+    /**
+     * 审批开关
+     */
+    private boolean approvalSwitch;
 
     /**
      * 验货集包袋依赖降级， true时不依赖集包袋服务
@@ -1177,5 +1181,13 @@ public class UccPropertyConfiguration {
 
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
+    }
+
+    public boolean getApprovalSwitch() {
+        return approvalSwitch;
+    }
+
+    public void setApprovalSwitch(boolean approvalSwitch) {
+        this.approvalSwitch = approvalSwitch;
     }
 }

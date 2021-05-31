@@ -106,6 +106,7 @@
 		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
 		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
 		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
+		<property name="approvalSwitch" value="${approvalSwitch:false}"/>
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
@@ -203,6 +204,7 @@
 				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
 				<value>uccPropertyConfiguration.scrollQuerySize</value>
 				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
+				<value>uccPropertyConfiguration.approvalSwitch</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
                 <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
