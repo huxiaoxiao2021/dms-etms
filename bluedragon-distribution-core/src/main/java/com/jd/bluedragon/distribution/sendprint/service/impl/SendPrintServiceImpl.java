@@ -292,7 +292,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                 summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
             }
             // 设置批次下箱号、箱号+包裹数量
-            int boxSize = batchBoxWaybillMap.keySet().size();
+            Map<String, Set<String>> boxWaybillMap = batchBoxWaybillMap.get(batchEntry.getKey());
+            int boxSize = boxWaybillMap == null ? Constants.NUMBER_ZERO : boxWaybillMap.keySet().size();
             summaryPrintResult.setTotalBoxNum(boxSize);
             summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
             // 设置批次下箱号下运单数量
