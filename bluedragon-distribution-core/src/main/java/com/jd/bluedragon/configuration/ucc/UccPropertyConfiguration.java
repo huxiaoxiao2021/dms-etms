@@ -1182,15 +1182,6 @@ public class UccPropertyConfiguration {
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
     }
-
-    public boolean getApprovalSwitch() {
-        return approvalSwitch;
-    }
-
-    public void setApprovalSwitch(boolean approvalSwitch) {
-        this.approvalSwitch = approvalSwitch;
-    }
-
     public boolean getApprovalSwitch() {
         return approvalSwitch;
     }
