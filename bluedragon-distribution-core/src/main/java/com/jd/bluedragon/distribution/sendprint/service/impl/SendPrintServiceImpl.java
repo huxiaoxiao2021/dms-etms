@@ -291,31 +291,35 @@ public class SendPrintServiceImpl implements SendPrintService {
                 // 设置批次下箱的基础数据
                 summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
             }
-            // 设置批次下箱号、箱号+包裹数量
-            Map<String, Set<String>> boxWaybillMap = batchBoxWaybillMap.get(batchEntry.getKey());
-            int boxSize = boxWaybillMap == null ? Constants.NUMBER_ZERO : boxWaybillMap.keySet().size();
-            summaryPrintResult.setTotalBoxNum(boxSize);
-            summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
-            // 设置批次下箱号下运单数量
-            dealWithWaybillNum(summaryPrintResult, batchBoxWaybillMap.get(batchEntry.getKey()));
+            // 设置批次下箱号、批次下箱号+包裹、批次下箱号下运单数量
+            dealWithNum(summaryPrintResult, batchBoxWaybillMap.get(batchEntry.getKey()));
             list.add(summaryPrintResult);
         }
         return list;
     }
 
     /**
-     * 设置批次下箱号下运单数量
+     * 设置批次下箱号、批次下箱号+包裹、批次下箱号下运单数量
      * @param summaryPrintResult
      * @param boxWaybillMap
      */
-    private void dealWithWaybillNum(SummaryPrintResult summaryPrintResult, Map<String, Set<String>> boxWaybillMap) {
+    private void dealWithNum(SummaryPrintResult summaryPrintResult, Map<String, Set<String>> boxWaybillMap) {
         if(CollectionUtils.isEmpty(summaryPrintResult.getDetails()) || boxWaybillMap == null){
             return;
         }
+        Set<String> boxSet = new HashSet<>();
         for (SummaryPrintBoxEntity summaryPrintBoxEntity : summaryPrintResult.getDetails()) {
+            if(BusinessUtil.isBoxcode(summaryPrintBoxEntity.getBoxCode())){
+                boxSet.add(summaryPrintBoxEntity.getBoxCode());
+            }
+            // 批次下箱号下运单数量
             Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
             summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
         }
+        // 设置批次下箱号、箱号+包裹数量
+        int boxSize = boxSet.size();
+        summaryPrintResult.setTotalBoxNum(boxSize);
+        summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
     }
 
     /**
