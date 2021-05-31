@@ -320,6 +320,9 @@ public class SendPrintServiceImpl implements SendPrintService {
         int boxSize = boxSet.size();
         summaryPrintResult.setTotalBoxNum(boxSize);
         summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
+        if(log.isInfoEnabled()){
+            log.info("批次号【{}】下的箱号：{}", summaryPrintResult.getSendCode(), JsonHelper.toJson(boxSet));
+        }
     }
 
     /**
