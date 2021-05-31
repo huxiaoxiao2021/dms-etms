@@ -52,8 +52,6 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.BoardMeasureDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -219,8 +217,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,SummaryPrintResult> batchBasicMap = new HashMap<>();
             // 批次对应的箱号，箱号对应的信息
             Map<String,Map<String,SummaryPrintBoxEntity>> batchBoxMap = new HashMap<>();
-            // 批次对应的箱号集合
-            Map<String,Set<String>> batchBoxSetMap = new HashMap<>();
             // 批次对应的箱号，箱号对应的运单号集合
             Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
@@ -244,7 +240,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 query.setScrollId(printHandoverListDtoPageData.getScrollId());
 
                 // 通过明细获取单次的汇总数据
-                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxSetMap, batchBoxWaybillMap, printHandoverListDtoPageData.getRecords());
+                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxWaybillMap, printHandoverListDtoPageData.getRecords());
 
                 // 处理单批次的汇总数据
                 singleDealPrintHandoverData(batchBasicMap, batchBoxMap, singleSummaryPrintResult);
@@ -253,7 +249,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
 
             // 获取最终汇总数据
-            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxSetMap, batchBoxWaybillMap, batchBoxMap);
+            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxWaybillMap, batchBoxMap);
             if(CollectionUtils.isEmpty(list)){
                 response.setCode(JdResponse.CODE_OK_NULL);
                 response.setMessage(JdResponse.MESSAGE_OK_NULL);
@@ -282,7 +278,6 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private List<SummaryPrintResult> computeFinalSummaryResult(Map<String, SummaryPrintResult> batchBasicMap,
-                                                               Map<String,Set<String>> batchBoxSetMap,
                                                                Map<String,Map<String,Set<String>>> batchBoxWaybillMap,
                                                                Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap) {
         List<SummaryPrintResult> list = new ArrayList<>();
@@ -291,16 +286,15 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         for (Map.Entry<String, SummaryPrintResult> batchEntry : batchBasicMap.entrySet()) {
             SummaryPrintResult summaryPrintResult = batchEntry.getValue();
-            if(batchBoxSetMap.containsKey(batchEntry.getKey())){
-                // 设置箱号数量、箱+包数量
-                int boxSize = batchBoxSetMap.get(batchEntry.getKey()).size();
-                summaryPrintResult.setTotalBoxNum(boxSize);
-                summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
-            }
             if(batchBoxMap.containsKey(batchEntry.getKey())){
                 Map<String, SummaryPrintBoxEntity> boxEntityMap = batchBoxMap.get(batchEntry.getKey());
+                // 设置批次下箱的基础数据
                 summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
             }
+            // 设置批次下箱号、箱号+包裹数量
+            int boxSize = batchBoxWaybillMap.keySet().size();
+            summaryPrintResult.setTotalBoxNum(boxSize);
+            summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
             // 设置批次下箱号下运单数量
             dealWithWaybillNum(summaryPrintResult, batchBoxWaybillMap.get(batchEntry.getKey()));
             list.add(summaryPrintResult);
@@ -319,7 +313,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         for (SummaryPrintBoxEntity summaryPrintBoxEntity : summaryPrintResult.getDetails()) {
             Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
-            summaryPrintBoxEntity.setWaybillNum((waybillSet == null || waybillSet.isEmpty()) ? Constants.NUMBER_ZERO : waybillSet.size());
+            summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
         }
     }
 
@@ -387,8 +381,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param records
      * @return
      */
-    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Set<String>> batchBoxSetMap,
-                                                                         Map<String,Map<String,Set<String>>> batchBoxWaybillMap,
+    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Map<String,Set<String>>> batchBoxWaybillMap,
                                                                          List<PrintHandoverListDto> records) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.getSummaryResultByPrintHandoverData", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
@@ -411,16 +404,11 @@ public class SendPrintServiceImpl implements SendPrintService {
                 summaryPrintResult.setSendCode(sendCode);
                 summaryPrintResult.setSendSiteName(records.get(0).getCreateSiteName());
                 summaryPrintResult.setReceiveSiteName(records.get(0).getReceiveSiteName());
-                Set<String> boxSet = new HashSet<>();
-                if(batchBoxSetMap.containsKey(sendCode)){
-                    boxSet = batchBoxSetMap.get(sendCode);
-                }
                 Map<String,Set<String>> boxWaybillMap = new HashMap<>();
                 if(batchBoxWaybillMap.containsKey(sendCode)){
                     boxWaybillMap = batchBoxWaybillMap.get(sendCode);
                 }
-                summaryPrintResultList.add(singleSendSummary(boxSet,boxWaybillMap,summaryPrintResult,sendBaseMap.get(sendCode)));
-                batchBoxSetMap.put(sendCode, boxSet);
+                summaryPrintResultList.add(singleSendSummary(boxWaybillMap,summaryPrintResult,sendBaseMap.get(sendCode)));
                 batchBoxWaybillMap.put(sendCode, boxWaybillMap);
             }
             return summaryPrintResultList;
@@ -439,8 +427,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param singlePrintHandoverList
      * @return
      */
-    private SummaryPrintResult singleSendSummary(Set<String> boxSet,Map<String,Set<String>> boxWaybillMap,
-                                                 SummaryPrintResult summaryPrintResult,List<PrintHandoverListDto> singlePrintHandoverList){
+    private SummaryPrintResult singleSendSummary(Map<String,Set<String>> boxWaybillMap,
+                                                 SummaryPrintResult summaryPrintResult,
+                                                 List<PrintHandoverListDto> singlePrintHandoverList){
         Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
         List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
 
@@ -499,7 +488,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                     boxWaybillMap.put(printHandoverListDto.getBoxCode(), waybillCodeSet);
                     totalBoxNum ++;
                 }
-                boxSet.add(printHandoverListDto.getBoxCode());
             } else {
                 //按包裹号处理的
                 summaryEntity = new SummaryPrintBoxEntity();

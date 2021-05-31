@@ -1190,4 +1190,12 @@ public class UccPropertyConfiguration {
     public void setApprovalSwitch(boolean approvalSwitch) {
         this.approvalSwitch = approvalSwitch;
     }
+
+    public boolean getApprovalSwitch() {
+        return approvalSwitch;
+    }
+
+    public void setApprovalSwitch(boolean approvalSwitch) {
+        this.approvalSwitch = approvalSwitch;
+    }
 }
