@@ -217,7 +217,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,SummaryPrintResult> batchBasicMap = new HashMap<>();
             // 批次对应的箱号，箱号对应的信息
             Map<String,Map<String,SummaryPrintBoxEntity>> batchBoxMap = new HashMap<>();
-            // 批次对应的箱号，箱号对应的运单号集合
+            // 批次对应的箱号，箱号对应的运单号集合 fix:不统计箱号是包裹号的情况(运单数量肯定是1，尽量减少大对象)
             Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
             // 单次scroll查询数量、scroll查询最大限制次数
@@ -309,14 +309,15 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         Set<String> boxSet = new HashSet<>();
         for (SummaryPrintBoxEntity summaryPrintBoxEntity : summaryPrintResult.getDetails()) {
+
+            // 批次下原包下运单数量
+            summaryPrintBoxEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
+
             if(BusinessUtil.isBoxcode(summaryPrintBoxEntity.getBoxCode())){
                 boxSet.add(summaryPrintBoxEntity.getBoxCode());
-            }
-            // 批次下箱号下运单数量
-            Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
-            summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
-            if(log.isInfoEnabled()){
-                log.info("批次号【{}】箱号【{}】的运单号：{}", summaryPrintResult.getSendCode(), summaryPrintBoxEntity.getBoxCode(), JsonHelper.toJson(waybillSet));
+                // 批次下箱号下运单数量
+                Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
+                summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
             }
         }
         // 设置批次下箱号、箱号+包裹数量
@@ -361,7 +362,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 for (SummaryPrintBoxEntity detail : summaryPrintResult.getDetails()) {
                     if(boxEntityMap.containsKey(detail.getBoxCode())){
                         SummaryPrintBoxEntity summaryPrintBoxEntity = boxEntityMap.get(detail.getBoxCode());
-                        summaryPrintBoxEntity.setWaybillNum(summaryPrintBoxEntity.getWaybillNum() + detail.getWaybillNum());
                         summaryPrintBoxEntity.setPackageBarNum(summaryPrintBoxEntity.getPackageBarNum() + detail.getPackageBarNum());
                         summaryPrintBoxEntity.setPackageBarRecNum(summaryPrintBoxEntity.getPackageBarRecNum() + detail.getPackageBarRecNum());
                         summaryPrintBoxEntity.setVolume(summaryPrintBoxEntity.getVolume() + detail.getVolume());
@@ -474,13 +474,9 @@ public class SendPrintServiceImpl implements SendPrintService {
                     summaryEntity = boxMap.get(printHandoverListDto.getBoxCode());
                     summaryEntity.setPackageBarNum(summaryEntity.getPackageBarNum() + Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarRecNum(summaryEntity.getPackageBarRecNum() + Constants.CONSTANT_NUMBER_ONE);
-                    // 设置箱号对应的运单数量
-                    boxWaybillMap.get(printHandoverListDto.getBoxCode()).add(printHandoverListDto.getWaybillCode());
-                    summaryEntity.setWaybillNum(boxWaybillMap.get(printHandoverListDto.getBoxCode()).size());
                 } else {
                     summaryEntity = new SummaryPrintBoxEntity();
                     summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
-                    summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
                     //设置封签号、封车时间和箱的体积
@@ -490,17 +486,21 @@ public class SendPrintServiceImpl implements SendPrintService {
                             ? null : DateHelper.formatDateTime(new Date(printHandoverListDto.getSealTime())));//封车时间
                     summaryEntity.setVolume(Constants.DOUBLE_ZERO);
                     boxMap.put(printHandoverListDto.getBoxCode(),summaryEntity);
+                    totalBoxNum ++;
+                }
+                if (boxWaybillMap.containsKey(printHandoverListDto.getBoxCode())) {
+                    // 设置箱号对应的运单数量
+                    boxWaybillMap.get(printHandoverListDto.getBoxCode()).add(printHandoverListDto.getWaybillCode());
+                }else {
                     // 初始化箱号对应的运单MAP
                     Set<String> waybillCodeSet = new HashSet<>();
                     waybillCodeSet.add(printHandoverListDto.getWaybillCode());
                     boxWaybillMap.put(printHandoverListDto.getBoxCode(), waybillCodeSet);
-                    totalBoxNum ++;
                 }
             } else {
                 //按包裹号处理的
                 summaryEntity = new SummaryPrintBoxEntity();
                 summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
-                summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setSealNo1(Constants.EMPTY_FILL);
