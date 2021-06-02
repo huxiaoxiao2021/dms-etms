@@ -315,14 +315,14 @@ public class SendPrintServiceImpl implements SendPrintService {
             // 批次下箱号下运单数量
             Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
             summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
+            if(log.isInfoEnabled()){
+                log.info("批次号【{}】箱号【{}】的运单号：{}", summaryPrintResult.getSendCode(), summaryPrintBoxEntity.getBoxCode(), JsonHelper.toJson(waybillSet));
+            }
         }
         // 设置批次下箱号、箱号+包裹数量
         int boxSize = boxSet.size();
         summaryPrintResult.setTotalBoxNum(boxSize);
         summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
-        if(log.isInfoEnabled()){
-            log.info("批次号【{}】下的箱号：{}", summaryPrintResult.getSendCode(), JsonHelper.toJson(boxSet));
-        }
     }
 
     /**
