@@ -3410,4 +3410,24 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCarDao.add(unloadCar);
     }
 
+    @Override
+    public UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq) {
+        UnloadCarTaskDto res = new UnloadCarTaskDto();
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
+        List<UnloadCar> list = unloadCarDao.selectByCondition(unloadCar);
+        if(CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        UnloadCar dbRes = list.get(0);
+        res.setCarCode(dbRes.getSealCarCode());
+        Long startTime = dbRes.getStartTime() == null ? null : dbRes.getStartTime().getTime();
+        res.setStartTime(startTime);
+        //时效：单位min
+        Integer duration = dbRes.getDuration();
+        Long planEndTime = startTime == null ? null : startTime + duration * 60 * 1000;
+        res.setPlanEndTime(planEndTime);
+        return res;
+    }
+
 }

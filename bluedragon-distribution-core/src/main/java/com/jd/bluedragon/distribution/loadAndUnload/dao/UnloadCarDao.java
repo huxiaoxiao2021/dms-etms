@@ -65,4 +65,8 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
     public int updateStartTime(UnloadCar params) {
         return this.getSqlSession().update(namespace + ".updateStartTime",params);
     }
+
+    public List<UnloadCar> selectByCondition(UnloadCar unloadCar) {
+        return this.getSqlSession().selectList(namespace + ".selectByCondition", unloadCar);
+    }
 }

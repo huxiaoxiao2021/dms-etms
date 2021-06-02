@@ -456,6 +456,32 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             return jdcResponse;
         }
     }
-
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.LoadAndUnloadCarGatewayServiceImpl.getUnloadCarTaskDuration", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public JdCResponse<UnloadCarTaskDto> getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq) {
+        String methodDesc = "LoadAndUnloadCarGatewayServiceImpl.getUnloadCarTaskDuration--根据封车信息获取卸车任务时效--";
+        JdCResponse<UnloadCarTaskDto> jdcResponse = new JdCResponse<>();
+        if (unloadCarTaskReq == null) {
+            jdcResponse.toFail("请求信息不能为空");
+            return jdcResponse;
+        }
+        try {
+            if(StringUtils.isBlank(unloadCarTaskReq.getTaskCode())) {
+                jdcResponse.toFail("请求封车编码不能为空");
+                return jdcResponse;
+            }
+            UnloadCarTaskDto data = unloadCarService.getUnloadCarTaskDuration(unloadCarTaskReq);
+            if(data == null) {
+                jdcResponse.setMessage("查询成功，无符合条件数据");
+            }
+            jdcResponse.setData(data);
+            jdcResponse.toSucceed();
+            return jdcResponse;
+        } catch (Exception e) {
+            logger.error(methodDesc + "异常， 参数={}" , JsonHelper.toJson(unloadCarTaskReq), e);
+            jdcResponse.toError("获取卸车任务时效异常");
+            return jdcResponse;
+        }
+    }
 
 }

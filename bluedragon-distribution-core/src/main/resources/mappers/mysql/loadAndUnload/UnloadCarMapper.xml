@@ -30,6 +30,9 @@
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="type" property="type" javaType="java.lang.Integer" jdbcType="TINYINT" />
+
+        <result column="start_time" property="startTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="duration" property="duration" javaType="java.lang.Integer" jdbcType="INTEGER" />
     </resultMap>
 
     <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
@@ -64,7 +67,8 @@
     <sql id="Base_Column_List" >
 		unload_car_id,seal_car_code,vehicle_number,start_site_code,start_site_name,end_site_code,end_site_name,
 		seal_time,seal_code,batch_code,railWay_platForm,waybill_num,package_num,unload_user_erp,unload_user_name,
-		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,create_time,update_time,type,yn
+		distribute_time,update_user_erp,update_user_name,status,operate_user_erp,operate_user_name,operate_time,
+        create_time,update_time,type,yn,start_time,duration
 	</sql>
 
     <sql id="Base_Condition_Sql" >
@@ -151,6 +155,15 @@
             <if test="type != null">
                 type,
             </if>
+            <if test="duration != null">
+                duration,
+            </if>
+            <if test="durationType != null">
+                duration_type,
+            </if>
+            <if test="endStatus != null">
+                end_status,
+            </if>
             yn
         </trim>
         )
@@ -231,6 +244,15 @@
             </if>
             <if test="type != null">
                 #{type,jdbcType=TINYINT},
+            </if>
+            <if test="duration != null">
+                #{duration,jdbcType=INTEGER},
+            </if>
+            <if test="durationType != null">
+                #{duration_type,jdbcType=TINYINT},
+            </if>
+            <if test=" != null">
+                #{endStatus,jdbcType=TINYINT},
             </if>
             1
         </trim>
@@ -442,4 +464,17 @@
         where
          seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and yn = 1
     </update>
+
+    <select id="selectByCondition" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where yn = 1
+        and seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        <if test="status != null">
+            and status = #{status,jdbcType=TINYINT}
+        </if>
+        limit 1
+    </select>
 </mapper>

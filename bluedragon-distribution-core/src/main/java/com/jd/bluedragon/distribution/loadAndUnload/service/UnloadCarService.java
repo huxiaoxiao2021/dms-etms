@@ -188,4 +188,6 @@ public interface UnloadCarService {
      * @param unloadCar
      */
     public void fillUnloadCarTaskDuration(UnloadCar unloadCar);
+
+    UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
 }
