@@ -390,8 +390,8 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
         unloadCar.setYn(1);
         unloadCar.setTs(new Date());
         unloadCar.setCreateTime(new Date());
-        unloadCarDao.add(unloadCar);
-
+//        unloadCarDao.add(unloadCar);
+        unloadCarService.fillUnloadCarTaskDuration(unloadCar);
         List<Integer> idList = new ArrayList<>();
         idList.add(unloadCar.getUnloadCarId().intValue());
         List<String> sealList = new ArrayList<>();

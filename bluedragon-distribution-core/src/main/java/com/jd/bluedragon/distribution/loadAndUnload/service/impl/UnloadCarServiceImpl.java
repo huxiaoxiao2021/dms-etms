@@ -72,6 +72,7 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
@@ -223,6 +224,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration ;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2335,6 +2339,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteCode(tmsSealCar.getOperateSiteId());
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
+        unloadCar.setTransWay(tmsSealCar.getTransWay());
 
 //        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
 //        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
@@ -2345,7 +2350,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 //            return false;
 //        }
         try {
-            unloadCarDao.add(unloadCar);
+//            unloadCarDao.add(unloadCar);
+            this.fillUnloadCarTaskDuration(unloadCar);
         } catch (Exception e) {
             logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
             return false;
@@ -2855,7 +2861,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setCreateTime(new Date());
             try {
-                unloadCarDao.add(unloadCar);
+//                unloadCarDao.add(unloadCar);
+                this.fillUnloadCarTaskDuration(unloadCar);
                 unloadCarDistributionDao.add(unloadCarDistribution);
             } catch (Exception e) {
                 logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
@@ -3377,6 +3384,30 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return true;
         }
         return false;
+    }
+
+
+    public void fillUnloadCarTaskDuration(UnloadCar unloadCar){
+        //时效
+        Integer duration = 0;
+        if(unloadCar.getTransWay() != null && StringUtils.isNotBlank(unloadCar.getVehicleNumber())) {
+            BasicVehicleDto basicVehicleDto = basicQueryWSManager.getVehicleByVehicleNumber(unloadCar.getVehicleNumber());
+            if(basicVehicleDto != null && basicVehicleDto.getVehicleType() != null) {
+                Integer vehicleType = basicVehicleDto.getVehicleType();
+                //todo zcf 线路类型待定
+                Integer lineType = 123;
+                //todo zcf 车型+运输方式+线路类型 调用路由jsf接口获取时效   待定
+                duration = 0;
+            }
+        }
+        if(duration <= 0) {
+            unloadCar.setDuration(UnloadCarConstant.UNLOAD_CAR_DURATION_DEFAULT);
+            unloadCar.setDurationType(UnloadCarConstant.UNLOAD_CAR_DURATION_TYPE_DEFAULT);
+        }else {
+            unloadCar.setDuration(duration);
+            unloadCar.setDurationType(UnloadCarConstant.UNLOAD_CAR_DURATION_TYPE_ROUTE);
+        }
+        unloadCarDao.add(unloadCar);
     }
 
 }
