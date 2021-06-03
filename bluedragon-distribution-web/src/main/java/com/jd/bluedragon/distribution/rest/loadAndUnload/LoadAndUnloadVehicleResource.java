@@ -293,6 +293,10 @@ public class LoadAndUnloadVehicleResource {
             result.parameterError(InvokeResult.PARAM_ERROR);
             return result;
         }
+        if (StringUtils.equals(taskHelpersReq.getUser().getUserErp(), taskHelpersReq.getHelperERP())) {
+            result.parameterError("不允许添加卸车负责人为卸车协助人");
+            return result;
+        }
         return unloadCarService.updateUnloadCarTaskHelpers(taskHelpersReq);
     }
 
