@@ -2847,6 +2847,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCar.setDistributeTime(new Date());
             unloadCar.setOperateUserErp(tmsSealCar.getOperateUserCode());
             unloadCar.setOperateUserName(tmsSealCar.getOperateUserName());
+            unloadCar.setStatus(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
             //同步卸车负责人与卸车任务之间关系
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(tmsSealCar.getSealCarCode());
