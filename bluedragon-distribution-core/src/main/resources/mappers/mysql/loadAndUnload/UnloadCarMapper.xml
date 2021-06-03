@@ -251,7 +251,7 @@
             <if test="durationType != null">
                 #{duration_type,jdbcType=TINYINT},
             </if>
-            <if test=" != null">
+            <if test="endStatus != null">
                 #{endStatus,jdbcType=TINYINT},
             </if>
             1
