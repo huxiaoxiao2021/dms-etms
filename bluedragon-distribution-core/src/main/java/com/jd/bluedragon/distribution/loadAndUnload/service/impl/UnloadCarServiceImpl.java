@@ -2478,6 +2478,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
         Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
+        //校验卸车任务是否超时
+        if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCarTaskReq.getTaskStatus()) {
+            UnloadCar unloadCarParam = new UnloadCar();
+            unloadCarParam.setSealCarCode(unloadCarTaskReq.getTaskCode());
+            List<UnloadCar> list = unloadCarDao.selectByCondition(unloadCarParam);
+            if(CollectionUtils.isNotEmpty(list)) {
+                UnloadCar dbRes = list.get(0);
+                //时效：单位min
+                if(dbRes.getStartTime() != null && dbRes.getDuration() != null) {
+                    Long planEndTime = dbRes.getStartTime().getTime() + dbRes.getDuration() * 60 * 1000l;
+                    Long updateTimeTemp = updateTime.getTime();
+                    unloadCar.setEndStatus(updateTimeTemp > planEndTime ? UnloadCarConstant.UNLOAD_CAR_COMPLETE_TIMEOUT : UnloadCarConstant.UNLOAD_CAR_COMPLETE_NORMAL);
+                }
+            }
+        }
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -3425,7 +3440,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         res.setStartTime(startTime);
         //时效：单位min
         Integer duration = dbRes.getDuration();
-        Long planEndTime = startTime == null ? null : startTime + duration * 60 * 1000;
+        Long planEndTime = startTime == null ? null : startTime + duration * 60 * 1000l;
         res.setPlanEndTime(planEndTime);
         return res;
     }

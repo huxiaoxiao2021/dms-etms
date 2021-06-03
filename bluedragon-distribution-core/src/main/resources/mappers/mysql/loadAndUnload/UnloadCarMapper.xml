@@ -361,6 +361,9 @@
         <if test="type != null">
             type=#{type, jdbcType=TINYINT},
         </if>
+        <if test="endStatus != null">
+            end_status=#{endStatus, jdbcType=TINYINT},
+        </if>
         update_time = #{updateTime, jdbcType=TIMESTAMP}
         <where>
             YN = 1

@@ -17,4 +17,11 @@ public class UnloadCarConstant {
      */
     public static final Integer UNLOAD_CAR_DURATION_TYPE_DEFAULT = 0;
     public static final Integer UNLOAD_CAR_DURATION_TYPE_ROUTE = 1;
+
+    /**
+     * 卸车任务是否超时完成
+     */
+    public static final Integer UNLOAD_CAR_COMPLETE_TIMEOUT = 1;
+    public static final Integer UNLOAD_CAR_COMPLETE_NORMAL = 0;
+
 }
