@@ -249,7 +249,7 @@
                 #{duration,jdbcType=INTEGER},
             </if>
             <if test="durationType != null">
-                #{duration_type,jdbcType=TINYINT},
+                #{durationType,jdbcType=TINYINT},
             </if>
             <if test="endStatus != null">
                 #{endStatus,jdbcType=TINYINT},
