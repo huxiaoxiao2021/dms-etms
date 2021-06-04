@@ -249,6 +249,17 @@
         limit 1
     </select>
 
+    <select id="selectBySealCarCodeWithStatus" parameterType="String" resultMap="unloadCar">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        unload_car
+        where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        <include refid="Base_Condition_Sql"/>
+        limit 1
+    </select>
+
     <select id="queryByCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="unloadCarTask">
         select
         <include refid="Base_Column_List" />
