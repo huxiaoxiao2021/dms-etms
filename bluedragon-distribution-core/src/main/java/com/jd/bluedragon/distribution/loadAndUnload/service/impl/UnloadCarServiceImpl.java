@@ -2572,7 +2572,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.setMessage("该操作仅限卸车负责人使用！");
             return result;
         }
-
+        if (StringUtils.equals(taskHelpersReq.getUser().getUserErp(), taskHelpersReq.getHelperERP())) {
+            result.parameterError("卸车协助人不允许添加本任务的负责人");
+            return result;
+        }
         try {
             if (taskHelpersReq.getOperateType() == OperateTypeEnum.DELETE_HELPER.getType()) {
                 //删除协助人
