@@ -99,24 +99,14 @@ public class ExpressBillExceptionReportVo implements Serializable {
     private String traderCode;
 
     /**
-     * 商家名称
-     */
-    private String traderName;
-
-    /**
      * 被举报人ID
      */
-    private Long reportedId;
-
-    /**
-     * 被举报人ERP
-     */
-    private String reportedErp;
+    private Long reportedUserId;
 
     /**
      * 被举报人姓名
      */
-    private String reportedName;
+    private String reportedUserName;
 
     /**
      * 是否逻辑删除：0-已删除，1-已存在  db_column: yn
@@ -294,39 +284,21 @@ public class ExpressBillExceptionReportVo implements Serializable {
         return this;
     }
 
-    public String getTraderName() {
-        return traderName;
+    public Long getReportedUserId() {
+        return reportedUserId;
     }
 
-    public ExpressBillExceptionReportVo setTraderName(String traderName) {
-        this.traderName = traderName;
+    public ExpressBillExceptionReportVo setReportedUserId(Long reportedUserId) {
+        this.reportedUserId = reportedUserId;
         return this;
     }
 
-    public Long getReportedId() {
-        return reportedId;
+    public String getReportedUserName() {
+        return reportedUserName;
     }
 
-    public ExpressBillExceptionReportVo setReportedId(Long reportedId) {
-        this.reportedId = reportedId;
-        return this;
-    }
-
-    public String getReportedErp() {
-        return reportedErp;
-    }
-
-    public ExpressBillExceptionReportVo setReportedErp(String reportedErp) {
-        this.reportedErp = reportedErp;
-        return this;
-    }
-
-    public String getReportedName() {
-        return reportedName;
-    }
-
-    public ExpressBillExceptionReportVo setReportedName(String reportedName) {
-        this.reportedName = reportedName;
+    public ExpressBillExceptionReportVo setReportedUserName(String reportedUserName) {
+        this.reportedUserName = reportedUserName;
         return this;
     }
 }

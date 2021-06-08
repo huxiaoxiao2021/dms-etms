@@ -135,10 +135,6 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             return response;
         }
         record.setTraderCode(waybill.getCustomerCode());
-        BasicTraderNeccesaryInfoDTO baseTraderNeccesaryInfo = baseMinorManager.getBaseTraderNeccesaryInfo(waybill.getCustomerCode());
-        if (baseTraderNeccesaryInfo != null) {
-            record.setTraderName(baseTraderNeccesaryInfo.getTraderName());
-        }
         return response;
     }
 
@@ -350,9 +346,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         FirstSiteVo firstSiteVo = firstSiteByPackageCodeResult.getData();
         report.setFirstSiteCode(firstSiteVo.getFirstSiteCode());
         report.setFirstSiteName(firstSiteVo.getFirstSiteName());
-        report.setReportedId(firstSiteVo.getReportedId());
-        report.setReportedErp(firstSiteVo.getReportedErp());
-        report.setReportedName(firstSiteVo.getReportedName());
+        report.setReportedUserId(firstSiteVo.getReportedId());
+        report.setReportedUserName(firstSiteVo.getReportedName());
 
         return result;
     }
