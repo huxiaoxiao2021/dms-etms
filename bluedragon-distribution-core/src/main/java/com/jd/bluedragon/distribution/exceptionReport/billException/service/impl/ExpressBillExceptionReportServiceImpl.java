@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
@@ -15,10 +17,9 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
-import com.alibaba.fastjson.JSON;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,6 +51,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
     /**
      * 面单异常提交
@@ -83,7 +87,18 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             ExpressBillExceptionReport record = this.assembleRecord(reportRequest);
 
             //封装商城订单号
-            this.assembleWayBillOrderId(reportRequest.getPackageCode(),record);
+            JdCResponse<Void> assembleWayBillAndTraderInfoResult = this.assembleWayBillAndTraderInfo(reportRequest.getPackageCode(), record);
+            if(!assembleWayBillAndTraderInfoResult.isSucceed()){
+                result.toFail(assembleWayBillAndTraderInfoResult.getMessage());
+                return result;
+            }
+
+            // 获取始发信息，被举报人信息
+            JdCResponse<Void> assembleFirstSiteInfoResult = this.assembleFirstSiteInfo(reportRequest, record);
+            if(!assembleFirstSiteInfoResult.isSucceed()){
+                result.toFail(assembleFirstSiteInfoResult.getMessage());
+                return result;
+            }
 
             //3.数据增加
             expressBillExceptionReportDao.insertReport(record);
@@ -101,7 +116,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
      * 活动包裹订单号
      * @param packageCode
      */
-    private void assembleWayBillOrderId(String packageCode,ExpressBillExceptionReport record) {
+    private JdCResponse<Void> assembleWayBillAndTraderInfo(String packageCode, ExpressBillExceptionReport record) {
+        JdCResponse<Void> response = new JdCResponse<>();
+        response.toSucceed();
+
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         String orderId =  waybillQueryManager.getOrderCodeByWaybillCode(waybillCode,true);
         if(StringUtils.isNotEmpty(orderId)){
@@ -109,6 +127,19 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         }else {
             log.warn("面单异常举报获取运单订单号为空 waybillCode:{}",waybillCode);
         }
+        // 获取的商家信息
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if(waybill == null){
+            log.warn("面单异常举报获取运单信息为空 waybillCode:{}", waybillCode);
+            response.toError("面单异常举报失败，获取运单信息为空");
+            return response;
+        }
+        record.setTraderCode(waybill.getCustomerCode());
+        BasicTraderNeccesaryInfoDTO baseTraderNeccesaryInfo = baseMinorManager.getBaseTraderNeccesaryInfo(waybill.getCustomerCode());
+        if (baseTraderNeccesaryInfo != null) {
+            record.setTraderName(baseTraderNeccesaryInfo.getTraderName());
+        }
+        return response;
     }
 
     /**
@@ -137,25 +168,23 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
             //1.先找出仓配的始发地
-            Waybill baseEntity =  waybillQueryManager.getWaybillByWayCode(waybillCode);
+            Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
             if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
-                firstSiteVo =  this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
+                firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
                 result.setData(firstSiteVo);
-                return result;
             }
 
-
             //2.找揽收完成的--满足纯配营业部、驻场、车队
-            List<PackageStateDto>   stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+            List<PackageStateDto> stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             if(CollectionUtils.isNotEmpty(stateList)){
                 PackageStateDto packageState = stateList.get(0);
-                firstSiteVo = this.packageFirstSiteVo(packageState.getOperatorSiteId(),packageState.getOperatorSite());
+                firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
                 result.setData(firstSiteVo);
                 return result;
             }
 
             //3.找换单完成的-换单营业部
-            List<PackageStateDto>   changeStateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_EXCHANGE);
+            List<PackageStateDto> changeStateList = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_EXCHANGE);
 
             if(CollectionUtils.isEmpty(changeStateList)){
                 log.error("当前包裹{}，无法获取始发地",packageCode);
@@ -164,7 +193,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             }
 
             PackageStateDto packageState = changeStateList.get(0);
-            firstSiteVo = this.packageFirstSiteVo(packageState.getOperatorSiteId(),packageState.getOperatorSite());
+            firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
             result.setData(firstSiteVo);
         }catch (Exception e){
             log.error("通过包裹号获取运单始发网点异常 packageCode:{}",packageCode,e);
@@ -183,6 +212,22 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         FirstSiteVo firstSiteVo = new FirstSiteVo();
         firstSiteVo.setFirstSiteName(siteName);
         firstSiteVo.setFirstSiteCode(siteCode);
+        return firstSiteVo;
+    }
+
+    /**
+     * 封装始发站点对象
+     * @return
+     */
+    private FirstSiteVo packageFirstSiteAndReportedInfoVo(PackageStateDto packageState){
+        FirstSiteVo firstSiteVo = new FirstSiteVo();
+        firstSiteVo.setFirstSiteName(packageState.getOperatorSite());
+        firstSiteVo.setFirstSiteCode(packageState.getOperatorSiteId());
+        if(packageState.getOperatorUserId() != null){
+            firstSiteVo.setReportedId((long) packageState.getOperatorUserId());
+        }
+        firstSiteVo.setReportedErp(packageState.getOperatorUserErp())
+                .setReportedName(packageState.getOperatorUser());
         return firstSiteVo;
     }
 
@@ -284,6 +329,32 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setTs(new Date());
         report.setRemark(reportRequest.getRemark());
         return report;
+    }
+
+    /**
+     * 组装始发地相关信息
+     * @param reportRequest
+     * @param report
+     * @return
+     */
+    private JdCResponse<Void> assembleFirstSiteInfo(ExpressBillExceptionReportRequest reportRequest, ExpressBillExceptionReport report){
+        JdCResponse<Void> result = new JdCResponse<>();
+        result.toSucceed();
+
+        // 获取始发及商家信息
+        JdCResponse<FirstSiteVo> firstSiteByPackageCodeResult = this.getFirstSiteByPackageCode(reportRequest.getPackageCode());
+        if(!firstSiteByPackageCodeResult.isSucceed()){
+            result.toFail(firstSiteByPackageCodeResult.getMessage());
+            return result;
+        }
+        FirstSiteVo firstSiteVo = firstSiteByPackageCodeResult.getData();
+        report.setFirstSiteCode(firstSiteVo.getFirstSiteCode());
+        report.setFirstSiteName(firstSiteVo.getFirstSiteName());
+        report.setReportedId(firstSiteVo.getReportedId());
+        report.setReportedErp(firstSiteVo.getReportedErp());
+        report.setReportedName(firstSiteVo.getReportedName());
+
+        return result;
     }
 }
     

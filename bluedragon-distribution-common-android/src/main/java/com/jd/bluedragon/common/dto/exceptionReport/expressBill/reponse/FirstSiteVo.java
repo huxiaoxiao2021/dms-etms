@@ -18,6 +18,21 @@ public class FirstSiteVo implements Serializable {
      */
     private String  firstSiteName;
 
+    /**
+     * 被举报人ID
+     */
+    private Long reportedId;
+
+    /**
+     * 被举报人ERP
+     */
+    private String reportedErp;
+
+    /**
+     * 被举报人姓名
+     */
+    private String reportedName;
+
     public Integer getFirstSiteCode() {
         return firstSiteCode;
     }
@@ -32,6 +47,33 @@ public class FirstSiteVo implements Serializable {
 
     public void setFirstSiteName(String firstSiteName) {
         this.firstSiteName = firstSiteName;
+    }
+
+    public Long getReportedId() {
+        return reportedId;
+    }
+
+    public FirstSiteVo setReportedId(Long reportedId) {
+        this.reportedId = reportedId;
+        return this;
+    }
+
+    public String getReportedErp() {
+        return reportedErp;
+    }
+
+    public FirstSiteVo setReportedErp(String reportedErp) {
+        this.reportedErp = reportedErp;
+        return this;
+    }
+
+    public String getReportedName() {
+        return reportedName;
+    }
+
+    public FirstSiteVo setReportedName(String reportedName) {
+        this.reportedName = reportedName;
+        return this;
     }
 }
     

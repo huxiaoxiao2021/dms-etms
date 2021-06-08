@@ -15,7 +15,11 @@
         <result property="reportType" column="report_type"/>
         <result property="reportUserErp" column="report_user_erp"/>
         <result property="reportTime" column="report_time"/>
-        <result property="reportImgUrls" column="report_img_urls"/>
+        <result property="traderCode" column="trader_code"/>
+        <result property="traderName" column="trader_name"/>
+        <result property="reportedId" column="reported_id"/>
+        <result property="reportedErp" column="reported_erp"/>
+        <result property="reportedName" column="reported_name"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
@@ -26,7 +30,8 @@
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,create_time,update_time,yn,ts,remark,order_id
+        id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
+        trader_code, trader_name, reported_id, reported_erp, reported_name ,create_time,update_time,yn,ts,remark,order_id
     </sql>
 
 
@@ -101,6 +106,21 @@
             <if test="reportImgUrls != null and reportImgUrls != ''">
             report_img_urls,
             </if>
+            <if test="traderCode != null and traderCode != ''">
+                trader_code,
+            </if>
+            <if test="traderName != null and traderName != ''">
+                trader_name,
+            </if>
+            <if test="reportedId != null and reportedId != ''">
+                reported_id,
+            </if>
+            <if test="reportedErp != null and reportedErp != ''">
+                reported_erp,
+            </if>
+            <if test="reportedName != null and reportedName != ''">
+                reported_name,
+            </if>
             <if test="createTime !=null">
             create_time,
             </if>
@@ -156,6 +176,21 @@
             </if>
             <if test="reportImgUrls != null and reportImgUrls != ''">
                 #{reportImgUrls,jdbcType=VARCHAR},
+            </if>
+            <if test="traderCode != null and traderCode != ''">
+                #{traderCode},
+            </if>
+            <if test="traderName != null and traderName != ''">
+                #{traderName},
+            </if>
+            <if test="reportedId != null and reportedId != ''">
+                #{reportedId},
+            </if>
+            <if test="reportedErp != null and reportedErp != ''">
+                #{reportedErp},
+            </if>
+            <if test="reportedName != null and reportedName != ''">
+                #{reportedName},
             </if>
             <if test="createTime != null">
                 #{createTime,jdbcType=TIMESTAMP},

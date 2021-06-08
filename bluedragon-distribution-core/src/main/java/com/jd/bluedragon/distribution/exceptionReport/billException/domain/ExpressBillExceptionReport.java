@@ -79,6 +79,31 @@ public class ExpressBillExceptionReport implements Serializable {
     private String reportImgUrls;
 
     /**
+     * 商家编码
+     */
+    private String traderCode;
+
+    /**
+     * 商家名称
+     */
+    private String traderName;
+
+    /**
+     * 被举报人ID
+     */
+    private Long reportedId;
+
+    /**
+     * 被举报人ERP
+     */
+    private String reportedErp;
+
+    /**
+     * 被举报人姓名
+     */
+    private String reportedName;
+
+    /**
      * 数据库时间
      */
     private Date ts;
@@ -210,6 +235,51 @@ public class ExpressBillExceptionReport implements Serializable {
 
     public void setReportImgUrls(String reportImgUrls) {
         this.reportImgUrls = reportImgUrls;
+    }
+
+    public String getTraderCode() {
+        return traderCode;
+    }
+
+    public ExpressBillExceptionReport setTraderCode(String traderCode) {
+        this.traderCode = traderCode;
+        return this;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public ExpressBillExceptionReport setTraderName(String traderName) {
+        this.traderName = traderName;
+        return this;
+    }
+
+    public Long getReportedId() {
+        return reportedId;
+    }
+
+    public ExpressBillExceptionReport setReportedId(Long reportedId) {
+        this.reportedId = reportedId;
+        return this;
+    }
+
+    public String getReportedErp() {
+        return reportedErp;
+    }
+
+    public ExpressBillExceptionReport setReportedErp(String reportedErp) {
+        this.reportedErp = reportedErp;
+        return this;
+    }
+
+    public String getReportedName() {
+        return reportedName;
+    }
+
+    public ExpressBillExceptionReport setReportedName(String reportedName) {
+        this.reportedName = reportedName;
+        return this;
     }
 
     public String getReportUserErp() {
