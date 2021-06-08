@@ -21,17 +21,22 @@ public class FirstSiteVo implements Serializable {
     /**
      * 被举报人ID
      */
-    private Long reportedId;
+    private Long reportedUserId;
 
     /**
      * 被举报人ERP
      */
-    private String reportedErp;
+    private String reportedUserErp;
 
     /**
      * 被举报人姓名
      */
-    private String reportedName;
+    private String reportedUserName;
+
+    /**
+     * 仓配或终端标识
+     */
+    private Integer startSourceType;
 
     public Integer getFirstSiteCode() {
         return firstSiteCode;
@@ -49,30 +54,39 @@ public class FirstSiteVo implements Serializable {
         this.firstSiteName = firstSiteName;
     }
 
-    public Long getReportedId() {
-        return reportedId;
+    public Long getReportedUserId() {
+        return reportedUserId;
     }
 
-    public FirstSiteVo setReportedId(Long reportedId) {
-        this.reportedId = reportedId;
+    public FirstSiteVo setReportedUserId(Long reportedUserId) {
+        this.reportedUserId = reportedUserId;
         return this;
     }
 
-    public String getReportedErp() {
-        return reportedErp;
+    public String getReportedUserErp() {
+        return reportedUserErp;
     }
 
-    public FirstSiteVo setReportedErp(String reportedErp) {
-        this.reportedErp = reportedErp;
+    public FirstSiteVo setReportedUserErp(String reportedUserErp) {
+        this.reportedUserErp = reportedUserErp;
         return this;
     }
 
-    public String getReportedName() {
-        return reportedName;
+    public String getReportedUserName() {
+        return reportedUserName;
     }
 
-    public FirstSiteVo setReportedName(String reportedName) {
-        this.reportedName = reportedName;
+    public FirstSiteVo setReportedUserName(String reportedUserName) {
+        this.reportedUserName = reportedUserName;
+        return this;
+    }
+
+    public Integer getStartSourceType() {
+        return startSourceType;
+    }
+
+    public FirstSiteVo setStartSourceType(Integer startSourceType) {
+        this.startSourceType = startSourceType;
         return this;
     }
 }

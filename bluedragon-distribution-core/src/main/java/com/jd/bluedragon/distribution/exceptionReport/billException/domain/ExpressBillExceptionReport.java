@@ -89,6 +89,11 @@ public class ExpressBillExceptionReport implements Serializable {
     private Long reportedUserId;
 
     /**
+     * 被举报人erp
+     */
+    private String  reportedUserErp;
+
+    /**
      * 被举报人姓名
      */
     private String reportedUserName;
@@ -122,6 +127,11 @@ public class ExpressBillExceptionReport implements Serializable {
      * 订单号
      */
     private String orderId;
+
+    /**
+     * 仓配或终端标识
+     */
+    private Integer startSourceType;
 
     public String getOrderId() {
         return orderId;
@@ -245,6 +255,15 @@ public class ExpressBillExceptionReport implements Serializable {
         return this;
     }
 
+    public String getReportedUserErp() {
+        return reportedUserErp;
+    }
+
+    public ExpressBillExceptionReport setReportedUserErp(String reportedUserErp) {
+        this.reportedUserErp = reportedUserErp;
+        return this;
+    }
+
     public String getReportedUserName() {
         return reportedUserName;
     }
@@ -300,6 +319,15 @@ public class ExpressBillExceptionReport implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getStartSourceType() {
+        return startSourceType;
+    }
+
+    public ExpressBillExceptionReport setStartSourceType(Integer startSourceType) {
+        this.startSourceType = startSourceType;
+        return this;
     }
 }
     

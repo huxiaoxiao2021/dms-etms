@@ -18,6 +18,7 @@
         <result property="reportImgUrls" column="report_img_urls"/>
         <result property="traderCode" column="trader_code"/>
         <result property="reportedUserId" column="reported_user_id"/>
+        <result property="reportedUserErp" column="reported_user_erp"/>
         <result property="reportedUserName" column="reported_user_name"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
@@ -30,7 +31,7 @@
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
         id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
-        trader_code, reported_user_id, reported_user_name ,create_time,update_time,yn,ts,remark,order_id
+        trader_code, reported_user_id, reported_user_erp, reported_user_name ,create_time,update_time,yn,ts,remark,order_id
     </sql>
 
 
@@ -111,6 +112,9 @@
             <if test="reportedUserId != null and reportedUserId != ''">
                 reported_user_id,
             </if>
+            <if test="reportedUserErp != null and reportedUserErp != ''">
+                reported_user_erp,
+            </if>
             <if test="reportedUserName != null and reportedUserName != ''">
                 reported_user_name,
             </if>
@@ -176,8 +180,8 @@
             <if test="reportedUserId != null and reportedUserId != ''">
                 #{reportedUserId},
             </if>
-            <if test="reportedErp != null and reportedErp != ''">
-                #{reportedErp},
+            <if test="reportedUserErp != null and reportedUserErp != ''">
+                #{reportedUserErp},
             </if>
             <if test="reportedUserName != null and reportedUserName != ''">
                 #{reportedUserName},

@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBill
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -19,7 +20,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.service.Expr
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
-import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -53,7 +54,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private BaseMinorManager baseMinorManager;
+    private BaseMajorManager baseMajorManager;
 
     /**
      * 面单异常提交
@@ -98,6 +99,11 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             if(!assembleFirstSiteInfoResult.isSucceed()){
                 result.toFail(assembleFirstSiteInfoResult.getMessage());
                 return result;
+            }
+            // 如果被举报人erp为空，则查一次基础资料
+            if(StringUtils.isEmpty(record.getReportedUserErp()) && null != record.getReportedUserId()){
+                BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffByStaffId(record.getReportedUserId().intValue());
+                record.setReportedUserErp(baseStaffByStaffId.getErp());
             }
 
             //3.数据增加
@@ -220,10 +226,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         firstSiteVo.setFirstSiteName(packageState.getOperatorSite());
         firstSiteVo.setFirstSiteCode(packageState.getOperatorSiteId());
         if(packageState.getOperatorUserId() != null){
-            firstSiteVo.setReportedId((long) packageState.getOperatorUserId());
+            firstSiteVo.setReportedUserId((long) packageState.getOperatorUserId());
         }
-        firstSiteVo.setReportedErp(packageState.getOperatorUserErp())
-                .setReportedName(packageState.getOperatorUser());
+        firstSiteVo.setReportedUserErp(packageState.getOperatorUserErp())
+                .setReportedUserName(packageState.getOperatorUser());
         return firstSiteVo;
     }
 
@@ -346,8 +352,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         FirstSiteVo firstSiteVo = firstSiteByPackageCodeResult.getData();
         report.setFirstSiteCode(firstSiteVo.getFirstSiteCode());
         report.setFirstSiteName(firstSiteVo.getFirstSiteName());
-        report.setReportedUserId(firstSiteVo.getReportedId());
-        report.setReportedUserName(firstSiteVo.getReportedName());
+        report.setReportedUserId(firstSiteVo.getReportedUserId());
+        report.setReportedUserErp(firstSiteVo.getReportedUserErp());
+        report.setReportedUserName(firstSiteVo.getReportedUserName());
 
         return result;
     }
