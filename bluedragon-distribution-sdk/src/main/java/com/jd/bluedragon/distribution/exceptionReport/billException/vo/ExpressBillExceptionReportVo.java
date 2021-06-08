@@ -104,6 +104,11 @@ public class ExpressBillExceptionReportVo implements Serializable {
     private Long reportedUserId;
 
     /**
+     * 被举报人erp
+     */
+    private Long reportedUserErp;
+
+    /**
      * 被举报人姓名
      */
     private String reportedUserName;
@@ -290,6 +295,15 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public ExpressBillExceptionReportVo setReportedUserId(Long reportedUserId) {
         this.reportedUserId = reportedUserId;
+        return this;
+    }
+
+    public Long getReportedUserErp() {
+        return reportedUserErp;
+    }
+
+    public ExpressBillExceptionReportVo setReportedUserErp(Long reportedUserErp) {
+        this.reportedUserErp = reportedUserErp;
         return this;
     }
 
