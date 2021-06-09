@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -44,6 +45,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -96,18 +98,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     // 拦截报表发送服务
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
-    // 拦截报表操作节点分拣类型
-    @Value("${businessIntercept.operate.node.sorting}")
-    private Integer interceptOperateNodeSorting;
-    // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.operate.node.send}")
-    private Integer interceptOperateNodeSend;
-    // 拦截报表操作节点组板类型
-    @Value("${businessIntercept.operate.node.boardCombination}")
-    private Integer interceptOperateNodeBoardCombination;
-    // 拦截报表操作节点设备类型
-    @Value("${businessIntercept.device.type.pda}")
-    private Integer interceptOperateDeviceTypePda;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -199,8 +192,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
             saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
             saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
-            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PDA));
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
             long operateTimeMillis = System.currentTimeMillis();
             if(pdaOperateRequest.getOperateTime() != null){
@@ -213,10 +206,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
             saveInterceptMsgDto.setOnlineStatus(filterContext.getOnlineStatus());
 
-            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
                 businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
             } catch (Exception e) {
+                String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
                 logger.error("SortingCheckServiceImpl call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
             }
         } catch (Exception e) {
@@ -237,10 +230,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         int operateNode = 0;
         if(pdaOperateRequest.getOperateNode() != null){
             if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SEND){
-                operateNode = interceptOperateNodeSend;
+                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SEND);
             }
             if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SORTING){
-                operateNode = interceptOperateNodeSorting;
+                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SORTING);
             }
         }
         return operateNode;

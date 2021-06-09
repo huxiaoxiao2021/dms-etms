@@ -42,6 +42,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -126,6 +127,7 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
@@ -397,6 +399,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     /**
      * 自动过期时间 30分钟
@@ -953,6 +958,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
             SendResult sendResult = new SendResult();
             sendResult.init(SendResult.CODE_SENDED,weightAndVolumeCheck.getMessage());
+            // 待用，整箱未称时提交拦截报表
+            // this.sendBusinessInterceptMsg(domain, weightAndVolumeCheck);
             return  sendResult;
         }
         if (isCancelLastSend) {
@@ -2732,8 +2739,50 @@ public class DeliveryServiceImpl implements DeliveryService {
                 packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
             response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
             response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+            // 待用，整箱未称时提交拦截报表
+            this.sendBusinessInterceptMsg(tSendM, response);
         }
         return response;
+    }
+
+    /**
+     * 发送拦截消息
+     * @param deliveryRequest 请求参数
+     * @param result 校验结果
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2020-12-22 18:18:15 周二
+     */
+    private boolean sendBusinessInterceptMsg(SendM deliveryRequest, DeliveryResponse result){
+        log.info("DeliveryServiceImpl sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(result));
+        try {
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(result.getCode());
+            saveInterceptMsgDto.setInterceptMessage(result.getMessage());
+            saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
+            saveInterceptMsgDto.setSiteCode(deliveryRequest.getCreateSiteCode());
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PDA));
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
+            long operateTimeMillis = System.currentTimeMillis();
+            if(deliveryRequest.getOperateTime() != null){
+                operateTimeMillis = deliveryRequest.getOperateTime().getTime();
+            }
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SEND));
+            saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getCreateUserCode());
+            saveInterceptMsgDto.setOperateUserName(deliveryRequest.getCreateUser());
+
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
+                log.error("DeliveryServiceImpl.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("DeliveryServiceImpl.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , e.getMessage(), e);
+        }
+        return true;
     }
 
     /**
