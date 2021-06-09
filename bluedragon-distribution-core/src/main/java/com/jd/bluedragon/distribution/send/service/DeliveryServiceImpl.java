@@ -426,14 +426,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final Integer BATCH_NUM_M = 99;
 
-    // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.operate.node.send}")
-    private Integer interceptOperateNodeSend;
-    // 拦截报表操作节点设备类型
-    @Value("${businessIntercept.device.type.pda}")
-    private Integer interceptOperateDeviceTypePda;
-
-
     /**
      * 组板发货任务的Redis缓存key的前缀
      */
@@ -561,11 +553,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             saveInterceptMsgDto.setInterceptMessage(result.getMessage());
             saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
             saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
-            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getInterceptOperateDeviceTypePda());
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
             long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
             saveInterceptMsgDto.setOperateTime(operateTimeMillis);
-            saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getInterceptOperateNodeSend());
             saveInterceptMsgDto.setSiteName(deliveryRequest.getSiteName());
             saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
             saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
@@ -591,6 +583,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param businessType
      * @return
      */
+    @Override
     public DeliveryResponse doCheckDeliveryInfo(String boxCode,
                                                  Integer siteCode,
                                                  Integer receiveSiteCode,
@@ -679,6 +672,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+    @Override
     public DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request,SendBizSourceEnum sourceEnum){
         List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
         List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
@@ -1539,6 +1533,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param boxCode
      * @return
      */
+    @Override
     public List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum){
         Box box = this.boxService.findBoxByCode(boxCode);
         if(box != null) {
@@ -3577,6 +3572,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param tSendM 发货相关数据
      */
+    @Override
     public boolean cancelSendM(SendM tSendM) {
         return this.sendMDao.cancelSendM(tSendM);
     }
@@ -3586,6 +3582,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param tSendDetail 发货相关数据
      */
+    @Override
     public boolean cancelSendDatailByPackage(SendDetail tSendDetail) {
         if (tSendDetail != null) {
             try {
@@ -3604,6 +3601,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendM 发货相关数据
      */
+    @Override
     public boolean cancelSendDatailByBox(SendM sendM) {
         SendDetail tSendDatail = new SendDetail();
         tSendDatail.setBoxCode(sendM.getBoxCode());
@@ -4402,6 +4400,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return false;
     }
 
+    @Override
     public List<SendDetail> findOrder(SendDetail sendDetail) {
         return sendDatailDao.findOrder(sendDetail);
     }
@@ -4411,6 +4410,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList
      * @return
      */
+    @Override
     public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList){
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
@@ -4449,6 +4449,7 @@ public class DeliveryServiceImpl implements DeliveryService {
    * @param queryType
    * @return
    */
+    @Override
   public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType) {
     // 未扫描包裹
     List<SendThreeDetail> notScaned = null;
@@ -4696,6 +4697,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @flag 新老版本标识，0是老版本调用，1是新版本调用接口
      * @return
      */
+    @Override
     public DeliveryResponse checkRouterForKY(SendM sendM, Integer flag){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
@@ -5047,6 +5049,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @SuppressWarnings("rawtypes")
+    @Override
     public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
@@ -5174,6 +5177,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList
      * @param allList
      */
+    @Override
     public void getAllList(List<SendM> sendMList, List<SendDetail> allList) {
         for (SendM tSendM : sendMList) {
             SendDetail tSendDatail = new SendDetail();
@@ -5365,6 +5369,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param receiveSiteCode
      * @return
      */
+    @Override
     public List<SendThreeDetail> checkSortingDiff(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
 
         List<SendDetail> allList = new ArrayList<SendDetail>();
@@ -5454,6 +5459,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param receiveSiteCode
      * @return
      */
+    @Override
     public Integer appendPackageNum(String boxCode, Integer createSiteCode,
                                     Integer receiveSiteCode) {
 
@@ -5659,6 +5665,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+    @Override
     public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);
@@ -5998,7 +6005,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private final List<SendThreeDetail> setSortingBoxCode(
         Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
-      if (null == list || list.isEmpty()) return list;
+      if (null == list || list.isEmpty()) {
+          return list;
+      }
       List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
       List<String> packageCodes = new ArrayList<>();
       for (SendThreeDetail item : list) {
@@ -6642,6 +6651,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.DeliveryServiceImpl.doBoardDeliveryCancel", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
     public boolean doBoardDeliveryCancel(Task task){
         if(log.isDebugEnabled()){
             log.debug("按板取消发货开始：{}" ,JsonHelper.toJson(task));
@@ -7008,6 +7018,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendCode
      * @return
      */
+    @Override
     public boolean checkSendCodeIsOld(String sendCode) {
         // 获取批次创建时间
         try{
@@ -7028,6 +7039,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendCode
      * @return
      */
+    @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
         // 查redis后查运输接口兜底
         if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
