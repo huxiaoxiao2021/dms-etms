@@ -264,6 +264,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
+            expressBillExceptionReportMq.setReportTime(record.getReportTime().getTime());
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
