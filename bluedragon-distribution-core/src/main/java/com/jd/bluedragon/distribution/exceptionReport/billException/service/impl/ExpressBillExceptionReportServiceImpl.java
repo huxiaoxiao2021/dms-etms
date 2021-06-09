@@ -8,18 +8,22 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSit
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
+import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressBillLineTypeEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -27,7 +31,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,6 +61,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Qualifier("dmsExpressBillExceptionReportProducer")
+    @Autowired
+    protected DefaultJMQProducer dmsExpressBillExceptionReportProducer;
 
     /**
      * 面单异常提交
@@ -108,6 +118,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //3.数据增加
             expressBillExceptionReportDao.insertReport(record);
+            this.sendDmsExpressBillExceptionReport(record);
             result.toSucceed("举报成功");
             result.setData(true);
         }catch (Exception e){
@@ -169,11 +180,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             // 获取运单始发地
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
+            Integer lineType = null;
             //1.先找出仓配的始发地
             Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
             if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
                 firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
                 result.setData(firstSiteVo);
+                lineType = ExpressBillLineTypeEnum.WAREHOUSE.getCode();
             }
 
             //2.找揽收完成的--满足纯配营业部、驻场、车队
@@ -196,6 +209,12 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             PackageStateDto packageState = changeStateList.get(0);
             firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
+
+            // 设置条线类型
+            if (lineType == null) {
+                lineType = ExpressBillLineTypeEnum.STATION.getCode();
+            }
+            firstSiteVo.setLineType(lineType);
             result.setData(firstSiteVo);
         }catch (Exception e){
             log.error("通过包裹号获取运单始发网点异常 packageCode:{}",packageCode,e);
@@ -231,6 +250,29 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         firstSiteVo.setReportedUserErp(packageState.getOperatorUserErp())
                 .setReportedUserName(packageState.getOperatorUser());
         return firstSiteVo;
+    }
+
+    /**
+     * 发送举报成mq消息
+     * @param record
+     * @return
+     */
+    private JdCResponse<Void> sendDmsExpressBillExceptionReport(ExpressBillExceptionReport record){
+        JdCResponse<Void> result = new JdCResponse<>();
+        result.toSucceed();
+        try {
+            // 发送mq消息
+            ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
+            BeanUtils.copyProperties(record, expressBillExceptionReportMq);
+            if(log.isDebugEnabled()){
+                log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
+            }
+            dmsExpressBillExceptionReportProducer.send(record.getPackageCode(), JsonHelper.toJson(expressBillExceptionReportMq));
+        } catch (JMQException e) {
+            log.error("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport failed ", e);
+            result.toFail("发送mq消息异常");
+        }
+        return result;
     }
 
     /**
@@ -355,6 +397,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setReportedUserId(firstSiteVo.getReportedUserId());
         report.setReportedUserErp(firstSiteVo.getReportedUserErp());
         report.setReportedUserName(firstSiteVo.getReportedUserName());
+        report.setLineType(firstSiteVo.getLineType());
 
         return result;
     }

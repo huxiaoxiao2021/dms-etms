@@ -129,9 +129,9 @@ public class ExpressBillExceptionReport implements Serializable {
     private String orderId;
 
     /**
-     * 仓配或终端标识
+     * 仓配或终端条线类型
      */
-    private Integer startSourceType;
+    private Integer lineType;
 
     public String getOrderId() {
         return orderId;
@@ -321,12 +321,12 @@ public class ExpressBillExceptionReport implements Serializable {
         this.remark = remark;
     }
 
-    public Integer getStartSourceType() {
-        return startSourceType;
+    public Integer getLineType() {
+        return lineType;
     }
 
-    public ExpressBillExceptionReport setStartSourceType(Integer startSourceType) {
-        this.startSourceType = startSourceType;
+    public ExpressBillExceptionReport setLineType(Integer lineType) {
+        this.lineType = lineType;
         return this;
     }
 }

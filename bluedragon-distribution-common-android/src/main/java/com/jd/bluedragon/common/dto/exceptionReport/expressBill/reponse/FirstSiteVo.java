@@ -34,9 +34,9 @@ public class FirstSiteVo implements Serializable {
     private String reportedUserName;
 
     /**
-     * 仓配或终端标识
+     * 仓配或终端条线类型
      */
-    private Integer startSourceType;
+    private Integer lineType;
 
     public Integer getFirstSiteCode() {
         return firstSiteCode;
@@ -81,12 +81,12 @@ public class FirstSiteVo implements Serializable {
         return this;
     }
 
-    public Integer getStartSourceType() {
-        return startSourceType;
+    public Integer getLineType() {
+        return lineType;
     }
 
-    public FirstSiteVo setStartSourceType(Integer startSourceType) {
-        this.startSourceType = startSourceType;
+    public FirstSiteVo setLineType(Integer lineType) {
+        this.lineType = lineType;
         return this;
     }
 }
