@@ -32,7 +32,7 @@
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
         id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
-        trader_code, reported_user_id, reported_user_erp, reported_user_name, lineType, create_time, update_time, yn, ts, remark, order_id
+        trader_code, reported_user_id, reported_user_erp, reported_user_name, line_type, create_time, update_time, yn, ts, remark, order_id
     </sql>
 
 
