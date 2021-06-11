@@ -14,22 +14,22 @@ import com.jd.bluedragon.core.crossbow.security.CrossbowSecurityEnum;
 public class CrossbowConfig {
 
     /**
-     * 拼多多在物流网关外部服务域中配置的服务域
+     * 在物流网关外部服务域中配置的服务域
      */
     private String domain;
 
     /**
-     * 拼多多在物流网关外部服务域中配置的api对应的url
+     * 在物流网关外部服务域中配置的api对应的url
      */
     private String api;
 
     /**
-     * 拼多多订单在外部服务域中配置的appKey（在物流开放平台中入驻）
+     * 在外部服务域中配置的appKey（在物流开放平台中入驻）
      */
     private String appKey;
 
     /**
-     * 拼多多订单在外部服务域中配置的appKey对应的appSecret(在物流开放平台中入驻)
+     * 在外部服务域中配置的appKey对应的appSecret(在物流开放平台中入驻)
      */
     private String appSecret;
 

@@ -1108,4 +1108,17 @@ public class UccPropertyConfiguration {
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
     }
+
+    /**
+     * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
+     */
+    private String itmsBizEnableSwitch;
+
+    public String getItmsBizEnableSwitch() {
+        return itmsBizEnableSwitch;
+    }
+
+    public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
+        this.itmsBizEnableSwitch = itmsBizEnableSwitch;
+    }
 }
