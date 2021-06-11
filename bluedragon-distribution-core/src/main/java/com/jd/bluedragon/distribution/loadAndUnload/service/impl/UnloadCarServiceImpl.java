@@ -670,27 +670,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
                 //是否专网标识  专网不组板
-                String privateNetworkResMsg = "";
                 boolean privateNetworkFlag = false;
                 if(privateNetworkCheck(waybillCode)) {
                     privateNetworkFlag = true;
-                    privateNetworkResMsg = "1、" + GoodsLoadScanConstants.PRIVATE_NETWORK_PACKAGE + ";  ";
+                    Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+                    warnMsg.put(UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getLevel(), UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getDesc());
                 }
-                String tempStorageResMsg = "";
                 boolean tempStorageFlag = false;
                 // 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
                 if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
                     tempStorageFlag = true;
-                    tempStorageResMsg = StringUtils.isBlank(privateNetworkResMsg) ? Constants.PDA_STAGING_CONFIRM_MESSAGE :"2、" + Constants.PDA_STAGING_CONFIRM_MESSAGE;
+                    Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+                    warnMsg.put(UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getLevel(), UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getDesc());
                 }
 
                 if(privateNetworkFlag || tempStorageFlag){
-                    String msg = privateNetworkResMsg + tempStorageResMsg;
                     if(logger.isInfoEnabled()) {
-                        logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                                request.getBarCode(), privateNetworkFlag, tempStorageFlag, msg);
+                        logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】",
+                                request.getBarCode(), privateNetworkFlag, tempStorageFlag);
                     }
-                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, msg);
                     return dtoInvokeResult;
                 }
                 // 路由校验、生成板号
@@ -1304,10 +1302,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 批量保存卸车包裹明细和运单明细
             batchSaveUnloadDetail(packageList, surplusPackages, request, unloadCar, waybillCode);
 
+            //专网判断
+            Boolean privateNetworkFlag = privateNetworkCheck(waybillCode, invokeResult, GoodsLoadScanConstants.BUSINESS_DIMENSION_WAYBILLCODE);
             /**新增暂存校验**/
+            boolean tempStorageFlag = false;
             if (waybillStagingCheckManager.stagingCheck(packageCode, request.getOperateSiteCode())) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, Constants.PDA_STAGING_CONFIRM_MESSAGE);
-                return invokeResult;
+                tempStorageFlag = true;
+                Map<String, String> warnMsg = invokeResult.getData().getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getLevel(), UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getDesc());
+            }
+            if(privateNetworkFlag || tempStorageFlag) {
+                if(logger.isInfoEnabled()) {
+                    logger.info("waybillScanNew--卸车扫运单=【{}】，校验是否专网=【{}】, 是否暂存=【{}】", waybillCode, privateNetworkFlag, tempStorageFlag);
+                }
+//                return invokeResult;
             }
 
             // B网快运发货规则校验
@@ -1323,8 +1331,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), invokeResult, request.getSealCarCode());
             invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            //专网判断
-            privateNetworkCheck(waybillCode, invokeResult, GoodsLoadScanConstants.BUSINESS_DIMENSION_WAYBILLCODE);
+
         } catch (LoadIllegalException e) {
             logger.error("运单卸车扫描--发生异常:sealCarCode={},packageCode={},error=", sealCarCode, packageCode, e);
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
@@ -3407,27 +3414,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
             //是否专网标识  专网不组板
-            String privateNetworkResMsg = "";
             boolean privateNetworkFlag = false;
             if(privateNetworkCheck(waybillCode)) {
                 privateNetworkFlag = true;
-                privateNetworkResMsg = "1、" + GoodsLoadScanConstants.PRIVATE_NETWORK_PACKAGE + ";  ";
+                Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getLevel(), UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getDesc());
             }
-            String tempStorageResMsg = "";
             boolean tempStorageFlag = false;
             // 增加运单暂存校验，如果支持暂存：只验收包裹、不组板 直接返回提示语
             if (waybillStagingCheckManager.stagingCheck(request.getBarCode(), request.getOperateSiteCode())) {
                 tempStorageFlag = true;
-                tempStorageResMsg = StringUtils.isBlank(privateNetworkResMsg) ? Constants.PDA_STAGING_CONFIRM_MESSAGE :"2、" + Constants.PDA_STAGING_CONFIRM_MESSAGE;
+                Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getLevel(), UnloadCarWarnEnum.PDA_STAGING_CONFIRM_MESSAGE.getDesc());
             }
 
             if(privateNetworkFlag || tempStorageFlag){
-                String msg = privateNetworkResMsg + tempStorageResMsg;
                 if(logger.isInfoEnabled()) {
-                    logger.info("packageCodeScanNew--卸车流水线扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                            request.getBarCode(), privateNetworkFlag, tempStorageFlag, msg);
+                    logger.info("packageCodeScanNew--卸车流水线扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】",
+                            request.getBarCode(), privateNetworkFlag, tempStorageFlag);
                 }
-                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, msg);
                 return dtoInvokeResult;
             }
 
@@ -3465,19 +3470,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param dtoInvokeResult  返回结果
      * @param scanDimension  单号维度： 1-包裹号； 2-运单号
      */
-    private void privateNetworkCheck(String businessCode, InvokeResult<UnloadScanDetailDto> dtoInvokeResult, int scanDimension) {
+    private Boolean privateNetworkCheck(String businessCode, InvokeResult<UnloadScanDetailDto> dtoInvokeResult, int scanDimension) {
         if(StringUtils.isBlank(businessCode)) {
             if(logger.isInfoEnabled()) {
                 logger.info("UnloadCarServiceImpl.privateNetworkCheck--warn--校验是否为专网单子时，单号businessCode为空， 参数dtoInvokeResult=【{}】", JsonHelper.toJson(businessCode));
             }
-            return;
+            return false;
         }
         String waybillCode = (scanDimension == 1) ? WaybillUtil.getWaybillCode(businessCode) : ((scanDimension == 2) ? businessCode : "");
         if(StringUtils.isBlank(waybillCode) || !WaybillUtil.isWaybillCode(waybillCode)) {
             if(logger.isInfoEnabled()) {
                 logger.info("UnloadCarServiceImpl.privateNetworkCheck--warn--校验是否为专网单子时，单号=【{}】转化为运单号=【{}】异常, 单号维度值（1-包裹号；2-运单号）scanDimension=【{}】", businessCode, waybillCode, scanDimension);
             }
-            return;
+            return false;
         }
 
         WChoice wChoice = new WChoice();
@@ -3492,7 +3497,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             String temp = (scanDimension == 1) ? "包裹" : ((scanDimension == 2) ? "运单" : "");
             dtoInvokeResult.setMessage(temp + "【" + businessCode + "】已经扫描成功，专网运单识别出现异常");
-            return;
+            return false;
         }
         Waybill waybill = baseEntity.getData().getWaybill();
         String waybillSign = waybill.getWaybillSign();
@@ -3501,16 +3506,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             String temp = (scanDimension == 1) ? "包裹" : ((scanDimension == 2) ? "运单" : "");
             dtoInvokeResult.setMessage(temp + "【" + businessCode + "】已经扫描成功，专网运单识别出现异常, 原因是未发现该运单打标信息");
-            return;
+            return false;
         }
 
         //是否专网
         if(BusinessUtil.isPrivateNetwork(waybillSign)) {
-            dtoInvokeResult.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-            String temp = (scanDimension == 1) ? GoodsLoadScanConstants.PRIVATE_NETWORK_PACKAGE : ((scanDimension == 2) ? GoodsLoadScanConstants.PRIVATE_NETWORK_WAYBILL : "");
-            dtoInvokeResult.setMessage(temp);
-            return;
+            Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+            warnMsg.put(UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getLevel(), UnloadCarWarnEnum.PRIVATE_NETWORK_PACKAGE.getDesc());
+            return true;
         }
+        return false;
     }
 
     /**
