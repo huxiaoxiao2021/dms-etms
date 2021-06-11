@@ -435,7 +435,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
                 // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,null);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
@@ -463,7 +463,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
             }else {
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,null);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
@@ -538,7 +538,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
                 // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,null);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
@@ -567,7 +567,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
             }else {
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,null);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
@@ -665,7 +665,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return dtoInvokeResult;
                 }
                 // 是否多货包裹校验
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,dtoInvokeResult);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
@@ -719,7 +719,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return dtoInvokeResult;
                 }
             }else {
-                isSurplusPackage = surfacePackageCheck(request,result);
+                isSurplusPackage = surfacePackageCheck(request,result,dtoInvokeResult);
                 BeanUtils.copyProperties(result, dtoInvokeResult);
             }
 
@@ -2064,7 +2064,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @param result
      * @return
      */
-    private boolean surfacePackageCheck(UnloadCarScanRequest request, InvokeResult<UnloadCarScanResult> result) throws LoadIllegalException {
+    private boolean surfacePackageCheck(UnloadCarScanRequest request, InvokeResult<UnloadCarScanResult> result, InvokeResult<UnloadScanDetailDto> dtoInvokeResult) throws LoadIllegalException {
         boolean isSurplusPackage = false;
         try {
             isSurplusPackage = isSurfacePackage(request.getSealCarCode(),request.getBarCode());
@@ -2075,6 +2075,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 空任务不弹框提示
             // 201 成功并页面提示
             result.customMessage(CODE_SUCCESS_HIT, LoadIllegalException.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE);
+            //下面判断中现用接口中对应遍历均已经初始化对象，不会出现NPE，废弃老接口中传null，避免NPE问题再次判空
+            if(dtoInvokeResult != null && dtoInvokeResult.getData() != null && dtoInvokeResult.getData().getWarnMsg() != null) {
+                Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+                warnMsg.put(UnloadCarWarnEnum.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE.getLevel(), UnloadCarWarnEnum.PACK_NOTIN_SEAL_INTERCEPT_MESSAGE.getDesc());
+            }
         }
         return isSurplusPackage;
     }
@@ -3397,7 +3402,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return dtoInvokeResult;
             }
             // 是否多货包裹校验
-            isSurplusPackage = surfacePackageCheck(request, result);
+            isSurplusPackage = surfacePackageCheck(request, result,dtoInvokeResult);
             // 保存包裹卸车记录和运单暂存
             saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
