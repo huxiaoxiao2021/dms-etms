@@ -28,6 +28,9 @@
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
+    <jmq:transport id="jmq.dmsWorkerForTibet.transport" address="${jmq.dmsWorkerForTibet.address}" user="${jmq.dmsWorkerForTibet.user}"
+                   password="${jmq.dmsWorkerForTibet.password}" app="${jmq.dmsWorkerForTibet.app}"/>
+
 	<!-- jmq 消费客户端配置区 -->	    
     <!-- 一车一单发车 -->
     <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
@@ -336,5 +339,16 @@
     <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
     </jmq:consumer>
+
+    <!-- 消费发货明细MQ 给ITMS系统发送发货数据 -->
+    <jmq:consumer id="jmq.tibetSendDetailConsumer" transport="jmq.dmsWorkerForTibet.transport">
+        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="tibetSendDetailConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费取消发货明细MQ 给ITMS系统发送取消发货数据 -->
+    <jmq:consumer id="jmq.tibetCancelSendDetailConsumer" transport="jmq.dmsWorkerForTibet.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="tibetCancelSendDetailConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

@@ -106,6 +106,11 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.itms.constants.ItmsConstants;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCodeDto;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
+import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -397,6 +402,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
+
+    @Autowired
+    private TibetBizService tibetBizService;
 
     /**
      * 自动过期时间 30分钟
@@ -729,8 +737,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             String sendCode = coldChainSendService.getOrGenerateSendCode(request0.getTransPlanCode(), request0.getSiteCode(), request0.getReceiveSiteCode());
             // 批次号封车校验，已封车不能发货
-            if (checkSealCar && newSealVehicleService.checkSendCodeIsSealed(sendCode)) {
-                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
+            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendCode, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
+            if (StringUtils.isNotBlank(chkMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, chkMsg);
             }
             request0.setSendCode(sendCode);
 
@@ -1303,8 +1312,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
-        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-            result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+        // 校验发货批次号状态
+        String chkMsg = newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        if (StringUtils.isNotBlank(chkMsg)) {
+            result.init(SendResult.CODE_SENDED, chkMsg);
             return result;
         }
 
@@ -1316,6 +1327,13 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // 判断是否使用多次发货取消上次发货
         if (isUseMultiSendVerify) {
+
+            // 启用西藏业务模式，西藏模式去掉自动取消上次发货逻辑
+            boolean tibetMode = tibetBizService.tibetModeSwitch(domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+            if (tibetMode) {
+                isSkipMultiSendVerify = true;
+            }
+
             if (!isSkipMultiSendVerify) {
                 // 多次发货取消上次发货校验
                 if (!multiSendVerification(domain, result)) {
@@ -1576,8 +1594,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
             }
             //2.判断批次号是否已经封车
-            if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
-                return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (StringUtils.isNotBlank(chkMsg)) {
+                return new SendResult(SendResult.CODE_SENDED, chkMsg);
             }
             //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
             if(sendMDao.checkSendByBoard(domain)){
@@ -2321,9 +2340,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         Collections.sort(sendMList);
         // 批次号封车校验，已封车不能发货
         if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source) && !SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND.equals(source)
-                && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)
-        		&& newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
-            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+                && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)) {
+            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendMList.get(0).getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (StringUtils.isNotBlank(chkMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, chkMsg);
+            }
         }
 
         /*查询已发货的箱号*/
@@ -3108,7 +3129,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return checkAllow(sendDetail,isPackageCode || isSurfaceCode,isWaybillCode,isBoxcode);
             } else if (isBoardCode){
                 tSendM.setBoardCode(tSendM.getBoxCode());
-                DeliveryResponse checkResponse =sealCarCheck(tSendM.getSendCode());
+                DeliveryResponse checkResponse = sealCarCheck(tSendM.getSendCode());
                 //如果是未封车，则直接返回不拦截
                 if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
                     return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -3160,7 +3181,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     public DeliveryResponse checkAllow(SendDetail querySendDatail,boolean isPackageCode,boolean isWaybillCode,boolean isBoxcode){
-        DeliveryResponse checkResponse =sealCarCheck(querySendDatail.getSendCode());
+        DeliveryResponse checkResponse = sealCarCheck(querySendDatail.getSendCode());
         //如果是未封车，则直接返回不拦截
         if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
             return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -3194,24 +3215,43 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param batchCode
      * @return
      */
-    public DeliveryResponse sealCarCheck(String batchCode){
+    private DeliveryResponse sealCarCheck(String batchCode){
         try{
-            SealCarDto sealCarInfo= vosManager.querySealCarByBatchCode(batchCode);
-            if (sealCarInfo != null) {
-                //如果是已解封车状态返回拦截
-                if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
-                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_UNSEAL);
+            Integer createSite = SerialRuleUtil.getCreateSiteCodeFromSendCode(batchCode);
+            Integer receiveSite = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);
+            boolean tibetMode = tibetBizService.tibetModeSwitch(createSite, receiveSite);
+            if (tibetMode) {
+                ItmsCancelSendCheckSendCodeDto request = new ItmsCancelSendCheckSendCodeDto();
+                request.setReceiptCode(batchCode);
+                request.setOpeSiteId(createSite + "");
+                ItmsResponse response = tibetBizService.cancelSendCheckSendCode(request);
+
+                if (log.isInfoEnabled()) {
+                    log.info("取消发货调用ITMS服务, 参数:{}, 结果:{}", JsonHelper.toJson(request), JsonHelper.toJson(response));
                 }
 
-                //已封车状态
-                if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
-                    long date = System.currentTimeMillis();
-                    //封车时间大于一小时
-                    if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
-                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_SEAL);
+                if (!response.success()) {
+                    return DeliveryResponse.itmsFail(response.getMessage());
+                }
+            }
+            else {
+                SealCarDto sealCarInfo= vosManager.querySealCarByBatchCode(batchCode);
+                if (sealCarInfo != null) {
+                    //如果是已解封车状态返回拦截
+                    if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
+                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_UNSEAL);
                     }
 
-                    return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+                    //已封车状态
+                    if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
+                        long date = System.currentTimeMillis();
+                        //封车时间大于一小时
+                        if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
+                            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_SEAL);
+                        }
+
+                        return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+                    }
                 }
             }
         }catch (Exception ex){
@@ -4658,10 +4698,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         //1.批次号封车校验，已封车不能发货
-        if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
-            response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
-            response.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-            return response;
+        if (StringUtils.isNotEmpty(sendM.getSendCode())) {
+            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (StringUtils.isNotBlank(chkMsg)) {
+                response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
+                response.setMessage(chkMsg);
+                return response;
+            }
         }
 
         //2.校验箱号或者包裹是否已发货

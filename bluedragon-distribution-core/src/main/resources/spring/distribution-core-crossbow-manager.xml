@@ -122,5 +122,76 @@
         </property>
     </bean>
 
+    <!-- 给ITMS系统下发发货数据 -->
+    <bean id="itmsDownSendDataManager" class="com.jd.bluedragon.external.crossbow.itms.manager.ItmsManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.itms.domain}" />
+                <property name="api" value="${dms.itms.downSendData.api}" />
+                <property name="appKey" value="${dms.itms.appKey}" />
+                <property name="customerId" value="${dms.itms.customerId}" />
+                <property name="securityEnum" value="default_" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- 给ITMS系统下发取消发货数据 -->
+    <bean id="itmsDownCancelSendDataManager" class="com.jd.bluedragon.external.crossbow.itms.manager.ItmsManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.itms.domain}" />
+                <property name="api" value="${dms.itms.downCancelSendData.api}" />
+                <property name="appKey" value="${dms.itms.appKey}" />
+                <property name="customerId" value="${dms.itms.customerId}" />
+                <property name="securityEnum" value="default_" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- ITMS发货批次校验接口 -->
+    <bean id="itmsSendCheckSendCodeManager" class="com.jd.bluedragon.external.crossbow.itms.manager.ItmsManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.itms.domain}" />
+                <property name="api" value="${dms.itms.checkSendCode.api}" />
+                <property name="appKey" value="${dms.itms.appKey}" />
+                <property name="customerId" value="${dms.itms.customerId}" />
+                <property name="securityEnum" value="default_" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
+
+    <!-- ITMS取消发货批次校验接口 -->
+    <bean id="itmsCancelSendCheckSendCodeManager" class="com.jd.bluedragon.external.crossbow.itms.manager.ItmsManager">
+        <property name="crossbowConfig">
+            <bean class="com.jd.bluedragon.core.crossbow.CrossbowConfig">
+                <property name="domain" value="${dms.itms.domain}" />
+                <property name="api" value="${dms.itms.cancelCheckSendCode.api}" />
+                <property name="appKey" value="${dms.itms.appKey}" />
+                <property name="customerId" value="${dms.itms.customerId}" />
+                <property name="securityEnum" value="default_" />
+            </bean>
+        </property>
+        <property name="serializationConfig">
+            <bean class="com.jd.bluedragon.external.crossbow.SerializationConfig">
+                <property name="serializationMode" value="JSON" />
+            </bean>
+        </property>
+    </bean>
 
 </beans>
