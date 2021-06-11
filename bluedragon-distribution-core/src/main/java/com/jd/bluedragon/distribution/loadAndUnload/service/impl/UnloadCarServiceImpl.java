@@ -1219,6 +1219,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.getData().setWaybillAuthority(GoodsLoadScanConstants.PACKAGE_TRANSFER_TO_WAYBILL);
         }
 
+        //初始化返回必要字段，避免后续多处使用NPE
         InvokeResult<UnloadScanDetailDto> invokeResult = new InvokeResult<>();
         UnloadScanDetailDto resData = new UnloadScanDetailDto();
         resData.setWarnMsg(new HashMap<String, String>());//异常消息初始化空对象
@@ -2116,7 +2117,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         } else {
             List<String> allPackage = searchAllPackage(sealCarCode);
             if (CollectionUtils.isEmpty(allPackage)) {
-                throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
+                throw new LoadIllegalException(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE);
             }
             if (!allPackage.contains(packageCode)) {
                 // 不包含则是多货包裹
@@ -2144,7 +2145,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         List<String> sealPackages = searchAllPackageByWaybillCode(sealCarCode, waybillCode);
         if (CollectionUtils.isEmpty(sealPackages)) {
             if (!sealCarCode.startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
-                throw new LoadIllegalException(String.format(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE, sealCarCode));
+                throw new LoadIllegalException(LoadIllegalException.SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE);
             }
             return totalPackages;
         }
