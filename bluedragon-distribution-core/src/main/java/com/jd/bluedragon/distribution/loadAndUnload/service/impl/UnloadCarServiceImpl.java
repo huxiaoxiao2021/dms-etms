@@ -43,6 +43,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -455,7 +456,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
                 //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                InvokeResult<String> interceptResult = interceptValidateLoadCar(request.getBarCode());
                 if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
                     setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
@@ -559,7 +560,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return result;
                 }
                 //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                InvokeResult<String> interceptResult = interceptValidateLoadCar(request.getBarCode());
                 if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
                     setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
@@ -601,6 +602,14 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Override
     public InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request) {
         InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+        UnloadScanDetailDto resData = new UnloadScanDetailDto();
+        resData.setWarnMsg(new HashMap<String, String>());//异常消息初始化空对象
+        dtoInvokeResult.setData(resData);
+
+
+        //当前组板号，，后面request中板号在组板转移时替换成了老板号
+        String currentBoardCode = request.getBoardCode();
+
 
         //任务创建时间变更为第一个包裹的扫描时间
         if(CollectionUtils.isEmpty(unloadScanRecordDao.findRecordBySealCarCode(request.getSealCarCode()))) {
@@ -621,10 +630,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         //流水线模式：只验货不组板
         if(Constants.ASSEMBLY_LINE_TYPE.equals(request.getType())){
-            return assemblyLineScan(request);
+            return assemblyLineScan(request, dtoInvokeResult);
         }
-        //当前组板号，，后面request中板号在组板转移时替换成了老板号
-        String currentBoardCode = request.getBoardCode();
+
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
         // 判断当前扫描人员是否有按单操作权限
@@ -704,7 +712,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     return dtoInvokeResult;
                 }
                 //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
                 if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
                     setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
                     dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
@@ -793,10 +801,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     private void setUnloadScanDetailList(UnloadCarScanResult scanResult, InvokeResult<UnloadScanDetailDto> dtoInvokeResult,
                                          String sealCarCode) {
-        UnloadScanDetailDto unloadScanDetailDto = new UnloadScanDetailDto();
-        BeanUtils.copyProperties(scanResult, unloadScanDetailDto);
-        setUnloadScanDetail(unloadScanDetailDto, sealCarCode);
-        dtoInvokeResult.setData(unloadScanDetailDto);
+        UnloadScanDetailDto resData = dtoInvokeResult.getData();
+        if(resData == null) {
+            resData = new UnloadScanDetailDto();
+            BeanUtils.copyProperties(scanResult, resData);
+        }else {
+            resData.setWaybillAuthority(scanResult.getWaybillAuthority());
+            resData.setBoardCode(scanResult.getBoardCode());
+            resData.setReceiveSiteName(scanResult.getReceiveSiteName());
+            resData.setReceiveSiteCode(scanResult.getReceiveSiteCode());
+            resData.setSealCarCode(scanResult.getSealCarCode());
+        }
+        setUnloadScanDetail(resData, sealCarCode);
+        dtoInvokeResult.setData(resData);
     }
 
     private void saveUnloadDetail(UnloadCarScanRequest request, boolean isSurplusPackage, UnloadCar unloadCar) {
@@ -1166,7 +1183,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             batchSaveUnloadDetail(packageList, surplusPackages, request, unloadCar, waybillCode);
 
             // B网快运发货规则校验
-            InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
+            InvokeResult<String> interceptResult = interceptValidateLoadCar(packageCode);
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
                 logger.error("运单卸车扫描--B网快运发货规则校验错误:error={},sealCarCode={},packageCode={}", interceptResult.getMessage(), sealCarCode, packageCode);
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
@@ -1205,6 +1222,11 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
 
         InvokeResult<UnloadScanDetailDto> invokeResult = new InvokeResult<>();
+        UnloadScanDetailDto resData = new UnloadScanDetailDto();
+        resData.setWarnMsg(new HashMap<String, String>());//异常消息初始化空对象
+        invokeResult.setData(resData);
+
+
         String packageCode = request.getBarCode();
         String sealCarCode = request.getSealCarCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -1289,7 +1311,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
 
             // B网快运发货规则校验
-            InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode);
+            InvokeResult<String> interceptResult = interceptValidateUnloadCar(packageCode, invokeResult);
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
                 logger.error("运单卸车扫描--B网快运发货规则校验错误:error={},sealCarCode={},packageCode={}", interceptResult.getMessage(), sealCarCode, packageCode);
                 invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
@@ -2902,8 +2924,151 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     }
 
     @Override
-    public InvokeResult<String> interceptValidateUnloadCar(String barCode) {
+    public InvokeResult<String> interceptValidateUnloadCar(String barCode, InvokeResult<UnloadScanDetailDto> dtoInvokeResult) {
         logger.info("UnloadCarServiceImpl-interceptValidateUnloadCar-barCode:{}",barCode);
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        if(StringUtils.isBlank(barCode)){
+            return result;
+        }
+
+        //该处调用前已做对象初始化，无NPE
+        Map<String, String> warnMsg = dtoInvokeResult.getData().getWarnMsg();
+
+        try{
+            logger.info("interceptValidate卸车根据包裹号：{}",barCode);
+            String waybillCode = WaybillUtil.getWaybillCode(barCode);
+            if(StringUtils.isNotBlank(waybillCode)) {
+                //取消拦截校验
+                JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
+                if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+                    logger.info("包裹【{}】所在运单已被拦截【{}】", barCode, jdResponse.getMessage());
+                    result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                    result.setMessage(jdResponse.getMessage());
+                    return result;
+                }
+            }
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillE(true);
+            wChoice.setQueryWaybillM(true);
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+            if(baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null ){
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+                return result;
+            }
+            Waybill waybillNoCache = baseEntity.getData().getWaybill();
+            String waybillSign = waybillNoCache.getWaybillSign();
+
+            if(StringUtils.isBlank(waybillSign)){
+                logger.error("interceptValidate卸车根据单号获取运单信息失败单号：{}",waybillCode);
+                return result;
+            }
+            //信任运单标识
+            boolean isTrust = BusinessUtil.isNoNeedWeight(waybillSign);
+            //是否是KA的重量逻辑校验 66->3
+            boolean isNewWeightLogic = BusinessUtil.needWeighingSquare(waybillSign);
+            //纯配快运零担
+            boolean isB2BPure = BusinessUtil.isCPKYLD(waybillSign);
+
+            // 返单标识
+            boolean isRefund = BusinessUtil.isRefund(waybillSign);
+
+            //B网营业厅
+            boolean isBnet = BusinessUtil.isBusinessHall(waybillSign);
+            //waybillsign66位为3 增加新的拦截校验
+            if(isNewWeightLogic){
+                logger.info("waybillsign66为3增加新的拦截校验,barcode:{},waybillSin:{},result:{}",barCode,waybillSign, JsonUtils.toJson(result));
+                result = kaWaybillCheck(barCode,waybillSign,result);
+                //如果reusltcode不为200 说明已经被上面方法改变 校验不通过
+                if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
+                    return result;
+                }
+            }else{
+                //无重量禁止发货判断
+                if(!isTrust && isB2BPure && !isRefund){
+                    if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0) {
+                        logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
+                        warnMsg.put(UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getLevel(), barCode + UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getDesc());
+                    }
+                }
+                //寄付临欠
+                boolean isSendPayTemporaryDebt = BusinessUtil.isJFLQ(waybillSign);
+                if(!isTrust && isBnet && isSendPayTemporaryDebt && (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)){
+                    // 非返单才提示
+                    if (!isRefund) {
+                        logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
+                        result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                        result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        return result;
+                    }
+                }
+            }
+
+            //寄付
+            boolean isSendPay = BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
+            //B网营业厅（原单作废，逆向单不计费）
+            boolean isBnetCancel = BusinessUtil.isYDZF(waybillSign);
+            //B网营业厅（原单拒收因京东原因产生的逆向单，不计费）
+            boolean isBnetJDCancel = BusinessUtil.isJDJS(waybillSign);
+            //防疫物资绿色通道
+            boolean isFYWZ = BusinessUtil.isFYWZ(waybillSign);
+            //运费寄付无运费金额禁止发货
+            if(isBnet && isSendPay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight()) && !isFYWZ){
+                logger.warn("interceptValidate卸车运费寄付无运费金额禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.FREIGTH_SEND_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //是仓配零担
+            boolean isWarehouse = BusinessUtil.isCPLD(waybillSign);
+            //到付
+            boolean isArrivePay = BusinessUtil.isDF(waybillSign);
+            if((isB2BPure || isWarehouse) && isArrivePay && !isBnetCancel && !isBnetJDCancel && StringUtils.isNotBlank(waybillNoCache.getFreight()) && !NumberHelper.gt0(waybillNoCache.getFreight())){
+                logger.warn("interceptValidate卸车运费到付无运费金额禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.FREIGTH_ARRIVE_PAY_NO_MONEY_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+
+            //有包装服务
+            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
+            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+                logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            //金鹏订单
+            if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
+                logger.warn("interceptValidate卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+                return result;
+            }
+
+            if(!businessHallFreightSendReceiveCheck(waybillCode, waybillSign)){
+                logger.warn("interceptValidate卸车B网营业厅寄付未揽收完成禁止发货单号：{}",waybillCode);
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(LoadIllegalException.BNET_SEND_PAY_NO_RECEIVE_FINISH_MESSAGE);
+                return result;
+            }
+
+        }catch (Exception e){
+            logger.error("判断包裹拦截异常 {}",barCode,e);
+        }
+        return result;
+    }
+
+
+    @Override
+    public InvokeResult<String> interceptValidateLoadCar(String barCode) {
+        logger.info("UnloadCarServiceImpl-interceptValidateLoadCar-barCode:{}",barCode);
         InvokeResult<String> result = new InvokeResult<String>();
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -3199,7 +3364,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      * @return
      */
     @Override
-    public InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request) {
+    public InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request, InvokeResult<UnloadScanDetailDto> dtoInvokeResult) {
         InvokeResult<UnloadCarScanResult> result = new InvokeResult<>();
         result.setData(convertToUnloadCarResult(request));
         // 判断当前扫描人员是否有按单操作权限
@@ -3209,7 +3374,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         if (logger.isDebugEnabled()) {
             logger.debug("卸车扫描：参数request={}", JsonHelper.toJson(request));
         }
-        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
+//        InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
@@ -3264,7 +3429,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             BeanUtils.copyProperties(result, dtoInvokeResult);
             setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
             //拦截校验
-            InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode());
+            InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
             if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                 return dtoInvokeResult;
