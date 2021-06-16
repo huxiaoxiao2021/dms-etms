@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -170,7 +171,22 @@ public class UnloadCarServiceImplTest {
                 req.setOperateSiteCode(siteCode);
                 req.setOperateSiteName(siteName);
 
-                JdVerifyResponse<UnloadScanDetailDto> res = loadAndUnloadCarGatewayService.packageCodeScanNew(req);
+                String str = "{\n" +
+                        " \"barCode\": \"JDV000700264620-1-5-\",\n" +
+                        " \"forceCombination\": false,\n" +
+                        " \"isCombinationTransfer\": 0,\n" +
+                        " \"isForceCombination\": false,\n" +
+                        " \"operateSiteCode\": 10186,\n" +
+                        " \"operateSiteName\": \"北京凉水河快运中心\",\n" +
+                        " \"operateTime\": 1623822191428,\n" +
+                        " \"operateUserCode\": 18225,\n" +
+                        " \"operateUserErp\": \"xumigen\",\n" +
+                        " \"operateUserName\": \"徐迷根\",\n" +
+                        " \"sealCarCode\": \"PDA1623821906170\",\n" +
+                        " \"type\": 1\n" +
+                        "}";
+                UnloadCarScanRequest req1 = JSONObject.parseObject(str, UnloadCarScanRequest.class);
+                JdVerifyResponse<UnloadScanDetailDto> res = loadAndUnloadCarGatewayService.packageCodeScanNew(req1);
                 System.out.println("end");
             }catch (Exception e) {
                 System.out.println("error");

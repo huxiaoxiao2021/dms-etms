@@ -646,7 +646,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
             if (unloadCar == null) {
-                BeanUtils.copyProperties(result, dtoInvokeResult);
+                buildUnloadScanResponse(result.getData(), dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
                 return dtoInvokeResult;
             }
@@ -702,7 +702,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 包裹数限制
                 boardCommonManager.packageCountCheck(request.getBoardCode(),unloadBoardBindingsMaxCount);
 
-                BeanUtils.copyProperties(result, dtoInvokeResult);
+                buildUnloadScanResponse(result.getData(), dtoInvokeResult);
                 // ver组板拦截
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
@@ -718,7 +718,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 }
             }else {
                 isSurplusPackage = surfacePackageCheck(request,result,dtoInvokeResult);
-                BeanUtils.copyProperties(result, dtoInvokeResult);
+                buildUnloadScanResponse(result.getData(), dtoInvokeResult);
             }
 
             if(StringUtils.isEmpty(request.getBoardCode())){
@@ -749,6 +749,29 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unLock(request.getSealCarCode(), waybillCode);
         }
         return dtoInvokeResult;
+    }
+
+    /**
+     *  卸车扫描结果组装
+     * @param scanResult
+     * @param dtoInvokeResult
+     */
+    private void buildUnloadScanResponse(UnloadCarScanResult scanResult, InvokeResult<UnloadScanDetailDto> dtoInvokeResult) {
+        if(scanResult == null) {
+            return;
+        }
+        UnloadScanDetailDto resData = dtoInvokeResult.getData();
+        if(resData == null) {
+            resData = new UnloadScanDetailDto();
+            BeanUtils.copyProperties(scanResult, resData);
+        }else {
+            resData.setWaybillAuthority(scanResult.getWaybillAuthority());
+            resData.setBoardCode(scanResult.getBoardCode());
+            resData.setReceiveSiteName(scanResult.getReceiveSiteName());
+            resData.setReceiveSiteCode(scanResult.getReceiveSiteCode());
+            resData.setSealCarCode(scanResult.getSealCarCode());
+        }
+        dtoInvokeResult.setData(resData);
     }
     //获取组板包裹数
     private void setBoardCount(InvokeResult<UnloadScanDetailDto> dtoInvokeResult, String boardCode) {
@@ -3392,7 +3415,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         try {
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
             if (unloadCar == null) {
-                BeanUtils.copyProperties(result, dtoInvokeResult);
+                buildUnloadScanResponse(result.getData(), dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
                 return dtoInvokeResult;
             }
@@ -3436,8 +3459,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 }
                 return dtoInvokeResult;
             }
-
-            BeanUtils.copyProperties(result, dtoInvokeResult);
+            buildUnloadScanResponse(result.getData(), dtoInvokeResult);
             setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
             //拦截校验
             InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
