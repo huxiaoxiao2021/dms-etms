@@ -658,6 +658,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 验货校验
                 inspectionIntercept(request);
 
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                    return dtoInvokeResult;
+                }
+
+
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -707,13 +716,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
                 if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
                     dtoInvokeResult.customMessage(invokeResult.getCode(),invokeResult.getMessage());
-                    return dtoInvokeResult;
-                }
-                //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
-                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
-                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
-                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
                     return dtoInvokeResult;
                 }
             }else {

@@ -9,9 +9,9 @@ package com.jd.bluedragon.distribution.loadAndUnload.neum;
 public enum UnloadCarWarnEnum {
 
     NO_WEIGHT_FORBID_SEND_MESSAGE("1", "无重量，请补称重量方"),//实际返回话术：包裹号 + desc
-    PACK_NOTIN_SEAL_INTERCEPT_MESSAGE("2","此包裹不在卸车任务内,多货扫描！"),
+    PDA_STAGING_CONFIRM_MESSAGE("2","此单为预约暂存运单，请单独交接暂存管理人员操作暂存上架！"),
     PRIVATE_NETWORK_PACKAGE("3","此单为专网保障运单，请单独交接专网操作人员！"),
-    PDA_STAGING_CONFIRM_MESSAGE("4","此单为预约暂存运单，请单独交接暂存管理人员操作暂存上架！");
+    PACK_NOTIN_SEAL_INTERCEPT_MESSAGE("4","此包裹不在卸车任务内,多货扫描！");
 //    SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE("5","此任务下无待卸包裹，请核实！");
 
     private String level;
