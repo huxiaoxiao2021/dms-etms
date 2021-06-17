@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
+import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
@@ -12,6 +15,7 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumablePDAService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -44,7 +48,8 @@ import java.util.Map;
  *
  */
 @Service("waybillConsumableRecordService")
-public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsumableRecord> implements WaybillConsumableRecordService {
+public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsumableRecord>
+        implements WaybillConsumableRecordService, WaybillConsumablePDAService {
 
     @Autowired
 	@Qualifier("waybillConsumableRecordDao")
@@ -215,5 +220,23 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             log.info("运单号{}确认耗材服务结果【0：未确认，1：确认】：{}" ,waybillCode, record.getConfirmStatus());
         }
         return UNTREATED_STATE.equals(record.getConfirmStatus());
+    }
+
+
+    @Override
+    public JdCResponse<Boolean> doWaybillConsumablePackConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+
+        JdCResponse<Boolean> res = new JdCResponse<Boolean>();
+        //todo zcf 打包确认逻辑
+        res.toFail("操作失败");
+        return res;
+    }
+
+    @Override
+    public JdCResponse<WaybillConsumablePackConfirmRes> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+        JdCResponse<WaybillConsumablePackConfirmRes> res = new JdCResponse<>();
+        //todo zcf 打包确认查询逻辑
+        res.toFail("操作失败");
+        return res;
     }
 }
