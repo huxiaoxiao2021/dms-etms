@@ -1585,7 +1585,7 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.4-test-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
