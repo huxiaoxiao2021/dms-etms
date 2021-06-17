@@ -48,12 +48,6 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
             return res;
         }
 
-        String businessCode = waybillConsumablePackConfirmReq.getBusinessCode().trim();
-        if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
-            res.toFail("请输入正确的单号，支持运单号或包裹号");
-            return res;
-        }
-
         try {
             return waybillConsumablePDAService.getWaybillConsumableInfo(waybillConsumablePackConfirmReq);
         } catch (Exception e) {
