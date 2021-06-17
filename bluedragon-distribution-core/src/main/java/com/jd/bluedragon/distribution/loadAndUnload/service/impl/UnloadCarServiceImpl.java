@@ -658,15 +658,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 验货校验
                 inspectionIntercept(request);
 
-                //拦截校验
-                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
-                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
-                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
-                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
-                    return dtoInvokeResult;
-                }
-
-
                 // 获取锁
                 if (!lock(request.getSealCarCode(), waybillCode)) {
                     logger.warn("新版包裹卸车扫描接口--获取锁失败：sealCarCode={},packageCode={}", request.getSealCarCode(), request.getBarCode());
@@ -677,6 +668,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 isSurplusPackage = surfacePackageCheck(request,result,dtoInvokeResult);
                 // 保存包裹卸车记录和运单暂存
                 saveUnloadDetail(request, isSurplusPackage, unloadCar);
+
+
+                //拦截校验
+                InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
+                if(interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+                    setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                    return dtoInvokeResult;
+                }
+
 
                 //是否专网标识  专网不组板
                 boolean privateNetworkFlag = false;
@@ -3439,6 +3440,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 保存包裹卸车记录和运单暂存
             saveUnloadDetail(request, isSurplusPackage, unloadCar);
 
+
+            //拦截校验
+            InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
+            if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
+                return dtoInvokeResult;
+            }
+
+
             //是否专网标识  专网不组板
             boolean privateNetworkFlag = false;
             if(privateNetworkCheck(waybillCode)) {
@@ -3463,12 +3473,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             buildUnloadScanResponse(result.getData(), dtoInvokeResult);
             setCacheOfSealCarAndPackageIntercet(request.getSealCarCode(), request.getBarCode());
-            //拦截校验
-            InvokeResult<String> interceptResult = interceptValidateUnloadCar(request.getBarCode(), dtoInvokeResult);
-            if (interceptResult != null && !Objects.equals(interceptResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)) {
-                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult.getMessage());
-                return dtoInvokeResult;
-            }
 
             // 获取卸车运单扫描信息
             setUnloadScanDetailList(result.getData(), dtoInvokeResult, request.getSealCarCode());
