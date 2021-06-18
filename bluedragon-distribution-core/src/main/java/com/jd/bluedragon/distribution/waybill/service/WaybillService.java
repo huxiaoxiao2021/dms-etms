@@ -150,4 +150,21 @@ public interface WaybillService {
      */
     boolean allowFilePackFilter(Integer subType, String waybillSign);
 
+    /**
+     * 获取运单路由最后一段或者第一段code值
+     * @param waybillCode 运单编码
+     * @param locationFlag 位置标识 0 代表第一节点路由信息 -1代表最后
+     * @return
+     */
+    Integer getFinalOrFirstRouterFromDb(String waybillCode,int locationFlag);
+
+    /**
+     * 根据传入的站点code判断在路由第一节点 还是最后一个路由节点
+     * @param operateSiteCode 传入站点code
+     * @param waybillCode     运单单号
+     * @param locationFlag -1最后一个节点 0第一个节点
+     * @return
+     */
+    boolean isStartOrEndSite(Integer operateSiteCode,String waybillCode,int locationFlag);
+
 }

@@ -72,6 +72,10 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
     public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="该循环集包袋已绑定箱号已发货，不能更换";
 
+    public static final int RESULT_PICKUPSELFT_WAYBILLCODE_CODE=202;
+    public static final String RESULT_PICKUPSELFT_WAYBILLCODE_MESSAGE = "此单为自提单，请单独处理至自提区";
+
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

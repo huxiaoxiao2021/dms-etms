@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -48,14 +49,12 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -65,10 +64,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -122,7 +118,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
-
+    @Autowired
+    private SiteService siteService;
 
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
@@ -141,7 +138,8 @@ public class WaybillServiceImpl implements WaybillService {
 	private static final String MESSAGE_WAYBILL_NOE_FOUND = "运单不存在";
 
 	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
-
+    /* 基础资料subType:6420快运中心 */
+    private static final Integer SUBTYPE_6420 = 6420;
 	@Override
     public BigWaybillDto getWaybill(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
@@ -760,6 +758,76 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         return BusinessHelper.fileTypePackage(waybillSign);
+    }
+
+    @Override
+    public Integer getFinalOrFirstRouterFromDb(String waybillCode,int locationFlag) {
+        // 根据waybillCode查库获取路由信息
+        String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        log.info("获取路由字符串为{}",router);
+        //如果没有路由信息 调用运单的路由信息 获取始发和目的转运中心
+        if (StringUtils.isBlank(router)) {
+            log.info("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},", waybillCode);
+            BaseEntity<Waybill> result = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+            log.info("调用getWaybillByWaybillCode获取运单信息:{}", JsonUtils.toJSONString(result));
+            if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
+                Waybill waybill = result.getData();
+                WaybillExt waybillExt= waybill.getWaybillExt();
+                if(waybillExt != null){
+                    if(locationFlag == -1){
+                        //将dmsid转成纯数字id
+                        return waybillExt.getEndDmsId();
+                    }else {
+                        return waybillExt.getStartDmsId();
+                    }
+                }
+            }
+        }
+        //如果从分拣数据库中能查询到路由信息
+        String[] routerNodes = router.split("\\|");
+        List<String> routerList = Arrays.asList(routerNodes);
+        log.info("获取路由routerList字符串为{}",JsonUtils.toJSONString(routerList));
+        int routeSize = routerList.size();
+        if(locationFlag == -1){
+            //目的转运中心
+            Integer lastSiteCode = 0;
+            for(int i=routeSize-1; i>=0; i--){
+                //获取目的转运中心
+                String siteCode = routerList.get(i);
+                Site site = siteService.get(Integer.parseInt(siteCode));
+                if(SUBTYPE_6420.equals(site.getSubType())){
+                    lastSiteCode = Integer.parseInt(siteCode);
+                    break;
+                }
+            }
+            log.info("获取路由lastSiteCode字符串为{}",lastSiteCode);
+            return lastSiteCode;
+        }else if(locationFlag == 0){
+            //始发转运中心code
+            Integer startSiteCode = 0;
+            for(String  routerStr : routerList){
+                //判断路由节点是否是始发转运中心 subtype 6420
+                Site site = siteService.get(Integer.parseInt(routerStr));
+                if(SUBTYPE_6420.equals(site.getSubType())){
+                    startSiteCode = Integer.parseInt(routerStr);
+                    break;
+                }
+            }
+            log.info("获取路由startSiteCode字符串为{}",startSiteCode);
+            return startSiteCode;
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isStartOrEndSite(Integer operateSiteCode, String waybillCode, int locationFlag) {
+        //操作所属站点code和目的转运中心code
+        Integer finalRouterCode = getFinalOrFirstRouterFromDb(waybillCode, locationFlag);
+        if(operateSiteCode != null && Objects.equals(operateSiteCode,finalRouterCode)){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**

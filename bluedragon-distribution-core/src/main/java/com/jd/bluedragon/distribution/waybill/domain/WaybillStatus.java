@@ -235,6 +235,9 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_PUTAWAY_STORAGE_KYZC = 15500;
     public static final Integer WAYBILL_STATUS_DOWNAWAY_STORAGE_KYZC = 15600;
 
+    /**运单取消*/
+    public static final Integer WAYBILL_STATUS_CANCEL = -790;
+
     /**
      * 弃件暂存全程跟踪
      */
