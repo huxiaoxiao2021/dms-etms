@@ -1,15 +1,21 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.tms.basic.dto.CarrierDto;
 import com.jd.tms.basic.dto.CommonDto;
+import com.jd.tms.basic.dto.SimpleCarrierDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.CarrierQueryWS;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @Author: liming522
@@ -18,7 +24,11 @@ import org.springframework.stereotype.Service;
  */
 @Service("carrierQueryWSManger")
 public class CarrierQueryWSMangerImpl implements CarrierQueryWSManager{
+
     private static final Logger logger = LoggerFactory.getLogger(CarrierQueryWSMangerImpl.class);
+
+    @Value("${carrier.fuzzyQuery.num:20}")
+    private int fuzzyQueryResultNum;
 
     @Autowired
     private CarrierQueryWS carrierQueryWS;
@@ -45,6 +55,23 @@ public class CarrierQueryWSMangerImpl implements CarrierQueryWSManager{
        return  null;
     }
 
-
+    @Override
+    public List<SimpleCarrierDto> queryCarrierByLikeCondition(CarrierDto condition){
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.CarrierQueryWSMangerImpl.queryCarrierByLikeCondition", false, true);
+        try {
+            CommonDto<List<SimpleCarrierDto>> commonDto = carrierQueryWS.queryCarrierByLikeCondition(condition, fuzzyQueryResultNum);
+            if(commonDto == null || CollectionUtils.isEmpty(commonDto.getData())){
+                logger.warn("根据条件{}模糊查询承运商数据为空!", JsonHelper.toJson(condition));
+                return null;
+            }
+            return commonDto.getData();
+        }catch (Exception e){
+            logger.error("根据条件{}模糊查询承运商异常!", JsonHelper.toJson(condition), e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return  null;
+    }
 }
     
