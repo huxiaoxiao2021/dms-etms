@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
 import com.jd.bluedragon.distribution.consumable.domain.*;
@@ -60,6 +61,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     private DefaultJMQProducer waybillConsumableProducer;
 
     private static int WAYBILL_CONSUMABLE_MESSAGE_TYPE = 2;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 	@Override
 	public Dao<WaybillConsumableRecord> getDao() {
@@ -219,11 +223,55 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
     @Override
     public JdCResponse<Boolean> doWaybillConsumablePackConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+        JdCResponse<Boolean> res = new JdCResponse<>();
 
-        JdCResponse<Boolean> res = new JdCResponse<Boolean>();
-        //todo zcf 打包确认逻辑
-        res.toFail("操作失败");
+        String businessCode = waybillConsumablePackConfirmReq.getBusinessCode().trim();
+        if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
+            res.toFail("请输入正确的单号，支持运单号或包裹号");
+            return res;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
+        //确认校验
+        JdCResponse<WaybillConsumableRecord> confirmConsumableCheckRes = this.confirmConsumableCheck(waybillCode);
+        if(!JdCResponse.CODE_SUCCESS.equals(confirmConsumableCheckRes.getCode())) {
+            res.toFail(confirmConsumableCheckRes.getMessage());
+            return res;
+        }
+
+        //验证ERP是否存在
+//        BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(waybillConsumablePackConfirmReq.getUser().getUserErp());
+//        if (userOrgInfo == null){
+//            res.toFail("【" + waybillConsumablePackConfirmReq.getUser().getUserErp() + "】不存在与青龙基础资料中，请核实后录入！");
+//            return res;
+//        }
+        consumablePackAndConfirm(waybillConsumablePackConfirmReq);
+        res.toSucceed();
         return res;
+    }
+
+    /**
+     * PDA实操绑定打包人，确认打包
+     * @param waybillConsumablePackConfirmReq
+     */
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    private void consumablePackAndConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+        String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
+
+        List waybillCodeList = Arrays.asList(waybillCode);
+        String operateErp = waybillConsumablePackConfirmReq.getUser().getUserErp();
+        int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
+        String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
+        //
+        waybillConsumableRelationService.updatePackUserInfoByWaybillCode(waybillCodeList, operateErp, operateCode);
+
+        List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>();
+        WaybillConsumableRecord record = new WaybillConsumableRecord();
+        record.setWaybillCode(waybillCode);
+        record.setConfirmUserName(operateName);
+        record.setConfirmUserErp(operateErp);
+        record.setConfirmTime(new Date());
+
+        this.confirmByIds(confirmRecords);
     }
 
     @Override
@@ -242,7 +290,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
 
         //确认校验
-        JdCResponse<WaybillConsumableRecord> confirmConsumableCheckRes = confirmConsumableCheck(waybillCode);
+        JdCResponse<WaybillConsumableRecord> confirmConsumableCheckRes = this.confirmConsumableCheck(waybillCode);
         if(!JdCResponse.CODE_SUCCESS.equals(confirmConsumableCheckRes.getCode())) {
             res.toFail(confirmConsumableCheckRes.getMessage());
             return res;
@@ -270,7 +318,6 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
             resDataList.add(resDataTemp);
         }
-        WaybillConsumableDetailInfo waybillConsumableDetailInfo = waybillConsumableDetailInfoList.get(0);
         res.setData(resDataList);
         res.toSucceed();
         return res;

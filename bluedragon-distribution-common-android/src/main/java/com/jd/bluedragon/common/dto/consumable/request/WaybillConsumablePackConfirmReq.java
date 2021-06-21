@@ -21,6 +21,10 @@ public class WaybillConsumablePackConfirmReq implements Serializable {
     private User user;
 
     private Integer dmsId;
+    /**
+     * 确认数量
+     */
+    private Double confirmQuantity;
 
 
     //---------------------get   set-------------------------------
@@ -48,5 +52,13 @@ public class WaybillConsumablePackConfirmReq implements Serializable {
 
     public void setDmsId(Integer dmsId) {
         this.dmsId = dmsId;
+    }
+
+    public Double getConfirmQuantity() {
+        return confirmQuantity;
+    }
+
+    public void setConfirmQuantity(Double confirmQuantity) {
+        this.confirmQuantity = confirmQuantity;
     }
 }

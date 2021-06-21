@@ -76,9 +76,8 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
             res.toFail("单号不能为空");
             return res;
         }
-        String businessCode = waybillConsumablePackConfirmReq.getBusinessCode().trim();
-        if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
-            res.toFail("请输入正确的单号，支持运单号或包裹号");
+        if(waybillConsumablePackConfirmReq.getConfirmQuantity() == null || waybillConsumablePackConfirmReq.getConfirmQuantity() < 0) {
+            res.toFail("请输入有效的确认数量");
             return res;
         }
         try {

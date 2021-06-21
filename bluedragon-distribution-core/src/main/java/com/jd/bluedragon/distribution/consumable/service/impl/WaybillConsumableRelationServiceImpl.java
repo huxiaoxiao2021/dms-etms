@@ -61,6 +61,18 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	}
 
 	@Override
+	public int updatePackUserInfoByWaybillCode(List<String> waybillCodeList, String userErp, int userCode) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("waybillCodeList", waybillCodeList);
+		params.put("packUserErp", userErp);//PDA确认操作人即打包人
+		params.put("operateUserErp", userErp);
+		params.put("operateUserCode", userCode + "");
+		params.put("updateTime", new Date());
+		params.put("operateTime", new Date());
+		return waybillConsumableRelationDao.updatePackUserErpByWaybillCode(params);
+	}
+
+	@Override
 	public int updatePackUserErpById(List<Long> ids, String packUserErp, LoginUser loginUser) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("ids", ids);

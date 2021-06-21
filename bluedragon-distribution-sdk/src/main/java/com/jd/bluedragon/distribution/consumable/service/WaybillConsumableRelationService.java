@@ -43,6 +43,15 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
     int updatePackUserErpByWaybillCode(List<String> waybillCodeList, String userErp, LoginUser loginUser);
 
     /**
+     * PDA确认更新打包人
+     * @param waybillCodeList
+     * @param userErp
+     * @param userCode
+     * @return
+     */
+    public int updatePackUserInfoByWaybillCode(List<String> waybillCodeList, String userErp, int userCode);
+
+    /**
      * 通过id更新打包人
      * @param
      * @return
