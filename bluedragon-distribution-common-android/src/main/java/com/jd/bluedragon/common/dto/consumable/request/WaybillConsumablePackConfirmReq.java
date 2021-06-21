@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.consumable.request;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @Author zhengchengfa
@@ -21,10 +22,8 @@ public class WaybillConsumablePackConfirmReq implements Serializable {
     private User user;
 
     private Integer dmsId;
-    /**
-     * 确认数量
-     */
-    private Double confirmQuantity;
+
+    private List<WaybillConsumablePdaDto> waybillConsumablePdaDtoList;
 
 
     //---------------------get   set-------------------------------
@@ -54,11 +53,11 @@ public class WaybillConsumablePackConfirmReq implements Serializable {
         this.dmsId = dmsId;
     }
 
-    public Double getConfirmQuantity() {
-        return confirmQuantity;
+    public List<WaybillConsumablePdaDto> getWaybillConsumableDtoList() {
+        return waybillConsumablePdaDtoList;
     }
 
-    public void setConfirmQuantity(Double confirmQuantity) {
-        this.confirmQuantity = confirmQuantity;
+    public void setWaybillConsumableDtoList(List<WaybillConsumablePdaDto> waybillConsumablePdaDtoList) {
+        this.waybillConsumablePdaDtoList = waybillConsumablePdaDtoList;
     }
 }

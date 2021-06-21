@@ -21,6 +21,8 @@ public class WaybillConsumablePackConfirmRes implements Serializable {
     private String consumableName;
     /** 耗材类型名称 */
     private String consumableTypeName;
+    /**耗材编号、*/
+    private String consumableCode;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -60,5 +62,13 @@ public class WaybillConsumablePackConfirmRes implements Serializable {
 
     public void setConsumableTypeName(String consumableTypeName) {
         this.consumableTypeName = consumableTypeName;
+    }
+
+    public String getConsumableCode() {
+        return consumableCode;
+    }
+
+    public void setConsumableCode(String consumableCode) {
+        this.consumableCode = consumableCode;
     }
 }

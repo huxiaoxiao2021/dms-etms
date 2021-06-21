@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePdaDto;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -244,33 +245,55 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 //            res.toFail("【" + waybillConsumablePackConfirmReq.getUser().getUserErp() + "】不存在与青龙基础资料中，请核实后录入！");
 //            return res;
 //        }
-        consumablePackAndConfirm(waybillConsumablePackConfirmReq);
+//        consumablePackAndConfirm(waybillConsumablePackConfirmReq);
+
+        String operateErp = waybillConsumablePackConfirmReq.getUser().getUserErp();
+        int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
+        String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
+
+        //组装运单耗材打包人关系表数据
+        List<WaybillConsumableRelationPDADto> dbBatchUpdateList = new ArrayList<>();
+        for(WaybillConsumablePdaDto poTemp : waybillConsumablePackConfirmReq.getWaybillConsumableDtoList()) {
+            WaybillConsumableRelationPDADto dbParam = new WaybillConsumableRelationPDADto();
+            dbParam.setWaybillCode(waybillCode);
+            dbParam.setPackUserErp(operateErp);
+            dbParam.setOperateUserErp(operateErp);
+            dbParam.setOperateUserCode(operateCode + "");
+            Date date = new Date();
+            dbParam.setUpdateTime(date);
+            dbParam.setOperateTime(date);
+
+            if(poTemp.getConsumableCode() == null || poTemp.getConfirmQuantity() == null) {
+                throw new RuntimeException("运单耗材编码及确认数量不可为空");
+            }
+            dbParam.setConfirmQuantity(poTemp.getConfirmQuantity());
+            dbParam.setConsumableCode(poTemp.getConsumableCode());
+            dbBatchUpdateList.add(dbParam);
+        }
+
+        //组装运单耗材记录表参数
+        List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>();
+        WaybillConsumableRecord record = new WaybillConsumableRecord();
+        record.setId(confirmConsumableCheckRes.getData().getId());
+//        record.setWaybillCode(waybillCode);
+        record.setConfirmUserName(operateName);
+        record.setConfirmUserErp(operateErp);
+        record.setConfirmTime(new Date());
+        confirmRecords.add(record);
+        consumablePackAndConfirm(dbBatchUpdateList, confirmRecords);
+
         res.toSucceed();
         return res;
     }
 
     /**
      * PDA实操绑定打包人，确认打包
-     * @param waybillConsumablePackConfirmReq
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    private void consumablePackAndConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
-        String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
-
-        List waybillCodeList = Arrays.asList(waybillCode);
-        String operateErp = waybillConsumablePackConfirmReq.getUser().getUserErp();
-        int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
-        String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
-        //
-        waybillConsumableRelationService.updatePackUserInfoByWaybillCode(waybillCodeList, operateErp, operateCode);
-
-        List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>();
-        WaybillConsumableRecord record = new WaybillConsumableRecord();
-        record.setWaybillCode(waybillCode);
-        record.setConfirmUserName(operateName);
-        record.setConfirmUserErp(operateErp);
-        record.setConfirmTime(new Date());
-
+    private void consumablePackAndConfirm(List<WaybillConsumableRelationPDADto> dbBatchUpdateList, List<WaybillConsumableRecord> confirmRecords ) {
+        for(WaybillConsumableRelationPDADto dto : dbBatchUpdateList) {
+            waybillConsumableRelationService.updateByWaybillCode(dto);
+        }
         this.confirmByIds(confirmRecords);
     }
 
@@ -297,16 +320,12 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
 
         WaybillConsumableRecord record = confirmConsumableCheckRes.getData();
-        resData.setWaybillCode(record.getWaybillCode());
-        resData.setDmsName(record.getDmsName());
 
         List<String> list = Arrays.asList(waybillCode);
         List<WaybillConsumableDetailInfo> waybillConsumableDetailInfoList = waybillConsumableRelationService.queryByWaybillCodes(list);
         if(CollectionUtils.isEmpty(waybillConsumableDetailInfoList)) {
-            log.info(methodDesc + "--warn--耗材记录查询成功，查询耗材打包人及揽收耗材详细信息为空");
-            resDataList.add(resData);
-            res.setData(resDataList);
-            res.toSucceed();
+            log.info(methodDesc + "--error--耗材记录查询成功，查询耗材打包人及揽收耗材详细信息为空,单号=【{}】", JsonHelper.toJson(list));
+            res.toFail("查询耗材详细数据为空");
             return res;
         }
         for(WaybillConsumableDetailInfo wcdi : waybillConsumableDetailInfoList) {
@@ -316,6 +335,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             resDataTemp.setConsumableName(wcdi.getName());
             resDataTemp.setConsumableTypeName(wcdi.getTypeName());
             resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
+            resDataTemp.setConsumableCode(wcdi.getConsumableCode());
             resDataList.add(resDataTemp);
         }
         res.setData(resDataList);

@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDa
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -61,18 +62,6 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	}
 
 	@Override
-	public int updatePackUserInfoByWaybillCode(List<String> waybillCodeList, String userErp, int userCode) {
-		Map<String, Object> params = new HashMap<>();
-		params.put("waybillCodeList", waybillCodeList);
-		params.put("packUserErp", userErp);//PDA确认操作人即打包人
-		params.put("operateUserErp", userErp);
-		params.put("operateUserCode", userCode + "");
-		params.put("updateTime", new Date());
-		params.put("operateTime", new Date());
-		return waybillConsumableRelationDao.updatePackUserErpByWaybillCode(params);
-	}
-
-	@Override
 	public int updatePackUserErpById(List<Long> ids, String packUserErp, LoginUser loginUser) {
 		Map<String, Object> params = new HashMap<>();
 		params.put("ids", ids);
@@ -88,4 +77,9 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
     public int getNoPackUserErpRecordCount(String waybillCode) {
         return waybillConsumableRelationDao.getNoPackUserErpRecordCount(waybillCode);
     }
+
+	@Override
+	public void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
+		waybillConsumableRelationDao.updateByWaybillCode(waybillConsumableRelationPDADto);
+	}
 }

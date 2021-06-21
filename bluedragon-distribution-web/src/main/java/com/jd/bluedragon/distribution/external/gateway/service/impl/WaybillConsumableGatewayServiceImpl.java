@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.WaybillConsumableGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,8 +77,8 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
             res.toFail("单号不能为空");
             return res;
         }
-        if(waybillConsumablePackConfirmReq.getConfirmQuantity() == null || waybillConsumablePackConfirmReq.getConfirmQuantity() < 0) {
-            res.toFail("请输入有效的确认数量");
+        if(CollectionUtils.isEmpty(waybillConsumablePackConfirmReq.getWaybillConsumableDtoList())) {
+            res.toFail("耗材信息不能为空");
             return res;
         }
         try {
