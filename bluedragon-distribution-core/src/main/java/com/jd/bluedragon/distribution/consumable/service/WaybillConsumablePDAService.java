@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 
+import java.util.List;
+
 /**
  * @Author zhengchengfa
  * @Description //TODO
@@ -18,9 +20,9 @@ public interface WaybillConsumablePDAService {
     JdCResponse<Boolean> doWaybillConsumablePackConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq);
 
     /**
-     *  查询运单耗材信息接口
+     *  查询运单耗材信息接口(一个运单可能存在关联多个耗材场景)
      * @param waybillConsumablePackConfirmReq
      * @return
      */
-    JdCResponse<WaybillConsumablePackConfirmRes> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq);
+    JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq);
 }

@@ -227,10 +227,11 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
-    public JdCResponse<WaybillConsumablePackConfirmRes> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+    public JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableRecordServiceImpl.getWaybillConsumableInfo--PDA操作耗材确认查询接口--";
 
-        JdCResponse<WaybillConsumablePackConfirmRes> res = new JdCResponse<>();
+        JdCResponse<List<WaybillConsumablePackConfirmRes>> res = new JdCResponse<>();
+        List<WaybillConsumablePackConfirmRes> resDataList = new ArrayList<>();
         WaybillConsumablePackConfirmRes resData = new WaybillConsumablePackConfirmRes();
 
         String businessCode = waybillConsumablePackConfirmReq.getBusinessCode();
@@ -255,15 +256,22 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         List<WaybillConsumableDetailInfo> waybillConsumableDetailInfoList = waybillConsumableRelationService.queryByWaybillCodes(list);
         if(CollectionUtils.isEmpty(waybillConsumableDetailInfoList)) {
             log.info(methodDesc + "--warn--耗材记录查询成功，查询耗材打包人及揽收耗材详细信息为空");
-            res.setData(resData);
+            resDataList.add(resData);
+            res.setData(resDataList);
             res.toSucceed();
             return res;
         }
+        for(WaybillConsumableDetailInfo wcdi : waybillConsumableDetailInfoList) {
+            WaybillConsumablePackConfirmRes resDataTemp = new WaybillConsumablePackConfirmRes();
+            resDataTemp.setWaybillCode(record.getWaybillCode());
+            resDataTemp.setDmsName(record.getDmsName());
+            resDataTemp.setConsumableName(wcdi.getName());
+            resDataTemp.setConsumableTypeName(wcdi.getTypeName());
+            resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
+            resDataList.add(resDataTemp);
+        }
         WaybillConsumableDetailInfo waybillConsumableDetailInfo = waybillConsumableDetailInfoList.get(0);
-        resData.setConsumableName(waybillConsumableDetailInfo.getName());
-        resData.setConsumableTypeName(waybillConsumableDetailInfo.getTypeName());
-        resData.setReceiveQuantity(waybillConsumableDetailInfo.getReceiveQuantity());
-        res.setData(resData);
+        res.setData(resDataList);
         res.toSucceed();
         return res;
     }

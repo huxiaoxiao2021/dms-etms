@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * @Author zhengchengfa
  * @Description // //运单耗材服务： 转运木质耗材打包确认  B网
@@ -29,9 +31,9 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
     private WaybillConsumablePDAService waybillConsumablePDAService;
 
     @Override
-    public JdCResponse<WaybillConsumablePackConfirmRes> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+    public JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableGatewayServiceImpl.getWaybillConsumableInfo--PDA操作耗材确认查询接口--";
-        JdCResponse<WaybillConsumablePackConfirmRes> res = new JdCResponse<>();
+        JdCResponse<List<WaybillConsumablePackConfirmRes>> res = new JdCResponse<>();
 
         if (waybillConsumablePackConfirmReq == null) {
             res.toFail("请求信息不能为空");

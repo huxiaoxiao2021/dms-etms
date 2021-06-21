@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 
+import java.util.List;
+
 /**
  * @Author zhengchengfa
  * @Description //运单耗材服务： 转运木质耗材打包确认  B网
@@ -15,7 +17,7 @@ public interface WaybillConsumableGatewayService {
      * @param waybillConsumablePackConfirmReq
      * @return
      */
-    JdCResponse<WaybillConsumablePackConfirmRes> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq);
+    JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq);
 
     /**
      *  耗材打包确认（绑定运单打包人 + 耗材确认）
