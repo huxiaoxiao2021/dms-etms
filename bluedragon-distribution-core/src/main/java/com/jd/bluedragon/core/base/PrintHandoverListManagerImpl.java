@@ -41,17 +41,6 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
         return null;
     }
 
-    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.batchSummaryPrintHandOverListByQueryCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public List<SummaryPrintResult> batchSummaryPrintHandOverListByQueryCondition(PrintHandoverLitQueryCondition condition) {
-        BaseEntity<List<SummaryPrintResult>> baseEntity = printHandoverListJsfService.batchSummaryPrintHandOverListByQueryCondition(condition);
-        if(baseEntity != null && baseEntity.isSuccess()){
-            return baseEntity.getData();
-        }
-        return null;
-    }
-
     @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.queryPrintHandOverListByScroll", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
