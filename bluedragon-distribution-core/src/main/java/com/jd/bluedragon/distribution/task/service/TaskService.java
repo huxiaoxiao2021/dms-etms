@@ -2,12 +2,15 @@ package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 import java.util.List;
 
 
 public interface TaskService {
+
+    TaskResponse add(TaskRequest request);
 
     void initFingerPrint(Task task);
 

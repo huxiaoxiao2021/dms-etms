@@ -3,10 +3,13 @@ package com.jd.bluedragon.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.i18n.order.dict.FieldKeyEnum;
+import com.jd.i18n.order.dict.helper.OrdermidQueryHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.jd.bluedragon.Constants;
+import org.springframework.beans.factory.annotation.Value;
 
 /**
  * @author zhaohc
@@ -16,6 +19,9 @@ import com.jd.bluedragon.Constants;
 public class OrderServiceHelper {
 
     private final static Log logger = LogFactory.getLog(OrderServiceHelper.class);
+
+    // https://git.jd.com/jdr-tp/tp-csr/blob/master/docs/common_parameters.md
+
 
     public static List<String> getWaybillFlag() {
         List<String> flagList = new ArrayList<String>();
@@ -45,4 +51,39 @@ public class OrderServiceHelper {
         return queryList;
     }
 
+    /**
+     * 国际化订单详情接口调用参数
+     *   订单商品详情 M_DETAILS
+     * @return
+     */
+    public static List<String> getQueryDetailKeys() {
+        List<String> queryList =  OrdermidQueryHelper.buildQuery(
+                FieldKeyEnum.M_DETAIL_NAME,
+                FieldKeyEnum.M_DETAIL_NUM,
+                FieldKeyEnum.M_DETAIL_PRODUCTID,
+                FieldKeyEnum.M_DETAIL_PRICE,
+                FieldKeyEnum.M_DETAIL_SKUID,
+                FieldKeyEnum.M_DETAIL_PROFITCHANNELID
+                );
+        return queryList;
+    }
+
+    /**
+     * 获取国际化订单- 订单接口
+     * @return
+     */
+    public static List<String> getQueryKeys() {
+        List<String> queryList =  OrdermidQueryHelper.buildQuery(
+                FieldKeyEnum.M_ID,
+                FieldKeyEnum.M_OPRATOR,
+                FieldKeyEnum.M_DELIVERYCENTERID,
+                FieldKeyEnum.M_CUSTOMERNAME,
+                FieldKeyEnum.M_ORDERTYPE,
+                FieldKeyEnum.M_STOREID,
+                FieldKeyEnum.M_SENDPAY,
+                FieldKeyEnum.M_PROVINCE,
+                FieldKeyEnum.M_CITY
+        );
+        return queryList;
+    }
 }

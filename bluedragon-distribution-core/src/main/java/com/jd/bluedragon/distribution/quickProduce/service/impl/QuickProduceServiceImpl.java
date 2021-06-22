@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.quickProduce.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -107,7 +108,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         joinDetail.setCountryName(waybill.getCountryName());
     }
 
-    private Waybill getQuickProduceWabillFromDrec(String waybillCode) {
+    @JProfiler(jKey = "DMSWEB.QuickProduceServiceImpl.getQuickProduceWabillFromDrec",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public Waybill getQuickProduceWabillFromDrec(String waybillCode) {
 
         Waybill waybill= null;
         OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);

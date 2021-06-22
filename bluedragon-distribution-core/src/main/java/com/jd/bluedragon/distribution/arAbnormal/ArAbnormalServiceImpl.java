@@ -44,10 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tangchunqing
@@ -478,7 +475,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
                 //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign()) || request.getTranspondType()==60) {
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())
+                        || Objects.equals(ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE.getCode(), request.getTranspondType())) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
             } else {
@@ -522,25 +520,12 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     private List<Message> assembleMessageList(ArAbnormalRequest request, BigWaybillDto bigWaybillDto, List<String> packageCodeList) {
         Waybill waybill = bigWaybillDto.getWaybill();
         ArTransportModeChangeDto dto = new ArTransportModeChangeDto();
-        ArTransportChangeModeEnum transformChangeMode = ArTransportChangeModeEnum.getEnum(request.getTranspondType());
-        ArAbnormalReasonEnum abnormalReason = ArAbnormalReasonEnum.getEnum(request.getTranspondReason());
-        ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
-
-        // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setTransformType(transformChangeMode.getFxmId());
         dto.setWaybillCode(waybill.getWaybillCode());
-        // 异常类型 (航空违禁品)
-        dto.setAbnormalType(abnormalReason.getFxmId());
-        // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setFirstLevelCode(transformChangeMode.getFxmId());
-        dto.setFirstLevelName(transformChangeMode.getDesc());
-        // 异常类型 (航空违禁品)
-        dto.setSecondLevelCode(abnormalReason.getFxmId());
-        dto.setSecondLevelName(abnormalReason.getDesc());
-        // 违禁品原因
-        dto.setThirdLevel(contrabandReason.getDesc());
         dto.setOperatorErp(request.getUserErp());
         dto.setSiteCode(request.getSiteCode());
+
+        // 原因处理
+        dealWithReasons(request, dto);
 
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
         if (siteOrgDto != null) {
@@ -570,6 +555,37 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             messageList.add(new Message(arTransportModeChangeProducer.getTopic(), JsonHelper.toJson(dto), packageCode));
         }
         return messageList;
+    }
+
+    /**
+     * 一、二、三级原因处理
+     * @param request
+     * @return
+     */
+    private void dealWithReasons(ArAbnormalRequest request, ArTransportModeChangeDto dto) {
+        ArTransportChangeModeEnum transformChangeMode = ArTransportChangeModeEnum.getEnum(request.getTranspondType());
+        ArAbnormalReasonEnum abnormalReason = ArAbnormalReasonEnum.getEnum(request.getTranspondReason());
+        ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
+        // 转发方式 (航空转陆运 或 航空转高铁)
+        dto.setTransformType(transformChangeMode == null ? null :transformChangeMode.getFxmId());
+        // 异常类型 (航空违禁品)
+        dto.setAbnormalType(abnormalReason == null ? null : abnormalReason.getFxmId());
+        // 转发方式 (航空转陆运 或 航空转高铁)
+        dto.setFirstLevelCode(transformChangeMode == null ? null : transformChangeMode.getFxmId());
+        dto.setFirstLevelName(transformChangeMode == null ? null : transformChangeMode.getDesc());
+
+        // 航空转陆运 && 异常原因为违禁品 && 违禁品原因是带违禁品标识的 则将二级原因编码设置196，否则设置0
+        if(Objects.equals(request.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
+                && ArContrabandReasonEnum.getContrabandFlagReason().contains(request.getContrabandReason())){
+            dto.setSecondLevelCode(ArAbnormalReasonEnum.CONTRABAND_GOODS.getFxmId());
+            dto.setSecondLevelName(ArAbnormalReasonEnum.CONTRABAND_GOODS.getDesc());
+            dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
+        }else {
+            dto.setAbnormalType(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelCode(String.valueOf(Constants.NUMBER_ZERO));
+            dto.setSecondLevelName(abnormalReason == null ? null : abnormalReason.getDesc());
+            dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
+        }
     }
 
     /**

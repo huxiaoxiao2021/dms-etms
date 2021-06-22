@@ -85,7 +85,7 @@ public class BusinessLogConstans {
 
         COLLECT_GOODS(SourceSys.DMS_OPERATE,2018,"集货业务"),
 
-        APPROVAL(SourceSys.DMS_OPERATE,2019,"审批流业务");
+        APPROVAL(SourceSys.DMS_OPERATE,2020,"审批流业务");
 
         /**
          * 所属系统；
@@ -225,8 +225,8 @@ public class BusinessLogConstans {
 
         COLLECT_GOODS_DELETE(BizTypeEnum.COLLECT_GOODS,20181,"集货区删除"),
 
-        APPROVAL_START_FLOW(BizTypeEnum.APPROVAL,20191,"提交审批单"),
-        APPROVAL_CALLBACK(BizTypeEnum.APPROVAL,20192,"审批结果回调");
+        APPROVAL_START_FLOW(BizTypeEnum.APPROVAL,20201,"提交审批单"),
+        APPROVAL_CALLBACK(BizTypeEnum.APPROVAL,20202,"审批结果回调");
 
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**

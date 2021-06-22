@@ -111,6 +111,21 @@ public class UnloadCar extends DbEntity {
      */
     private Integer type;
 
+    /**
+     * 任务开始时间 ： 首次扫描时间
+     */
+    private Date startTime;
+
+    private Date endTime;
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
+    }
+
     public Long getUnloadCarId() {
         return unloadCarId;
     }
@@ -301,5 +316,13 @@ public class UnloadCar extends DbEntity {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
     }
 }

@@ -4,7 +4,10 @@ import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
+import com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
+
+import java.util.List;
 
 
 /**
@@ -23,11 +26,25 @@ public interface PrintHandoverListManager {
     PageData<PrintHandoverListDto> queryPrintHandOverListByQueryCondition(Pager<PrintHandoverLitQueryCondition> pager);
 
     /**
+     * 打印交接清单 - 汇总查询
+     * @param condition
+     * @return
+     */
+    List<SummaryPrintResult> batchSummaryPrintHandOverListByQueryCondition(PrintHandoverLitQueryCondition condition);
+
+    /**
      * 打印交接清单 - 根据条件scroll查询
      * @param query
      * @return
      */
     PageData<PrintHandoverListDto> queryPrintHandOverListByScroll(Pager<PrintHandoverLitQueryCondition> query);
+
+    /**
+     * 打印交接清单 - 根据条件查询总数
+     * @param condition
+     * @return
+     */
+    Long queryPrintHandOverListTotal(PrintHandoverLitQueryCondition condition);
 
     /**
      * 打印交接清单 - 新增记录
@@ -49,5 +66,12 @@ public interface PrintHandoverListManager {
      * @return
      */
     BaseEntity<Boolean> doExportAsync(Pager<PrintHandoverLitQueryCondition> query);
+
+    /**
+     * 打印交接清单 - 批量导出
+     * @param query
+     * @return
+     */
+    BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query);
 
 }

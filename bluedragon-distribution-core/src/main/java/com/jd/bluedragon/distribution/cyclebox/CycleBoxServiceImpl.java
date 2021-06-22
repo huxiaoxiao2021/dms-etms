@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.box.response.BoxCodeGroupBinDingDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
@@ -33,16 +34,20 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -90,6 +95,10 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
     @Autowired
     private SendMManager sendMManager;
+
+    @Value("${materialCode.bind.boxCode.send.time:4}")
+    private Integer materialCodeBoxCodeSendTime;
+
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
@@ -344,6 +353,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CycleBoxServiceImpl.boxMaterialRelationAlter", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult boxMaterialRelationAlter(BoxMaterialRelationRequest request){
         InvokeResult result = new InvokeResult();
         result.success();
@@ -357,6 +367,27 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return result;
         }
 
+        // 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
+        BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
+        if(boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())){
+            queryPara.setBoxCode(boxMaterial.getBoxCode());
+            queryPara.setCreateSiteCode(request.getSiteCode());
+           sendMList = sendMManager.findSendMByBoxCode(queryPara);
+           //改箱号是否在四小时内已经发货
+            if (CollectionUtils.isNotEmpty(sendMList)) {
+                Date nowSubtract4Hour = DateHelper.add(new Date(), Calendar.HOUR, -4);
+                for(SendM sendM : sendMList){
+                    if(sendM.getOperateTime().getTime() > nowSubtract4Hour.getTime()){
+                        result.customMessage(InvokeResult.RESULT_RFID_BIND_BOX_SENT_CODE,
+                                InvokeResult.RESULT_RFID_BIND_BOX_SENT_MESSAGE);
+                        return result;
+                    }
+                }
+
+            }
+        }
+
+
         BoxMaterialRelation par = new BoxMaterialRelation();
         par.setBoxCode(request.getBoxCode());
         par.setMaterialCode(request.getMaterialCode());
@@ -367,22 +398,21 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         //如果从未绑定过
         if (boxMaterialRelationService.getCountByBoxCode(request.getBoxCode())<=0){
-            if (boxMaterialRelationService.add(par)>0){
+            if (boxMaterialRelationService.add(par)==0){
+                result.error("保存循环集包袋绑定关系失败！");
                 return result;
             }
-            else {
-                result.error(InvokeResult.SERVER_ERROR_MESSAGE);
-                return result;
-            }
+
         }
 
-        if (boxMaterialRelationService.update(par)>0){
+        if (boxMaterialRelationService.update(par)==0){
+            result.error("箱号已绑定其他循环集包袋，更新绑定关系失败！");
             return result;
         }
-        else {
-            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
-            return result;
-        }
+        //其他绑定了该循环集包袋的都解绑
+        int count = boxMaterialRelationService.updateUnBindByMaterialCode(par);
+        return result;
+
     }
 
     /**

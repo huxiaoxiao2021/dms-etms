@@ -113,8 +113,17 @@ public enum SendBizSourceEnum {
     /**
      * 按运单发货
      */
-    WAYBILL_SEND(21, "按运单发货");
+    WAYBILL_SEND(21, "按运单发货"),
 
+    /**
+     * 冷链装车快运发货
+     */
+    COLD_LOAD_CAR_KY_SEND(22, "冷链装车快运发货"),
+
+    /**
+     * 冷链装车发货
+     */
+    COLD_LOAD_CAR_SEND(23, "冷链装车发货");
     /**
      * 编码
      */

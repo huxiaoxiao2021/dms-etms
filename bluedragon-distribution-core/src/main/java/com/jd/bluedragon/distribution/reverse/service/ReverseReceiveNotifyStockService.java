@@ -14,6 +14,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.order.domain.InternationDetailOrderDto;
+import com.jd.bluedragon.distribution.order.domain.InternationOrderDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
@@ -46,6 +48,7 @@ import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,12 +193,12 @@ public class ReverseReceiveNotifyStockService {
 		sysLog.setType(SystemLogContants.TYPE_REVERSE_STOCK);//设置日志类型
 		boolean isOldForNewType = false;
 		try{
-			Order order = this.orderWebService.getOrder(waybillCode);
-			List<Product> products = this.productService.getOrderProducts(waybillCode);
-			
+			InternationOrderDto order = orderWebService.getInternationOrder(waybillCode);
+			List<Product> products =  productService.getInternationProducts(waybillCode); //订单详情
+
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
-			if (products.size() == 0) {
+			if (CollectionUtils.isEmpty(products)) {
 				this.log.warn("无商品信息!");
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");
@@ -208,11 +211,11 @@ public class ReverseReceiveNotifyStockService {
 					sysLog.setContent("运单信息为空");
 					throw new OrderCallTimeoutException("order is not exist.");
 				}else {//如果历史订单信息不为空，则拷贝属性值
-					order = new Order();
+					order = new InternationOrderDto();
 					order.setId(hisOrder.getId());
 					order.setIdCompanyBranchName(hisOrder.getIdCompanyBranchName());
 					order.setIdCompanyBranch(hisOrder.getIdCompanyBranch());
-					order.setTotalFee(hisOrder.getTotalFee());
+					/*order.setTotalFee(hisOrder.getTotalFee());*/
 					order.setCustomerName(hisOrder.getCustomerName());
 					order.setDeliveryCenterID(hisOrder.getDeliveryCenterID());
 					order.setStoreId(hisOrder.getStoreId());
@@ -270,7 +273,7 @@ public class ReverseReceiveNotifyStockService {
 				}
 				
 				sysLog.setKeyword3("MQ");
-                    sysLog.setContent("推出管成功!");
+                sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
                 long result = 0;
                 //判断是否是已旧换新
@@ -351,7 +354,7 @@ public class ReverseReceiveNotifyStockService {
         return stockExportManager.queryByWaybillCode(waybillCode);
     }
 
-    private long insertChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products, Integer payType,
+    private long insertChuguan(Long waybillCode, boolean isOldForNewType, InternationOrderDto order, List<Product> products, Integer payType,
                                OrderBankResponse orderBank) {
         if(uccPropertyConfiguration.isChuguanNewInterfaceInsertSwitch()){
             return insertNewChuguan(waybillCode,isOldForNewType,order,products,payType,orderBank);
@@ -359,7 +362,7 @@ public class ReverseReceiveNotifyStockService {
         return insertOldChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
     }
 
-    public int insertNewChuguan(Long waybillCode, boolean isOldForNewType,Order order, List<Product> products,
+    public int insertNewChuguan(Long waybillCode, boolean isOldForNewType,InternationOrderDto order, List<Product> products,
                                   Integer payType,OrderBankResponse orderBank){
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
 
@@ -411,7 +414,7 @@ public class ReverseReceiveNotifyStockService {
      * 与老接口属性 映射 https://cf.jd.com/pages/viewpage.action?pageId=165578101
      * @return
      */
-    private ChuguanParam getChuguanParam(Long waybillCode,String rfid,boolean isOldForNewType, Order order, Integer payType,
+    private ChuguanParam getChuguanParam(Long waybillCode,String rfid,boolean isOldForNewType, InternationOrderDto order, Integer payType,
                                          OrderBankResponse orderBank, ConstantEnums.ChuGuanRfType rfType, ConstantEnums.ChuGuanChuruId churu, ConstantEnums.ChuGuanTypeId typeId,
                                          ConstantEnums.ChuGuanFenLei fenLei,BigDecimal qiTaFeiYong,
                                          BigDecimal zongJinE) {
@@ -454,7 +457,7 @@ public class ReverseReceiveNotifyStockService {
         chuguanParam.setKuanXiang(isPrePay(payType) ? "已收" : "未收");
         chuguanParam.setMoneyn(1);
         chuguanParam.setQianZi(0);// 内配业务传具体值，其他业务传值0
-        chuguanParam.setYunFei(order.getTotalFee());
+        /*chuguanParam.setYunFei(order.getTotalFee());*/
         chuguanParam.setYouHui(orderBank.getDiscount());
         chuguanParam.setQiTaFeiYong(qiTaFeiYong);
         chuguanParam.setPeiHuoDanHao(0);
@@ -479,6 +482,9 @@ public class ReverseReceiveNotifyStockService {
             chuguanDetailVo.setYn(1);
             chuguanDetailVo.setCaiGouRenNo(item.getSkuId());
             chuguanDetailVo.setBiLv(1);
+            if(item.getProfitChannelId()!=null){
+                chuguanDetailVo.setProfitLossId(String.valueOf(item.getProfitChannelId()));
+            }
             chuguanDetailVoList.add(chuguanDetailVo);
         }
         return chuguanDetailVoList;
@@ -493,7 +499,7 @@ public class ReverseReceiveNotifyStockService {
     }
 
 
-    private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, Order order, List<Product> products,
+    private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, InternationOrderDto order, List<Product> products,
                                   Integer payType,OrderBankResponse orderBank) {
         long result;
         this.log.debug("运单号：{}, 使用推库管新接口",waybillCode);
@@ -522,7 +528,7 @@ public class ReverseReceiveNotifyStockService {
         inWmsStock0.setShanghai(order.getIdCompanyBranch());
         inWmsStock0.setActor(BigDecimal.valueOf(0));
         inWmsStock0.setQianzi(1);
-        inWmsStock0.setYun(order.getTotalFee());
+        /*inWmsStock0.setYun(order.getTotalFee());*/
         inWmsStock0.setYouhui(orderBank.getDiscount());
         inWmsStock0.setQite(BigDecimal.valueOf(1));//与潘文华确认改为1，已不用区分先款先货
         inWmsStock0.setPhdanhao(0);
@@ -569,7 +575,7 @@ public class ReverseReceiveNotifyStockService {
         outSpwmsStock0.setShanghai(order.getIdCompanyBranch());
         outSpwmsStock0.setActor(BigDecimal.valueOf(0));
         outSpwmsStock0.setQianzi(1);
-        outSpwmsStock0.setYun(order.getTotalFee());
+        /*outSpwmsStock0.setYun(order.getTotalFee());*/
         outSpwmsStock0.setYouhui(orderBank.getDiscount());
         outSpwmsStock0.setQite(BigDecimal.valueOf(0));
         outSpwmsStock0.setPhdanhao(0);
@@ -595,7 +601,7 @@ public class ReverseReceiveNotifyStockService {
         return result;
     }
 
-    public String stockMessage(Order order, List<Product> products, Integer stockType, Integer payType) {
+    public String stockMessage(InternationOrderDto order, List<Product> products, Integer stockType, Integer payType) {
 		StringBuilder message = new StringBuilder();
 
 		message.append("<ChuguanMsg><ChuguanInfo><RfType>16</RfType><Qtfs>5</Qtfs><Flag>1</Flag>"
@@ -734,7 +740,7 @@ public class ReverseReceiveNotifyStockService {
 	 *
 	 * @return
 	 */
-	private String getKPJGID(Order order){
+	private String getKPJGID(InternationOrderDto order){
 		try{
 			SendpayOrdertype queryParam = new SendpayOrdertype();
 			queryParam.setDcId( order.getDeliveryCenterID());

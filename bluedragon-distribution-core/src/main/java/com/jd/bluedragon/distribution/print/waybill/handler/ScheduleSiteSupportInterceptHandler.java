@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -48,6 +52,9 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
     @Autowired
     private WaybillPrintService waybillPrintService;
 
+    @Autowired
+    private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
@@ -67,6 +74,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
         }
 
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
+        Waybill waybill = context.getWaybill();
 
         BaseStaffSiteOrgDto scheduleSiteOrgDto;
         try {
@@ -96,8 +104,8 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             }
 
             if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()
-                    ,context.getWaybill().getCodMoney())){
-                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(context.getWaybill().getCodMoney()));
+                    ,waybill.getCodMoney())){
+                LOGGER.warn("codMoney大于0不能分配三方站点waybillCode[{}]codMoney[{}]",waybillCode,String.valueOf(waybill.getCodMoney()));
                 result.toError(JdResponse.CODE_CODMONAY_THIRD_SITE_ERROR, JdResponse.MESSAGE_CODMONAY_THIRD_SITE_ERROR);
                 return result;
             }
@@ -136,12 +144,18 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                 }
             }
 
+            //规则4-已退款的禁止 操作现场预分拣
+            JdCResponse jdCResponse = blockerQueryWSJsfManager.queryExceptionOrders(waybillCode);
+            if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
+                result.toError(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
+                return result;
+            }
+
         } catch (Exception e) {
             LOGGER.error("Support3PLInterceptHandler.handle-->现场预分拣获取返调度目的地信息出错：{}" ,JsonHelper.toJson(context.getRequest()), e);
             result.toError(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
             return result;
         }
-
         return result;
     }
 

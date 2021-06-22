@@ -15,9 +15,11 @@ import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,9 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Autowired
     @Qualifier("newSealVehicleService")
     private NewSealVehicleService newSealVehicleService;
+
+    @Autowired
+    DeliveryService deliveryService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.getVehicleNumBySimpleCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -115,7 +120,10 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.checkSendCodeIsSealed", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean checkSendCodeIsSealed(String sendCode) {
-        if (newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null) {
+        if(StringUtils.isBlank(sendCode)){
+            return false;
+        }
+        if(deliveryService.checkSendCodeIsSealed(sendCode)){
             return true;
         }
         return false;

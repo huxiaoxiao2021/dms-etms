@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusiWaringUtil;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
@@ -91,6 +92,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Autowired
     private EclpItemManager eclpItemManager;
 
+    @Autowired
+    private BusiWaringUtil busiWaringUtil;
+
     /**
      * 大包裹运单缓存开关
      */
@@ -131,6 +135,10 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
         BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
         if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+
+            if(baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getGoodNumber() != null){
+                busiWaringUtil.bigWaybillWarning(waybillCode,baseEntity.getData().getWaybill().getGoodNumber());
+            }
             // 只有接口查询包裹信息并且waybill对象不为空时，进行缓存查询
             if (isQueryPackList != null && isQueryPackList) {
                 // 是否需要从缓存获取包裹信息
@@ -944,6 +952,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_G)){
             //31 = G  冷链专送
             res = TextConstants.PRODUCT_NAME_LLZS;
+        }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_H)){
+            //31 = H  特快包裹
+        	res = TextConstants.PRODUCT_NAME_TKBG;
         }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_7)
                 && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_8)){
             if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_55, WaybillSignConstants.CHAR_55_0)){

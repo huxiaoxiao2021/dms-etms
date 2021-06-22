@@ -100,4 +100,15 @@
         order by id  desc
         limit 1
     </select>
+
+    <select id="updateUnBindByMaterialCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation"
+            resultType="Integer">
+        UPDATE
+            box_material_relation
+        SET  bind_flag = 2
+        WHERE
+         is_delete = 0 AND bind_flag = 1
+          AND  material_code =  #{materialCode,jdbcType=VARCHAR}
+          AND  box_code != #{boxCode,jdbcType=VARCHAR}
+    </select>
 </mapper>

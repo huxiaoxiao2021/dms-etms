@@ -3,15 +3,8 @@ package com.jd.bluedragon.distribution.reverse.service;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
@@ -203,7 +196,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private IPrintOnlineService printOnlineService;
-    
+
     @Autowired
     private WaybillTraceManager waybillTraceManager;
 
@@ -938,6 +931,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if(reverseSubType !=null){
         	send.setGuestBackType(reverseSubType.getParentCode());
         }
+        send.setPreSellType(BusinessUtil.getStoreTypeBySendPay(send.getSendPay()));
         if (log.isInfoEnabled()) {
             log.info("2:构建ReverseSendWms对象结果:{}", JSON.toJSONString(send));
         }
@@ -1380,7 +1374,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 nomarlSendDetails.add(sd);
             }
         }
-        sendDetails = nomarlSendDetails;//非维修外单集合        
+        sendDetails = nomarlSendDetails;//非维修外单集合
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
 //        pushECLPMessageToSpwms(eclpSendDetails);//ECLP
         //退备件库给ECLP发消息改成jsf接口的形式
@@ -1945,38 +1939,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             // 发MQ-->开发平台
             log.info("运单号： {} 的 waybillsign 【{}】 =ECLP ,不掉用库房webservice", wayBillCode, send.getSourceCode());
 
-            // 给eclp发送mq, eclp然后自己组装逆向报文
-            ReverseSendMQToECLP sendmodel = new ReverseSendMQToECLP();
-            sendmodel.setJdOrderCode(send.getBusiOrderCode());
-            sendmodel.setSendCode(send.getSendCode());
-            sendmodel.setSourceCode("ECLP");
-            sendmodel.setWaybillCode(wayBillCode);
-            sendmodel.setRejType(3);
-            sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
-            if (sendM.getOperateTime() != null) {
-                sendmodel.setOperateTime(sendM.getOperateTime().getTime());
-            } else {
-                sendmodel.setOperateTime(System.currentTimeMillis());
-            }
-            sendmodel.setOperator(sendM.getCreateUser());
-            //组装拒收原因
-            makeRefuseReason(sendmodel);
-
-            //added by hanjiaxing3 2019.04.08
-            //reason:天音项目增加两个字段，从运单接口中获取cky2和storeId
-            BigWaybillDto bigWaybillDto = waybillService.getWaybillState(wayBillCode);
-
-            if (bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
-                Integer distributeNo = bigWaybillDto.getWaybillState().getCky2();
-                Integer warehouseNo = bigWaybillDto.getWaybillState().getStoreId();
-                sendmodel.setDistributeNo(distributeNo);
-                sendmodel.setWarehouseNo(warehouseNo);
-                log.info("通过运单getWaybillState接口获取到的信息为，配送中心编号：{}，库房编号：{}", distributeNo, warehouseNo);
-            } else {
-                log.warn("通过运单getWaybillState接口获取到的信息为空！");
-            }
-            //eclp报文新增guestBackType字段
-            sendmodel.setGuestBackType(send.getGuestBackType());
+            ReverseSendMQToECLP sendmodel = getReverseSendMQToECLP(send, wayBillCode, sendM);
             //end
 
             String jsonStr = JsonHelper.toJson(sendmodel);
@@ -2085,6 +2048,52 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
 
         return Boolean.FALSE;
+    }
+
+    /**
+     * 构建推送ECLP的逆向发货消息
+     * @param send
+     * @param wayBillCode
+     * @param sendM
+     * @return
+     */
+    private ReverseSendMQToECLP getReverseSendMQToECLP(ReverseSendWms send, String wayBillCode, SendM sendM) {
+        // 给eclp发送mq, eclp然后自己组装逆向报文
+        ReverseSendMQToECLP sendModel = new ReverseSendMQToECLP();
+        sendModel.setJdOrderCode(send.getBusiOrderCode());
+        sendModel.setSendCode(send.getSendCode());
+        sendModel.setSourceCode("ECLP");
+        sendModel.setWaybillCode(wayBillCode);
+        sendModel.setRejType(3);
+        sendModel.setRejRemark("分拣中心逆向分拣ECLP");
+        if (sendM.getOperateTime() != null) {
+            sendModel.setOperateTime(sendM.getOperateTime().getTime());
+        } else {
+            sendModel.setOperateTime(System.currentTimeMillis());
+        }
+
+        sendModel.setOperator(sendM.getCreateUser());
+        //组装拒收原因
+        makeRefuseReason(sendModel);
+
+        BigWaybillDto bigWaybillDto = waybillService.getWaybillState(wayBillCode);
+        if (bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
+            Integer distributeNo = bigWaybillDto.getWaybillState().getCky2();
+            Integer warehouseNo = bigWaybillDto.getWaybillState().getStoreId();
+            sendModel.setDistributeNo(distributeNo);
+            sendModel.setWarehouseNo(warehouseNo);
+        } else {
+            log.warn("通过运单getWaybillState接口获取到的信息为空！");
+        }
+
+        sendModel.setGuestBackType(send.getGuestBackType());
+        //包裹号
+        if (StringUtils.isNotEmpty(send.getPackageCodes())){
+            sendModel.setPackageCodeList(Arrays.asList(send.getPackageCodes()));
+        }
+        //暂存类型
+        sendModel.setPreSellType(send.getPreSellType());
+        return sendModel;
     }
 
     /**

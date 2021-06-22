@@ -128,10 +128,6 @@ public class RmaHandOverController {
                 return response;
             }
 
-            // 设置分页对象
-            if (page == null) {
-                page = new Pager<List<AreaDest>>(Pager.DEFAULT_PAGE_NO);
-            }
             // 设置默认分页大小
             if (page.getPageSize() == null || page.getPageSize() <= 0) {
                 page.setPageSize(Pager.DEFAULT_PAGE_SIZE);

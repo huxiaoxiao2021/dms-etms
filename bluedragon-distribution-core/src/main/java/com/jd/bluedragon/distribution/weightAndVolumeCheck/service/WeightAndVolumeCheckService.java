@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -57,6 +58,13 @@ public interface WeightAndVolumeCheckService {
     InvokeResult<List<String>> searchExcessPictureOfB2b(String packageCode, Integer siteCode);
 
     /**
+     * 根据前缀获取最近上传的图片
+     * @param prefixName
+     * @return
+     */
+    String searchPictureUrlRecent(String prefixName);
+
+    /**
      * 根据条件查询
      * @param condition
      * @return
@@ -89,7 +97,7 @@ public interface WeightAndVolumeCheckService {
      */
     InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum,InvokeResult<Boolean> result);
 
-    void setProductType(WeightVolumeCollectDto weightVolumeCollectDto);
+    void setProductType(WeightVolumeCollectDto weightVolumeCollectDto, Waybill  waybill);
 
     /**
      * 查询最新一条抽检记录数据

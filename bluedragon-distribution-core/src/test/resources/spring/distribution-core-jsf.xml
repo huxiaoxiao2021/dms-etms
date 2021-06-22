@@ -214,6 +214,17 @@
         <jsf:parameter key="token" value="${order.middle.jsf.token}" hide="true"/>
     </jsf:consumer>
 
+    <!--国际化订单接口  测试环境 不需要参数 -->
+    <jsf:consumer id="newOrderMiddlewareJsfService"
+                  interface="com.jd.jdorders.component.export.OrderMiddlewareCBDExport"
+                  alias="${new.order.middle.jsf.alias}" protocol="jsf" timeout="${new.order.middle.jsf.timeout}" retries="${jsf.retries}">
+        <!-- 藏经阁生成token 藏经阁生成token-->
+        <jsf:parameter key="authToken" value="${new.order.middle.jsf.token}" hide="true" />
+        <!-- 藏经阁客户端名称 藏经阁的客户端名称-->
+        <jsf:parameter key="clientName" value="${new.order.middle.jsf.clientName}" hide="true" />
+        <!-- 藏经阁JSF分组名，和上边的alias一致 -->
+        <jsf:parameter key="alias" value="${new.order.middle.jsf.alias}" hide="true" />
+    </jsf:consumer>
 
     <!-- 台账 宏亮 张子敬-->
     <jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
@@ -454,9 +465,6 @@
     </jsf:consumer>
 
 
-    <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
-                  alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
-    </jsf:consumer>
 
     <jsf:consumer id="commonUseMenuApi" interface="com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi" protocol="jsf"
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">

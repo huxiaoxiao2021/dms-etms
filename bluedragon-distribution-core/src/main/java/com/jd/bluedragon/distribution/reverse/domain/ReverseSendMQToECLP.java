@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.domain;
 
+import java.util.List;
+
 /**
  * Created by guoyongzhi on 2015/2/4.
  * ECLP订单发送mq model
@@ -34,6 +36,12 @@ public class ReverseSendMQToECLP {
 	 * 0：客退入，为1：病单入，为2：预售入
 	 */
 	private Integer guestBackType;
+
+    //包裹号
+	private List<String> packageCodeList;
+
+	//暂存类型 ，其值见 StoreTypeEnum
+    private Integer preSellType;
 
     public String getJdOrderCode() {
         return jdOrderCode;
@@ -138,4 +146,20 @@ public class ReverseSendMQToECLP {
 	public void setGuestBackType(Integer guestBackType) {
 		this.guestBackType = guestBackType;
 	}
+
+    public List<String> getPackageCodeList() {
+        return packageCodeList;
+    }
+
+    public void setPackageCodeList(List<String> packageCodeList) {
+        this.packageCodeList = packageCodeList;
+    }
+
+    public Integer getPreSellType() {
+        return preSellType;
+    }
+
+    public void setPreSellType(Integer preSellType) {
+        this.preSellType = preSellType;
+    }
 }

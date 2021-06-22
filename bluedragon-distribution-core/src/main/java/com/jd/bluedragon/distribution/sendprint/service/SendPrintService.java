@@ -1,13 +1,10 @@
 package com.jd.bluedragon.distribution.sendprint.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
-import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 
 import java.util.List;
@@ -15,7 +12,6 @@ import java.util.List;
 public interface SendPrintService {
 
     SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria);
-	SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
 
@@ -26,8 +22,6 @@ public interface SendPrintService {
 	 * @return
 	 */
 	BasicQueryEntityResponse basicPrintQueryForPage(PrintQueryCriteria criteria);
-
-	BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria);
 
@@ -52,10 +46,10 @@ public interface SendPrintService {
 
 	/**
 	 * 打印交接清单导出
-	 * @param criteria
+	 * @param printExportCriteria
 	 * @return
 	 */
-	BasicQueryEntityResponse basicPrintExport(PrintQueryCriteria criteria);
+	InvokeResult<Boolean> batchPrintExport(PrintExportCriteria printExportCriteria);
 
 	/**
 	 * 构建打印交接清单实体

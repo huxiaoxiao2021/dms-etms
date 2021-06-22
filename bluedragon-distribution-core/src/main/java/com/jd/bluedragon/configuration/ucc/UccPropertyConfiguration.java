@@ -3,6 +3,7 @@ package com.jd.bluedragon.configuration.ucc;
 import com.jd.bluedragon.Constants;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -67,6 +68,10 @@ public class UccPropertyConfiguration {
     /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewInterfaceQuerySwitch;
 
+    /**
+     * 大运单告警数量
+     */
+    private Integer bigWaybillWaringSize;
 
     /** 出管新接口-页面查询方法开关 true 调用新接口，false 调用老接口**/
     private boolean chuguanNewPageQuerySwitch;
@@ -329,10 +334,92 @@ public class UccPropertyConfiguration {
     private boolean checkSiteSubType;
 
     /**
+     * 发货交接清单-汇总scrollId查询单批次查询数量
+     */
+    private int scrollQuerySize;
+    /**
+     * 发货交接清单-汇总scrollId最大次数限制
+     */
+    private int printScrollQueryCountLimit;
+
+    /**
+     * 验货集包袋依赖降级， true时不依赖集包袋服务
+     */
+    private boolean inspectionAssertDemotion;
+
+    /**
+     * 大宗可扫描包裹下限数量
+     * @return
+     */
+    private Integer dazongPackageOperateMax;
+
+    /**
+     * 是否校验签单返还
+     * true 校验 false 不校验
+     */
+    private boolean checkSignAndReturn;
+
+    /**
+     * 按流向查询已验未发未装运单数据查询jsf接口降级： true时jsf接口做降级提示，不操作查询
+     */
+    private boolean inspectNoSendNoLoadWaybillDemotion;
+
+    /**
+     * 异步缓冲框架，JMQ消费失败不再降级为TB任务
+     */
+    private String closeAsynBufferSaveTaskToDb;
+
+    /**
+     * C网抽检是否下发MQ条件卡控
+     */
+    private boolean spotCheckIssueControl;
+
+    /**
+     * C网抽检是否按以前逻辑下发MQ
+     */
+    private boolean spotCheckIssueControlPre;
+
+    /**
+     * 隐藏特殊始发场地名称开关，0-关，1-开
+     */
+    private int hideSpecialStartSitePrintSwitch;
+
+    /**
+     * 隐藏特殊始发场地目的场地名单，形如 12,333
+     */
+    private String hideSpecialStartSitPrintDestinationSiteList;
+
+    /**
+     * 隐藏特殊始发场地替换字符，形如 **
+     */
+    private String hideSpecialStartSitePrintReplaceSymbol;
+
+    /**
      * 取消鸡毛信切换OMS接口开关
      */
     private boolean cancelJimaoxinSwitchToOMS;
 
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    /**
+     * 反调度校验滑道信息 开关
+     * true :检验 false 不校验
+     */
+    private boolean backDispatchCheck;
+
+    public boolean getBackDispatchCheck() {
+        return backDispatchCheck;
+    }
+
+    public void setBackDispatchCheck(boolean backDispatchCheck) {
+        this.backDispatchCheck = backDispatchCheck;
+    }
 
     public String getWeightVolumeRuleStandard() {
         return weightVolumeRuleStandard;
@@ -686,6 +773,14 @@ public class UccPropertyConfiguration {
         this.economicNetValidateWeightSwitch = economicNetValidateWeightSwitch;
     }
 
+    public Integer getBigWaybillWaringSize() {
+        return bigWaybillWaringSize;
+    }
+
+    public void setBigWaybillWaringSize(Integer bigWaybillWaringSize) {
+        this.bigWaybillWaringSize = bigWaybillWaringSize;
+    }
+
     public boolean isControlCheckPackage() {
         return controlCheckPackage;
     }
@@ -893,6 +988,130 @@ public class UccPropertyConfiguration {
 
     public void setCheckSiteSubType(boolean checkSiteSubType) {
         this.checkSiteSubType = checkSiteSubType;
+    }
+
+    public int getScrollQuerySize() {
+        return scrollQuerySize;
+    }
+
+    public void setScrollQuerySize(int scrollQuerySize) {
+        this.scrollQuerySize = scrollQuerySize;
+    }
+
+    public boolean getInspectionAssertDemotion() {
+        return inspectionAssertDemotion;
+    }
+
+    public void setInspectionAssertDemotion(boolean inspectionAssertDemotion) {
+        this.inspectionAssertDemotion = inspectionAssertDemotion;
+    }
+
+    public int getPrintScrollQueryCountLimit() {
+        return printScrollQueryCountLimit;
+    }
+
+    public void setPrintScrollQueryCountLimit(int printScrollQueryCountLimit) {
+        this.printScrollQueryCountLimit = printScrollQueryCountLimit;
+    }
+
+    public Integer getDazongPackageOperateMax() {
+        return dazongPackageOperateMax;
+    }
+
+    public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
+        this.dazongPackageOperateMax = dazongPackageOperateMax;
+    }
+
+    public boolean getInspectNoSendNoLoadWaybillDemotion() {
+        return inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public void setInspectNoSendNoLoadWaybillDemotion(boolean inspectNoSendNoLoadWaybillDemotion) {
+        this.inspectNoSendNoLoadWaybillDemotion = inspectNoSendNoLoadWaybillDemotion;
+    }
+
+    public String getCloseAsynBufferSaveTaskToDb() {
+        return closeAsynBufferSaveTaskToDb;
+    }
+
+    public void setCloseAsynBufferSaveTaskToDb(String closeAsynBufferSaveTaskToDb) {
+        this.closeAsynBufferSaveTaskToDb = closeAsynBufferSaveTaskToDb;
+    }
+
+    public boolean getSpotCheckIssueControl() {
+        return spotCheckIssueControl;
+    }
+
+    public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
+        this.spotCheckIssueControl = spotCheckIssueControl;
+    }
+
+    public boolean getSpotCheckIssueControlPre() {
+        return spotCheckIssueControlPre;
+    }
+
+    public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
+        this.spotCheckIssueControlPre = spotCheckIssueControlPre;
+    }
+
+    public int getHideSpecialStartSitePrintSwitch() {
+        return hideSpecialStartSitePrintSwitch;
+    }
+
+    public boolean getHidePrintSpecialStartSiteNameSwitchOn() {
+        return Objects.equals(Constants.YN_YES, hideSpecialStartSitePrintSwitch);
+    }
+
+    public void setHideSpecialStartSitePrintSwitch(int hideSpecialStartSitePrintSwitch) {
+        this.hideSpecialStartSitePrintSwitch = hideSpecialStartSitePrintSwitch;
+    }
+
+    public String getHideSpecialStartSitPrintDestinationSiteList() {
+        return hideSpecialStartSitPrintDestinationSiteList;
+    }
+
+    public List<String> getHideSpecialStartSitPrintDestinationSiteStrList() {
+        if(hideSpecialStartSitPrintDestinationSiteList == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(hideSpecialStartSitPrintDestinationSiteList.split(Constants.SEPARATOR_COMMA));
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> hideSpecialStartSitPrintDestinationSiteStrList = new ArrayList<>();
+    public void setHideSpecialStartSitPrintDestinationSiteList(String hideSpecialStartSitPrintDestinationSiteList) {
+        this.hideSpecialStartSitPrintDestinationSiteList = hideSpecialStartSitPrintDestinationSiteList;
+        this.hideSpecialStartSitPrintDestinationSiteStrList = this.getHideSpecialStartSitPrintDestinationSiteStrList();
+    }
+
+    public boolean matchHidePrintSpecialStartSitDestinationSiteList(int siteId) {
+        if(StringUtils.isBlank(hideSpecialStartSitPrintDestinationSiteList)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, hideSpecialStartSitPrintDestinationSiteList)){
+            return true;
+        }
+        if(hideSpecialStartSitPrintDestinationSiteStrList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    private final int hideSpecialStartSitePrintReplaceSymbolMaxLength = 20;
+    public String getHideSpecialStartSitePrintReplaceSymbol() {
+        if(hideSpecialStartSitePrintReplaceSymbol == null){
+            return "";
+        }
+        if(hideSpecialStartSitePrintReplaceSymbol.length() > hideSpecialStartSitePrintReplaceSymbolMaxLength){
+            return hideSpecialStartSitePrintReplaceSymbol.substring(0, hideSpecialStartSitePrintReplaceSymbolMaxLength);
+        }
+        return hideSpecialStartSitePrintReplaceSymbol;
+    }
+
+    public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
+        this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
     }
 
     public boolean isCancelJimaoxinSwitchToOMS() {

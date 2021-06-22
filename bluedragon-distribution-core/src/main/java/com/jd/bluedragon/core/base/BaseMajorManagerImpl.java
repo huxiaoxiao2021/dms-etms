@@ -18,8 +18,6 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.partner.waybill.api.WaybillManagerApi;
-import com.jd.partner.waybill.api.dto.response.ResultData;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
@@ -80,10 +78,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("basicPrimaryWSProxy")
     private BasicPrimaryWSProxy basicPrimaryWSProxy;
-
-    @Autowired
-    @Qualifier("allianceWaybillManagerApi")
-    private WaybillManagerApi allianceWaybillManagerApi;
 
     @Autowired
     @Qualifier("commonUseMenuApi")
@@ -712,14 +706,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Override
     @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.allianceBusiMoneyEnough", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean allianceBusiMoneyEnough(String allianceBusiId) {
-        ResultData resultData = allianceWaybillManagerApi.checkReceiveOrder(allianceBusiId,Constants.UMP_APP_NAME_DMSWEB);
-        if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
-            return true;
-        }else{
-            log.warn("加盟商预付款返回失败或不充足:{}|{}",allianceBusiId,(resultData != null?resultData.getResultMsg():""));
-            return false;
-        }
-
+        //加盟商无流量下掉 jsf 调用 WaybillManagerApi
+        return false;
     }
 
     /**

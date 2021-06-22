@@ -13,8 +13,19 @@ public class CheckExcessParam {
 
     private Double differenceValue;
 
+    /**
+     * 分拣复核较大值
+     */
     private Double moreBigValue;
 
+    /**
+     * 核对较大值
+     */
+    private Double checkMoreBigValue;
+
+    /**
+     * 分拣复核重量
+     */
     private Double reviewWeight;
 
     public BigDecimal getSumLWH() {
@@ -49,5 +60,12 @@ public class CheckExcessParam {
         this.reviewWeight = reviewWeight;
     }
 
+    public Double getCheckMoreBigValue() {
+        return checkMoreBigValue;
+    }
+
+    public void setCheckMoreBigValue(Double checkMoreBigValue) {
+        this.checkMoreBigValue = checkMoreBigValue;
+    }
 }
     

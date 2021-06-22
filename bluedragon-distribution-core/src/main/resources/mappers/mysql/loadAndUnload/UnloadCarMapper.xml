@@ -408,6 +408,12 @@
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
         and yn=1
         and status in (0,1)
+        <if test="startTime != null">
+            and create_time &gt; #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            and create_time &lt; #{endTime,jdbcType=TIMESTAMP}
+        </if>
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
@@ -425,4 +431,15 @@
         <include refid="Base_Condition_Sql"/>
         order by update_time desc
     </select>
+
+    <update id="updateStartTime" parameterType="unloadCar">
+        UPDATE unload_car
+        SET
+         start_time = #{startTime,jdbcType=TIMESTAMP},
+         update_time = #{updateTime,jdbcType=TIMESTAMP},
+         update_user_erp = #{updateUserErp, jdbcType=VARCHAR},
+         update_user_name = #{updateUserName, jdbcType=VARCHAR}
+        where
+         seal_car_code = #{sealCarCode,jdbcType=VARCHAR} and yn = 1
+    </update>
 </mapper>
