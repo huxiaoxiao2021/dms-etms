@@ -1587,7 +1587,7 @@
         <dependency>
             <groupId>cn.jdl.oms</groupId>
             <artifactId>jdl-oms-client</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
 
 
