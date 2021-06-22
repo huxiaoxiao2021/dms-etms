@@ -310,4 +310,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 清场库存盘点对外jsf -->
+    <jsf:provider id="jsfStockInventoryService"
+                  interface="com.jd.bluedragon.distribution.stock.StockInventoryJSFService"
+                  alias="${dms.jsf.alias}"
+                  ref="stockInventoryJSFService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
