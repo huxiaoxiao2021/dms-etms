@@ -94,6 +94,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
     public JdCResponse<Boolean> canModifyConsumableNum(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableGatewayServiceImpl.canModifyConsumableNum--PDA校验运单耗材是否可变更耗材数量--";
         JdCResponse<Boolean> res = new JdCResponse<Boolean>();
+        res.toSucceed();
 
         if(waybillConsumablePackConfirmReq == null) {
             res.toFail("请求信息不能为空");
