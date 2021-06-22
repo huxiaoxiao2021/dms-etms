@@ -394,6 +394,11 @@ public class UccPropertyConfiguration {
      */
     private String hideSpecialStartSitePrintReplaceSymbol;
 
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1107,5 +1112,13 @@ public class UccPropertyConfiguration {
 
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
     }
 }
