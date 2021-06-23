@@ -196,8 +196,6 @@
                 <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
-				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
-				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
 				<value>uccPropertyConfiguration.newPrintHandoverListSwitch</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>

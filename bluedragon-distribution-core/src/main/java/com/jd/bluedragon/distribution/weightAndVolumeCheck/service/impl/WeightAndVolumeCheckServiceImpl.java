@@ -715,6 +715,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     /**
      * 1、针对C抽B的：是否超标不填
      * 2、生鲜：分拣较大值 < 计费结算重量（核对较大值）则不超标
+     * 3、分拣较大值 <= 1 && 计费结算重量（核对较大值）<= 1 则不超标
      * @param weightVolumeCollectDto
      * @param waybill
      */
@@ -728,6 +729,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 计费结算重量或核对较大值
         double checkMore = weightVolumeCollectDto.getBillingCalcWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingCalcWeight();
         if(BusinessUtil.isFresh(waybill.getWaybillSign()) && reviewMore < checkMore){
+            weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
+            return;
+        }
+        // 分拣复核较大值 <= 1 && 核对较大值 <= 1
+        if(reviewMore <= Constants.CONSTANT_NUMBER_ONE && checkMore <= Constants.CONSTANT_NUMBER_ONE){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
         }
     }
@@ -1135,7 +1141,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         String billingErp = StringUtils.isEmpty(packFlowDetail.getMeasureUserErp()) ? packFlowDetail.getWeighUserErp() : packFlowDetail.getMeasureUserErp();
         if(StringUtils.isEmpty(billingErp)){
             String billingUserId = StringUtils.isEmpty(packFlowDetail.getMeasureUserId()) ? packFlowDetail.getWeighUserId() : packFlowDetail.getMeasureUserId();
-            if (StringUtils.isEmpty(billingUserId)){
+            if (StringUtils.isEmpty(billingUserId) || !NumberHelper.isNumber(billingUserId)){
+                log.warn("包裹号{}的首称重操作人{}非法!", packFlowDetail.getPackageCode(), billingUserId);
                 return null;
             }
             return baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.valueOf(billingUserId));
