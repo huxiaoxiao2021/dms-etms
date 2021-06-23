@@ -13,6 +13,8 @@ public class CancelFeatherLetterRequest {
      */
     private Boolean cancelFeatherLetter;
 
+    private String userErp;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -28,4 +30,13 @@ public class CancelFeatherLetterRequest {
     public void setCancelFeatherLetter(Boolean cancelFeatherLetter) {
         this.cancelFeatherLetter = cancelFeatherLetter;
     }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
+
 }
