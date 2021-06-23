@@ -1466,7 +1466,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         // 构建打印接交接对象的基础属性
-        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM);
+        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM,waybillCode);
 
         // 构建打印接交接对象的运单属性
         buildWaybillData(bigWaybillDto,printHandoverListDto);
@@ -1547,9 +1547,11 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 构建打印接交接对象的基础属性
      * @param sendDetail
+     * @param sendM
+     * @param waybillCode
      * @return
      */
-    private PrintHandoverListDto buildBasicData(SendDetail sendDetail,SendM sendM) {
+    private PrintHandoverListDto buildBasicData(SendDetail sendDetail,SendM sendM,String waybillCode) {
         PrintHandoverListDto printHandoverListDto = new PrintHandoverListDto();
         printHandoverListDto.setCreateSiteCode(sendDetail.getCreateSiteCode());
         printHandoverListDto.setCreateSiteName(toSiteName(sendDetail.getCreateSiteCode()));
@@ -1559,7 +1561,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         printHandoverListDto.setSendCode(sendDetail.getSendCode());
         printHandoverListDto.setBoxCode(sendDetail.getBoxCode());
-        printHandoverListDto.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        printHandoverListDto.setWaybillCode(waybillCode);
         printHandoverListDto.setPackageCode(sendDetail.getPackageBarcode());
 
         printHandoverListDto.setSendUser(sendM.getCreateUser());
@@ -1646,6 +1648,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param printHandoverListDto
      */
     private void buildPackageData(PrintHandoverListDto printHandoverListDto) {
+        if(!WaybillUtil.isPackageCode(printHandoverListDto.getPackageCode())){
+            return;
+        }
         // 包裹重量
         DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(printHandoverListDto.getPackageCode());
         if (deliveryPackageD != null) {
