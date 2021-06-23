@@ -233,7 +233,9 @@ public class StockInventoryServiceImpl implements StockInventoryService {
             // 更新非当前操作人记录的状态为'已被他人盘点'
             Set<String> waitUpdateErp = new HashSet<>();
             for (StockInventory inventory : existList) {
-                waitUpdateErp.add(inventory.getOperateUserErp());
+                if(!Objects.equals(inventory.getOperateUserErp(), stockInventoryScanDto.getOperateUserErp())){
+                    waitUpdateErp.add(inventory.getOperateUserErp());
+                }
             }
             queryCondition.setOperateUserErp(stockInventoryScanDto.getOperateUserErp());
             stockInventoryDao.updateStatusByErp(queryCondition, new ArrayList<String>(waitUpdateErp));
