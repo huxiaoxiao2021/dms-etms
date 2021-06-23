@@ -6,15 +6,12 @@ import com.jd.dms.wb.report.api.IPrintHandoverListJsfService;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
-import com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 打印交接清单包装服务
