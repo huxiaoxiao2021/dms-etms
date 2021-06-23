@@ -606,9 +606,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 //获得send对象,方便下方判断
                 ReverseSendWms send = null;
-                send = tBaseService.getWaybillByOrderCode(wallBillCode);
+                send = tBaseService.getWaybillByOrderCode(operCodeMap.get(wallBillCode).getOldWaybillCode());
                 if (send == null) {
-                    this.log.warn("调用运单接口获得数据为空,运单号:{}", wallBillCode);
+                    this.log.warn("调用运单接口获得数据为空,运单号:{}", operCodeMap.get(wallBillCode).getOldWaybillCode());
                     continue;
                 }
                 newsend.setOrderId(send.getOrderId());
