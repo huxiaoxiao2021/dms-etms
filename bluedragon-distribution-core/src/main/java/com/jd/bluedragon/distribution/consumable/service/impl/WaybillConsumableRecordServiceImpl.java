@@ -307,6 +307,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
         String businessCode = waybillConsumablePackConfirmReq.getBusinessCode();
         if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
+            log.error(methodDesc + "error--运单号错误，businessCode={}", businessCode);
             res.toFail("请输入正确的单号，支持运单号或包裹号");
             return res;
         }

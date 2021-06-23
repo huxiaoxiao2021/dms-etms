@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
 import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
@@ -8,6 +9,8 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.WaybillConsumableGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -32,6 +35,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
     private WaybillConsumablePDAService waybillConsumablePDAService;
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillConsumableGatewayServiceImpl.getWaybillConsumableInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableGatewayServiceImpl.getWaybillConsumableInfo--PDA操作耗材确认查询接口--";
         JdCResponse<List<WaybillConsumablePackConfirmRes>> res = new JdCResponse<>();
@@ -39,6 +43,9 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
         if (waybillConsumablePackConfirmReq == null) {
             res.toFail("请求信息不能为空");
             return res;
+        }
+        if(log.isInfoEnabled()) {
+            log.info(methodDesc + "begin--参数=【{}】", JsonHelper.toJson(waybillConsumablePackConfirmReq));
         }
 
         if (waybillConsumablePackConfirmReq.getUser() == null || waybillConsumablePackConfirmReq.getUser().getUserErp() == null) {
@@ -61,6 +68,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillConsumableGatewayServiceImpl.doWaybillConsumablePackConfirm",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> doWaybillConsumablePackConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableGatewayServiceImpl.doWaybillConsumablePackConfirm--PDA操作耗材确认接口（绑定打包人+耗材确认）--";
         JdCResponse<Boolean> res = new JdCResponse<Boolean>();
@@ -68,6 +76,9 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
         if (waybillConsumablePackConfirmReq == null) {
             res.toFail("请求信息不能为空");
             return res;
+        }
+        if(log.isInfoEnabled()) {
+            log.info(methodDesc + "begin--参数=【{}】", JsonHelper.toJson(waybillConsumablePackConfirmReq));
         }
         if (waybillConsumablePackConfirmReq.getUser() == null || waybillConsumablePackConfirmReq.getUser().getUserErp() == null) {
             res.toFail("操作人信息ERP不能为空");
@@ -91,6 +102,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.WaybillConsumableGatewayServiceImpl.canModifyConsumableNum",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> canModifyConsumableNum(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
         String methodDesc = "WaybillConsumableGatewayServiceImpl.canModifyConsumableNum--PDA校验运单耗材是否可变更耗材数量--";
         JdCResponse<Boolean> res = new JdCResponse<Boolean>();
