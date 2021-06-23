@@ -195,6 +195,11 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 PackageStateDto packageState = stateList.get(0);
                 firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
                 result.setData(firstSiteVo);
+                // 设置条线类型
+                if (lineType == null) {
+                    lineType = ExpressBillLineTypeEnum.STATION.getCode();
+                }
+                firstSiteVo.setLineType(lineType);
                 return result;
             }
 
