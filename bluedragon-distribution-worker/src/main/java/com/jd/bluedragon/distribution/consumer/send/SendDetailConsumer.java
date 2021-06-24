@@ -318,7 +318,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * @throws JMQException
      */
     private void sendColdChainSendMQ(SendDetailMessage sendDetail, String waybillCode) throws JMQException {
-        if (SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND) {
+        if (SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND) {
             BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
             BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
             if (createSiteDto != null && receiveSiteDto != null) {
