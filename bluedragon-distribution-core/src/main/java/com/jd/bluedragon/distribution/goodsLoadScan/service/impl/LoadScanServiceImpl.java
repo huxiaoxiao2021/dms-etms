@@ -50,11 +50,13 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
 import com.jd.merchant.api.staging.ws.StagingServiceWS;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -81,6 +83,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
 
 @Service("loadScanService")
 public class LoadScanServiceImpl implements LoadScanService {
@@ -161,6 +164,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     protected BaseMajorManager baseMajorManager;
+
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
@@ -1231,6 +1235,11 @@ public class LoadScanServiceImpl implements LoadScanService {
             nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
             log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
         }
+        //跨越校验
+        JdVerifyResponse<Void> kyCheckResponse = this.checkKyCondition(waybillCode,req,loadCar,response);
+        if(kyCheckResponse != null){
+            return kyCheckResponse;
+        }
         // 发货校验
         // 1.校验包裹下一动态路由节点与批次号下一场站是否一致，如不一致进行错发弹框提醒（“错发！请核实！此包裹流向与发货流向不一致，请确认是否继续发货！  是  否  ”，特殊提示音），点击“确定”后完成发货，点击取消清空当前操作的包裹号；
         if (nextDmsSiteId == null || loadCar.getEndSiteCode().intValue() != nextDmsSiteId) {
@@ -1263,6 +1272,54 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.setCode(JdVerifyResponse.CODE_SUCCESS);
         response.setMessage(JdVerifyResponse.MESSAGE_SUCCESS);
         return response;
+    }
+
+    /**校验跨越**/
+    private JdVerifyResponse<Void> checkKyCondition(String waybillCode, GoodsLoadingScanningReq req,
+                                                    LoadCar loadCar, JdVerifyResponse<Void> response) {
+        Integer nextDmsSiteId = loadCar.getEndSiteCode().intValue();
+        if(log.isInfoEnabled()){
+            log.info("跨越装车校验参数,运单号:{},下一场地id:{},请求条件为:{},loadCar参数为:{}",
+                    waybillCode,nextDmsSiteId,JsonHelper.toJson(req),JsonHelper.toJson(loadCar));
+        }
+        //当前中心为目的转运中心
+        String packageCode = req.getPackageCode();
+        boolean isEndSite = waybillService.isStartOrEndSite(loadCar.getCreateSiteCode().intValue(),waybillCode,-1);
+        if(isEndSite){
+            Waybill waybillInfo = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            if( waybillInfo != null && StringUtils.isNotBlank(waybillInfo.getWaybillSign())){
+                //常量 封装方法
+                boolean isPickUpOrNo = BusinessUtil.isPickUpOrNo(waybillInfo.getWaybillSign());
+                log.info("获取到虚拟id:{}",uccPropertyConfiguration.getVirtualSiteCode());
+                if(uccPropertyConfiguration.getVirtualSiteCode().equals(nextDmsSiteId)){//下一节点是虚拟节点
+                    if(!isPickUpOrNo){
+                        log.warn("装车失败!非自提包裹不允许发往自提站点,包裹号为:{},运单号为:{}",packageCode,waybillCode);
+                        response.setCode(JdCResponse.CODE_FAIL);
+                        response.setMessage("装车失败!非自提包裹不允许发往自提站点!");
+                        return response;
+                    }else{//是自提 跨越最终成功装车
+                        try {
+                            jimdbCacheService.setNx(Constants.KYEXPRESSLOADSUCCESS+waybillCode, "success",10,TimeUnit.DAYS);
+                        } catch (Exception e) {
+                            log.error("运单跨越成功装车缓存插入失败, K-[{}],V-[{}]", "kysuccess"+waybillCode, waybillCode);
+                        }
+                        log.warn("跨越成功装车,运单号:{}",waybillCode);
+                        response.setCode(JdVerifyResponse.CODE_SUCCESS);
+                        response.setMessage(JdVerifyResponse.MESSAGE_SUCCESS);
+                        return response;
+                    }
+                }else {
+                    //自提
+                    if(isPickUpOrNo){
+                        log.warn("装车失败,自提包裹请发往自提站点!包裹号为:{},运单号为:{}",packageCode,waybillCode);
+                        response.setCode(JdCResponse.CODE_FAIL);
+                        response.setMessage("装车失败,自提包裹请发往自提站点!");
+                        return response;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
