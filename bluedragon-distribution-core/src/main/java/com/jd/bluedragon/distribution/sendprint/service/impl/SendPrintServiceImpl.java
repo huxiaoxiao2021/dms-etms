@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.service.ReverseSpareService;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -128,6 +130,9 @@ public class SendPrintServiceImpl implements SendPrintService {
     private SendDetailService sendDetailService;
 
     @Autowired
+    private ReverseSpareService reverseSpareService;
+
+    @Autowired
     private LogEngine logEngine;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
@@ -211,8 +216,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Map<String,SummaryPrintResult> batchBasicMap = new HashMap<>();
             // 批次对应的箱号，箱号对应的信息
             Map<String,Map<String,SummaryPrintBoxEntity>> batchBoxMap = new HashMap<>();
-            // 批次对应的箱号集合
-            Map<String,Set<String>> batchBoxSetMap = new HashMap<>();
+            // 批次对应的箱号，箱号对应的运单号集合 fix:不统计箱号是包裹号的情况(运单数量肯定是1，尽量减少大对象)
+            Map<String,Map<String,Set<String>>> batchBoxWaybillMap = new HashMap<>();
 
             // 单次scroll查询数量、scroll查询最大限制次数
             int batchSize = uccPropertyConfiguration.getScrollQuerySize();
@@ -234,7 +239,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 query.setScrollId(printHandoverListDtoPageData.getScrollId());
 
                 // 通过明细获取单次的汇总数据
-                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxSetMap, printHandoverListDtoPageData.getRecords());
+                List<SummaryPrintResult> singleSummaryPrintResult = getSummaryResultByPrintHandoverData(batchBoxWaybillMap, printHandoverListDtoPageData.getRecords());
 
                 // 处理单批次的汇总数据
                 singleDealPrintHandoverData(batchBasicMap, batchBoxMap, singleSummaryPrintResult);
@@ -243,7 +248,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
 
             // 获取最终汇总数据
-            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxSetMap, batchBoxMap);
+            List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxWaybillMap, batchBoxMap);
             if(CollectionUtils.isEmpty(list)){
                 response.setCode(JdResponse.CODE_OK_NULL);
                 response.setMessage(JdResponse.MESSAGE_OK_NULL);
@@ -269,7 +274,7 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private List<SummaryPrintResult> computeFinalSummaryResult(Map<String, SummaryPrintResult> batchBasicMap,
-                                                               Map<String,Set<String>> batchBoxSetMap,
+                                                               Map<String,Map<String,Set<String>>> batchBoxWaybillMap,
                                                                Map<String, Map<String, SummaryPrintBoxEntity>> batchBoxMap) {
         List<SummaryPrintResult> list = new ArrayList<>();
         if(batchBasicMap.isEmpty() || batchBoxMap.isEmpty()){
@@ -277,19 +282,44 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         for (Map.Entry<String, SummaryPrintResult> batchEntry : batchBasicMap.entrySet()) {
             SummaryPrintResult summaryPrintResult = batchEntry.getValue();
-            if(batchBoxSetMap.containsKey(batchEntry.getKey())){
-                // 设置箱号数量、箱+包数量
-                int boxSize = batchBoxSetMap.get(batchEntry.getKey()).size();
-                summaryPrintResult.setTotalBoxNum(boxSize);
-                summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
-            }
             if(batchBoxMap.containsKey(batchEntry.getKey())){
                 Map<String, SummaryPrintBoxEntity> boxEntityMap = batchBoxMap.get(batchEntry.getKey());
+                // 设置批次下箱的基础数据
                 summaryPrintResult.setDetails(new ArrayList<>(boxEntityMap.values()));
             }
+            // 设置批次下箱号、批次下箱号+包裹、批次下箱号下运单数量
+            dealWithNum(summaryPrintResult, batchBoxWaybillMap.get(batchEntry.getKey()));
             list.add(summaryPrintResult);
         }
         return list;
+    }
+
+    /**
+     * 设置批次下箱号、批次下箱号+包裹、批次下箱号下运单数量
+     * @param summaryPrintResult
+     * @param boxWaybillMap
+     */
+    private void dealWithNum(SummaryPrintResult summaryPrintResult, Map<String, Set<String>> boxWaybillMap) {
+        if(CollectionUtils.isEmpty(summaryPrintResult.getDetails()) || boxWaybillMap == null){
+            return;
+        }
+        Set<String> boxSet = new HashSet<>();
+        for (SummaryPrintBoxEntity summaryPrintBoxEntity : summaryPrintResult.getDetails()) {
+
+            // 批次下原包下运单数量
+            summaryPrintBoxEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
+
+            if(BusinessUtil.isBoxcode(summaryPrintBoxEntity.getBoxCode())){
+                boxSet.add(summaryPrintBoxEntity.getBoxCode());
+                // 批次下箱号下运单数量
+                Set<String> waybillSet = boxWaybillMap.get(summaryPrintBoxEntity.getBoxCode());
+                summaryPrintBoxEntity.setWaybillNum(waybillSet == null ? Constants.NUMBER_ZERO : waybillSet.size());
+            }
+        }
+        // 设置批次下箱号、箱号+包裹数量
+        int boxSize = boxSet.size();
+        summaryPrintResult.setTotalBoxNum(boxSize);
+        summaryPrintResult.setTotalBoxAndPackageNum(boxSize + summaryPrintResult.getTotalPackageNum());
     }
 
     /**
@@ -328,7 +358,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 for (SummaryPrintBoxEntity detail : summaryPrintResult.getDetails()) {
                     if(boxEntityMap.containsKey(detail.getBoxCode())){
                         SummaryPrintBoxEntity summaryPrintBoxEntity = boxEntityMap.get(detail.getBoxCode());
-                        summaryPrintBoxEntity.setWaybillNum(summaryPrintBoxEntity.getWaybillNum() + detail.getWaybillNum());
                         summaryPrintBoxEntity.setPackageBarNum(summaryPrintBoxEntity.getPackageBarNum() + detail.getPackageBarNum());
                         summaryPrintBoxEntity.setPackageBarRecNum(summaryPrintBoxEntity.getPackageBarRecNum() + detail.getPackageBarRecNum());
                         summaryPrintBoxEntity.setVolume(summaryPrintBoxEntity.getVolume() + detail.getVolume());
@@ -356,7 +385,8 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param records
      * @return
      */
-    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Set<String>> batchBoxSetMap, List<PrintHandoverListDto> records) {
+    private List<SummaryPrintResult> getSummaryResultByPrintHandoverData(Map<String,Map<String,Set<String>>> batchBoxWaybillMap,
+                                                                         List<PrintHandoverListDto> records) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.getSummaryResultByPrintHandoverData", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             //按批次分类
@@ -378,12 +408,12 @@ public class SendPrintServiceImpl implements SendPrintService {
                 summaryPrintResult.setSendCode(sendCode);
                 summaryPrintResult.setSendSiteName(records.get(0).getCreateSiteName());
                 summaryPrintResult.setReceiveSiteName(records.get(0).getReceiveSiteName());
-                Set<String> boxSet = new HashSet<>();
-                if(batchBoxSetMap.containsKey(sendCode)){
-                    boxSet = batchBoxSetMap.get(sendCode);
+                Map<String,Set<String>> boxWaybillMap = new HashMap<>();
+                if(batchBoxWaybillMap.containsKey(sendCode)){
+                    boxWaybillMap = batchBoxWaybillMap.get(sendCode);
                 }
-                summaryPrintResultList.add(singleSendSummary(boxSet,summaryPrintResult,sendBaseMap.get(sendCode)));
-                batchBoxSetMap.put(sendCode, boxSet);
+                summaryPrintResultList.add(singleSendSummary(boxWaybillMap,summaryPrintResult,sendBaseMap.get(sendCode)));
+                batchBoxWaybillMap.put(sendCode, boxWaybillMap);
             }
             return summaryPrintResultList;
         }catch (Exception e){
@@ -401,7 +431,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param singlePrintHandoverList
      * @return
      */
-    private SummaryPrintResult singleSendSummary(Set<String> boxSet,SummaryPrintResult summaryPrintResult,List<PrintHandoverListDto> singlePrintHandoverList){
+    private SummaryPrintResult singleSendSummary(Map<String,Set<String>> boxWaybillMap,
+                                                 SummaryPrintResult summaryPrintResult,
+                                                 List<PrintHandoverListDto> singlePrintHandoverList){
         Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
         List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
 
@@ -436,13 +468,11 @@ public class SendPrintServiceImpl implements SendPrintService {
             if (BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())) {
                 if (boxMap.containsKey(printHandoverListDto.getBoxCode())) {
                     summaryEntity = boxMap.get(printHandoverListDto.getBoxCode());
-                    summaryEntity.setWaybillNum(summaryEntity.getWaybillNum() + Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarNum(summaryEntity.getPackageBarNum() + Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarRecNum(summaryEntity.getPackageBarRecNum() + Constants.CONSTANT_NUMBER_ONE);
                 } else {
                     summaryEntity = new SummaryPrintBoxEntity();
                     summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
-                    summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
                     summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
                     //设置封签号、封车时间和箱的体积
@@ -454,12 +484,19 @@ public class SendPrintServiceImpl implements SendPrintService {
                     boxMap.put(printHandoverListDto.getBoxCode(),summaryEntity);
                     totalBoxNum ++;
                 }
-                boxSet.add(printHandoverListDto.getBoxCode());
+                if (boxWaybillMap.containsKey(printHandoverListDto.getBoxCode())) {
+                    // 设置箱号对应的运单数量
+                    boxWaybillMap.get(printHandoverListDto.getBoxCode()).add(printHandoverListDto.getWaybillCode());
+                }else {
+                    // 初始化箱号对应的运单MAP
+                    Set<String> waybillCodeSet = new HashSet<>();
+                    waybillCodeSet.add(printHandoverListDto.getWaybillCode());
+                    boxWaybillMap.put(printHandoverListDto.getBoxCode(), waybillCodeSet);
+                }
             } else {
                 //按包裹号处理的
                 summaryEntity = new SummaryPrintBoxEntity();
                 summaryEntity.setBoxCode(printHandoverListDto.getBoxCode());
-                summaryEntity.setWaybillNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setPackageBarNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setPackageBarRecNum(Constants.CONSTANT_NUMBER_ONE);
                 summaryEntity.setSealNo1(Constants.EMPTY_FILL);
@@ -1360,6 +1397,10 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private boolean checkIsApproval(PrintExportCriteria printExportCriteria) {
+        // 未开启审批
+        if(!uccPropertyConfiguration.getApprovalSwitch()){
+            return false;
+        }
         for (PrintQueryCriteria item : printExportCriteria.getList()) {
             if(Objects.equals(toSiteType(item.getReceiveSiteCode()), Constants.RETURN_PARTNER_SITE_TYPE)
                     && switchSiteSubTypeCheck(item.getReceiveSiteCode())){
@@ -1407,8 +1448,11 @@ public class SendPrintServiceImpl implements SendPrintService {
     public PrintHandoverListDto buildPrintHandoverListDto(SendDetail sendDetail) {
 
         // 获取运单对象
-        String waybillCode = StringUtils.isEmpty(sendDetail.getWaybillCode())
-                ? WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()) : sendDetail.getWaybillCode();
+        String waybillCode = dealCreateWaybillCode(sendDetail);
+        if(StringUtils.isEmpty(waybillCode)){
+            log.warn("未获取到运单号!包裹号：{},站点：{}", sendDetail.getPackageBarcode(), sendDetail.getCreateSiteCode());
+            return null;
+        }
         BigWaybillDto bigWaybillDto = getBigWaybillDto(waybillCode);
         if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
             log.warn("根据运单号{}获取运单信息为空!", waybillCode);
@@ -1422,7 +1466,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         // 构建打印接交接对象的基础属性
-        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM);
+        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM,waybillCode);
 
         // 构建打印接交接对象的运单属性
         buildWaybillData(bigWaybillDto,printHandoverListDto);
@@ -1443,6 +1487,35 @@ public class SendPrintServiceImpl implements SendPrintService {
         buildSealCarData(printHandoverListDto);
 
         return printHandoverListDto;
+    }
+
+    /**
+     * 获取运单号
+     * @param sendDetail
+     * @return
+     */
+    private String dealCreateWaybillCode(SendDetail sendDetail) {
+        // 运单号则直接返回
+        if(WaybillUtil.isWaybillCode(sendDetail.getWaybillCode())){
+            return sendDetail.getWaybillCode();
+        }
+        String packageBarcode = sendDetail.getPackageBarcode();
+        // 从包裹号中获取运单号
+        if(WaybillUtil.isPackageCode(packageBarcode)){
+            return WaybillUtil.getWaybillCode(packageBarcode);
+        }
+        // 包裹号是备件条码
+        if(WaybillUtil.isReverseSpareCode(packageBarcode)){
+            try {
+                ReverseSpare reverseSpare = reverseSpareService.queryBySpareCode(packageBarcode);
+                if(reverseSpare != null){
+                    return reverseSpare.getWaybillCode();
+                }
+            }catch (Exception e){
+                log.error("根据备件条码查询运{}单号异常!", packageBarcode);
+            }
+        }
+        return null;
     }
 
     /**
@@ -1474,9 +1547,11 @@ public class SendPrintServiceImpl implements SendPrintService {
     /**
      * 构建打印接交接对象的基础属性
      * @param sendDetail
+     * @param sendM
+     * @param waybillCode
      * @return
      */
-    private PrintHandoverListDto buildBasicData(SendDetail sendDetail,SendM sendM) {
+    private PrintHandoverListDto buildBasicData(SendDetail sendDetail,SendM sendM,String waybillCode) {
         PrintHandoverListDto printHandoverListDto = new PrintHandoverListDto();
         printHandoverListDto.setCreateSiteCode(sendDetail.getCreateSiteCode());
         printHandoverListDto.setCreateSiteName(toSiteName(sendDetail.getCreateSiteCode()));
@@ -1486,7 +1561,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         printHandoverListDto.setSendCode(sendDetail.getSendCode());
         printHandoverListDto.setBoxCode(sendDetail.getBoxCode());
-        printHandoverListDto.setWaybillCode(WaybillUtil.getWaybillCode(sendDetail.getPackageBarcode()));
+        printHandoverListDto.setWaybillCode(waybillCode);
         printHandoverListDto.setPackageCode(sendDetail.getPackageBarcode());
 
         printHandoverListDto.setSendUser(sendM.getCreateUser());
@@ -1537,16 +1612,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         printHandoverListDto.setFcNo((data.getWaybillState() == null || data.getWaybillState().getStoreId() == null)
                 ? Constants.NUMBER_ZERO : data.getWaybillState().getStoreId());
 
-        // 客户信息 fixme 站点为三方敏感数据加密处理
+        // 客户信息
         printHandoverListDto.setReceiverName(waybill.getReceiverName());
-        if (Objects.equals(printHandoverListDto.getReceiveSiteType(),BaseContants.SANFANGKUAIDI)) {
-            printHandoverListDto.setReceiverAddress(waybill.getReceiverAddress() == null ? Constants.EMPTY_FILL : waybill.getReceiverAddress());
-            printHandoverListDto.setReceiverMobile(StringUtils.isEmpty(waybill.getReceiverMobile())
-                    ? (StringUtils.isEmpty(waybill.getReceiverTel()) ? SendPrintConstants.TEXT_DOUBLE_BAR : waybill.getReceiverTel())
-                    : waybill.getReceiverMobile());
-        } else {
-            printHandoverListDto.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
-        }
+        printHandoverListDto.setReceiverAddress(waybill.getReceiverAddress() == null ? Constants.EMPTY_FILL : waybill.getReceiverAddress());
+        printHandoverListDto.setReceiverMobile(StringUtils.isEmpty(waybill.getReceiverMobile())
+                ? (StringUtils.isEmpty(waybill.getReceiverTel()) ? SendPrintConstants.TEXT_DOUBLE_BAR : waybill.getReceiverTel())
+                : waybill.getReceiverMobile());
 
         // 支付方式
         Integer payment = waybill.getPayment();
@@ -1577,6 +1648,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param printHandoverListDto
      */
     private void buildPackageData(PrintHandoverListDto printHandoverListDto) {
+        if(!WaybillUtil.isPackageCode(printHandoverListDto.getPackageCode())){
+            return;
+        }
         // 包裹重量
         DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(printHandoverListDto.getPackageCode());
         if (deliveryPackageD != null) {

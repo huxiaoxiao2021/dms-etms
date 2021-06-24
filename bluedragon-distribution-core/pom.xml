@@ -1585,7 +1585,7 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
+			<version>1.0.4-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
@@ -1617,7 +1617,14 @@
 			<artifactId>business-sdk</artifactId>
 		</dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>cn.jdl.oms</groupId>
+            <artifactId>jdl-oms-client</artifactId>
+            <version>1.0.5-SNAPSHOT</version>
+        </dependency>
+
+
+    </dependencies>
 
 	<profiles>
 		<!--测试环境  -->
