@@ -1533,4 +1533,11 @@ public class Constants {
      * 快运使用的泡重比:6000
      */
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
+
+    /***
+     * 跨越成功校验缓存前缀
+     */
+    public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
+    /***跨越成功发送妥投消息前缀**/
+    public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
 }

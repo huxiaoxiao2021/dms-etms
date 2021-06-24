@@ -2063,4 +2063,14 @@ public class BusinessUtil {
     public static boolean isPickUpOrNo(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2);
     }
+
+    /**
+     * 运单揽收类型为网点自送 71位是2 网点自提
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWdzsOrNo(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_2);
+    }
+
 }

@@ -82,6 +82,7 @@ import java.util.*;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+
 @Service("loadScanService")
 public class LoadScanServiceImpl implements LoadScanService {
 
@@ -147,10 +148,6 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     @Autowired
     private LoadScanPackageDetailServiceManager loadScanPackageDetailServiceManager;
-    @Autowired
-    @Qualifier("redisClientCache")
-    private Cluster redisClientCache;
-
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -162,7 +159,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     protected BaseMajorManager baseMajorManager;
 
-    private static final String kyexpressloadsuccess="kyloadcarsuccess";
 
     @Override
     public JdCResponse goodsLoadingDeliver(GoodsLoadingReq req) {
@@ -1249,15 +1245,15 @@ public class LoadScanServiceImpl implements LoadScanService {
     private JdVerifyResponse<Void> checkKyCondition(String waybillCode, GoodsLoadingScanningReq req,
                                                     LoadCar loadCar, JdVerifyResponse<Void> response) {
         Integer nextDmsSiteId = loadCar.getEndSiteCode().intValue();
-
-        log.info("跨越装车校验参数,运单号:{},下一场地id:{},请求条件为:{},loadCar参数为:{}",
-                waybillCode,nextDmsSiteId,JsonUtils.toJSONString(req),JsonUtils.toJSONString(loadCar));
+        if(log.isInfoEnabled()){
+            log.info("跨越装车校验参数,运单号:{},下一场地id:{},请求条件为:{},loadCar参数为:{}",
+                    waybillCode,nextDmsSiteId,JsonHelper.toJson(req),JsonHelper.toJson(loadCar));
+        }
         //当前中心为目的转运中心
         String packageCode = req.getPackageCode();
         boolean isEndSite = waybillService.isStartOrEndSite(loadCar.getCreateSiteCode().intValue(),waybillCode,-1);
         if(isEndSite){
             Waybill waybillInfo = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-            log.info("跨越装车运单信息返回:{}", JsonUtils.toJSONString(waybillInfo));
             if( waybillInfo != null && StringUtils.isNotBlank(waybillInfo.getWaybillSign())){
                 //常量 封装方法
                 boolean isPickUpOrNo = BusinessUtil.isPickUpOrNo(waybillInfo.getWaybillSign());
@@ -1270,8 +1266,8 @@ public class LoadScanServiceImpl implements LoadScanService {
                         return response;
                     }else{//是自提 跨越最终成功装车
                         try {
-                            jimdbCacheService.setNx(kyexpressloadsuccess+waybillCode, "success",10,TimeUnit.DAYS);
-                        } catch (GoodsLoadScanException e) {
+                            jimdbCacheService.setNx(Constants.KYEXPRESSLOADSUCCESS+waybillCode, "success",10,TimeUnit.DAYS);
+                        } catch (Exception e) {
                             log.error("运单跨越成功装车缓存插入失败, K-[{}],V-[{}]", "kysuccess"+waybillCode, waybillCode);
                         }
                         log.warn("跨越成功装车,运单号:{}",waybillCode);

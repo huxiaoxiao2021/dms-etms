@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.goodsLoadCar;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadDto;
@@ -11,25 +9,25 @@ import com.jd.bluedragon.distribution.goodsLoadScan.domain.GoodsLoadScanExceptio
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.api.WaybillSyncApi;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
-import com.jd.common.util.StringUtils;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,8 +49,9 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
     private CacheService jimdbCacheService;
 
     private Integer waybillOpeType = 8;
-    private static final String kyexpressloadsuccess="kyloadcarsuccess";
-    public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix";
+
+    @Autowired
+    private TaskService taskService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -122,14 +121,15 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         }
         //发送运单妥投消息-仅跨越
         String waybillCode = WaybillUtil.getWaybillCode(req.getPackageCode());
-        String kyexpresskey = kyexpressloadsuccess+waybillCode;
+        String kyexpresskey = Constants.KYEXPRESSLOADSUCCESS+waybillCode;
         String kyexpectValue = jimdbCacheService.get(kyexpresskey);
         log.info("发送运单妥投消息跨越,waybillcode:{},kyexpresskey={},kyexpectValue={}",waybillCode,kyexpresskey,kyexpectValue);
-        if(StringUtils.isNotBlank(kyexpectValue)){//此运单是跨越订单 且成功装车
-            if(jimdbCacheService.setNx(KYSENDMSGSUCCESSPREFIX+waybillCode,waybillCode,10,TimeUnit.DAYS)){
+        //此运单是跨越订单 且成功装车
+        if(StringUtils.isNotBlank(kyexpectValue)){
+            if(jimdbCacheService.setNx(Constants.KYSENDMSGSUCCESSPREFIX+waybillCode,waybillCode,10,TimeUnit.DAYS)){
                 log.info("设置运单妥投消息缓存成功");
                 if(!this.sendSuccessInfo(req)){
-                    jimdbCacheService.del(KYSENDMSGSUCCESSPREFIX+waybillCode);
+                    jimdbCacheService.del(Constants.KYSENDMSGSUCCESSPREFIX+waybillCode);
                 }
             }
         }
@@ -137,7 +137,9 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
 
 
     private boolean sendSuccessInfo(GoodsLoadDto req) {
-        log.info("发送运单妥投消息sendSuccessInfo:{}",JsonHelper.toJson(req));
+        if(log.isInfoEnabled()){
+            log.info("发送运单妥投消息sendSuccessInfo:{}",JsonHelper.toJson(req));
+        }
         String waybillCode = WaybillUtil.getWaybillCode(req.getPackageCode());
         List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
         WaybillParameter waybillParameter = new WaybillParameter();
@@ -164,24 +166,37 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
             }
             //在线支付
             orderShipDto.setPayWayId(-2);
-            orderShipDto.setType(0);
+            //不确定传值是什么
+            //orderShipDto.setType(0);
         }
         waybillParameters.add(waybillParameter);
         log.info("运单同步老接口入参：{}", JsonHelper.toJson(waybillParameter));
-        //同步接口
-        try{
-            BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
-            log.info("同步接口返回数据:{}",JsonHelper.toJson(result));
-            if (result.getResultCode() == 1) {
-                log.info("运单发送妥投消息成功,运单号:{}", waybillCode);
-                return true;
-            } else {
-                log.info("运单发送妥投消息失败！运单号:{}", waybillCode);
-                return false;
-            }
-        }catch (Exception e){
-            log.error("根据运单号和操作号批量更新运单状态失败,运单号:{},异常信息:",waybillCode,e);
-            return false;
+        //发送妥投成功
+        sendWaybillSuccessMsg(req,currentOperate,waybillParameters);
+        return true;
+    }
+
+    public void sendWaybillSuccessMsg(GoodsLoadDto req,CurrentOperate operate,List<WaybillParameter> body){
+        try {
+            String waybillCode = WaybillUtil.getWaybillCode(req.getPackageCode());
+            String jsonStr = JsonHelper.toJson(body);
+            Task task = new Task();
+            task.setBody(jsonStr);
+            task.setFingerprint(Md5Helper.encode(req.getUserCode()+"_"+operate.getSiteCode()
+                    + "_" + waybillCode + "_" + req.getPackageCode() +"_"
+                    + System.currentTimeMillis())); //
+            task.setCreateSiteCode(operate.getSiteCode());
+            task.setCreateTime(req.getUpdateTime());
+            task.setKeyword1(waybillCode);
+            task.setKeyword2(req.getPackageCode());
+            task.setType(Task.TASK_TYPE_WAYBILL_FINISHED);
+            task.setTableName(Task.TABLE_NAME_WAYBILL);
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            this.taskService.add(task);
+        }catch (Exception ex){
+            log.error("跨越妥投加入任务失败:",ex);
+            throw new RuntimeException("跨越妥投加入任务失败,抛出异常,触发重试");
         }
     }
 }

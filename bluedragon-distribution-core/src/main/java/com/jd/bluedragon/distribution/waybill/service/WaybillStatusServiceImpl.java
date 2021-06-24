@@ -169,17 +169,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	}
 
 	public void sendModifyWaybillStatusFinished(Task task) throws Exception{
-		log.debug("开始妥投运单调用运单接口:");
+
 		BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(this.parseWaybillParameter(task), 8);
-		log.debug("开始妥投运单成功:");
+
 		if (result != null && result.getData() == true) {
 //			this.taskService.doDone(task);
 			if(log.isDebugEnabled()){
 				log.debug("开始妥投运单成功:{}" , JsonHelper.toJson(task));
 			}
 		} else {
-			log.warn("买卖宝置妥投状态失败:{}" , JsonHelper.toJson(task) );
-            throw new Exception("买卖宝置妥投状态失败\n" + JsonHelper.toJson(result) + "\n");
+			log.error("置妥投状态失败:{}" , JsonHelper.toJson(task) );
+            throw new Exception("置妥投状态失败\n" + JsonHelper.toJson(result) + "\n");
 //			this.taskService.doError(task);
 		}
 	}

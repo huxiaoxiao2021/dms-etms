@@ -769,7 +769,6 @@ public class WaybillServiceImpl implements WaybillService {
         if (StringUtils.isBlank(router)) {
             log.info("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},", waybillCode);
             BaseEntity<Waybill> result = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
-            log.info("调用getWaybillByWaybillCode获取运单信息:{}", JsonUtils.toJSONString(result));
             if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
                 Waybill waybill = result.getData();
                 WaybillExt waybillExt= waybill.getWaybillExt();
@@ -786,7 +785,9 @@ public class WaybillServiceImpl implements WaybillService {
         //如果从分拣数据库中能查询到路由信息
         String[] routerNodes = router.split("\\|");
         List<String> routerList = Arrays.asList(routerNodes);
-        log.info("获取路由routerList字符串为{}",JsonUtils.toJSONString(routerList));
+        if(log.isInfoEnabled()){
+            log.info("获取路由routerList字符串为{}", JsonHelper.toJson(routerList));
+        }
         int routeSize = routerList.size();
         if(locationFlag == -1){
             //目的转运中心

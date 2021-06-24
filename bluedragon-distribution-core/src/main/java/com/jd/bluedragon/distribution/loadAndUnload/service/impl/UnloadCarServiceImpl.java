@@ -502,7 +502,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
      */
     //如果前面有运单信息 无需再次调用接口获取
     private String kyexpressCheck(UnloadCarScanRequest request,String waybillCode) {
-        logger.info("跨越校验输入参数,{},waybillCode:{}",com.jd.jsf.gd.util.JsonUtils.toJSONString(request),waybillCode);
+        if(logger.isInfoEnabled()){
+            logger.info("跨越校验输入参数,{},waybillCode:{}",JsonHelper.toJson(request),waybillCode);
+        }
         Integer operateSiteCode = request.getOperateSiteCode();
         //操作所属站点code和目的转运中心code 跨越路由
         boolean isEndSite = waybillService.isStartOrEndSite(operateSiteCode,waybillCode,-1);
@@ -513,7 +515,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 //判断是否是自提运单
                 boolean isPickUpOrNo = BusinessUtil.isPickUpOrNo(waybill.getWaybillSign());
                 logger.warn("跨越物流判断,运单号为:{},是否自提为:{}",waybill.getWaybillCode(),isPickUpOrNo);
-                if(isPickUpOrNo) return InvokeResult.RESULT_PICKUPSELFT_WAYBILLCODE_MESSAGE;
+                if(isPickUpOrNo) return "此单为自提单,请单独处理至自提区";
             }
         }
         return null;
@@ -1432,24 +1434,25 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     //操作中心为始发中心+揽收类型为网点自送+运单状态为取消
     private String kyexpressCancelCheck(UnloadCarScanRequest request)
     {
-        logger.info("跨越校验是否是取消订单函数输入参数:{}", com.jd.jsf.gd.util.JsonUtils.toJSONString(request));
+        if(logger.isInfoEnabled()){
+            logger.info("跨越校验是否是取消订单函数输入参数:{}", JsonHelper.toJson(request));
+        }
         Integer operateSiteCode = request.getOperateSiteCode();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         //路由的第一站
         boolean isStartSite = waybillService.isStartOrEndSite(operateSiteCode,waybillCode,0);
         if(isStartSite){//操作中心为始发中心
-            Waybill waybill = this.waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-            logger.info("kyexpressCancelCheck-queryWaybillByWaybillCode返回数据:{}",com.jd.jsf.gd.util.JsonUtils.toJSONString(waybill));
-            if(waybill != null){
-                //揽收类型为网点自送 71为是2 网点自提
-                boolean isPickSelftOrNo = BusinessUtil.isSignChar(waybill.getWaybillSign(),
-                        WaybillSignConstants.POSITION_71,WaybillSignConstants.CHAR_71_2);
-                if(isPickSelftOrNo){
-                    //运单状态为取消
-                    BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
-                    logger.info("kyexpressCancelCheck-查询运单是否是取消状态:{}",com.jd.jsf.gd.util.JsonUtils.toJSONString(baseEntity));
-                    if(baseEntity != null &&  baseEntity.getData() != null){
-                        BigWaybillDto bigWaybillDto = baseEntity.getData();
+            //Waybill waybill = this.waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
+            logger.info("kyexpressCancelCheck-查询运单是否是取消状态:{}",JsonHelper.toJson(baseEntity));
+            if(baseEntity != null &&  baseEntity.getData() != null){
+                BigWaybillDto bigWaybillDto = baseEntity.getData();
+                Waybill waybill = bigWaybillDto.getWaybill();
+                if(waybill != null){
+                    //揽收类型为网点自送 71为是2 网点自提
+                    boolean isPickSelftOrNo = BusinessUtil.isWdzsOrNo(waybill.getWaybillSign());
+                    if(isPickSelftOrNo){
+                        //运单状态为取消
                         WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
                         if(waybillState != null){
                             if(waybillState.getWaybillState() != null && WaybillStatus.WAYBILL_STATUS_CANCEL.equals(waybillState.getWaybillState())){
