@@ -24,6 +24,13 @@
                   ref="sortingRuleJsfService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 基础查询接口 -->
+    <jsf:provider id="jsfBaseMinorService"
+                  interface="com.jd.bluedragon.distribution.base.service.IBaseMinorJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="baseMinorJsfService" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 对接jos平台接口 -->
     <jsf:provider id="jsfJosService"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosService"

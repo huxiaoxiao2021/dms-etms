@@ -96,6 +96,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29313= 29313;
     public static final String MESSAGE_29313 = "此单为[恶意订单拦截],请退货";
 
+
+    public static final Integer CODE_29315= 29315;
+    public static final String MESSAGE_29315 = "此单为[仓储异常病单],请退货";
+
     public static final Integer CODE_29316 = 29316;
     public static final String MESSAGE_29316 = "此单为[白条强制拦截],请退货";
     
@@ -315,11 +319,11 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29306 = 29306;
     public static final String MESSAGE_29306 = "此单为[商家拦截订单],请退货";
 
-    //病单拦截提示信息
+    // 理赔完成拦截订单提示信息
     public static final Integer CODE_29308 = 29308;
     public static final String MESSAGE_29308 = "此单为[理赔完成拦截订单],请退就近分拣逆向处置组";
 
-    //病单拦截提示信息
+    // 理赔完成拦截逆向订单提示信息
     public static final Integer CODE_29309 = 29309;
     public static final String MESSAGE_29309 = "此单为[理赔完成拦截订单]逆向订单,请暂存";
 

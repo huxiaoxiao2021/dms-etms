@@ -55,6 +55,11 @@ public enum FromSourceEnum {
     DMS_AUTOMATIC_MEASURE,
 
     /**
+     * 分拣DWS测量
+     */
+    DMS_DWS_MEASURE,
+
+    /**
      * 分拣页面快运称重
      */
     DMS_WEB_FAST_TRANSPORT,
