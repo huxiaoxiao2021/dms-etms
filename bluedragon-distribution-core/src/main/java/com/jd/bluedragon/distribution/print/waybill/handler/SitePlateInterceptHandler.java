@@ -23,10 +23,11 @@ public class SitePlateInterceptHandler implements InterceptHandler<WaybillPrintC
     private static final Logger log = LoggerFactory.getLogger(SitePlateInterceptHandler.class);
 
     /**
-     *  针对B2C&C2C寄付现结的单子，限制使用站点平台打印
+     *  针对B2C&C2C寄付现结、到付现结的单子，限制使用站点平台打印
      *  	B2C：waybillsign28位等于0且29位不等于8
 			C2C：waybillsign29位等于8
-			寄付现结：waybillsign25位等于1
+            * 寄付现结：waybillsign25=1、3
+            * 到付现结：waybillsign25=2
      */
     private static Set<Integer> needInterceptOperateTypes = new HashSet<Integer>();
     static {
@@ -38,8 +39,8 @@ public class SitePlateInterceptHandler implements InterceptHandler<WaybillPrintC
 		InterceptResult<String> interceptResult = target.getResult();
         if (needInterceptOperateTypes.contains(target.getRequest().getOperateType())) {
         	String waybillSign = target.getWaybillSign();
-            // 针对B2C&C2C寄付现结的单子，限制使用站点平台打印
-            if (BusinessUtil.isPrepaid(waybillSign) 
+            // 针对B2C&C2C寄付现结,到付现结 的单子，限制使用站点平台打印
+            if ((BusinessUtil.isPrepaid(waybillSign) || BusinessUtil.isDF(waybillSign))
             		&& (BusinessUtil.isB2C(waybillSign) || BusinessUtil.isC2C(waybillSign))) {
                 interceptResult.toFail(WaybillPrintMessages.MESSAGE_B2C_C2C_PREPAID_INTERCEPT);
                 return interceptResult;

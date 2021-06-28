@@ -1076,7 +1076,7 @@ public class BusinessUtil {
     }
 
     /**
-     * 是否到付
+     * 是否到付现结
      */
     public static boolean isDF(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_2);
@@ -1406,7 +1406,8 @@ public class BusinessUtil {
      */
     public static boolean isPrepaid(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
-                WaybillSignConstants.CHAR_25_1);
+                WaybillSignConstants.CHAR_25_1)||isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_3) ;
     }
     /**
      * 是否是特惠送
