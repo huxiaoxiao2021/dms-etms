@@ -1386,7 +1386,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, false));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, isShowAddress(printExportCriteria.getList())));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -1397,6 +1397,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     /**
      * 校验是否需要审批
+     *  1、ucc开启 && 有三方目的地
      * @param printExportCriteria
      * @return
      */
@@ -1405,7 +1406,18 @@ public class SendPrintServiceImpl implements SendPrintService {
         if(!uccPropertyConfiguration.getApprovalSwitch()){
             return false;
         }
-        for (PrintQueryCriteria item : printExportCriteria.getList()) {
+        return isShowAddress(printExportCriteria.getList());
+    }
+
+    /**
+     * 是否显示目的地
+     *  三方目的才显示客户地址和客户姓名
+     *
+     * @param receiveSiteCodeList
+     * @return
+     */
+    private boolean isShowAddress(List<PrintQueryCriteria> receiveSiteCodeList) {
+        for (PrintQueryCriteria item : receiveSiteCodeList) {
             if(Objects.equals(toSiteType(item.getReceiveSiteCode()), Constants.RETURN_PARTNER_SITE_TYPE)
                     && switchSiteSubTypeCheck(item.getReceiveSiteCode())){
                 return true;
