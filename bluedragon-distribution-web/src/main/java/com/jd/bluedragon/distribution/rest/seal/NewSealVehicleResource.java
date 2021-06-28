@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -272,6 +273,8 @@ public class NewSealVehicleResource {
 
     /**
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     * 1、任务简码输入：返回车牌、运力类型、其他派车任务明细
+     * 2、车牌输入：返回任务简码
      */
     @POST
     @Path("/new/vehicle/seal/workitem/query")
@@ -287,24 +290,54 @@ public class NewSealVehicleResource {
                 sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
             }
-            TransWorkItemSimpleDto transWorkItemSimpleDto = new TransWorkItemSimpleDto();
-            transWorkItemSimpleDto.setTransWorkItemCode(request.getTransWorkItemCode());
-            transWorkItemSimpleDto.setVehicleNumber(request.getVehicleNumber());
-            transWorkItemSimpleDto.setOperateUserCode(request.getUserErp());
-            transWorkItemSimpleDto.setOperateNodeCode(request.getDmsCode());
-            
-            JdResult<com.jd.tms.workbench.dto.TransWorkItemDto> rpcResult = tmsServiceManager.getTransWorkItemAndCheckParam(transWorkItemSimpleDto);
-            if (rpcResult != null) {
-                if (rpcResult.isSucceed() && rpcResult.getData() != null) {
-                    sealVehicleResponse = getVehicleNumBySimpleCode(rpcResult.getData().getTransWorkItemCode());
+        	//开关控制调用新接口
+        	if(BusinessHelper.isTrue(uccPropertyConfiguration.getUsePdaSorterApi())) {
+                TransWorkItemSimpleDto transWorkItemSimpleDto = new TransWorkItemSimpleDto();
+                transWorkItemSimpleDto.setSimpleCode(request.getTransWorkItemCode());
+                transWorkItemSimpleDto.setVehicleNumber(request.getVehicleNumber());
+                transWorkItemSimpleDto.setOperateUserCode(request.getUserErp());
+                transWorkItemSimpleDto.setOperateNodeCode(request.getDmsCode());
+                boolean hasSimpleCode = StringUtils.isNotEmpty(transWorkItemSimpleDto.getSimpleCode());
+                JdResult<com.jd.tms.workbench.dto.TransWorkItemDto> rpcResult = tmsServiceManager.getTransWorkItemAndCheckParam(transWorkItemSimpleDto);
+                if (rpcResult != null) {
+                    if (rpcResult.isSucceed() && rpcResult.getData() != null) {
+                        //任务简码输入：返回车牌、运力类型、其他派车任务明细
+                        if(hasSimpleCode) {
+                        	sealVehicleResponse.setVehicleNumber(rpcResult.getData().getVehicleNumber());
+                        	this.buildTransWorkItemBySimpleCode(sealVehicleResponse, transWorkItemSimpleDto.getSimpleCode());
+                        }else {
+                        	//车牌输入：返回任务简码
+                        	sealVehicleResponse.setTransWorkItemCode(rpcResult.getData().getSimpleCode());
+                        }
+                        sealVehicleResponse.setTransType(rpcResult.getData().getTransWay());
+                        sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                        sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                    } else {
+                        sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                        sealVehicleResponse.setMessage("[" + rpcResult.getMessageCode() + ":" + rpcResult.getMessage() + "]");
+                    }
+                }
+        		return sealVehicleResponse;
+        	}
+        	//以下是原有逻辑
+            TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
+            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());
+            transWorkItemWsDto.setVehicleNumber(request.getVehicleNumber());
+            transWorkItemWsDto.setOperateUserCode(request.getUserErp());
+            transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());
+            com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> returnCommonDto = newsealVehicleService.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
+            if (returnCommonDto != null) {
+                if (Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null) {
+                    sealVehicleResponse = getVehicleNumBySimpleCode(returnCommonDto.getData().getTransWorkItemCode());
                     this.buildTransWorkItemBySimpleCode(sealVehicleResponse, request.getTransWorkItemCode());
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
-                    sealVehicleResponse.setTransWorkItemCode(rpcResult.getData().getTransWorkItemCode());
-                    sealVehicleResponse.setVehicleNumber(rpcResult.getData().getVehicleNumber());
+                    sealVehicleResponse.setTransWorkItemCode(returnCommonDto.getData().getTransWorkItemCode());
+                    sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage("[" + rpcResult.getMessageCode() + ":" + rpcResult.getMessage() + "]");
+                    sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
+                    sealVehicleResponse.setData(returnCommonDto.getData());
                 }
             }
         } catch (Exception e) {
