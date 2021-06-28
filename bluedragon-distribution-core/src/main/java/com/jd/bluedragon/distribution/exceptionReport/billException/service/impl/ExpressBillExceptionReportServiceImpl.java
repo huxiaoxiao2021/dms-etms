@@ -21,6 +21,11 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressBillLineTypeEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
+import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordVo;
+import com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService;
+import com.jd.dms.workbench.utils.sdk.base.PageData;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
@@ -65,6 +70,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     @Qualifier("dmsExpressBillExceptionReportProducer")
     @Autowired
     protected DefaultJMQProducer dmsExpressBillExceptionReportProducer;
+
+    @Autowired
+    private IWmsPackRecordJsfService wmsPackRecordJsfService;
 
     /**
      * 面单异常提交
@@ -114,6 +122,13 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             if(StringUtils.isEmpty(record.getReportedUserErp()) && null != record.getReportedUserId()){
                 BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffByStaffId(record.getReportedUserId().intValue());
                 record.setReportedUserErp(baseStaffByStaffId.getErp());
+                record.setReportedUserName(baseStaffByStaffId.getStaffName());
+            }
+            // 如果被举报人erp为空，则查一次基础资料
+            if(record.getReportedUserId() == null && StringUtils.isEmpty(record.getReportedUserErp())){
+                BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffIgnoreIsResignByErp(record.getReportedUserErp());
+                record.setReportedUserId(baseStaffByStaffId.getStaffNo().longValue());
+                record.setReportedUserName(baseStaffByStaffId.getStaffName());
             }
 
             //3.数据增加
@@ -185,8 +200,26 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
             if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
                 firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
-                result.setData(firstSiteVo);
+                // 查询仓打包记录，获得被举报人
+                DmsPackRecordPo paramObj = new DmsPackRecordPo();
+                paramObj.setPackageCode(packageCode);
+                paramObj.setPageNumber(1);
+                paramObj.setPageSize(10);
+                Result<PageData<DmsPackRecordVo>> wmsPackRecordResult = wmsPackRecordJsfService.selectPageList(paramObj);
+                if(!wmsPackRecordResult.isSuccess()){
+                    result.toFail("查询仓打包记录失败");
+                    return result;
+                }
+                if(wmsPackRecordResult.getData() == null || CollectionUtils.isEmpty(wmsPackRecordResult.getData().getRecords())){
+                    result.toFail("无法查找被举报人，查询仓打包记录为空");
+                    return result;
+                }
+                DmsPackRecordVo dmsPackRecordVo = wmsPackRecordResult.getData().getRecords().get(0);
+                firstSiteVo.setReportedUserErp(dmsPackRecordVo.getOperateErp());
                 lineType = ExpressBillLineTypeEnum.WAREHOUSE.getCode();
+                firstSiteVo.setLineType(lineType);
+                result.setData(firstSiteVo);
+                return result;
             }
 
             //2.找揽收完成的--满足纯配营业部、驻场、车队
@@ -196,9 +229,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
                 result.setData(firstSiteVo);
                 // 设置条线类型
-                if (lineType == null) {
-                    lineType = ExpressBillLineTypeEnum.STATION.getCode();
-                }
+                lineType = ExpressBillLineTypeEnum.STATION.getCode();
                 firstSiteVo.setLineType(lineType);
                 return result;
             }
