@@ -247,7 +247,8 @@ public class SendPrintServiceImpl implements SendPrintService {
 
                 count ++;
             }
-            log.info("scroll查询调用{}次", count + 1);
+            log.info("批次对应的基础数据:{}", JsonHelper.toJson(batchBasicMap));
+            log.info("批次对应的箱号，箱号对应的信息:{}", JsonHelper.toJson(batchBoxMap));
 
             // 获取最终汇总数据
             List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxWaybillMap, batchBoxMap);
