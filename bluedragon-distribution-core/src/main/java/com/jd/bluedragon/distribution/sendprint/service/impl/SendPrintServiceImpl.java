@@ -535,17 +535,17 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
                 boxVolumeSet.add(printHandoverListDto.getBoxCode());
 
-                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic();
-                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
 
             }else{
                 //按包裹测量
-                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic();
-                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeDy += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
+                totalOutVolumeSt += printHandoverListDto.getDmsOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getDmsOutVolumeStatic();
             }
 
             //应收体积
-            totalInVolume += printHandoverListDto.getGoodVolume();
+            totalInVolume += printHandoverListDto.getGoodVolume() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getGoodVolume();
         }
 
         //map转换成list
