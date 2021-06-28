@@ -148,7 +148,7 @@
         	inventory_status = 2,
         	update_user_erp = #{operateUserErp,jdbcType=VARCHAR},
         	update_time = now()
-        where yn = 1 inventory_status = 1
+        where yn = 1 and inventory_status = 1
 			and package_code = #{packageCode,jdbcType=VARCHAR}
 			and wave_code = #{waveCode,jdbcType=VARCHAR}
 			and operate_site_code = #{operateSiteCode,jdbcType=INTEGER}
