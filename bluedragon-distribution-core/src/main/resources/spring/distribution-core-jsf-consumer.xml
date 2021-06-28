@@ -705,6 +705,11 @@
                   alias="${jsf.printHandoverList.alias}"
                   timeout="${jsf.printHandoverList.timeout}">
     </jsf:consumer>
+    <jsf:consumer id="wmsPackRecordJsfService"
+                  interface="com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService"
+                  alias="${jsf.dmsWbReport.alias}"
+                  timeout="${jsf.dmsWbReport.timeout}">
+    </jsf:consumer>
 
     <!-- 流程组件接口 -->
     <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
