@@ -247,6 +247,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
                 count ++;
             }
+            log.info("scroll查询调用{}次", count + 1);
 
             // 获取最终汇总数据
             List<SummaryPrintResult> list = computeFinalSummaryResult(batchBasicMap, batchBoxWaybillMap, batchBoxMap);
