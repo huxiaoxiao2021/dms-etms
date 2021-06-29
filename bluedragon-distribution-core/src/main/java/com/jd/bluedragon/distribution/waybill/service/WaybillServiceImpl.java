@@ -767,16 +767,20 @@ public class WaybillServiceImpl implements WaybillService {
         log.info("获取路由字符串为{}",router);
         //如果没有路由信息 调用运单的路由信息 获取始发和目的转运中心
         if (StringUtils.isBlank(router)) {
-            log.info("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},", waybillCode);
             BaseEntity<Waybill> result = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+            if(log.isInfoEnabled()){
+                log.info("从数据库实时获取运单路由返回空|getWaybillByWaybillCode：waybillCode={},result={}", waybillCode, JsonHelper.toJson(result));
+            }
             if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
                 Waybill waybill = result.getData();
                 WaybillExt waybillExt= waybill.getWaybillExt();
                 if(waybillExt != null){
                     if(locationFlag == -1){
                         //将dmsid转成纯数字id
+                        log.info("getFinalOrFirstRouterFromDb-router is null;return endDmsId:{}",waybillExt.getEndDmsId());
                         return waybillExt.getEndDmsId();
                     }else {
+                        log.info("getFinalOrFirstRouterFromDb-router is null;return startDmsId:{}",waybillExt.getStartDmsId());
                         return waybillExt.getStartDmsId();
                     }
                 }
@@ -825,8 +829,10 @@ public class WaybillServiceImpl implements WaybillService {
         //操作所属站点code和目的转运中心code
         Integer finalRouterCode = getFinalOrFirstRouterFromDb(waybillCode, locationFlag);
         if(operateSiteCode != null && Objects.equals(operateSiteCode,finalRouterCode)){
+            log.info("isStartOrEndSite-return true;operateSiteCode={},waybillCode={}",operateSiteCode,waybillCode);
             return true;
         }else{
+            log.info("isStartOrEndSite-return false;operateSiteCode={},waybillCode={}",operateSiteCode,waybillCode);
             return false;
         }
     }

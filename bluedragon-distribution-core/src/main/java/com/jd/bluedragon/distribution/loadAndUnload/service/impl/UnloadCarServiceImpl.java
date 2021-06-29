@@ -1467,7 +1467,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //路由的第一站
         boolean isStartSite = waybillService.isStartOrEndSite(operateSiteCode,waybillCode,0);
         if(isStartSite){//操作中心为始发中心
-            //Waybill waybill = this.waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
             logger.info("kyexpressCancelCheck-查询运单是否是取消状态:{}",JsonHelper.toJson(baseEntity));
             if(baseEntity != null &&  baseEntity.getData() != null){
@@ -1480,6 +1479,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                         //运单状态为取消
                         WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
                         if(waybillState != null){
+                            if(logger.isInfoEnabled()){
+                                logger.info("运单状态是否为取消:{}",JsonHelper.toJson(waybillState));
+                            }
                             if(waybillState.getWaybillState() != null && WaybillStatus.WAYBILL_STATUS_CANCEL.equals(waybillState.getWaybillState())){
                                 return String.format(LoadIllegalException.INIT_PACKAGE_CANCEL,waybillCode);
                             }
