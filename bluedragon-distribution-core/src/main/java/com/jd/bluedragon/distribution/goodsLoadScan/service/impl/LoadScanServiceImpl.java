@@ -46,6 +46,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -2408,6 +2409,28 @@ public class LoadScanServiceImpl implements LoadScanService {
         return false;
     }
 
+
+    @Override
+    public JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode) {
+        JdVerifyResponse<Void> response = new JdVerifyResponse();
+        response.toSuccess();
+        try{
+            BaseEntity<String> baseEntity =  waybillQueryManager.getWaybillSignByWaybillCode(waybillCode);
+            if(baseEntity != null && Objects.equals(baseEntity.getResultCode(),EnumBusiCode.BUSI_SUCCESS.getCode())
+                    && StringUtils.isNotBlank(baseEntity.getData())){
+                log.info("LoadScanServiceImpl-checkWaybillCode-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",baseEntity.getData());
+                if(BusinessUtil.needWeighingSquare(baseEntity.getData())){
+                    log.warn("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描！包裹号={},运单号={},运单标识={}", packageCode, waybillCode,baseEntity.getData());
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    response.setMessage("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描!");
+                    return response;
+                }
+            }
+        }catch (Exception ex){
+            log.error("LoadScanServiceImpl-checkIsKaWaybillOrNo-error,运单号={},包裹号={},异常信息",waybillCode,packageCode,ex);
+        }
+        return response;
+    }
 
     @Override
     public JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req) {
