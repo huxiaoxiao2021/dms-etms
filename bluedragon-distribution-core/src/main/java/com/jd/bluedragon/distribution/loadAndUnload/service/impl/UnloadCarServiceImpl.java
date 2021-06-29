@@ -673,12 +673,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
                 return dtoInvokeResult;
             }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
+                return dtoInvokeResult;
+            }
+
             // 包裹是否扫描成功
             packageIsScanBoard(request);
             // 多货包裹标识
@@ -1272,9 +1283,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return invokeResult;
             }
 
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return invokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return invokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
                 return invokeResult;
             }
 
@@ -3305,10 +3324,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
                 return dtoInvokeResult;
             }
             // 包裹是否扫描成功
