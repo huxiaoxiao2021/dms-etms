@@ -1771,8 +1771,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if (siteOrgDto == null) {
                 logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
             }
-            if(siteOrgDto != null && Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())){
-                logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+            //操作站点为集配站或者操作类型为营业部，，且流向转运中心
+            if(siteOrgDto != null && (Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())) || (Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType()))){
+                if(Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType())) {
+                    logger.info("{}为营业部批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+                }else {
+                    logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+                }
                 //集配站的批次号，通过运输接口获取相应的批次下包裹信息。
                 CargoDetailDto cargoDetailDto = new CargoDetailDto();
                 //批次号

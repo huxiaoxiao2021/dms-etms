@@ -107,6 +107,8 @@ public class Constants {
      * 集配站编号
      */
     public static final Integer JI_PEI_CODE_9605 = 9605;
+    /** 营业部 类型*/
+    public static final Integer TERMINAL_SITE_TYPE_4 = 4;
 //    后续增加城配的时候再使用，此次增加没有意义.
 //    public static final Integer CHENGPEI_CODE_9606 = 9606;
     /**
