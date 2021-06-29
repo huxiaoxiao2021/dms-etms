@@ -347,10 +347,14 @@ public class SendPrintServiceImpl implements SendPrintService {
                 computeSummaryPrintResult.setTotalPackageNum(computeSummaryPrintResult.getTotalPackageNum() + summaryPrintResult.getTotalPackageNum());
                 computeSummaryPrintResult.setTotalShouldSendPackageNum(computeSummaryPrintResult.getTotalShouldSendPackageNum() + summaryPrintResult.getTotalShouldSendPackageNum());
                 computeSummaryPrintResult.setTotalRealSendPackageNum(computeSummaryPrintResult.getTotalRealSendPackageNum() + summaryPrintResult.getTotalRealSendPackageNum());
-                computeSummaryPrintResult.setTotalBoardVolume(computeSummaryPrintResult.getTotalBoardVolume() + summaryPrintResult.getTotalBoardVolume());
-                computeSummaryPrintResult.setTotalOutVolumeDynamic(computeSummaryPrintResult.getTotalOutVolumeDynamic() + summaryPrintResult.getTotalOutVolumeDynamic());
-                computeSummaryPrintResult.setTotalOutVolumeStatic(computeSummaryPrintResult.getTotalOutVolumeStatic() + summaryPrintResult.getTotalOutVolumeStatic());
-                computeSummaryPrintResult.setTotalInVolume(computeSummaryPrintResult.getTotalInVolume() + summaryPrintResult.getTotalInVolume());
+                computeSummaryPrintResult.setTotalBoardVolume((computeSummaryPrintResult.getTotalBoardVolume() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalBoardVolume())
+                        + (summaryPrintResult.getTotalBoardVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalBoardVolume()));
+                computeSummaryPrintResult.setTotalOutVolumeDynamic((computeSummaryPrintResult.getTotalOutVolumeDynamic() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalOutVolumeDynamic())
+                        + (summaryPrintResult.getTotalOutVolumeDynamic() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalOutVolumeDynamic()));
+                computeSummaryPrintResult.setTotalOutVolumeStatic((computeSummaryPrintResult.getTotalOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalOutVolumeStatic())
+                        + (summaryPrintResult.getTotalOutVolumeStatic() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalOutVolumeStatic()));
+                computeSummaryPrintResult.setTotalInVolume((computeSummaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : computeSummaryPrintResult.getTotalInVolume())
+                        + (summaryPrintResult.getTotalInVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintResult.getTotalInVolume()));
             }else {
                 batchBasicMap.put(summaryPrintResult.getSendCode(), summaryPrintResult);
             }
@@ -366,7 +370,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                         SummaryPrintBoxEntity summaryPrintBoxEntity = boxEntityMap.get(detail.getBoxCode());
                         summaryPrintBoxEntity.setPackageBarNum(summaryPrintBoxEntity.getPackageBarNum() + detail.getPackageBarNum());
                         summaryPrintBoxEntity.setPackageBarRecNum(summaryPrintBoxEntity.getPackageBarRecNum() + detail.getPackageBarRecNum());
-                        summaryPrintBoxEntity.setVolume(summaryPrintBoxEntity.getVolume() + detail.getVolume());
+                        summaryPrintBoxEntity.setVolume((summaryPrintBoxEntity.getVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintBoxEntity.getVolume())
+                                + (detail.getVolume() == null ? Constants.DOUBLE_ZERO : detail.getVolume()));
                     }else {
                         boxEntityMap.put(detail.getBoxCode(), detail);
                     }
@@ -466,7 +471,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
             //发货时间
             if(StringUtils.isBlank(sendTime)){
-                sendTime = DateHelper.formatDateTime(new Date(printHandoverListDto.getSendTime()));
+                sendTime = printHandoverListDto.getSendTime() == null ? null : DateHelper.formatDateTime(new Date(printHandoverListDto.getSendTime()));
             }
 
             SummaryPrintBoxEntity summaryEntity = null;
@@ -525,8 +530,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             if(StringUtils.isNotBlank(printHandoverListDto.getBoardCode()) && NumberHelper.gt0(printHandoverListDto.getBoardVolume())){
                 if(!boardVolumeSet.contains(printHandoverListDto.getBoardCode())){
                     boardVolumeSet.add(printHandoverListDto.getBoardCode());
-                    totalBoardVolume += printHandoverListDto.getBoardVolume();
-                    totalOutVolumeSt += printHandoverListDto.getBoardVolume(); //板的体积算作静态测量体积
+                    totalBoardVolume += printHandoverListDto.getBoardVolume() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getBoardVolume();
+                    totalOutVolumeSt += printHandoverListDto.getBoardVolume() == null ? Constants.DOUBLE_ZERO : printHandoverListDto.getBoardVolume(); //板的体积算作静态测量体积
                 }
             }else if(StringUtils.isNotBlank(printHandoverListDto.getBoxCode()) && BusinessHelper.isBoxcode(printHandoverListDto.getBoxCode())){
                 //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
