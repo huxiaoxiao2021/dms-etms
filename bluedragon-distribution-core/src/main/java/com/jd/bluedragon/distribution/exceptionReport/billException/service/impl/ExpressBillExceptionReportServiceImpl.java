@@ -121,14 +121,22 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             // 如果被举报人erp为空，则查一次基础资料
             if(StringUtils.isEmpty(record.getReportedUserErp()) && null != record.getReportedUserId()){
                 BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffByStaffId(record.getReportedUserId().intValue());
-                record.setReportedUserErp(baseStaffByStaffId.getErp());
-                record.setReportedUserName(baseStaffByStaffId.getStaffName());
+                if(baseStaffByStaffId != null){
+                    record.setReportedUserErp(baseStaffByStaffId.getErp());
+                    record.setReportedUserName(baseStaffByStaffId.getStaffName());
+                }
             }
             // 如果被举报人erp为空，则查一次基础资料
             if(record.getReportedUserId() == null && StringUtils.isNotEmpty(record.getReportedUserErp())){
                 BaseStaffSiteOrgDto baseStaffByStaffId = baseMajorManager.getBaseStaffIgnoreIsResignByErp(record.getReportedUserErp());
-                record.setReportedUserId(baseStaffByStaffId.getStaffNo().longValue());
-                record.setReportedUserName(baseStaffByStaffId.getStaffName());
+                if(baseStaffByStaffId != null){
+                    if (baseStaffByStaffId.getStaffNo() != null) {
+                        record.setReportedUserId(baseStaffByStaffId.getStaffNo().longValue());
+                    } else {
+                        record.setReportedUserId(0L);
+                    }
+                    record.setReportedUserName(baseStaffByStaffId.getStaffName());
+                }
             }
 
             //3.数据增加
