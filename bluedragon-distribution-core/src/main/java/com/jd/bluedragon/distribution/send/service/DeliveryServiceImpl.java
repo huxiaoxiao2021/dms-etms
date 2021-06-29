@@ -3294,7 +3294,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private boolean isColdChainSend(SendDetail sendD, SendM tSendM, Set<String> coldChainWaybillSet) {
         Integer bizSource = sendD.getBizSource() == null ? tSendM.getBizSource() : sendD.getBizSource();
         if (bizSource != null) {
-            if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND) {
+            if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+            ) {
                 if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
                     return true;
                 }
