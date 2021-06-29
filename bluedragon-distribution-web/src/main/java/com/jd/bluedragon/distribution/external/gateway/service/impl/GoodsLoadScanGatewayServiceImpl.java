@@ -395,6 +395,15 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 return response;
             }
 
+            JdCResponse<Boolean> checkPhotoRes = loadScanService.uploadPhotoCheck(req);
+            if(!checkPhotoRes.getCode().equals(200)) {
+                response.toFail(checkPhotoRes.getMessage());
+                return response;
+            }else if(checkPhotoRes.getData()) {
+                response.toFail("操作装车完成，请先上传装车照片");
+                return response;
+            }
+
             try{
                 response = loadScanService.goodsLoadingDeliver(req);
             } catch(GoodsLoadScanException e) {

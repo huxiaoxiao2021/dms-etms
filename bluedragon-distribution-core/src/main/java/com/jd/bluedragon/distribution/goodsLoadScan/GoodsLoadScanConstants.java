@@ -79,4 +79,10 @@ public class GoodsLoadScanConstants {
     public static final String PRIVATE_NETWORK_PACKAGE = "专网包裹仅验货，不组板";
 
 
+    //转运操作任务： 1-装车 2-卸车 3-盘点 4-叉车
+    public static final Integer TRANSPORT_BUSINESS_TYPE_LOAD = 1;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_UNLOAD = 2;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_INVENTORY = 3;
+    public static final Integer TRANSPORT_BUSINESS_TYPE_FORKLIFT = 4;
+
 }
