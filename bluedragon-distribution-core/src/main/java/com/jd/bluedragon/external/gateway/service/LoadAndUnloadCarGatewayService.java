@@ -57,4 +57,11 @@ public interface LoadAndUnloadCarGatewayService {
      */
     JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
 
+    /**
+     * 获取卸车任务时效
+     * @param unloadCarTaskReq
+     * @return
+     */
+    JdCResponse<UnloadCarTaskDto> getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
+
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 
 import java.util.List;
@@ -40,6 +41,12 @@ public interface BasicQueryWSManager {
      * @return
      */
     List<BasicDictDto> getVehicleTypeByType(String owner, int type);
+    /**
+     * 根据车牌号获取车辆信息
+     * @param vehicleNumber
+     * @return
+     */
+    public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber);
 
 
     /**

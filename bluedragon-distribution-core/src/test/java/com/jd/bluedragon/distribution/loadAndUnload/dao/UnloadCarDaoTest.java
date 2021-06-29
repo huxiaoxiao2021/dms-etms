@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.loadAndUnload.dao;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationH2Test;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jddl.common.utils.Assert;
@@ -25,7 +26,8 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
 
     @Autowired
     private UnloadCarDao unloadCarDao;
-
+    @Autowired
+    private UnloadCarService unloadCarService;
     @Before
     public void setUp() {
     }
@@ -124,7 +126,8 @@ public class UnloadCarDaoTest extends AbstractDaoIntegrationH2Test {
         unloadCar.setEndSiteName("通州分拣中心");
         unloadCar.setBatchCode("121212-111111-123456789");
         unloadCar.setCreateTime(new Date());
-        unloadCarDao.add(unloadCar);
+//        unloadCarDao.add(unloadCar);
+        unloadCarService.fillUnloadCarTaskDuration(unloadCar);
     }
 
     @Test

@@ -18,6 +18,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanServiceImpl;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
@@ -27,6 +29,7 @@ import com.jd.service.common.json.JSON;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -80,6 +83,8 @@ public class GoodsLoadingScanningServiceImplTest {
     @Resource
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
+    @Autowired
+    private UnloadCarService unloadCarService;
 
     @Test //不齐异常数据查询测试
     public void testFindExceptionGoodsLoading() {
@@ -509,5 +514,30 @@ public class GoodsLoadingScanningServiceImplTest {
             System.out.println(JsonHelper.toJson(res));
         }
 
+    }
+
+
+    @Test
+    public void testAdd() {
+        for(int i = 0; i< 10 ; i++) {
+            try{
+                UnloadCar unloadCar = new UnloadCar();
+                unloadCar.setWaybillNum(123);
+                unloadCar.setPackageNum(234);
+                unloadCar.setSealCarCode("SC12345678");
+                unloadCar.setVehicleNumber("京A66666");
+                unloadCar.setSealTime(new Date());
+                unloadCar.setStartSiteCode(910);
+                unloadCar.setStartSiteName("马驹桥分拣中心");
+                unloadCar.setEndSiteCode(364605);
+                unloadCar.setEndSiteName("通州分拣中心");
+                unloadCar.setBatchCode("121212-111111-123456789");
+                unloadCar.setCreateTime(new Date());
+//        unloadCarDao.add(unloadCar);
+                unloadCarService.fillUnloadCarTaskDuration(unloadCar);
+            }catch (Exception e) {
+                System.out.println(1234);
+            }
+        }
     }
 }
