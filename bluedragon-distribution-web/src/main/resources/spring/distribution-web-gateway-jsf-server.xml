@@ -375,4 +375,12 @@
                   ref="stockInventoryGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 耗材确认PDA -->
+    <bean id="waybillConsumableGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WaybillConsumableGatewayServiceImpl" />
+    <jsf:provider id="jsfWaybillConsumableGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WaybillConsumableGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillConsumableGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
