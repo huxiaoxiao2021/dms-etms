@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -14,6 +15,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,10 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 需要校验运单是否已经妥投的类型
      */
@@ -110,15 +116,38 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             return interceptResult;
         }
 
-        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType()))
+        if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
+                || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
         {
+            String waybillCode = context.getWaybill().getWaybillCode();
+            Set<Integer> needHitStatusSet = new HashSet<>();
+            Set<Integer> needInterceptStatusSet = new HashSet<>();
+            getPackReprintStatus(needHitStatusSet, needInterceptStatusSet);
+            if(CollectionUtils.isNotEmpty(needInterceptStatusSet)){
+                List<PackageState> existList = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, needInterceptStatusSet);
+                if(CollectionUtils.isNotEmpty(existList)){
+                    Collections.sort(existList, new Comparator<PackageState>() {
+                        @Override
+                        public int compare(PackageState packageState, PackageState packageState2) {
+                            return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
+                        }
+                    });
+                    String message = String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_INTERCEPT, existList.get(0).getStateName());
+                    interceptResult.toFail(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
+                    return interceptResult;
+                }
+            }
+
+            if(CollectionUtils.isEmpty(needHitStatusSet)){
+                return interceptResult;
+            }
             boolean  isRepeatPrint=false;
             //当前面单已XX状态，且已操作过补打，请确认是否打印
             if (StringHelper.isNotEmpty(context.getRequest().getBarCode()) && reprintRecordService.isBarCodeRePrinted(context.getRequest().getBarCode())) {
                 log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
                 isRepeatPrint=true;
             }
-            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
+            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(), needHitStatusSet);
             if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
                 interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
                 return interceptResult;
@@ -140,6 +169,27 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             }
         }
         return interceptResult;
+    }
+
+    /**
+     * 获取需提示状态码、需拦截状态码
+     * @param needHitStatusSet
+     * @param needInterceptStatusSet
+     */
+    private void getPackReprintStatus(Set<Integer> needHitStatusSet, Set<Integer> needInterceptStatusSet) {
+        try {
+            String packRePrintInterceptStatus = uccPropertyConfiguration.getPackRePrintInterceptStatus();
+            if(StringUtils.isNotEmpty(packRePrintInterceptStatus)){
+                String[] interceptStatusArray = packRePrintInterceptStatus.split(Constants.SEPARATOR_COMMA);
+                for (String interceptStatus : interceptStatusArray) {
+                    needInterceptStatusSet.add(Integer.parseInt(interceptStatus));
+                }
+            }
+        }catch (Exception e){
+            log.error("获取包裹补打需强制拦截的状态码异常!", e);
+        }
+        needHitStatusSet.addAll(WayBillFinishedEnum.waybillStatusFinishedSet);
+        needHitStatusSet.removeAll(needInterceptStatusSet);
     }
 
 }
