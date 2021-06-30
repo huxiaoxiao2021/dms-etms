@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -72,6 +73,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             conditionB2b.setWaybillVolume(req.getVolume());
             conditionB2b.setWaybillWeight(req.getWeight());
             InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
+            logger.info("SpotCheckGateWayServiceImpl.checkIsExcess|invokeResult={}", JsonHelper.toJson(invokeResult));
             if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
                 jdCResponse.toFail("操作失败！");
                 return jdCResponse;
