@@ -1,15 +1,20 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadScan;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
+import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
@@ -27,7 +32,13 @@ import java.util.List;
  * @author lvyuan21
  * @date 2020-12-29 16:14
  */
-@ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
+//@ContextConfiguration( locations = {"classpath:distribution-web-context.xml"})
+//@ContextConfiguration(locations = "classpath:spring/distribution-core-context-test.xml")
+//@ContextConfiguration(locations = "classpath:spring/distribution-worker-context-test.xml")
+//@ContextConfiguration(locations = "classpath:spring/distribution-core-context-test.xml")
+//@ContextConfiguration(locations = "classpath:distribution-web-context.xml")
+
+@ContextConfiguration(locations = {"classpath:distribution-web-context.xml"})
 @RunWith(SpringJUnit4ClassRunner.class)
 public class UnloadCarServiceImplTest {
 
@@ -38,6 +49,10 @@ public class UnloadCarServiceImplTest {
     private UnloadScanDao unloadScanDao;
     @Resource
     private UnloadScanRecordDao unloadScanRecordDao;
+
+
+    @Resource
+    private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
 
 
 
@@ -131,6 +146,52 @@ public class UnloadCarServiceImplTest {
             packageList = ListUtils.subtract(packageList, loadPackages);
         }
         System.out.println(packageList);
+    }
+
+
+    @Test
+    public void testPackageCodeScanNew() {
+        for(int i = 0; i<10; i++) {
+            try{
+                String waybillCode = "JDV000700260347";//专网1:JDV000700260347  专网2：JDV000700260355  暂存1：
+                String sealCarCode = "PDA1618985705156";
+                String erp = "xumigen";
+                String name = "徐迷根";
+                Integer userCode = 202110;
+                Integer siteCode = 10186;
+                String siteName = "凉水河转运中心test";
+                UnloadCarScanRequest req = new UnloadCarScanRequest();
+
+                req.setBarCode(waybillCode + "-1-5-");
+                req.setSealCarCode(sealCarCode);
+                req.setWaybillCode(waybillCode);
+                req.setOperateUserErp(erp);
+                req.setOperateUserName(name);
+                req.setOperateUserCode(userCode);
+                req.setOperateSiteCode(siteCode);
+                req.setOperateSiteName(siteName);
+
+                String str = "{\n" +
+                        " \"barCode\": \"JDV000700264620-1-5-\",\n" +
+                        " \"forceCombination\": false,\n" +
+                        " \"isCombinationTransfer\": 0,\n" +
+                        " \"isForceCombination\": false,\n" +
+                        " \"operateSiteCode\": 10186,\n" +
+                        " \"operateSiteName\": \"北京凉水河快运中心\",\n" +
+                        " \"operateTime\": 1623822191428,\n" +
+                        " \"operateUserCode\": 18225,\n" +
+                        " \"operateUserErp\": \"xumigen\",\n" +
+                        " \"operateUserName\": \"徐迷根\",\n" +
+                        " \"sealCarCode\": \"PDA1623821906170\",\n" +
+                        " \"type\": 1\n" +
+                        "}";
+                UnloadCarScanRequest req1 = JSONObject.parseObject(str, UnloadCarScanRequest.class);
+                JdVerifyResponse<UnloadScanDetailDto> res = loadAndUnloadCarGatewayService.packageCodeScanNew(req1);
+                System.out.println("end");
+            }catch (Exception e) {
+                System.out.println("error");
+            }
+        }
     }
 
 }

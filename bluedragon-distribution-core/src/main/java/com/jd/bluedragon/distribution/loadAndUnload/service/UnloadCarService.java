@@ -39,15 +39,15 @@ public interface UnloadCarService {
     InvokeResult<UnloadScanDetailDto> unloadScan(UnloadCarScanRequest unloadCarScanRequest);
 
     /**
-     * 卸车扫描
+     * 卸车扫描 (该接口已废弃)
      *
      * @param request
      * @return
      */
-    InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request);
+     InvokeResult<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest request);
 
     /**
-     * 卸车扫描(新版)
+     * 卸车扫描(新版)   (该接口已废弃)
      *
      * @param request
      * @return
@@ -60,7 +60,7 @@ public interface UnloadCarService {
     InvokeResult<UnloadScanDetailDto> packageCodeScanNew(UnloadCarScanRequest request);
 
     /**
-     * 卸车扫描
+     * 卸车扫描   (该接口已废弃)
      *
      * @param request
      * @return
@@ -166,7 +166,14 @@ public interface UnloadCarService {
      * @param barCode
      * @return
      */
-    InvokeResult<String> interceptValidateUnloadCar(String barCode);
+    InvokeResult<String> interceptValidateUnloadCar(String barCode, InvokeResult<UnloadScanDetailDto> dtoInvokeResult);
+
+    /**
+     * 装车任务拦截校验（原同卸车拦截相同，现改造卸车校验，将装车卸车校验拆分）
+     * @param barCode
+     * @return
+     */
+    InvokeResult<String> interceptValidateLoadCar(String barCode);
 
     /***
      * KA运单拦截
@@ -176,7 +183,7 @@ public interface UnloadCarService {
     /**
      * 卸车扫描(空任务卸车最新版)
      */
-    InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request);
+    InvokeResult<UnloadScanDetailDto> assemblyLineScan(UnloadCarScanRequest request, InvokeResult<UnloadScanDetailDto> dtoInvokeResult);
 
     JdCResponse<List<String>> getUnloadCarHistoryHelper(String erp);
 
