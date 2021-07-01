@@ -403,6 +403,12 @@ public class UccPropertyConfiguration {
      */
     private boolean cancelJimaoxinSwitchToOMS;
 
+    /**
+     * pda待下线||已下线菜单编码
+     *  以,隔开
+     */
+    private String offlinePdaMenuCode;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1132,5 +1138,13 @@ public class UccPropertyConfiguration {
 
     public void setApprovalSwitch(boolean approvalSwitch) {
         this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getOfflinePdaMenuCode() {
+        return offlinePdaMenuCode;
+    }
+
+    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
+        this.offlinePdaMenuCode = offlinePdaMenuCode;
     }
 }
