@@ -11,14 +11,12 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
@@ -115,6 +113,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
     /**
      * 校验并获取运力编码信息
@@ -342,6 +343,7 @@ public class NewSealVehicleResource {
     /**
      * 检查运力编码和批次号目的地是否一致
      */
+    @Deprecated
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}")
     @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.checkTranCodeAndBatchCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -401,6 +403,7 @@ public class NewSealVehicleResource {
 
     /**
      * 检查运力编码和批次号目的地是否一致(新)
+     * 返回code!=200，PDA显示message
      */
     @POST
     @Path("/new/vehicle/seal/check")
@@ -621,6 +624,9 @@ public class NewSealVehicleResource {
 
     /**
      * 封车功能
+     * <p>
+     *     按任务封车或按运力封车使用此接口（传摆封车默认按运力封车）
+     * </p>
      */
     @POST
     @Path("/new/vehicle/seal")
@@ -676,6 +682,9 @@ public class NewSealVehicleResource {
 
     /**
      * VOS封车业务同时生成车次任务
+     * <p>
+     *     传摆封车使用
+     * </p>
      */
     @POST
     @Path("/new/vehicle/doSealCarWithVehicleJob")
@@ -692,7 +701,7 @@ public class NewSealVehicleResource {
             }
 
             //批次为空的列表信息
-            Map<String, String> emptyBatchCode =new HashMap<String,String>();
+            Map<String, String> emptyBatchCode = new HashMap<String,String>();
 
             sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData(),emptyBatchCode);
             if (sealVehicleResponse != null) {
@@ -912,6 +921,15 @@ public class NewSealVehicleResource {
             sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
             return;
         }
+
+        // 1.1 校验批次号是否可用
+        InvokeResult<Boolean> sendChkResult = sendCodeService.validateSendCodeEffective(batchCode);
+        if (!sendChkResult.codeSuccess()) {
+            sealVehicleResponse.setCode(sendChkResult.getCode());
+            sealVehicleResponse.setMessage(sendChkResult.getMessage());
+            return;
+        }
+
         //2.是否已经封车
         CommonDto<Boolean> isSealed = newsealVehicleService.isBatchCodeHasSealed(batchCode);
         if (isSealed == null) {
@@ -947,16 +965,6 @@ public class NewSealVehicleResource {
                 sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
         }
     }
-
-    private boolean existMaterialSendRecord(String batchCode) {
-        boolean existRecord = true;
-        JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
-        if (materialSendRet.isSucceed() && materialSendRet.getData() == 0) {
-            existRecord = false;
-        }
-        return existRecord;
-    }
-
 
     /**
      * 合并同一运力编码、同意操作时间的批次号
