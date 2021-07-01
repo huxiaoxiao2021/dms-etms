@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.busineCode.sendCode.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.api.response.sendcode.SendCodeResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.BusinessCodeManager;
 import com.jd.bluedragon.distribution.busineCode.sendCode.domain.SendCodeDto;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
-import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -25,9 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.*;
 
 /**
  * <p>
@@ -136,5 +138,77 @@ public class SendCodeServiceImpl implements SendCodeService {
          */
         String attributeValue = businessCodeManager.queryBusinessCodeAttributeByCodeAndKey(sendCode, BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh.name());
         return Boolean.parseBoolean(attributeValue);
+    }
+
+    /**
+     * 批次号有效性校验
+     * <ul>
+         * <li>校验正则</li>
+         * <li>校验批次号是否存在</li>
+     * </ul>
+     *
+     * @param sendCode 批次号
+     * @return code非200失败
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendCodeServiceImpl.validateSendCodeEffective", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<Boolean> validateSendCodeEffective(String sendCode) {
+        // 默认校验通过
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        try {
+            if (StringUtils.isBlank(sendCode)) {
+                return result;
+            }
+
+            if (!switchIsOpen(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode))) {
+                return result;
+            }
+
+            if (logger.isInfoEnabled()) {
+                logger.info("启用批次有效性校验. site:{}", SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
+            }
+
+            // 1. 校验批次号有效性
+            if (!BusinessUtil.isSendCode(sendCode)) {
+                result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
+                return result;
+            }
+
+            // 2. 校验批次号是否存在
+            BusinessCodePo businessCodePo = businessCodeManager.queryBusinessCodeByCode(sendCode, BusinessCodeNodeTypeEnum.send_code);
+            if (null == businessCodePo) {
+                result.customMessage(SendCodeResponse.CODE_NOT_EXIST_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_NOT_EXIST_ERROR, sendCode));
+                return result;
+            }
+
+        }
+        catch (Exception ex) {
+            logger.error("校验批次号有效性失败. {}", sendCode, ex);
+            result.error("校验批次号服务异常! 请联系分拣小秘[咚咚:xnfjxm]");
+        }
+
+        return result;
+    }
+
+    /**
+     * 批次号校验开关
+     * @param createSiteCode 当前分拣中心
+     * @return 开关状态 true：开启
+     */
+    private boolean switchIsOpen(Integer createSiteCode) {
+        String configSites = uccPropertyConfiguration.getSiteEnableSendCodeEffectiveValidation();
+        if (StringUtils.isBlank(configSites)) {
+            return false;
+        }
+        if (null == createSiteCode) {
+            return false;
+        }
+        // 全国开启
+        if (Constants.STR_ALL.equalsIgnoreCase(configSites)) {
+            return true;
+        }
+
+        List<String> enableSites = Arrays.asList(configSites.split(Constants.SEPARATOR_COMMA));
+        return enableSites.contains(createSiteCode.toString());
     }
 }

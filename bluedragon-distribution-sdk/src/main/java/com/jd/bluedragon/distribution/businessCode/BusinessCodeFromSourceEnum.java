@@ -15,6 +15,11 @@ public enum BusinessCodeFromSourceEnum {
     DMS_DESKTOP_CLIENT,
 
     /**
+     * 分拣WincePDA
+     */
+    DMS_WINCE_PDA,
+
+    /**
      * 分拣web页面
      */
     DMS_WEB_SYS,
