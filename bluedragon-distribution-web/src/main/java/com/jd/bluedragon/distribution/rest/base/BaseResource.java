@@ -1240,7 +1240,7 @@ public class BaseResource {
 			return false;
 		}
 		// 字符串截取长度
-		int substringLength = 20;
+		int substringLength = 50;
 		if(StringUtils.isNotEmpty(request.getCarrierCode()) && request.getCarrierCode().length() > substringLength){
 			request.setCarrierCode(request.getCarrierCode().substring(Constants.NUMBER_ZERO, substringLength));
 		}

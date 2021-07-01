@@ -2640,14 +2640,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         UnloadCar unloadCar = new UnloadCar();
         unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
         unloadCar.setStatus(unloadCarTaskReq.getTaskStatus());
-        if (!unloadCarTaskReq.getTaskCode().startsWith(Constants.PDA_UNLOAD_TASK_PREFIX)) {
-            unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
-            unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
-        }
+
+        unloadCar.setUnloadUserErp(unloadCarTaskReq.getUser().getUserErp());
+        unloadCar.setEndSiteCode(unloadCarTaskReq.getCurrentOperate().getSiteCode());
+
         unloadCar.setUpdateUserErp(unloadCarTaskReq.getUser().getUserErp());
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
         Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
+        // 根据封车编码查询封车记录
+        UnloadCar unloadCarEntity = unloadCarDao.selectBySealCarCode(unloadCar.getSealCarCode());
+        if (!unloadCar.getUnloadUserErp().equals(unloadCarEntity.getUnloadUserErp())) {
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("卸车完成只能由卸车负责人操作，协助人无法操作");
+            logger.error("修改任务状态失败，负责人erp={},请求信息={}", unloadCarEntity.getUnloadUserErp(), JsonHelper.toJson(unloadCarTaskReq));
+            return result;
+        }
         //校验卸车任务是否超时
         if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCarTaskReq.getTaskStatus()) {
             UnloadCar unloadCarParam = new UnloadCar();
@@ -2666,8 +2674,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
-            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-            logger.error("修改任务状态失败，请求信息：{}",JsonHelper.toJson(unloadCarTaskReq));
+            result.setMessage("卸车任务已完成，请勿重复操作");
+            logger.error("修改任务状态失败，请求信息：{}", JsonHelper.toJson(unloadCarTaskReq));
             return result;
         }
         if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCarTaskReq.getTaskStatus()) {
@@ -2941,6 +2949,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
+    @Override
     public void distributeUnloadCarTask(TmsSealCar tmsSealCar) {
         //解封车消息报文
         //{"sealCarCode":"SC21051894360237","status":20,"operateUserCode":"zhengying34","operateUserName":"郑英","operateTime":"2021-05-18 11:26:50",

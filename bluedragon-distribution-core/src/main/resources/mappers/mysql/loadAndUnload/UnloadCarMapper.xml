@@ -443,7 +443,7 @@
         vehicle_number = #{vehicleNumber,jdbcType=VARCHAR}
         and end_site_code = #{endSiteCode,jdbcType=BIGINT}
         and yn=1
-        and status in (0,1)
+        and status in (0,1,2)
         <if test="startTime != null">
             and create_time &gt; #{startTime,jdbcType=TIMESTAMP}
         </if>
