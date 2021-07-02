@@ -2649,7 +2649,22 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
         // 根据封车编码查询封车记录
-        UnloadCar unloadCarEntity = unloadCarDao.selectBySealCarCode(unloadCar.getSealCarCode());
+        UnloadCar unload = new UnloadCar();
+        unload.setSealCarCode(unloadCar.getSealCarCode());
+        List<UnloadCar> unloadCarList = unloadCarDao.selectByUnloadCar(unload);
+        if (CollectionUtils.isEmpty(unloadCarList)) {
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("卸车任务不存在");
+            logger.error("修改任务状态失败，请求信息：{}", JsonHelper.toJson(unloadCarTaskReq));
+            return result;
+        }
+        UnloadCar unloadCarEntity = unloadCarList.get(0);
+        if (Integer.valueOf(UnloadCarStatusEnum.UNLOAD_CAR_END.getType()).equals(unloadCarEntity.getStatus())) {
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("卸车任务已完成，请勿重复操作");
+            logger.error("修改任务状态失败，请求信息：{}", JsonHelper.toJson(unloadCarTaskReq));
+            return result;
+        }
         if (!unloadCar.getUnloadUserErp().equals(unloadCarEntity.getUnloadUserErp())) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("卸车完成只能由卸车负责人操作，协助人无法操作");
@@ -2674,7 +2689,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
-            result.setMessage("卸车任务已完成，请勿重复操作");
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             logger.error("修改任务状态失败，请求信息：{}", JsonHelper.toJson(unloadCarTaskReq));
             return result;
         }
