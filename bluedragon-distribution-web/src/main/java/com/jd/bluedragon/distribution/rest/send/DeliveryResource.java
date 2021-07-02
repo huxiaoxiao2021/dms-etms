@@ -304,9 +304,14 @@ public class DeliveryResource {
     @Path("/delivery/commonCheckSendCode/{sendCode}")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.commonCheckSendCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> commonCheckSendCode(@PathParam("sendCode") String sendCode) {
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        if(!BusinessHelper.isSendCode(sendCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号不符合规则!");
+//        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+//        if(!BusinessHelper.isSendCode(sendCode)){
+//            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号不符合规则!");
+//            return result;
+//        }
+        // 校验批次号
+        InvokeResult<Boolean> result = sendCodeService.validateSendCodeEffective(sendCode);
+        if (!result.codeSuccess()) {
             return result;
         }
         // 校验批次号
