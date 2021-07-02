@@ -113,7 +113,6 @@
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
 		<property name="unSealCarHandlePackageFullCollectedSwitch" value="${unSealCarHandlePackageFullCollectedSwitch:-1}"/> <!-- 解封车查看运单包裹是否集齐 -->
 		<property name="inspectionAssertDemotion" value="${inspectionAssertDemotion:false}"/>
-        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
 		<property name="dazongPackageOperateMax" value="${dazongPackageOperateMax:100}"/>
 		<property name="checkSignAndReturn" value="${checkSignAndReturn:true}"></property>
         <property name="backDispatchCheck" value="${backDispatchCheck:true}"></property>
@@ -125,6 +124,8 @@
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
+        <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -206,7 +207,6 @@
 				<value>uccPropertyConfiguration.approvalSwitch</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
-                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
 				<value>uccPropertyConfiguration.checkSignAndReturn</value>
 				<value>uccPropertyConfiguration.backDispatchCheck</value>
@@ -219,6 +219,8 @@
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
+                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
+                <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
 			</list>
 		</property>
 	</bean>

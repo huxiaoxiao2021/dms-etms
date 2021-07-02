@@ -379,12 +379,6 @@ public class UccPropertyConfiguration {
     private boolean inspectionAssertDemotion;
 
     /**
-     * 取消鸡毛信切换OMS接口开关
-     */
-    private boolean cancelJimaoxinSwitchToOMS;
-
-
-    /**
      * 大宗可扫描包裹下限数量
      * @return
      */
@@ -430,6 +424,17 @@ public class UccPropertyConfiguration {
      * 隐藏特殊始发场地替换字符，形如 **
      */
     private String hideSpecialStartSitePrintReplaceSymbol;
+
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
+    /**
+     * pda待下线||已下线菜单编码
+     *  以,隔开
+     */
+    private String offlinePdaMenuCode;
 
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
@@ -1201,5 +1206,13 @@ public class UccPropertyConfiguration {
 
     public void setApprovalSwitch(boolean approvalSwitch) {
         this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getOfflinePdaMenuCode() {
+        return offlinePdaMenuCode;
+    }
+
+    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
+        this.offlinePdaMenuCode = offlinePdaMenuCode;
     }
 }

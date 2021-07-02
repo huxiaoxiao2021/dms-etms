@@ -2,11 +2,13 @@ package com.jd.bluedragon.distribution.rest.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CarrierQueryRequest;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.PdaSystemMenuRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -57,10 +59,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Component
@@ -118,6 +117,9 @@ public class BaseResource {
 
 	@Autowired
 	private CarrierQueryWSManager carrierQueryWSManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -1723,6 +1725,23 @@ public class BaseResource {
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
+		return result;
+	}
+
+
+	@POST
+	@Path("/bases/checkMenuIsOffline")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.checkMenuIsOffline", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<Boolean>  checkMenuIsOffline(PdaSystemMenuRequest request){
+		InvokeResult<Boolean> result = new InvokeResult<>();
+		// 待下线||已下线PDA菜单编码集合
+		String offlinePdaMenuCodes = uccPropertyConfiguration.getOfflinePdaMenuCode();
+		boolean menuCodeIsOffline = false;
+		if(StringUtils.isNotEmpty(offlinePdaMenuCodes)){
+			menuCodeIsOffline = Arrays.asList(offlinePdaMenuCodes.split(Constants.SEPARATOR_COMMA)).contains(request.getMenuCode());
+			result.setMessage("此功能已下线，有疑问请咨询分拣小秘（xnfjxm）");
+		}
+		result.setData(menuCodeIsOffline);
 		return result;
 	}
 
