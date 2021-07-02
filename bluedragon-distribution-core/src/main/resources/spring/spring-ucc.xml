@@ -126,6 +126,7 @@
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
         <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
         <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
+        <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -221,6 +222,7 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
                 <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
                 <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
+                <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
 			</list>
 		</property>
 	</bean>

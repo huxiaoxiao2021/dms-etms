@@ -450,6 +450,12 @@ public class UccPropertyConfiguration {
      */
     private boolean backDispatchCheck;
 
+    /**
+     * 包裹补打-拦截状态码
+     *  以,隔开
+     */
+    private String packRePrintInterceptStatus;
+
     public boolean getBackDispatchCheck() {
         return backDispatchCheck;
     }
@@ -1214,5 +1220,13 @@ public class UccPropertyConfiguration {
 
     public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
         this.offlinePdaMenuCode = offlinePdaMenuCode;
+    }
+
+    public String getPackRePrintInterceptStatus() {
+        return packRePrintInterceptStatus;
+    }
+
+    public void setPackRePrintInterceptStatus(String packRePrintInterceptStatus) {
+        this.packRePrintInterceptStatus = packRePrintInterceptStatus;
     }
 }
