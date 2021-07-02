@@ -436,6 +436,16 @@ public class UccPropertyConfiguration {
      */
     private String offlinePdaMenuCode;
 
+    /**
+     * 发货交接清单-包裹查询剔除运单号集合
+     */
+    private String printHandoverPackQueryEliminateWaybillCodes;
+
+    /***
+     * 运单最大包裹数
+     */
+    private int waybillMaxPackNum;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1228,5 +1238,21 @@ public class UccPropertyConfiguration {
 
     public void setPackRePrintInterceptStatus(String packRePrintInterceptStatus) {
         this.packRePrintInterceptStatus = packRePrintInterceptStatus;
+    }
+
+    public String getPrintHandoverPackQueryEliminateWaybillCodes() {
+        return printHandoverPackQueryEliminateWaybillCodes;
+    }
+
+    public void setPrintHandoverPackQueryEliminateWaybillCodes(String printHandoverPackQueryEliminateWaybillCodes) {
+        this.printHandoverPackQueryEliminateWaybillCodes = printHandoverPackQueryEliminateWaybillCodes;
+    }
+
+    public int getWaybillMaxPackNum() {
+        return waybillMaxPackNum;
+    }
+
+    public void setWaybillMaxPackNum(int waybillMaxPackNum) {
+        this.waybillMaxPackNum = waybillMaxPackNum;
     }
 }

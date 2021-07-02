@@ -59,6 +59,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -157,6 +158,15 @@ public class SendPrintServiceImpl implements SendPrintService {
     private final static int THIRD_EXPORT_SUC_CODE = 201;
 
     private final static int BATCH_SUMMARY_QUERY_ES_CODE = 10000;
+
+    /**
+     * 包裹查询单次查询数量
+     */
+    private final static int PACK_QUERY_SINGLE_LIMIT_SIZE = 1000;
+    /**
+     * 运单包裹数量
+     */
+    private final static int WAYBILL_PACK_MAX_NUM = 20000;
 
     /**
      * 批次汇总&&批次汇总打印
@@ -1671,34 +1681,58 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @param printHandoverListDto
      */
     private void buildPackageData(PrintHandoverListDto printHandoverListDto) {
-        if(!WaybillUtil.isPackageCode(printHandoverListDto.getPackageCode())){
+        String packageCode = printHandoverListDto.getPackageCode();
+        if(!WaybillUtil.isPackageCode(packageCode)){
             return;
         }
-        // 包裹重量
-        DeliveryPackageD deliveryPackageD = waybillPackageManager.getPackageInfoByPackageCode(printHandoverListDto.getPackageCode());
-        if (deliveryPackageD != null) {
-            printHandoverListDto.setPackageWeight(deliveryPackageD.getGoodWeight());
-            printHandoverListDto.setPackageAgainWeight(deliveryPackageD.getAgainWeight());
+        DeliveryPackageD deliveryPackage = getDeliveryPackageInfo(packageCode);
+        if(deliveryPackage == null){
+            log.warn("根据包裹号{}获取包裹明细为空!", packageCode);
+            return;
         }
-        // fixme：包裹体积只有汇总查询中用到，分页查询未使用(使用运单查询影响性能，最好使用包裹查询接口)
-        double packageVolume = Constants.DOUBLE_ZERO;
-//        try {
-//            BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(printHandoverListDto.getWaybillCode());
-//            if (packageOpe != null && CollectionUtils.isNotEmpty(packageOpe.getData())) {
-//                for (PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
-//                    if(!Objects.equals(packOpeFlowDto.getPackageCode(),printHandoverListDto.getPackageCode())){
-//                        continue;
-//                    }
-//                    if (null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
-//                            && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
-//                        packageVolume = packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh();
-//                    }
-//                }
-//            }
-//        }catch (Exception e){
-//            log.error("根据包裹号{}获取包裹体积异常!",printHandoverListDto.getPackageCode(),e);
-//        }
-        printHandoverListDto.setGoodVolume(packageVolume);
+        // 包裹重量、包裹复重、包裹体积
+        printHandoverListDto.setPackageWeight(deliveryPackage.getGoodWeight());
+        printHandoverListDto.setPackageAgainWeight(deliveryPackage.getAgainWeight());
+        printHandoverListDto.setGoodVolume(NumberHelper.isBigDecimal(deliveryPackage.getGoodVolume()) ? Constants.DOUBLE_ZERO : Double.parseDouble(deliveryPackage.getGoodVolume()));
+    }
+
+    /**
+     * 获取包裹明细数据
+     *
+     * @param packageCode
+     * @return
+     */
+    private DeliveryPackageD getDeliveryPackageInfo(String packageCode) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        if(!WaybillUtil.isWaybillCode(waybillCode)){
+            return null;
+        }
+        // 剔除大运单开关防止影响外部系统
+        String eliminateWaybillCodes = uccPropertyConfiguration.getPrintHandoverPackQueryEliminateWaybillCodes();
+        if(StringUtils.isNotEmpty(eliminateWaybillCodes) && Arrays.asList(eliminateWaybillCodes.split(Constants.SEPARATOR_COMMA)).contains(waybillCode)){
+            log.warn("发货交接清单包裹查询剔除运单号:{}", waybillCode);
+            return null;
+        }
+        int waybillMaxPackNum = uccPropertyConfiguration.getWaybillMaxPackNum() == Constants.NUMBER_ZERO ? WAYBILL_PACK_MAX_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+        int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == Constants.NUMBER_ZERO ? PACK_QUERY_SINGLE_LIMIT_SIZE : uccPropertyConfiguration.getWaybillSplitPageSize();
+        int pageNo = Constants.CONSTANT_NUMBER_ONE;
+        int count = Constants.CONSTANT_NUMBER_ONE;
+        int queryCount = waybillMaxPackNum / pageSize + Constants.CONSTANT_NUMBER_ONE;
+        while (count < queryCount) {
+            BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
+                log.warn("根据运单号{}查询包裹数据为空!", waybillCode);
+                return null;
+            }
+            for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+                if(Objects.equals(packageCode, deliveryPackageD.getPackageBarcode())){
+                    return deliveryPackageD;
+                }
+            }
+            pageNo ++;
+            count ++;
+        }
+        return null;
     }
 
     /**
