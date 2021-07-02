@@ -39,12 +39,15 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -125,6 +128,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private SendDetailService sendDetailService;
 
     /**
      * jsf监控key前缀
@@ -497,5 +503,39 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             return true;
         }
         return false;
+    }
+
+    @JProfiler(jKey = UMP_KEY_PREFIX + "checkSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> checkSend(String barcode, Integer createSiteCode){
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+
+        if(org.apache.commons.lang3.StringUtils.isBlank(barcode) || createSiteCode == null){
+            result.parameterError("入参barcode或createSiteCode为空");
+            return result;
+        }
+        SendDetail param = new SendDetail();
+
+        if(WaybillUtil.isPackageCode(barcode)){
+            param.setPackageBarcode(barcode);
+        }else if(BusinessUtil.isBoxcode(barcode)){
+            param.setBoxCode(barcode);
+        }else {
+            result.parameterError("条码无效非包裹号箱号");
+            return result;
+        }
+        param.setCreateSiteCode(createSiteCode);
+        //未取消
+        param.setIsCancel(0);
+        //已发货
+        param.setStatus(1);
+        SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
+        if(sendDetail == null ){
+            result.setData(Boolean.TRUE);
+        }else {
+            result.setData(Boolean.TRUE);
+        }
+        return result;
+
     }
 }

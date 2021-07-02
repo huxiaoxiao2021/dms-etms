@@ -66,4 +66,10 @@ public interface SendDetailService {
      */
     public boolean checkSendIsExist(String sendCode);
 
+    /**
+     * 根据条件查询一条数据
+     * @param querySendDatail
+     * @return
+     */
+    SendDetail queryOneSendDatailBySendM(SendDetail querySendDatail);
 }

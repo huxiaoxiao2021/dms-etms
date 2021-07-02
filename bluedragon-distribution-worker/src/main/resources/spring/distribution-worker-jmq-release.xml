@@ -336,5 +336,11 @@
     <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
     </jmq:consumer>
+
+    <!--跨越自动化验货-->
+    <jmq:consumer id="jmq.kyeInspectionConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.kyeInspection}" listener="kyeInspectionConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
