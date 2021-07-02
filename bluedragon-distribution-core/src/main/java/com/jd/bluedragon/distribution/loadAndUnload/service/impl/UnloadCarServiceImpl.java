@@ -715,10 +715,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 String kyResult = kyexpressCheck(request,waybillCode);
                 if(StringUtils.isNotBlank(kyResult)){
                     String msg = kyResult;
-                    if(logger.isInfoEnabled()) {
-                        logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                                request.getBarCode(), privateNetworkFlag, tempStorageFlag, msg);
-                    }
                     dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, msg);
                     return dtoInvokeResult;
                 }
