@@ -79,6 +79,26 @@ public class ExpressBillExceptionReport implements Serializable {
     private String reportImgUrls;
 
     /**
+     * 商家编码
+     */
+    private String traderCode;
+
+    /**
+     * 被举报人ID
+     */
+    private Long reportedUserId;
+
+    /**
+     * 被举报人erp
+     */
+    private String  reportedUserErp;
+
+    /**
+     * 被举报人姓名
+     */
+    private String reportedUserName;
+
+    /**
      * 数据库时间
      */
     private Date ts;
@@ -107,6 +127,11 @@ public class ExpressBillExceptionReport implements Serializable {
      * 订单号
      */
     private String orderId;
+
+    /**
+     * 仓配或终端条线类型
+     */
+    private Integer lineType;
 
     public String getOrderId() {
         return orderId;
@@ -212,6 +237,42 @@ public class ExpressBillExceptionReport implements Serializable {
         this.reportImgUrls = reportImgUrls;
     }
 
+    public String getTraderCode() {
+        return traderCode;
+    }
+
+    public ExpressBillExceptionReport setTraderCode(String traderCode) {
+        this.traderCode = traderCode;
+        return this;
+    }
+
+    public Long getReportedUserId() {
+        return reportedUserId;
+    }
+
+    public ExpressBillExceptionReport setReportedUserId(Long reportedUserId) {
+        this.reportedUserId = reportedUserId;
+        return this;
+    }
+
+    public String getReportedUserErp() {
+        return reportedUserErp;
+    }
+
+    public ExpressBillExceptionReport setReportedUserErp(String reportedUserErp) {
+        this.reportedUserErp = reportedUserErp;
+        return this;
+    }
+
+    public String getReportedUserName() {
+        return reportedUserName;
+    }
+
+    public ExpressBillExceptionReport setReportedUserName(String reportedUserName) {
+        this.reportedUserName = reportedUserName;
+        return this;
+    }
+
     public String getReportUserErp() {
         return reportUserErp;
     }
@@ -258,6 +319,15 @@ public class ExpressBillExceptionReport implements Serializable {
 
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public Integer getLineType() {
+        return lineType;
+    }
+
+    public ExpressBillExceptionReport setLineType(Integer lineType) {
+        this.lineType = lineType;
+        return this;
     }
 }
     
