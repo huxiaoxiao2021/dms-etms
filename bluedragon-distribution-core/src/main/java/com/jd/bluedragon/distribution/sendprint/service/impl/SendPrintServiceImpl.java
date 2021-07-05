@@ -1687,7 +1687,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 包裹重量、包裹复重、包裹体积
         printHandoverListDto.setPackageWeight(deliveryPackage.getGoodWeight());
         printHandoverListDto.setPackageAgainWeight(deliveryPackage.getAgainWeight());
-        printHandoverListDto.setGoodVolume(NumberHelper.isBigDecimal(deliveryPackage.getGoodVolume()) ? Constants.DOUBLE_ZERO : Double.parseDouble(deliveryPackage.getGoodVolume()));
+        printHandoverListDto.setGoodVolume(!NumberHelper.isBigDecimal(deliveryPackage.getGoodVolume()) ? Constants.DOUBLE_ZERO : Double.parseDouble(deliveryPackage.getGoodVolume()));
     }
 
     /**
