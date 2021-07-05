@@ -166,16 +166,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         // 校验批次号合法性
+        Set<String> sendCodeList = new HashSet<>();
         for (SealCarDto sealCarDto : doSealCarDtos) {
-            for (String batchCode : sealCarDto.getBatchCodes()) {
-                InvokeResult<Boolean> invokeResult = sendCodeService.validateSendCodeEffective(batchCode);
-                if (!invokeResult.codeSuccess()) {
-                    sealCarInfo = new CommonDto<>();
-                    sealCarInfo.setCode(CommonDto.CODE_WARN);
-                    sealCarInfo.setMessage(invokeResult.getMessage());
-                    return sealCarInfo;
-                }
-            }
+            sendCodeList.addAll(sealCarDto.getBatchCodes());
+        }
+        InvokeResult<Boolean> invokeResult = sendCodeService.batchValidateSendCodeEffective(new ArrayList<>(sendCodeList));
+        if (!invokeResult.codeSuccess()) {
+            sealCarInfo = new CommonDto<>();
+            sealCarInfo.setCode(CommonDto.CODE_WARN);
+            sealCarInfo.setMessage(invokeResult.getMessage());
+            return sealCarInfo;
         }
 
         List<SealVehicles> saveSealDataList=new ArrayList<>();
@@ -339,13 +339,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
 
         // 校验批次号合法性
+        Set<String> sendCodeList = new HashSet<>();
         for (SealCarDto sealCarDto : paramList) {
-            for (String batchCode : sealCarDto.getBatchCodes()) {
-                InvokeResult<Boolean> invokeResult = sendCodeService.validateSendCodeEffective(batchCode);
-                if (!invokeResult.codeSuccess()) {
-                    return new NewSealVehicleResponse(invokeResult.getCode(), invokeResult.getMessage());
-                }
-            }
+            sendCodeList.addAll(sealCarDto.getBatchCodes());
+        }
+        InvokeResult<Boolean> invokeResult = sendCodeService.batchValidateSendCodeEffective(new ArrayList<>(sendCodeList));
+        if (!invokeResult.codeSuccess()) {
+            return new NewSealVehicleResponse(invokeResult.getCode(), invokeResult.getMessage());
         }
 
         return doSealCarWithVehicleJobCore(paramList, emptyBatchCode);
@@ -354,6 +354,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     /**
      * 分拣工作台一键封车
      */
+    @Override
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarFromDmsWorkBench",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse doSealCarFromDmsWorkBench(List<SealCarDto> sealCarDtoList) {
         if (log.isInfoEnabled()) {

@@ -398,9 +398,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
 
-    @Autowired
-    private SendCodeService sendCodeService;
-
     /**
      * 自动过期时间 30分钟
      */

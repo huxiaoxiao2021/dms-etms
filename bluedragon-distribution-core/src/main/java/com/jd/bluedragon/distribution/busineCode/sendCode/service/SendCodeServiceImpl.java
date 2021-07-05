@@ -21,6 +21,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,11 +156,10 @@ public class SendCodeServiceImpl implements SendCodeService {
     public InvokeResult<Boolean> validateSendCodeEffective(String sendCode) {
         // 默认校验通过
         InvokeResult<Boolean> result = new InvokeResult<>();
+        if (StringUtils.isBlank(sendCode)) {
+            return result;
+        }
         try {
-            if (StringUtils.isBlank(sendCode)) {
-                return result;
-            }
-
             if (!switchIsOpen(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode))) {
                 return result;
             }
@@ -210,5 +210,36 @@ public class SendCodeServiceImpl implements SendCodeService {
 
         List<String> enableSites = Arrays.asList(configSites.split(Constants.SEPARATOR_COMMA));
         return enableSites.contains(createSiteCode.toString());
+    }
+
+    /**
+     * 批量校验批次号有效性
+     * <ul>
+     * <li>校验正则</li>
+     * <li>校验批次号是否存在</li>
+     * </ul>
+     *
+     * @param sendCodeList
+     * @return
+     */
+    @Override
+    public InvokeResult<Boolean> batchValidateSendCodeEffective(List<String> sendCodeList) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        if (CollectionUtils.isEmpty(sendCodeList)) {
+            return result;
+        }
+        StringBuilder warnMsg = new StringBuilder();
+        for (String sendCode : sendCodeList) {
+            InvokeResult<Boolean> singleChkRet = this.validateSendCodeEffective(sendCode);
+            if (!singleChkRet.codeSuccess()) {
+                result.setCode(singleChkRet.getCode());
+                warnMsg.append(singleChkRet.getMessage()).append("\r\n");
+            }
+        }
+        if (!result.codeSuccess()) {
+            result.setMessage(warnMsg.toString());
+        }
+
+        return result;
     }
 }

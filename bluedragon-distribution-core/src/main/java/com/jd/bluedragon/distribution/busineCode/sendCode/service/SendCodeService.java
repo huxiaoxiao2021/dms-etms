@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.busineCode.sendCode.domain.SendCodeDto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,4 +52,16 @@ public interface SendCodeService {
      * @return
      */
     InvokeResult<Boolean> validateSendCodeEffective(String sendCode);
+
+    /**
+     * 批量校验批次号有效性
+     * <ul>
+     *     <li>校验正则</li>
+     *     <li>校验批次号是否存在</li>
+     * </ul>
+     *
+     * @param sendCodeList
+     * @return
+     */
+    InvokeResult<Boolean> batchValidateSendCodeEffective(List<String> sendCodeList);
 }
