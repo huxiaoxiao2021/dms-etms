@@ -206,7 +206,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         }
 
 
-        return inspectionService.inspection(vo, null);
+        return inspectionService.addInspection(vo, null);
     }
 
 

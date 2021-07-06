@@ -206,7 +206,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.6.9-SNAPSHOT</version>
+			<version>1.7.2-test-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1696,7 +1696,7 @@
             <snapshots />
             <id>jd-snapshots</id>
             <name>libs-snapshots</name>
-            <url>http://artifactory.jd.com/libs-snapshots</url>
+            <url>http://artifactory.jd.com/libs-snapshots-local</url>
         </repository>
     </repositories>
 

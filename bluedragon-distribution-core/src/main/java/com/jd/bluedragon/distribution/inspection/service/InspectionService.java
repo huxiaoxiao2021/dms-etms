@@ -210,5 +210,6 @@ public interface InspectionService {
     boolean siteEnableInspectionAgg(Integer siteCode);
 
 
-    InvokeResult<Boolean> inspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum);
+	InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum);
+
 }

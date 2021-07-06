@@ -239,11 +239,4 @@ public interface DmsInternalService {
      */
     InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
 
-    /**
-     * 检验 条码是否已经在createSiteCode发货
-     * @param barcode 包裹号 或箱号
-     * @param createSiteCode 场地
-     * @return
-     */
-    InvokeResult<Boolean> checkSend(String barcode, Integer createSiteCode);
 }

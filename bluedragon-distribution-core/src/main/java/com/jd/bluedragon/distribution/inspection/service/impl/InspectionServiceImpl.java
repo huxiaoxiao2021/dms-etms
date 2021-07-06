@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionJsfService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -84,7 +85,7 @@ import java.util.*;
  * 
  */
 @Service
-public class InspectionServiceImpl implements InspectionService {
+public class InspectionServiceImpl implements InspectionService , InspectionJsfService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -1038,6 +1039,11 @@ public class InspectionServiceImpl implements InspectionService {
 
         return sites.contains(siteCode.toString());
     }
+
+	@Override
+	public InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum) {
+		return inspection(vo, inspectionBizSourceEnum);
+	}
 
 	@Override
     public InvokeResult<Boolean> inspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum){
