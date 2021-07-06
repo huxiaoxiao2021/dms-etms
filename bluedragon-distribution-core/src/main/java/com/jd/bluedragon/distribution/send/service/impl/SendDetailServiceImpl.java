@@ -120,8 +120,4 @@ public class SendDetailServiceImpl implements SendDetailService {
         return sendDatailDao.querySendBySiteCodeAndSendCode(queryDetail) != null;
 
     }
-    @Override
-    public SendDetail queryOneSendDatailBySendM(SendDetail querySendDatail){
-        return sendDatailDao.queryOneSendDatailBySendM(querySendDatail);
-    }
 }

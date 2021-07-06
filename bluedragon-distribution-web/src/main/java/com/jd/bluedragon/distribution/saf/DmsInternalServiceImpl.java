@@ -505,37 +505,4 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         return false;
     }
 
-    @JProfiler(jKey = UMP_KEY_PREFIX + "checkSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public InvokeResult<Boolean> checkSend(String barcode, Integer createSiteCode){
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        result.success();
-
-        if(org.apache.commons.lang3.StringUtils.isBlank(barcode) || createSiteCode == null){
-            result.parameterError("入参barcode或createSiteCode为空");
-            return result;
-        }
-        SendDetail param = new SendDetail();
-
-        if(WaybillUtil.isPackageCode(barcode)){
-            param.setPackageBarcode(barcode);
-        }else if(BusinessUtil.isBoxcode(barcode)){
-            param.setBoxCode(barcode);
-        }else {
-            result.parameterError("条码无效非包裹号箱号");
-            return result;
-        }
-        param.setCreateSiteCode(createSiteCode);
-        //未取消
-        param.setIsCancel(0);
-        //已发货
-        param.setStatus(1);
-        SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
-        if(sendDetail == null ){
-            result.setData(Boolean.TRUE);
-        }else {
-            result.setData(Boolean.TRUE);
-        }
-        return result;
-
-    }
 }
