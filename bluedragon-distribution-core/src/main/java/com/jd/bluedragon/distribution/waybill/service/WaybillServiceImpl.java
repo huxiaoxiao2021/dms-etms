@@ -785,41 +785,42 @@ public class WaybillServiceImpl implements WaybillService {
                     }
                 }
             }
-        }
-        //如果从分拣数据库中能查询到路由信息
-        String[] routerNodes = router.split("\\|");
-        List<String> routerList = Arrays.asList(routerNodes);
-        if(log.isInfoEnabled()){
-            log.info("获取路由routerList字符串为{}", JsonHelper.toJson(routerList));
-        }
-        int routeSize = routerList.size();
-        if(locationFlag == -1){
-            //目的转运中心
-            Integer lastSiteCode = 0;
-            for(int i=routeSize-1; i>=0; i--){
-                //获取目的转运中心
-                String siteCode = routerList.get(i);
-                Site site = siteService.get(Integer.parseInt(siteCode));
-                if(SUBTYPE_6420.equals(site.getSubType())){
-                    lastSiteCode = Integer.parseInt(siteCode);
-                    break;
-                }
+        }else{
+            //如果从分拣数据库中能查询到路由信息
+            String[] routerNodes = router.split("\\|");
+            List<String> routerList = Arrays.asList(routerNodes);
+            if(log.isInfoEnabled()){
+                log.info("获取路由routerList字符串为{}", JsonHelper.toJson(routerList));
             }
-            log.info("获取路由lastSiteCode字符串为{}",lastSiteCode);
-            return lastSiteCode;
-        }else if(locationFlag == 0){
-            //始发转运中心code
-            Integer startSiteCode = 0;
-            for(String  routerStr : routerList){
-                //判断路由节点是否是始发转运中心 subtype 6420
-                Site site = siteService.get(Integer.parseInt(routerStr));
-                if(SUBTYPE_6420.equals(site.getSubType())){
-                    startSiteCode = Integer.parseInt(routerStr);
-                    break;
+            int routeSize = routerList.size();
+            if(locationFlag == -1){
+                //目的转运中心
+                Integer lastSiteCode = 0;
+                for(int i=routeSize-1; i>=0; i--){
+                    //获取目的转运中心
+                    String siteCode = routerList.get(i);
+                    Site site = siteService.get(Integer.parseInt(siteCode));
+                    if(SUBTYPE_6420.equals(site.getSubType())){
+                        lastSiteCode = Integer.parseInt(siteCode);
+                        break;
+                    }
                 }
+                log.info("获取路由lastSiteCode字符串为{}",lastSiteCode);
+                return lastSiteCode;
+            }else if(locationFlag == 0){
+                //始发转运中心code
+                Integer startSiteCode = 0;
+                for(String  routerStr : routerList){
+                    //判断路由节点是否是始发转运中心 subtype 6420
+                    Site site = siteService.get(Integer.parseInt(routerStr));
+                    if(SUBTYPE_6420.equals(site.getSubType())){
+                        startSiteCode = Integer.parseInt(routerStr);
+                        break;
+                    }
+                }
+                log.info("获取路由startSiteCode字符串为{}",startSiteCode);
+                return startSiteCode;
             }
-            log.info("获取路由startSiteCode字符串为{}",startSiteCode);
-            return startSiteCode;
         }
         return null;
     }

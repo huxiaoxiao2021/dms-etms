@@ -666,6 +666,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //判断是否是跨越的取消订单
         String kyCancelCheckStr = kyexpressCancelCheck(request);
         if(StringUtils.isNotBlank(kyCancelCheckStr)){
+            if(logger.isInfoEnabled()) {
+                logger.info("跨越kyexpressCancelCheck-return,request为:{}",JsonHelper.toJson(request));
+            }
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyCancelCheckStr);
             return dtoInvokeResult;
         }
@@ -751,9 +754,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 if(StringUtils.isNotBlank(kyResult)){
                     String msg = kyResult;
                     if(logger.isInfoEnabled()) {
-                        logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                                request.getBarCode(), privateNetworkFlag, tempStorageFlag, msg);
+                        logger.info("跨越kyexpressCheck-return,waybillCode为:{}",waybillCode);
                     }
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,msg);
                     return dtoInvokeResult;
                 }
                 if(privateNetworkFlag || tempStorageFlag ){
@@ -2964,7 +2967,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
-    @Override
     public void distributeUnloadCarTask(TmsSealCar tmsSealCar) {
         //解封车消息报文
         //{"sealCarCode":"SC21051894360237","status":20,"operateUserCode":"zhengying34","operateUserName":"郑英","operateTime":"2021-05-18 11:26:50",
@@ -3637,8 +3639,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             String kyResult = kyexpressCheck(request,waybillCode);
             if(StringUtils.isNotBlank(kyResult)){
                 if(logger.isInfoEnabled()) {
-                    logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                            request.getBarCode(), privateNetworkFlag, tempStorageFlag, kyResult);
+                    logger.info("跨越kyexpressCheck-return-assemblyLineScan,waybillCode为:{}",waybillCode);
                 }
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyResult);
                 return dtoInvokeResult;
