@@ -1606,10 +1606,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.reverseSpareService.batchAddOrUpdate(reverseSpares);
                 }
             } catch (RuntimeException e) {
+                this.log.error("运单号=[{}]send_d_id=[{}]send_code[{}][spwms发货备件库失败]",
+                        waybillCode, sendDetail.getSendDId(),sendDetail.getSendCode(), e);
                 throw e;
             } catch (Exception ex) {
-                this.log.error("运单号=[{}]send_d_id=[{}][spwms发货备件库失败]",
-                        waybillCode, sendDetail.getSendDId(), ex);
+                this.log.error("运单号=[{}]send_d_id=[{}]send_code[{}][spwms发货备件库失败]",
+                        waybillCode, sendDetail.getSendDId(),sendDetail.getSendCode(), ex);
             }
         }
         return true;

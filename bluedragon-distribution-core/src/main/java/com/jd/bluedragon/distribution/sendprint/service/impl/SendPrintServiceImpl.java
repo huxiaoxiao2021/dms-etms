@@ -1693,7 +1693,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 包裹重量、包裹复重、包裹体积
         printHandoverListDto.setPackageWeight(deliveryPackage.getGoodWeight());
         printHandoverListDto.setPackageAgainWeight(deliveryPackage.getAgainWeight());
-        printHandoverListDto.setGoodVolume(NumberHelper.isBigDecimal(deliveryPackage.getGoodVolume()) ? Constants.DOUBLE_ZERO : Double.parseDouble(deliveryPackage.getGoodVolume()));
+        printHandoverListDto.setGoodVolume(!NumberHelper.isBigDecimal(deliveryPackage.getGoodVolume()) ? Constants.DOUBLE_ZERO : Double.parseDouble(deliveryPackage.getGoodVolume()));
     }
 
     /**
@@ -1713,7 +1713,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             log.warn("发货交接清单包裹查询剔除运单号:{}", waybillCode);
             return null;
         }
-        int waybillMaxPackNum = uccPropertyConfiguration.getWaybillMaxPackNum() == Constants.NUMBER_ZERO ? WAYBILL_PACK_MAX_NUM : uccPropertyConfiguration.getWaybillSplitPageSize();
+        int waybillMaxPackNum = uccPropertyConfiguration.getWaybillMaxPackNum() == Constants.NUMBER_ZERO ? WAYBILL_PACK_MAX_NUM : uccPropertyConfiguration.getWaybillMaxPackNum();
         int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == Constants.NUMBER_ZERO ? PACK_QUERY_SINGLE_LIMIT_SIZE : uccPropertyConfiguration.getWaybillSplitPageSize();
         int pageNo = Constants.CONSTANT_NUMBER_ONE;
         int count = Constants.CONSTANT_NUMBER_ONE;
