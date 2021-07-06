@@ -121,6 +121,7 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
      * 获取面单举报类型
      * @return
      */
+    @Override
     public Response<Map<Integer,String>> getAllExceptionReportType(){
         Response<Map<Integer,String>> response = new Response<>();
         JdCResponse<Map<Integer,String>>  jdCResponse = expressBillExceptionReportService.getAllExceptionReportType();
