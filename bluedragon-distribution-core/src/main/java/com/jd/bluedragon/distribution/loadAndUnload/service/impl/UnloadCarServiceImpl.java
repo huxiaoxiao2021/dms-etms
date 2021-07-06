@@ -721,7 +721,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if(logger.isInfoEnabled()) {
                         logger.info("跨越kyexpressCheck-return,waybillCode为:{}",waybillCode);
                     }
-                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, msg);
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,msg);
                     return dtoInvokeResult;
                 }
                 if(privateNetworkFlag || tempStorageFlag ){
