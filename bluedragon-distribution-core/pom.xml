@@ -1696,7 +1696,7 @@
             <snapshots />
             <id>jd-snapshots</id>
             <name>libs-snapshots</name>
-            <url>http://artifactory.jd.com/libs-snapshots-local</url>
+            <url>http://artifactory.jd.com/libs-snapshots</url>
         </repository>
     </repositories>
 
