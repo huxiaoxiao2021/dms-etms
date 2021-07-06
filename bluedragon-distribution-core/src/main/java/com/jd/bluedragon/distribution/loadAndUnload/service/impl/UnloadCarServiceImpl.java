@@ -651,6 +651,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         //判断是否是跨越的取消订单
         String kyCancelCheckStr = kyexpressCancelCheck(request);
         if(StringUtils.isNotBlank(kyCancelCheckStr)){
+            if(logger.isInfoEnabled()) {
+                logger.info("跨越kyexpressCancelCheck-return,request为:{}",JsonHelper.toJson(request));
+            }
             dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyCancelCheckStr);
             return dtoInvokeResult;
         }
@@ -715,6 +718,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 String kyResult = kyexpressCheck(request,waybillCode);
                 if(StringUtils.isNotBlank(kyResult)){
                     String msg = kyResult;
+                    if(logger.isInfoEnabled()) {
+                        logger.info("跨越kyexpressCheck-return,waybillCode为:{}",waybillCode);
+                    }
                     dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, msg);
                     return dtoInvokeResult;
                 }
@@ -3333,8 +3339,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             String kyResult = kyexpressCheck(request,waybillCode);
             if(StringUtils.isNotBlank(kyResult)){
                 if(logger.isInfoEnabled()) {
-                    logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
-                            request.getBarCode(), privateNetworkFlag, tempStorageFlag, kyResult);
+                    logger.info("跨越kyexpressCheck-return-assemblyLineScan,waybillCode为:{}",waybillCode);
                 }
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyResult);
                 return dtoInvokeResult;
