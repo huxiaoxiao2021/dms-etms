@@ -59,7 +59,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -158,15 +157,6 @@ public class SendPrintServiceImpl implements SendPrintService {
     private final static int THIRD_EXPORT_SUC_CODE = 201;
 
     private final static int BATCH_SUMMARY_QUERY_ES_CODE = 10000;
-
-    /**
-     * 包裹查询单次查询数量
-     */
-    private final static int PACK_QUERY_SINGLE_LIMIT_SIZE = 1000;
-    /**
-     * 运单包裹数量
-     */
-    private final static int WAYBILL_PACK_MAX_NUM = 20000;
 
     /**
      * 批次汇总&&批次汇总打印
@@ -1703,36 +1693,12 @@ public class SendPrintServiceImpl implements SendPrintService {
      * @return
      */
     private DeliveryPackageD getDeliveryPackageInfo(String packageCode) {
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        if(!WaybillUtil.isWaybillCode(waybillCode)){
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.queryPackageListForParcodes(Collections.singletonList(packageCode));
+        if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
+            log.warn("根据包裹号{}查询包裹明细为空!", packageCode);
             return null;
         }
-        // 剔除大运单开关防止影响外部系统
-        String eliminateWaybillCodes = uccPropertyConfiguration.getPrintHandoverPackQueryEliminateWaybillCodes();
-        if(StringUtils.isNotEmpty(eliminateWaybillCodes) && Arrays.asList(eliminateWaybillCodes.split(Constants.SEPARATOR_COMMA)).contains(waybillCode)){
-            log.warn("发货交接清单包裹查询剔除运单号:{}", waybillCode);
-            return null;
-        }
-        int waybillMaxPackNum = uccPropertyConfiguration.getWaybillMaxPackNum() == Constants.NUMBER_ZERO ? WAYBILL_PACK_MAX_NUM : uccPropertyConfiguration.getWaybillMaxPackNum();
-        int pageSize = uccPropertyConfiguration.getWaybillSplitPageSize() == Constants.NUMBER_ZERO ? PACK_QUERY_SINGLE_LIMIT_SIZE : uccPropertyConfiguration.getWaybillSplitPageSize();
-        int pageNo = Constants.CONSTANT_NUMBER_ONE;
-        int count = Constants.CONSTANT_NUMBER_ONE;
-        int queryCount = waybillMaxPackNum / pageSize + Constants.CONSTANT_NUMBER_ONE;
-        while (count < queryCount) {
-            BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
-            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())){
-                log.warn("根据运单号{}查询包裹数据为空!", waybillCode);
-                return null;
-            }
-            for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
-                if(Objects.equals(packageCode, deliveryPackageD.getPackageBarcode())){
-                    return deliveryPackageD;
-                }
-            }
-            pageNo ++;
-            count ++;
-        }
-        return null;
+        return baseEntity.getData().get(0);
     }
 
     /**

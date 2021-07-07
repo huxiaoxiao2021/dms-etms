@@ -127,7 +127,6 @@
         <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
-        <property name="printHandoverPackQueryEliminateWaybillCodes" value="${printHandoverPackQueryEliminateWaybillCodes:}" />
         <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
 
 	</bean>
@@ -226,7 +225,6 @@
                 <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
                 <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
-                <value>uccPropertyConfiguration.printHandoverPackQueryEliminateWaybillCodes</value>
                 <value>uccPropertyConfiguration.waybillMaxPackNum</value>
 
 			</list>
