@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -19,7 +20,6 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -37,7 +37,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.*;
@@ -124,25 +123,20 @@ public class PreSealVehicleController extends DmsBaseController{
         Integer createSiteCode = user.getSiteCode();
         try{
             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryBySiteCode(createSiteCode);
+            // 目的地对应的预封车数据
             Map<Integer, PreSealVehicle> preMap = convertMap(preSealVehicleList);
-            if(log.isDebugEnabled()){
-                log.debug("查询预封车信息为：{}", JsonHelper.toJson(preMap));
-            }
             if(preMap == null || preMap.isEmpty()){
                 rest.setData(new ArrayList<PreSealVehicle>());
-            }else{
-                List<SealVehicles> unSealSendCodes = new ArrayList<>();
-                for(Integer receiveSiteCode : preMap.keySet()){
-                	//设置选中的批次信息
-                	PreSealVehicle item = preMap.get(receiveSiteCode);
-                	item.setSelectedSendCodes(preSealBatchService.querySendCodesByUuids(item.getPreSealUuids()));
-                    List<SealVehicles> temp = getUnSealSendCodes(item,createSiteCode, receiveSiteCode, condition.getHourRange());
-                    if(temp != null && !temp.isEmpty()){
-                        unSealSendCodes.addAll(temp);
-                    }
-                }
-                rest.setData(buildPreSealVehicle(preMap, unSealSendCodes));
+                return rest;
             }
+            // 目的地对应的已验未发批次
+            Map<Integer, Set<String>> sendUnSealMap = getSendUnSealMap(createSiteCode, new ArrayList<Integer>(preMap.keySet()), condition.getHourRange());
+            if(sendUnSealMap.isEmpty()){
+                rest.setData(new ArrayList<PreSealVehicle>());
+                return rest;
+            }
+            // 构建最终预封车数据
+            rest.setData(buildSendUnSealSealVehicles(preMap, sendUnSealMap));
         }catch (Exception e){
             Profiler.functionError(info);
             log.error("查询预封车数据信息失败，查询条件：{}", JsonHelper.toJson(condition), e);
@@ -155,77 +149,48 @@ public class PreSealVehicleController extends DmsBaseController{
 	}
 
     /**
-     * 预封车数据list转Map
-     * @param preSealVehicleList
+     * 构建预封车数据
+     *  > 将 目的地存在已发未封的批次 添加到 对应的预封车数据中
+     *      > 已发未封的批次存在 需要封车（页面选中） 和 无需封车（页面不选中）
+     * @param preMap 目的地对应的预封车数据
+     * @param sendUnSealMap 目的地对应的已发未封批次
      * @return
      */
-	private Map<Integer, PreSealVehicle> convertMap(List<PreSealVehicle> preSealVehicleList){
-        Map<Integer, PreSealVehicle> preMap = null;
-        if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
-            preMap = new HashMap<>(preSealVehicleList.size());
-            //组装车牌信息
-            for(PreSealVehicle vo : preSealVehicleList){
-                //同一目的地，将车牌组装到车牌list中
-                if(preMap.containsKey(vo.getReceiveSiteCode())){
-                    PreSealVehicle temp = preMap.get(vo.getReceiveSiteCode());
-					temp.getPreSealUuids().add(vo.getPreSealUuid());
-                    temp.getVehicleNumbers().add(vo.getVehicleNumber());
-                    temp.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
-                    temp.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
-                    temp.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
-                }else{
-                	vo.setPreSealUuids(new ArrayList<String>());
-                    vo.getVehicleNumbers().add(vo.getVehicleNumber());
-                    vo.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
-                    vo.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
-                    vo.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
-                    vo.getPreSealUuids().add(vo.getPreSealUuid());
-                    preMap.put(vo.getReceiveSiteCode(), vo);
+    private List<PreSealVehicle> buildSendUnSealSealVehicles(Map<Integer, PreSealVehicle> preMap, Map<Integer, Set<String>> sendUnSealMap) {
+        List<PreSealVehicle> finalResult = new ArrayList<>();
+
+        for (Integer preReceiveSiteCode : preMap.keySet()) {
+
+            if(sendUnSealMap.containsKey(preReceiveSiteCode)){
+
+                Set<String> sendUnSealSendCodeList = sendUnSealMap.get(preReceiveSiteCode);
+                // 预封车无需封车批次
+                PreSealVehicle item = preMap.get(preReceiveSiteCode);
+                List<String> selectSendCodeList = preSealBatchService.querySendCodesByUuids(item.getPreSealUuids());
+                // 已发未封中无需封车批次
+                List<String> selectSendUnSealSendCodeList = CollectionHelper.retainAll(new ArrayList<String>(sendUnSealSendCodeList), selectSendCodeList);
+                // 预封车中需封车批次
+                List<SealVehicles> needSealList = item.getSendCodes();
+                for(String sendCode : sendUnSealSendCodeList){
+                    SealVehicles vo = new SealVehicles();
+                    vo.setSealDataCode(sendCode);
+                    vo.setReceiveSiteCode(preReceiveSiteCode);
+                    if(CollectionUtils.isNotEmpty(selectSendUnSealSendCodeList) && !selectSendUnSealSendCodeList.contains(sendCode)) {
+                        vo.setSelectedFalg(Boolean.FALSE);
+                    }else {
+                        vo.setSelectedFalg(Boolean.TRUE);
+                    }
+                    if(item.getVehicleNumbers().size() == Constants.CONSTANT_NUMBER_ONE){
+                        vo.setVehicleNumber(item.getVehicleNumbers().get(Constants.NUMBER_ZERO));
+                        vo.setSealCodes(item.getVehicleSealCodeMap().get(vo.getVehicleNumber()));
+                    }
+                    needSealList.add(vo);
                 }
             }
+            finalResult.add(preMap.get(preReceiveSiteCode));
         }
-        return preMap;
-    }
-
-    /**
-     * 组装未封车批次号到预封车集合中
-     * @param preMap
-     * @param unSealSendCodes
-     */
-	private List<PreSealVehicle> buildPreSealVehicle(Map<Integer, PreSealVehicle> preMap, List<SealVehicles> unSealSendCodes){
-
-        //组装批次信息
-        if(CollectionUtils.isNotEmpty(unSealSendCodes)){
-            for(SealVehicles unSealVehiclesWithSendCodeTemp : unSealSendCodes){
-                Integer receiveSiteCode = unSealVehiclesWithSendCodeTemp.getReceiveSiteCode();
-                if(preMap.containsKey(receiveSiteCode)){
-                    PreSealVehicle preSV = preMap.get(receiveSiteCode);
-                    List<SealVehicles> preSealVehiclesWithSendCodeList = preSV.getSendCodes();
-                    //批次去重
-                    boolean isSealed = false;
-                    for(SealVehicles sealVehicleTemp : preSealVehiclesWithSendCodeList){
-                        if(sealVehicleTemp.getSealDataCode().equals(unSealVehiclesWithSendCodeTemp.getSealDataCode())){
-                            isSealed = true;
-                            break;
-                        }
-                    }
-                    if(!isSealed){
-                        //该目的地只有一个车牌号时默认设置为改车牌号
-                        List<String> vehicleNumbers = preSV.getVehicleNumbers();
-                        if(vehicleNumbers.size() == 1){
-                            unSealVehiclesWithSendCodeTemp.setVehicleNumber(vehicleNumbers.get(0));
-                            unSealVehiclesWithSendCodeTemp.setSealCodes(preSV.getVehicleSealCodeMap().get(unSealVehiclesWithSendCodeTemp.getVehicleNumber()));
-                        }
-                        preSealVehiclesWithSendCodeList.add(unSealVehiclesWithSendCodeTemp);
-                    }
-                }
-
-            }
-        }
-        List<PreSealVehicle> result = new ArrayList<>(preMap.size());
-        result.addAll(preMap.values());
         //按发车时间排序
-        Collections.sort(result, new Comparator<PreSealVehicle>() {
+        Collections.sort(finalResult, new Comparator<PreSealVehicle>() {
             @Override
             public int compare(PreSealVehicle dto1, PreSealVehicle dto2) {
                 String sendCarTime1 = dto1.getSendCarTime();
@@ -238,102 +203,81 @@ public class PreSealVehicleController extends DmsBaseController{
                 return hhmm1.compareTo(hhmm2);
             }
         });
-        return result;
+        return finalResult;
     }
 
     /**
-     * 查询未封车批次信息
+     * 获取已发未封批次
+     *  key：目的地 value：已验未发批次集合
+     *
      * @param createSiteCode
-     * @param receiveSiteCode
+     * @param receiveSiteCodes
      * @param hourRange
      * @return
      */
-    private List<SealVehicles> getUnSealSendCodes(PreSealVehicle preSealVehicle,Integer createSiteCode, Integer receiveSiteCode, Integer hourRange){
+    private Map<Integer, Set<String>> getSendUnSealMap(Integer createSiteCode, ArrayList<Integer> receiveSiteCodes, Integer hourRange) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
         Date startDate = calendar.getTime();
-
-        List<SealVehicles> allSendCodes = getAllSendCodes(createSiteCode, receiveSiteCode, startDate);
-        if(allSendCodes == null || allSendCodes.isEmpty()){
-            return allSendCodes;
+        List<List<Integer>> batch = Lists.partition(receiveSiteCodes, 100);
+        List<SendM> sendMList = new ArrayList<>();
+        for (List<Integer> singList : batch) {
+            sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate));
         }
-
-        Set<String> sendCodeSet = new HashSet<>(allSendCodes.size());
-        for(SealVehicles vo : allSendCodes){
-            sendCodeSet.add(vo.getSealDataCode());
-        }
-
-        List<String> sealedSendCodes = sealVehiclesService.findBySealDataCodes(sendCodeSet);
-        if(sealedSendCodes == null || sealedSendCodes.isEmpty()){
-            return allSendCodes;
-        }
-        List<String> selectedSendCodes = CollectionHelper.retainAll(sealedSendCodes, preSealVehicle.getSelectedSendCodes());
-        List<SealVehicles> result = new ArrayList<>();
-        for(SealVehicles vo : allSendCodes){
-            if(!sealedSendCodes.contains(vo.getSealDataCode())){
-            	//设置页面选中状态
-                if(CollectionUtils.isNotEmpty(selectedSendCodes) && !selectedSendCodes.contains(vo.getSealDataCode())) {
-                	vo.setSelectedFalg(Boolean.FALSE);
-                }else {
-                	vo.setSelectedFalg(Boolean.TRUE);
-                }
-                result.add(vo);
+        Map<Integer, Set<String>> sendUnSealMap = new HashMap<>(10);
+        for (SendM sendM : sendMList) {
+            if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(sendM.getSendCode())){
+                continue;
+            }
+            if(newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())){
+                continue;
+            }
+            if(sendUnSealMap.containsKey(sendM.getReceiveSiteCode())){
+                sendUnSealMap.get(sendM.getReceiveSiteCode()).add(sendM.getSendCode());
+            }else {
+                Set<String> sendCodeSet = new HashSet<>();
+                sendCodeSet.add(sendM.getSendCode());
+                sendUnSealMap.put(sendM.getReceiveSiteCode(), sendCodeSet);
             }
         }
-
-        return result;
+        return sendUnSealMap;
     }
 
     /**
-     * 查询全部的批次号
-     * @param createSiteCode
-     * @param date
+     * 预封车数据list转Map
+     * @param preSealVehicleList
      * @return
      */
-    @RequestMapping(value = "/getAllSendCodesStr")
-    @ResponseBody
-    public String getAllSendCodesStr(@RequestParam("createSiteCode") Integer createSiteCode,
-                                     @RequestParam("receiveSiteCode") Integer receiveSiteCode,
-                                     @RequestParam("date") String date){
-        List<SealVehicles> sealVehicles = getAllSendCodes( createSiteCode,  receiveSiteCode, DateHelper.parseDateTime(date));
-        return JsonHelper.toJson(sealVehicles);
-    }
-
-    private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
-        List<SealVehicles> result = null;
-
-        List<SealVehicles> sourceList= convertSealVehiclesBySendM(sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate),receiveSiteCode);
-        
-        if(sourceList != null && !sourceList.isEmpty()){
-            result = new ArrayList<>(sourceList.size());
-            for(SealVehicles itme : sourceList){
-                if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(itme.getSealDataCode())){
-                    continue;
+	private Map<Integer, PreSealVehicle> convertMap(List<PreSealVehicle> preSealVehicleList){
+        Map<Integer, PreSealVehicle> preMap = null;
+        if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
+            preMap = new HashMap<>(preSealVehicleList.size());
+            //组装车牌信息
+            StringBuilder sealCode = new StringBuilder();
+            for(PreSealVehicle vo : preSealVehicleList){
+                //同一目的地，将车牌组装到车牌list中
+                sealCode.append("车辆-").append(vo.getVehicleNumber()).append(Constants.SEPARATOR_COLON).append("封签-").append(vo.getSealCodes());
+                if(preMap.containsKey(vo.getReceiveSiteCode())){
+                    PreSealVehicle temp = preMap.get(vo.getReceiveSiteCode());
+					temp.getPreSealUuids().add(vo.getPreSealUuid());
+                    temp.getVehicleNumbers().add(vo.getVehicleNumber());
+                    temp.appendSealCodeStr(sealCode.toString());
+                    temp.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                    temp.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
+                }else{
+                	vo.setPreSealUuids(new ArrayList<String>());
+                    vo.getVehicleNumbers().add(vo.getVehicleNumber());
+                    vo.appendSealCodeStr(sealCode.toString());
+                    vo.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                    vo.getVehicleMeasureMap().put(vo.getVehicleNumber(), new VehicleMeasureInfo(vo.getVehicleNumber(), vo.getVolume(), vo.getWeight()));
+                    vo.getPreSealUuids().add(vo.getPreSealUuid());
+                    preMap.put(vo.getReceiveSiteCode(), vo);
                 }
-
-                if(newSealVehicleService.checkSendCodeIsSealed(itme.getSealDataCode())){
-                    continue;
-                }
-                result.add(itme);
+                sealCode.delete(Constants.NUMBER_ZERO, sealCode.length());
             }
         }
-        return result;
-    }
-
-    private List<SealVehicles> convertSealVehiclesBySendM(List<SendM> sendMList,Integer receiveSiteCode){
-        List<SealVehicles> result = null;
-        if(sendMList != null && !sendMList.isEmpty()){
-            result = new ArrayList<>();
-            for(SendM sendM : sendMList){
-                SealVehicles vehicles = new SealVehicles();
-                vehicles.setSealDataCode(sendM.getSendCode());
-                vehicles.setReceiveSiteCode(receiveSiteCode);
-                result.add(vehicles);
-            }
-        }
-
-        return result;
+        return preMap;
     }
 
     /**

@@ -141,9 +141,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         query.setCreateSiteCode(createSiteCode);
         query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
 
-        List<PreSealVehicle> preSealVehicleList = preSealVehicleDao.queryByCondition(query);
-
-        return preSealVehicleList;
+        return preSealVehicleDao.queryByCondition(query);
     }
 
     @Override

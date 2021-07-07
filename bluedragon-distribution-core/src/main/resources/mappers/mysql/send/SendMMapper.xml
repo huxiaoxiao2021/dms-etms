@@ -631,4 +631,17 @@
 
     </select>
 
+	<select id="batchSearchBySiteCodeAndStartTime" parameterType="map" resultMap="SendM">
+		select
+        	distinct send_code,receive_site_code
+		from  send_m
+		where yn = 1
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and receive_site_code in
+		<foreach collection="receiveSiteCodes" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=INTEGER}
+		</foreach>
+        and operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
+    </select>
+
 </mapper>
