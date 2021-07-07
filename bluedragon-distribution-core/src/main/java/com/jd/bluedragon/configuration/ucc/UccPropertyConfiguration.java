@@ -409,11 +409,6 @@ public class UccPropertyConfiguration {
      */
     private String offlinePdaMenuCode;
 
-    /**
-     * 发货交接清单-包裹查询剔除运单号集合
-     */
-    private String printHandoverPackQueryEliminateWaybillCodes;
-
     /***
      * 运单最大包裹数
      */
@@ -1169,14 +1164,6 @@ public class UccPropertyConfiguration {
 
     public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
         this.offlinePdaMenuCode = offlinePdaMenuCode;
-    }
-
-    public String getPrintHandoverPackQueryEliminateWaybillCodes() {
-        return printHandoverPackQueryEliminateWaybillCodes;
-    }
-
-    public void setPrintHandoverPackQueryEliminateWaybillCodes(String printHandoverPackQueryEliminateWaybillCodes) {
-        this.printHandoverPackQueryEliminateWaybillCodes = printHandoverPackQueryEliminateWaybillCodes;
     }
 
     public int getWaybillMaxPackNum() {
