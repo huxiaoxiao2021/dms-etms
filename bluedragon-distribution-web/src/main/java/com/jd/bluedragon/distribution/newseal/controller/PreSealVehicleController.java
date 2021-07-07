@@ -108,6 +108,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/queryPreSeals")
     public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
+        long startTime = System.currentTimeMillis();
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if( condition.getHourRange() == null){
             rest.setCode(JdResponse.CODE_FAIL);
@@ -150,6 +151,9 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setMessage("服务异常，查询预封车数据信息失败!");
         }finally {
             Profiler.registerInfoEnd(info);
+            if(log.isInfoEnabled()){
+                log.info("一键封车查询整体耗时:{}", System.currentTimeMillis() - startTime);
+            }
         }
 		return rest;
 	}
@@ -160,6 +164,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @return
      */
 	private Map<Integer, PreSealVehicle> convertMap(List<PreSealVehicle> preSealVehicleList){
+        long startTime = System.currentTimeMillis();
         Map<Integer, PreSealVehicle> preMap = null;
         if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
             preMap = new HashMap<>(preSealVehicleList.size());
@@ -186,6 +191,9 @@ public class PreSealVehicleController extends DmsBaseController{
                 }
                 sealCode.delete(Constants.NUMBER_ZERO, sealCode.length());
             }
+        }
+        if(log.isInfoEnabled()){
+            log.info("一键封车查询-预封车数据转换为MAP耗时:{}", System.currentTimeMillis() - startTime);
         }
         return preMap;
     }
