@@ -253,12 +253,11 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         // 同一运输计划编号加锁，解决并发问题
         String keyTemplate = KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING;
         String key = String.format(keyTemplate, transPlanCode);
-        boolean isExistHandling = redisClientCache.exists(key);
-        if(isExistHandling){
+        boolean isExistHandling = redisClientCache.set(key, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS, false);
+        if (!isExistHandling) {
             throw new RuntimeException("获取或生成批次失败，操作太快，正在处理中");
         }
         try{
-            redisClientCache.setEx(key, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS);
             ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
             if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
                 return coldChainSend.getSendCode();
