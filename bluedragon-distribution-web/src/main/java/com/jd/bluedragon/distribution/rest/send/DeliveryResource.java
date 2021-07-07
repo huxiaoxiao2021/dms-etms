@@ -195,6 +195,7 @@ public class DeliveryResource {
             // 校验批次号
             InvokeResult<Boolean> chkResult = sendCodeService.validateSendCodeEffective(request.getSendCode());
             if (!chkResult.codeSuccess()) {
+                result.customMessage(chkResult.getCode(), chkResult.getMessage());
                 return result;
             }
 
