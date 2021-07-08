@@ -31,4 +31,15 @@ public interface SendMManager {
      */
     List<SendM> findSendMByBoxCode(SendM sendM);
 
+    /**
+     * <ul>
+     *     <li>批量保存sendM</li>
+     *     <li>箱号状态置为关闭</li>
+     * </ul>
+     *
+     * @param sendMList
+     * @return
+     */
+    int batchSaveSendM(List<SendM> sendMList);
+
 }

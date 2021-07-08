@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.manager.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.external.constants.BoxStatusEnum;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ public class SendMManagerImpl implements SendMManager {
 
     @Autowired
     private BoxService boxService;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.add", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -82,5 +87,29 @@ public class SendMManagerImpl implements SendMManager {
         boxService.updateBoxStatus(boxReq);
     }
 
+    /**
+     * <ul>
+     * <li>批量保存sendM</li>
+     * <li>箱号状态置为关闭</li>
+     * </ul>
+     *
+     * @param sendMList
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.SendMManagerImpl.batchSaveSendM", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public int batchSaveSendM(List<SendM> sendMList) {
+        int insertDbRows = uccConfig.getInsertDbRowsOneTime();
+        List<List<SendM>> splitList = CollectionHelper.splitList(sendMList, insertDbRows);
+        for (List<SendM> subList : splitList) {
 
+            sendMDao.addBatch(subList);
+
+            for (SendM sendM : subList) {
+                updateBoxStatus(sendM);
+            }
+        }
+
+        return sendMList.size();
+    }
 }

@@ -1,8 +1,10 @@
 package com.jd.bluedragon.utils;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +94,26 @@ public class CollectionHelper<E> {
     	}
     	return result;
     }
-    
+
+    /**
+     * 拆分集合
+     *
+     * @param source
+     * @param splitNum
+     * @param <E>
+     * @return
+     */
+    public static <E> List<List<E>> splitList(List<E> source, int splitNum) {
+        if (CollectionUtils.isEmpty(source)) {
+            return Collections.emptyList();
+        }
+        if (splitNum <= 0) {
+            return Collections.emptyList();
+        }
+
+        return Lists.partition(source, splitNum);
+    }
+
     public static void main(String[] args) {
         List<SendM> list = new ArrayList<>();
         SendM sendM = new SendM();
