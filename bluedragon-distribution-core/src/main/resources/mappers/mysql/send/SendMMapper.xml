@@ -639,9 +639,9 @@
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and receive_site_code in
 		<foreach collection="receiveSiteCodes" item="item" index="index" open="(" separator="," close=")">
-			#{item,jdbcType=VARCHAR}
+			#{item,jdbcType=INTEGER}
 		</foreach>
-        AND operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
+        and operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
     </select>
 
 </mapper>

@@ -245,7 +245,9 @@ public class PreSealVehicleController extends DmsBaseController{
             if(sendUnSealMap.containsKey(sendM.getReceiveSiteCode())){
                 sendUnSealMap.get(sendM.getReceiveSiteCode()).add(sendM.getSendCode());
             }else {
-                sendUnSealMap.put(sendM.getReceiveSiteCode(), new HashSet<String>());
+                Set<String> sendCodeSet = new HashSet<>();
+                sendCodeSet.add(sendM.getSendCode());
+                sendUnSealMap.put(sendM.getReceiveSiteCode(), sendCodeSet);
             }
         }
         if(log.isInfoEnabled()){
