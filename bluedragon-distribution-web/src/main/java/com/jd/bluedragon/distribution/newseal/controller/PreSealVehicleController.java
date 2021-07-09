@@ -132,10 +132,6 @@ public class PreSealVehicleController extends DmsBaseController{
             }
             // 目的地对应的已验未发批次
             Map<Integer, Set<String>> sendUnSealMap = getSendUnSealMap(createSiteCode, new ArrayList<Integer>(preMap.keySet()), condition.getHourRange());
-            if(sendUnSealMap.isEmpty()){
-                rest.setData(new ArrayList<PreSealVehicle>());
-                return rest;
-            }
             // 构建最终预封车数据
             rest.setData(buildSendUnSealSealVehicles(preMap, sendUnSealMap));
         }catch (Exception e){
