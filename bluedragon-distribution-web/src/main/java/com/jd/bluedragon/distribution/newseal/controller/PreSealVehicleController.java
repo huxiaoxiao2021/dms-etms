@@ -161,6 +161,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @return
      */
     private List<PreSealVehicle> buildSendUnSealSealVehicles(Map<Integer, PreSealVehicle> preMap, Map<Integer, Set<String>> sendUnSealMap) {
+        long startTime = System.currentTimeMillis();
         List<PreSealVehicle> finalResult = new ArrayList<>();
 
         for (Integer preReceiveSiteCode : preMap.keySet()) {
@@ -207,6 +208,9 @@ public class PreSealVehicleController extends DmsBaseController{
                 return hhmm1.compareTo(hhmm2);
             }
         });
+        if(log.isInfoEnabled()){
+            log.info("一键封车构建预封车数据耗时:{}", System.currentTimeMillis() - startTime);
+        }
         return finalResult;
     }
 
@@ -220,6 +224,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @return
      */
     private Map<Integer, Set<String>> getSendUnSealMap(Integer createSiteCode, ArrayList<Integer> receiveSiteCodes, Integer hourRange) {
+        long startTime = System.currentTimeMillis();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
@@ -242,6 +247,9 @@ public class PreSealVehicleController extends DmsBaseController{
             }else {
                 sendUnSealMap.put(sendM.getReceiveSiteCode(), new HashSet<String>());
             }
+        }
+        if(log.isInfoEnabled()){
+            log.info("一键封车查询已发未封批次耗时:{}", System.currentTimeMillis() - startTime);
         }
         return sendUnSealMap;
     }
