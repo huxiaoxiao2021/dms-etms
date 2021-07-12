@@ -118,15 +118,16 @@ public class SendMManagerImpl implements SendMManager {
 
         int insertDbRows = uccConfig.getInsertDbRowsOneTime();
         List<List<SendM>> splitList = CollectionHelper.splitList(sendMList, insertDbRows);
+        int affectedRows = 0;
         for (List<SendM> subList : splitList) {
 
-            sendMDao.addBatch(subList);
+            affectedRows += sendMDao.addBatch(subList);
 
             for (SendM sendM : subList) {
                 updateBoxStatus(sendM);
             }
         }
 
-        return sendMList.size();
+        return affectedRows;
     }
 }

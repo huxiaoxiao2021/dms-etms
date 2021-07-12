@@ -1939,9 +1939,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendDatailDao.updateCancel(sendDetail);
     }
 
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.deliveryService.saveOrUpdateBatch", mState = {JProEnum.TP,
-            JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public void saveOrUpdateBatch(List<SendDetail> sdList) {
+        CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.saveOrUpdateBatch");
         List<SendDetail>[] sendArray = splitList(sdList);
         List<String> result = new ArrayList<String>();
 
@@ -1978,6 +1977,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             request.setReceiveSiteCode(receiveSiteCode);
             sendDatailDao.updateCancelBatch(request);
         }
+        Profiler.registerInfoEnd(umpMonitor);
     }
 
     @Override
