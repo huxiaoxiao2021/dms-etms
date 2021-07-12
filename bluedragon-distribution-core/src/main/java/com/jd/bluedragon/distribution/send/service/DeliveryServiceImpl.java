@@ -1330,11 +1330,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             // 启用西藏业务模式，西藏模式去掉自动取消上次发货逻辑
             boolean tibetMode = tibetBizService.tibetModeSwitch(domain.getCreateSiteCode(), domain.getReceiveSiteCode());
-            if (tibetMode) {
-                isSkipMultiSendVerify = true;
-            }
 
-            if (!isSkipMultiSendVerify) {
+            if (!tibetMode && !isSkipMultiSendVerify) {
                 // 多次发货取消上次发货校验
                 if (!multiSendVerification(domain, result)) {
                     return result;
