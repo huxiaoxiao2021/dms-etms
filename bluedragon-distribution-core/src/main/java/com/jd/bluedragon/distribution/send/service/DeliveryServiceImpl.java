@@ -737,9 +737,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             String sendCode = coldChainSendService.getOrGenerateSendCode(request0.getTransPlanCode(), request0.getSiteCode(), request0.getReceiveSiteCode());
             // 批次号封车校验，已封车不能发货
-            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendCode, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
-            if (StringUtils.isNotBlank(chkMsg)) {
-                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, chkMsg);
+            StringBuffer customMsg = new StringBuffer().append("该运输计划编码对应批次已经封车，请更换其他运输计划编码");
+            if (checkSealCar && newSealVehicleService.newCheckSendCodeSealed(sendCode, customMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, customMsg.toString());
             }
             request0.setSendCode(sendCode);
 
@@ -1313,9 +1313,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         // 校验发货批次号状态
-        String chkMsg = newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-        if (StringUtils.isNotBlank(chkMsg)) {
-            result.init(SendResult.CODE_SENDED, chkMsg);
+        StringBuffer customMsg = new StringBuffer().append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
+            result.init(SendResult.CODE_SENDED, customMsg.toString());
             return result;
         }
 
@@ -1591,9 +1591,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
             }
             //2.判断批次号是否已经封车
-            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-            if (StringUtils.isNotBlank(chkMsg)) {
-                return new SendResult(SendResult.CODE_SENDED, chkMsg);
+            StringBuffer customMsg = new StringBuffer().append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
+                return new SendResult(SendResult.CODE_SENDED, customMsg.toString());
             }
             //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
             if(sendMDao.checkSendByBoard(domain)){
@@ -2338,9 +2338,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 批次号封车校验，已封车不能发货
         if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source) && !SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND.equals(source)
                 && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)) {
-            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendMList.get(0).getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-            if (StringUtils.isNotBlank(chkMsg)) {
-                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, chkMsg);
+
+            StringBuffer customMsg = new StringBuffer().append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (newSealVehicleService.newCheckSendCodeSealed(sendMList.get(0).getSendCode(), customMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, customMsg.toString());
             }
         }
 
@@ -3220,7 +3221,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (tibetMode) {
                 ItmsCancelSendCheckSendCodeDto request = new ItmsCancelSendCheckSendCodeDto();
                 request.setReceiptCode(batchCode);
-                request.setOpeSiteId(createSite + "");
+                request.setOpeSiteId(String.valueOf(createSite));
                 ItmsResponse response = tibetBizService.cancelSendCheckSendCode(request);
 
                 if (log.isInfoEnabled()) {
@@ -4699,10 +4700,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode())) {
-            String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-            if (StringUtils.isNotBlank(chkMsg)) {
+            StringBuffer customMsg = new StringBuffer().append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
                 response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
-                response.setMessage(chkMsg);
+                response.setMessage(customMsg.toString());
                 return response;
             }
         }

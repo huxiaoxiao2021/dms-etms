@@ -22,10 +22,8 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -513,10 +511,10 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             return result;
         }
 
-        String chkMsg = newSealVehicleService.newCheckSendCodeSealed(sendCode, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
-        if (StringUtils.isNotBlank(chkMsg)) {
+        StringBuffer customMsg = new StringBuffer().append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        if (newSealVehicleService.newCheckSendCodeSealed(sendCode, customMsg)) {
             result.setData(Boolean.FALSE);
-            result.setMessage(chkMsg);
+            result.setMessage(customMsg.toString());
         }
 
         return result;

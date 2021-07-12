@@ -15,7 +15,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,9 +51,9 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         InvokeResult result = new InvokeResult();
         //批次是否封车校验
-        String chkMsg = newSealVehicleService.newCheckSendCodeSealed(request.getNewSendCode(), "新批次号已操作封车，请换批次！");
-        if (StringUtils.isNotBlank(chkMsg)) {
-            result.customMessage(SendResult.CODE_SENDED, chkMsg);
+        StringBuffer customMsg = new StringBuffer().append("新批次号已操作封车，请换批次！");
+        if (newSealVehicleService.newCheckSendCodeSealed(request.getNewSendCode(), customMsg)) {
+            result.customMessage(SendResult.CODE_SENDED, customMsg.toString());
             return result;
         }
         //插入批次转发的任务

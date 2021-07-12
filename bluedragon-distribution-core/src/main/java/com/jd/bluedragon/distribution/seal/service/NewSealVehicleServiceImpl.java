@@ -48,6 +48,7 @@ import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.logistics.customer.center.service.CustomerToolService;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
@@ -838,11 +839,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * <b>包含西藏模式逻辑，调用ITMS系统判断批次号状态</b>
      *
      * @param sendCode 批次号
-     * @param customMessage 自定义的批次已封车提示语
-     * @return 根据是否返回Message判断，有返回值代表校验失败
+     * @param customMessage 自定义的提示语
+     * @return 返回true不拦截，返回false需要拦截
      */
     @Override
-    public String newCheckSendCodeSealed(String sendCode, String customMessage) {
+    public boolean newCheckSendCodeSealed(String sendCode, StringBuffer customMessage) {
         Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         // 启用西藏业务模式
@@ -852,8 +853,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
             // 此处可以使用批次号解析始发分拣中心，基于发货前校验了批次始发场地和操作人所属场地的一致性
             // @see com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl#checkSendM()
-            request.setFromLocationId(createSiteCode + "");
-            request.setToLocationId(receiveSiteCode + "");
+            request.setFromLocationId(String.valueOf(createSiteCode));
+            request.setToLocationId(String.valueOf(receiveSiteCode));
             request.setReceiptCode(sendCode);
 
             ItmsResponse response = tibetBizService.sendCheckSendCode(request);
@@ -861,16 +862,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 log.info("西藏模式调用ITMS系统校验批次状态. request:{}, response:{}", JsonHelper.toJson(request), JsonHelper.toJson(response));
             }
             if (!response.success()) {
-                return response.getMessage();
+                if (StringUtils.isNotBlank(response.getMessage())) {
+                    if (customMessage != null && customMessage.length() > 0) {
+                        customMessage.setLength(0);
+                        customMessage.append(response.getMessage());
+                    }
+                }
+                return true;
             }
         }
         else {
             if (checkSendCodeIsSealed(sendCode)) {
-                return StringUtils.isNotBlank(customMessage) ? customMessage : DeliveryResponse.MESSAGE_SEND_CODE_ERROR;
+                if (customMessage != null && customMessage.length() > 0) {
+                    customMessage.setLength(0);
+                    customMessage.append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+                }
+                return true;
             }
         }
 
-        return null;
+        return false;
     }
 
     /**
