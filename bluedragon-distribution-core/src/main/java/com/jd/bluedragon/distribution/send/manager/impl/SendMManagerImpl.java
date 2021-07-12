@@ -10,12 +10,12 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
 import java.util.List;
 
 
@@ -24,6 +24,11 @@ import java.util.List;
  */
 @Component
 public class SendMManagerImpl implements SendMManager {
+
+    private static final String DB_TABLE_NAME = "send_m";
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
     @Autowired
     private SendMDao sendMDao;
@@ -37,6 +42,8 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.add", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Integer add(String namespace, SendM sendM) {
+        // 生成主键ID
+        sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         Integer result = sendMDao.add(namespace, sendM);
         if (result > 0) {
             //关闭箱
@@ -48,6 +55,8 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.insertSendM", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean insertSendM(SendM sendM) {
+        // 生成主键ID
+        sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         boolean result = sendMDao.insertSendM(sendM);
         if (result) {
             //关闭箱
@@ -89,9 +98,11 @@ public class SendMManagerImpl implements SendMManager {
 
     /**
      * <ul>
-     * <li>批量保存sendM</li>
-     * <li>箱号状态置为关闭</li>
+     *     <li>批量保存sendM</li>
+     *     <li>箱号状态置为关闭</li>
      * </ul>
+     *
+     * <p>需要手动生成主键ID</p>
      *
      * @param sendMList
      * @return
@@ -99,6 +110,12 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.batchSaveSendM", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public int batchSaveSendM(List<SendM> sendMList) {
+
+        // 生成主键ID
+        for (SendM sendM : sendMList) {
+            sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+        }
+
         int insertDbRows = uccConfig.getInsertDbRowsOneTime();
         List<List<SendM>> splitList = CollectionHelper.splitList(sendMList, insertDbRows);
         for (List<SendM> subList : splitList) {

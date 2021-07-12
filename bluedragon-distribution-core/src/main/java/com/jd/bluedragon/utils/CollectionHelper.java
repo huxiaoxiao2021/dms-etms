@@ -2,9 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
