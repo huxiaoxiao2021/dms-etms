@@ -157,7 +157,6 @@ public class PreSealVehicleController extends DmsBaseController{
      * @return
      */
     private List<PreSealVehicle> buildSendUnSealSealVehicles(Map<Integer, PreSealVehicle> preMap, Map<Integer, Set<String>> sendUnSealMap) {
-        long startTime = System.currentTimeMillis();
         List<PreSealVehicle> finalResult = new ArrayList<>();
 
         for (Integer preReceiveSiteCode : preMap.keySet()) {
@@ -204,15 +203,15 @@ public class PreSealVehicleController extends DmsBaseController{
                 return hhmm1.compareTo(hhmm2);
             }
         });
-        if(log.isInfoEnabled()){
-            log.info("一键封车构建预封车数据耗时:{}", System.currentTimeMillis() - startTime);
-        }
         return finalResult;
     }
 
     /**
      * 获取已发未封批次
      *  key：目的地 value：已验未发批次集合
+     *  校验两次是否封车：因封车后未成功写入redis
+     *      1、查redis
+     *      2、查封车表seal_vehicles
      *
      * @param createSiteCode
      * @param receiveSiteCodes
@@ -230,12 +229,20 @@ public class PreSealVehicleController extends DmsBaseController{
         for (List<Integer> singList : batch) {
             sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate));
         }
+        Set<String> allSendCodeList = new HashSet<>();
+        for (SendM sendM : sendMList) {
+            allSendCodeList.add(sendM.getSendCode());
+        }
+        List<String> sealedSendCodeList = sealVehiclesService.findBySealDataCodes(allSendCodeList);
         Map<Integer, Set<String>> sendUnSealMap = new HashMap<>(10);
         for (SendM sendM : sendMList) {
             if(!newSealVehicleService.checkBatchCodeIsSendPreSealVehicle(sendM.getSendCode())){
                 continue;
             }
             if(newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())){
+                continue;
+            }
+            if(sealedSendCodeList.contains(sendM.getSendCode())){
                 continue;
             }
             if(sendUnSealMap.containsKey(sendM.getReceiveSiteCode())){
