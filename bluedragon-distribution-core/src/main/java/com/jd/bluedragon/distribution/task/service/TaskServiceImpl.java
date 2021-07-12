@@ -98,6 +98,7 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private AsynBufferDemotionUtil asynBufferDemotionUtil;
 
+	@JProfiler(jKey = "DMS.WEB.TaskServiceImpl.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public TaskResponse add(TaskRequest request) {
 		//加入监控，开始
 		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
