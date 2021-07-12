@@ -66,9 +66,9 @@ public class BusinessUtil {
     }
   /**
    * 是否为新批次号
-   * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
+   * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（yyyyMMddHH 10位数字）+序号（6位数字）+模7余数
    * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
-   * 必须是17位（时间14位+序号2位+模7余数1位）
+   * 必须是17位（时间10位+序号6位+模7余数1位）
    * @param input
    * @return
    */
@@ -1076,7 +1076,7 @@ public class BusinessUtil {
     }
 
     /**
-     * 是否到付
+     * 是否到付现结
      */
     public static boolean isDF(String waybillSign) {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_25,WaybillSignConstants.CHAR_25_2);
@@ -1406,7 +1406,8 @@ public class BusinessUtil {
      */
     public static boolean isPrepaid(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
-                WaybillSignConstants.CHAR_25_1);
+                WaybillSignConstants.CHAR_25_1)||isSignChar(waybillSign, WaybillSignConstants.POSITION_25,
+                WaybillSignConstants.CHAR_25_3) ;
     }
     /**
      * 是否是特惠送

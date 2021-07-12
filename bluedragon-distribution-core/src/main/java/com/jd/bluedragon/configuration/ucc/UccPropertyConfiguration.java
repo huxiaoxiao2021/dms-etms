@@ -341,6 +341,10 @@ public class UccPropertyConfiguration {
      * 发货交接清单-汇总scrollId最大次数限制
      */
     private int printScrollQueryCountLimit;
+    /**
+     * 审批开关
+     */
+    private boolean approvalSwitch;
 
     /**
      * 验货集包袋依赖降级， true时不依赖集包袋服务
@@ -393,6 +397,22 @@ public class UccPropertyConfiguration {
      * 隐藏特殊始发场地替换字符，形如 **
      */
     private String hideSpecialStartSitePrintReplaceSymbol;
+
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
+    /**
+     * pda待下线||已下线菜单编码
+     *  以,隔开
+     */
+    private String offlinePdaMenuCode;
+
+    /***
+     * 运单最大包裹数
+     */
+    private int waybillMaxPackNum;
 
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
@@ -1107,6 +1127,38 @@ public class UccPropertyConfiguration {
 
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
+    }
+
+    public boolean getApprovalSwitch() {
+        return approvalSwitch;
+    }
+
+    public void setApprovalSwitch(boolean approvalSwitch) {
+        this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getOfflinePdaMenuCode() {
+        return offlinePdaMenuCode;
+    }
+
+    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
+        this.offlinePdaMenuCode = offlinePdaMenuCode;
+    }
+
+    public int getWaybillMaxPackNum() {
+        return waybillMaxPackNum;
+    }
+
+    public void setWaybillMaxPackNum(int waybillMaxPackNum) {
+        this.waybillMaxPackNum = waybillMaxPackNum;
     }
 
     /**

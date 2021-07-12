@@ -696,11 +696,26 @@
                   alias="${jsf.printHandoverList.alias}"
                   timeout="${jsf.printHandoverList.timeout}">
     </jsf:consumer>
+    <jsf:consumer id="wmsPackRecordJsfService"
+                  interface="com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService"
+                  alias="${jsf.dmsWbReport.alias}"
+                  timeout="${jsf.dmsWbReport.timeout}">
+    </jsf:consumer>
 
     <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
                   alias="${jsf.flowService.alias}">
         <jsf:parameter key="appKey" value="${flow.appkey}" hide="true"/>
         <jsf:parameter key="appSecret" value="${flow.appSecret}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- OMS 订单修改服务 -->
+    <jsf:consumer id="modifyExpressOrderService"
+                  interface="cn.jdl.oms.api.ModifyExpressOrderService"
+                  alias="${jsf.ModifyExpressOrderService.alias}"
+                  timeout="${jsf.ModifyExpressOrderService.timeout}"
+                  protocol="jsf"
+                  serialization="hessian">
+        <jsf:parameter key="token" hide="true" value="${jsf.ModifyExpressOrderService.token}"/>
     </jsf:consumer>
 
 

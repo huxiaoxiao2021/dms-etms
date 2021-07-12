@@ -517,4 +517,9 @@
         <property name="topic" value="${jmq.topic.box.status.change.log}"/>
     </bean>
 
+    <!-- 面单异常举报 -->
+    <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
+    </bean>
+
 </beans>

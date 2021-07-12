@@ -104,6 +104,7 @@
 		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
 		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
 		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
+		<property name="approvalSwitch" value="${approvalSwitch:false}"/>
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
@@ -120,6 +121,10 @@
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
+        <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
+        <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
+
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -195,6 +200,7 @@
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.scrollQuerySize</value>
 				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
+				<value>uccPropertyConfiguration.approvalSwitch</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
@@ -209,6 +215,10 @@
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>
+                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
+                <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
+                <value>uccPropertyConfiguration.waybillMaxPackNum</value>
+
 			</list>
 		</property>
 	</bean>
