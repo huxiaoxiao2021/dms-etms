@@ -120,6 +120,7 @@ public class TibetBizServiceImpl implements TibetBizService {
         response.setCode(ItmsResponse.CODE_SUCCESS);
         try {
             sendDetailDto.setPartnerNo(partnerNo);
+            // 接口文档 https://cf.jd.com/pages/viewpage.action?pageId=511901234 # acceptDeliveryInfo
             response = downSendDataManager.doRestInterface(sendDetailDto);
         }
         catch (Exception ex) {
@@ -142,6 +143,7 @@ public class TibetBizServiceImpl implements TibetBizService {
         response.setCode(ItmsResponse.CODE_SUCCESS);
         try {
             cancelSendDto.setPartnerNo(partnerNo);
+            // 接口文档 https://cf.jd.com/pages/viewpage.action?pageId=512328797 # cancelDelivery
             response = downCancelSendDataManager.doRestInterface(cancelSendDto);
         }
         catch (Exception ex) {
@@ -163,6 +165,7 @@ public class TibetBizServiceImpl implements TibetBizService {
         response.setCode(ItmsResponse.CODE_SUCCESS);
         try {
             checkSendCodeDto.setPartnerNo(partnerNo);
+            // 接口文档 https://cf.jd.com/pages/viewpage.action?pageId=511901234 # checkCanSend
             response = sendCheckSendCodeManager.doRestInterface(checkSendCodeDto);
         }
         catch (Exception ex) {
@@ -184,6 +187,7 @@ public class TibetBizServiceImpl implements TibetBizService {
         response.setCode(ItmsResponse.CODE_SUCCESS);
         try {
             checkSendCodeDto.setPartnerNo(partnerNo);
+            // 接口文档 https://cf.jd.com/pages/viewpage.action?pageId=512328797 # checkCanCancel
             response = cancelSendCheckSendCodeManager.doRestInterface(checkSendCodeDto);
         }
         catch (Exception ex) {
