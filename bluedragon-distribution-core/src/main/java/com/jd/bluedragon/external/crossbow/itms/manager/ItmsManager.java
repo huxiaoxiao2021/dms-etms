@@ -1,10 +1,9 @@
 package com.jd.bluedragon.external.crossbow.itms.manager;
 
 import com.jd.bluedragon.external.crossbow.AbstractCrossbowManager;
-import com.jd.bluedragon.external.crossbow.itms.domain.ItmsRequest;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
-import org.apache.commons.codec.digest.DigestUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,6 +36,7 @@ public class ItmsManager extends AbstractCrossbowManager<Object, ItmsResponse> {
      */
     @Override
     protected Object getMyRequestBody(Object condition) {
-        return condition;
+        // ITMS网关层要求body为数组结构
+        return Collections.singletonList(condition);
     }
 }
