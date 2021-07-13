@@ -125,7 +125,7 @@ public class TaskServiceImpl implements TaskService {
 
 		//加入监控结束
 		Profiler.registerInfoEnd(info);
-
+		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add2", false, true);
 		for (Object element : array) {
 			if (Task.TASK_TYPE_REVERSE_SPWARE.equals(request.getType())) {
 				Map<String, Object> reverseSpareMap = (Map<String, Object>) element;
@@ -203,7 +203,7 @@ public class TaskServiceImpl implements TaskService {
 				this.taskAssemblingAndSave(request, eachJson);
 			}
 		}
-
+		Profiler.registerInfoEnd(info2);
 		return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
 				DateHelper.formatDateTime(new Date()));
 	}
