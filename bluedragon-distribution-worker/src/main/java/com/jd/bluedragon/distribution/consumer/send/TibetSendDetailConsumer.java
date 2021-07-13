@@ -74,6 +74,7 @@ public class TibetSendDetailConsumer extends MessageBaseConsumer {
         catch (Exception ex) {
             Profiler.functionError(umpMonitor);
             log.error("TibetSendDetailConsumer消费失败. message:{}", message.getBusinessId(), ex);
+            throw ex;
         }
         finally {
             Profiler.registerInfoEnd(umpMonitor);
