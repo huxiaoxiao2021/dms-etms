@@ -679,6 +679,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 组装抽检数据
             WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, spotCheckSourceEnum, result);
+            // 是否超标
+            result.setData(Objects.equals(weightVolumeCollectDto.getIsExcess(),IsExcessEnum.EXCESS_ENUM_YES.getCode()));
 
             if (saveData) {
                 // 抽检数据落es
