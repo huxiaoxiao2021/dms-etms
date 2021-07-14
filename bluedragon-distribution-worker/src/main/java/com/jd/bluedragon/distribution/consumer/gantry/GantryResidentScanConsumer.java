@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.consumer.gantry;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.gantry.domain.GantryResidentDto;
-import com.jd.bluedragon.distribution.gantry.exception.GantryResidentException;
 import com.jd.bluedragon.distribution.gantry.service.GantryResidentScanService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -41,8 +40,6 @@ public class GantryResidentScanConsumer extends MessageBaseConsumer {
             }
             // 龙门架驻厂扫描逻辑处理
             gantryResidentScanService.dealLogic(gantryResidentDto);
-        }catch (GantryResidentException e){
-            throw new GantryResidentException(e.getMessage());
         }catch (Exception e){
             logger.error("龙门架驻厂扫描处理异常!", e);
         }

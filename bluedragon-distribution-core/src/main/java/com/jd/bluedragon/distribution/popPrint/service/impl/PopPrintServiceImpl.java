@@ -37,9 +37,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -259,8 +256,9 @@ public class PopPrintServiceImpl implements PopPrintService {
                         Date operatorTime=new Date(System.currentTimeMillis()-30000L);
                         //操作站点类型符合 是站点
                         if (popPrintRequest.isSendPickup()){
-                            toTask(popPrintRequest, WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",operatorTime);
-                            toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",operatorTime);
+                            toTask(popPrintRequest, WaybillStatus.WAYBILL_TRACK_UP_DELIVERY, Constants.TRACE_PACK_RECEIVE, operatorTime);
+                            toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,
+                                    String.format(Constants.TRACE_DELIVERY_COLLECT, popPrintRequest.getOperatorName()), operatorTime);
                             //驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
                             Map<String,Object> msgBody= Maps.newHashMap();
                             msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
@@ -345,7 +343,8 @@ public class PopPrintServiceImpl implements PopPrintService {
         }
     }
 
-    private void toTask(PopPrintRequest req,Integer operateType,String remark,Date date){
+    @Override
+    public void toTask(PopPrintRequest req,Integer operateType,String remark,Date date){
         WaybillStatus waybillStatus = new WaybillStatus();
         waybillStatus.setPackageCode(req.getPackageBarcode());
         waybillStatus.setWaybillCode(req.getWaybillCode());
