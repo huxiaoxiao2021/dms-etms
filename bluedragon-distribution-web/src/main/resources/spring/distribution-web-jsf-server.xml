@@ -316,6 +316,24 @@
                   ref="coldChainExternalService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 包裹或箱号验货服务 -->
+    <bean id="inspectionService" class="com.jd.bluedragon.distribution.inspection.service.impl.InspectionServiceImpl" />
+    <jsf:provider id="inspectionJsfServiceProvider"
+                  interface="com.jd.bluedragon.distribution.inspection.service.InspectionJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="inspectionService"
+                  server="dmsjsf">
+
+    </jsf:provider>
+
+    <!-- 包裹或箱号验货服务 -->
+    <jsf:provider id="deliveryJsfServiceProvider"
+                  interface="com.jd.bluedragon.distribution.send.service.DeliveryJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="deliveryService"
+                  server="dmsjsf">
+
+    </jsf:provider>
 
     <!-- 清场库存盘点对外jsf -->
     <jsf:provider id="jsfStockInventoryService"

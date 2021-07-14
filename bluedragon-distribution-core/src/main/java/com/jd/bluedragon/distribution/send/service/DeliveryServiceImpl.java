@@ -159,7 +159,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
 
 @Service("deliveryService")
-public class DeliveryServiceImpl implements DeliveryService {
+public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     private final Logger log = LoggerFactory.getLogger(DeliveryServiceImpl.class);
 
@@ -5896,6 +5896,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         }finally{
             Profiler.registerInfoEnd(info);
         }
+    }
+
+    @Override
+    public InvokeResult<Boolean> checkIsSend(String barcode, Integer createSiteCode) {
+        InvokeResult result = new InvokeResult();
+
+        SendM sendM = getRecentSendMByParam(barcode, createSiteCode, null, null);
+        result.setData(sendM != null);
+        return result;
     }
 
     /**
