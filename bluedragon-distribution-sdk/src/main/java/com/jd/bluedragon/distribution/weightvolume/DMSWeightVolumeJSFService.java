@@ -30,4 +30,11 @@ public interface DMSWeightVolumeJSFService {
      */
     InvokeResult<Boolean> checkAndDealWeightVolume(WeightVolumeJSFEntity entity);
 
+    /**
+     * 自动化 称重抽检结果校验
+     * @param entity 称重数据
+     * @return   InvokeResult.data = true 表示 不超标, false表示超标
+     */
+    InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeJSFEntity entity);
+
 }

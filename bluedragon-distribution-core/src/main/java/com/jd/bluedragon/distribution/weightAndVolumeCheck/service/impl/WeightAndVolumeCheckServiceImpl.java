@@ -649,6 +649,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     @Override
     public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+        return dealSportCheck(packWeightVO, spotCheckSourceEnum, result, true);
+    }
+    /**
+     * 抽检数据处理
+     * @param saveData 是否 保存抽检记录并发送全流程跟踪
+     */
+    @Override
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result,Boolean saveData) {
+        if (saveData == null) {
+            saveData = true;
+        }
+
         try{
             // 基础参数校验
             if(!paramCheck(packWeightVO, result)){
@@ -667,12 +679,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 组装抽检数据
             WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, spotCheckSourceEnum, result);
-            // 抽检数据落es
-            reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
-            // 抽检全程跟踪
-            sendWaybillTrace(weightVolumeCollectDto);
-            // 缓存抽检记录
-            cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
+
+            if (saveData) {
+                // 抽检数据落es
+                reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+                // 抽检全程跟踪
+                sendWaybillTrace(weightVolumeCollectDto);
+                // 缓存抽检记录
+                cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
+            }
         }catch (Exception e){
             log.error("单号{}的抽检数据处理异常!", packWeightVO.getCodeStr(), e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);

@@ -107,15 +107,8 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
-        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
-        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
-            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
-            InvokeResult<Boolean> result
-                    = weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS,new InvokeResult<Boolean>());
-            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
-                logger.warn("包裹【{}】自动化体积重量抽检失败：{}",packWeightVO.getCodeStr(),result.getMessage());
-            }
-        }
+        // 自动化 抽检
+        automaticDealSportCheck(entity, true);
 
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
@@ -165,6 +158,22 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         } catch (RuntimeException | JMQException e) {
             logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
         }
+    }
+
+    public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeEntity entity,Boolean saveData) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+
+        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            result = weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS, result, saveData);
+            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
+                logger.warn("包裹【{}】自动化体积重量抽检失败：{}",packWeightVO.getCodeStr(),result.getMessage());
+            }
+        }else {
+            result.setMessage("不满足：自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重");
+        }
+        return result;
     }
 
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
