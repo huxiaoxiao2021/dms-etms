@@ -31,7 +31,6 @@
                 cen_confirm=confirmId:confirm_id,
                 inspection=inspectionId:inspection_id,
                 send_d=sendDId:send_d_id,
-                send_m=sendMId:send_m_id,
                 sorting=id:sorting_id,
                 dms_out_weight_volume=id:id,
                 business_code=id:id

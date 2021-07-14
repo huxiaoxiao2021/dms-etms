@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ import java.util.List;
 @Component
 public class SendMManagerImpl implements SendMManager {
 
+    private static final String DB_TABLE_NAME = "send_m";
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
+
     @Autowired
     private SendMDao sendMDao;
 
@@ -32,6 +38,8 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.add", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Integer add(String namespace, SendM sendM) {
+        // 生成主键ID
+        sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         Integer result = sendMDao.add(namespace, sendM);
         if (result > 0) {
             //关闭箱
@@ -43,6 +51,8 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     @JProfiler(jKey = "DMSWEB.SendMManagerImpl.insertSendM", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean insertSendM(SendM sendM) {
+        // 生成主键ID
+        sendM.setSendMId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         boolean result = sendMDao.insertSendM(sendM);
         if (result) {
             //关闭箱
