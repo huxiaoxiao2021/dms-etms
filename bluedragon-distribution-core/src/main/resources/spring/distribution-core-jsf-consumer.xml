@@ -181,7 +181,8 @@
     <!-- 基础资料系统接口 结束 -->
 
     <jsf:consumer id="invoiceJsfService" interface="com.jd.invoice.service.jsf.PrintTableJsfService" protocol="jsf"
-                  alias="${fms.invoice.alias}" timeout="${fms.invoice.timeout}" retries="${jsf.retries}" check="false"/>
+                  alias="${fms.invoice.alias}" timeout="${fms.invoice.timeout}" retries="${jsf.retries}" check="false" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <!--     监控JSF接口   -->
     <jsf:consumer id="monitorJsfService" interface="com.jd.etms.monitor.jsf.VosScanCodeDifferenceQuery" protocol="jsf"
@@ -462,9 +463,6 @@
                   alias="${icenter.jsf.alias}" timeout="${icenter.jsf.timeout}" retries="0" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-
-
-
     <jsf:consumer id="commonUseMenuApi" interface="com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi" protocol="jsf"
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -496,7 +494,8 @@
 
 
     <jsf:consumer id="ecpQueryWS" interface="com.jd.tms.ecp.ws.EcpQueryWS" serialization="hessian" protocol="jsf" alias="${tms.ecp.jsf.alias}"
-                  timeout="${tms.ecp.jsf.timeout}" retries="1"/>
+                  timeout="${tms.ecp.jsf.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <jsf:consumer id="jdwlSignServiceJsf" interface="com.jdwl.bcoi.entry.api.service.JdwlService"
                   protocol="jsf" alias="${jsf.jdwlSignService.alias}" timeout="${jsf.jdwlSignService.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -538,8 +537,8 @@
     </jsf:consumer>
 
     <jsf:consumer id="ecpAirWS" interface="com.jd.tms.ecp.ws.EcpAirWS" protocol="jsf" alias="${tms.ecp.jsf.alias}" timeout="${tms.ecp.jsf.timeout}"
-                  retries="1" serialization="hessian" />
-
+                  retries="1" serialization="hessian" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <jsf:consumer id="quoteCustomerApiService" interface="com.jd.etms.quote.api.QuoteCustomerApi"
                   alias="${jsf.quoteCustomerApi.alias}" timeout="3000" protocol="jsf" serialization="hessian" lazy="${jsf.consumer.lazy}">
