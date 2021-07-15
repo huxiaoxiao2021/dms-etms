@@ -6,9 +6,11 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,5 +121,17 @@ public class SendDetailServiceImpl implements SendDetailService {
         //查询存在
         return sendDatailDao.querySendBySiteCodeAndSendCode(queryDetail) != null;
 
+    }
+    @Override
+    public SendDetail queryOneSendDatailBySendM(SendDetail querySendDatail){
+        if(querySendDatail.getCreateSiteCode() == null
+                && StringUtils.isBlank(querySendDatail.getBoxCode())
+                && StringUtils.isBlank(querySendDatail.getSendCode())
+                && StringUtils.isBlank(querySendDatail.getPackageBarcode())
+                && StringUtils.isBlank(querySendDatail.getBoardCode())){
+            log.warn("queryOneSendDatailBySendM查询参数非法，querySendDatail:" + JsonHelper.toJson(querySendDatail));
+            return null;
+        }
+        return sendDatailDao.queryOneSendDatailBySendM(querySendDatail);
     }
 }
