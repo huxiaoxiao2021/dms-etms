@@ -172,15 +172,17 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         if (logger.isInfoEnabled()) {
             logger.info("自动化称重抽检-handler参数:{}", JSON.toJSON(entity));
         }
+        InvokeResult<Boolean> result = new InvokeResult<>();
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
             PackWeightVO packWeightVO = convertToPackWeightVO(entity);
-            return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS, new InvokeResult<Boolean>(), false);
+            return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS, result, false);
         }
         if (logger.isInfoEnabled()) {
             logger.info("自动化称重抽检-handler-不满足自动化抽检条件-参数:{}", JSON.toJSON(entity));
         }
-        return new InvokeResult<>();
+        result.setMessage("首次称重不进行抽检!");
+        return result;
     }
 
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
