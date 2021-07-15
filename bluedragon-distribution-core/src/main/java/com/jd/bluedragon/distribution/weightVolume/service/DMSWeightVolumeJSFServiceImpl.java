@@ -97,12 +97,12 @@ public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService 
     }
 
     @Override
-    public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeJSFEntity entity) {
+    public InvokeResult<Boolean> automaticWeightCheckExcess(WeightVolumeJSFEntity entity) {
         WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
         BeanUtils.copyProperties(entity, weightVolumeEntity);
 
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> invokeResult =
-                packageWeightVolumeHandler.automaticDealSportCheck(weightVolumeEntity, false);
+                packageWeightVolumeHandler.automaticDealSportCheck(weightVolumeEntity);
 
         InvokeResult<Boolean> result = new InvokeResult<>();
         BeanUtils.copyProperties(invokeResult, result);
