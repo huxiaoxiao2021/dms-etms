@@ -517,6 +517,11 @@
     <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.box.status.change.log}"/>
     </bean>
+    <!--跨箱号中转修改发MQ-->
+    <bean id="crossBoxSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.crossbox.change}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 
     <!-- 面单异常举报 -->
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
