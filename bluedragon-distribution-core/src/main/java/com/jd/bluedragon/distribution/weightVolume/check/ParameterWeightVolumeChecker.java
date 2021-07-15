@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.check;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.IHintApiService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -9,6 +11,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +25,9 @@ import org.springframework.stereotype.Service;
 public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
 
     private static final Logger logger = LoggerFactory.getLogger(ParameterWeightVolumeChecker.class);
+
+    @Autowired
+    private IHintApiService hintApiService;
 
     public ParameterWeightVolumeChecker() {
         WeightVolumeChecker.register(this);
@@ -107,7 +113,7 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                 && !NumberHelper.gt0(entity.getLength())
                 && !NumberHelper.gt0(entity.getWidth())
                 && !NumberHelper.gt0(entity.getVolume())) {
-            result.parameterError("未上传有效的称重量方数据");
+            result.parameterError(hintApiService.getPrintClientHintReverseDefault(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA));
             result.setData(Boolean.FALSE);
             return result;
         }

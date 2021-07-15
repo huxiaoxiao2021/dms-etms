@@ -1623,6 +1623,12 @@
             <version>1.0.5-SNAPSHOT</version>
         </dependency>
 
+        <!-- 提示语系统 -->
+        <dependency>
+            <artifactId>dms-component-sdk</artifactId>
+            <groupId>com.jd.dms.comp</groupId>
+        </dependency>
+
 
     </dependencies>
 

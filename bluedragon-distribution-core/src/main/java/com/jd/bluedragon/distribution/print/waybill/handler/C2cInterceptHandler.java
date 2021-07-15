@@ -3,11 +3,14 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.IHintApiService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
@@ -37,6 +40,10 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private IHintApiService hintApiService;
+
     /**
      * 需要校验运单是否已经妥投的类型
      */
@@ -120,7 +127,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             }
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
             if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
-                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, hintApiService.getPrintClientHintReverseDefault(HintCodeConstants.REPRINT_REPEAT, new ParamsMapUtil().put("barCode", context.getRequest().getBarCode())));
                 return interceptResult;
             }
             if(CollectionUtils.isNotEmpty(collectCompleteResult)){

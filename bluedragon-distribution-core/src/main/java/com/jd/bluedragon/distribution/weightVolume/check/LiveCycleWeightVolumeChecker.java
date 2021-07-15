@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.weightVolume.check;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.base.BoxOperateApiManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.hint.service.IHintApiService;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.service.DmsBoxQueryService;
@@ -12,6 +15,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillServi
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -48,6 +52,9 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
 
     @Autowired
     private DmsBoxQueryService dmsBoxQueryService;
+
+    @Autowired
+    private IHintApiService hintApiService;
 
 
     public LiveCycleWeightVolumeChecker() {
@@ -148,7 +155,7 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         //经济网的逻辑
         Response<Boolean> isEconomicNetBox = dmsBoxQueryService.isEconomicNetBox(entity.getBarCode());
         if (null == isEconomicNetBox || Response.CODE_SUCCESS != isEconomicNetBox.getCode()){
-            result.error(MessageFormat.format(InvokeResult.RESULT_NO_BOX_MESSAGE, entity.getBarCode()));
+            result.error(HintService.getPrintClientHintReverseDefault(HintCodeConstants.WEIGHT_AND_VOLUME_BOX_NOT_EXIST, new ParamsMapUtil().put("barCode", entity.getBarCode())));
             result.setData(Boolean.FALSE);
             return result;
         }
