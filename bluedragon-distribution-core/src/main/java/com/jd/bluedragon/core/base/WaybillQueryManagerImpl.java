@@ -114,7 +114,38 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     @Override
     public BaseEntity<BigWaybillDto> getDataByChoiceNoCache(String waybillCode, WChoice wChoice) {
-        return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+        //拆分运单接口监控
+        StringBuilder profilerKey = new StringBuilder("DMS.BASE.waybillQueryApi.getDataByChoice");
+        if(wChoice!=null){
+            profilerKey.append(wChoice.getQueryWaybillC() != null && wChoice.getQueryWaybillC()?"-C":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillE() != null && wChoice.getQueryWaybillE()?"-E":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillM() != null && wChoice.getQueryWaybillM()?"-M":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryPackList() != null && wChoice.getQueryPackList()?"-Pl":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryGoodList() != null && wChoice.getQueryGoodList()?"-Gl":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryPickupTask() != null && wChoice.getQueryPickupTask()?"-Pu":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryQByNewCode() != null && wChoice.getQueryQByNewCode()?"-Qn":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryServiceBillPay() != null && wChoice.getQueryServiceBillPay()?"-Sb":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillExtend() != null && wChoice.getQueryWaybillExtend()?"-Ex":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillFinance() != null && wChoice.getQueryWaybillFinance()?"-F":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillP() != null && wChoice.getQueryWaybillP()?"-P":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillS() != null && wChoice.getQueryWaybillS()?"-S":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillT() != null && wChoice.getQueryWaybillT()?"-T":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryCoupon() != null && wChoice.getQueryCoupon()?"-Cp":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillCost() != null && wChoice.getQueryWaybillCost()?"-Co":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillVas() != null && wChoice.getQueryWaybillVas()?"-V":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryGoodsWithVas() != null && wChoice.getQueryGoodsWithVas()?"-Wv":StringUtils.EMPTY);
+            profilerKey.append(wChoice.getQueryWaybillBs() != null && wChoice.getQueryWaybillBs()?"-Bs":StringUtils.EMPTY);
+        }
+        CallerInfo info = Profiler.registerInfo(profilerKey.toString(), Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+
+        }
     }
 
     @Override
@@ -122,33 +153,47 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice wChoice) {
         Boolean isQueryPackList = wChoice.getQueryPackList();
         Boolean isQueryWaybillC = wChoice.getQueryWaybillC();
+
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getDataByChoiceNoPackList", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        if(wChoice.getQueryPackList() != null && wChoice.getQueryPackList()){
+            //包裹独立设置KEY
+            info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getDataByChoiceWithPackList", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        }
         this.updateWChoiceSetting(wChoice);
+        try{
+            BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
+            if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
 
-        BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
-        if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
-
-            if(baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getGoodNumber() != null){
-                busiWaringUtil.bigWaybillWarning(waybillCode,baseEntity.getData().getWaybill().getGoodNumber());
-            }
-            // 只有接口查询包裹信息并且waybill对象不为空时，进行缓存查询
-            if (isQueryPackList != null && isQueryPackList) {
-                // 是否需要从缓存获取包裹信息
-                if (this.isNeedGetFromCache(baseEntity.getData().getWaybill())) {
-                    boolean isDone = setPackageListFromCache(waybillCode, isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
-                    if(isDone){
-                        return baseEntity;
+                if(baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getGoodNumber() != null){
+                    busiWaringUtil.bigWaybillWarning(waybillCode,baseEntity.getData().getWaybill().getGoodNumber());
+                }
+                // 只有接口查询包裹信息并且waybill对象不为空时，进行缓存查询
+                if (isQueryPackList != null && isQueryPackList) {
+                    // 是否需要从缓存获取包裹信息
+                    if (this.isNeedGetFromCache(baseEntity.getData().getWaybill())) {
+                        boolean isDone = setPackageListFromCache(waybillCode, isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
+                        if(isDone){
+                            return baseEntity;
+                        }
+                    }
+                    // 根据运单号获取包裹信息
+                    BaseEntity<List<DeliveryPackageD>> packListBaseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
+                    if (packListBaseEntity.getResultCode() == 1) {
+                        baseEntity.getData().setPackageList(packListBaseEntity.getData());
                     }
                 }
-                // 根据运单号获取包裹信息
-                BaseEntity<List<DeliveryPackageD>> packListBaseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
-                if (packListBaseEntity.getResultCode() == 1) {
-                    baseEntity.getData().setPackageList(packListBaseEntity.getData());
-                }
             }
+            // 回滚wChoice查询配置及返回的数据信息
+            this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
+            return baseEntity;
+        }catch (Exception e){
+            log.error("getDataByChoice error! waybillCode{}",waybillCode,e);
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
-        // 回滚wChoice查询配置及返回的数据信息
-        this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
-        return baseEntity;
+
     }
 
     /**
