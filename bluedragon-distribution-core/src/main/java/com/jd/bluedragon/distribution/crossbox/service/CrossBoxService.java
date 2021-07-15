@@ -50,4 +50,8 @@ public interface CrossBoxService {
     public CrossBoxResult<CrossBox> getCrossDmsBoxByOriAndDes(Integer originalDmsId, Integer destinationDmsId);
 
     void export(CrossBoxRequest crossBoxRequest, BufferedWriter bfw);
+
+    void updateSiteName(Integer siteCode, String siteName);
+
+    String getFullLine(CrossBox crossBox);
 }

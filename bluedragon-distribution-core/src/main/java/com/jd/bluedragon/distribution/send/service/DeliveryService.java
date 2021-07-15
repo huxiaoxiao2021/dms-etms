@@ -346,6 +346,13 @@ public interface DeliveryService {
     boolean transitSend(SendM tSendM);
 
     /**
+     * 批量插入中转任务
+     * @param sendMList
+     * @return
+     */
+    boolean batchTransitSend(List<SendM> sendMList);
+
+    /**
      * 判断是当前发货是否为中转发货
      *
      * @param domain 发货对象
