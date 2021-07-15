@@ -25,6 +25,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.fastjson.JSON;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -168,10 +169,16 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     }
 
     public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeEntity entity) {
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler参数:{}", JSON.toJSON(entity));
+        }
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
             PackWeightVO packWeightVO = convertToPackWeightVO(entity);
             return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS, new InvokeResult<Boolean>(), false);
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler-不满足自动化抽检条件-参数:{}", JSON.toJSON(entity));
         }
         return new InvokeResult<>();
     }
