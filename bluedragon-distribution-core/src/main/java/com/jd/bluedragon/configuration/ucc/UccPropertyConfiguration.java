@@ -461,6 +461,19 @@ public class UccPropertyConfiguration {
      */
     private String packRePrintInterceptStatus;
 
+    /**
+     * 单次插入数据库的条数
+     */
+    private int insertDbRowsOneTime;
+
+    public int getInsertDbRowsOneTime() {
+        return insertDbRowsOneTime;
+    }
+
+    public void setInsertDbRowsOneTime(int insertDbRowsOneTime) {
+        this.insertDbRowsOneTime = insertDbRowsOneTime;
+    }
+
     public boolean getBackDispatchCheck() {
         return backDispatchCheck;
     }

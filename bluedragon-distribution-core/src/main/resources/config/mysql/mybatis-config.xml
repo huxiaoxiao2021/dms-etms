@@ -24,6 +24,7 @@
     </typeAliases>
 
     <plugins>
+        <!-- 2021.07.12 SendM自增主键改为手动生成 -->
         <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
             <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
             <property name="interceptTableSettings" value="
