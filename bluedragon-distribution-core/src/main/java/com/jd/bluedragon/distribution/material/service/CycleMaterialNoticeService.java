@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 
+import java.util.List;
+
 /**
  * @ClassName CycleMaterialNoticeService
  * @Description
@@ -13,7 +15,7 @@ import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 public interface CycleMaterialNoticeService {
 
     /**
-     *
+     * 发送发货物资消息
      * @param relationMQ
      * @return
      */
@@ -25,5 +27,12 @@ public interface CycleMaterialNoticeService {
      * @return
      */
     JdResult<Boolean> sendSortingMaterialMessage(BoxMaterialRelationMQ relationMQ);
+
+    /**
+     * 批量发送发货物资消息
+     * @param list
+     * @return
+     */
+    JdResult<Boolean> batchSendDeliveryMessage(List<BoxMaterialRelationMQ> list);
 
 }
