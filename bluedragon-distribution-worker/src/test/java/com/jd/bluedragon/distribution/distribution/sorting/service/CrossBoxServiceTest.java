@@ -23,6 +23,6 @@ public class CrossBoxServiceTest {
 
     @Test
     public void updateSiteName()throws Exception{
-        crossBoxService.updateSiteName(1632742,"深圳梅林营业部14","xxx");
+        crossBoxService.updateSiteName(1632742,"深圳梅林营业部14");
     }
 }
