@@ -47,10 +47,16 @@ public class HintApiManagerImpl implements IHintApiManager {
     @Override
     @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(HintReq req){
-        req.setSource(dmsSourceCode);
-        ApiResult<HintResp> hintResult = hintApi.getHint(req);
-        if(!hintResult.checkSuccess()){
-            log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
+        ApiResult<HintResp> hintResult = new ApiResult<>();
+        try {
+            req.setSource(dmsSourceCode);
+            hintResult = hintApi.getHint(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;
     }
@@ -63,14 +69,20 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHintByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(String hintCode) {
-        HintReq req = new HintReq();
-        req.setSource(dmsSourceCode);
-        req.setHintCode(hintCode);
-        ApiResult<HintResp> hintResult = hintApi.getHint(req);
-        if(!hintResult.checkSuccess()){
-            log.error("HintApiManagerImpl.getHintByCode fail {}", JsonHelper.toJson(hintResult));
+        ApiResult<HintResp> hintResult = new ApiResult<>();
+        try {
+            HintReq req = new HintReq();
+            req.setSource(dmsSourceCode);
+            req.setHintCode(hintCode);
+            hintResult = hintApi.getHint(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;
     }
@@ -84,15 +96,21 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHintByCodeAndAndParamsMap", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(String hintCode, Map<String, String> paramsMap) {
-        HintReq req = new HintReq();
-        req.setSource(dmsSourceCode);
-        req.setHintCode(hintCode);
-        req.setParamsMap(paramsMap);
-        ApiResult<HintResp> hintResult = hintApi.getHint(req);
-        if(!hintResult.checkSuccess()){
-            log.error("HintApiManagerImpl.getHintByCodeAndAndParamsMap fail {}", JsonHelper.toJson(hintResult));
+        ApiResult<HintResp> hintResult = new ApiResult<>();
+        try {
+            HintReq req = new HintReq();
+            req.setSource(dmsSourceCode);
+            req.setHintCode(hintCode);
+            req.setParamsMap(paramsMap);
+            hintResult = hintApi.getHint(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;
     }
@@ -105,14 +123,20 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHintByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHint", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getPrintClientHint(String hintCode) {
-        HintReq req = new HintReq();
-        req.setSource(printClientSourceCode);
-        req.setHintCode(hintCode);
-        ApiResult<HintResp> hintResult = hintApi.getHint(req);
-        if(!hintResult.checkSuccess()){
-            log.error("HintApiManagerImpl.getPrintClientHintByCode fail {}", JsonHelper.toJson(hintResult));
+        ApiResult<HintResp> hintResult = new ApiResult<>();
+        try {
+            HintReq req = new HintReq();
+            req.setSource(printClientSourceCode);
+            req.setHintCode(hintCode);
+            hintResult = hintApi.getHint(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getPrintClientHint fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getPrintClientHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;
     }
@@ -126,15 +150,21 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHintByCodeAndParamsMap", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHint", mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getPrintClientHint(String hintCode, Map<String, String> paramsMap) {
-        HintReq req = new HintReq();
-        req.setSource(printClientSourceCode);
-        req.setHintCode(hintCode);
-        req.setParamsMap(paramsMap);
-        ApiResult<HintResp> hintResult = hintApi.getHint(req);
-        if(!hintResult.checkSuccess()){
-            log.error("HintApiManagerImpl.getPrintClientHintByCodeAndParamsMap fail {}", JsonHelper.toJson(hintResult));
+        ApiResult<HintResp> hintResult = new ApiResult<>();
+        try {
+            HintReq req = new HintReq();
+            req.setSource(printClientSourceCode);
+            req.setHintCode(hintCode);
+            req.setParamsMap(paramsMap);
+            hintResult = hintApi.getHint(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getPrintClientHint fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getPrintClientHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;
     }
