@@ -119,6 +119,7 @@
         <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
 		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
+        <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
         <property name="spotCheckIssueControlPre" value="${spotCheckIssueControl:false}"></property>
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
@@ -218,6 +219,7 @@
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControlPre</value>
+				<value>uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>

@@ -150,7 +150,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     }
 
     /**
-     * 一键传摆封车
+     * 离线传摆封车
      * @param body
      * @return
      */

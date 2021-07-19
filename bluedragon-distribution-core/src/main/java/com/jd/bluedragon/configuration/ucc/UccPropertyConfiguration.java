@@ -426,6 +426,12 @@ public class UccPropertyConfiguration {
     private String hideSpecialStartSitePrintReplaceSymbol;
 
     /**
+     * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
+     * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     */
+    private String siteEnableSendCodeEffectiveValidation;
+
+    /**
      * 取消鸡毛信切换OMS接口开关
      */
     private boolean cancelJimaoxinSwitchToOMS;
@@ -1224,6 +1230,23 @@ public class UccPropertyConfiguration {
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
     }
+
+    public String getSiteEnableSendCodeEffectiveValidation() {
+        return siteEnableSendCodeEffectiveValidation;
+    }
+
+    public void setSiteEnableSendCodeEffectiveValidation(String siteEnableSendCodeEffectiveValidation) {
+        this.siteEnableSendCodeEffectiveValidation = siteEnableSendCodeEffectiveValidation;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
+    }
+
     public boolean getApprovalSwitch() {
         return approvalSwitch;
     }
