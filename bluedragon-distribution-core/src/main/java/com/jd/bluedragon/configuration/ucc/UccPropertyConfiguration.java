@@ -1115,14 +1115,6 @@ public class UccPropertyConfiguration {
         this.printScrollQueryCountLimit = printScrollQueryCountLimit;
     }
 
-    public boolean isCancelJimaoxinSwitchToOMS() {
-        return cancelJimaoxinSwitchToOMS;
-    }
-
-    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
-        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
-    }
-
     public Integer getDazongPackageOperateMax() {
         return dazongPackageOperateMax;
     }
