@@ -57,7 +57,6 @@ import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.TransportResourceDto;
