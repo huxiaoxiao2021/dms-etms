@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.crossbox.service;
 
+import IceInternal.Ex;
+import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
@@ -14,11 +17,13 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.crossbox.dao.CrossBoxDao;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxExportDto;
+import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxMsg;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -27,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,10 +62,77 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
-
+    @Autowired
+    private BaseMajorManager baseSiteManager;
+    @Autowired
+    @Qualifier("crossBoxSendProducer")
+    private DefaultJMQProducer crossBoxSendProducer;
     @Override
     public int addCrossBox(CrossBox crossBox) {
+        getFullLine(crossBox);
         return crossBoxDao.addCrossBox(crossBox);
+    }
+
+    private String getDmsNameForLine(Integer dmsCode) {
+        StringBuffer sf = null;
+        if (dmsCode != null) {
+            sf = new StringBuffer();
+            BaseStaffSiteOrgDto result = baseSiteManager.getBaseSiteBySiteId(dmsCode);
+            if (result != null) {
+                if (StringUtils.isNotBlank(result.getDmsShortName())) {
+                    sf.append(result.getDmsShortName());
+                } else {
+                    sf.append(result.getSiteName());
+                }
+                sf.append("--");
+            }
+            return sf.toString();
+        } else {
+            return null;
+        }
+    }
+    @Override
+    public String getFullLine(CrossBox crossDmsBox) {
+        StringBuffer fullLineBuffer = new StringBuffer();
+        String originalDms = null;
+        String destinationDms = null;
+        String transfer1 = null;
+        String transfer2 = null;
+        String transfer3 = null;
+        if (crossDmsBox.getOriginalDmsId() != null) {
+            originalDms = getDmsNameForLine(crossDmsBox.getOriginalDmsId());
+        }
+        if (crossDmsBox.getDestinationDmsId() != null) {
+            destinationDms = getDmsNameForLine(crossDmsBox.getDestinationDmsId());
+        }
+        if (crossDmsBox.getTransferOneId() != null) {
+            transfer1 = getDmsNameForLine(crossDmsBox.getTransferOneId());
+        }
+        if (crossDmsBox.getTransferTwoId() != null) {
+            transfer2 = getDmsNameForLine(crossDmsBox.getTransferTwoId());
+        }
+        if (crossDmsBox.getTransferThreeId() != null) {
+            transfer3 = getDmsNameForLine(crossDmsBox.getTransferThreeId());
+        }
+        if (StringUtils.isNotBlank(originalDms)) {
+            fullLineBuffer.append(originalDms);
+        }
+        if (StringUtils.isNotBlank(transfer1)) {
+            fullLineBuffer.append(transfer1);
+        }
+        if (StringUtils.isNotBlank(transfer2)) {
+            fullLineBuffer.append(transfer2);
+        }
+        if (StringUtils.isNotBlank(transfer3)) {
+            fullLineBuffer.append(transfer3);
+        }
+        if (StringUtils.isNotBlank(destinationDms)) {
+            fullLineBuffer.append(destinationDms);
+        }
+        String temp = fullLineBuffer.toString();
+        String fullline = temp.substring(0, temp.length() - 2);
+        crossDmsBox.setFullLine(fullline);
+        return fullline;
     }
 
     @Override
@@ -131,7 +204,25 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     @Override
     public int updateCrossBoxByDms(CrossBox crossDmsBox) {
-        return crossBoxDao.updateCrossBoxByDms(crossDmsBox);
+        log.info(JsonHelper.toJson(crossDmsBox));
+        getFullLine(crossDmsBox);
+
+        Integer num = crossBoxDao.updateCrossBoxByDms(crossDmsBox);
+        try {
+            CrossBoxMsg crossBoxMsg = new CrossBoxMsg();
+            crossBoxMsg.setSiteCode(crossDmsBox.getDestinationDmsId());
+            crossBoxMsg.setTs(System.currentTimeMillis());
+            crossBoxSendProducer.send(crossDmsBox.getDestinationDmsId().toString(),JsonHelper.toJson(crossBoxMsg));
+        } catch (Exception e) {
+            log.error("更新箱号缓存出错:", e);
+        }
+        return num;
+    }
+
+    private int updateCrossBoxById(CrossBox crossDmsBox) {
+        getFullLine(crossDmsBox);
+        log.info(JsonHelper.toJson(crossDmsBox));
+        return crossBoxDao.updateCrossBoxById(crossDmsBox);
     }
 
     @Override
@@ -312,6 +403,67 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             exportConcurrencyLimitService.addBusinessLog(JsonHelper.toJson(crossBoxRequest), ExportConcurrencyLimitEnum.CROSS_BOX_REPORT.getName(),end-start,queryTotal);
         }catch (Exception e){
             log.error("跨箱号中转维护导出结果异常",e);
+        }
+    }
+
+    @Override
+    public void updateSiteName(Integer siteCode, String siteName) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.CrossBoxServiceImpl.updateSiteName", Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            int currentPage = 1;
+            int pageSize = 1000;
+            int count = crossBoxDao.countCrossBoxBySiteCode(siteCode);
+            if (count>0){
+                Pager page = new Pager<>(currentPage,pageSize);
+                page.setTotalSize(count);
+                int totalNo = page.getTotalNo();
+                HashSet<Integer> clearBoxSites = Sets.newHashSet();
+                log.info("分页修改数据，总页数："+page.getTotalNo());
+                while(page.getPageNo() <= totalNo){
+                    log.info("分页修改数据，页码："+page.getPageNo()+" ,参数["+page.getStartIndex()+","+page.getPageSize()+"]");
+                    updateSiteNameByPage(page,siteCode, siteName,clearBoxSites);
+                    page = new Pager<>(page.getPageNo()+1,pageSize);
+                }
+                for (Integer code:clearBoxSites){
+                    CrossBoxMsg crossBoxMsg = new CrossBoxMsg();
+                    crossBoxMsg.setSiteCode(code);
+                    crossBoxMsg.setTs(System.currentTimeMillis());
+                    crossBoxSendProducer.send(siteCode.toString(),JsonHelper.toJson(crossBoxMsg));
+                }
+            }
+        }catch (Exception ex){
+            log.error("执行updateSiteName失败,siteCode:"+siteCode+",siteName:"+siteName);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+
+    private void updateSiteNameByPage(Pager page,Integer siteCode, String siteName,HashSet<Integer> clearBoxSites) {
+        //更新站点名称
+        List<CrossBox> queryList = crossBoxDao.selectCrossBoxBySiteCode(page.getStartIndex(),page.getPageSize(),siteCode);
+        for (CrossBox crossBox : queryList) {
+            if (crossBox.getOriginalDmsId() != null && crossBox.getOriginalDmsId().intValue() == siteCode.intValue()) {
+                crossBox.setOriginalDmsName(siteName);
+            }
+
+            if (crossBox.getDestinationDmsId() != null && crossBox.getDestinationDmsId().intValue() == siteCode.intValue()) {
+                crossBox.setDestinationDmsName(siteName);
+            }
+
+            if (crossBox.getTransferOneId() != null && crossBox.getTransferOneId().intValue() == siteCode.intValue()) {
+                crossBox.setTransferOneName(siteName);
+            }
+
+            if (crossBox.getTransferTwoId() != null && crossBox.getTransferTwoId().intValue() == siteCode.intValue()) {
+                crossBox.setTransferTwoName(siteName);
+            }
+
+            if (crossBox.getTransferThreeId() != null && crossBox.getTransferThreeId().intValue() == siteCode.intValue()) {
+                crossBox.setTransferThreeName(siteName);
+            }
+            updateCrossBoxById(crossBox);
+            clearBoxSites.add(crossBox.getDestinationDmsId());
         }
     }
 

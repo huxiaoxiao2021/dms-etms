@@ -31,4 +31,17 @@ public interface SendMManager {
      */
     List<SendM> findSendMByBoxCode(SendM sendM);
 
+    /**
+     * <ul>
+     *     <li>批量保存sendM</li>
+     *     <li>箱号状态置为关闭</li>
+     * </ul>
+     *
+     * <p>需要手动生成主键ID</p>
+     *
+     * @param sendMList
+     * @return
+     */
+    int batchSaveSendM(List<SendM> sendMList);
+
 }

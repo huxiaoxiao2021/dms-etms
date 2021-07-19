@@ -1533,4 +1533,10 @@ public class Constants {
      * 快运使用的泡重比:6000
      */
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
+
+    /**
+     * 驻厂操作全程跟踪
+     */
+    public static final String TRACE_PACK_RECEIVE = "订单/包裹已接货";
+    public static final String TRACE_DELIVERY_COLLECT = "配送员%s揽收完成";
 }
