@@ -469,6 +469,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         checkResponse.setTipMessages(new ArrayList<String>());
         result.toSuccess();
         try {
+
+            // 验证批次号是否合法
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> sendChkResult = sendCodeService.validateSendCodeEffective(deliveryRequest.getSendCode());
+            if (!sendChkResult.codeSuccess()) {
+                result.toFail(sendChkResult.getMessage());
+                return result;
+            }
+
             //不是快运发货，调用箱号验证
             if(!KY_DELIVERY.equals(deliveryRequest.getOpType())){
                 DeliveryResponse boxCheckResponse = this.doCheckDeliveryInfo(deliveryRequest.getBoxCode(),
