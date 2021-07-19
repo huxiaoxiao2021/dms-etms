@@ -514,11 +514,20 @@
     <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.box.status.change.log}"/>
     </bean>
+    <!--  封车批次号状态变更记录 -->
+    <bean id="batchSendStatusChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.batch.send.status.change}"/>
+    </bean>
 
 
     <!-- 面单异常举报 -->
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
+	</bean>
+    <!--跨箱号中转修改发MQ-->
+    <bean id="crossBoxSendProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.crossbox.change}"/>
+        <property name="timeout" value="1000"/>
     </bean>
     <!--跨箱号中转修改发MQ-->
     <bean id="crossBoxSendProducer" parent="dmsWebDefaultJMQProducer">
