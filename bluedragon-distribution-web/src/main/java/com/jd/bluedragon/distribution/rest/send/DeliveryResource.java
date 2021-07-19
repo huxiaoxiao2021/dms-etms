@@ -514,58 +514,64 @@ public class DeliveryResource {
         if(log.isDebugEnabled()){
             this.log.debug("开始写入发货信息:{}" , JsonHelper.toJson(request));
         }
-        if (check(request)) {
-            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
-                    JdResponse.MESSAGE_PARAM_ERROR);
-        }
-        DeliveryResponse tDeliveryResponse = null;
+        try{
+            if (check(request)) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
+                        JdResponse.MESSAGE_PARAM_ERROR);
+            }
+            DeliveryResponse tDeliveryResponse = null;
 
-        DeliveryRequest deliveryRequest = request.get(0);
-        Integer opType = deliveryRequest.getOpType();
-        if (KY_DELIVERY.equals(opType)) {
-            tDeliveryResponse = this.sendDeliveryInfoForKY(request);
-        } else {
+            DeliveryRequest deliveryRequest = request.get(0);
+            Integer opType = deliveryRequest.getOpType();
+            if (KY_DELIVERY.equals(opType)) {
+                tDeliveryResponse = this.sendDeliveryInfoForKY(request);
+            } else {
 
-            Integer businessType = deliveryRequest.getBusinessType();
-            //获取批量参数中的批次号
-            String sendCode = deliveryRequest.getSendCode();
-            String redisKey = Constants.BUSINESS_TYPE_PREFIX + Constants.SEPARATOR_HYPHEN + businessType + Constants.SEPARATOR_HYPHEN + sendCode;
+                Integer businessType = deliveryRequest.getBusinessType();
+                //获取批量参数中的批次号
+                String sendCode = deliveryRequest.getSendCode();
+                String redisKey = Constants.BUSINESS_TYPE_PREFIX + Constants.SEPARATOR_HYPHEN + businessType + Constants.SEPARATOR_HYPHEN + sendCode;
 
-            try {
-                //查询redis中是否存在key
-                if (jimdbCacheService.exists(redisKey)) {
-                    log.warn("发货任务已提交，批次号：{}", sendCode);
-                    tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, DeliveryResponse.MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED);
-                } else {
-                    jimdbCacheService.setEx(redisKey, sendCode, 5 * DateHelper.ONE_MINUTES_MILLI);
-                    if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
-                        // 逆向发货
-                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
+                try {
+                    //查询redis中是否存在key
+                    if (jimdbCacheService.exists(redisKey)) {
+                        log.warn("发货任务已提交，批次号：{}", sendCode);
+                        tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, DeliveryResponse.MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED);
                     } else {
-                        // 正向老发货
-                        tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
+                        jimdbCacheService.setEx(redisKey, sendCode, 5 * DateHelper.ONE_MINUTES_MILLI);
+                        if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                            // 逆向发货
+                            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDetailList(request));
+                        } else {
+                            // 正向老发货
+                            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request));
 
-                        if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
-                            List<SendM> relationSendList = new DeliverySendMGen().createBoxRelationSendM(request);
-                            if (CollectionUtils.isNotEmpty(relationSendList)) {
-                                tDeliveryResponse = deliveryService.dealFileBoxBatchSending(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request), relationSendList);
+                            if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
+                                List<SendM> relationSendList = new DeliverySendMGen().createBoxRelationSendM(request);
+                                if (CollectionUtils.isNotEmpty(relationSendList)) {
+                                    tDeliveryResponse = deliveryService.dealFileBoxBatchSending(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDetailList(request), relationSendList);
+                                }
                             }
                         }
-                    }
 
-                    if (! JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
-                        //业务拦截，删除缓存中的key
-                        jimdbCacheService.del(redisKey);
+                        if (! JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
+                            //业务拦截，删除缓存中的key
+                            jimdbCacheService.del(redisKey);
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("老发货执行失败，请求：{}", JsonHelper.toJson(request), e);
                 }
-            } catch (Exception e) {
-                log.error("老发货执行失败，请求：{}", JsonHelper.toJson(request), e);
             }
-        }
-        this.log.debug("结束写入发货信息");
-        if (tDeliveryResponse != null) {
-            return tDeliveryResponse;
-        } else {
+            this.log.debug("结束写入发货信息");
+            if (tDeliveryResponse != null) {
+                return tDeliveryResponse;
+            } else {
+                return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
+                        JdResponse.MESSAGE_SERVICE_ERROR);
+            }
+        }catch (Exception e){
+            log.error("老发货执行异常，请求：{}", JsonHelper.toJson(request), e);
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
         }
