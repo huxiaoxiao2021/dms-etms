@@ -11,6 +11,7 @@
                 <entry key="PRINT_P_OVER_SIZE" value="PRINT_P_OVER_SIZE"/>
                 <entry key="WEIGHT_AND_VOLUME_ILLEGAL_DATA" value="WEIGHT_AND_VOLUME_ILLEGAL_DATA"/>
                 <entry key="WEIGHT_AND_VOLUME_BOX_NOT_EXIST" value="WEIGHT_AND_VOLUME_BOX_NOT_EXIST"/>
+                <entry key="PRINT_INTERCEPT_CANCEL" value="PRINT_INTERCEPT_CANCEL"/>
             </map>
         </property>
     </bean>

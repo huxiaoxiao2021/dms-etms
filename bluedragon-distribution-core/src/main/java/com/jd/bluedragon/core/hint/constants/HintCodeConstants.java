@@ -18,6 +18,9 @@ public class HintCodeConstants {
     // 包裹数超过限制
     public static String PRINT_P_OVER_SIZE = "PRINT_P_OVER_SIZE";
 
+    // 取消拦截
+    public static String PRINT_INTERCEPT_CANCEL = "PRINT_INTERCEPT_CANCEL";
+
     /**
      * 称重量方相关
      */

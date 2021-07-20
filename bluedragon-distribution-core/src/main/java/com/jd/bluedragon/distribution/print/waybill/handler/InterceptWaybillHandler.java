@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
@@ -12,6 +16,7 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
@@ -89,6 +94,9 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 				|| WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())){
 			if(waybillCancelJsfResponse != null
 					&& NEED_INTERCEPT_CODES_MAP.containsKey(waybillCancelJsfResponse.getCode())){
+			    if(new ArrayList<>(Arrays.asList(SortingResponse.CODE_39006, SortingResponse.CODE_29311, SortingResponse.CODE_29302)).contains(waybillCancelJsfResponse.getCode())){
+                    NEED_INTERCEPT_CODES_MAP.put(waybillCancelJsfResponse.getCode(), HintService.getPrintClientHintReverseDefault(HintService.getCode(HintCodeConstants.PRINT_INTERCEPT_CANCEL)));
+                }
 				result.toFail(waybillCancelJsfResponse.getCode(), NEED_INTERCEPT_CODES_MAP.get(waybillCancelJsfResponse.getCode()));
 			}
 		}
