@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.send.router;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,6 +54,7 @@ public class SendMRouter extends SendMDao {
 
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SendMRouter.addBatch", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Integer addBatch(List<SendM> param) {
         for (SendM item:param){
             KvIndex index=new KvIndex();

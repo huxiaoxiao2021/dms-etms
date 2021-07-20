@@ -2560,6 +2560,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 补全包裹信息
      */
     private void fillPickup(SendDetail tSendDatail, SendM tsendM) {
+        CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.fillPickup");
         tSendDatail.setCreateUser(tsendM.getCreateUser());
         tSendDatail.setCreateUserCode(tsendM.getCreateUserCode());
         tSendDatail.setSendType(tsendM.getSendType());
@@ -2589,6 +2590,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
         }
+        Profiler.registerInfoEnd(umpMonitor);
     }
 
     /**
@@ -2624,8 +2626,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                 // 箱号并且取消发货的
                 if (BusinessHelper.isBoxcode(tSendM.getBoxCode()) && result.contains(tSendM.getBoxCode())) {
                     tSendDetail.setStatus(2);
+                    CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.cancelStatusReceipt.updateCancel");
                     // 重置包裹信息发货状态
                     this.updateCancel(tSendDetail);
+                    Profiler.registerInfoEnd(umpMonitor);
                 }
                 // 包裹号或者面单号
                 if (WaybillUtil.isPackageCode(tSendM.getBoxCode())
