@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
@@ -119,56 +120,108 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
         {
-            String waybillCode = context.getWaybill().getWaybillCode();
+            String barCode = context.getRequest().getBarCode();
+            boolean  isRepeatPrint = false;
+            if (StringHelper.isNotEmpty(barCode) && reprintRecordService.isBarCodeRePrinted(barCode)) {
+                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印", barCode);
+                isRepeatPrint = true;
+            }
+            // 当前面单正常状态，且已操作过补打，请确认是否打印
+            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(barCode, WayBillFinishedEnum.waybillStatusFinishedSet);
+            if (CollectionUtils.isEmpty(collectCompleteResult)) {
+                if(isRepeatPrint){
+                    interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+                }
+                return interceptResult;
+            }
+            // key：包裹状态 value：包裹详情
+            Map<Integer, List<PackageState>> stateMap = getStateMap(collectCompleteResult);
             Set<Integer> needHitStatusSet = new HashSet<>();
             Set<Integer> needInterceptStatusSet = new HashSet<>();
             getPackReprintStatus(needHitStatusSet, needInterceptStatusSet);
-            if(CollectionUtils.isNotEmpty(needInterceptStatusSet)){
-                List<PackageState> existList = waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, needInterceptStatusSet);
-                if(CollectionUtils.isNotEmpty(existList)){
-                    Collections.sort(existList, new Comparator<PackageState>() {
-                        @Override
-                        public int compare(PackageState packageState, PackageState packageState2) {
-                            return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
-                        }
-                    });
-                    String message = String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_INTERCEPT, existList.get(0).getStateName());
-                    interceptResult.toFail(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
-                    return interceptResult;
-                }
+            // 补打强拦截
+            boolean isInterceptFlag = interceptDeal(interceptResult, stateMap, needInterceptStatusSet);
+            if(isInterceptFlag){
+                return interceptResult;
             }
+            // 补打弱拦截
+            hitDeal(interceptResult, stateMap, needHitStatusSet, isRepeatPrint);
+            return interceptResult;
+        }
+        return interceptResult;
+    }
 
-            if(CollectionUtils.isEmpty(needHitStatusSet)){
-                return interceptResult;
+    /**
+     * 获取包裹状态
+     * @param collectCompleteResult
+     * @return
+     */
+    private Map<Integer, List<PackageState>> getStateMap(List<PackageState> collectCompleteResult) {
+        Map<Integer, List<PackageState>> stateMap = new HashMap<>(5);
+        for (PackageState packageState : collectCompleteResult) {
+            Integer stateInt = NumberHelper.convertToInteger(packageState.getState());
+            if(stateInt == null){
+                continue;
             }
-            boolean  isRepeatPrint=false;
-            //当前面单已XX状态，且已操作过补打，请确认是否打印
-            if (StringHelper.isNotEmpty(context.getRequest().getBarCode()) && reprintRecordService.isBarCodeRePrinted(context.getRequest().getBarCode())) {
-                log.warn("C2cInterceptHandler.handler-->{}该单号重复打印",context.getWaybill().getWaybillCode());
-                isRepeatPrint=true;
+            if(stateMap.containsKey(stateInt)){
+                stateMap.get(stateInt).add(packageState);
+            }else {
+                List<PackageState> list = new ArrayList<>();
+                list.add(packageState);
+                stateMap.put(stateInt, list);
             }
-            List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(), needHitStatusSet);
-            if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
-                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
-                return interceptResult;
-            }
-            if(CollectionUtils.isNotEmpty(collectCompleteResult)){
-                Collections.sort(collectCompleteResult, new Comparator<PackageState>() {
-                    @Override
-                    public int compare(PackageState packageState, PackageState packageState2) {
-                        return packageState.getCreateTime().compareTo(packageState2.getCreateTime());
-                    }
-                });
-                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED,collectCompleteResult.get(0).getStateName());
+        }
+        return stateMap;
+    }
+
+    /**
+     * 补打提示拦截处理
+     * @param interceptResult
+     * @param stateMap
+     * @param needInterceptStatusSet
+     * @param isRepeatPrint
+     */
+    private void hitDeal(InterceptResult<String> interceptResult, Map<Integer, List<PackageState>> stateMap,
+                         Set<Integer> needInterceptStatusSet, boolean isRepeatPrint) {
+        if(CollectionUtils.isEmpty(needInterceptStatusSet)){
+            return;
+        }
+        for (Integer state : stateMap.keySet()) {
+            if(needInterceptStatusSet.contains(state)){
+                String stateName = stateMap.get(state).get(0).getStateName();
+                String  message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED, stateName);
                 if(isRepeatPrint){
-                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT,collectCompleteResult.get(0).getStateName());
+                    message =String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_REPRINT, stateName);
                     interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED_REPRINT,message);
                 }else {
                     interceptResult.toWeakSuccess(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
                 }
+                break;
             }
         }
-        return interceptResult;
+    }
+
+    /**
+     * 补打强制拦截处理
+     * @param interceptResult
+     * @param stateMap
+     * @param needInterceptStatusSet
+     * @return
+     */
+    private boolean interceptDeal(InterceptResult<String> interceptResult, Map<Integer, List<PackageState>> stateMap, Set<Integer> needInterceptStatusSet) {
+        if(CollectionUtils.isEmpty(needInterceptStatusSet)){
+            return false;
+        }
+        boolean isInterceptFlag = false;
+        for (Integer state : stateMap.keySet()) {
+            if(needInterceptStatusSet.contains(state)){
+                isInterceptFlag = true;
+                String message = String.format(WaybillPrintMessages.MESSAGE_WAYBILL_FINISHED_INTERCEPT, stateMap.get(state).get(0).getStateName());
+                interceptResult.toFail(WaybillPrintMessages.CODE_WAYBILL_FINISHED, message);
+                break;
+            }
+        }
+        return isInterceptFlag;
     }
 
     /**
