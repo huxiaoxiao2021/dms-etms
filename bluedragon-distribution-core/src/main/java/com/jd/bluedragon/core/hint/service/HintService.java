@@ -1,14 +1,17 @@
 package com.jd.bluedragon.core.hint.service;
 
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.comp.api.hint.vo.HintResp;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 /**
- * description
+ * 提示语服务
  *
  * @author fanggang7
  * @copyright jd.com 京东物流JDL
@@ -17,12 +20,37 @@ import java.util.Map;
 @Component
 public class HintService {
 
+    private static Map<String, String> hintCodeConfMap;
+
     private static IHintApiUnwrapManager hintApiUnwrapManager;
+
+    private static final Logger log = LoggerFactory.getLogger(HintService.class);
 
     @Autowired
     public HintService setHintApiUnwrapManager(IHintApiUnwrapManager hintApiUnwrapManager) {
         HintService.hintApiUnwrapManager = hintApiUnwrapManager;
         return this;
+    }
+
+    public static Map<String, String> getHintCodeConfMap() {
+        return hintCodeConfMap;
+    }
+
+    public void setHintCodeConfMap(Map<String, String> hintCodeConfMap) {
+        HintService.hintCodeConfMap = hintCodeConfMap;
+        log.info("HintService hintCodeConfMap initialized {}", JsonHelper.toJson(hintCodeConfMap));
+    }
+
+    public static IHintApiUnwrapManager getHintApiUnwrapManager() {
+        return hintApiUnwrapManager;
+    }
+
+    public static String getCode(String hintCodeConstant) {
+        if(hintCodeConstant == null){
+            return null;
+        }
+        final String hintCode = hintCodeConfMap.get(hintCodeConstant);
+        return hintCode != null ? hintCode : hintCodeConstant;
     }
 
     /**

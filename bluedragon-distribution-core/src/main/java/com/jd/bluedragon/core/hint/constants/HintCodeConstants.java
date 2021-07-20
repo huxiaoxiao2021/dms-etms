@@ -15,12 +15,15 @@ public class HintCodeConstants {
     // 补打重复
     public static String REPRINT_REPEAT = "REPRINT_REPEAT";
 
+    // 包裹数超过限制
+    public static String PRINT_P_OVER_SIZE = "PRINT_P_OVER_SIZE";
+
     /**
      * 称重量方相关
      */
     // 称重量方数据不合法
-    public static String WEIGHT_AND_VOLUME_ILLEGAL_DATA = "WV0001";
+    public static String WEIGHT_AND_VOLUME_ILLEGAL_DATA = "WEIGHT_AND_VOLUME_ILLEGAL_DATA";
 
     // 称重量方数据不合法
-    public static String WEIGHT_AND_VOLUME_BOX_NOT_EXIST = "WV0002";
+    public static String WEIGHT_AND_VOLUME_BOX_NOT_EXIST = "WEIGHT_AND_VOLUME_BOX_NOT_EXIST";
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- 提示语服务编码配置 -->
+    <bean id="hintService" class="com.jd.bluedragon.core.hint.service.HintService">
+        <property name="hintCodeConfMap">
+            <map key-type="java.lang.String" value-type="java.lang.String">
+                <entry key="REPRINT_REPEAT" value="REPRINT_REPEAT"/>
+                <entry key="PRINT_P_OVER_SIZE" value="PRINT_P_OVER_SIZE"/>
+                <entry key="WEIGHT_AND_VOLUME_ILLEGAL_DATA" value="WEIGHT_AND_VOLUME_ILLEGAL_DATA"/>
+                <entry key="WEIGHT_AND_VOLUME_BOX_NOT_EXIST" value="WEIGHT_AND_VOLUME_BOX_NOT_EXIST"/>
+            </map>
+        </property>
+    </bean>
+</beans>

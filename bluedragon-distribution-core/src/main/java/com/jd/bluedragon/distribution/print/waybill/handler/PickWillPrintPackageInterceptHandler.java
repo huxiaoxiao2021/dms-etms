@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
@@ -61,8 +63,7 @@ public class PickWillPrintPackageInterceptHandler implements  InterceptHandler<W
         if (waybillPrintResponse.getPackList().size() > MAX_PRINT_SIZE) {
             LOGGER.warn("handler.pickWillPrintPackageInterceptHandler-->该单{}包裹数为{}，确定打印所有包裹",
                     waybillPrintResponse.getWaybillCode(),waybillPrintResponse.getPackList().size());
-            result.toWeakSuccess(JdResponse.CODE_RE_PRINT_PACK_SIZE_TOO_LARGE, MessageFormat
-                    .format(JdResponse.MESSAGE_RE_PRINT_PACK_SIZE_TOO_LARGE,waybillPrintResponse.getPackList().size()));
+            result.toWeakSuccess(JdResponse.CODE_RE_PRINT_PACK_SIZE_TOO_LARGE, HintService.getPrintClientHintReverseDefault(HintService.getCode(HintCodeConstants.PRINT_P_OVER_SIZE)));
             return result;
         }
         return result;

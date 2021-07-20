@@ -53,10 +53,6 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
     @Autowired
     private DmsBoxQueryService dmsBoxQueryService;
 
-    @Autowired
-    private IHintApiService hintApiService;
-
-
     public LiveCycleWeightVolumeChecker() {
         WeightVolumeChecker.register(this);
     }
