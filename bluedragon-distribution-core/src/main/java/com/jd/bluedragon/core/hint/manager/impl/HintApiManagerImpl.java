@@ -31,11 +31,11 @@ public class HintApiManagerImpl implements IHintApiManager {
     @Autowired
     private HintApi hintApi;
 
-    @Value("${hint.dms.system.sourceCode}")
-    private String dmsSourceCode;
+    @Value("${hint.dms.system.systemCode}")
+    private String dmsSystemCode;
 
-    @Value("${hint.printClient.system.sourceCode}")
-    private String printClientSourceCode;
+    @Value("${hint.printClient.system.systemCode}")
+    private String printClientSystemCode;
 
     /**
      * 获取提示语信息
@@ -49,7 +49,7 @@ public class HintApiManagerImpl implements IHintApiManager {
     public ApiResult<HintResp> getHint(HintReq req){
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
-            req.setSource(dmsSourceCode);
+            req.setSystemCode(dmsSystemCode);
             hintResult = hintApi.getHint(req);
             if(!hintResult.checkSuccess()){
                 log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
@@ -74,7 +74,7 @@ public class HintApiManagerImpl implements IHintApiManager {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
             HintReq req = new HintReq();
-            req.setSource(dmsSourceCode);
+            req.setSystemCode(dmsSystemCode);
             req.setHintCode(hintCode);
             hintResult = hintApi.getHint(req);
             if(!hintResult.checkSuccess()){
@@ -101,7 +101,7 @@ public class HintApiManagerImpl implements IHintApiManager {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
             HintReq req = new HintReq();
-            req.setSource(dmsSourceCode);
+            req.setSystemCode(dmsSystemCode);
             req.setHintCode(hintCode);
             req.setParamsMap(paramsMap);
             hintResult = hintApi.getHint(req);
@@ -128,7 +128,7 @@ public class HintApiManagerImpl implements IHintApiManager {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
             HintReq req = new HintReq();
-            req.setSource(printClientSourceCode);
+            req.setSystemCode(printClientSystemCode);
             req.setHintCode(hintCode);
             hintResult = hintApi.getHint(req);
             if(!hintResult.checkSuccess()){
@@ -155,7 +155,7 @@ public class HintApiManagerImpl implements IHintApiManager {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
             HintReq req = new HintReq();
-            req.setSource(printClientSourceCode);
+            req.setSystemCode(printClientSystemCode);
             req.setHintCode(hintCode);
             req.setParamsMap(paramsMap);
             hintResult = hintApi.getHint(req);
