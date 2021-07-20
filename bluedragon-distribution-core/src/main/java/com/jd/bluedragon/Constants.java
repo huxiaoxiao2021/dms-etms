@@ -1539,4 +1539,11 @@ public class Constants {
      */
     public static final String TRACE_PACK_RECEIVE = "订单/包裹已接货";
     public static final String TRACE_DELIVERY_COLLECT = "配送员%s揽收完成";
+
+    /***
+     * 跨越成功校验缓存前缀
+     */
+    public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
+    /***跨越成功发送妥投消息前缀**/
+    public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
 }

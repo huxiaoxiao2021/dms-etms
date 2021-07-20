@@ -54,6 +54,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.ucc.common.utils.JsonUtils;
@@ -64,6 +65,7 @@ import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
@@ -475,6 +477,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
             //设置包裹数
             setPackageCount(result.getData());
+            //跨越-增加目的转运中心+自提 校验
+            kyexpressCheck(request,waybillCode);
         }catch (LoadIllegalException e){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,e.getMessage());
             return result;
@@ -490,6 +494,31 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unLock(request.getSealCarCode(), waybillCode);
         }
         return result;
+    }
+
+    /**
+     * 跨越需求 增加目的转运中心+自提校验
+     * @param request
+     */
+    //如果前面有运单信息 无需再次调用接口获取
+    private String kyexpressCheck(UnloadCarScanRequest request,String waybillCode) {
+        if(logger.isInfoEnabled()){
+            logger.info("跨越校验输入参数,{},waybillCode:{}",JsonHelper.toJson(request),waybillCode);
+        }
+        Integer operateSiteCode = request.getOperateSiteCode();
+        //操作所属站点code和目的转运中心code 跨越路由
+        boolean isEndSite = waybillService.isStartOrEndSite(operateSiteCode,waybillCode,-1);
+        if(isEndSite){
+            //获取是否是自提运单
+            Waybill waybill = this.waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+            if(waybill != null){
+                //判断是否是自提运单
+                boolean isPickUpOrNo = BusinessUtil.isPickUpOrNo(waybill.getWaybillSign());
+                logger.warn("跨越物流判断,运单号为:{},是否自提为:{}",waybill.getWaybillCode(),isPickUpOrNo);
+                if(isPickUpOrNo) return "此单为自提单,请单独处理至自提区";
+            }
+        }
+        return null;
     }
 
 
@@ -619,6 +648,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return dtoInvokeResult;
             }
         }
+        //判断是否是跨越的取消订单
+        String kyCancelCheckStr = kyexpressCancelCheck(request);
+        if(StringUtils.isNotBlank(kyCancelCheckStr)){
+            if(logger.isInfoEnabled()) {
+                logger.info("跨越kyexpressCancelCheck-return,request为:{}",JsonHelper.toJson(request));
+            }
+            dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyCancelCheckStr);
+            return dtoInvokeResult;
+        }
         //流水线模式：只验货不组板
         if(Constants.ASSEMBLY_LINE_TYPE.equals(request.getType())){
             return assemblyLineScan(request);
@@ -675,8 +713,18 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     tempStorageFlag = true;
                     tempStorageResMsg = StringUtils.isBlank(privateNetworkResMsg) ? Constants.PDA_STAGING_CONFIRM_MESSAGE :"2、" + Constants.PDA_STAGING_CONFIRM_MESSAGE;
                 }
-
-                if(privateNetworkFlag || tempStorageFlag){
+                //在此处增加跨越校验
+                //跨越-增加目的转运中心+自提 校验  dtoInvokeResult返回话术
+                String kyResult = kyexpressCheck(request,waybillCode);
+                if(StringUtils.isNotBlank(kyResult)){
+                    String msg = kyResult;
+                    if(logger.isInfoEnabled()) {
+                        logger.info("跨越kyexpressCheck-return,waybillCode为:{}",waybillCode);
+                    }
+                    dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,msg);
+                    return dtoInvokeResult;
+                }
+                if(privateNetworkFlag || tempStorageFlag ){
                     String msg = privateNetworkResMsg + tempStorageResMsg;
                     if(logger.isInfoEnabled()) {
                         logger.info("packageCodeScanNew--卸车人工扫描包裹=【{}】，校验是否专网=【{}】, 是否暂存=【{}】, 返回msg=【{}】",
@@ -1384,6 +1432,42 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             // 包裹已扫描组板成功则提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE,packageCode,boardCode));
         }
+    }
+    //操作中心为始发中心+揽收类型为网点自送+运单状态为取消
+    private String kyexpressCancelCheck(UnloadCarScanRequest request)
+    {
+        if(logger.isInfoEnabled()){
+            logger.info("跨越校验是否是取消订单函数输入参数:{}", JsonHelper.toJson(request));
+        }
+        Integer operateSiteCode = request.getOperateSiteCode();
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        //路由的第一站
+        boolean isStartSite = waybillService.isStartOrEndSite(operateSiteCode,waybillCode,0);
+        if(isStartSite){//操作中心为始发中心
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
+            logger.info("kyexpressCancelCheck-查询运单是否是取消状态:{}",JsonHelper.toJson(baseEntity));
+            if(baseEntity != null &&  baseEntity.getData() != null){
+                BigWaybillDto bigWaybillDto = baseEntity.getData();
+                Waybill waybill = bigWaybillDto.getWaybill();
+                if(waybill != null){
+                    //揽收类型为网点自送 71为是2 网点自提
+                    boolean isPickSelftOrNo = BusinessUtil.isWdzsOrNo(waybill.getWaybillSign());
+                    if(isPickSelftOrNo){
+                        //运单状态为取消
+                        WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
+                        if(waybillState != null){
+                            if(logger.isInfoEnabled()){
+                                logger.info("运单状态是否为取消:{}",JsonHelper.toJson(waybillState));
+                            }
+                            if(waybillState.getWaybillState() != null && WaybillStatus.WAYBILL_STATUS_CANCEL.equals(waybillState.getWaybillState())){
+                                return String.format(LoadIllegalException.INIT_PACKAGE_CANCEL,waybillCode);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -3250,7 +3334,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 tempStorageFlag = true;
                 tempStorageResMsg = StringUtils.isBlank(privateNetworkResMsg) ? Constants.PDA_STAGING_CONFIRM_MESSAGE :"2、" + Constants.PDA_STAGING_CONFIRM_MESSAGE;
             }
-
+            //添加跨越
+            //跨越-增加目的转运中心+自提 校验  dtoInvokeResult返回话术
+            String kyResult = kyexpressCheck(request,waybillCode);
+            if(StringUtils.isNotBlank(kyResult)){
+                if(logger.isInfoEnabled()) {
+                    logger.info("跨越kyexpressCheck-return-assemblyLineScan,waybillCode为:{}",waybillCode);
+                }
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyResult);
+                return dtoInvokeResult;
+            }
             if(privateNetworkFlag || tempStorageFlag){
                 String msg = privateNetworkResMsg + tempStorageResMsg;
                 if(logger.isInfoEnabled()) {
