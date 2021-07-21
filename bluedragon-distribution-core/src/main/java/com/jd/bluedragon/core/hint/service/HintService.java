@@ -61,20 +61,9 @@ public class HintService {
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    public static String getPrintClientHintReverseDefault(String hintCode, Map<String, String> paramsMap){
-        HintResp hintResp = hintApiUnwrapManager.getPrintClientHint(hintCode, paramsMap);
+    public static String getHint(String hintCode, Map<String, String> paramsMap){
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
         return (hintResp != null && hintResp.getHintMsg() != null) ? hintResp.getHintMsg() : hintCode;
-    }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    public static String getPrintClientHintReverseDefault(String hintCode){
-        return HintService.getPrintClientHintReverseDefault(hintCode, null);
     }
 
     /**
@@ -86,12 +75,23 @@ public class HintService {
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    public static String getPrintClientHint(String reversedStr, String hintCode, Map<String, String> paramsMap){
-        String str = HintService.getPrintClientHintReverseDefault(hintCode, paramsMap) ;
+    public static String getHint(String reversedStr, String hintCode, Map<String, String> paramsMap){
+        String str = HintService.getHint(hintCode, paramsMap) ;
         if(str == null){
             str = reversedStr;
         }
         return str;
+    }
+
+    /**
+     * 获取打印系统提示语信息
+     * @param hintCode 提示语编码
+     * @return 提示语结果
+     * @author fanggang7
+     * @time 2021-07-14 18:23:32 周三
+     */
+    public static String getHint(String hintCode){
+        return HintService.getHint(hintCode, hintCode, null);
     }
 
     /**
@@ -102,7 +102,7 @@ public class HintService {
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    public static String getPrintClientHint(String reversedStr, String hintCode){
-        return HintService.getPrintClientHint(reversedStr, hintCode, null) ;
+    public static String getHint(String reversedStr, String hintCode){
+        return HintService.getHint(reversedStr, hintCode, null) ;
     }
 }

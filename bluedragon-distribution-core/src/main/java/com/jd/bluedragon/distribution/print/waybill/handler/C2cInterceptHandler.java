@@ -124,7 +124,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             }
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(context.getWaybill().getWaybillCode(),WayBillFinishedEnum.waybillStatusFinishedSet);
             if (CollectionUtils.isEmpty(collectCompleteResult)&&isRepeatPrint) {
-                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, HintService.getPrintClientHintReverseDefault(HintService.getCode(HintCodeConstants.REPRINT_REPEAT), new ParamsMapUtil().put("barCode", context.getRequest().getBarCode())));
+                interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, HintService.getHint(HintCodeConstants.REPRINT_REPEAT, ParamsMapUtil.create().put("barCode", context.getRequest().getBarCode())));
                 return interceptResult;
             }
             if(CollectionUtils.isNotEmpty(collectCompleteResult)){

@@ -62,31 +62,4 @@ public class HintApiUnwrapManagerImpl implements IHintApiUnwrapManager {
         ApiResult<HintResp> hintResult = hintApiManager.getHint(hintCode, paramsMap);
         return hintResult.checkSuccess() ? hintResult.getData() : null;
     }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    public HintResp getPrintClientHint(String hintCode) {
-        ApiResult<HintResp> hintResult = hintApiManager.getPrintClientHint(hintCode);
-        return hintResult.checkSuccess() ? hintResult.getData() : null;
-    }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @param paramsMap 传值参数
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    public HintResp getPrintClientHint(String hintCode, Map<String, String> paramsMap) {
-        ApiResult<HintResp> hintResult = hintApiManager.getPrintClientHint(hintCode, paramsMap);
-        return hintResult.checkSuccess() ? hintResult.getData() : null;
-    }
 }

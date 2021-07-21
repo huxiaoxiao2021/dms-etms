@@ -26,16 +26,13 @@ import java.util.Map;
 @Component("hintApiManager")
 public class HintApiManagerImpl implements IHintApiManager {
 
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HintApi hintApi;
 
     @Value("${hint.dms.system.systemCode}")
     private String dmsSystemCode;
-
-    @Value("${hint.printClient.system.systemCode}")
-    private String printClientSystemCode;
 
     /**
      * 获取提示语信息
@@ -76,7 +73,7 @@ public class HintApiManagerImpl implements IHintApiManager {
             HintReq req = new HintReq();
             req.setSystemCode(dmsSystemCode);
             req.setHintCode(hintCode);
-            hintResult = hintApi.getHint(req);
+            hintResult = this.getHint(req);
             if(!hintResult.checkSuccess()){
                 log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
             }
@@ -104,66 +101,12 @@ public class HintApiManagerImpl implements IHintApiManager {
             req.setSystemCode(dmsSystemCode);
             req.setHintCode(hintCode);
             req.setParamsMap(paramsMap);
-            hintResult = hintApi.getHint(req);
+            hintResult = this.getHint(req);
             if(!hintResult.checkSuccess()){
                 log.error("HintApiManagerImpl.getHint fail {}", JsonHelper.toJson(hintResult));
             }
         } catch (Exception e) {
             log.error("HintApiManagerImpl.getHint exception {}", e.getMessage(), e);
-            hintResult.toFail("调用提示语系统异常");
-        }
-        return hintResult;
-    }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHint", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public ApiResult<HintResp> getPrintClientHint(String hintCode) {
-        ApiResult<HintResp> hintResult = new ApiResult<>();
-        try {
-            HintReq req = new HintReq();
-            req.setSystemCode(printClientSystemCode);
-            req.setHintCode(hintCode);
-            hintResult = hintApi.getHint(req);
-            if(!hintResult.checkSuccess()){
-                log.error("HintApiManagerImpl.getPrintClientHint fail {}", JsonHelper.toJson(hintResult));
-            }
-        } catch (Exception e) {
-            log.error("HintApiManagerImpl.getPrintClientHint exception {}", e.getMessage(), e);
-            hintResult.toFail("调用提示语系统异常");
-        }
-        return hintResult;
-    }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @param paramsMap 传值参数
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getPrintClientHint", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public ApiResult<HintResp> getPrintClientHint(String hintCode, Map<String, String> paramsMap) {
-        ApiResult<HintResp> hintResult = new ApiResult<>();
-        try {
-            HintReq req = new HintReq();
-            req.setSystemCode(printClientSystemCode);
-            req.setHintCode(hintCode);
-            req.setParamsMap(paramsMap);
-            hintResult = hintApi.getHint(req);
-            if(!hintResult.checkSuccess()){
-                log.error("HintApiManagerImpl.getPrintClientHint fail {}", JsonHelper.toJson(hintResult));
-            }
-        } catch (Exception e) {
-            log.error("HintApiManagerImpl.getPrintClientHint exception {}", e.getMessage(), e);
             hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;

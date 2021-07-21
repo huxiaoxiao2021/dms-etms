@@ -35,19 +35,19 @@ public class HintApiServiceImpl implements IHintApiService {
     }
 
     /**
-     * 获取提示语信息
+     * 获取打印系统提示语信息
      * @param hintCode 提示语编码
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public HintResp getHintByCode(String hintCode) {
+    public HintResp getHint(String hintCode) {
         return hintApiUnwrapManager.getHint(hintCode);
     }
 
     /**
-     * 获取提示语信息
+     * 获取打印系统提示语信息
      * @param hintCode 提示语编码
      * @param paramsMap 传值参数
      * @return 提示语结果
@@ -55,37 +55,12 @@ public class HintApiServiceImpl implements IHintApiService {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public HintResp getHintByCode(String hintCode, Map<String, String> paramsMap) {
+    public HintResp getHint(String hintCode, Map<String, String> paramsMap) {
         return hintApiUnwrapManager.getHint(hintCode, paramsMap);
     }
 
     /**
      * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    public HintResp getPrintClientHint(String hintCode) {
-        return hintApiUnwrapManager.getPrintClientHint(hintCode);
-    }
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @param paramsMap 传值参数
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    @Override
-    public HintResp getPrintClientHint(String hintCode, Map<String, String> paramsMap) {
-        return hintApiUnwrapManager.getPrintClientHint(hintCode, paramsMap);
-    }
-
-    /**
-     * 获取打印系统提示语信息
      * @param reservedStr 预留的缺省提示语信息
      * @param hintCode 提示语编码
      * @return 提示语结果
@@ -93,8 +68,8 @@ public class HintApiServiceImpl implements IHintApiService {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public String getPrintClientHint(String reservedStr, String hintCode) {
-        HintResp hintResp = hintApiUnwrapManager.getPrintClientHint(hintCode);
+    public String getHint(String reservedStr, String hintCode) {
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode);
         return (hintResp != null && hintResp.getHintMsg() != null) ? hintResp.getHintMsg() : reservedStr;
     }
 
@@ -108,8 +83,8 @@ public class HintApiServiceImpl implements IHintApiService {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public String getPrintClientHint(String reservedStr, String hintCode, Map<String, String> paramsMap) {
-        HintResp hintResp = hintApiUnwrapManager.getPrintClientHint(hintCode, paramsMap);
+    public String getHint(String reservedStr, String hintCode, Map<String, String> paramsMap) {
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
         return (hintResp != null && hintResp.getHintMsg() != null) ? hintResp.getHintMsg() : reservedStr;
     }
 
@@ -122,8 +97,8 @@ public class HintApiServiceImpl implements IHintApiService {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public String getPrintClientHintReverseDefault(String hintCode, Map<String, String> paramsMap) {
-        HintResp hintResp = hintApiUnwrapManager.getPrintClientHint(hintCode, paramsMap);
+    public String getHintReverseDefault(String hintCode, Map<String, String> paramsMap) {
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, paramsMap);
         return (hintResp != null && hintResp.getHintMsg() != null) ? hintResp.getHintMsg() : hintCode;
     }
 
@@ -135,7 +110,7 @@ public class HintApiServiceImpl implements IHintApiService {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    public String getPrintClientHintReverseDefault(String hintCode) {
-        return this.getPrintClientHintReverseDefault(hintCode, null);
+    public String getHintReverseDefault(String hintCode) {
+        return this.getHintReverseDefault(hintCode, null);
     }
 }

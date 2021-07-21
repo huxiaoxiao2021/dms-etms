@@ -42,23 +42,4 @@ public interface IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     ApiResult<HintResp> getHint(String hintCode, Map<String, String> paramsMap);
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    ApiResult<HintResp> getPrintClientHint(String hintCode);
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @param paramsMap 传值参数
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    ApiResult<HintResp> getPrintClientHint(String hintCode, Map<String, String> paramsMap);
 }

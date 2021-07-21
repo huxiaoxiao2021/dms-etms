@@ -11,7 +11,6 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -110,7 +109,7 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                 && !NumberHelper.gt0(entity.getLength())
                 && !NumberHelper.gt0(entity.getWidth())
                 && !NumberHelper.gt0(entity.getVolume())) {
-            result.parameterError(HintService.getPrintClientHintReverseDefault(HintService.getCode(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA)));
+            result.parameterError(HintService.getHint(HintService.getCode(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA)));
             result.setData(Boolean.FALSE);
             return result;
         }

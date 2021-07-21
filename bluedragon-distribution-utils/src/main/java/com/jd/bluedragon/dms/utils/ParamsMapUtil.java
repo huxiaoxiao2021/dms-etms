@@ -18,4 +18,8 @@ public class ParamsMapUtil {
         this.paramsMap.put(key, value);
         return this.paramsMap;
     }
+
+    public static ParamsMapUtil create(){
+        return new ParamsMapUtil();
+    }
 }

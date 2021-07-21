@@ -5,7 +5,6 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.base.BoxOperateApiManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.core.hint.service.IHintApiService;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.service.DmsBoxQueryService;
@@ -151,7 +150,7 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         //经济网的逻辑
         Response<Boolean> isEconomicNetBox = dmsBoxQueryService.isEconomicNetBox(entity.getBarCode());
         if (null == isEconomicNetBox || Response.CODE_SUCCESS != isEconomicNetBox.getCode()){
-            result.error(HintService.getPrintClientHintReverseDefault(HintCodeConstants.WEIGHT_AND_VOLUME_BOX_NOT_EXIST, new ParamsMapUtil().put("barCode", entity.getBarCode())));
+            result.error(HintService.getHint(HintCodeConstants.WEIGHT_AND_VOLUME_BOX_NOT_EXIST, ParamsMapUtil.create().put("barCode", entity.getBarCode())));
             result.setData(Boolean.FALSE);
             return result;
         }

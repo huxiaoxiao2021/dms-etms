@@ -24,55 +24,36 @@ public interface IHintApiService {
     HintResp getHint(HintReq req);
 
     /**
-     * 获取提示语信息
+     * 获取系统提示语信息
      * @param hintCode 提示语编码
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    HintResp getHintByCode(String hintCode);
+    HintResp getHint(String hintCode);
 
     /**
-     * 获取提示语信息
-     * @param hintCode 提示语编码
-     * @param paramsMap 传值参数
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    HintResp getHintByCode(String hintCode, Map<String, String> paramsMap);
-
-    /**
-     * 获取打印系统提示语信息
-     * @param hintCode 提示语编码
-     * @return 提示语结果
-     * @author fanggang7
-     * @time 2021-07-14 18:23:32 周三
-     */
-    HintResp getPrintClientHint(String hintCode);
-
-    /**
-     * 获取打印系统提示语信息
+     * 获取系统提示语信息
      * @param hintCode 提示语编码
      * @param paramsMap 传值参数
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    HintResp getPrintClientHint(String hintCode, Map<String, String> paramsMap);
+    HintResp getHint(String hintCode, Map<String, String> paramsMap);
 
     /**
-     * 获取打印系统提示语信息
+     * 获取系统提示语信息
      * @param reservedMsg 预留的缺省提示语信息
      * @param hintCode 提示语编码
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    String getPrintClientHint(String reservedMsg, String hintCode);
+    String getHint(String reservedMsg, String hintCode);
 
     /**
-     * 获取打印系统提示语信息
+     * 获取系统提示语信息
      * @param reservedMsg 预留的缺省提示语信息
      * @param hintCode 提示语编码
      * @param paramsMap 传值参数
@@ -80,24 +61,24 @@ public interface IHintApiService {
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    String getPrintClientHint(String reservedMsg, String hintCode, Map<String, String> paramsMap);
+    String getHint(String reservedMsg, String hintCode, Map<String, String> paramsMap);
 
     /**
-     * 获取打印系统提示语信息
+     * 获取系统提示语信息
      * @param hintCode 提示语编码
      * @param paramsMap 传值参数
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    String getPrintClientHintReverseDefault(String hintCode, Map<String, String> paramsMap);
+    String getHintReverseDefault(String hintCode, Map<String, String> paramsMap);
 
     /**
-     * 获取打印系统提示语信息
+     * 获取系统提示语信息
      * @param hintCode 提示语编码
      * @return 提示语结果
      * @author fanggang7
      * @time 2021-07-14 18:23:32 周三
      */
-    String getPrintClientHintReverseDefault(String hintCode);
+    String getHintReverseDefault(String hintCode);
 }
