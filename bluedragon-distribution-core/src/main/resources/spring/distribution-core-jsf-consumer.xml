@@ -762,4 +762,9 @@
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.tys.loadCarTaskServiceWS.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <!-- 提示语 -->
+    <jsf:consumer id="hintApi" interface="com.jd.dms.comp.api.hint.HintApi"
+                  protocol="jsf" alias="${jsf.dms.comp.hint.alias}" timeout="${jsf.dms.comp.hint.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>

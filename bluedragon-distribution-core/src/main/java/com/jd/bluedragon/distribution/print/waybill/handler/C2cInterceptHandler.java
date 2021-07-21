@@ -4,11 +4,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -130,7 +133,7 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             List<PackageState> collectCompleteResult = waybillTraceManager.getAllOperationsByOpeCodeAndState(barCode, WayBillFinishedEnum.waybillStatusFinishedSet);
             if (CollectionUtils.isEmpty(collectCompleteResult)) {
                 if(isRepeatPrint){
-                    interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, JdResponse.MESSAGE_RE_PRINT_REPEAT);
+                    interceptResult.toWeakSuccess(JdResponse.CODE_RE_PRINT_REPEAT, HintService.getHint(HintCodeConstants.REPRINT_REPEAT, ParamsMapUtil.create().put("barCode", context.getRequest().getBarCode())));
                 }
                 return interceptResult;
             }

@@ -39,6 +39,7 @@
 		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.0.9-uat-SNAPSHOT</business-sdk.version>
+		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -188,6 +189,13 @@
 				<groupId>com.jd.bluedragon</groupId>
 				<artifactId>business-sdk</artifactId>
 				<version>${business-sdk.version}</version>
+			</dependency>
+
+			<!-- 提示语系统 -->
+			<dependency>
+				<artifactId>dms-component-sdk</artifactId>
+				<groupId>com.jd.dms.comp</groupId>
+				<version>${dms-component-sdk.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
