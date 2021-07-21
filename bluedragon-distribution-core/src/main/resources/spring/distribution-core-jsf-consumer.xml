@@ -740,4 +740,9 @@
                   timeout="${jsf.timeout.configCenter}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!-- 提示语 -->
+    <jsf:consumer id="hintApi" interface="com.jd.dms.comp.api.hint.HintApi"
+                  protocol="jsf" alias="${jsf.dms.comp.hint.alias}" timeout="${jsf.dms.comp.hint.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>
