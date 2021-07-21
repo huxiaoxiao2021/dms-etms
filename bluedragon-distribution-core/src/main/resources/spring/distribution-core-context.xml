@@ -39,7 +39,6 @@
 	<import resource="distribution-beans.xml" />
 	<import resource="distribution-core-datasource-waybill.xml" />
 	<import resource="classpath:spring/distribution-web-sorting-filter.xml" />
-	<import resource="classpath:spring/distribution-core-hint.xml" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />

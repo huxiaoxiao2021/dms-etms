@@ -109,7 +109,7 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                 && !NumberHelper.gt0(entity.getLength())
                 && !NumberHelper.gt0(entity.getWidth())
                 && !NumberHelper.gt0(entity.getVolume())) {
-            result.parameterError(HintService.getHint(HintService.getCode(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA)));
+            result.parameterError(HintService.getHint(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA));
             result.setData(Boolean.FALSE);
             return result;
         }

@@ -94,7 +94,7 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 			if(waybillCancelJsfResponse != null
 					&& NEED_INTERCEPT_CODES_MAP.containsKey(waybillCancelJsfResponse.getCode())){
 			    if(new ArrayList<>(Arrays.asList(SortingResponse.CODE_39006, SortingResponse.CODE_29311, SortingResponse.CODE_29302)).contains(waybillCancelJsfResponse.getCode())){
-                    NEED_INTERCEPT_CODES_MAP.put(waybillCancelJsfResponse.getCode(), HintService.getHint(HintService.getCode(HintCodeConstants.PRINT_INTERCEPT_CANCEL)));
+                    NEED_INTERCEPT_CODES_MAP.put(waybillCancelJsfResponse.getCode(), HintService.getHint(HintCodeConstants.PRINT_INTERCEPT_CANCEL));
                 }
 				result.toFail(waybillCancelJsfResponse.getCode(), NEED_INTERCEPT_CODES_MAP.get(waybillCancelJsfResponse.getCode()));
 			}

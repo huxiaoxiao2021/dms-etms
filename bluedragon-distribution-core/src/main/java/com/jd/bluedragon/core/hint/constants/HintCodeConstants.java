@@ -13,20 +13,20 @@ public class HintCodeConstants {
      * 打印相关
      */
     // 补打重复
-    public static String REPRINT_REPEAT = "REPRINT_REPEAT";
+    public static String REPRINT_REPEAT = "00000001";
 
     // 包裹数超过限制
-    public static String PRINT_P_OVER_SIZE = "PRINT_P_OVER_SIZE";
+    public static String PRINT_P_OVER_SIZE = "00000002";
 
     // 取消拦截
-    public static String PRINT_INTERCEPT_CANCEL = "PRINT_INTERCEPT_CANCEL";
+    public static String PRINT_INTERCEPT_CANCEL = "00000003";
 
     /**
      * 称重量方相关
      */
     // 称重量方数据不合法
-    public static String WEIGHT_AND_VOLUME_ILLEGAL_DATA = "WEIGHT_AND_VOLUME_ILLEGAL_DATA";
+    public static String WEIGHT_AND_VOLUME_ILLEGAL_DATA = "00000004";
 
     // 称重量方数据不合法
-    public static String WEIGHT_AND_VOLUME_BOX_NOT_EXIST = "WEIGHT_AND_VOLUME_BOX_NOT_EXIST";
+    public static String WEIGHT_AND_VOLUME_BOX_NOT_EXIST = "00000005";
 }
