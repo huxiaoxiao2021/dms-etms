@@ -37,6 +37,7 @@
 	</bean>
 
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
+		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
@@ -219,6 +220,7 @@
                 <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
                 <value>uccPropertyConfiguration.insertDbRowsOneTime</value>
                 <value>uccPropertyConfiguration.waybillMaxPackNum</value>
+				<value>uccPropertyConfiguration.virtualSiteCode</value>
 			</list>
 		</property>
 	</bean>

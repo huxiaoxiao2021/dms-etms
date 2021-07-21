@@ -240,6 +240,19 @@ public class UccPropertyConfiguration {
     private String quickSealTips;
 
     /**
+     * 虚拟场地编码code
+     */
+    private Integer virtualSiteCode;
+
+    public Integer getVirtualSiteCode() {
+        return virtualSiteCode;
+    }
+
+    public void setVirtualSiteCode(Integer virtualSiteCode) {
+        this.virtualSiteCode = virtualSiteCode;
+    }
+
+    /**
      * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
      * true： 表示使用新的序号生成器生成
      * false：使用原始的工具类生成
