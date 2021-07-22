@@ -14,21 +14,26 @@ import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -44,9 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("boxService")
@@ -67,6 +70,7 @@ public class BoxServiceImpl implements BoxService {
 	public static final String prefixOfLock = "DMS_BOX_SERVICE_LOCK_";
 
 	public static final Integer LOCK_TTL = 2;
+	private static final String[] REPLACE_CHARS = { "分拣中心", "分拨中心", "中转场", "中转站" };
 
     @Autowired
     private BoxDao boxDao;
@@ -108,6 +112,12 @@ public class BoxServiceImpl implements BoxService {
 
     @Resource(name = "stableBoxPrefixType")
     private Set<String> stableBoxPrefixType;
+
+    @Autowired
+	private SiteService siteService;
+
+	@Autowired
+	private BasicPrimaryWS basicPrimaryWS;
 
 
     public Integer add(Box box) {
@@ -763,4 +773,55 @@ public class BoxServiceImpl implements BoxService {
         box.setLastNodeType(OpBoxNodeEnum.PRINTBOXCODE.getNodeCode());
         return box;
     }
+
+	/**
+	 * 计算滑道号和笼车号
+	 * @param router
+	 * @throws Exception
+	 */
+    @Override
+	public void computeRouter(List<Map.Entry<Integer, String>> router){
+    	if(CollectionUtils.isEmpty(router)){
+    		return;
+		}
+		CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.computeRouter",Constants.UMP_APP_NAME_DMSWEB, false, true);
+		try {
+			Site site = siteService.get(router.get(router.size() - 1).getKey());
+			for (int i = router.size() - 2; i >= 0; --i) {
+				String port = "";
+				//倒数第二个分拣中心 到目的地 ，而且箱号目的地非分拣中心 查询滑道号
+				if (0 == i && site != null && !Integer.valueOf(64).equals(site.getType())) {
+					CrossPackageTagNew packageTagNew = baseMinorManager.queryNonDmsSiteCrossPackageTagForPrint(
+							router.get(router.size() - 2).getKey(),
+							router.get(router.size() - 1).getKey());
+					if(packageTagNew != null){
+						port = packageTagNew.getOriginalCrossCode() + "-" + packageTagNew.getOriginalTabletrolleyCode();
+						//箱号目的地 拼接目的滑道号和笼车号
+						String destPort = packageTagNew.getDestinationCrossCode() + "-" + packageTagNew.getDestinationTabletrolleyCode();
+
+						String destSiteName = router.get(router.size() - 1).getValue() + "_" + destPort;
+						Map.Entry<Integer, String> dest =  router.get(router.size() - 1);
+						dest.setValue(destSiteName);
+
+					}
+				} else {
+					SortCrossDetail sortCrossDetail = basicPrimaryWS.getCrossCodeDetailByDmsID(
+							router.get(router.size()- i - 2).getKey(),
+							router.get(router.size()- i - 1).getKey().toString());
+					if(sortCrossDetail != null){
+						port = sortCrossDetail.getCrossCode() + "-" + sortCrossDetail.getTabletrolleyCode();
+					}
+				}
+				Map.Entry<Integer, String> dest = router.get(router.size() - i - 2);
+				 String siteName = router.get(router.size() - i - 2).getValue() + "_" + port;
+				dest.setValue(siteName);
+			}
+		} catch (Exception e) {
+			log.error("箱号创建计算道口号笼车号异常");
+			Profiler.functionError(info);
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+	}
+
 }
