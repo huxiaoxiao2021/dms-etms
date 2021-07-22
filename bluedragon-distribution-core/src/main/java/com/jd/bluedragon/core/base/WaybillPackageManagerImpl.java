@@ -67,8 +67,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    @Qualifier("executorParalleGetPackageExecutor")
-    private ExecutorService executorParalleGetPackageExecutor;
+    @Qualifier("executorparallelGetPackageExecutor")
+    private ExecutorService executorparallelGetPackageExecutor;
 
     /**
      * 根据运单号获取包裹信息
@@ -327,7 +327,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             List<Future> futureList = Lists.newArrayList();
             for (int i = startPage; i <= totalPage; i++) {
                 final int pageSize = i;
-                Future<List<DeliveryPackageD>> future = executorParalleGetPackageExecutor.submit(new Callable(){
+                Future<List<DeliveryPackageD>> future = executorparallelGetPackageExecutor.submit(new Callable(){
                     @Override
                     public List<DeliveryPackageD> call(){
                         Page<DeliveryPackageDto> pageParam = new Page();
