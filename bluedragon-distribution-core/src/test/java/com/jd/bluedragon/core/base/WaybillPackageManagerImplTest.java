@@ -27,25 +27,25 @@ public class WaybillPackageManagerImplTest extends TestCase {
         Future<BaseEntity<List<DeliveryPackageD>>> future1 = executorParalleGetPackage.submit(new Callable<BaseEntity<List<DeliveryPackageD>>>() {
             @Override
             public BaseEntity<List<DeliveryPackageD>> call() throws Exception {
-                return waybillPackageManager.getPackageByWaybillCodeParalle("JDV000701837919");
+                return waybillPackageManager.getPackageByWaybillCodeParallel("JDV000701837919");
             }
         });
         Future<BaseEntity<List<DeliveryPackageD>>> future2 = executorParalleGetPackage.submit(new Callable<BaseEntity<List<DeliveryPackageD>>>() {
             @Override
             public BaseEntity<List<DeliveryPackageD>> call() throws Exception {
-                return waybillPackageManager.getPackageByWaybillCodeParalle("JDVA00193428907");
+                return waybillPackageManager.getPackageByWaybillCodeParallel("JDVA00193428907");
             }
         });
         Future<BaseEntity<List<DeliveryPackageD>>> future3 = executorParalleGetPackage.submit(new Callable<BaseEntity<List<DeliveryPackageD>>>() {
             @Override
             public BaseEntity<List<DeliveryPackageD>> call() throws Exception {
-                return waybillPackageManager.getPackageByWaybillCodeParalle("JDVA00193433874");
+                return waybillPackageManager.getPackageByWaybillCodeParallel("JDVA00193433874");
             }
         });
         Future<BaseEntity<List<DeliveryPackageD>>> future4 = executorParalleGetPackage.submit(new Callable<BaseEntity<List<DeliveryPackageD>>>() {
             @Override
             public BaseEntity<List<DeliveryPackageD>> call() throws Exception {
-                return waybillPackageManager.getPackageByWaybillCodeParalle("JDVA00193428941");
+                return waybillPackageManager.getPackageByWaybillCodeParallel("JDVA00193428941");
             }
         });
 
