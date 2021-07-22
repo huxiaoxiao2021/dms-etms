@@ -10,13 +10,13 @@ import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -159,10 +159,10 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
     private Map<Integer, List<PackageState>> getStateMap(List<PackageState> collectCompleteResult) {
         Map<Integer, List<PackageState>> stateMap = new HashMap<>(5);
         for (PackageState packageState : collectCompleteResult) {
-            Integer stateInt = NumberHelper.convertToInteger(packageState.getState());
-            if(stateInt == null){
+            if(!NumberUtils.isNumber(packageState.getState())){
                 continue;
             }
+            int stateInt = Integer.parseInt(packageState.getState());
             if(stateMap.containsKey(stateInt)){
                 stateMap.get(stateInt).add(packageState);
             }else {
