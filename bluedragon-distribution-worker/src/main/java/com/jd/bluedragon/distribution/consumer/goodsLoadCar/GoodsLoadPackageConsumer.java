@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.goodsLoadCar;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -172,8 +173,14 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         waybillParameters.add(waybillParameter);
         log.info("运单同步老接口入参：{}", JsonHelper.toJson(waybillParameter));
         //发送妥投成功
-        sendWaybillSuccessMsg(req,currentOperate,waybillParameters);
-        return true;
+        try {
+            sendWaybillSuccessMsg(req,currentOperate,waybillParameters);
+            return true;
+        }catch (Exception ex){
+            log.error("跨越妥投加入任务失败:",ex);
+            throw new RuntimeException("跨越妥投加入任务失败,抛出异常,触发重试");
+        }
+
     }
 
     public void sendWaybillSuccessMsg(GoodsLoadDto req,CurrentOperate operate,List<WaybillParameter> body){
