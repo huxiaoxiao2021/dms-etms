@@ -50,4 +50,11 @@
         </constructor-arg>
     </bean>
 
+    <bean id="executorParalleGetPackageExecutor" class="com.jd.bluedragon.utils.ThreadPoolExecutorFactory">
+      <property name="corePoolSize" value="200"/>
+      <property name="maxPoolSize" value="200"/>
+      <property name="keepAliveSeconds" value="60"/>
+      <property name="threadName" value="getPackageThread"/>
+    </bean>
+
 </beans>

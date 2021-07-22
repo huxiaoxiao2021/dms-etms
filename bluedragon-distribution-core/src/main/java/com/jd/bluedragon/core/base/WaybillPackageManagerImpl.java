@@ -24,6 +24,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -52,20 +53,22 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      */
     @Value("${parallel_get_package_num_once_query:5}")
     private Integer parallel_get_package_num_once_query;
+
+    /**
+     * 线程池获取包裹超时时间
+     */
+    @Value("${parallel_get_package_timeout_second:4}")
+    private Integer parallel_get_package_timeout_second;
+
     private static final Integer PACKAGE_NUM_ONCE_QUERY = 1000;
 
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("paralleGetPackage-pool-%d").build();
-
-    private static final ExecutorService executorParalleGetPackage  = new ThreadPoolExecutor(6, 8,
-            60L, TimeUnit.SECONDS,
-            new LinkedBlockingQueue(),namedThreadFactory);
-
-
+    @Autowired
+    @Qualifier("executorParalleGetPackageExecutor")
+    private ExecutorService executorParalleGetPackageExecutor;
 
     /**
      * 根据运单号获取包裹信息
@@ -301,7 +304,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         } catch (Exception e) {
             Profiler.functionError(info);
             log.error("并发查询包裹明细报错[{}]",waybillCode,e);
-            throw e;
+            throw new RuntimeException(e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -309,38 +312,42 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     /**
      * 根据运单号并发获取包裹明细
+     * 注意明细顺序要和运单接口返回内容一致
      * @param waybillCode
      * @param totalPage
      * @param startPage
      * @param pageLimit
      * @return
      */
-    private List<DeliveryPackageD> paralleGetPackages(final String waybillCode, int totalPage,int startPage,final int pageLimit) {
-        List<DeliveryPackageD> packageList = Lists.newArrayList();
-        List<Future> futureList = Lists.newArrayList();
-        for (int i = startPage; i <= totalPage; i++) {
-            final int pageSize = i;
-            Future<List<DeliveryPackageD>> future = executorParalleGetPackage.submit(new Callable(){
-                @Override
-                public List<DeliveryPackageD> call(){
-                    Page<DeliveryPackageDto> pageParam = new Page();
-                    pageParam.setCurPage(pageSize);
-                    pageParam.setPageSize(pageLimit);
-                    List<DeliveryPackageDto> dtoList = getPackageByParam(waybillCode, pageParam).getData().getResult();
-                    return changeToDeliveryPackageDBatch(dtoList);
-                }
-            });
-            futureList.add(future);
-        }
-        for (Future<List<DeliveryPackageD>> future: futureList) {
-            try {
-                packageList.addAll(future.get(2000,TimeUnit.SECONDS));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                log.warn("查询运单包裹信息报错[{}]", waybillCode,e);
-            } catch (ExecutionException | TimeoutException e) {
-                log.error("查询运单包裹信息报错[{}]", waybillCode,e);
+    private List<DeliveryPackageD> paralleGetPackages(final String waybillCode, int totalPage,int startPage,final int pageLimit) throws InterruptedException, ExecutionException, TimeoutException {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.paralleGetPackages",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        List<DeliveryPackageD> packageList = null;
+        try {
+            packageList = Lists.newArrayList();
+            List<Future> futureList = Lists.newArrayList();
+            for (int i = startPage; i <= totalPage; i++) {
+                final int pageSize = i;
+                Future<List<DeliveryPackageD>> future = executorParalleGetPackageExecutor.submit(new Callable(){
+                    @Override
+                    public List<DeliveryPackageD> call(){
+                        Page<DeliveryPackageDto> pageParam = new Page();
+                        pageParam.setCurPage(pageSize);
+                        pageParam.setPageSize(pageLimit);
+                        List<DeliveryPackageDto> dtoList = getPackageByParam(waybillCode, pageParam).getData().getResult();
+                        return changeToDeliveryPackageDBatch(dtoList);
+                    }
+                });
+                futureList.add(future);
             }
+            for (Future<List<DeliveryPackageD>> future: futureList) {
+                packageList.addAll(future.get(parallel_get_package_timeout_second,TimeUnit.SECONDS));
+            }
+        } catch (InterruptedException | ExecutionException | TimeoutException  e) {
+            Profiler.functionError(info);
+            log.error("查询运单包裹信息报错[{}]", waybillCode,e);
+            throw e;
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
         return packageList;
     }
