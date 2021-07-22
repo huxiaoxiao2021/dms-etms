@@ -51,7 +51,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     /**
      * 调用运单的分页接口一次获取的包裹数量，分页大小定值1000，则获取数据为实时，其他则非实时
      */
-    @Value("${parallel_get_package_num_once_query:5}")
+    @Value("${parallel_get_package_num_once_query:500}")
     private Integer parallel_get_package_num_once_query;
 
     /**
