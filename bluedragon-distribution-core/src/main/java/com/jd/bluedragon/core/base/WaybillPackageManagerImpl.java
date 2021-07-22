@@ -187,7 +187,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     @Override
     public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode){
         if(uccPropertyConfiguration.isParalleGetPackageSwitch()){
-            return getPackageByWaybillCodeParalle(waybillCode);
+            return getPackageByWaybillCodeParallel(waybillCode);
         }
         return getPackageByWaybillCodeDefault(waybillCode);
     }
@@ -266,8 +266,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      * @param waybillCode
      * @return
      */
-    public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCodeParalle(final String waybillCode) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.getPackageByWaybillCodeParalle",Constants.UMP_APP_NAME_DMSWEB, false, true);
+    public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCodeParallel(final String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.getPackageByWaybillCodeParallel",Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             log.debug("getPackageByWaybillCodeParalle分页获取包裹数据运单号[{}]" , waybillCode);
             Page<DeliveryPackageDto> firstPageParam = new Page();
@@ -294,7 +294,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             //剩余页数并发获取
             int totalPage = baseEntity.getData().getTotalPage();
             if(totalPage > 1){
-                packageList.addAll(paralleGetPackages(waybillCode,totalPage,2,parallel_get_package_num_once_query));
+                packageList.addAll(parallelGetPackages(waybillCode,totalPage,2,parallel_get_package_num_once_query));
             }
             log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
             busiWaringUtil.bigWaybillWarning(waybillCode,packageList.size());
@@ -319,8 +319,8 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      * @param pageLimit
      * @return
      */
-    private List<DeliveryPackageD> paralleGetPackages(final String waybillCode, int totalPage,int startPage,final int pageLimit) throws InterruptedException, ExecutionException, TimeoutException {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.paralleGetPackages",Constants.UMP_APP_NAME_DMSWEB, false, true);
+    private List<DeliveryPackageD> parallelGetPackages(final String waybillCode, int totalPage,int startPage,final int pageLimit) throws InterruptedException, ExecutionException, TimeoutException {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.parallelGetPackages",Constants.UMP_APP_NAME_DMSWEB, false, true);
         List<DeliveryPackageD> packageList = null;
         try {
             packageList = Lists.newArrayList();
