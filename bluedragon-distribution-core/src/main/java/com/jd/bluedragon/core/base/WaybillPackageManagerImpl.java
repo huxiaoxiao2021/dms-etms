@@ -321,6 +321,10 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      */
     private List<DeliveryPackageD> parallelGetPackages(final String waybillCode, int totalPage,int startPage,final int pageLimit) throws InterruptedException, ExecutionException, TimeoutException {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.parallelGetPackages",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        CallerInfo infoBigPage = null;
+        if(totalPage > 6){
+            infoBigPage = Profiler.registerInfo("DMS.BASE.WaybillPackageManagerImpl.parallelGetPackagesBigPage",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        }
         List<DeliveryPackageD> packageList = null;
         try {
             packageList = Lists.newArrayList();
@@ -348,6 +352,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             throw e;
         } finally {
             Profiler.registerInfoEnd(info);
+            Profiler.registerInfoEnd(infoBigPage);
         }
         return packageList;
     }
