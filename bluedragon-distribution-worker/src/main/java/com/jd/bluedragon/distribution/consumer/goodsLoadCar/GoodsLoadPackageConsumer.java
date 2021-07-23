@@ -185,10 +185,17 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         String jsonStr = JsonHelper.toJson(body);
         Task task = new Task();
         task.setBody(jsonStr);
-        task.setFingerprint(Md5Helper.encode(req.getUserCode()+"_"+operate.getSiteCode()
-                + "_" + waybillCode + "_" + req.getPackageCode() +"_"
-                + System.currentTimeMillis())); //
-        task.setCreateSiteCode(operate.getSiteCode());
+        if(operate == null){
+            task.setFingerprint(Md5Helper.encode(req.getUserCode()
+                    + "_" + waybillCode + "_" + req.getPackageCode() +"_"
+                    + System.currentTimeMillis())); //
+        }else{
+            task.setFingerprint(Md5Helper.encode(req.getUserCode()+"_"+operate.getSiteCode()
+                    + "_" + waybillCode + "_" + req.getPackageCode() +"_"
+                    + System.currentTimeMillis())); //
+            task.setCreateSiteCode(operate.getSiteCode());
+        }
+
         task.setCreateTime(req.getUpdateTime());
         task.setKeyword1(waybillCode);
         task.setKeyword2(req.getPackageCode());
