@@ -1690,7 +1690,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
             }
             //操作站点为集配站或者操作类型为营业部，，且流向转运中心
-            if(siteOrgDto != null && (Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())) || (Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType()))){
+            if(siteOrgDto != null && (Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType()) || Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType()))){
                 if(Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType())) {
                     logger.info("{}为营业部批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
                 }else {
