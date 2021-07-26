@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.mixedPackageConfig.enums.TransportTypeEnum
 import com.jd.bluedragon.distribution.mixedPackageConfig.service.MixedPackageConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ public class ExcessSpecialFieldHandler implements Handler<WaybillPrintContext, J
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ExcessSpecialFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public JdResult<String> handle(WaybillPrintContext context) {
         // 是否开启集包地打印
         WaybillPrintRequest request = context.getRequest();
