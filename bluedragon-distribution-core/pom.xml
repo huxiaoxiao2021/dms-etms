@@ -1623,7 +1623,19 @@
 			<version>1.3-SNAPSHOT</version>
 		</dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>cn.jdl.oms</groupId>
+            <artifactId>jdl-oms-client</artifactId>
+            <version>1.0.5-SNAPSHOT</version>
+        </dependency>
+
+        <!-- 提示语系统 -->
+        <dependency>
+            <artifactId>dms-component-sdk</artifactId>
+            <groupId>com.jd.dms.comp</groupId>
+        </dependency>
+
+    </dependencies>
 
 	<profiles>
 		<!--测试环境  -->

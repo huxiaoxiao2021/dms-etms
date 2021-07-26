@@ -4,9 +4,12 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
+import com.jd.bluedragon.distribution.api.request.sendcode.SendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -14,14 +17,16 @@ import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -312,5 +317,19 @@ public class SendCodeResource {
             return false;
         }
         return true;
+    }
+
+    @POST
+    @Path("/sendCode/check")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.checkSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> checkSendCode(SendCodeRequest request) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.success();
+
+        if (StringUtils.isBlank(request.getSendCode())) {
+            result.parameterError("请输入批次号!");
+            return result;
+        }
+        return sendCodeService.validateSendCodeEffective(request.getSendCode());
     }
 }

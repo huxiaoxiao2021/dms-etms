@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -79,4 +80,13 @@ public interface PopPrintService {
      * @param residentType
      */
     PopPrintResponse dealPopPrintLogic(PopPrintRequest popPrintRequest, Integer residentType);
+
+	/**
+	 * 发送全程跟踪
+	 * @param req
+	 * @param operateType
+	 * @param remark
+	 * @param date
+	 */
+	void toTask(PopPrintRequest req, Integer operateType, String remark, Date date);
 }

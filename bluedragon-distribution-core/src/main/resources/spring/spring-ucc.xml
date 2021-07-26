@@ -37,6 +37,7 @@
 	</bean>
 
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
+		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
@@ -104,6 +105,7 @@
 		<property name="checkSiteSubType" value="${checkSiteSubType:false}"/>
 		<property name="scrollQuerySize" value="${scrollQuerySize:2000}"/>
 		<property name="printScrollQueryCountLimit" value="${printScrollQueryCountLimit:200}"/>
+		<property name="approvalSwitch" value="${approvalSwitch:false}"/>
 		<property name="exportConcurrencyLimitNum" value="${exportConcurrencyLimitNum:50}"/>
 		<property name="oneQuerySize" value="${oneQuerySize:1000}"/>
 		<property name="offlineCurrentLimitingCount" value="${offlineCurrentLimitingCount:-1}"/>
@@ -114,11 +116,17 @@
         <property name="closeAsynBufferSaveTaskToDb" value="${closeAsynBufferSaveTaskToDb:0}" />
 		<property name="inspectNoSendNoLoadWaybillDemotion" value="${inspectNoSendNoLoadWaybillDemotion:false}"/>
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
+        <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
         <property name="spotCheckIssueControlPre" value="${spotCheckIssueControl:false}"></property>
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
+        <property name="cancelJimaoxinSwitchToOMS" value="${cancelJimaoxinSwitchToOMS:false}" />
+        <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
+        <property name="insertDbRowsOneTime" value="${insertDbRowsOneTime:100}" />
+        <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
+        <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -194,6 +202,7 @@
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
 				<value>uccPropertyConfiguration.scrollQuerySize</value>
 				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
+				<value>uccPropertyConfiguration.approvalSwitch</value>
 				<value>uccPropertyConfiguration.offlineCurrentLimitingCount</value>
 				<value>uccPropertyConfiguration.inspectionAssertDemotion</value>
 				<value>uccPropertyConfiguration.dazongPackageOperateMax</value>
@@ -204,9 +213,16 @@
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControlPre</value>
+				<value>uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>
+                <value>uccPropertyConfiguration.cancelJimaoxinSwitchToOMS</value>
+                <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
+                <value>uccPropertyConfiguration.insertDbRowsOneTime</value>
+                <value>uccPropertyConfiguration.waybillMaxPackNum</value>
+				<value>uccPropertyConfiguration.virtualSiteCode</value>
+				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
 			</list>
 		</property>
 	</bean>

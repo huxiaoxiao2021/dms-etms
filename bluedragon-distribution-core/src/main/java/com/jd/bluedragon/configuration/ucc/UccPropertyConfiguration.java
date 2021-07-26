@@ -240,6 +240,19 @@ public class UccPropertyConfiguration {
     private String quickSealTips;
 
     /**
+     * 虚拟场地编码code
+     */
+    private Integer virtualSiteCode;
+
+    public Integer getVirtualSiteCode() {
+        return virtualSiteCode;
+    }
+
+    public void setVirtualSiteCode(Integer virtualSiteCode) {
+        this.virtualSiteCode = virtualSiteCode;
+    }
+
+    /**
      * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
      * true： 表示使用新的序号生成器生成
      * false：使用原始的工具类生成
@@ -341,6 +354,10 @@ public class UccPropertyConfiguration {
      * 发货交接清单-汇总scrollId最大次数限制
      */
     private int printScrollQueryCountLimit;
+    /**
+     * 审批开关
+     */
+    private boolean approvalSwitch;
 
     /**
      * 验货集包袋依赖降级， true时不依赖集包袋服务
@@ -394,6 +411,33 @@ public class UccPropertyConfiguration {
      */
     private String hideSpecialStartSitePrintReplaceSymbol;
 
+    /**
+     * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
+     * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     */
+    private String siteEnableSendCodeEffectiveValidation;
+
+    /**
+     * 取消鸡毛信切换OMS接口开关
+     */
+    private boolean cancelJimaoxinSwitchToOMS;
+
+    /**
+     * pda待下线||已下线菜单编码
+     *  以,隔开
+     */
+    private String offlinePdaMenuCode;
+
+    /***
+     * 运单最大包裹数
+     */
+    private int waybillMaxPackNum;
+
+    /**
+     * 并发获取包裹明细开关
+     */
+    private boolean paralleGetPackageSwitch;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -407,6 +451,19 @@ public class UccPropertyConfiguration {
      * true :检验 false 不校验
      */
     private boolean backDispatchCheck;
+
+    /**
+     * 单次插入数据库的条数
+     */
+    private int insertDbRowsOneTime;
+
+    public int getInsertDbRowsOneTime() {
+        return insertDbRowsOneTime;
+    }
+
+    public void setInsertDbRowsOneTime(int insertDbRowsOneTime) {
+        this.insertDbRowsOneTime = insertDbRowsOneTime;
+    }
 
     public boolean getBackDispatchCheck() {
         return backDispatchCheck;
@@ -1107,5 +1164,53 @@ public class UccPropertyConfiguration {
 
     public void setHideSpecialStartSitePrintReplaceSymbol(String hideSpecialStartSitePrintReplaceSymbol) {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
+    }
+
+    public String getSiteEnableSendCodeEffectiveValidation() {
+        return siteEnableSendCodeEffectiveValidation;
+    }
+
+    public void setSiteEnableSendCodeEffectiveValidation(String siteEnableSendCodeEffectiveValidation) {
+        this.siteEnableSendCodeEffectiveValidation = siteEnableSendCodeEffectiveValidation;
+    }
+
+    public boolean isCancelJimaoxinSwitchToOMS() {
+        return cancelJimaoxinSwitchToOMS;
+    }
+
+    public void setCancelJimaoxinSwitchToOMS(boolean cancelJimaoxinSwitchToOMS) {
+        this.cancelJimaoxinSwitchToOMS = cancelJimaoxinSwitchToOMS;
+    }
+
+    public boolean getApprovalSwitch() {
+        return approvalSwitch;
+    }
+
+    public void setApprovalSwitch(boolean approvalSwitch) {
+        this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getOfflinePdaMenuCode() {
+        return offlinePdaMenuCode;
+    }
+
+    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
+        this.offlinePdaMenuCode = offlinePdaMenuCode;
+    }
+
+    public int getWaybillMaxPackNum() {
+        return waybillMaxPackNum;
+    }
+
+    public void setWaybillMaxPackNum(int waybillMaxPackNum) {
+        this.waybillMaxPackNum = waybillMaxPackNum;
+    }
+
+    public boolean isParalleGetPackageSwitch() {
+        return paralleGetPackageSwitch;
+    }
+
+    public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
+        this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 }

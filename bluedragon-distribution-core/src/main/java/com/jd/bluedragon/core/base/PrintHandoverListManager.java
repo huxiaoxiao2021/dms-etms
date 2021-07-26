@@ -26,13 +26,6 @@ public interface PrintHandoverListManager {
     PageData<PrintHandoverListDto> queryPrintHandOverListByQueryCondition(Pager<PrintHandoverLitQueryCondition> pager);
 
     /**
-     * 打印交接清单 - 汇总查询
-     * @param condition
-     * @return
-     */
-    List<SummaryPrintResult> batchSummaryPrintHandOverListByQueryCondition(PrintHandoverLitQueryCondition condition);
-
-    /**
      * 打印交接清单 - 根据条件scroll查询
      * @param query
      * @return

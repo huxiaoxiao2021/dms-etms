@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.consumer.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.PrintHandoverListManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -25,9 +24,6 @@ import org.springframework.stereotype.Service;
 public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
 
     private static final Logger log = LoggerFactory.getLogger(DmsWorkSendDetailConsumer.class);
-
-    @Autowired
-    private SendDatailDao sendDatailDao;
 
     @Autowired
     private SendPrintService sendPrintService;
