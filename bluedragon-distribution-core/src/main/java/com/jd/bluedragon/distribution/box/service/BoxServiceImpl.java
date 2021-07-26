@@ -777,8 +777,7 @@ public class BoxServiceImpl implements BoxService {
 				//倒数第二个分拣中心 到目的地 ，而且箱号目的地非分拣中心 查询滑道号
 				if (0 == i && site != null && !Integer.valueOf(64).equals(site.getType())) {
 					CrossPackageTagNew packageTagNew = baseMinorManager.queryNonDmsSiteCrossPackageTagForPrint(
-							router.get(router.size() - 2).getKey(),
-							router.get(router.size() - 1).getKey());
+							router.get(router.size() - 1).getKey(),router.get(router.size() - 2).getKey());
 					if(packageTagNew != null){
 						port = packageTagNew.getOriginalCrossCode() + "-" + packageTagNew.getOriginalTabletrolleyCode();
 						//箱号目的地 拼接目的滑道号和笼车号
