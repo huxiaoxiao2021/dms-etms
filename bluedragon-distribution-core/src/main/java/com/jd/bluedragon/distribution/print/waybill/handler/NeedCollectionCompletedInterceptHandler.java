@@ -9,6 +9,8 @@ import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,16 +49,22 @@ public class NeedCollectionCompletedInterceptHandler extends NeedPrepareDataInte
 
     @Override
     public void prepareData(WaybillPrintContext param) {
-        //校验需要的数据是否存在，不存在加载需要的数据
-        if (null == param.getCollectComplete()){
-            //查询揽收完成（-640）全程跟踪结果
-            List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(
-                    param.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
-            if (CollectionUtils.isEmpty(collectCompleteResult)){
-                param.setCollectComplete(Boolean.FALSE);
-            }else{
-                param.setCollectComplete(Boolean.TRUE);
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web.NeedCollectionCompletedInterceptHandler.prepareData",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            //校验需要的数据是否存在，不存在加载需要的数据
+            if (null == param.getCollectComplete()){
+                //查询揽收完成（-640）全程跟踪结果
+                List<PackageStateDto> collectCompleteResult = waybillTraceManager.getPkStateDtoByWCodeAndState(
+                        param.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
+                if (CollectionUtils.isEmpty(collectCompleteResult)){
+                    param.setCollectComplete(Boolean.FALSE);
+                }else{
+                    param.setCollectComplete(Boolean.TRUE);
+                }
             }
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
         }
     }
 
