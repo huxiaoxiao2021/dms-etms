@@ -13,14 +13,13 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,9 +123,6 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
         if (WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
         {
-            if(log.isInfoEnabled()){
-                log.info("C2cInterceptHandler包裹补打的单号：{}", context.getRequest().getBarCode());
-            }
             String barCode = context.getRequest().getBarCode();
             boolean  isRepeatPrint = false;
             if (StringHelper.isNotEmpty(barCode) && reprintRecordService.isBarCodeRePrinted(barCode)) {
@@ -146,10 +142,6 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
             Set<Integer> needHitStatusSet = new HashSet<>();
             Set<Integer> needInterceptStatusSet = new HashSet<>();
             getPackReprintStatus(needHitStatusSet, needInterceptStatusSet);
-            if(log.isInfoEnabled()){
-                log.info("C2cInterceptHandler包裹补打的单号：{},强制拦截的状态码：{},提示拦截的状态码：{}", context.getRequest().getBarCode(),
-                        JsonHelper.toJson(needInterceptStatusSet), JsonHelper.toJson(needHitStatusSet));
-            }
             // 补打强拦截
             boolean isInterceptFlag = interceptDeal(interceptResult, stateMap, needInterceptStatusSet);
             if(isInterceptFlag){
@@ -170,10 +162,10 @@ public class C2cInterceptHandler extends NeedPrepareDataInterceptHandler<Waybill
     private Map<Integer, List<PackageState>> getStateMap(List<PackageState> collectCompleteResult) {
         Map<Integer, List<PackageState>> stateMap = new HashMap<>(5);
         for (PackageState packageState : collectCompleteResult) {
-            Integer stateInt = NumberHelper.convertToInteger(packageState.getState());
-            if(stateInt == null){
+            if(!NumberUtils.isNumber(packageState.getState())){
                 continue;
             }
+            int stateInt = Integer.parseInt(packageState.getState());
             if(stateMap.containsKey(stateInt)){
                 stateMap.get(stateInt).add(packageState);
             }else {
