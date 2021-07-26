@@ -127,6 +127,7 @@
         <property name="insertDbRowsOneTime" value="${insertDbRowsOneTime:100}" />
         <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
+        <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -223,6 +224,7 @@
                 <value>uccPropertyConfiguration.waybillMaxPackNum</value>
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
+                <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
 			</list>
 		</property>
 	</bean>

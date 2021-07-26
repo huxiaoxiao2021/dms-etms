@@ -453,6 +453,12 @@ public class UccPropertyConfiguration {
     private boolean backDispatchCheck;
 
     /**
+     * 包裹补打-拦截状态码
+     *  以,隔开
+     */
+    private String packRePrintInterceptStatus;
+
+    /**
      * 单次插入数据库的条数
      */
     private int insertDbRowsOneTime;
@@ -1188,6 +1194,14 @@ public class UccPropertyConfiguration {
 
     public void setApprovalSwitch(boolean approvalSwitch) {
         this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getPackRePrintInterceptStatus() {
+        return packRePrintInterceptStatus;
+    }
+
+    public void setPackRePrintInterceptStatus(String packRePrintInterceptStatus) {
+        this.packRePrintInterceptStatus = packRePrintInterceptStatus;
     }
 
     public String getOfflinePdaMenuCode() {
