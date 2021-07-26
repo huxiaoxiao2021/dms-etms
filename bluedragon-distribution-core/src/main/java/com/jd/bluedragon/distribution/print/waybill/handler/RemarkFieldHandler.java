@@ -12,6 +12,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -50,6 +52,7 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
     private static final String NULL_STR = "";
     
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.RemarkFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("包裹标签打印-备注字段处理");
 		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();

@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +38,7 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
     private int crossCodeMaxLength = CROSS_CODE_MAX_LENGTH;
     
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SpecialFieldHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("包裹标签打印-特殊字段处理");
 		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();

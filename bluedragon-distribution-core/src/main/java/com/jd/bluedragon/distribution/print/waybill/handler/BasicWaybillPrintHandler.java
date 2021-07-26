@@ -31,6 +31,8 @@ import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -149,6 +151,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private static final String PACKAGE_SAY = "festivalAttachment";
 
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BasicWaybillPrintHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
