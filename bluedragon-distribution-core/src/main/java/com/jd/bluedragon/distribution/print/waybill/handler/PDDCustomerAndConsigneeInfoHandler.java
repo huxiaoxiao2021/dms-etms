@@ -14,6 +14,8 @@ import com.jd.bluedragon.external.crossbow.pdd.service.PDDService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +46,7 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
     private SysConfigService sysConfigService;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.PDDCustomerAndConsigneeInfoHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());

@@ -433,6 +433,11 @@ public class UccPropertyConfiguration {
      */
     private int waybillMaxPackNum;
 
+    /**
+     * 并发获取包裹明细开关
+     */
+    private boolean paralleGetPackageSwitch;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -446,6 +451,12 @@ public class UccPropertyConfiguration {
      * true :检验 false 不校验
      */
     private boolean backDispatchCheck;
+
+    /**
+     * 包裹补打-拦截状态码
+     *  以,隔开
+     */
+    private String packRePrintInterceptStatus;
 
     /**
      * 单次插入数据库的条数
@@ -1185,6 +1196,14 @@ public class UccPropertyConfiguration {
         this.approvalSwitch = approvalSwitch;
     }
 
+    public String getPackRePrintInterceptStatus() {
+        return packRePrintInterceptStatus;
+    }
+
+    public void setPackRePrintInterceptStatus(String packRePrintInterceptStatus) {
+        this.packRePrintInterceptStatus = packRePrintInterceptStatus;
+    }
+
     public String getOfflinePdaMenuCode() {
         return offlinePdaMenuCode;
     }
@@ -1199,5 +1218,13 @@ public class UccPropertyConfiguration {
 
     public void setWaybillMaxPackNum(int waybillMaxPackNum) {
         this.waybillMaxPackNum = waybillMaxPackNum;
+    }
+
+    public boolean isParalleGetPackageSwitch() {
+        return paralleGetPackageSwitch;
+    }
+
+    public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
+        this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 }

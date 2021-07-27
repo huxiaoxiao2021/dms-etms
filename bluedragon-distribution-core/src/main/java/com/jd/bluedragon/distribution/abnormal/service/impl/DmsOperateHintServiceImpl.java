@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintTrackService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -48,6 +50,7 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 	}
 
 	@Override
+	@JProfiler(jKey = "DMS.BASE.DmsOperateHintServiceImpl.saveOrUpdate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public boolean saveOrUpdate(DmsOperateHint dmsOperateHint) {
 		boolean saveFlg = super.saveOrUpdate(dmsOperateHint);
 		if(saveFlg){
