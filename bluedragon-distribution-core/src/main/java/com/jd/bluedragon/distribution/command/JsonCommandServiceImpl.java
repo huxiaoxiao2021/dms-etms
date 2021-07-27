@@ -19,6 +19,7 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
+import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -80,6 +81,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	
 	@SuppressWarnings("unchecked")
 	@Override
+	@PFTracing(name = "DMSWEB.JsonCommandServiceImpl.execute.Tracing")
 	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
 	public String execute(String jsonCommand) {
 		//设置初始化为成功
