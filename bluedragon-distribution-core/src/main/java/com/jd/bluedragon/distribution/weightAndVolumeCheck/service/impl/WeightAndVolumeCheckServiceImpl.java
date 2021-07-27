@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -27,6 +29,9 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.common.Page;
@@ -61,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -166,6 +170,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    private LogEngine logEngine;
+
     /**
      * 不允许第二个分拣中心称重的返回码
      */
@@ -645,10 +653,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 抽检数据处理
      * @param packWeightVO
      * @param spotCheckSourceEnum
-     * @param result
      */
     @Override
-    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         try{
             // 基础参数校验
             if(!paramCheck(packWeightVO, result)){
@@ -673,6 +681,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             sendWaybillTrace(weightVolumeCollectDto);
             // 缓存抽检记录
             cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
+            // 记录抽检操作日志
+            recordSpotCheckLog(weightVolumeCollectDto, spotCheckSourceEnum);
         }catch (Exception e){
             log.error("单号{}的抽检数据处理异常!", packWeightVO.getCodeStr(), e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -723,11 +733,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         double checkMore = weightVolumeCollectDto.getBillingCalcWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingCalcWeight();
         if(BusinessUtil.isFresh(waybill.getWaybillSign()) && reviewMore < checkMore){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
+            weightVolumeCollectDto.setExcessReason(Constants.EMPTY_FILL);
             return;
         }
-        // 分拣复核较大值 <= 1 && 核对较大值 <= 1
-        if(reviewMore <= Constants.CONSTANT_NUMBER_ONE && checkMore <= Constants.CONSTANT_NUMBER_ONE){
+        // 分拣复核较大值 <= 1.5 && 核对较大值 <= 1.5
+        double spotCheckNoExcessLimit = uccPropertyConfiguration.getSpotCheckNoExcessLimit();
+        if(reviewMore <= spotCheckNoExcessLimit && checkMore <= spotCheckNoExcessLimit){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
+            weightVolumeCollectDto.setExcessReason(Constants.EMPTY_FILL);
         }
     }
 
@@ -996,7 +1009,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 组装称重计费实体
+     * 组装抽检数据
+     *  1、分拣复核数据
+     *  2、核对数据：计费|运单称重流水（计费未获取到数据的兜底方案）
+     *  3、超标逻辑
      * @param packWeightVO
      */
     private WeightVolumeCollectDto assemble(PackWeightVO packWeightVO, Waybill waybill, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
@@ -1006,10 +1022,27 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         assembleContrastData(weightVolumeCollectDto);
         // 超标处理
         excessDeal(weightVolumeCollectDto, result);
-        //特殊处理
+        // 特殊处理
         specialTreatment(weightVolumeCollectDto, waybill);
+        // 处理图片链接
+        dealSpotCheckPictureUrl(weightVolumeCollectDto);
 
         return weightVolumeCollectDto;
+    }
+
+    /**
+     * 超标图片链接
+     *  防止图片先上传超标数据后存储的问题，前置获取一次图片链接
+     * @param weightVolumeCollectDto
+     */
+    private void dealSpotCheckPictureUrl(WeightVolumeCollectDto weightVolumeCollectDto) {
+        InvokeResult<String> result = searchExcessPicture(weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getReviewSiteCode());
+        if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
+                || StringUtils.isEmpty(result.getData())){
+            log.warn("单号【{}】站点【{}】的超标图片为空,图片尚未上传!", weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getReviewSiteCode());
+            return;
+        }
+        weightVolumeCollectDto.setPictureAddress(result.getData());
     }
 
     /**
@@ -1038,6 +1071,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
             weightVolumeCollectDto.setDiffStandard(Constants.EMPTY_FILL);
         }
+        weightVolumeCollectDto.setExcessReason(standardDto == null ? Constants.EMPTY_FILL : standardDto.getExcessReason());
     }
 
     /**
@@ -1063,10 +1097,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(bizDutyDTO.getDutyErp());
                 weightVolumeCollectDto.setBillingCompanyCode(dto == null ? null : dto.getSiteCode());
                 weightVolumeCollectDto.setBillingCompany(dto == null ? null : dto.getSiteName());
-                weightVolumeCollectDto.setBillingWeight(bizDutyDTO.getWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getWeight().doubleValue());
-                weightVolumeCollectDto.setBillingVolume(bizDutyDTO.getVolume() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getVolume().doubleValue());
-                // 核对较大值：计费结算重量
+                double billingWeight = bizDutyDTO.getWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getWeight().doubleValue();
+                weightVolumeCollectDto.setBillingWeight(billingWeight);
+                double billingVolume = bizDutyDTO.getVolume() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getVolume().doubleValue();
+                weightVolumeCollectDto.setBillingVolume(billingVolume);
+                // 计费结算重量
                 weightVolumeCollectDto.setBillingCalcWeight(bizDutyDTO.getCalcWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getCalcWeight().doubleValue());
+                double billingVolumeWeight = getVolumeAndWeight(billingVolume/weightVolumeCollectDto.getVolumeRate());
+                // 核对体积重量
+                weightVolumeCollectDto.setBillingVolumeWeight(billingVolumeWeight);
+                // 核对较大值
+                Double contrastLarge = Math.max(billingWeight, billingVolumeWeight);
+                weightVolumeCollectDto.setContrastLarge(contrastLarge);
             }
         }catch (Exception e){
             log.error("通过运单号{}获取计费信息异常!", weightVolumeCollectDto.getWaybillCode());
@@ -1074,11 +1116,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
         // 计费重量为0则取运单流水
         dealWaybillFlow(weightVolumeCollectDto);
-
-        int volumeRate = weightVolumeCollectDto.getVolumeRate();
-        double billingVolume = weightVolumeCollectDto.getBillingVolume() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingVolume();
-        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
-
     }
 
     /**
@@ -1120,9 +1157,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setBillingVolume(billingVolume);
         // 核对较大值：核对重量和核对体积重量的较大值
         int volumeRate = weightVolumeCollectDto.getVolumeRate();
-        Double billingCalcWeight = packFlowDetail.getpWeight() == null
+        Double contrastLarge = packFlowDetail.getpWeight() == null
                 ? billingVolume/volumeRate : packFlowDetail.getpWeight() > billingVolume/volumeRate ? packFlowDetail.getpWeight() : billingVolume/volumeRate;
-        weightVolumeCollectDto.setBillingCalcWeight(billingCalcWeight);
+        weightVolumeCollectDto.setContrastLarge(contrastLarge);
+        // 核对体积重量
+        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
     }
 
     /**
@@ -1357,7 +1396,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         headerMap.put("waybillCode","运单号");
         headerMap.put("packageCode","扫描条码");
         headerMap.put("spotCheckType","业务类型");
-        headerMap.put("productTypeCode","产品标识");
+        headerMap.put("productTypeName","产品标识");
         headerMap.put("merchantCode","配送商家编号");
         headerMap.put("busiName","商家名称");
         headerMap.put("isTrustBusi","信任商家");
@@ -1365,26 +1404,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         headerMap.put("reviewSiteName","复核分拣");
         headerMap.put("reviewSubType","机构类型");
         headerMap.put("reviewErp","复核人erp");
-        headerMap.put("reviewWeight","分拣复重kg");
-        headerMap.put("reviewLWH","复核长宽高cm");
-        headerMap.put("volumeRate","计泡系数");
+        headerMap.put("reviewWeight","复核重量");
+        headerMap.put("reviewLWH","复核长宽高");
         headerMap.put("reviewVolumeWeight","复核体积重量");
-        headerMap.put("moreBigWeight","较大重量值");
+        headerMap.put("moreBigWeight","复核较大值");
+        headerMap.put("volumeRate","计泡系数");
         headerMap.put("billingOrgName","核对操作区域");
         headerMap.put("billingDeptName","核对操作片区");
         headerMap.put("BillingCompany","核对操作单位");
         headerMap.put("billingErp","核对操作人ERP");
-        headerMap.put("billingCalcWeight","计费结算重量kg");
-        headerMap.put("billingWeight","核对重量kg");
-        headerMap.put("billingVolume","核对体积cm");
+        headerMap.put("billingCalcWeight","计费结算重量");
+        headerMap.put("billingWeight","核对重量");
+        headerMap.put("billingVolume","核对体积");
         headerMap.put("billingVolumeWeight","核对体积重量");
-        headerMap.put("billingWeightDifference","计费结算重量差异");
+        headerMap.put("contrastLarge","核对较大值");
         headerMap.put("contrastSourceFrom","核对来源");
+        headerMap.put("largeDiff","较大值差异");
         headerMap.put("diffStandard","误差标准值");
         headerMap.put("isExcess","是否超标");
-        headerMap.put("weightDiff","重量差异");
-        headerMap.put("volumeWeightDiff","体积重量差异");
-        headerMap.put("volumeWeightIsExcess","体积重量是否超标");
         headerMap.put("fromSource","数据来源");
         headerMap.put("isHasPicture","有无图片");
         headerMap.put("pictureAddress","图片链接");
@@ -1466,16 +1503,39 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         List<ExportWeightVolumeCollectDto> list = new ArrayList<ExportWeightVolumeCollectDto>();
         for (WeightVolumeCollectDto dto : weightVolumeCollectDtoList) {
             ExportWeightVolumeCollectDto exportWeightVolumeCollectDto = new ExportWeightVolumeCollectDto();
-            BeanUtils.copyProperties(dto,exportWeightVolumeCollectDto);
-            exportWeightVolumeCollectDto.setIsTrustBusi(Objects.equals(dto.getIsTrustBusi(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
+            exportWeightVolumeCollectDto.setReviewDate(DateHelper.formatDate(dto.getReviewDate(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+            exportWeightVolumeCollectDto.setWaybillCode(dto.getWaybillCode());
+            exportWeightVolumeCollectDto.setPackageCode(dto.getPackageCode());
             exportWeightVolumeCollectDto.setSpotCheckType(Objects.equals(dto.getSpotCheckType(),Constants.CONSTANT_NUMBER_ONE) ? "B网":"C网");
+            exportWeightVolumeCollectDto.setProductTypeName(dto.getProductTypeName());
+            exportWeightVolumeCollectDto.setMerchantCode(dto.getMerchantCode());
+            exportWeightVolumeCollectDto.setBusiName(dto.getBusiName());
+            exportWeightVolumeCollectDto.setIsTrustBusi(Objects.equals(dto.getIsTrustBusi(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
+            exportWeightVolumeCollectDto.setReviewOrgName(dto.getReviewOrgName());
+            exportWeightVolumeCollectDto.setReviewSiteName(dto.getReviewSiteName());
             exportWeightVolumeCollectDto.setReviewSubType(Objects.equals(dto.getReviewSubType(),Constants.CONSTANT_NUMBER_ONE) ? "分拣中心":"转运中心");
-            exportWeightVolumeCollectDto.setIsExcess(Objects.equals(dto.getIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
-            exportWeightVolumeCollectDto.setVolumeWeightIsExcess(Objects.equals(dto.getVolumeWeightIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
-            exportWeightVolumeCollectDto.setIsHasPicture(Objects.equals(dto.getIsHasPicture(),Constants.CONSTANT_NUMBER_ONE) ? "有" : "无");
-            exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(),Constants.CONSTANT_NUMBER_ONE) ? "是" : "否");
-            exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
+            exportWeightVolumeCollectDto.setReviewErp(dto.getReviewErp());
+            exportWeightVolumeCollectDto.setReviewWeight(dto.getReviewWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getReviewWeight()));
+            exportWeightVolumeCollectDto.setReviewLWH(dto.getReviewLWH());
+            exportWeightVolumeCollectDto.setReviewVolumeWeight(dto.getReviewVolumeWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getReviewVolumeWeight()));
+            exportWeightVolumeCollectDto.setMoreBigWeight(dto.getMoreBigWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getMoreBigWeight()));
+            exportWeightVolumeCollectDto.setVolumeRate(dto.getVolumeRate() == null ? null : String.valueOf(dto.getVolumeRate()));
+            exportWeightVolumeCollectDto.setBillingOrgName(dto.getBillingOrgName());
+            exportWeightVolumeCollectDto.setBillingDeptName(dto.getBillingDeptName());
+            exportWeightVolumeCollectDto.setBillingCompany(dto.getBillingCompany());
+            exportWeightVolumeCollectDto.setBillingErp(dto.getBillingErp());
+            exportWeightVolumeCollectDto.setBillingCalcWeight(dto.getBillingCalcWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getBillingCalcWeight()));
+            exportWeightVolumeCollectDto.setBillingWeight(dto.getBillingWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getBillingWeight()));
+            exportWeightVolumeCollectDto.setBillingVolume(dto.getBillingVolume() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getBillingVolume()));
+            exportWeightVolumeCollectDto.setBillingVolumeWeight(dto.getBillingVolumeWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getBillingVolumeWeight()));
+            exportWeightVolumeCollectDto.setContrastLarge(dto.getContrastLarge() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(dto.getContrastLarge()));
             exportWeightVolumeCollectDto.setContrastSourceFrom(Objects.equals(dto.getContrastSourceFrom(),Constants.CONSTANT_NUMBER_ONE) ? "运单" : "计费");
+            exportWeightVolumeCollectDto.setLargeDiff(dto.getLargeDiff() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(exportWeightVolumeCollectDto));
+            exportWeightVolumeCollectDto.setDiffStandard(dto.getDiffStandard());
+            exportWeightVolumeCollectDto.setIsExcess(Objects.equals(dto.getIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
+            exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
+            exportWeightVolumeCollectDto.setIsHasPicture(Objects.equals(dto.getIsHasPicture(),Constants.CONSTANT_NUMBER_ONE) ? "有" : "无");
+            exportWeightVolumeCollectDto.setPictureAddress(dto.getPictureAddress());
             list.add(exportWeightVolumeCollectDto);
         }
         return list;
@@ -1870,5 +1930,45 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return list;
         }
         return StringUtils.isBlank(baseEntity.getData().get(0).getPictureAddress()) ? list : Arrays.asList(baseEntity.getData().get(0).getPictureAddress().split(";"));
+    }
+
+
+    /**
+     * 记录抽检记录
+     * @param weightVolumeCollectDto
+     */
+    @Override
+    public void recordSpotCheckLog(WeightVolumeCollectDto weightVolumeCollectDto, SpotCheckSourceEnum spotCheckSourceEnum) {
+        BusinessLogConstans.OperateTypeEnum operateTypeEnum;
+        if(Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE)
+                || Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_DWS)){
+            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_C;
+        }else if(Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB)){
+            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_B;
+        }else {
+            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_ANDROID;
+        }
+        try {
+            long startTime = System.currentTimeMillis();
+            JSONObject request = new JSONObject();
+            request.put("operatorCode", weightVolumeCollectDto.getReviewErp());
+            request.put("siteCode", weightVolumeCollectDto.getReviewSiteCode());
+            request.put("operateTime", weightVolumeCollectDto.getReviewDate().getTime());
+            request.put("waybillCode", weightVolumeCollectDto.getWaybillCode());
+            request.put("packageCode", weightVolumeCollectDto.getPackageCode());
+            long endTime = System.currentTimeMillis();
+
+            BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
+                    .operateTypeEnum(operateTypeEnum)
+                    .processTime(endTime, startTime)
+                    .operateRequest(request)
+                    .reMark(weightVolumeCollectDto.getExcessReason())
+                    .methodName("WeightAndVolumeCheckServiceImpl")
+                    .build();
+
+            logEngine.addLog(logProfiler);
+        }catch (Exception e){
+            log.error("WeightAndVolumeCheckServiceImpl recordSpotCheckLog异常!", e);
+        }
     }
 }

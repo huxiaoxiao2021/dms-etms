@@ -124,6 +124,7 @@
         <property name="offlinePdaMenuCode" value="${offlinePdaMenuCode:0101015}" />
         <property name="insertDbRowsOneTime" value="${insertDbRowsOneTime:100}" />
         <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
+        <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -217,6 +218,7 @@
                 <value>uccPropertyConfiguration.offlinePdaMenuCode</value>
                 <value>uccPropertyConfiguration.insertDbRowsOneTime</value>
                 <value>uccPropertyConfiguration.waybillMaxPackNum</value>
+                <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
 			</list>
 		</property>
 	</bean>

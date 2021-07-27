@@ -2118,11 +2118,9 @@ public class WaybillResource {
      */
     @POST
     @Path("/package/weight/warn/check")
-    @BusinessLog(sourceSys = 1,bizType = 1017,operateType = 101701)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.packageWeightCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-		return weightAndVolumeCheckService.dealSportCheck(packWeightVO,SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE,result);
+		return weightAndVolumeCheckService.dealSportCheck(packWeightVO,SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
     }
 
 

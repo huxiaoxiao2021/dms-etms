@@ -414,14 +414,6 @@ public class UccPropertyConfiguration {
      */
     private int waybillMaxPackNum;
 
-    public boolean getCheckSignAndReturn() {
-        return checkSignAndReturn;
-    }
-
-    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
-        this.checkSignAndReturn = checkSignAndReturn;
-    }
-
     /**
      * 反调度校验滑道信息 开关
      * true :检验 false 不校验
@@ -432,6 +424,11 @@ public class UccPropertyConfiguration {
      * 单次插入数据库的条数
      */
     private int insertDbRowsOneTime;
+
+    /**
+     * 抽检不超标限制
+     */
+    private double spotCheckNoExcessLimit;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1172,5 +1169,21 @@ public class UccPropertyConfiguration {
 
     public void setWaybillMaxPackNum(int waybillMaxPackNum) {
         this.waybillMaxPackNum = waybillMaxPackNum;
+    }
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    public double getSpotCheckNoExcessLimit() {
+        return spotCheckNoExcessLimit;
+    }
+
+    public void setSpotCheckNoExcessLimit(double spotCheckNoExcessLimit) {
+        this.spotCheckNoExcessLimit = spotCheckNoExcessLimit;
     }
 }
