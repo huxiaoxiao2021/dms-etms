@@ -99,16 +99,11 @@ public class WeightVolumeFilter implements Filter {
         }
 
         // 一单多件不需要拦截
-        int waybillPackageTotal = request.getWaybillCache().getQuantity();
-        if(waybillPackageTotal > 1){
-            logger.info("WeightVolumeFilter.doFilter 一单多件不拦截");
-            chain.doFilter(request, chain);
-            return;
-        }
+        final boolean isMultiplePackage = this.isMultiplePackage(request);
 
         //众邮无重量拦截
-        if( isEconomicNetNeedWeight){
-            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
+        if(isEconomicNetNeedWeight){
+            if(!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
             }
          //纯配外单无重量拦截-不校验体积
@@ -127,17 +122,19 @@ public class WeightVolumeFilter implements Filter {
                     throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
-                JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-                if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                    throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
-                }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                    throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                if(!isMultiplePackage){
+                    JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+                    if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
+                        throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
+                    }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
+                        throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                    }
                 }
             }
 
         }else if (isNeedWeight) {
             //查询重量体积信息
-            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+            if (!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
                 }
@@ -183,6 +180,18 @@ public class WeightVolumeFilter implements Filter {
         return switchOn;
     }
 
+    /**
+     * 是否是一单多件
+     * @param request 拦截上下文
+     * @return 结果
+     */
+    private boolean isMultiplePackage(FilterContext request) {
+        int waybillPackageTotal = request.getWaybillCache().getQuantity();
+        if(waybillPackageTotal > 1){
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 众邮运单是否拦截 -
