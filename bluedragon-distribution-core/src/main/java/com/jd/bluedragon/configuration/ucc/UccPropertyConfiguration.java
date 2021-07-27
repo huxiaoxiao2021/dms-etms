@@ -447,6 +447,11 @@ public class UccPropertyConfiguration {
      */
     private int waybillMaxPackNum;
 
+    /**
+     * 并发获取包裹明细开关
+     */
+    private boolean paralleGetPackageSwitch;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1247,14 +1252,6 @@ public class UccPropertyConfiguration {
         this.approvalSwitch = approvalSwitch;
     }
 
-    public String getOfflinePdaMenuCode() {
-        return offlinePdaMenuCode;
-    }
-
-    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
-        this.offlinePdaMenuCode = offlinePdaMenuCode;
-    }
-
     public String getPackRePrintInterceptStatus() {
         return packRePrintInterceptStatus;
     }
@@ -1263,11 +1260,27 @@ public class UccPropertyConfiguration {
         this.packRePrintInterceptStatus = packRePrintInterceptStatus;
     }
 
+    public String getOfflinePdaMenuCode() {
+        return offlinePdaMenuCode;
+    }
+
+    public void setOfflinePdaMenuCode(String offlinePdaMenuCode) {
+        this.offlinePdaMenuCode = offlinePdaMenuCode;
+    }
+
     public int getWaybillMaxPackNum() {
         return waybillMaxPackNum;
     }
 
     public void setWaybillMaxPackNum(int waybillMaxPackNum) {
         this.waybillMaxPackNum = waybillMaxPackNum;
+    }
+
+    public boolean isParalleGetPackageSwitch() {
+        return paralleGetPackageSwitch;
+    }
+
+    public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
+        this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 }

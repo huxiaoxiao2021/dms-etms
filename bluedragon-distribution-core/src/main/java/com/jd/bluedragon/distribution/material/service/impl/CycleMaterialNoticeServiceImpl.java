@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.material.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
@@ -9,6 +10,8 @@ import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeServic
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +75,7 @@ public class CycleMaterialNoticeServiceImpl implements CycleMaterialNoticeServic
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.CycleMaterialNoticeService.batchSendDeliveryMessage", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResult<Boolean> batchSendDeliveryMessage(List<BoxMaterialRelationMQ> list) {
         JdResult<Boolean> result = new JdResult<>();
         result.toSuccess();

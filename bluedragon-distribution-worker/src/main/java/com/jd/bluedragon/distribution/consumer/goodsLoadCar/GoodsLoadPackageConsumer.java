@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.goodsLoadCar;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -128,15 +129,13 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         if(StringUtils.isNotBlank(kyexpectValue)){
             if(jimdbCacheService.setNx(Constants.KYSENDMSGSUCCESSPREFIX+waybillCode,waybillCode,10,TimeUnit.DAYS)){
                 log.info("设置运单妥投消息缓存成功");
-                if(!this.sendSuccessInfo(req)){
-                    jimdbCacheService.del(Constants.KYSENDMSGSUCCESSPREFIX+waybillCode);
-                }
+                this.sendSuccessInfo(req);
             }
         }
     }
 
 
-    private boolean sendSuccessInfo(GoodsLoadDto req) {
+    private void sendSuccessInfo(GoodsLoadDto req) {
         if(log.isInfoEnabled()){
             log.info("发送运单妥投消息sendSuccessInfo:{}",JsonHelper.toJson(req));
         }
@@ -172,31 +171,38 @@ public class GoodsLoadPackageConsumer extends MessageBaseConsumer {
         waybillParameters.add(waybillParameter);
         log.info("运单同步老接口入参：{}", JsonHelper.toJson(waybillParameter));
         //发送妥投成功
-        sendWaybillSuccessMsg(req,currentOperate,waybillParameters);
-        return true;
+        try {
+            sendWaybillSuccessMsg(req,currentOperate,waybillParameters);
+        }catch (Exception ex){
+            log.error("跨越妥投加入任务失败:",ex);
+            jimdbCacheService.del(Constants.KYSENDMSGSUCCESSPREFIX+waybillCode);
+            throw new RuntimeException("跨越妥投加入任务失败,抛出异常,触发重试");
+        }
     }
 
     public void sendWaybillSuccessMsg(GoodsLoadDto req,CurrentOperate operate,List<WaybillParameter> body){
-        try {
-            String waybillCode = WaybillUtil.getWaybillCode(req.getPackageCode());
-            String jsonStr = JsonHelper.toJson(body);
-            Task task = new Task();
-            task.setBody(jsonStr);
+        String waybillCode = WaybillUtil.getWaybillCode(req.getPackageCode());
+        String jsonStr = JsonHelper.toJson(body);
+        Task task = new Task();
+        task.setBody(jsonStr);
+        if(operate == null){
+            task.setFingerprint(Md5Helper.encode(req.getUserCode()
+                    + "_" + waybillCode + "_" + req.getPackageCode() +"_"
+                    + System.currentTimeMillis())); //
+        }else{
             task.setFingerprint(Md5Helper.encode(req.getUserCode()+"_"+operate.getSiteCode()
                     + "_" + waybillCode + "_" + req.getPackageCode() +"_"
                     + System.currentTimeMillis())); //
             task.setCreateSiteCode(operate.getSiteCode());
-            task.setCreateTime(req.getUpdateTime());
-            task.setKeyword1(waybillCode);
-            task.setKeyword2(req.getPackageCode());
-            task.setType(Task.TASK_TYPE_WAYBILL_FINISHED);
-            task.setTableName(Task.TABLE_NAME_WAYBILL);
-            task.setSequenceName(Task.getSequenceName(task.getTableName()));
-            task.setOwnSign(BusinessHelper.getOwnSign());
-            this.taskService.add(task);
-        }catch (Exception ex){
-            log.error("跨越妥投加入任务失败:",ex);
-            throw new RuntimeException("跨越妥投加入任务失败,抛出异常,触发重试");
         }
+
+        task.setCreateTime(req.getUpdateTime());
+        task.setKeyword1(waybillCode);
+        task.setKeyword2(req.getPackageCode());
+        task.setType(Task.TASK_TYPE_WAYBILL_FINISHED);
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        this.taskService.add(task);
     }
 }
