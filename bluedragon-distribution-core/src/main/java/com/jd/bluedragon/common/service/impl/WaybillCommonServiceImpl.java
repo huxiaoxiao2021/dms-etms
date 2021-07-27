@@ -382,6 +382,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.WaybillCommonServiceImpl.convWaybillWS",mState={JProEnum.TP,JProEnum.FunctionError})
     public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack,
 			boolean loadPrintInfo,boolean loadPweight){
         if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
@@ -589,42 +590,51 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
 	@Override
 	public Map<String,PackOpeFlowDto> getPackOpeFlowsByOpeType(String waybillCode,Integer opeType) {
-		Map<String,PackOpeFlowDto> res = new TreeMap<String,PackOpeFlowDto>();
-		//校验传入参数是否合法
-		if(StringHelper.isEmpty(waybillCode)||opeType==null){
-			return res;
-		}
-		//调用运单接口，获取称重流水信息
-		BaseEntity<List<PackOpeFlowDto>> rest = this.waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
-		if(rest.getResultCode()==REST_CODE_SUC){
-			List<PackOpeFlowDto> packOpeFlowList = rest.getData();
-			PackOpeFlowDto oldData = null;
-			if(packOpeFlowList!=null&&!packOpeFlowList.isEmpty()){
-				for(PackOpeFlowDto newData:packOpeFlowList){
-					String key = newData.getPackageCode();
-					Integer key0 = newData.getOpeType();
-					if(!opeType.equals(key0)){
-						continue;
-					}
-					oldData = res.get(key);
-					if(oldData==null){
-						res.put(key, newData);
-					}else{
-						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web.WaybillCommonServiceImpl.getPackOpeFlowsByOpeType",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            Map<String,PackOpeFlowDto> res = new TreeMap<String,PackOpeFlowDto>();
+            //校验传入参数是否合法
+            if(StringHelper.isEmpty(waybillCode)||opeType==null){
+                return res;
+            }
+            CallerInfo callerInfoApi = Profiler.registerInfo("dms.web.waybillPackageApi.getPackOpeByWaybillCode",
+                    Constants.UMP_APP_NAME_DMSWEB, false, true);
+            //调用运单接口，获取称重流水信息
+            BaseEntity<List<PackOpeFlowDto>> rest = this.waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+            Profiler.registerInfoEnd(callerInfoApi);
+            if(rest.getResultCode()==REST_CODE_SUC){
+                List<PackOpeFlowDto> packOpeFlowList = rest.getData();
+                PackOpeFlowDto oldData = null;
+                if(packOpeFlowList!=null&&!packOpeFlowList.isEmpty()){
+                    for(PackOpeFlowDto newData:packOpeFlowList){
+                        String key = newData.getPackageCode();
+                        Integer key0 = newData.getOpeType();
+                        if(!opeType.equals(key0)){
+                            continue;
+                        }
+                        oldData = res.get(key);
+                        if(oldData==null){
+                            res.put(key, newData);
+                        }else{
+                            if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
 //							newData.setpWeight(newData.getpWeight());
 //							newData.setWeighTime(newData.getWeighTime());
-						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
-							oldData.setpWeight(newData.getpWeight());
-							oldData.setWeighTime(newData.getWeighTime());
-						}
-					}
-				}
-			}
-		}else{
-			this.log.warn("没有获取到包裹称重信息，code:{},msg:{}", rest.getResultCode(),rest.getMessage());
-		}
-		return res;
-	}
+                            }else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
+                                oldData.setpWeight(newData.getpWeight());
+                                oldData.setWeighTime(newData.getWeighTime());
+                            }
+                        }
+                    }
+                }
+            }else{
+                this.log.warn("没有获取到包裹称重信息，code:{},msg:{}", rest.getResultCode(),rest.getMessage());
+            }
+            return res;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
     /**
      * 通过运单对象，设置基础打印信息
      * <p>设置商家id和name(busiId、busiName)
@@ -639,6 +649,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param target 目标对象(BasePrintWaybill类型)
      * @param waybill 原始运单对象
      */
+    @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.setBasePrintInfoByWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public BasePrintWaybill setBasePrintInfoByWaybill(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill){
     	if(target==null||waybill==null){
     		return target;
@@ -1302,6 +1313,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @param printWaybill
      * @param bigWaybillDto
      */
+    @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadOriginalDmsInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void loadOriginalDmsInfo(WaybillPrintContext context,BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto) {
         Integer dmsCode = printWaybill.getOriginalDmsCode();
         String waybillCode = printWaybill.getWaybillCode();
@@ -1376,55 +1388,61 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * @return
      */
     private Integer dealC2cDmsSiteCode(WaybillPrintContext context,BasePrintWaybill printWaybill,WaybillPickup waybillPickup) {
-    	Integer prepareSiteCode = printWaybill.getPrepareSiteCode();
-    	Integer siteCode = null;
-    	Integer dmsSiteCode = null;
-    	if(context != null && context.getRequest() != null) {
-    		siteCode = context.getRequest().getSiteCode();
-    		dmsSiteCode = context.getRequest().getDmsSiteCode();
-    	}
-    	//1、传入始发分拣和操作站点一致，不做处理（网点就是分拣中心）
-    	if(dmsSiteCode != null && dmsSiteCode.equals(siteCode)) {
-    		return null;
-    	}
-    	//2、预分拣站点和操作站点一致，不做处理（末端网点打印）
-    	if(prepareSiteCode != null && prepareSiteCode.equals(siteCode)) {
-    		return null;
-    	}
-    	BaseStaffSiteOrgDto userSiteInfo = null;
-    	//3、传入操作站点并且是营业部，先取运单中揽收站点对应的揽收分拣中心、分拣中心，取不到则取操作网点对应的揽收分拣中心、分拣中心
-    	if(NumberHelper.gt0(siteCode)){
-    		//客户端和站长工作台一定会传
-        	userSiteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
-        	//操作站点是营业部
-        	if(userSiteInfo != null && BusinessHelper.isSiteType(userSiteInfo.getSiteType())) {
-        		Integer dmsCode = getPickDmsCode(printWaybill,waybillPickup);
-        		if(log.isDebugEnabled()) {
-        			log.debug("3、传入操作站点是营业部,运单号：{} 取揽收站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
-        		}
-    	        if(isVaildDms(dmsCode)) {
-    	        	return dmsCode;
-    	        }
-        		dmsCode = getDmsIdFormSiteInfo(userSiteInfo);
-        		if(log.isDebugEnabled()) {
-        			log.debug("3、传入操作站点是营业部,运单号：{} 取操作站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
-        		}
-    	        if(isVaildDms(dmsCode)) {
-    	        	return dmsCode;
-    	        }
-        	}
-    	}
-        //4、未传站点和分拣中心，取运单中揽收站点对应的揽收分拣中心、分拣中心
-        if (!isVaildDms(dmsSiteCode)) {
-	        Integer dmsCode = getPickDmsCode(printWaybill,waybillPickup);
-    		if(log.isDebugEnabled()) {
-    			log.debug("4、未传站点和分拣中心,运单号：{} 取揽收站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
-    		}
-	        if(isVaildDms(dmsCode)) {
-	        	return dmsCode;
-	        }
+        CallerInfo callerInfo = Profiler.registerInfo("dms.web.WaybillCommonServiceImpl.dealC2cDmsSiteCode",
+                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            Integer prepareSiteCode = printWaybill.getPrepareSiteCode();
+            Integer siteCode = null;
+            Integer dmsSiteCode = null;
+            if(context != null && context.getRequest() != null) {
+                siteCode = context.getRequest().getSiteCode();
+                dmsSiteCode = context.getRequest().getDmsSiteCode();
+            }
+            //1、传入始发分拣和操作站点一致，不做处理（网点就是分拣中心）
+            if(dmsSiteCode != null && dmsSiteCode.equals(siteCode)) {
+                return null;
+            }
+            //2、预分拣站点和操作站点一致，不做处理（末端网点打印）
+            if(prepareSiteCode != null && prepareSiteCode.equals(siteCode)) {
+                return null;
+            }
+            BaseStaffSiteOrgDto userSiteInfo = null;
+            //3、传入操作站点并且是营业部，先取运单中揽收站点对应的揽收分拣中心、分拣中心，取不到则取操作网点对应的揽收分拣中心、分拣中心
+            if(NumberHelper.gt0(siteCode)){
+                //客户端和站长工作台一定会传
+                userSiteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
+                //操作站点是营业部
+                if(userSiteInfo != null && BusinessHelper.isSiteType(userSiteInfo.getSiteType())) {
+                    Integer dmsCode = getPickDmsCode(printWaybill,waybillPickup);
+                    if(log.isDebugEnabled()) {
+                        log.debug("3、传入操作站点是营业部,运单号：{} 取揽收站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
+                    }
+                    if(isVaildDms(dmsCode)) {
+                        return dmsCode;
+                    }
+                    dmsCode = getDmsIdFormSiteInfo(userSiteInfo);
+                    if(log.isDebugEnabled()) {
+                        log.debug("3、传入操作站点是营业部,运单号：{} 取操作站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
+                    }
+                    if(isVaildDms(dmsCode)) {
+                        return dmsCode;
+                    }
+                }
+            }
+            //4、未传站点和分拣中心，取运单中揽收站点对应的揽收分拣中心、分拣中心
+            if (!isVaildDms(dmsSiteCode)) {
+                Integer dmsCode = getPickDmsCode(printWaybill,waybillPickup);
+                if(log.isDebugEnabled()) {
+                    log.debug("4、未传站点和分拣中心,运单号：{} 取揽收站点对应的分拣中心:[{}] " ,printWaybill.getWaybillCode(), dmsCode);
+                }
+                if(isVaildDms(dmsCode)) {
+                    return dmsCode;
+                }
+            }
+            return null;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
         }
-    	return null;
     }
     /**
      * 获取揽收站点对应的分拣中心
@@ -1471,6 +1489,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * B网根据始发和目的获取路由信息
      * @param printWaybill
      */
+    @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign){
         //非B网的不用查路由
         if(!BusinessUtil.isB2b(waybillSign)){

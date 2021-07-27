@@ -33,6 +33,10 @@ import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +95,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
      * @return 处理结果，处理是否通过
      */
     @Override
+	@JProfiler(jKey = "DMS.BASE.PreSortingSecondServiceImpl.preSortingAgain", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InterceptResult<String> preSortingAgain(WaybillPrintContext context){
         InterceptResult<String> interceptResult = context.getResult();
         Waybill waybill = context.getWaybill();
@@ -280,53 +285,59 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	 * @param context
 	 */
 	private InterceptResult<String> dealPackageReprint(WaybillPrintContext context) {
-		Waybill waybill = context.getWaybill();
-		String barCode = context.getRequest().getBarCode();
-		String waybillCode = waybill.getWaybillCode();
-		DmsOperateHint dmsOperateHint = this.dmsOperateHintService.getNeedReprintHint(waybillCode);
-		if(dmsOperateHint != null){
-			MediumStationOrderInfo newPreSiteInfo = JsonHelper.fromJson(
-					dmsOperateHint.getHintContent(), MediumStationOrderInfo.class);
-			//判断是否按运单补打
-			boolean isPrintByWaybill = waybillCode.equals(barCode);
-			//一单一件设置为按运单打印
-			if(waybill.getPackageNum() == 1){
-				isPrintByWaybill = true;
-			}
-			//按运单补打,则关闭提醒信息
-			boolean needCloseHintMsg = isPrintByWaybill;
-			boolean needSendMq = false;
-			Set<String> reprintRecords = this.printRecordService.getHasReprintPackageCodes(waybillCode);
-			if(!isPrintByWaybill){
-				//按包裹补打，不包含本次补打，存储一条补打记录
-				if(reprintRecords == null || !reprintRecords.contains(barCode)){
-					this.printRecordService.saveReprintRecord(barCode);
-					//判断是否已补打完所有包裹
-					if(reprintRecords != null && reprintRecords.size()==(waybill.getPackageNum()-1)){
-						needCloseHintMsg = true;
-					}
+		CallerInfo callerInfo = Profiler.registerInfo("dms.web.PreSortingSecondServiceImpl.dealPackageReprint",
+				Constants.UMP_APP_NAME_DMSWEB, false, true);
+		try {
+			Waybill waybill = context.getWaybill();
+			String barCode = context.getRequest().getBarCode();
+			String waybillCode = waybill.getWaybillCode();
+			DmsOperateHint dmsOperateHint = this.dmsOperateHintService.getNeedReprintHint(waybillCode);
+			if(dmsOperateHint != null){
+				MediumStationOrderInfo newPreSiteInfo = JsonHelper.fromJson(
+						dmsOperateHint.getHintContent(), MediumStationOrderInfo.class);
+				//判断是否按运单补打
+				boolean isPrintByWaybill = waybillCode.equals(barCode);
+				//一单一件设置为按运单打印
+				if(waybill.getPackageNum() == 1){
+					isPrintByWaybill = true;
 				}
-			}else{
-				needCloseHintMsg = true;
+				//按运单补打,则关闭提醒信息
+				boolean needCloseHintMsg = isPrintByWaybill;
+				boolean needSendMq = false;
+				Set<String> reprintRecords = this.printRecordService.getHasReprintPackageCodes(waybillCode);
+				if(!isPrintByWaybill){
+					//按包裹补打，不包含本次补打，存储一条补打记录
+					if(reprintRecords == null || !reprintRecords.contains(barCode)){
+						this.printRecordService.saveReprintRecord(barCode);
+						//判断是否已补打完所有包裹
+						if(reprintRecords != null && reprintRecords.size()==(waybill.getPackageNum()-1)){
+							needCloseHintMsg = true;
+						}
+					}
+				}else{
+					needCloseHintMsg = true;
+				}
+				if(reprintRecords == null||reprintRecords.isEmpty()){
+					needSendMq = true;
+				}
+				if(needCloseHintMsg){
+					log.warn("关闭包裹补打提醒：{}",waybill.getWaybillCode());
+					dmsOperateHint.setIsEnable(Constants.INTEGER_FLG_FALSE);
+					dmsOperateHintService.saveOrUpdate(dmsOperateHint);
+					log.warn("清除包裹补打记录：{}",waybill.getWaybillCode());
+					this.printRecordService.deleteReprintRecordsByWaybillCode(waybillCode);
+				}
+				//发送站点变更的mq给运单
+				if(needSendMq){
+					log.warn("包裹补打-发送站点变更的mq：{}",waybill.getWaybillCode());
+					sendSiteChangeMQ(context, newPreSiteInfo);
+				}
+				this.resetPresiteInfo(context, newPreSiteInfo);
 			}
-			if(reprintRecords == null||reprintRecords.isEmpty()){
-				needSendMq = true;
-			}
-			if(needCloseHintMsg){
-				log.warn("关闭包裹补打提醒：{}",waybill.getWaybillCode());
-				dmsOperateHint.setIsEnable(Constants.INTEGER_FLG_FALSE);
-				dmsOperateHintService.saveOrUpdate(dmsOperateHint);
-				log.warn("清除包裹补打记录：{}",waybill.getWaybillCode());
-				this.printRecordService.deleteReprintRecordsByWaybillCode(waybillCode);
-			}
-			//发送站点变更的mq给运单
-			if(needSendMq){
-				log.warn("包裹补打-发送站点变更的mq：{}",waybill.getWaybillCode());
-				sendSiteChangeMQ(context, newPreSiteInfo);
-			}
-			this.resetPresiteInfo(context, newPreSiteInfo);
+			return context.getResult();
+		} finally {
+			Profiler.registerInfoEnd(callerInfo);
 		}
-		return context.getResult();
 	}
 	/**
 	 * 新增一条站点变更提示信息
@@ -353,55 +364,61 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	 * @return
 	 */
 	private WeightOperFlow getTotalWeight(WaybillPrintContext context){
-		WeightOperFlow totalWeightInfo = new WeightOperFlow();
-		String waybillCode = context.getWaybill().getWaybillCode();
-		List<Pack> packageList = context.getWaybill().getPackList();
-		int packageNum = context.getWaybill().getPackageNum();
-		if(packageNum == 0 || packageList == null || packageList.isEmpty()){
-			return null;
-		}
-		//一单一件返回当前称重信息/取当前包裹的分拣中心称重信息
-		if(packageNum == 1){
-			if(BusinessHelper.hasWeightOrVolume(context.getRequest())){
-				return context.getRequest().getWeightOperFlow();
-			}else{
-				return weightService.getDmsWeightByPackageCode(packageList.get(0).getPackCode());
+		CallerInfo callerInfo = Profiler.registerInfo("dms.web.PreSortingSecondServiceImpl.getTotalWeight",
+				Constants.UMP_APP_NAME_DMSWEB, false, true);
+		try {
+			WeightOperFlow totalWeightInfo = new WeightOperFlow();
+			String waybillCode = context.getWaybill().getWaybillCode();
+			List<Pack> packageList = context.getWaybill().getPackList();
+			int packageNum = context.getWaybill().getPackageNum();
+			if(packageNum == 0 || packageList == null || packageList.isEmpty()){
+				return null;
 			}
-		}
-		Map<String, WeightOperFlow> weightInfos = weightService.getDmsWeightsByWaybillCode(waybillCode);
-		String barCode = context.getRequest().getBarCode();
-		//判断是否按运单补打
-		boolean isPrintByWaybill = waybillCode.equals(barCode);
-		if(weightInfos!=null && weightInfos.size()>=(packageList.size()-1)){
-			if(context.getRequest().getWeightOperFlow()!=null){
-				String packageCode = null;
-				if(isPrintByWaybill){
-					packageCode = context.getWaybill().getPackList().get(packageNum-1).getPackCode();
-					for(Pack pack:context.getWaybill().getPackList()){
-						if(pack.getIsPrintPack()!=Waybill.IS_PRINT_PACK){
-							packageCode = pack.getPackCode();
-							break;
-						}
-					}
+			//一单一件返回当前称重信息/取当前包裹的分拣中心称重信息
+			if(packageNum == 1){
+				if(BusinessHelper.hasWeightOrVolume(context.getRequest())){
+					return context.getRequest().getWeightOperFlow();
 				}else{
-					packageCode = barCode;
+					return weightService.getDmsWeightByPackageCode(packageList.get(0).getPackCode());
 				}
-				weightInfos.put(packageCode, context.getRequest().getWeightOperFlow());
 			}
-			//包裹集齐，累加重量和体积，作为调用预分拣的参数
-			if(weightInfos.size()==packageList.size()){
-				double weightSum = 0.0;
-				double volumeSum = 0.0;
-				for(String key:weightInfos.keySet()){
-					WeightOperFlow weightInfo = weightInfos.get(key);
-					weightSum += weightInfo.getWeight();
-					volumeSum += weightInfo.getVolume();
+			Map<String, WeightOperFlow> weightInfos = weightService.getDmsWeightsByWaybillCode(waybillCode);
+			String barCode = context.getRequest().getBarCode();
+			//判断是否按运单补打
+			boolean isPrintByWaybill = waybillCode.equals(barCode);
+			if(weightInfos!=null && weightInfos.size()>=(packageList.size()-1)){
+				if(context.getRequest().getWeightOperFlow()!=null){
+					String packageCode = null;
+					if(isPrintByWaybill){
+						packageCode = context.getWaybill().getPackList().get(packageNum-1).getPackCode();
+						for(Pack pack:context.getWaybill().getPackList()){
+							if(pack.getIsPrintPack()!=Waybill.IS_PRINT_PACK){
+								packageCode = pack.getPackCode();
+								break;
+							}
+						}
+					}else{
+						packageCode = barCode;
+					}
+					weightInfos.put(packageCode, context.getRequest().getWeightOperFlow());
 				}
-				totalWeightInfo.setWeight(weightSum);
-				totalWeightInfo.setVolume(volumeSum);
-				return totalWeightInfo;
+				//包裹集齐，累加重量和体积，作为调用预分拣的参数
+				if(weightInfos.size()==packageList.size()){
+					double weightSum = 0.0;
+					double volumeSum = 0.0;
+					for(String key:weightInfos.keySet()){
+						WeightOperFlow weightInfo = weightInfos.get(key);
+						weightSum += weightInfo.getWeight();
+						volumeSum += weightInfo.getVolume();
+					}
+					totalWeightInfo.setWeight(weightSum);
+					totalWeightInfo.setVolume(volumeSum);
+					return totalWeightInfo;
+				}
 			}
+			return null;
+		} finally {
+			Profiler.registerInfoEnd(callerInfo);
 		}
-		return null;
 	}
 }

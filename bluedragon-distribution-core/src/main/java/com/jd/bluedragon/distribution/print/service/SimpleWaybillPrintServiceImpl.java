@@ -29,6 +29,9 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -435,6 +438,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 处理打标信息（SendPay、WaybillSign单个标位字典处理）
      */
     @Override
+    @JProfiler(jKey = "DMS.BASE.SimpleWaybillPrintServiceImpl.dealSignTexts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName){
 		if(StringHelper.isNotEmpty(signStr)){
 			Map<Integer,SignConfig> signConfigs = dmsBaseDictService.getSignConfigsByConfigName(signConfigName);
@@ -459,6 +463,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 	}
 
 	@Override
+    @JProfiler(jKey = "DMS.BASE.SimpleWaybillPrintServiceImpl.dealDicTexts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void dealDicTexts(String dicKey, Integer dicTypeCode,
 			BasePrintWaybill target) {
 		if(StringHelper.isNotEmpty(dicKey) && NumberHelper.gt0(dicTypeCode)){

@@ -32,6 +32,8 @@ import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -280,6 +282,7 @@ public class SiteServiceImpl implements SiteService {
      */
     @Cache(key = "SiteServiceImpl.getBjDmsSiteCodes", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     @Override
+    @JProfiler(jKey = "DMS.BASE.SiteServiceImpl.getBjDmsSiteCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Set<Integer> getBjDmsSiteCodes() {
         return this.getSiteCodesFromSysConfig(Constants.SYS_CONFIG_NAME_BJ_DMS_SITE_CODES);
     }

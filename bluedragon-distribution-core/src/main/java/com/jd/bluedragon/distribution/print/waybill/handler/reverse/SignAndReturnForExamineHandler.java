@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.reverse;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
@@ -8,6 +9,8 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.receive.service.SignBillReturnApiManager;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,7 @@ public class SignAndReturnForExamineHandler implements InterceptHandler<WaybillP
     private UccPropertyConfiguration uccConfiguration;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SignAndReturnForExamineHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.debug("签单返还拦截校验");
         InterceptResult<String> result = context.getResult();

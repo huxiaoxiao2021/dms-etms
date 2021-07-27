@@ -21,6 +21,8 @@ import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,7 +80,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
 	public String execute(String jsonCommand) {
 		//设置初始化为成功
 		JdResult<?> jdResult = new JdResult<String>(JdResult.CODE_SUC,200,"200-调用服务成功。");
@@ -125,47 +127,52 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	 * @param operateType
 	 */
 	private void writeBusinessLog(String jsonCommand, String responseJsonString,Integer operateType){
-		JdResult<String> jdResultToLog = null;
+		CallerInfo info = Profiler.registerInfo("DMSWEB.JsonCommandServiceImpl.writeBusinessLog", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
-			//写入自定义日志
-			jdResultToLog = JSON.parseObject(responseJsonString, JdResult.class);
+			JdResult<String> jdResultToLog = null;
+			try {
+				//写入自定义日志
+				jdResultToLog = JSON.parseObject(responseJsonString, JdResult.class);
 
-			if (jdResultToLog != null && jdResultToLog.getData() != null) {
-				String dataStr = jdResultToLog.getData();
-				if (StringUtils.isNotBlank(dataStr)) {
-					JSONObject dataJson = JSON.parseObject(dataStr);
-					String afterProcess = null;
-					//平台打印、站点平台打印和其他打印逻辑返回值不一样，需要分开处理
-					if (operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
-							|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType())) {
-						if (dataJson != null && dataJson.get("jsonData") != null) {
-							String jsonDataStr = dataJson.get("jsonData").toString();
-							dataJson.put("jsonData", encryptedInfoProcess(jsonDataStr));
-							afterProcess = dataJson.toJSONString();
+				if (jdResultToLog != null && jdResultToLog.getData() != null) {
+					String dataStr = jdResultToLog.getData();
+					if (StringUtils.isNotBlank(dataStr)) {
+						JSONObject dataJson = JSON.parseObject(dataStr);
+						String afterProcess = null;
+						//平台打印、站点平台打印和其他打印逻辑返回值不一样，需要分开处理
+						if (operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
+								|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType())) {
+							if (dataJson != null && dataJson.get("jsonData") != null) {
+								String jsonDataStr = dataJson.get("jsonData").toString();
+								dataJson.put("jsonData", encryptedInfoProcess(jsonDataStr));
+								afterProcess = dataJson.toJSONString();
+							}
+						} else {
+							afterProcess = encryptedInfoProcess(dataStr);
 						}
-					} else {
-						afterProcess = encryptedInfoProcess(dataStr);
+						jdResultToLog.setData(afterProcess);
 					}
-					jdResultToLog.setData(afterProcess);
 				}
+			}catch (Exception e){
+				log.error("打印写操作日志异常.jsonCommand:{},responseJsonString:{},operateType:{}",jsonCommand, responseJsonString, operateType,e);
 			}
-		}catch (Exception e){
-			log.error("打印写操作日志异常.jsonCommand:{},responseJsonString:{},operateType:{}",jsonCommand, responseJsonString, operateType,e);
-		}
 
-		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
-		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
-		if (operateType == null) {
-			operateType = Constants.OPERATE_TYPE_UNKNOWN;
+			BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+			businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
+			if (operateType == null) {
+				operateType = Constants.OPERATE_TYPE_UNKNOWN;
+			}
+			businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_PRINT);
+			businessLogProfiler.setOperateType(operateType);
+			businessLogProfiler.setOperateRequest(jsonCommand);
+			if(jdResultToLog!=null) {
+				businessLogProfiler.setOperateResponse(JSON.toJSONString(jdResultToLog));
+			}
+			businessLogProfiler.setTimeStamp(System.currentTimeMillis());
+			BusinessLogWriter.writeLog(businessLogProfiler);
+		} finally {
+			Profiler.registerInfoEnd(info);
 		}
-		businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_PRINT);
-		businessLogProfiler.setOperateType(operateType);
-		businessLogProfiler.setOperateRequest(jsonCommand);
-		if(jdResultToLog!=null) {
-			businessLogProfiler.setOperateResponse(JSON.toJSONString(jdResultToLog));
-		}
-		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
-		BusinessLogWriter.writeLog(businessLogProfiler);
 	}
 
 	private void saveInterceptLog(JdCommand<String> jdCommand, JdResult<?> jdResult){
@@ -240,6 +247,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	 * @param jsonCommand
 	 */
 	private void writeSecurityLog(JdCommand<String> jsonCommand){
+		CallerInfo info = Profiler.registerInfo("DMSWEB.JsonCommandServiceImpl.writeSecurityLog", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try{
 			//构建参数
 			WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
@@ -248,6 +256,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			SecurityLog.reportSecurityLog(JsonCommandServiceImpl.class.getName(),waybillPrintRequest.getUserERP(),waybillPrintRequest.getBarCode());
 		}catch (Exception ex){
 			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 	}
 }
