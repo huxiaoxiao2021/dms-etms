@@ -162,6 +162,16 @@ public interface NewSealVehicleService {
     boolean checkSendCodeIsSealed(String sendCode);
 
     /**
+     * 校验批次号是否封车<br>
+     * <b>包含西藏模式逻辑，调用ITMS系统判断批次号状态</b>
+     *
+     * @param sendCode 批次号
+     * @param customMessage 自定义的提示语
+     * @return 返回true不拦截，返回false需要拦截
+     */
+    boolean newCheckSendCodeSealed(String sendCode, StringBuffer customMessage);
+
+    /**
      * 获取批次号的封车时间，若为null或者小于等于0则表示未封车
      *
      * @param sendCode

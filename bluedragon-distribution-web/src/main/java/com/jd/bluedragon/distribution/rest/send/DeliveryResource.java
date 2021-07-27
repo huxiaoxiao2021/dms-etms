@@ -439,7 +439,7 @@ public class DeliveryResource {
     @JProfiler(jKey = "DMS.WEB.DeliveryResource.cancelLastDeliveryInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
         if(log.isDebugEnabled()){
-            log.debug("取消最近的一次发货JSON" , JsonHelper.toJson(request));
+            log.debug("取消最近的一次发货JSON. {}" , JsonHelper.toJson(request));
         }
 
         //参数校验

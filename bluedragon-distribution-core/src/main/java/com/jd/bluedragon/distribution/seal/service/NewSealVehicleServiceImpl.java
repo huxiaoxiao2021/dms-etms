@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -30,10 +31,16 @@ import com.jd.bluedragon.distribution.material.service.SortingMaterialSendServic
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
+import com.jd.bluedragon.external.crossbow.itms.constants.ItmsConstants;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
+import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
@@ -44,10 +51,6 @@ import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
@@ -59,6 +62,7 @@ import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
+import com.jd.logistics.customer.center.service.CustomerToolService;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
@@ -151,6 +155,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Qualifier(value = "batchSendStatusChangeProducer")
     private DefaultJMQProducer batchSendStatusChangeProducer;
+
+    @Autowired
+    private TibetBizService tibetBizService;
+
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -915,6 +923,55 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return null;
     }
 
+    /**
+     * 校验批次号是否封车<br>
+     * <b>包含西藏模式逻辑，调用ITMS系统判断批次号状态</b>
+     *
+     * @param sendCode 批次号
+     * @param customMessage 自定义的提示语
+     * @return 返回true不拦截，返回false需要拦截
+     */
+    @Override
+    public boolean newCheckSendCodeSealed(String sendCode, StringBuffer customMessage) {
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        // 启用西藏业务模式
+        boolean tibetMode = tibetBizService.tibetModeSwitch(createSiteCode, receiveSiteCode);
+        if (tibetMode) {
+            ItmsSendCheckSendCodeDto request = new ItmsSendCheckSendCodeDto();
+
+            // 此处可以使用批次号解析始发分拣中心，基于发货前校验了批次始发场地和操作人所属场地的一致性
+            // @see com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl#checkSendM()
+            request.setFromLocationId(String.valueOf(createSiteCode));
+            request.setToLocationId(String.valueOf(receiveSiteCode));
+            request.setReceiptCode(sendCode);
+
+            ItmsResponse response = tibetBizService.sendCheckSendCode(request);
+            if (log.isInfoEnabled()) {
+                log.info("西藏模式调用ITMS系统校验批次状态. request:{}, response:{}", JsonHelper.toJson(request), JsonHelper.toJson(response));
+            }
+            if (!response.success()) {
+                if (StringUtils.isNotBlank(response.getMessage())) {
+                    if (customMessage != null && customMessage.length() > 0) {
+                        customMessage.setLength(0);
+                        customMessage.append(response.getMessage());
+                    }
+                }
+                return true;
+            }
+        }
+        else {
+            if (checkSendCodeIsSealed(sendCode)) {
+                if (customMessage != null && customMessage.length() > 0) {
+                    customMessage.setLength(0);
+                    customMessage.append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+                }
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     /**
      * 查询全部的未封车批次号

@@ -164,6 +164,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_WAYBILL_IS_WASTE = 40020;
     public static final String MESSAGE_WAYBILL_IS_WASTE = "弃件禁止操作，请按公司规定暂存";
 
+    // 调用ITMS系统失败时，转换为分拣内部Code，保留提示信息
+    public static final Integer CODE_ITMS_FAIL = 40021;
+
     /**取消发货校验提示语 End*/
 
     /**
@@ -194,5 +197,9 @@ public class DeliveryResponse extends JdResponse {
 
     public void setTipMessages(List<String> tipMessages) {
         this.tipMessages = tipMessages;
+    }
+
+    public static DeliveryResponse itmsFail(String message) {
+        return new DeliveryResponse(CODE_ITMS_FAIL, message);
     }
 }
