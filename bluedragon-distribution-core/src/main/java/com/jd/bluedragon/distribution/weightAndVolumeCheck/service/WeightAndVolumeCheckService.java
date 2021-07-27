@@ -96,6 +96,8 @@ public interface WeightAndVolumeCheckService {
      */
     InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum);
 
+    InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result, Boolean saveData);
+
     void setProductType(WeightVolumeCollectDto weightVolumeCollectDto, Waybill  waybill);
 
     /**

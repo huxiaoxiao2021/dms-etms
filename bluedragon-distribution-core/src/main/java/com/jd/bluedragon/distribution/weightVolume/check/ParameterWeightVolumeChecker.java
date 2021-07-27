@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.weightVolume.check;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -107,7 +109,7 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                 && !NumberHelper.gt0(entity.getLength())
                 && !NumberHelper.gt0(entity.getWidth())
                 && !NumberHelper.gt0(entity.getVolume())) {
-            result.parameterError("未上传有效的称重量方数据");
+            result.parameterError(HintService.getHint(HintCodeConstants.WEIGHT_AND_VOLUME_ILLEGAL_DATA));
             result.setData(Boolean.FALSE);
             return result;
         }

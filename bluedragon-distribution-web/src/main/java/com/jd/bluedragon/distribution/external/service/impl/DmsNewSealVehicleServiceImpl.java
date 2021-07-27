@@ -69,6 +69,7 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
         return newSealVehicleResource.checkTransportCode(request);
     }
 
+    @Deprecated
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.newCheckTranCodeAndBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType) {

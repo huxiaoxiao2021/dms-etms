@@ -655,8 +655,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param spotCheckSourceEnum
      */
     @Override
-    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum) {
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+        return dealSportCheck(packWeightVO, spotCheckSourceEnum, result, true);
+    }
+    /**
+     * 抽检数据处理
+     * @param saveData 是否 保存抽检记录并发送全流程跟踪
+     */
+    @Override
+    public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result,Boolean saveData) {
+        if (saveData == null) {
+            saveData = true;
+        }
+
         try{
             // 基础参数校验
             if(!paramCheck(packWeightVO, result)){
@@ -675,14 +686,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 组装抽检数据
             WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, spotCheckSourceEnum, result);
-            // 抽检数据落es
-            reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
-            // 抽检全程跟踪
-            sendWaybillTrace(weightVolumeCollectDto);
-            // 缓存抽检记录
-            cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
-            // 记录抽检操作日志
-            recordSpotCheckLog(weightVolumeCollectDto, spotCheckSourceEnum);
+            // 是否超标
+            result.setData(Objects.equals(weightVolumeCollectDto.getIsExcess(),IsExcessEnum.EXCESS_ENUM_YES.getCode()));
+
+            if (saveData) {
+                // 抽检数据落es
+                reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+                // 抽检全程跟踪
+                sendWaybillTrace(weightVolumeCollectDto);
+                // 缓存抽检记录
+                cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
+                // 记录抽检操作日志
+                recordSpotCheckLog(weightVolumeCollectDto, spotCheckSourceEnum);
+            }
         }catch (Exception e){
             log.error("单号{}的抽检数据处理异常!", packWeightVO.getCodeStr(), e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);

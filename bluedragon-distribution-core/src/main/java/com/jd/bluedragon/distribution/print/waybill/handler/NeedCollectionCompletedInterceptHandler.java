@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ldop.utils.CollectionUtils;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,7 @@ public class NeedCollectionCompletedInterceptHandler extends NeedPrepareDataInte
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.NeedCollectionCompletedInterceptHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     InterceptResult<String> doHandler(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();

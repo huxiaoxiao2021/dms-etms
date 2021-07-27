@@ -24,6 +24,8 @@ import com.jd.bluedragon.utils.LableType;
 import com.jd.bluedragon.utils.OriginalType;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
     private C2cInterceptHandler c2cInterceptHandler;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SitePlateBasicHandler.handle",mState={JProEnum.TP, JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = new InterceptResult<String>();
         Integer startDmsCode = context.getRequest().getDmsSiteCode();

@@ -12,6 +12,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.configCenter.GuaranteeConfigApi;
 import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -68,6 +70,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 
 
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.TemplateSelectorWaybillHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("标签打印-计算包裹标签模板及版本");
         String templateName = context.getRequest().getTemplateName();

@@ -107,6 +107,8 @@ public class Constants {
      * 集配站编号
      */
     public static final Integer JI_PEI_CODE_9605 = 9605;
+    /** 营业部 类型*/
+    public static final Integer TERMINAL_SITE_TYPE_4 = 4;
 //    后续增加城配的时候再使用，此次增加没有意义.
 //    public static final Integer CHENGPEI_CODE_9606 = 9606;
     /**
@@ -1533,4 +1535,17 @@ public class Constants {
      * 快运使用的泡重比:6000
      */
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
+
+    /**
+     * 驻厂操作全程跟踪
+     */
+    public static final String TRACE_PACK_RECEIVE = "订单/包裹已接货";
+    public static final String TRACE_DELIVERY_COLLECT = "配送员%s揽收完成";
+
+    /***
+     * 跨越成功校验缓存前缀
+     */
+    public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
+    /***跨越成功发送妥投消息前缀**/
+    public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
 }

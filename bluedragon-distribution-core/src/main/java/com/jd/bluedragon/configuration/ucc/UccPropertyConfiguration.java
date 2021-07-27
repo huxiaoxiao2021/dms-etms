@@ -240,6 +240,11 @@ public class UccPropertyConfiguration {
     private String quickSealTips;
 
     /**
+     * 虚拟场地编码code
+     */
+    private Integer virtualSiteCode;
+
+    /**
      * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
      * true： 表示使用新的序号生成器生成
      * false：使用原始的工具类生成
@@ -399,6 +404,12 @@ public class UccPropertyConfiguration {
     private String hideSpecialStartSitePrintReplaceSymbol;
 
     /**
+     * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
+     * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     */
+    private String siteEnableSendCodeEffectiveValidation;
+
+    /**
      * 取消鸡毛信切换OMS接口开关
      */
     private boolean cancelJimaoxinSwitchToOMS;
@@ -415,10 +426,29 @@ public class UccPropertyConfiguration {
     private int waybillMaxPackNum;
 
     /**
+     * 并发获取包裹明细开关
+     */
+    private boolean paralleGetPackageSwitch;
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    /**
      * 反调度校验滑道信息 开关
      * true :检验 false 不校验
      */
     private boolean backDispatchCheck;
+
+    /**
+     * 包裹补打-拦截状态码
+     *  以,隔开
+     */
+    private String packRePrintInterceptStatus;
 
     /**
      * 单次插入数据库的条数
@@ -870,6 +900,14 @@ public class UccPropertyConfiguration {
         this.quickSealTips = quickSealTips;
     }
 
+    public Integer getVirtualSiteCode() {
+        return virtualSiteCode;
+    }
+
+    public void setVirtualSiteCode(Integer virtualSiteCode) {
+        this.virtualSiteCode = virtualSiteCode;
+    }
+
     public boolean isSendCodeGenSwitchOn() {
         return sendCodeGenSwitchOn;
     }
@@ -1139,6 +1177,14 @@ public class UccPropertyConfiguration {
         this.hideSpecialStartSitePrintReplaceSymbol = hideSpecialStartSitePrintReplaceSymbol;
     }
 
+    public String getSiteEnableSendCodeEffectiveValidation() {
+        return siteEnableSendCodeEffectiveValidation;
+    }
+
+    public void setSiteEnableSendCodeEffectiveValidation(String siteEnableSendCodeEffectiveValidation) {
+        this.siteEnableSendCodeEffectiveValidation = siteEnableSendCodeEffectiveValidation;
+    }
+
     public boolean isCancelJimaoxinSwitchToOMS() {
         return cancelJimaoxinSwitchToOMS;
     }
@@ -1153,6 +1199,14 @@ public class UccPropertyConfiguration {
 
     public void setApprovalSwitch(boolean approvalSwitch) {
         this.approvalSwitch = approvalSwitch;
+    }
+
+    public String getPackRePrintInterceptStatus() {
+        return packRePrintInterceptStatus;
+    }
+
+    public void setPackRePrintInterceptStatus(String packRePrintInterceptStatus) {
+        this.packRePrintInterceptStatus = packRePrintInterceptStatus;
     }
 
     public String getOfflinePdaMenuCode() {
@@ -1171,19 +1225,19 @@ public class UccPropertyConfiguration {
         this.waybillMaxPackNum = waybillMaxPackNum;
     }
 
-    public boolean getCheckSignAndReturn() {
-        return checkSignAndReturn;
-    }
-
-    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
-        this.checkSignAndReturn = checkSignAndReturn;
-    }
-
     public double getSpotCheckNoExcessLimit() {
         return spotCheckNoExcessLimit;
     }
 
     public void setSpotCheckNoExcessLimit(double spotCheckNoExcessLimit) {
         this.spotCheckNoExcessLimit = spotCheckNoExcessLimit;
+    }
+
+    public boolean isParalleGetPackageSwitch() {
+        return paralleGetPackageSwitch;
+    }
+
+    public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
+        this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 }
