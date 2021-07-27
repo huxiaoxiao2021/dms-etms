@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.consumer.gantry;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.gantry.domain.GantryResidentDto;
-import com.jd.bluedragon.distribution.gantry.exception.GantryResidentException;
 import com.jd.bluedragon.distribution.gantry.service.GantryResidentScanService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -30,9 +29,11 @@ public class GantryResidentScanConsumer extends MessageBaseConsumer {
 
     @Override
     public void consume(Message message) throws Exception {
-
-        logger.info("GantryResidentScanConsumer consume --> 消息Body为【{}】", message.getText());
         try {
+            if (!JsonHelper.isJsonString(message.getText())) {
+                logger.warn("GantryResidentScanConsumer-消息体非JSON格式，内容为【{}】", message.getText());
+                return;
+            }
             //反序列化
             GantryResidentDto gantryResidentDto = JsonHelper.fromJson(message.getText(), GantryResidentDto.class);
             // 参数校验
@@ -41,10 +42,9 @@ public class GantryResidentScanConsumer extends MessageBaseConsumer {
             }
             // 龙门架驻厂扫描逻辑处理
             gantryResidentScanService.dealLogic(gantryResidentDto);
-        }catch (GantryResidentException e){
-            throw new GantryResidentException(e.getMessage());
         }catch (Exception e){
-            logger.error("龙门架驻厂扫描处理异常!", e);
+            logger.error("龙门架驻厂扫描处理异常,入参:{}", message.getText(), e);
+            throw e;
         }
 
     }

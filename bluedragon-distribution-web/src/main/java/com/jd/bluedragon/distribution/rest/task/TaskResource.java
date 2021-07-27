@@ -150,7 +150,14 @@ public class TaskResource {
     @POST
     @Path("/tasks")
     public TaskResponse add(TaskRequest request) {
-        return taskService.add(request);
+        try{
+            return taskService.add(request);
+        }catch (Exception e){
+            log.error("TaskResource add error!  req:{}",JsonHelper.toJson(request),e);
+            return  new TaskResponse(JdResponse.CODE_SERVICE_ERROR,
+                    JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+
     }
 
 

@@ -469,6 +469,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         checkResponse.setTipMessages(new ArrayList<String>());
         result.toSuccess();
         try {
+
+            // 验证批次号是否合法
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> sendChkResult = sendCodeService.validateSendCodeEffective(deliveryRequest.getSendCode());
+            if (!sendChkResult.codeSuccess()) {
+                result.toFail(sendChkResult.getMessage());
+                return result;
+            }
+
             //不是快运发货，调用箱号验证
             if(!KY_DELIVERY.equals(deliveryRequest.getOpType())){
                 DeliveryResponse boxCheckResponse = this.doCheckDeliveryInfo(deliveryRequest.getBoxCode(),
@@ -1940,6 +1948,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     public void saveOrUpdateBatch(List<SendDetail> sdList) {
+        CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.saveOrUpdateBatch");
         List<SendDetail>[] sendArray = splitList(sdList);
         List<String> result = new ArrayList<String>();
 
@@ -1976,6 +1985,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             request.setReceiveSiteCode(receiveSiteCode);
             sendDatailDao.updateCancelBatch(request);
         }
+        Profiler.registerInfoEnd(umpMonitor);
     }
 
     @Override
@@ -2014,14 +2024,37 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (source != null){
             sourceCode = source.getCode();
         }
+
+        List<SendM> actualList = Lists.newArrayListWithCapacity(sendMList.size());
+
         for (SendM dSendM : sendMList) {
             if (!list.contains(dSendM.getBoxCode())) {
                 dSendM.setBizSource(sourceCode);
-                this.sendMManager.insertSendM(dSendM);
-                //发送发货业务通知MQ
-                deliverGoodsNoticeMQ(dSendM);
+                actualList.add(dSendM);
             }
         }
+
+        if (CollectionUtils.isEmpty(actualList)) {
+            return;
+        }
+
+        sendMManager.batchSaveSendM(actualList);
+
+        this.batchSendMaterialMq(actualList);
+
+    }
+
+    /**
+     * 发送发货物资消息
+     * @param sendMList
+     */
+    private void batchSendMaterialMq(List<SendM> sendMList) {
+        List<BoxMaterialRelationMQ> list = Lists.newArrayListWithCapacity(sendMList.size());
+        for (SendM sdm : sendMList) {
+            list.add(makeBoxMaterialRelationFromSendM(sdm));
+        }
+
+        cycleMaterialNoticeService.batchSendDeliveryMessage(list);
     }
 
     /**
@@ -2029,6 +2062,17 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sdm
      */
      private void deliverGoodsNoticeMQ(SendM sdm) {
+         BoxMaterialRelationMQ mq = makeBoxMaterialRelationFromSendM(sdm);
+
+         cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
+     }
+
+    /**
+     *
+     * @param sdm
+     * @return
+     */
+     private BoxMaterialRelationMQ makeBoxMaterialRelationFromSendM(SendM sdm) {
          BoxMaterialRelationMQ mq = new BoxMaterialRelationMQ();
          mq.setBoxCode(sdm.getBoxCode());
          mq.setBusinessType(BoxMaterialRelationEnum.SEND.getType());
@@ -2040,7 +2084,7 @@ public class DeliveryServiceImpl implements DeliveryService {
          BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sdm.getReceiveSiteCode());
          mq.setReceiveSiteName(null != siteOrgDto ? siteOrgDto.getSiteName() : StringUtils.EMPTY);
 
-         cycleMaterialNoticeService.deliverySendGoodsMessage(mq);
+         return mq;
      }
 
     /***
@@ -2332,17 +2376,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(info1);
 
 
+        CallerInfo info3 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.cancelStatusReceipt", false, true);
         // 取消发货在发货状态位回执
         this.cancelStatusReceipt(sendMList, deliveredList);
+        Profiler.registerInfoEnd(info3);
 
         CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2",Constants.UMP_APP_NAME_DMSWEB, false, true);
+
         // 写入发货表数据
         this.insertSendM(source, sendMList, deliveredList);
 
-        for (SendM domain : sendMList) {
-            // 插入中转任务
-            this.transitSend(domain);
-        }
+        // 插入中转任务
+        this.batchTransitSend(sendMList);
+
         // 写入任务
         addTaskSend(sendMList.get(0));
         Profiler.registerInfoEnd(info2);
@@ -2514,6 +2560,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 补全包裹信息
      */
     private void fillPickup(SendDetail tSendDatail, SendM tsendM) {
+        CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.fillPickup");
         tSendDatail.setCreateUser(tsendM.getCreateUser());
         tSendDatail.setCreateUserCode(tsendM.getCreateUserCode());
         tSendDatail.setSendType(tsendM.getSendType());
@@ -2543,6 +2590,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
         }
+        Profiler.registerInfoEnd(umpMonitor);
     }
 
     /**
@@ -2578,8 +2626,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                 // 箱号并且取消发货的
                 if (BusinessHelper.isBoxcode(tSendM.getBoxCode()) && result.contains(tSendM.getBoxCode())) {
                     tSendDetail.setStatus(2);
+                    CallerInfo umpMonitor = ProfilerHelper.registerInfo("Bluedragon_dms_center.dms.method.deliveryService.cancelStatusReceipt.updateCancel");
                     // 重置包裹信息发货状态
                     this.updateCancel(tSendDetail);
+                    Profiler.registerInfoEnd(umpMonitor);
                 }
                 // 包裹号或者面单号
                 if (WaybillUtil.isPackageCode(tSendM.getBoxCode())
@@ -5447,10 +5497,34 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 批量插入中转任务
+     *
+     * @param sendMList
+     * @return
+     */
+    @Override
+    public boolean batchTransitSend(List<SendM> sendMList) {
+        if (!CollectionUtils.isEmpty(sendMList)) {
+            List<Task> tasks = Lists.newArrayListWithCapacity(sendMList.size());
+            for (SendM sendM : sendMList) {
+                if (isTransferSend(sendM)) {
+                    tasks.add(genTransferSendTask(sendM));
+                }
+            }
+
+            if (!CollectionUtils.isEmpty(tasks)) {
+                tTaskService.addBatch(tasks);
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * 判断当前发货是否为中转发货
      * 1:装箱、正向、逆向发货
      * 2:发货起始站与箱子起始站不同
-     * 3:发货目的是分拣中心，发货起始站与箱子起始不同
+     * 3:发货目的是分拣中心，发货目的站与箱子目的不同
      * 4.如发货目的是站点并且站点类型在所属站类型范围内，取箱号目的所属站和批次目的地相同
      *
      * @param domain 发货对象
@@ -5494,8 +5568,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         return false;
     }
 
+
     @Override
     public void pushTransferSendTask(SendM domain) {
+        Task tTask = genTransferSendTask(domain);
+        tTaskService.add(tTask, true);
+    }
+
+    /**
+     * 构建中转发货任务
+     * @param domain
+     * @return
+     */
+    private Task genTransferSendTask(SendM domain) {
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoxCode());
         tTask.setBody(domain.getSendCode());
@@ -5510,8 +5595,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
-        tTaskService.add(tTask, true);
+
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
+        return tTask;
     }
 
     @Override
