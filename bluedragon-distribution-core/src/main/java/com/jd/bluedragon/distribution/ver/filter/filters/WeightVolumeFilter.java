@@ -75,22 +75,8 @@ public class WeightVolumeFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         //是否开启C网运单校验 标识
-        boolean switchOn = false;
-        //默认false 不开全国校验
-        if(uccPropertyConfiguration.getWeightVolumeFilterWholeCountryFlag()){
-            switchOn = true;
-        }else{
-        //加一个分拣规则
-            Rule rule = null;
-            try {
-                rule = request.getRuleMap().get(RULE_WEIGHT_VOLUMN_SWITCH);
-            } catch (Exception e) {
-                logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_WEIGHT_VOLUMN_SWITCH + "] 没有匹配的规则");
-            }
-            if (rule != null && SWITCH_OFF.equals(rule.getContent())) {//为了上部分站点测试，暂时改变参数的含义 推全国再改回去
-                switchOn = true;
-            }
-        }
+        boolean switchOn = this.getValidateWeightSwitch(request);
+
         String waybillCode = request.getWaybillCode();
         String waybillSign = request.getWaybillCache().getWaybillSign();
         String packageCode = request.getPackageCode();
@@ -111,6 +97,15 @@ public class WeightVolumeFilter implements Filter {
         if(logger.isInfoEnabled()) {
             logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
         }
+
+        // 一单多件不需要拦截
+        int waybillPackageTotal = request.getWaybillCache().getQuantity();
+        if(waybillPackageTotal > 1){
+            logger.info("WeightVolumeFilter.doFilter 一单多件不拦截");
+            chain.doFilter(request, chain);
+            return;
+        }
+
         //众邮无重量拦截
         if( isEconomicNetNeedWeight){
             if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
@@ -129,14 +124,14 @@ public class WeightVolumeFilter implements Filter {
                 if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
                     //return result;
                     logger.info("WeighVolumeFilter-doFilter,判断是否KA校验,66位为3,但校验不通过,package:{},waybillSin:{}",packageCode,waybillSign);
-                    throw  new SortingCheckException(result.getCode(),result.getMessage());
+                    throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
                 JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
                 if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
+                    throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
                 }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                    throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
                 }
             }
 
@@ -152,8 +147,8 @@ public class WeightVolumeFilter implements Filter {
                     throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
                 }
                 //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
-                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
-                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
+                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() < 0
+                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) < 0) {
                     logger.warn("未查询到重量体积信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
 
                     /* C网提示，B网拦截 */
@@ -168,6 +163,25 @@ public class WeightVolumeFilter implements Filter {
         chain.doFilter(request, chain);
     }
 
+    private boolean getValidateWeightSwitch(FilterContext request){
+        boolean switchOn = false;
+        //默认false 不开全国校验
+        if(uccPropertyConfiguration.getWeightVolumeFilterWholeCountryFlag()){
+            switchOn = true;
+        }else{
+            //加一个分拣规则
+            Rule rule = null;
+            try {
+                rule = request.getRuleMap().get(RULE_WEIGHT_VOLUMN_SWITCH);
+            } catch (Exception e) {
+                logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_WEIGHT_VOLUMN_SWITCH + "] 没有匹配的规则");
+            }
+            if (rule != null && SWITCH_OFF.equals(rule.getContent())) {//为了上部分站点测试，暂时改变参数的含义 推全国再改回去
+                switchOn = true;
+            }
+        }
+        return switchOn;
+    }
 
 
     /**
