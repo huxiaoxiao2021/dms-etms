@@ -384,11 +384,6 @@ public class UccPropertyConfiguration {
     private boolean spotCheckIssueControl;
 
     /**
-     * C网抽检是否按以前逻辑下发MQ
-     */
-    private boolean spotCheckIssueControlPre;
-
-    /**
      * 隐藏特殊始发场地名称开关，0-关，1-开
      */
     private int hideSpecialStartSitePrintSwitch;
@@ -1107,14 +1102,6 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
         this.spotCheckIssueControl = spotCheckIssueControl;
-    }
-
-    public boolean getSpotCheckIssueControlPre() {
-        return spotCheckIssueControlPre;
-    }
-
-    public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
-        this.spotCheckIssueControlPre = spotCheckIssueControlPre;
     }
 
     public int getHideSpecialStartSitePrintSwitch() {

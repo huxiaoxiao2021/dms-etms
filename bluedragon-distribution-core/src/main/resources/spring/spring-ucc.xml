@@ -118,7 +118,6 @@
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
         <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
-        <property name="spotCheckIssueControlPre" value="${spotCheckIssueControl:false}"></property>
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
@@ -214,7 +213,6 @@
 				<value>uccPropertyConfiguration.inspectNoSendNoLoadWaybillDemotion</value>
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
-				<value>uccPropertyConfiguration.spotCheckIssueControlPre</value>
 				<value>uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
