@@ -233,6 +233,7 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
+                <value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 			</list>
 		</property>
 	</bean>
