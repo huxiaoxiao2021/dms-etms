@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 import java.util.List;
 
@@ -27,38 +30,43 @@ public abstract class AbstractPrintOperateHandler implements InterceptHandler<Wa
     public abstract String dealPrintResult(WaybillPrintContext context);
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
-        InterceptResult<String> interceptResult = new InterceptResult<String>();
-        interceptResult.toSuccess();
-        if (handlers != null && !handlers.isEmpty()) {
-            for (Handler<WaybillPrintContext, JdResult<String>> handler : handlers) {
-                //拦截类型的处理
-                if (handler instanceof InterceptHandler) {
-                    InterceptResult<String> InterceptResult = (InterceptResult<String>) ((InterceptHandler) handler).handle(context);
-                    if (InterceptResult != null && InterceptResult.isPassed()) {
-                        if (InterceptResult.isWeakPassed()) {
-                            context.appendMessage(InterceptResult.getMessage());
-                            context.setStatus(InterceptResult.getStatus());
+        CallerInfo info = Profiler.registerInfo("DMSWEB.AbstractPrintOperateHandler.handle", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            InterceptResult<String> interceptResult = new InterceptResult<String>();
+            interceptResult.toSuccess();
+            if (handlers != null && !handlers.isEmpty()) {
+                for (Handler<WaybillPrintContext, JdResult<String>> handler : handlers) {
+                    //拦截类型的处理
+                    if (handler instanceof InterceptHandler) {
+                        InterceptResult<String> InterceptResult = (InterceptResult<String>) ((InterceptHandler) handler).handle(context);
+                        if (InterceptResult != null && InterceptResult.isPassed()) {
+                            if (InterceptResult.isWeakPassed()) {
+                                context.appendMessage(InterceptResult.getMessage());
+                                context.setStatus(InterceptResult.getStatus());
+                            }
+                        } else {
+                            return InterceptResult;
                         }
                     } else {
-                        return InterceptResult;
-                    }
-                } else {
-                    JdResult<String> jdResult = handler.handle(context);
-                    if (!jdResult.isSucceed()) {
-                        context.setStatus(InterceptResult.STATUS_NO_PASSED);
-                        interceptResult.toFail(jdResult.getMessageCode(), jdResult.getMessage());
-                        return interceptResult;
+                        JdResult<String> jdResult = handler.handle(context);
+                        if (!jdResult.isSucceed()) {
+                            context.setStatus(InterceptResult.STATUS_NO_PASSED);
+                            interceptResult.toFail(jdResult.getMessageCode(), jdResult.getMessage());
+                            return interceptResult;
+                        }
                     }
                 }
             }
+            interceptResult.setData(dealPrintResult(context));
+            if (InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())) {
+                interceptResult.setStatus(context.getStatus());
+                interceptResult.setMessage(context.getMessages().get(0));
+                interceptResult.setCode(JdResult.CODE_SUC);
+            }
+            return interceptResult;
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        interceptResult.setData(dealPrintResult(context));
-        if (InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())) {
-            interceptResult.setStatus(context.getStatus());
-            interceptResult.setMessage(context.getMessages().get(0));
-            interceptResult.setCode(JdResult.CODE_SUC);
-        }
-        return interceptResult;
     }
     /**
      * @return the handlers
