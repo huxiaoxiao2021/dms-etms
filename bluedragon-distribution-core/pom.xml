@@ -804,6 +804,12 @@
             <artifactId>receiver-rpc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+		<!-- 引用 PFinder SDK 库 -->
+		<dependency>
+			<groupId>com.jd.pfinder</groupId>
+			<artifactId>pfinder-profiler-sdk</artifactId>
+			<version>1.1.5-FINAL</version>
+		</dependency>
 
 		<dependency>
             <groupId>com.jd.tms.ecp</groupId>
