@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.weightVolume.handler.PackageWeightVolumeHa
 import com.jd.bluedragon.distribution.weightvolume.DMSWeightVolumeJSFService;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeJSFEntity;
 import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.fastjson.JSON;
+import com.jd.bluedragon.utils.JsonHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +102,7 @@ public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService 
     @Override
     public InvokeResult<Boolean> automaticWeightCheckExcess(WeightVolumeJSFEntity entity) {
         if (log.isInfoEnabled()) {
-            log.info("自动化称重抽检参数:{}", JSON.toJSON(entity));
+            log.info("自动化称重抽检参数:{}", JsonHelper.toJson(entity));
         }
         WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
         BeanUtils.copyProperties(entity, weightVolumeEntity);

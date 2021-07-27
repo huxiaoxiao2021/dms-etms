@@ -90,13 +90,18 @@ public interface WeightAndVolumeCheckService {
     void updateImgAndSendHandleMq(String packageCode, Integer siteCode);
 
     /**
+     * 校验是否超标
+     * @param packWeightVO
+     * @return
+     */
+    InvokeResult<Boolean> checkIsExcess(PackWeightVO packWeightVO);
+
+    /**
      * 称重体积数据处理
      * @param packWeightVO
      * @param spotCheckSourceEnum
      */
     InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum);
-
-    InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result, Boolean saveData);
 
     void setProductType(WeightVolumeCollectDto weightVolumeCollectDto, Waybill  waybill);
 

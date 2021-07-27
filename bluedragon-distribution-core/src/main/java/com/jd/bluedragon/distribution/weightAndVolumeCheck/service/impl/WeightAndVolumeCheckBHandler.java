@@ -47,7 +47,7 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
         Double sumLWHStage15 =  new Double(secondSumLWHStage);
         Double sumLWHStage2  =  new Double(thirdSumLWHStage);
 
-        String excessReasonTemplate = "三边之和在{}cm和{}cm之间并且误差{}超过误差标准值{}kg";
+        String excessReasonTemplate = "三边之和在%scm和%scm之间并且误差%s超过误差标准值%skg";
         if(sumLWH.compareTo(sumLWH70)>=0 && sumLWH.compareTo(sumLWH100)<0){
             if(differenceValue.compareTo(sumLWHStage08)>0){
                 excessReason.append(String.format(excessReasonTemplate, sumLWH, sumLWH70, sumLWH100, differenceValue, sumLWHStage08));

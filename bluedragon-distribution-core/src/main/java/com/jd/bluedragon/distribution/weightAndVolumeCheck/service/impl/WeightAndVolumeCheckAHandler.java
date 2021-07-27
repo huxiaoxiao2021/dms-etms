@@ -59,7 +59,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         BigDecimal  secondStage1 =   BigDecimal.valueOf(secondStage);
         BigDecimal  thirdStage002 = BigDecimal.valueOf(thirdStage);
 
-        String excessReasonTemplate = "分拣较大值{}在{}公斤至{}公斤之间并且误差{}超过标准值{}";
+        String excessReasonTemplate = "分拣较大值%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
         if(moreBigValue <= firstWeight1.doubleValue()){
             if(checkMoreBigValue <= firstWeight1.doubleValue()){
                 return false;
@@ -100,7 +100,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
     /**
      *
      * 获取A标准的：误差标准值
-     *   1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
+     *   1、1.5kg~20kg（含）的（+-）0.5kg（含）误差为正常
      *   2、20kg~50kg（含）的（+-）1kg（含）误差为正常
      *   3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
      * @param moreBigWeight 复核重量与重量体积较大值
