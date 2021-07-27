@@ -24,7 +24,7 @@ import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
-
+import com.jd.bluedragon.dms.utils.SendPayConstants;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -326,4 +326,51 @@ public class WaybillCommonServiceImplTestCase {
     	waybillCommonServiceImpl.loadOriginalDmsInfo(context, context.getBasePrintWaybill(), context.getBigWaybillDto());
     	Assert.assertEquals(new Integer(50),context.getBasePrintWaybill().getOriginalDmsCode());
     }
+
+
+
+	/**
+	 * 根据sendpay 146=4 面单产品打印【冷链卡班】占位符 jzdflag
+	 * @throws Exception
+	 */
+	@Test
+	public void testJZDFlag() throws Exception{
+		WaybillPrintContext context = EntityUtil.getInstance(WaybillPrintContext.class);
+		String[] sendPays = {
+				null,
+				"",
+				"000",
+				UtilsForTestCase.getSignString(500,146,'1'),
+				UtilsForTestCase.getSignString(500,146,'2'),
+				UtilsForTestCase.getSignString(500,146,'3'),
+				UtilsForTestCase.getSignString(500,146,'4'),};
+		boolean[] sendPayChecks ={
+				false,
+				false,
+				false,
+				false,
+				false,
+				false,
+				true,};
+		for(int i=0 ; i < sendPays.length; i++ ){
+			System.err.println(sendPays[i]);
+			context.setBasePrintWaybill(context.getResponse());
+			context.getBigWaybillDto().getWaybill().setSendPay(sendPays[i]);
+			context.getBasePrintWaybill().setjZDFlag(null);
+
+			//预期验证结果
+			boolean checkResult = sendPayChecks[i];
+
+			//工具类业务方法校验
+			boolean utilsCheck = BusinessUtil.isSignChar(sendPays[i], SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_4);
+			Assert.assertEquals(utilsCheck,checkResult);
+
+			waybillCommonServiceImpl.setBasePrintInfoByWaybill(context.getBasePrintWaybill(), context.getBigWaybillDto().getWaybill());
+			//打标‘冷链卡班’验证
+			boolean hasFlag = (context.getBasePrintWaybill().getjZDFlag() != null
+					&& context.getBasePrintWaybill().getjZDFlag().equals("冷链卡班"));
+			Assert.assertEquals(hasFlag,checkResult);
+		}
+	}
+
 }
