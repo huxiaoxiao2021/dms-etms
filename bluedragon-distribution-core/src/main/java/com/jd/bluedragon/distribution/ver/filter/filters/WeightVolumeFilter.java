@@ -187,7 +187,7 @@ public class WeightVolumeFilter implements Filter {
      */
     private boolean isMultiplePackage(FilterContext request) {
         int waybillPackageTotal = request.getWaybillCache().getQuantity();
-        if(waybillPackageTotal > 1){
+        if(waybillPackageTotal > Constants.CONSTANT_NUMBER_ONE){
             return true;
         }
         return false;
