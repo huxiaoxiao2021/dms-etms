@@ -798,8 +798,8 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
         if (waybillCache == null) {
             return new JdResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
         }
-        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
-        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
+        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>=0）
+        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() >= 0) {
             return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
         }
 
@@ -919,6 +919,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * true 拦截  false 不拦截
      * @return
      */
+    @Override
     public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:
