@@ -366,4 +366,11 @@
                   ref="noticeGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 计提打卡PDA -->
+    <jsf:provider id="workingClockGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WorkingClockGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="workingClockServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

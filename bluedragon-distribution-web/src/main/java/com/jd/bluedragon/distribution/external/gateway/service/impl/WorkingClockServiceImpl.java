@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.working.WorkingClockRecordVo;
 import com.jd.bluedragon.common.dto.working.WorkingClockRequest;
 import com.jd.bluedragon.common.dto.working.WorkingPage;
 import com.jd.bluedragon.core.base.WorkingClockDataManager;
-import com.jd.bluedragon.external.gateway.service.WorkingClockService;
+import com.jd.bluedragon.external.gateway.service.WorkingClockGatewayService;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.wb.report.api.working.dto.WorkingClockDTO;
@@ -21,7 +21,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class WorkingClockServiceImpl implements WorkingClockService {
+public class WorkingClockServiceImpl implements WorkingClockGatewayService {
     @Resource
     private WorkingClockDataManager workingClockDataManager;
 

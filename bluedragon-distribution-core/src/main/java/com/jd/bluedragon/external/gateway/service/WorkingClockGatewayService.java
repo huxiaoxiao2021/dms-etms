@@ -8,8 +8,7 @@ import com.jd.bluedragon.common.dto.working.WorkingPage;
 /**
  * 计提打卡
  */
-public interface WorkingClockService {
-
+public interface WorkingClockGatewayService {
     /**
      * PDA 查询在本小组签到的记录（含支援人员在本组的签到）
      */
