@@ -910,7 +910,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
             funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
             // 一单多件不拦截
-            if(waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
+            if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
                 return response;
             }
             // 是否满足无重量拦截条件
