@@ -1128,7 +1128,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
         // 计费重量为0则取运单流水
         dealWaybillFlow(weightVolumeCollectDto);
-        weightVolumeCollectDto.setLargeDiff(Math.abs(keeTwoDecimals(weightVolumeCollectDto.getContrastLarge() - weightVolumeCollectDto.getMoreBigWeight())));
+        // 较大值差异
+        double contrastLarge = weightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getContrastLarge();
+        double moreBigWeight = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
+        weightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
     }
 
     /**
@@ -1158,8 +1161,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 处理责任类型
         dealDutyType(dutyBaseStaffSiteOrgDto, weightVolumeCollectDto);
 
-
-        weightVolumeCollectDto.setBillingWeight(packFlowDetail.getpWeight());
+        double billingWeight = packFlowDetail.getpWeight() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWeight();
+        weightVolumeCollectDto.setBillingWeight(billingWeight);
         double billingVolume;
         if(packFlowDetail.getpLength() == null || packFlowDetail.getpWidth() == null
                 || packFlowDetail.getpHigh() == null){
@@ -1168,13 +1171,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             billingVolume = packFlowDetail.getpLength() * packFlowDetail.getpWidth() * packFlowDetail.getpHigh();
         }
         weightVolumeCollectDto.setBillingVolume(billingVolume);
-        // 核对较大值：核对重量和核对体积重量的较大值
         int volumeRate = weightVolumeCollectDto.getVolumeRate();
-        Double contrastLarge = packFlowDetail.getpWeight() == null
-                ? billingVolume/volumeRate : packFlowDetail.getpWeight() > billingVolume/volumeRate ? packFlowDetail.getpWeight() : billingVolume/volumeRate;
-        weightVolumeCollectDto.setContrastLarge(contrastLarge);
+        double billingVolumeWeight = billingVolume/volumeRate;
         // 核对体积重量
-        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
+        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolumeWeight));
+        Double contrastLarge = Math.max(billingWeight, billingVolumeWeight);
+        // 核对较大值：核对重量和核对体积重量的较大值
+        weightVolumeCollectDto.setContrastLarge(contrastLarge);
+
     }
 
     /**
