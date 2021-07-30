@@ -23,6 +23,11 @@ public class StandardDto {
      */
     private String warnMessage;
 
+    /**
+     * 超标原因
+     */
+    private String excessReason;
+
     public String getHitMessage() {
         return hitMessage;
     }
@@ -45,6 +50,14 @@ public class StandardDto {
 
     public void setWarnMessage(String warnMessage) {
         this.warnMessage = warnMessage;
+    }
+
+    public String getExcessReason() {
+        return excessReason;
+    }
+
+    public void setExcessReason(String excessReason) {
+        this.excessReason = excessReason;
     }
 }
     
