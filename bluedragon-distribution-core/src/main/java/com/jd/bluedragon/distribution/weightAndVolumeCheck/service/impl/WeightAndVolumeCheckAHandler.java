@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.CheckExcessParam;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.StandardDto;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,9 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
     @Override
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
-        standardDto.setExcessFlag(this.isExcess(checkExcessParam));
+        StringBuilder excessReason = new StringBuilder();
+        standardDto.setExcessFlag(this.isExcess(checkExcessParam, excessReason));
+        standardDto.setExcessReason(excessReason.toString());
         standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getMoreBigValue()));
         return standardDto;
     }
@@ -40,7 +43,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
      * @param checkExcessParam
      * @return
      */
-    private boolean isExcess(CheckExcessParam checkExcessParam){
+    private boolean isExcess(CheckExcessParam checkExcessParam, StringBuilder excessReason){
         Double moreBigValue = checkExcessParam.getMoreBigValue();
         Double checkMoreBigValue = checkExcessParam.getCheckMoreBigValue();
         Double differenceValue = checkExcessParam.getDifferenceValue();
@@ -56,11 +59,13 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
         BigDecimal  secondStage1 =   BigDecimal.valueOf(secondStage);
         BigDecimal  thirdStage002 = BigDecimal.valueOf(thirdStage);
 
+        String excessReasonTemplate = "分拣较大值%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
         if(moreBigValue <= firstWeight1.doubleValue()){
             if(checkMoreBigValue <= firstWeight1.doubleValue()){
                 return false;
             }
             if(differenceValue > firstStage05.doubleValue()){
+                excessReason.append(String.format(excessReasonTemplate, moreBigValue, Constants.DOUBLE_ZERO, firstWeight1, differenceValue, firstStage05));
                 return true;
             }
             return  false;
@@ -68,6 +73,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
 
         if(firstWeight1.doubleValue() < moreBigValue && moreBigValue <= secondWeight20.doubleValue()){
             if(differenceValue > firstStage05.doubleValue()){
+                excessReason.append(String.format(excessReasonTemplate, moreBigValue, firstWeight1, secondWeight20, differenceValue, firstStage05));
                 return true;
             }
             return  false;
@@ -75,6 +81,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
 
         if(secondWeight20.doubleValue() <moreBigValue && moreBigValue<=thirdWeight50.doubleValue()){
             if(differenceValue > secondStage1.doubleValue()){
+                excessReason.append(String.format(excessReasonTemplate, moreBigValue, secondWeight20, thirdWeight50, differenceValue, secondStage1));
                 return true;
             }
             return false;
@@ -82,6 +89,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
 
         if(moreBigValue>thirdWeight50.doubleValue()){
             if(differenceValue > keeTwoDecimals(reviewWeight*thirdStage002.doubleValue())){
+                excessReason.append(String.format(excessReasonTemplate, moreBigValue, thirdWeight50, "∞", differenceValue, "重量2%"));
                 return true;
             }
             return false;
@@ -92,7 +100,7 @@ public class WeightAndVolumeCheckAHandler extends AbstractCheckStandardHandler{
     /**
      *
      * 获取A标准的：误差标准值
-     *   1、1kg~20kg（含）的（+-）0.5kg（含）误差为正常
+     *   1、1.5kg~20kg（含）的（+-）0.5kg（含）误差为正常
      *   2、20kg~50kg（含）的（+-）1kg（含）误差为正常
      *   3、50kg以上，允许误差值为总重量的2%（含）进行上下浮动
      * @param moreBigWeight 复核重量与重量体积较大值

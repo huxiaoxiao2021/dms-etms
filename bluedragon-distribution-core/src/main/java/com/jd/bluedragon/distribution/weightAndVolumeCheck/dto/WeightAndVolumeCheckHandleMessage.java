@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.dto;
 
-import lombok.Data;
-
 import java.io.Serializable;
 
 /**
@@ -13,9 +11,12 @@ import java.io.Serializable;
  */
 public class WeightAndVolumeCheckHandleMessage implements Serializable {
 
+    // 发货
     public static final int SEND = 9;
-
+    // 图片上传
     public static final int UPLOAD_IMG = 7;
+    // 图片早于抽检数据
+    public static final int IMG_BEFORE_DATA = 8;
 
     private static final long serialVersionUID = -3133640093526743930L;
 

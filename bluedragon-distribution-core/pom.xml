@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.31-SNAPSHOT</version>
+			<version>1.1.32-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -206,7 +206,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.6.9-SNAPSHOT</version>
+			<version>1.7.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
