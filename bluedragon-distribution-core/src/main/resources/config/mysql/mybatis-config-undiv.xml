@@ -386,5 +386,8 @@
         <!--面单异常举报-->
         <mapper resource="mappers/mysql/exceptionReport/ExpressBillExceptionReportMapper.xml" />
         <mapper resource="mappers/mysql/discardedPackageStorageTemp/DiscardedPackageStorageTempMapper.xml" />
+
+        <!-- 库存盘点 -->
+        <mapper resource="mappers/mysql/stock/StockInventoryMapper.xml" />
     </mappers>
 </configuration>
