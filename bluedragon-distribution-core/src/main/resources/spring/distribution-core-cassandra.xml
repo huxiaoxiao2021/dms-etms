@@ -10,7 +10,7 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
 	default-lazy-init="false" default-autowire="byName">
 
-    <bean id="baseCassandra" class="com.jd.bluedragon.core.cassandra.BaseCassandra" init-method="init">
+    <!--<bean id="baseCassandra" class="com.jd.bluedragon.core.cassandra.BaseCassandra" init-method="init">
         <property name="connectTimeoutMillis" value="${cassandra.timeoutDefault}"  />
         <property name="node" value="${cassandra.nodes}"  />
         <property name="userName" value="${cassandra.userName}"  />
@@ -27,9 +27,9 @@
    <bean id="cassandraSession" class="com.jd.bluedragon.core.cassandra.CassandraSessionFactory" >
        <constructor-arg name="baseCassandra" ref="baseCassandra"/>
        <constructor-arg name="keyspace" value="${cassandra.keyspace}"/>
-   </bean>
+   </bean>-->
    <bean id="baseCassandraDao" class="com.jd.bluedragon.core.cassandra.BaseCassandraDao"  >
-      <property name="session" ref="cassandraSession"/>
+      <!--<property name="session" ref="cassandraSession"/>-->
    </bean>
     <bean id="operationlogCassandraDao" class="com.jd.bluedragon.distribution.operationLog.dao.OperationlogCassandra">
     </bean>
