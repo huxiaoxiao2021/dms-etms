@@ -502,6 +502,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
                     && baseEntity.getData().getWaybill() != null
                     && baseEntity.getData().getWaybill().getWaybillExt() != null){
 	            if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getWaybillExt().getOmcOrderCode())){
+	            	log.info("百川接口切换：调用百川接口{}",waybillCode);
 	            	return true;
 	            }
             }
