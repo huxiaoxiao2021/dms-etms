@@ -686,5 +686,6 @@
                   protocol="jsf" alias="${jsf.wbms.reverseWaybillApi.alias}" 
                   timeout="${jsf.wbms.reverseWaybillApi.timeout}"
                   retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
     </jsf:consumer>
 </beans>
