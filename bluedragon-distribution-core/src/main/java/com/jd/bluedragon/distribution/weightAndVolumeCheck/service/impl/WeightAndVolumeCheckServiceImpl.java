@@ -699,6 +699,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param weightVolumeCollectDto
      */
     private void specialSceneDeal(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // 处理图片链接
+        dealSpotCheckPictureUrl(weightVolumeCollectDto);
         // 超标且有图片则下发超标mq（场景：上传图片时间早于超标数据落库时间）
         if(Objects.equals(weightVolumeCollectDto.getIsExcess(), IsExcessEnum.EXCESS_ENUM_YES.getCode())
                 && StringUtils.isNotEmpty(weightVolumeCollectDto.getPictureAddress())){
@@ -1040,8 +1042,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         excessDeal(weightVolumeCollectDto, result);
         // 特殊处理
         specialTreatment(weightVolumeCollectDto, waybill);
-        // 处理图片链接
-        dealSpotCheckPictureUrl(weightVolumeCollectDto);
 
         return weightVolumeCollectDto;
     }
@@ -1056,6 +1056,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(result != null && Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
             weightVolumeCollectDto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             weightVolumeCollectDto.setPictureAddress(result.getData());
+            reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
         }
     }
 
