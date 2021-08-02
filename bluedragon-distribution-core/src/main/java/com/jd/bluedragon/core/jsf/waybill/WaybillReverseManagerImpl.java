@@ -499,7 +499,6 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         if(StringHelper.isNotEmpty(waybillCode)){
         	WChoice wChoice = new WChoice();
         	wChoice.setQueryWaybillC(true);
-        	wChoice.setQueryWaybillE(true);
         	wChoice.setQueryWaybillExtend(true);
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
             if(baseEntity != null
