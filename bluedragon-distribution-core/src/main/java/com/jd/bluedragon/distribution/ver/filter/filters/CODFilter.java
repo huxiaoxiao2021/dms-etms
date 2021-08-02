@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -30,7 +31,7 @@ public class CODFilter implements Filter {
                 && ! BusinessUtil.isMMBWaybill(request.getWaybillCache().getWaybillCode(), request.getWaybillCache().getWaybillSign(), request.getWaybillCache().getSendPay())) {
             if (SiteHelper.matchSiteRule(rule1.getContent(), request.getsReceiveSiteCode())) {
                 throw new SortingCheckException(SortingResponse.CODE_29102,
-                        SortingResponse.MESSAGE_29102);
+                        HintService.getHintWithFuncModule(HintCodeConstants.COD_WAYBILL, request.getFuncModule()));
             }
         }
 

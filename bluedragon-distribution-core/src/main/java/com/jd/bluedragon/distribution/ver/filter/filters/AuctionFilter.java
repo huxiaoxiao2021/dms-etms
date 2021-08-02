@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -22,7 +24,8 @@ public class AuctionFilter implements Filter {
         if (isStoreHouse) {
             if (BusinessHelper.isAuction(request.getWaybillCache().getWaybillType())) {
                 //夺宝岛（waybillType=2）订单不能发往大库（类型=900）
-                throw new SortingCheckException(SortingResponse.CODE_29304, SortingResponse.MESSAGE_29304);
+                throw new SortingCheckException(SortingResponse.CODE_29304,
+                        HintService.getHintWithFuncModule(HintCodeConstants.AUCTION_WAYBILL, request.getFuncModule()));
             }
         }
 

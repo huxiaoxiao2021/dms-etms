@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.hint.manager.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.hint.manager.IHintApiManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.comp.api.hint.HintApi;
@@ -42,7 +43,7 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(HintReq req){
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
@@ -66,7 +67,7 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(String hintCode) {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {
@@ -93,7 +94,7 @@ public class HintApiManagerImpl implements IHintApiManager {
      * @time 2021-07-14 18:23:32 周三
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getHint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<HintResp> getHint(String hintCode, Map<String, String> paramsMap) {
         ApiResult<HintResp> hintResult = new ApiResult<>();
         try {

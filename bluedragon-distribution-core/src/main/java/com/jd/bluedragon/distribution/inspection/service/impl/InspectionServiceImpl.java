@@ -9,6 +9,8 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
@@ -195,7 +197,7 @@ public class InspectionServiceImpl implements InspectionService {
 		// 运单绑定集包袋校验
 		if(WaybillUtil.isWaybillCode(barCode)
 				&& checkIsBindMaterial(waybillCode)){
-			jdResponse.toFail(com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+			jdResponse.toFail(HintService.getHint(HintCodeConstants.WAYBILL_BIND_RECYCLE_BAG));
 			return jdResponse;
 		}
 		InspectionResult inspectionResult = new InspectionResult("");
@@ -825,7 +827,7 @@ public class InspectionServiceImpl implements InspectionService {
 						//运单是否发货
 						Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
 						if(!isCanSend){
-							hintMessage = "暂存集齐后发货";
+							hintMessage = HintService.getHint(HintCodeConstants.JP_TEMP_STORE_TOGETHER);
 						}
 					}
 				}
@@ -836,7 +838,7 @@ public class InspectionServiceImpl implements InspectionService {
 				if(destinationDmsInfo != null
 						&& Objects.equals(destinationDmsId,dmsSiteCode)
                         && BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
-					hintMessage = "此单为企配仓运单，必须操作暂存上架";
+					hintMessage = HintService.getHint(HintCodeConstants.QPC_TEMP_STORE);
 				}
 			}
 		}

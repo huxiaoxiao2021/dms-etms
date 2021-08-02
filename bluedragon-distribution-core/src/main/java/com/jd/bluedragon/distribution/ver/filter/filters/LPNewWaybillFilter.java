@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -25,7 +27,7 @@ public class LPNewWaybillFilter implements Filter {
         if (request.getWaybillCache() != null && request.getWaybillCache().getWaybillSign() != null) {
             // 运单为理赔完成拦截 换新单时 拦截
             if(BusinessUtil.isLPNewWaybill(request.getWaybillCache().getWaybillSign())) {
-                throw new SortingCheckException(SortingResponse.CODE_29309, SortingResponse.MESSAGE_29309);
+                throw new SortingCheckException(SortingResponse.CODE_29309, HintService.getHintWithFuncModule(HintCodeConstants.LP_TEMP_STORE, request.getFuncModule()));
             }
         }
         chain.doFilter(request, chain);
