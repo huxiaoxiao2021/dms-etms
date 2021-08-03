@@ -922,6 +922,12 @@ public class WaybillServiceImpl implements WaybillService {
             return result;
         }
 
+        // 病单提示
+        if (WaybillCancelInterceptTypeEnum.STORAGE_SICK.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29315, SortingResponse.MESSAGE_29315);
+            return result;
+        }
+
         if (WaybillCancelInterceptTypeEnum.WHITE.getCode() == interceptType) {
             result.customMessage(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
             return result;

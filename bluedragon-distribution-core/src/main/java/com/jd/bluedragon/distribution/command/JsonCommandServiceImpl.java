@@ -4,6 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -11,6 +16,9 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
+import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -21,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
@@ -56,7 +65,12 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		encryptedInfo.add("consigneeCompany");//寄件人公司
 	}
 
+    // 拦截报表发送服务
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
 
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
 	/**
 	 * json格式的指令集配置
@@ -91,6 +105,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 					//正常处理
 					jdResult = handler.handle(jdCommand);
 				}
+				// 收集拦截信息
 			} catch (Exception e) {
 				//处理异常返回异常信息
 				log.error("JsonCommandServiceImpl.execute-error!", e);
@@ -98,6 +113,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			}
 		}
 		String jsonResponse = JsonHelper.toJson(jdResult);
+        this.saveInterceptLog(jdCommand, jdResult);
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
@@ -160,6 +176,59 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			Profiler.registerInfoEnd(info);
 		}
 	}
+
+	private void saveInterceptLog(JdCommand<String> jdCommand, JdResult<?> jdResult){
+        try {
+            if(jdResult.isSucceed()){
+                // 无需拦截
+                return;
+            }
+            //构建参数
+            WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jdCommand.getData(), WaybillPrintRequest.class);
+            if (null == waybillPrintRequest) {
+                return;
+            }
+            //如果操作编码为空则设置为外层JdCommand的请求编码
+            if(waybillPrintRequest.getBusinessType() == null){
+                waybillPrintRequest.setBusinessType(jdCommand.getBusinessType());
+            }
+            if(waybillPrintRequest.getOperateType() == null){
+                waybillPrintRequest.setOperateType(jdCommand.getOperateType());
+            }
+            if(StringUtils.isBlank(waybillPrintRequest.getVersionCode())){
+                waybillPrintRequest.setVersionCode(jdCommand.getVersionCode());
+            }
+
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(jdResult.getMessageCode());
+            saveInterceptMsgDto.setInterceptMessage(jdResult.getMessage());
+            saveInterceptMsgDto.setBarCode(waybillPrintRequest.getBarCode());
+            saveInterceptMsgDto.setSiteCode(waybillPrintRequest.getSiteCode());
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PRINT_CLIENT));
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.PRINT));
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PRINT);
+            long operateTimeMillis = System.currentTimeMillis();
+            if(waybillPrintRequest.getOperateTime() != null){
+                operateTimeMillis = DateUtil.parse(waybillPrintRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
+            }
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+            saveInterceptMsgDto.setOperateSubNode(jdCommand.getOperateType());
+            saveInterceptMsgDto.setSiteName(waybillPrintRequest.getSiteName());
+            saveInterceptMsgDto.setOperateUserCode(waybillPrintRequest.getUserCode());
+            saveInterceptMsgDto.setOperateUserErp(waybillPrintRequest.getUserERP());
+            saveInterceptMsgDto.setOperateUserName(waybillPrintRequest.getUserName());
+            saveInterceptMsgDto.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
+                log.error("JsonCommandServiceImpl call sendInterceptMsg exception [{}]", saveInterceptMqMsg, e);
+            }
+        } catch (Exception e) {
+            log.error("JsonCommandServiceImpl sendInterceptMsg exception [{}]" , e.getMessage(), e);
+        }
+    }
 
 	/**
 	 * 处理敏感信息
