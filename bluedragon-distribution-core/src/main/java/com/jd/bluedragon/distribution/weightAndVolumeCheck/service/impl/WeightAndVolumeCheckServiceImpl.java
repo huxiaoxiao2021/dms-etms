@@ -698,6 +698,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param weightVolumeCollectDto
      */
     private void specialSceneDeal(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // 处理图片链接
+        dealSpotCheckPictureUrl(weightVolumeCollectDto);
         // 超标且有图片则下发超标mq（场景：上传图片时间早于超标数据落库时间）
         if(Objects.equals(weightVolumeCollectDto.getIsExcess(), IsExcessEnum.EXCESS_ENUM_YES.getCode())
                 && StringUtils.isNotEmpty(weightVolumeCollectDto.getPictureAddress())){
@@ -1039,8 +1041,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         excessDeal(weightVolumeCollectDto, result);
         // 特殊处理
         specialTreatment(weightVolumeCollectDto, waybill);
-        // 处理图片链接
-        dealSpotCheckPictureUrl(weightVolumeCollectDto);
 
         return weightVolumeCollectDto;
     }
@@ -1053,7 +1053,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private void dealSpotCheckPictureUrl(WeightVolumeCollectDto weightVolumeCollectDto) {
         InvokeResult<String> result = searchExcessPicture(weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getReviewSiteCode());
         if(result != null && Objects.equals(result.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+            weightVolumeCollectDto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             weightVolumeCollectDto.setPictureAddress(result.getData());
+            reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
         }
     }
 
@@ -1127,7 +1129,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
         // 计费重量为0则取运单流水
         dealWaybillFlow(weightVolumeCollectDto);
-        weightVolumeCollectDto.setLargeDiff(Math.abs(keeTwoDecimals(weightVolumeCollectDto.getContrastLarge() - weightVolumeCollectDto.getMoreBigWeight())));
+        // 较大值差异
+        double contrastLarge = weightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getContrastLarge();
+        double moreBigWeight = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
+        weightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
     }
 
     /**
@@ -1157,8 +1162,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 处理责任类型
         dealDutyType(dutyBaseStaffSiteOrgDto, weightVolumeCollectDto);
 
-
-        weightVolumeCollectDto.setBillingWeight(packFlowDetail.getpWeight());
+        double billingWeight = packFlowDetail.getpWeight() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWeight();
+        weightVolumeCollectDto.setBillingWeight(billingWeight);
         double billingVolume;
         if(packFlowDetail.getpLength() == null || packFlowDetail.getpWidth() == null
                 || packFlowDetail.getpHigh() == null){
@@ -1167,13 +1172,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             billingVolume = packFlowDetail.getpLength() * packFlowDetail.getpWidth() * packFlowDetail.getpHigh();
         }
         weightVolumeCollectDto.setBillingVolume(billingVolume);
-        // 核对较大值：核对重量和核对体积重量的较大值
         int volumeRate = weightVolumeCollectDto.getVolumeRate();
-        Double contrastLarge = packFlowDetail.getpWeight() == null
-                ? billingVolume/volumeRate : packFlowDetail.getpWeight() > billingVolume/volumeRate ? packFlowDetail.getpWeight() : billingVolume/volumeRate;
-        weightVolumeCollectDto.setContrastLarge(contrastLarge);
+        double billingVolumeWeight = billingVolume/volumeRate;
         // 核对体积重量
-        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/volumeRate));
+        weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolumeWeight));
+        Double contrastLarge = Math.max(billingWeight, billingVolumeWeight);
+        // 核对较大值：核对重量和核对体积重量的较大值
+        weightVolumeCollectDto.setContrastLarge(contrastLarge);
+
     }
 
     /**
