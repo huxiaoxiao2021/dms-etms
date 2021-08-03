@@ -513,4 +513,13 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectMap(namespace + ".queryPackageNumByWaybillCode", params, "waybillCode");
     }
 
+    /**
+     * 根据条件查询一条数据
+     * @param querySendDatail
+     * @return
+     */
+    public SendDetail queryOneSendDatailBySendM(SendDetail querySendDatail){
+        return this.getSqlSession().selectOne(namespace + ".queryOneSendDatailBySendM", querySendDatail);
+    }
+
 }

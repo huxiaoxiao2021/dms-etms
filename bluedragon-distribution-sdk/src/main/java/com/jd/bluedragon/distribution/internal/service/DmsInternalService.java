@@ -238,4 +238,5 @@ public interface DmsInternalService {
      * @return
      */
     InvokeResult<Boolean> checkIsConfigured(FuncSwitchConfigDto funcSwitchConfigDto);
+
 }
