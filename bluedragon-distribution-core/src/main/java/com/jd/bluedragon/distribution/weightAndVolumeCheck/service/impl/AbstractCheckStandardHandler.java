@@ -12,7 +12,7 @@ public abstract class AbstractCheckStandardHandler implements WeightAndVolumeChe
      /**
       * C网抽检阈值:公斤
      * */
-    @Value("${spotCheck.firstThresholdWeight:1.0}")
+    @Value("${spotCheck.firstThresholdWeight:1.5}")
     public double firstThresholdWeight;
     @Value("${spotCheck.firstStage:0.5}")
     public double firstStage;

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.stock.dao.StockInventoryDao">
+	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.stock.domain.StockInventory">
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="wave_code" property="waveCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="inventory_status" property="inventoryStatus" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="wave_begin_time" property="waveBeginTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="wave_end_time" property="waveEndTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="inventory_time" property="inventoryTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="operate_site_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+        id, package_code, wave_code, inventory_status, wave_begin_time, wave_end_time, inventory_time,
+        operate_site_code, operate_site_name, operate_user_erp, operate_user_name, create_time,
+        update_time, update_user_erp, yn, ts
+    </sql>
+
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.stock.domain.StockInventory">
+		insert into stock_inventory
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="packageCode != null">
+				package_code,
+			</if>
+			<if test="waveCode != null">
+				wave_code,
+			</if>
+			<if test="waveBeginTime != null">
+				wave_begin_time,
+			</if>
+			<if test="waveEndTime != null">
+				wave_end_time,
+			</if>
+			<if test="inventoryTime != null">
+				inventory_time,
+			</if>
+			<if test="operateSiteCode != null">
+				operate_site_code,
+			</if>
+			<if test="operateSiteName != null">
+				operate_site_name,
+			</if>
+			<if test="operateUserErp != null">
+				operate_user_erp,
+			</if>
+			<if test="operateUserName != null">
+				operate_user_name,
+			</if>
+			<if test="updateUserErp != null">
+				update_user_erp,
+			</if>
+			<if test="inventoryStatus != null">
+				inventory_status,
+			</if>
+			create_time,
+			update_time,
+			yn
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="packageCode != null">
+				#{packageCode,jdbcType=VARCHAR},
+			</if>
+			<if test="waveCode != null">
+				#{waveCode,jdbcType=VARCHAR},
+			</if>
+			<if test="waveBeginTime != null">
+				#{waveBeginTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="waveEndTime != null">
+				#{waveEndTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="inventoryTime != null">
+				#{inventoryTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="operateSiteCode != null">
+				#{operateSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="operateSiteName != null">
+				#{operateSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserErp != null">
+				#{operateUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserName != null">
+				#{operateUserName,jdbcType=VARCHAR},
+			</if>
+			<if test="updateUserErp != null">
+				#{updateUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="inventoryStatus != null">
+				#{inventoryStatus,jdbcType=TINYINT},
+			</if>
+			now(),
+			now(),
+			1
+		</trim>
+	</insert>
+
+	<insert id="batchAdd" parameterType="List">
+		insert into stock_inventory
+		(
+			package_code, wave_code, inventory_status, wave_begin_time, wave_end_time, inventory_time,
+			operate_site_code, operate_site_name, operate_user_erp, operate_user_name, create_time,
+			update_time, update_user_erp, yn, ts
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.packageCode,jdbcType=INTEGER},
+			#{item.waveCode,jdbcType=VARCHAR},
+			#{item.inventoryStatus,jdbcType=TINYINT},
+			#{item.waveBeginTime,jdbcType=VARCHAR},
+			#{item.waveEndTime,jdbcType=INTEGER},
+			#{item.inventoryTime,jdbcType=VARCHAR},
+			#{item.operateSiteCode,jdbcType=INTEGER},
+			#{item.operateSiteName,jdbcType=VARCHAR},
+			#{item.operateUserErp,jdbcType=VARCHAR},
+			#{item.operateUserName,jdbcType=VARCHAR},
+			#{item.createTime,jdbcType=TIMESTAMP},
+			#{item.updateTime,jdbcType=TIMESTAMP},
+			#{item.updateUserErp,jdbcType=TIMESTAMP},
+			1,
+			now()
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateStatusByErp" parameterType="java.util.Map">
+		update
+        	stock_inventory
+        set
+        	inventory_status = 2,
+        	update_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+        	update_time = now()
+        where yn = 1 and inventory_status = 1
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+			and wave_code = #{waveCode,jdbcType=VARCHAR}
+			and operate_site_code = #{operateSiteCode,jdbcType=INTEGER}
+			and	operate_user_erp in
+			<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+				#{item, jdbcType=VARCHAR}
+			</foreach>
+	</update>
+
+	<select id="queryRecordsByPack" parameterType="com.jd.bluedragon.distribution.stock.domain.StockInventory" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			stock_inventory
+		<where>
+			yn = 1
+			<if test="packageCode != null">
+				and package_code = #{packageCode,jdbcType=VARCHAR}
+			</if>
+			<if test="operateSiteCode != null">
+				and operate_site_code = #{operateSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="waveCode != null">
+				and wave_code = #{waveCode,jdbcType=VARCHAR}
+			</if>
+			<if test="operateUserErp != null">
+				and operate_user_erp = #{operateUserErp,jdbcType=VARCHAR}
+			</if>
+			<if test="inventoryStatus != null">
+				and inventory_status = #{inventoryStatus,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryInventoryUnSendPacks" parameterType="java.util.Map" resultMap="BaseResultMap">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			stock_inventory
+		where yn = 1
+		and inventory_status = #{inventoryStatus,jdbcType=TINYINT}
+		and wave_code = #{waveCode,jdbcType=VARCHAR}
+		and operate_site_code = #{operateSiteCode,jdbcType=INTEGER}
+		and	package_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+
+	<select id="queryInventoryNum" parameterType="com.jd.bluedragon.distribution.stock.domain.StockInventory" resultType="Integer">
+		select
+			count(1)
+		from
+			stock_inventory
+		<where>
+			yn = 1
+			<if test="operateSiteCode != null">
+				and operate_site_code = #{operateSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="waveCode != null">
+				and wave_code = #{waveCode,jdbcType=VARCHAR}
+			</if>
+			<if test="inventoryStatus != null">
+				and inventory_status = #{inventoryStatus,jdbcType=TINYINT}
+			</if>
+		</where>
+
+	</select>
+</mapper>
