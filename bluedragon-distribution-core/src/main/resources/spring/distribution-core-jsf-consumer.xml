@@ -750,12 +750,12 @@
 
     <!-- 已验未发 -->
     <jsf:consumer id="sortingInspectionSendingService" interface="com.jd.ql.zw.monitor.service.SortingInspectionSendingService"
-                  alias="${jsf.alias.sortingInspectionSending}" protocol="jsf" timeout="${jsf.timeout.sortingInspectionSending}">
+                  alias="${jsf.alias.sortingInspectionSending}" protocol="jsf" timeout="${jsf.timeout.sortingInspectionSending}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
     <!-- 波次服务 -->
     <jsf:consumer id="transferWaveJsfService" interface="com.jd.dms.wb.report.api.ITransferWaveJsfService"
-                  alias="${jsf.alias.transferWaveJsfService}" protocol="jsf" timeout="${jsf.timeout.transferWaveJsfService}">
+                  alias="${jsf.alias.transferWaveJsfService}" protocol="jsf" timeout="${jsf.timeout.transferWaveJsfService}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
     <jsf:consumer id="loadCarTaskServiceWS" interface="com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS"
