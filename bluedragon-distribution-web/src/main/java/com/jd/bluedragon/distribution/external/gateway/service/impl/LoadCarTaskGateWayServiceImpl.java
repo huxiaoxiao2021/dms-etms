@@ -7,10 +7,13 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.CreateLoadTaskR
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadCarTaskCreateReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadDeleteReq;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.LoadTaskListReq;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.BasicDictDataDto;
+import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadCarInfoDto;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadTaskListDto;
 import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanCacheService;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.LoadScanService;
@@ -18,9 +21,11 @@ import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCarHelper;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadCarHelperService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.LoadService;
+import com.jd.bluedragon.enums.CarTypeEnum;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -63,6 +68,9 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     /**
      * 添加装车任务协助人
@@ -126,21 +134,21 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             return jdCResponse;
         }
         LoadCar lc = loadService.findLoadCarById(req.getId());
-        if(null==lc){
+        if (null == lc) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage("该任务不存在!");
             return jdCResponse;
         }
-        if(GoodsLoadScanConstants.YN_N.equals(lc.getYn())){
+        if (GoodsLoadScanConstants.YN_N.equals(lc.getYn())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已被删除,不可重复操作!");
             return jdCResponse;
         }
-        if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(lc.getStatus())) {
+        if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BEGIN.equals(lc.getStatus())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已开始,无法删除");
             return jdCResponse;
-        }else if(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(lc.getStatus())) {
+        } else if (GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_END.equals(lc.getStatus())) {
             jdCResponse.setCode(JdCResponse.CODE_FAIL);
             jdCResponse.setMessage("该任务已完成,无法删除");
             return jdCResponse;
@@ -313,6 +321,8 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
             loadCar.setCreateSiteCode(req.getCreateSiteCode());
             loadCar.setEndSiteCode(req.getEndSiteCode());
             loadCar.setLicenseNumber(req.getLicenseNumber());
+            loadCar.setWeight(convertWeightUnitToRequired(req.getWeight()));
+            loadCar.setVolume(convertVolumeUnit(req.getVolume()));
             List<LoadCar> taskList = loadService.selectByEndSiteCode(loadCar);
             Date now = new Date();
             //库中如果存在
@@ -338,6 +348,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
                 }
             }
             BeanUtils.copyProperties(req, loadCar);
+            Double weight = req.getWeight() == null ? null : this.convertWeightUnitToRequired(req.getWeight());
+            Double volume = req.getVolume() == null ? null : this.convertVolumeUnit(req.getVolume());
+            log.info("转换后重量={},体积={}", weight, volume);
+            loadCar.setWeight(weight);
+            loadCar.setVolume(volume);
             loadCar.setCreateTime(new Date());
             loadCar.setUpdateTime(new Date());
             loadCar.setStatus(GoodsLoadScanConstants.GOODS_LOAD_TASK_STATUS_BLANK);
@@ -424,6 +439,130 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         jdCResponse.toSucceed();
         jdCResponse.setData(Constants.SITE_OPEN);
         return jdCResponse;
+    }
+
+    /**
+     * 根据车牌获取车辆信息
+     *
+     * @param vehicleNum
+     * @return
+     */
+    @Override
+    public JdCResponse<LoadCarInfoDto> getCarInfoByVehicleNum(String vehicleNum) {
+        JdCResponse jdCResponse = new JdCResponse();
+        if (StringUtils.isBlank(vehicleNum)) {
+            jdCResponse.toFail("车牌号不能为空");
+            return jdCResponse;
+        }
+        boolean flag = false;
+        if (vehicleNum.length() == Constants.VEHICLE_NUMBER_LENGTH_9) {
+            String temp = vehicleNum;
+            vehicleNum = transferLicenseNumber(vehicleNum);
+            flag = temp.equals(vehicleNum);
+        }
+        if (vehicleNum.length() == Constants.VEHICLE_NUMBER_LENGTH_10) {
+            String temp = vehicleNum;
+            vehicleNum = transferLicenseNumber2(vehicleNum);
+            flag = temp.equals(vehicleNum);
+        }
+        if (flag) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("车牌号不合规,请检查后重试");
+            return jdCResponse;
+        }
+        BasicVehicleTypeDto dto = basicQueryWSManager.getVehicleTypeByVehicleNum(vehicleNum);
+        if (null == dto) {
+            jdCResponse.toFail("获取车辆配置信息失败");
+            return jdCResponse;
+        }
+        LoadCarInfoDto loadCarInfoDto = new LoadCarInfoDto();
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setVolume(dto.getVolume());
+        loadCarInfoDto.setWeight(dto.getWeight());
+        jdCResponse.toSucceed();
+        jdCResponse.setData(loadCarInfoDto);
+        return jdCResponse;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public JdCResponse<List<BasicDictDataDto>> getCarList() {
+        JdCResponse<List<BasicDictDataDto>> jdCResponse = new JdCResponse<>();
+        List<BasicDictDataDto> list = new ArrayList<>();
+        List<com.jd.tms.basic.dto.BasicDictDto> result = basicQueryWSManager.getDictList(Constants.PARENT_CODE, Constants.DICT_LEVEL, Constants.DICT_GROUP);
+        if (CollectionUtils.isEmpty(result)) {
+            jdCResponse.toFail("获取车辆信息异常");
+            return jdCResponse;
+        }
+        for (com.jd.tms.basic.dto.BasicDictDto basicDictDto : result) {
+            BasicDictDataDto dataDto = new BasicDictDataDto();
+            BeanUtils.copyProperties(basicDictDto, dataDto);
+            list.add(dataDto);
+        }
+        jdCResponse.toSucceed();
+        jdCResponse.setData(list);
+        return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<LoadCarInfoDto> getCarInfoByType(Integer vehicleType) {
+        JdCResponse<LoadCarInfoDto> jdCResponse = new JdCResponse<>();
+        BasicVehicleTypeDto dto = basicQueryWSManager.getVehicleTypeByVehicleType(vehicleType);
+        if (null == dto) {
+            jdCResponse.toFail("查询操作异常");
+            return jdCResponse;
+        }
+        LoadCarInfoDto loadCarInfoDto = new LoadCarInfoDto();
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setVolume(dto.getVolume());
+        loadCarInfoDto.setVehicleTypeName(dto.getVehicleTypeName());
+        loadCarInfoDto.setWeight(dto.getWeight());
+        jdCResponse.setData(loadCarInfoDto);
+        jdCResponse.toSucceed();
+        return jdCResponse;
+    }
+
+    /**
+     * 获取默认车型列表信息
+     *
+     * @return
+     */
+    @Override
+    public JdCResponse<List<LoadCarInfoDto>> getDefaultCarList() {
+        JdCResponse<List<LoadCarInfoDto>> jdCResponse = new JdCResponse<>();
+        List<LoadCarInfoDto> carInfoDtoList = CarTypeEnum.getCarTypeList();
+        jdCResponse.toSucceed("操作成功！");
+        jdCResponse.setData(carInfoDtoList);
+        return jdCResponse;
+    }
+
+
+    /**
+     * 吨转kg
+     *
+     * @param weight 吨
+     * @return kg
+     */
+    private Double convertWeightUnitToRequired(Double weight) {
+        if (null == weight) {
+            return null;
+        }
+        return weight * 1000.0;
+    }
+
+    /**
+     * 体积单位 传入值为立方米 运单要求标准为立方厘米
+     *
+     * @param volume 立方米
+     * @return 体积 立方厘米
+     */
+    private Double convertVolumeUnit(Double volume) {
+        if (null == volume) {
+            return null;
+        }
+        return volume * 1000000.0;
     }
 
 }

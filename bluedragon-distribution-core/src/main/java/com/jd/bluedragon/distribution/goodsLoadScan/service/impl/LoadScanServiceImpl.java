@@ -45,10 +45,13 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
@@ -1165,6 +1168,13 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
+        String waybillCode=WaybillUtil.getWaybillCode(packageCode);
+        /**新增扫描装车 车型最大核载校验**/
+        if (checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode, loadCar)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
+            return response;
+        }
 
         // 校验是否是暂存包裹，并且校验包裹是否可发货
         JdVerifyResponse<Void> result = checkIsCanDelivery(packageCode, loadCar.getCreateSiteCode().intValue());
@@ -1174,7 +1184,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (log.isDebugEnabled()) {
             log.debug("任务合法，常规包裹号开始检验：taskId={},packageCode={}", taskId, packageCode);
         }
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 
         // 根据运单号和包裹号查询已验未发的唯一一条记录
         LoadScanDto loadScan = new LoadScanDto();
@@ -1351,6 +1360,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
 
+        BigDecimal totalWeight = new BigDecimal(Double.toString(req.getTotalWeight() == null ? 0D : req.getTotalWeight()));
+        BigDecimal totalVolume = new BigDecimal(Double.toString(req.getTotalVolume() == null ? 0D : req.getTotalVolume()));
+        //校验车辆最大核载限制D
+        if (checkBoardWeightVolume(loadCar, result.getData(), totalWeight, totalVolume, taskId)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
+            return response;
+        }
 
         JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
         msgBox.setType(MsgBoxTypeEnum.CONFIRM);
@@ -1396,8 +1413,14 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("该装车任务已经结束");
             return response;
         }
-
+        /**新增扫描装车 车型最大核载校验**/
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        if (checkCarWeightVolume(req.getTotalWeight(), req.getTotalVolume(), req.getTaskId(), waybillCode, loadCar)) {
+            response.setCode(JdCResponse.CODE_CONFIRM);
+            response.setMessage("扫描运单总重量/总体积已超车辆载重/体积，请勿继续扫描装车！");
+            return response;
+        }
+
         //校验是否为KA运单 如果是不支持按大宗操作 66为3 强制拦截
         response = checkIsKaWaybillOrNo(waybillCode,packageCode);
         if(!Objects.equals(JdVerifyResponse.CODE_SUCCESS,response.getCode())){
@@ -2156,6 +2179,139 @@ public class LoadScanServiceImpl implements LoadScanService {
         response.setData(unloadPackages);
         return response;
     }
+
+    /**
+     * 装车扫描防止包裹重量、体积超过车辆最大核载数
+     *
+     * @param totalWeight
+     * @param totalVolume
+     * @param taskId
+     * @param waybillCode
+     * @return true限制扫描
+     */
+    public Boolean checkCarWeightVolume(Double totalWeight, Double totalVolume, Long taskId, String waybillCode,LoadCar loadCar) {
+        //兼容历史任务
+        if (null == loadCar.getVolume() || null == loadCar.getWeight() || null == totalWeight || null == totalVolume) {
+            return false;
+        }
+        //查询该运单是否已经扫描过
+        GoodsLoadScan goodsLoadScan = goodsLoadScanDao.findWaybillInfoByTaskIdAndWaybillCode(taskId, waybillCode);
+        if (null != goodsLoadScan) {
+            return false;
+        }
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        BigDecimal waybillWeight = new BigDecimal(0);
+        BigDecimal waybillVolume = new BigDecimal(0);
+        //先取复重、复量方,不存在取原重、原体积
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            waybillWeight = new BigDecimal(waybill.getAgainWeight());
+        } else {
+            waybillWeight = new BigDecimal(waybill.getGoodWeight());
+        }
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            waybillVolume = new BigDecimal(waybill.getSpareColumn2());
+        } else {
+            waybillVolume = new BigDecimal(waybill.getGoodVolume());
+        }
+        BigDecimal weight = new BigDecimal(Double.toString(totalWeight)).add(waybillWeight);
+        BigDecimal volume = new BigDecimal(Double.toString(totalVolume)).add(waybillVolume);
+        return compareWeightVolume(loadCar, weight, volume);
+    }
+
+
+    /**
+     * 最大核载重量、体积校验
+     *
+     * @param loadCar
+     * @param totalWeight 当前已装包裹总重量
+     * @param totalVolume 当前已装包裹总体积
+     * @return
+     */
+    public Boolean compareWeightVolume(LoadCar loadCar, BigDecimal totalWeight, BigDecimal totalVolume) {
+        if (null == loadCar.getVolume() || null == loadCar.getWeight()) {
+            return false;
+        }
+        BigDecimal maxWeight = new BigDecimal(loadCar.getWeight());
+        BigDecimal maxVolume = new BigDecimal(loadCar.getVolume());
+        if (totalWeight.compareTo(maxWeight) > 0 || totalVolume.compareTo(maxVolume) > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 组板维度扫描车辆最大核载校验
+     *
+     * @param loadCar
+     * @param packageList
+     * @param totalWeight
+     * @param totalVolume
+     * @return
+     */
+    public Boolean checkBoardWeightVolume(LoadCar loadCar, List<String> packageList, BigDecimal totalWeight, BigDecimal totalVolume, Long taskId) {
+        if (null == loadCar.getWeight() || null == loadCar.getVolume()) {
+            return false;
+        }
+        Set<String> waybillSet = new HashSet<>(packageList);
+        List<String> waybillList = new ArrayList<>();
+        for (String packageCode : waybillSet) {
+            waybillList.add(WaybillUtil.getWaybillCode(packageCode));
+        }
+        //通过load_scan表查询板上运单扫描记录
+        List<String> recordList = goodsLoadScanDao.checkWaybillIsExist(waybillList, taskId);
+        //板上包裹部分被扫描，取差集;否则直接计算板上运单
+        if (CollectionUtils.isNotEmpty(recordList)) {
+            Set<String> recordSet = new HashSet<>(recordList);
+            Set<String> set = new HashSet<String>();
+            set.addAll(waybillSet);
+            set.removeAll(recordSet);
+            for (String waybillCode : set) {
+                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
+                    return true;
+                }
+            }
+        } else {
+            for (String waybillCode : recordList) {
+                if (checkWaybillCodeWeightVolume(waybillCode, totalWeight, totalVolume, loadCar)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 校验扫描本次运单是否超过最大核载限制
+     *
+     * @param waybillCode
+     * @param totalWeight
+     * @param totalVolume
+     * @param loadCar
+     * @return
+     */
+    public Boolean checkWaybillCodeWeightVolume(String waybillCode, BigDecimal totalWeight, BigDecimal totalVolume, LoadCar loadCar) {
+        //取每个运单的重量、体积如果此次累加重量、体积大于车辆最大核载直接返回
+        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        if (waybill == null || waybill.getAgainWeight() == null || StringUtils.isBlank(waybill.getSpareColumn2())) {
+            return false;
+        }
+        //先取复重、复量方,不存在取原重、原体积
+        if (null != waybill.getAgainWeight() && waybill.getAgainWeight() != 0D) {
+            totalWeight = totalWeight.add(new BigDecimal(waybill.getAgainWeight()));
+        } else {
+            totalWeight=totalWeight.add(new BigDecimal(waybill.getGoodWeight()));
+        }
+        if (StringUtils.isNotBlank(waybill.getSpareColumn2()) && new Double(waybill.getSpareColumn2()) != 0D) {
+            totalVolume=totalVolume.add(new BigDecimal(waybill.getSpareColumn2()));
+        } else {
+            totalVolume = totalVolume.add(new BigDecimal(waybill.getGoodVolume()));
+        }
+        if (compareWeightVolume(loadCar, totalWeight, totalVolume)) {
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode) {

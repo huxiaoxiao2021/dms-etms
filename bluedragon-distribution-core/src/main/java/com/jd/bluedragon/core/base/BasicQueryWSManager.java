@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.BasicVehicleDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 
 import java.util.List;
@@ -47,4 +48,19 @@ public interface BasicQueryWSManager {
      */
     public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber);
 
+
+    /**
+     * 根据车牌号获取车型配置信息
+     * @param vehicleNum
+     * @return
+     */
+    BasicVehicleTypeDto getVehicleTypeByVehicleNum(String vehicleNum);
+
+    /**
+     * 根据车型获取车型配置信息
+     *
+     * @param vehicleType
+     * @return
+     */
+    BasicVehicleTypeDto getVehicleTypeByVehicleType(Integer vehicleType);
 }

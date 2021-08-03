@@ -4,19 +4,18 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.tms.basic.dto.BasicDictDto;
-import com.jd.tms.basic.dto.BasicVehicleDto;
-import com.jd.tms.basic.dto.CommonDto;
-import com.jd.tms.basic.dto.ConfNodeCarrierDto;
+import com.jd.tms.basic.dto.*;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.wss.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author : xumigen
@@ -112,4 +111,53 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
             return null;
         }
     }
+
+    /**
+     * 根据车牌号获取车型配置信息
+     *
+     * @param vehicleNum
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleTypeByVehicleNum", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BasicVehicleTypeDto getVehicleTypeByVehicleNum(String vehicleNum) {
+        try {
+            CommonDto<BasicVehicleTypeDto> commonDto = basicQueryWS.getVehicleTypeByVehicleNum(vehicleNum);
+            if (commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+                log.warn("根据车牌号获取车型配置信息为空,vehicleNum={}", vehicleNum);
+                return null;
+            }
+            return commonDto.getData();
+        } catch (Exception e) {
+            log.error("根据车牌号获取车型配置信息异常,vehicleNum={}", vehicleNum, e);
+        }
+        return null;
+    }
+
+    /**
+     * 根据车型获取车型配置信息
+     *
+     * @param vehicleType
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleTypeByVehicleType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BasicVehicleTypeDto getVehicleTypeByVehicleType(Integer vehicleType) {
+        if (null == vehicleType) {
+            return null;
+        }
+        try {
+            CommonDto<BasicVehicleTypeDto> commonDto = basicQueryWS.getVehicleTypeByVehicleType(vehicleType);
+            if (commonDto == null || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+                log.warn("根据车型获取车型配置信息返回结果为空");
+                return null;
+            }
+            return commonDto.getData();
+        } catch (Exception e) {
+            log.warn("根据车型获取车型配置信息异常:", e);
+        }
+        return null;
+    }
+
+
 }

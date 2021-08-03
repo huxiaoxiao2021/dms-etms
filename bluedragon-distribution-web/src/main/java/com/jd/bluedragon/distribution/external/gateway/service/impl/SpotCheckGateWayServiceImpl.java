@@ -114,6 +114,10 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             jdCResponse.toConfirm("超标提交需要上传抽检图片！");
             return jdCResponse;
         }
+        if (Constants.IS_EXCESS.equals(req.getExcessFlag()) && CollectionUtils.isNotEmpty(req.getUrls()) && req.getUrls().size() < 5) {
+            jdCResponse.toConfirm("超标上传图片数不可小于五张！");
+            return jdCResponse;
+        }
         try {
             InvokeResult<String> result = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(convert(req));
             if (null != result && Constants.SUCCESS_CODE.equals(result.getCode())) {

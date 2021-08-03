@@ -64,6 +64,16 @@ public class GoodsLoadingScanningReq implements Serializable {
      */
     private Integer createSiteCode;
 
+    /**
+     * 装车列表实时总重量
+     */
+    private Double totalWeight;
+
+    /**
+     * 装车列表实时总体积
+     */
+    private Double totalVolume;
+
     public Long getId() {
         return id;
     }
@@ -150,5 +160,21 @@ public class GoodsLoadingScanningReq implements Serializable {
 
     public void setCreateSiteCode(Integer createSiteCode) {
         this.createSiteCode = createSiteCode;
+    }
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Double totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public Double getTotalVolume() {
+        return totalVolume;
+    }
+
+    public void setTotalVolume(Double totalVolume) {
+        this.totalVolume = totalVolume;
     }
 }

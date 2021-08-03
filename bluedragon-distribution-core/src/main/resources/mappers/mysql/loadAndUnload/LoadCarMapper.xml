@@ -18,11 +18,13 @@
         <result column="batch_code" property="batchCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE"/>
+        <result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id, license_number, end_site_code, end_site_name, status, operate_user_erp, operate_user_name, create_user_erp, create_site_name,
-        create_site_code, batch_code, create_user_name, create_time, update_time, yn
+        create_site_code, batch_code, create_user_name, create_time, update_time, yn, weight, volume
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.loadAndUnload.LoadCar" useGeneratedKeys="true"
@@ -68,6 +70,12 @@
             <if test="createUserName !=null and createUserName !=''">
                 create_user_name,
             </if>
+            <if test="weight !=null ">
+                weight,
+            </if>
+            <if test="volume !=null ">
+                volume,
+            </if>
             yn
         </trim>
         )values (
@@ -110,6 +118,12 @@
             </if>
             <if test="createUserName !=null and createUserName !=''">
                 #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="weight !=null ">
+                #{weight,jdbcType=DOUBLE},
+            </if>
+            <if test="volume !=null ">
+                #{volume,jdbcType=DOUBLE},
             </if>
             1
         </trim>
