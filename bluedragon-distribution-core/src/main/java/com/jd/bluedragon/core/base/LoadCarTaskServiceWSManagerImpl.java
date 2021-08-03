@@ -1,11 +1,14 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.goodsLoadingScanning.request.GoodsLoadingReq;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.merchant.api.pack.dto.LoadCarTaskReqDto;
 import com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +22,7 @@ public class LoadCarTaskServiceWSManagerImpl implements LoadCarTaskServiceWSMana
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LoadCarTaskServiceWSManagerImpl.uploadPhotoCheck",mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> uploadPhotoCheck(GoodsLoadingReq goodsLoadingReq) {
         JdCResponse<Boolean> res = new JdCResponse<Boolean>();
         LoadCarTaskReqDto loadCarTaskReqDto = null;
