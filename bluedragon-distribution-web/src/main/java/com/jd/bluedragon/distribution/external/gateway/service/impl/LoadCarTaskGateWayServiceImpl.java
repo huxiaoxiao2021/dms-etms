@@ -88,6 +88,11 @@ public class LoadCarTaskGateWayServiceImpl implements LoadCarTaskGateWayService 
         }
         List<LoadCarHelper> list = Lists.newArrayListWithExpectedSize(helperList.size());
         for (HelperDto helperDto : helperList) {
+            if (StringUtils.equals(req.getCreateUserErp(), helperDto.getHelperERP())) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage("装车协助人不允许添加本任务的负责人！");
+                return jdCResponse;
+            }
             LoadCarHelper loadCarHelper = new LoadCarHelper();
             loadCarHelper.setCreateSiteName(req.getCreateSiteName());
             loadCarHelper.setCreateSiteCode(req.getCreateSiteCode());

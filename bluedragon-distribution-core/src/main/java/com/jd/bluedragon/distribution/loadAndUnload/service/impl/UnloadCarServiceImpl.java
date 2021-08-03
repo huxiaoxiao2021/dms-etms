@@ -2680,7 +2680,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.setMessage("该操作仅限卸车负责人使用！");
             return result;
         }
-
+        if (StringUtils.equals(taskHelpersReq.getUser().getUserErp(), taskHelpersReq.getHelperERP())) {
+            result.parameterError("卸车协助人不允许添加本任务的负责人");
+            return result;
+        }
         try {
             if (taskHelpersReq.getOperateType() == OperateTypeEnum.DELETE_HELPER.getType()) {
                 //删除协助人
@@ -2955,6 +2958,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCar.setDistributeTime(new Date());
             unloadCar.setOperateUserErp(tmsSealCar.getOperateUserCode());
             unloadCar.setOperateUserName(tmsSealCar.getOperateUserName());
+            unloadCar.setStatus(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
             //同步卸车负责人与卸车任务之间关系
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(tmsSealCar.getSealCarCode());
