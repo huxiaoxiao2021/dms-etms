@@ -107,6 +107,8 @@ public class Constants {
      * 集配站编号
      */
     public static final Integer JI_PEI_CODE_9605 = 9605;
+    /** 营业部 类型*/
+    public static final Integer TERMINAL_SITE_TYPE_4 = 4;
 //    后续增加城配的时候再使用，此次增加没有意义.
 //    public static final Integer CHENGPEI_CODE_9606 = 9606;
     /**
@@ -1447,6 +1449,22 @@ public class Constants {
     public static final Integer PDA_SOURCE = 1;
 
     /**
+     * 字典节点级别
+     */
+    public static final int DICT_LEVEL = 2;
+
+    /**
+     * 父节点编码
+     */
+    public static final String PARENT_CODE = "1019";
+
+    /**
+     * 字典分组
+     */
+    public static final String DICT_GROUP = "1019";
+
+
+    /**
      * 快运发货标识
      */
     public static final Integer KY_DELIVERY = 1;
@@ -1491,6 +1509,21 @@ public class Constants {
     	//34-长途传站返回
     	CUAN_BAI_LINE_TYPES.add(34);
     }
+
+    /**
+     * 车牌长度9位 ex:010A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_9 = 9;
+
+    /**
+     * 车牌长度10位 ex:0371A00001
+     */
+    public static final int VEHICLE_NUMBER_LENGTH_10 = 10;
+
+    /**
+     * 查询已扫包裹最大数限制单次IN50
+     */
+    public static final int QUERY_LOAD_SCAN_MAX = 50;
     //DeliveryPackageD信任包裹称重
     public static Integer isTrust = 1;
 
@@ -1533,4 +1566,17 @@ public class Constants {
      * 快运使用的泡重比:6000
      */
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
+
+    /**
+     * 驻厂操作全程跟踪
+     */
+    public static final String TRACE_PACK_RECEIVE = "订单/包裹已接货";
+    public static final String TRACE_DELIVERY_COLLECT = "配送员%s揽收完成";
+
+    /***
+     * 跨越成功校验缓存前缀
+     */
+    public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
+    /***跨越成功发送妥投消息前缀**/
+    public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
 }

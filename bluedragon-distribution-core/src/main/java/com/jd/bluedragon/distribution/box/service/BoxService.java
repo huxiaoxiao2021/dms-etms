@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
 
 import java.util.List;
+import java.util.Map;
 
 public interface BoxService {
 
@@ -76,4 +77,6 @@ public interface BoxService {
      * @return
      */
     BoxResponse commonGenBox(BoxRequest request, String systemType, boolean isNew);
+
+    void computeRouter(List<Map.Entry<Integer, String>> router);
 }

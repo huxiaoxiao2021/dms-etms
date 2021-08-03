@@ -25,6 +25,16 @@ public interface SendMService {
     public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate);
 
     /**
+     * 批量查询已发货批次
+     *
+     * @param createSiteCode
+     * @param receiveSiteCodes
+     * @param startDate
+     * @return
+     */
+    List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate);
+
+    /**
      * 根据条件查询发货记录
      *
      * @param params

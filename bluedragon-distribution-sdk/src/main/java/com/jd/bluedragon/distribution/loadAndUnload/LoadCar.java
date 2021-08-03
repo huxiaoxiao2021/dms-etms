@@ -78,6 +78,16 @@ public class LoadCar extends DbEntity {
      */
     private String operateUserErp;
 
+    /**
+     * 车辆最大载重,吨
+     */
+    private Double weight;
+
+    /**
+     * 车辆最大体积,立方米
+     */
+    private Double volume;
+
 
     private List<Integer> statusList;
 
@@ -188,6 +198,22 @@ public class LoadCar extends DbEntity {
 
     public void setOperateUserErp(String operateUserErp) {
         this.operateUserErp = operateUserErp;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 
     public List<Integer> getStatusList() {

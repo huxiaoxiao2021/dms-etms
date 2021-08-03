@@ -1,16 +1,14 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 import org.springframework.stereotype.Repository;
 
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
-import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,5 +46,10 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     @Override
     public int getNoPackUserErpRecordCount(String waybillCode) {
         return sqlSession.selectOne(this.nameSpace+".getNoPackUserErpRecordCount", waybillCode);
+    }
+
+    @Override
+    public int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
+        return sqlSession.update(this.nameSpace+".updateByWaybillCode", waybillConsumableRelationPDADto);
     }
 }

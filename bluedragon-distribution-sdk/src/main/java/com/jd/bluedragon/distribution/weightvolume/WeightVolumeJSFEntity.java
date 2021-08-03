@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightvolume;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -9,7 +10,7 @@ import java.util.Date;
  * @author wuzuxiang
  * @since 2020/1/10
  **/
-public class WeightVolumeJSFEntity {
+public class WeightVolumeJSFEntity implements Serializable {
 
     /**
      * 操作单号
