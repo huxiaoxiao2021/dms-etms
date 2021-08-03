@@ -1079,7 +1079,13 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 //15-特快送
                 res = TextConstants.PRODUCT_NAME_TKS;
             }
-            else if (BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1, WaybillSignConstants.CHAR_31_4)
+            else if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                    && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
+                // 特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }
+            else if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
                     && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
                 // 特快送
                 res = TextConstants.PRODUCT_NAME_TKS;
