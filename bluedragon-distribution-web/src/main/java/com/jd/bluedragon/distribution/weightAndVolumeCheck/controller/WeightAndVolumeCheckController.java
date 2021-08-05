@@ -201,9 +201,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
             // 上传成功后，更新图片，发送MQ消息，进行下一步操作
-            weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode);
-            /*//上传成功后给FXM发超标消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);*/
+            weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode, null);
         }
 
         return result;
