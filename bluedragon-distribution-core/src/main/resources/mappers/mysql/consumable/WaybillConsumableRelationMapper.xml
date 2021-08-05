@@ -318,4 +318,20 @@
 		from waybill_consumable_relation
 			where pack_user_erp is null and is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
+
+
+	<update id="updateByWaybillCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto">
+		update waybill_consumable_relation
+		set
+			pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
+			operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+			operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+			update_time = #{updateTime,jdbcType=TIMESTAMP},
+			operate_time = #{operateTime,jdbcType=TIMESTAMP},
+			confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE}
+		where
+			waybill_code = #{waybillCode, jdbcType=VARCHAR}
+			and consumable_code = #{consumableCode, jdbcType=VARCHAR}
+			and is_delete = 0
+	</update>
 </mapper>

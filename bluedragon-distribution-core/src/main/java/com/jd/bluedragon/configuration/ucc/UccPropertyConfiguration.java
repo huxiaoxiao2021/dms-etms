@@ -244,14 +244,6 @@ public class UccPropertyConfiguration {
      */
     private Integer virtualSiteCode;
 
-    public Integer getVirtualSiteCode() {
-        return virtualSiteCode;
-    }
-
-    public void setVirtualSiteCode(Integer virtualSiteCode) {
-        this.virtualSiteCode = virtualSiteCode;
-    }
-
     /**
      * 创建批次号开关，是否使用序列号生成器生成还是原始批次生成工具生成
      * true： 表示使用新的序号生成器生成
@@ -392,11 +384,6 @@ public class UccPropertyConfiguration {
     private boolean spotCheckIssueControl;
 
     /**
-     * C网抽检是否按以前逻辑下发MQ
-     */
-    private boolean spotCheckIssueControlPre;
-
-    /**
      * 隐藏特殊始发场地名称开关，0-关，1-开
      */
     private int hideSpecialStartSitePrintSwitch;
@@ -462,6 +449,11 @@ public class UccPropertyConfiguration {
      * 单次插入数据库的条数
      */
     private int insertDbRowsOneTime;
+
+    /**
+     * 抽检不超标限制
+     */
+    private double spotCheckNoExcessLimit;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -903,6 +895,14 @@ public class UccPropertyConfiguration {
         this.quickSealTips = quickSealTips;
     }
 
+    public Integer getVirtualSiteCode() {
+        return virtualSiteCode;
+    }
+
+    public void setVirtualSiteCode(Integer virtualSiteCode) {
+        this.virtualSiteCode = virtualSiteCode;
+    }
+
     public boolean isSendCodeGenSwitchOn() {
         return sendCodeGenSwitchOn;
     }
@@ -1104,14 +1104,6 @@ public class UccPropertyConfiguration {
         this.spotCheckIssueControl = spotCheckIssueControl;
     }
 
-    public boolean getSpotCheckIssueControlPre() {
-        return spotCheckIssueControlPre;
-    }
-
-    public void setSpotCheckIssueControlPre(boolean spotCheckIssueControlPre) {
-        this.spotCheckIssueControlPre = spotCheckIssueControlPre;
-    }
-
     public int getHideSpecialStartSitePrintSwitch() {
         return hideSpecialStartSitePrintSwitch;
     }
@@ -1218,6 +1210,14 @@ public class UccPropertyConfiguration {
 
     public void setWaybillMaxPackNum(int waybillMaxPackNum) {
         this.waybillMaxPackNum = waybillMaxPackNum;
+    }
+
+    public double getSpotCheckNoExcessLimit() {
+        return spotCheckNoExcessLimit;
+    }
+
+    public void setSpotCheckNoExcessLimit(double spotCheckNoExcessLimit) {
+        this.spotCheckNoExcessLimit = spotCheckNoExcessLimit;
     }
 
     public boolean isParalleGetPackageSwitch() {

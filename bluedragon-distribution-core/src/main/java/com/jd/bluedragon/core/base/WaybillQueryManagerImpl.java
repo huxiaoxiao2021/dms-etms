@@ -910,6 +910,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.WaybillQueryManagerImpl.doGetPackageGoodsVasInfo",mState={JProEnum.TP,JProEnum.FunctionError})
     public Map<String, String> doGetPackageGoodsVasInfo(String wayBillCode) {
         WChoice wChoice = new WChoice();
         //只查询运单下的商品列表

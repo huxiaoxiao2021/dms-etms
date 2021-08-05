@@ -158,7 +158,7 @@ import java.util.concurrent.TimeUnit;
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
 
 @Service("deliveryService")
-public class DeliveryServiceImpl implements DeliveryService {
+public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     private final Logger log = LoggerFactory.getLogger(DeliveryServiceImpl.class);
 
@@ -5957,6 +5957,40 @@ public class DeliveryServiceImpl implements DeliveryService {
         }finally{
             Profiler.registerInfoEnd(info);
         }
+    }
+
+    @Override
+    public InvokeResult<Boolean> checkIsSend(String barcode, Integer createSiteCode) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+
+        if(org.apache.commons.lang3.StringUtils.isBlank(barcode) || createSiteCode == null){
+            result.parameterError("入参barcode或createSiteCode为空");
+            return result;
+        }
+        SendDetail param = new SendDetail();
+
+        if(WaybillUtil.isPackageCode(barcode)){
+            param.setPackageBarcode(barcode);
+        }else if(BusinessUtil.isBoxcode(barcode)){
+            param.setBoxCode(barcode);
+        }else {
+            result.parameterError("条码无效非包裹号箱号");
+            return result;
+        }
+        param.setCreateSiteCode(createSiteCode);
+        //未取消
+        param.setIsCancel(0);
+        //已发货
+        param.setStatus(1);
+        SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
+        if(sendDetail == null ){
+            result.setData(Boolean.FALSE);
+        }else {
+            result.setData(Boolean.TRUE);
+        }
+        return result;
+
     }
 
     /**

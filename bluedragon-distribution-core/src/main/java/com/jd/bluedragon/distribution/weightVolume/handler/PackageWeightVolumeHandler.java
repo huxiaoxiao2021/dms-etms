@@ -31,7 +31,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -107,15 +106,8 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
-        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
-        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
-            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
-            InvokeResult<Boolean> result
-                    = weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS,new InvokeResult<Boolean>());
-            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
-                logger.warn("包裹【{}】自动化体积重量抽检失败：{}",packWeightVO.getCodeStr(),result.getMessage());
-            }
-        }
+        // 抽检数据处理
+        spotCheckDeal(entity);
 
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
@@ -165,6 +157,35 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         } catch (RuntimeException | JMQException e) {
             logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
         }
+    }
+
+    /**
+     * 抽检数据处理
+     *  自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+     * @param entity
+     */
+    private void spotCheckDeal(WeightVolumeEntity entity) {
+        if(!FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) || isFirstWeightVolume(entity)){
+            return;
+        }
+        weightAndVolumeCheckService.dealSportCheck(convertToPackWeightVO(entity), SpotCheckSourceEnum.SPOT_CHECK_DWS);
+    }
+
+    public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeEntity entity) {
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler参数:{}", JsonHelper.toJson(entity));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            return weightAndVolumeCheckService.checkIsExcess(packWeightVO);
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler-不满足自动化抽检条件-参数:{}", JsonHelper.toJson(entity));
+        }
+        result.setMessage("首次称重不进行抽检!");
+        return result;
     }
 
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){

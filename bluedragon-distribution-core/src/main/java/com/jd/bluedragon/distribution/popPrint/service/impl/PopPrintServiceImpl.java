@@ -110,6 +110,7 @@ public class PopPrintServiceImpl implements PopPrintService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.PopPrintServiceImpl.findAllByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public List<PopPrint> findAllByWaybillCode(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
             log.info("传入运单号 waybillCode 为空");

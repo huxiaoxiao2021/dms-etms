@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,7 @@ public class HideSpecialStartSiteNameHandler implements InterceptHandler<Waybill
      * @return 处理结果
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.HideSpecialStartSiteNameHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = context.getResult();
         try {

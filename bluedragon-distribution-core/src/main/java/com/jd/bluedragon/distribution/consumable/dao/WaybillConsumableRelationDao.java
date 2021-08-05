@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumable.dao;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -55,4 +56,5 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      */
     int getNoPackUserErpRecordCount(String waybillCode);
 
+    int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
 }

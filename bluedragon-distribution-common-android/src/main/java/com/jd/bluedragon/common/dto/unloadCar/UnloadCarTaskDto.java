@@ -27,6 +27,10 @@ public class UnloadCarTaskDto implements Serializable {
      */
     private Integer type;
 
+    private Long startTime;
+
+    private Long planEndTime;
+
     public Integer getSerialNumber() {
         return serialNumber;
     }
@@ -113,5 +117,21 @@ public class UnloadCarTaskDto implements Serializable {
 
     public void setType(Integer type) {
         this.type = type;
+    }
+
+    public Long getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Long startTime) {
+        this.startTime = startTime;
+    }
+
+    public Long getPlanEndTime() {
+        return planEndTime;
+    }
+
+    public void setPlanEndTime(Long planEndTime) {
+        this.planEndTime = planEndTime;
     }
 }

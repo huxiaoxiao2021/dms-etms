@@ -35,6 +35,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,8 @@ import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 
 
 @Component
@@ -346,6 +349,24 @@ public class BoxResource {
     @JProfiler(jKey = "DMS.WEB.BoxResource.autoSortingBoxes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingBoxes(BoxRequest request) {
         return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
+    }
+
+    /**
+     * 为自动分拣机生成箱号
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/autoSorting/create")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.autoSortingCreate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingCreate(BoxRequest request) {
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result =  create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
+        //计算滑道号和笼车号
+        if(RESULT_SUCCESS_CODE == result.getCode() && result.getData() != null){
+            boxService.computeRouter(result.getData().getRouterInfo());
+        }
+        return result;
     }
 
     private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request, String systemType,boolean isNew) {
@@ -738,5 +759,7 @@ public class BoxResource {
         }
         return false;
     }
+
+
 
 }

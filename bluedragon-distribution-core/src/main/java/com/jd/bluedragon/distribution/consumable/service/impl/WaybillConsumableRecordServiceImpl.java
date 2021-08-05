@@ -3,18 +3,20 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePdaDto;
+import com.jd.bluedragon.common.dto.consumable.request.WaybillConsumablePackConfirmReq;
+import com.jd.bluedragon.common.dto.consumable.response.WaybillConsumablePackConfirmRes;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
+import com.jd.bluedragon.distribution.consumable.domain.*;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumablePDAService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -23,6 +25,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,10 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
@@ -44,7 +44,8 @@ import java.util.Map;
  *
  */
 @Service("waybillConsumableRecordService")
-public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsumableRecord> implements WaybillConsumableRecordService {
+public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsumableRecord>
+        implements WaybillConsumableRecordService, WaybillConsumablePDAService {
 
     @Autowired
 	@Qualifier("waybillConsumableRecordDao")
@@ -61,6 +62,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     private DefaultJMQProducer waybillConsumableProducer;
 
     private static int WAYBILL_CONSUMABLE_MESSAGE_TYPE = 2;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 	@Override
 	public Dao<WaybillConsumableRecord> getDao() {
@@ -215,5 +219,154 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             log.info("运单号{}确认耗材服务结果【0：未确认，1：确认】：{}" ,waybillCode, record.getConfirmStatus());
         }
         return UNTREATED_STATE.equals(record.getConfirmStatus());
+    }
+
+
+    @Override
+    public JdCResponse<Boolean> doWaybillConsumablePackConfirm(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+        JdCResponse<Boolean> res = new JdCResponse<>();
+
+        String businessCode = waybillConsumablePackConfirmReq.getBusinessCode().trim();
+        if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
+            res.toFail("请输入正确的单号，支持运单号或包裹号");
+            return res;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
+        //确认校验
+        JdCResponse<WaybillConsumableRecord> confirmConsumableCheckRes = this.confirmConsumableCheck(waybillCode);
+        if(!JdCResponse.CODE_SUCCESS.equals(confirmConsumableCheckRes.getCode())) {
+            res.toFail(confirmConsumableCheckRes.getMessage());
+            return res;
+        }
+
+        //验证ERP是否存在
+//        BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(waybillConsumablePackConfirmReq.getUser().getUserErp());
+//        if (userOrgInfo == null){
+//            res.toFail("【" + waybillConsumablePackConfirmReq.getUser().getUserErp() + "】不存在与青龙基础资料中，请核实后录入！");
+//            return res;
+//        }
+//        consumablePackAndConfirm(waybillConsumablePackConfirmReq);
+
+        String operateErp = waybillConsumablePackConfirmReq.getUser().getUserErp();
+        int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
+        String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
+
+        //组装运单耗材打包人关系表数据
+        List<WaybillConsumableRelationPDADto> dbBatchUpdateList = new ArrayList<>();
+        for(WaybillConsumablePdaDto poTemp : waybillConsumablePackConfirmReq.getWaybillConsumableDtoList()) {
+            WaybillConsumableRelationPDADto dbParam = new WaybillConsumableRelationPDADto();
+            dbParam.setWaybillCode(waybillCode);
+            dbParam.setPackUserErp(operateErp);
+            dbParam.setOperateUserErp(operateErp);
+            dbParam.setOperateUserCode(operateCode + "");
+            Date date = new Date();
+            dbParam.setUpdateTime(date);
+            dbParam.setOperateTime(date);
+
+            if(poTemp.getConsumableCode() == null || poTemp.getConfirmQuantity() == null) {
+                throw new RuntimeException("运单耗材编码及确认数量不可为空");
+            }
+            dbParam.setConfirmQuantity(poTemp.getConfirmQuantity());
+            dbParam.setConsumableCode(poTemp.getConsumableCode());
+            dbBatchUpdateList.add(dbParam);
+        }
+
+        //组装运单耗材记录表参数
+        List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>();
+        WaybillConsumableRecord record = new WaybillConsumableRecord();
+        record.setId(confirmConsumableCheckRes.getData().getId());
+//        record.setWaybillCode(waybillCode);
+        record.setConfirmUserName(operateName);
+        record.setConfirmUserErp(operateErp);
+        record.setConfirmTime(new Date());
+        confirmRecords.add(record);
+        consumablePackAndConfirm(dbBatchUpdateList, confirmRecords);
+
+        res.toSucceed();
+        return res;
+    }
+
+    /**
+     * PDA实操绑定打包人，确认打包
+     */
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    private void consumablePackAndConfirm(List<WaybillConsumableRelationPDADto> dbBatchUpdateList, List<WaybillConsumableRecord> confirmRecords ) {
+        for(WaybillConsumableRelationPDADto dto : dbBatchUpdateList) {
+            waybillConsumableRelationService.updateByWaybillCode(dto);
+        }
+        this.confirmByIds(confirmRecords);
+    }
+
+    @Override
+    public JdCResponse<List<WaybillConsumablePackConfirmRes>> getWaybillConsumableInfo(WaybillConsumablePackConfirmReq waybillConsumablePackConfirmReq) {
+        String methodDesc = "WaybillConsumableRecordServiceImpl.getWaybillConsumableInfo--PDA操作耗材确认查询接口--";
+
+        JdCResponse<List<WaybillConsumablePackConfirmRes>> res = new JdCResponse<>();
+        List<WaybillConsumablePackConfirmRes> resDataList = new ArrayList<>();
+        WaybillConsumablePackConfirmRes resData = new WaybillConsumablePackConfirmRes();
+
+        String businessCode = waybillConsumablePackConfirmReq.getBusinessCode();
+        if (!(WaybillUtil.isPackageCode(businessCode) || WaybillUtil.isWaybillCode(businessCode))) {
+            log.error(methodDesc + "error--运单号错误，businessCode={}", businessCode);
+            res.toFail("请输入正确的单号，支持运单号或包裹号");
+            return res;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(waybillConsumablePackConfirmReq.getBusinessCode());
+
+        //确认校验
+        JdCResponse<WaybillConsumableRecord> confirmConsumableCheckRes = this.confirmConsumableCheck(waybillCode);
+        if(!JdCResponse.CODE_SUCCESS.equals(confirmConsumableCheckRes.getCode())) {
+            res.toFail(confirmConsumableCheckRes.getMessage());
+            return res;
+        }
+
+        WaybillConsumableRecord record = confirmConsumableCheckRes.getData();
+
+        List<String> list = Arrays.asList(waybillCode);
+        List<WaybillConsumableDetailInfo> waybillConsumableDetailInfoList = waybillConsumableRelationService.queryByWaybillCodes(list);
+        if(CollectionUtils.isEmpty(waybillConsumableDetailInfoList)) {
+            log.info(methodDesc + "--error--耗材记录查询成功，查询耗材打包人及揽收耗材详细信息为空,单号=【{}】", JsonHelper.toJson(list));
+            res.toFail("查询耗材详细数据为空");
+            return res;
+        }
+        for(WaybillConsumableDetailInfo wcdi : waybillConsumableDetailInfoList) {
+            WaybillConsumablePackConfirmRes resDataTemp = new WaybillConsumablePackConfirmRes();
+            resDataTemp.setWaybillCode(record.getWaybillCode());
+            resDataTemp.setDmsName(record.getDmsName());
+            resDataTemp.setConsumableName(wcdi.getName());
+            resDataTemp.setConsumableTypeName(wcdi.getTypeName());
+            resDataTemp.setReceiveQuantity(wcdi.getReceiveQuantity());
+            resDataTemp.setConsumableCode(wcdi.getConsumableCode());
+            resDataList.add(resDataTemp);
+        }
+        res.setData(resDataList);
+        res.toSucceed();
+        return res;
+    }
+
+
+    /**
+     * 校验运单耗材
+     * @param waybillCode
+     * @return
+     */
+    private JdCResponse<WaybillConsumableRecord> confirmConsumableCheck(String waybillCode) {
+        JdCResponse<WaybillConsumableRecord> res = new JdCResponse<>();
+
+        WaybillConsumableRecord dbRes = this.queryOneByWaybillCode(waybillCode);
+        if(null == dbRes) {
+            res.toFail("此单非包装需求单，无需操作！");
+            return res;
+        }
+
+        //1.该运单未被确认
+        if(dbRes != null && TREATED_STATE.equals(dbRes.getConfirmStatus())){
+            res.toFail(String.format("运单号%s已有%s确认，请勿重复确认", dbRes.getWaybillCode(), dbRes.getConfirmUserErp()));
+            return res;
+        }
+        res.toSucceed();
+        res.setData(dbRes);
+        return res;
+
     }
 }

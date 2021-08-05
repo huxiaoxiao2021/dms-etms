@@ -25,12 +25,14 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
     @Override
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
-        standardDto.setExcessFlag(this.isExcess(checkExcessParam));
+        StringBuilder excessReason = new StringBuilder();
+        standardDto.setExcessFlag(this.isExcess(checkExcessParam, excessReason));
+        standardDto.setExcessReason(excessReason.toString());
         standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getSumLWH().doubleValue()));
         return standardDto;
     }
 
-    private boolean isExcess(CheckExcessParam checkExcessParam){
+    private boolean isExcess(CheckExcessParam checkExcessParam, StringBuilder excessReason){
         BigDecimal sumLWH  = checkExcessParam.getSumLWH();
         Double differenceValue = checkExcessParam.getDifferenceValue();
         // 三边之和的阀值
@@ -45,8 +47,10 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
         Double sumLWHStage15 =  new Double(secondSumLWHStage);
         Double sumLWHStage2  =  new Double(thirdSumLWHStage);
 
+        String excessReasonTemplate = "三边之和在%scm和%scm之间并且误差%s超过误差标准值%skg";
         if(sumLWH.compareTo(sumLWH70)>=0 && sumLWH.compareTo(sumLWH100)<0){
             if(differenceValue.compareTo(sumLWHStage08)>0){
+                excessReason.append(String.format(excessReasonTemplate, sumLWH, sumLWH70, sumLWH100, differenceValue, sumLWHStage08));
                 return true;
             }
             return  false;
@@ -54,6 +58,7 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
 
         if(sumLWH.compareTo(sumLWH100)>=0 && sumLWH.compareTo(sumLWH120)<0){
             if(differenceValue.compareTo(sumLWHStage1)>0){
+                excessReason.append(String.format(excessReasonTemplate, sumLWH, sumLWH100, sumLWH120, differenceValue, sumLWHStage1));
                 return true;
             }
             return false;
@@ -61,6 +66,7 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
 
         if(sumLWH.compareTo(sumLWH120)>=0 && sumLWH.compareTo(sumLWH200)<0){
             if(differenceValue.compareTo(sumLWHStage15)>0){
+                excessReason.append(String.format(excessReasonTemplate, sumLWH, sumLWH120, sumLWH200, differenceValue, sumLWHStage15));
                 return true;
             }
             return false;
@@ -68,6 +74,7 @@ public class WeightAndVolumeCheckBHandler extends AbstractCheckStandardHandler{
 
         if(sumLWH.compareTo(sumLWH200)>0){
             if(differenceValue.compareTo(sumLWHStage2)>0){
+                excessReason.append(String.format(excessReasonTemplate, sumLWH, sumLWH200, "∞", differenceValue, sumLWHStage2));
                 return true;
             }
             return false;
