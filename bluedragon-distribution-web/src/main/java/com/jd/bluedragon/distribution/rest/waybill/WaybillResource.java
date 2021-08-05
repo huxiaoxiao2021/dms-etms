@@ -20,6 +20,9 @@ import javax.ws.rs.core.MediaType;
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -1502,7 +1505,7 @@ public class WaybillResource {
 		if (!WaybillUtil.isWaybillCode(request.getPackageCode()) && !WaybillUtil.isPackageCode(request.getPackageCode())) {
 			log.warn("WaybillResource.getBarCodeAllRouters-->参数错误：{}，单号不是京东单号", request.getPackageCode());
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-			result.setMessage("单号不正确，未通过京东单号规则校验");
+			result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_RULE_ILLEGAL));
 			return result;
 		}
 
@@ -1524,7 +1527,9 @@ public class WaybillResource {
 			if (null == waybill || null == waybill.getOldSiteId() || waybill.getOldSiteId() < 0) {
                 log.warn("WaybillResource.getBarCodeAllRouters-->运单:{}信息为空或者预分拣站点信息为空", barCode);
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-				result.setMessage("运单"+waybillCode+"信息为空，请联系 配送系统运营");
+				Map<String, String> argsMap = new HashMap<>();
+				argsMap.put(HintArgsConstants.ARG_FIRST, waybillCode);
+				result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_OLD_SITE, argsMap));
 				return result;
 			}
 			/* 预分拣站点 */
@@ -1532,7 +1537,7 @@ public class WaybillResource {
 		} catch (Exception e) {
 			log.error("WaybillResource.getBarCodeAllRouters-->运单接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
-			result.setMessage("调用运单接口异常");
+			result.setMessage(HintService.getHint(HintCodeConstants.GET_WAYBILL_CHOICE_ERROR));
 			return result;
 		}
 
@@ -1574,7 +1579,7 @@ public class WaybillResource {
 		} catch (Exception e) {
 			log.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
-			result.setMessage("调用路由接口异常");
+			result.setMessage(HintService.getHint(HintCodeConstants.GET_ROUTER_BY_WAYBILL_ERROR));
 			return result;
 		}
 
@@ -1603,7 +1608,7 @@ public class WaybillResource {
 			Profiler.functionError(info);
 			log.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：{}" , waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
-			result.setMessage("发货配置接口异常");
+			result.setMessage(HintService.getHint(HintCodeConstants.GET_AREA_DEST_ERROR));
 			return result;
 		}finally {
 			Profiler.registerInfoEnd(info);

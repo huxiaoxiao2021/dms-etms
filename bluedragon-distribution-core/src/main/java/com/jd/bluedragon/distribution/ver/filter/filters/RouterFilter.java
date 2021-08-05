@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -19,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2018/3/21.
@@ -72,8 +73,10 @@ public class RouterFilter implements Filter {
             if(routeNextDto.isRoutExistCurrentSite() &&
                     !isRightReceiveSite(receiveSiteCode, routeNextDto)) {
                 String siteName = siteService.getDmsShortNameByCode(routeNextDto.getFirstNextSiteId());
+                Map<String, String> argsMap = new HashMap<>();
+                argsMap.put(HintArgsConstants.ARG_FIRST, siteName);
                 throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,
-                        SortingResponse.MESSAGE_CROUTER_ERROR + "路由下一站：" + siteName);
+                        HintService.getHintWithFuncModule(HintCodeConstants.BATCH_DEST_AND_NEXT_ROUTER_DIFFERENCE, request.getFuncModule(), argsMap));
             }
 
         }

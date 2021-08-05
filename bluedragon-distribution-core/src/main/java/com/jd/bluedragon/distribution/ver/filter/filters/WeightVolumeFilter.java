@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -99,7 +101,7 @@ public class WeightVolumeFilter implements Filter {
         //众邮无重量拦截
         if(isEconomicNetNeedWeight){
             if(!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
-                throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
+                throw new SortingCheckException(SortingResponse.CODE_29403, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
@@ -117,12 +119,13 @@ public class WeightVolumeFilter implements Filter {
                     throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
-                if(!isMultiplePackage){
+                if(!isMultiplePackage) {
                     JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-                    if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                        throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
-                    }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                        throw new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                    if (jdResponse.getCode().equals(SortingResponse.CODE_39002)) {
+                        throw new SortingCheckException(jdResponse.getCode(),
+                                HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
+                    } else if (jdResponse.getCode().equals(SortingResponse.CODE_29419)) {
+                        throw new SortingCheckException(jdResponse.getCode(), HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT, request.getFuncModule()));
                     }
                 }
             }
@@ -135,7 +138,8 @@ public class WeightVolumeFilter implements Filter {
                 //从运单接口查  数据没有下放的极端情况下 一般不会走
                 WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
                 if (waybillNoCache == null) {
-                    throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+                    throw new SortingCheckException(SortingResponse.CODE_39002,
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
                 }
                 //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
                 if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() < 0
@@ -144,9 +148,9 @@ public class WeightVolumeFilter implements Filter {
 
                     /* C网提示，B网拦截 */
                     if(BusinessUtil.isSignChar(waybillSign, 40, '0')){
-                        throw new SortingCheckException(SortingResponse.CODE_39128, SortingResponse.MESSAGE_39128);
+                        throw new SortingCheckException(SortingResponse.CODE_39128, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_WHEN_BOXING, request.getFuncModule()));
                     }else {
-                        throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
+                        throw new SortingCheckException(SortingResponse.CODE_29403, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
                     }
                 }
             }

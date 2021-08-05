@@ -87,7 +87,7 @@ public interface WeightAndVolumeCheckService {
      * @param packageCode
      * @param siteCode
      */
-    void updateImgAndSendHandleMq(String packageCode, Integer siteCode);
+    void updateImgAndSendHandleMq(String packageCode, Integer siteCode, String pictureUrl);
 
     /**
      * 校验是否超标

@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
@@ -155,10 +157,10 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
                 if (record != null && record.getConfirmStatus() == 0) {
                     jdResponse.setData(Boolean.FALSE);
                     jdResponse.setCode(JdResponse.CODE_SUCCESS);
-                    jdResponse.setMessage(CONFIRM_MESSAGE);
+                    jdResponse.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM));
                 } else if (record == null) {
                     jdResponse.setCode(HINT_CODE);
-                    jdResponse.setMessage(HINT_MESSAGE);
+                    jdResponse.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST));
                 }
             }
         } catch (Exception e) {

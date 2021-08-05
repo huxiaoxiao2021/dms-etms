@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.rest.sorting;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -89,7 +91,8 @@ public class SortingResource {
 			this.log.debug("取消分拣参数：{}" , JsonHelper.toJson(request));
 		}
 		if (StringHelper.isEmpty(request.getPackageCode())) {
-			return new SortingResponse(SortingResponse.CODE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL, SortingResponse.MESSAGE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL);
+			return new SortingResponse(SortingResponse.CODE_PACKAGE_CODE_OR_WAYBILL_CODE_IS_NULL,
+                    HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_IS_NULL));
 		}
 		if (!WaybillUtil.isPackageCode(request.getPackageCode())
 				&& !WaybillUtil.isWaybillCode(request.getPackageCode())
@@ -100,7 +103,8 @@ public class SortingResource {
 
 		List<Task> tasks = this.findWaitingProcessSortingTasks(request);
 		if (!tasks.isEmpty()) {
-			return SortingResponse.waitingProcess();
+			return new SortingResponse(SortingResponse.CODE_SORTING_WAITING_PROCESS,
+                    HintService.getHint(HintCodeConstants.CANCEL_SORTING_IS_PROCESSING));
 		}
 
 		boolean isSuccess = false;
@@ -111,7 +115,8 @@ public class SortingResource {
 			//说明key存在
 			if (! isSuccess) {
 				this.log.warn("{}正在执行取消分拣任务！",request.getPackageCode() );
-				return SortingResponse.waitingCancelProcess();
+				return new SortingResponse(SortingResponse.CODE_SORTING_CANCEL_PROCESS,
+                        HintService.getHint(HintCodeConstants.CANCEL_SORTING_PROCESSING));
 			}
         } catch (Exception e) {
             this.log.error("{}获取取消发货任务缓存失败！", request.getPackageCode(), e);
@@ -129,7 +134,8 @@ public class SortingResource {
 			}
 		}
 
-		return SortingResponse.sortingNotFund();
+		return new SortingResponse(SortingResponse.CODE_SORTING_RECORD_NOT_FOUND,
+                HintService.getHint(HintCodeConstants.NO_SORTING_RECORD));
 	}
 
 	/**

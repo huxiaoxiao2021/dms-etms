@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
@@ -44,7 +46,7 @@ public class FilePackageSendingFilter implements Filter {
                 // 文件标识的不能按运单或者包裹发货
                 if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
 
-                    throw new SortingCheckException(DeliveryResponse.CODE_20020, DeliveryResponse.MESSAGE_20020);
+                    throw new SortingCheckException(DeliveryResponse.CODE_20020, HintService.getHintWithFuncModule(HintCodeConstants.FILE_SEND_WITHOUT_BOX, request.getFuncModule()));
                 }
             }
         }

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.tms.basic.dto.BasicDictDto;
-import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.BasicVehicleDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.ConfNodeCarrierDto;
 
 import java.util.List;

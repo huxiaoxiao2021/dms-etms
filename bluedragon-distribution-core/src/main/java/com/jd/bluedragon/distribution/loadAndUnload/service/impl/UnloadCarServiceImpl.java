@@ -17,6 +17,8 @@ import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -3424,7 +3426,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
                         logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        result.setMessage(HintService.getHint(HintCodeConstants.ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME));
                         return result;
                     }
                 }
@@ -3433,7 +3435,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
                         logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        result.setMessage(HintService.getHint(HintCodeConstants.ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME));
                         return result;
                     }
                 }

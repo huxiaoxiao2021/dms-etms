@@ -384,8 +384,12 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                 response.toFail("当前分拣中心信息不能为空");
                 return response;
             }else {
-                if(req.getCurrentOperate().getSiteName() == null) {
+                if(StringUtils.isBlank(req.getCurrentOperate().getSiteName())) {
                     response.toFail("发货单位名称不能为空");
+                    return response;
+                }
+                if (req.getCurrentOperate().getSiteCode() == 0) {
+                    response.toFail("发货站点编码不合法");
                     return response;
                 }
             }

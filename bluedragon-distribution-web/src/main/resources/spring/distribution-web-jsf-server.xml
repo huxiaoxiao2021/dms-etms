@@ -18,18 +18,19 @@
                   ref="dmsExternalService" server="dmsjsf">
     </jsf:provider>
 
-    <jsf:provider id="jsfSortingRuleService"
-                  interface="com.jd.bluedragon.distribution.rule.service.SortingRuleJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="sortingRuleJsfService" server="dmsjsf">
-    </jsf:provider>
-
     <!-- 基础查询接口 -->
     <jsf:provider id="jsfBaseMinorService"
                   interface="com.jd.bluedragon.distribution.base.service.IBaseMinorJsfService"
                   alias="${dms.jsf.alias}"
                   ref="baseMinorJsfService" server="dmsjsf">
     </jsf:provider>
+
+    <jsf:provider id="jsfSortingRuleService"
+                  interface="com.jd.bluedragon.distribution.rule.service.SortingRuleJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="sortingRuleJsfService" server="dmsjsf">
+    </jsf:provider>
+
 
     <!-- 对接jos平台接口 -->
     <jsf:provider id="jsfJosService"
@@ -210,7 +211,7 @@
                   ref="dmsNoticeJsfService" server="dmsjsf">
     </jsf:provider>
 
-    <!--   箱号jsf：终端调用判断是否是经济网箱号     -->
+    <!--   箱号jsf     -->
     <jsf:provider id="dmsBoxQueryServiceJsf"
                   interface="com.jd.bluedragon.distribution.box.service.DmsBoxQueryService"
                   alias="${dms.jsf.alias}"

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.transBillSchedule.domain.TransBillScheduleRequest;
@@ -52,7 +54,7 @@ public class CityDistributionFilter implements Filter {
                     if (response != null) {
                         this.logger.info("城配拦截未通过" + response.toString());
                     }
-                    throw new SortingCheckException(SortingResponse.CODE_29212, SortingResponse.MESSAGE_29212);
+                    throw new SortingCheckException(SortingResponse.CODE_29212, HintService.getHintWithFuncModule(HintCodeConstants.BOX_BIND_TRANS_BILL, request.getFuncModule()));
                 }
 
             }

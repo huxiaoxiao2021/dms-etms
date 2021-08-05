@@ -1,12 +1,19 @@
 package com.jd.bluedragon.distribution.weightVolume.domain;
 
+
+import com.jd.etms.waybill.domain.Waybill;
+
+import java.io.Serializable;
+
 /**
- * 称重量方规则参数
+ * 称重量方上下文对象
  *
  * @author hujiping
- * @date 2021/3/26 4:01 下午
+ * @date 2021/8/2 8:42 下午
  */
-public class WeightVolumeRuleCheckDto {
+public class WeightVolumeContext implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 操作单号
@@ -51,20 +58,6 @@ public class WeightVolumeRuleCheckDto {
     private Double volume;
 
     /**
-     * 是否校验称重
-     */
-    private Boolean checkWeight;
-
-    /**
-     * 是否校验长宽高
-     */
-    private Boolean checkLWH;
-    /**
-     * 是否校验体积
-     */
-    private Boolean checkVolume;
-
-    /**
      * 操作站点编号
      */
     private Integer operateSiteCode;
@@ -83,6 +76,11 @@ public class WeightVolumeRuleCheckDto {
      * 操作人姓名
      */
     private String operatorName;
+
+    /**
+     * 运单对象
+     */
+    private Waybill waybill;
 
     public String getBarCode() {
         return barCode;
@@ -148,30 +146,6 @@ public class WeightVolumeRuleCheckDto {
         this.volume = volume;
     }
 
-    public Boolean getCheckWeight() {
-        return checkWeight;
-    }
-
-    public void setCheckWeight(Boolean checkWeight) {
-        this.checkWeight = checkWeight;
-    }
-
-    public Boolean getCheckLWH() {
-        return checkLWH;
-    }
-
-    public void setCheckLWH(Boolean checkLWH) {
-        this.checkLWH = checkLWH;
-    }
-
-    public Boolean getCheckVolume() {
-        return checkVolume;
-    }
-
-    public void setCheckVolume(Boolean checkVolume) {
-        this.checkVolume = checkVolume;
-    }
-
     public Integer getOperateSiteCode() {
         return operateSiteCode;
     }
@@ -202,5 +176,13 @@ public class WeightVolumeRuleCheckDto {
 
     public void setOperatorName(String operatorName) {
         this.operatorName = operatorName;
+    }
+
+    public Waybill getWaybill() {
+        return waybill;
+    }
+
+    public void setWaybill(Waybill waybill) {
+        this.waybill = waybill;
     }
 }

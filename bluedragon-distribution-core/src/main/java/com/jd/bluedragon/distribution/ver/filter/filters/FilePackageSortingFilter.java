@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -47,12 +49,12 @@ public class FilePackageSortingFilter implements Filter {
                 if (BusinessHelper.isBoxcode(request.getBoxCode())
                         && !request.getBoxCode().startsWith(Box.TYPE_WJ)) {
 
-                    throw new SortingCheckException(SortingResponse.CODE_29601, SortingResponse.MESSAGE_29601);
+                    throw new SortingCheckException(SortingResponse.CODE_29601, HintService.getHintWithFuncModule(HintCodeConstants.FILE_PACK_SORTING_WJ, request.getFuncModule()));
                 }
 
                 // 新发货按原包发货，文件包裹必须集包
                 if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
-                    throw new SortingCheckException(DeliveryResponse.CODE_20020, DeliveryResponse.MESSAGE_20020);
+                    throw new SortingCheckException(DeliveryResponse.CODE_20020, HintService.getHintWithFuncModule(HintCodeConstants.FILE_SEND_WITHOUT_BOX, request.getFuncModule()));
                 }
             }
         }

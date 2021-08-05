@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
-import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -29,7 +30,7 @@ public class DoorReplaceFilter implements Filter {
         if (WaybillCacheHelper.isDoorReplacement(request.getWaybillCache())
                 && !SiteHelper.matchSiteTypeRule(rule1.getContent(), request.getsReceiveSiteSubType())) {
             throw new SortingCheckException(SortingResponse.CODE_29103,
-                    SortingResponse.MESSAGE_29103);
+                    HintService.getHintWithFuncModule(HintCodeConstants.DOOR_REPLACE_WAYBILL, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);

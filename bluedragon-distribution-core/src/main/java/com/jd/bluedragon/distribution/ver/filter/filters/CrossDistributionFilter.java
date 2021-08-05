@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.MixedTypeEnum;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.RuleTypeEnum;
@@ -87,7 +89,7 @@ public class CrossDistributionFilter implements Filter {
                 && ruleMixBox != null && ruleMixBox.getContent().equals("1")) {
             if (!passMixedConfig(request)) {
                 throw new SortingCheckException(SortingResponse.CODE_39001,
-                        SortingResponse.MESSAGE_39011);
+                        HintService.getHintWithFuncModule(HintCodeConstants.MISSING_MIX_BOX_CONFIG, request.getFuncModule()));
             }
         } else {
             logger.info("分拣校验CrossDistributionFilter5packageCode[{}]pdaOperateRequest[{}]rule[{}]",request.getPackageCode(), JsonHelper.toJson(request), JsonHelper.toJson(request));
@@ -115,7 +117,7 @@ public class CrossDistributionFilter implements Filter {
                     //1121 跨分拣中心提示规则，=1 时 才会有提示逻辑，其他都不走提示逻辑
                     if (!waybillOrgid.equals(request.getReceiveSite().getOrgId()))
                         throw new SortingCheckException(SortingResponse.CODE_39001,
-                                SortingResponse.MESSAGE_39021);
+                                HintService.getHintWithFuncModule(HintCodeConstants.CROSS_AREA_VALIDATION, request.getFuncModule()));
 
                     //扫描目的分拣中心与预分拣站点对应分拣中心进行比对,如不一 致则提示
                     Rule rule5 = null;
@@ -134,7 +136,7 @@ public class CrossDistributionFilter implements Filter {
                             Profiler.registerInfoEnd(info);
                             logger.info("跨分拣中心目的提示waybillCode:" + request.getWaybillCode() + " createSiteCode:" + request.getCreateSiteCode() + " preSiteCode" + request.getWaybillCache().getSiteCode() + " receiveSiteCode:" + request.getReceiveSite().getCode() + " preSiteDmsId:" + preSiteDmsId);
                             throw new SortingCheckException(SortingResponse.CODE_39001,
-                                    SortingResponse.MESSAGE_39001);
+                                    HintService.getHintWithFuncModule(HintCodeConstants.RECEIVE_SITE_AND_DESTINATION_DIFFERENCE, request.getFuncModule()));
                         }
                     }
                 }

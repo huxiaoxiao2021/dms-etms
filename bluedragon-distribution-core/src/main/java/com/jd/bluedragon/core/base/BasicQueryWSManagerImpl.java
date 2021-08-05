@@ -85,6 +85,34 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
     }
 
     /**
+     * 根据车牌号获取车辆信息
+     * @param vehicleNumber
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) {
+        String methodDesc = "BasicQueryWSManagerImpl.getVehicleByVehicleNumber--根据车牌号获取车辆信息--";
+        try{
+            if(StringUtils.isBlank(vehicleNumber)) {
+                return null;
+            }
+            if(log.isInfoEnabled()) {
+                log.info(methodDesc + "车牌号=【{}】", vehicleNumber);
+            }
+            CommonDto<BasicVehicleDto> jsfRes = basicQueryWS.getVehicleByVehicleNumber(vehicleNumber);
+            if(jsfRes == null || jsfRes.getCode() != CommonDto.CODE_SUCCESS) {
+                log.error(methodDesc + "error， 入参车牌号=【{}】, 错误原因=【{}】", vehicleNumber, jsfRes == null ? "" : jsfRes.getMessage());
+                return null;
+            }
+            return jsfRes.getData();
+        }catch (Exception e) {
+            log.error(methodDesc + "异常， 入参车牌号=【{}】, 异常原因=【{}】", vehicleNumber, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * 根据车牌号获取车型配置信息
      *
      * @param vehicleNum
@@ -132,32 +160,4 @@ public class BasicQueryWSManagerImpl implements BasicQueryWSManager {
     }
 
 
-
-    /**
-     * 根据车牌号获取车辆信息
-     * @param vehicleNumber
-     * @return
-     */
-    @Override
-    @JProfiler(jKey = "DMS.BASE.BasicQueryWSManagerImpl.getVehicleByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public BasicVehicleDto getVehicleByVehicleNumber(String vehicleNumber) {
-        String methodDesc = "BasicQueryWSManagerImpl.getVehicleByVehicleNumber--根据车牌号获取车辆信息--";
-        try{
-            if(StringUtils.isBlank(vehicleNumber)) {
-                return null;
-            }
-            if(log.isInfoEnabled()) {
-                log.info(methodDesc + "车牌号=【{}】", vehicleNumber);
-            }
-            CommonDto<BasicVehicleDto> jsfRes = basicQueryWS.getVehicleByVehicleNumber(vehicleNumber);
-            if(jsfRes == null || jsfRes.getCode() != CommonDto.CODE_SUCCESS) {
-                log.error(methodDesc + "error， 入参车牌号=【{}】, 错误原因=【{}】", vehicleNumber, jsfRes == null ? "" : jsfRes.getMessage());
-                return null;
-            }
-            return jsfRes.getData();
-        }catch (Exception e) {
-            log.error(methodDesc + "异常， 入参车牌号=【{}】, 异常原因=【{}】", vehicleNumber, e.getMessage());
-            return null;
-        }
-    }
 }

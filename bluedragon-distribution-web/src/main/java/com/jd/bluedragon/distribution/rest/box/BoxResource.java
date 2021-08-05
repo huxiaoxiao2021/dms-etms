@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
@@ -545,20 +547,20 @@ public class BoxResource {
     }
 
     private BoxResponse boxNoFound() {
-        return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
+        return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, HintService.getHint(HintCodeConstants.BOX_NOT_EXIST));
     }
 
     private BoxResponse boxNoBingDing(){
-        return  new BoxResponse(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
+        return  new BoxResponse(BoxResponse.CODE_BC_BOX_NO_BINDING, HintService.getHint(HintCodeConstants.BOX_UNBIND_RECYCLE_BAG));
     }
 
 
     private BoxResponse boxHasBeanSended() {
-        return new BoxResponse(BoxResponse.CODE_BOX_SENDED, BoxResponse.MESSAGE_BOX_SENDED);
+        return new BoxResponse(BoxResponse.CODE_BOX_SENDED, HintService.getHint(HintCodeConstants.BOX_SENT));
     }
 
     private BoxResponse boxNoPrint() {
-        return new BoxResponse(BoxResponse.CODE_BOX_NO_PRINT, BoxResponse.MESSAGE_BOX_NO_PRINT);
+        return new BoxResponse(BoxResponse.CODE_BOX_NO_PRINT, HintService.getHint(HintCodeConstants.BOX_NO_USE));
     }
 
     private BoxResponse paramError() {

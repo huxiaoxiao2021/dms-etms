@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.domain;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -70,6 +71,11 @@ public class FilterContext {
     private Site createSite;
 
     private Integer onlineStatus;
+
+    /**
+     * 功能模块。默认分拣
+     */
+    private Integer funcModule = HintModuleConstants.FORWARD_SORTING;
 
     public String getBoxCode() {
         return boxCode;
@@ -273,5 +279,13 @@ public class FilterContext {
 
     public void setOnlineStatus(Integer onlineStatus) {
         this.onlineStatus = onlineStatus;
+    }
+
+    public Integer getFuncModule() {
+        return funcModule;
+    }
+
+    public void setFuncModule(Integer funcModule) {
+        this.funcModule = funcModule;
     }
 }

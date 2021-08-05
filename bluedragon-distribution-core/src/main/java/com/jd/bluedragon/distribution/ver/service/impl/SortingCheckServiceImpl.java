@@ -6,6 +6,9 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -133,10 +136,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
                     logger.info("分拣校验2packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
+                    filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
                     ForwardFilterChain forwardFilterChain = getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
                     logger.info("分拣校验3packageCode[{}]pdaOperateRequest[{}]",pdaOperateRequest.getPackageCode(),JsonHelper.toJson(pdaOperateRequest));
+                    filterContext.setFuncModule(HintModuleConstants.REVERSE_SORTING);
                     ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
@@ -263,6 +268,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             try {
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
+                filterContext.setFuncModule(HintModuleConstants.FORWARD_DELIVERY);
                 // 按运单发货 和 按包裹发货 分别走不同的拦截器链路
                 DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
@@ -323,6 +329,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
                 filterContext = this.initFilterParam(boardCombinationRequest);
+                filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
                 //获取校验链
                 FilterChain boardCombinationChain = getBoardCombinationFilterChain();
                 //校验过程
@@ -443,7 +450,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         WaybillCache waybillCache = this.waybillCacheService.getFromCache(filterContext.getWaybillCode());
         filterContext.setWaybillCache(waybillCache);
         if (waybillCache == null) {
-            throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+            throw new SortingCheckException(SortingResponse.CODE_39002,
+                    HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
         }
 
         if (waybillCache.getOrgId() == null) {
