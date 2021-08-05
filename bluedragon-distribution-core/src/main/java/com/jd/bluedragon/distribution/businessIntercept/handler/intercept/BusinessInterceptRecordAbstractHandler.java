@@ -23,6 +23,7 @@ import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,12 +76,29 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
         result.toSucceed();
         result.setData(true);
 
+        this.processMsgToStandard(msgDto);
         /* 处理拦截消息任务 */
         doHandle(msgDto);
 
         /* 处理之后 */
 
         return result;
+    }
+
+    /**
+     * 消息数据标准化处理，防止大小写问题
+     * @param msgDto 消息对象
+     * @author fanggang7
+     * @time 2021-08-05 10:47:31 周四
+     */
+    protected void processMsgToStandard(SaveInterceptMsgDto msgDto){
+        try {
+            msgDto.setBarCode(StringUtils.upperCase(msgDto.getBarCode()));
+            msgDto.setWaybillCode(StringUtils.upperCase(msgDto.getWaybillCode()));
+            msgDto.setPackageCode(StringUtils.upperCase(msgDto.getPackageCode()));
+        } catch (Exception e) {
+            log.info("BusinessInterceptRecordAbstractHandler.processMsgToStandard exception {}", e.getMessage(), e);
+        }
     }
 
     /**

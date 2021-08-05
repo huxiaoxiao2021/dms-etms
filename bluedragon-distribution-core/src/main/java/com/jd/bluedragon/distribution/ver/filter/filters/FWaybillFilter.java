@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -9,7 +11,6 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
-import com.jd.bluedragon.distribution.sortexception.service.impl.SortExceptionLogServiceImpl;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -64,17 +65,20 @@ public class FWaybillFilter implements Filter {
 				}
 			}
 			if (null == paymentType) {
-				throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_PAYMENTTYPE);
+				throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR,
+                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_MISSING_PAYMENT_TYPE, request.getFuncModule()));
 			}
 			waybill.setPaymentType(paymentType);
 		}
 
 		if (waybill.getSendPay() == null) {
-			throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_SENDPAY);
+			throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR,
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_MISSING_SEND_PAY, request.getFuncModule()));
 		}
 
 		if (waybill.getType() == null) {
-			throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR, SortingResponse.WAYBILL_ERROR_TYPE);
+			throw new SortingCheckException(JdResponse.CODE_PARAM_ERROR,
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_TYPE_MISSING, request.getFuncModule()));
 		}
 
 		//大件订单 不进行预分拣相关校验 tangcq2018年11月2日10:28:42
@@ -91,11 +95,11 @@ public class FWaybillFilter implements Filter {
 			//判断预分拣站点是否还在运营
 			if (null == waybillSite || null == waybillSite.getCode() || waybillSite.getCode() <= 0) {
 				throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_CLOSE,
-						SortingResponse.MESSAGE_WAYBILL_SITE_CLOSE);
+                        HintService.getHintWithFuncModule(HintCodeConstants.PRE_SITE_CLOSE, request.getFuncModule()));
 			}
 		} else{
 			throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SUPER_AREA,
-					SortingResponse.MESSAGE_WAYBILL_SUPER_AREA);
+					HintService.getHintWithFuncModule(HintCodeConstants.OVER_AREA_WAYBILL, request.getFuncModule()));
 		}
 
 		request.setWaybillSite(waybillSite);

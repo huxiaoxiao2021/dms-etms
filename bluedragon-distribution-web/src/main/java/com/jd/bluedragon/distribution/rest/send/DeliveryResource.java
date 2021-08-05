@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
@@ -268,13 +270,13 @@ public class DeliveryResource {
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         if(receiveSiteCode == null){//批次号是否符合编码规范，不合规范直接返回参数错误
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-            result.setMessage("请输入正确的批次号！");
+            result.setMessage(HintService.getHint(HintCodeConstants.SEND_CODE_ILLEGAL));
         }else{
             if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
-                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, "该发货批次号已操作封车，无法重复操作！"));
+                    result.setData(new AbstractMap.SimpleEntry<Integer, String>(2, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED)));
                 } else if(ServiceResultEnum.SUCCESS.equals(data.getResult())){//未被封车
                     BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
                     String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
@@ -370,7 +372,7 @@ public class DeliveryResource {
         DeliveryResponse deliveryResponse = sendLoadBillCheck(request);
         if (!deliveryResponse.getCode().equals(JdResponse.CODE_OK)) {
             return new ThreeDeliveryResponse(JdResponse.CODE_UNLOADBILL,
-                    JdResponse.MESSAGE_UNLOADBILL, null);
+                    HintService.getHint(HintCodeConstants.PRE_LOAD_CANNOT_CANCEL), null);
         }
         /*****/
 
@@ -515,7 +517,7 @@ public class DeliveryResource {
         }
 
         return new DeliveryResponse(JdResponse.CODE_UNLOADBILL,
-                JdResponse.MESSAGE_UNLOADBILL);
+                HintService.getHint(HintCodeConstants.PRE_LOAD_CANNOT_CANCEL));
     }
 
     /**
@@ -561,7 +563,7 @@ public class DeliveryResource {
                     //查询redis中是否存在key
                     if (jimdbCacheService.exists(redisKey)) {
                         log.warn("发货任务已提交，批次号：{}", sendCode);
-                        tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, DeliveryResponse.MESSAGE_DELIVERY_SEND_CODE_IS_COMMITTED);
+                        tDeliveryResponse = new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_SEND_CODE_IS_COMMITTED, HintService.getHint(HintCodeConstants.BATCH_SEND_PROCESSING));
                     } else {
                         jimdbCacheService.setEx(redisKey, sendCode, 5 * DateHelper.ONE_MINUTES_MILLI);
                         if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {

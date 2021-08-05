@@ -12,6 +12,9 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -649,7 +652,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                     //校验滑道号
                                     if(!checkPackageCrossCodeSucc(boxCode)){
                                         this.log.warn("滑道号不正确[{}]",boxCode);
-                                        return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
+                                        return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR,
+                                                HintService.getHint(HintCodeConstants.PACKAGE_CODE_ILLEGAL));
                                     }
                                 }
                             } else{
@@ -802,7 +806,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             //校验滑道号
             if(WaybillUtil.isPackageCode(request.getBoxCode()) && !checkPackageCrossCodeSucc(request.getBoxCode())){
                 log.warn("滑道号不正确[{}]",request.getBoxCode());
-                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
+                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR,
+                        HintService.getHint(HintCodeConstants.PACKAGE_CODE_ILLEGAL));
             }
 
             Integer opType = request.getOpType();
@@ -815,7 +820,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if(waybillCodeList == null || waybillCodeList.size() < 1){
                         log.warn("快运发货扫运单号，根据运单号[{}]生成包裹号失败.没有运单/包裹信息",request.getBoxCode());
                         response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
-                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
+                        Map<String, String> argsMap = new HashMap<>();
+                        argsMap.put(HintArgsConstants.ARG_FIRST, request.getBoxCode());
+                        response.setMessage(HintService.getHint(HintCodeConstants.SEND_VALIDATE_WAYBILL_HAS_PACKAGE, argsMap));
                         return response;
                     }
                     request.setBoxCode(waybillCodeList.get(0));
@@ -1221,7 +1228,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             domain.setSendCode(null);
             return this.dellCancelDeliveryMessage(domain, true);
         } else {
-            return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+            return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                    HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING), null);
         }
     }
 
@@ -1308,18 +1316,18 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         // 机构和操作人所属机构是否一致校验
         if (!checkSendM(domain)) {
-            result.init(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
+            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BATCH_ORIGIN_AND_OPERATOR_ORIGIN_DIFFERENCE));
             return result;
         }
 
         if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-            result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             return result;
         }
 
         // 运单和包裹互斥 按运单发货正在处理中( 按运单/包裹 SETNX 互相校验)
         if (isSendByWaybillProcessing(domain)) {
-            result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING);
+            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_BY_WAYBILL_PROCESSING));
             return result;
         }
 
@@ -1353,7 +1361,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 && sendCodeService.isFreshSendCode(domain.getSendCode())) {
             com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
             if (null == waybill  || !BusinessUtil.isFreshWaybill(waybill.getWaybillSign())) {
-                result.init(SendResult.CODE_SENDED, SendResult.FRESH_MESSAGE_SENDED);
+                result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SPECIAL_FRESH_BATCH));
                 return result;
             }
         }
@@ -1390,13 +1398,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
                     if (domain.getReceiveSiteCode().equals(lastSendM.getReceiveSiteCode())) {
                         if (domain.getSendCode().equals(lastSendCode)) {
-                            result.init(SendResult.CODE_SENDED, "箱子已经在该批次中发货，请勿重复操作");
+                            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BOX_SENT_BY_THIS_BATCH));
                         } else {
-                            result.init(SendResult.CODE_SENDED, "箱子已经在批次[" + lastSendCode + "]中发货");
+                            Map<String, String> argsMap = new HashMap<>();
+                            argsMap.put(HintArgsConstants.ARG_FIRST, lastSendCode);
+                            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BOX_SENT_BY_CONCRETE_BATCH, argsMap));
                         }
                     } else {
                         result.setKey(SendResult.CODE_CONFIRM);
-                        result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                        result.setValue(HintService.getHint(HintCodeConstants.CANCEL_LAST_SEND_TIPS_SECOND));
                         result.setReceiveSiteCode(domain.getReceiveSiteCode());
                         result.setInterceptCode(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND);
                     }
@@ -1583,15 +1593,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(!isForceSend){
             //1.组板发货批次，板号校验（强校验）
             if(!checkSendM(domain)){
-                return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
+                return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BATCH_ORIGIN_AND_OPERATOR_ORIGIN_DIFFERENCE));
             }
             //2.判断批次号是否已经封车
             if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
-                return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+                return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             }
             //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
             if(sendMDao.checkSendByBoard(domain)){
-                return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
+                return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.BOARD_SENT_ALREADY));
             }
             //4.校验板号和批次号的目的地是否一致，并校验板号的合法性
             SendResult checkResponse = checkBoard(boardCode, domain);
@@ -1636,17 +1646,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
             }
             if(boardResponse.getReceiveSiteCode()==null){
-                return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
+                return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.FAIL_TO_GET_BOARD_DEST));
             }
             if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
-                return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
+                return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.FAIL_TO_GET_BATCH_DEST));
             }
             if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
-                return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
+                return new SendResult(SendResult.CODE_CONFIRM,HintService.getHint(HintCodeConstants.BOARD_AND_BATCH_DEST_DIFFERENCE));
             }
         }catch (Exception e){
             log.error("组板发货板号校验失败:{}" , JsonHelper.toJson(domain),e);
-            return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
+            return new SendResult(SendResult.CODE_SENDED,HintService.getHint(HintCodeConstants.BOARD_SEND_FAIL));
         }
         return new SendResult(SendResult.CODE_OK,"校验通过!");
     }
@@ -2222,7 +2232,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
 
             if (processingList.size() == sendMList.size()) {
-                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
+                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_ALL_PROCESSING, HintService.getHint(HintCodeConstants.WAYBILL_SEND_IS_PROCESSING));
             }
 
             // 移除正在处理中的
@@ -2230,7 +2240,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             // 处理发货
             DeliveryResponse response = this.dellCreateSendM(source, this.waybillCodeSendMHandler(sendMList));
             if (JdResponse.CODE_OK.equals(response.getCode())) {
-                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING, MessageFormat.format(DeliveryResponse.MESSAGE_DELIVERY_EXIST_PROCESSING, processingList.size()));
+                Map<String, String> argsMap = new HashMap<>();
+                argsMap.put(HintArgsConstants.ARG_FIRST, String.valueOf(processingList.size()));
+                return new DeliveryResponse(DeliveryResponse.CODE_DELIVERY_EXIST_PROCESSING, HintService.getHint(HintCodeConstants.CURRENT_SEND_EXIST_PROCESSING, argsMap));
             }
             return response;
         } catch (Exception e) {
@@ -2369,7 +2381,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source) && !SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND.equals(source)
                 && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)
         		&& newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
-            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
         }
 
         /*查询已发货的箱号*/
@@ -2719,7 +2731,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     }
 
                     response.setCode(DeliveryResponse.CODE_20020);
-                    response.setMessage(DeliveryResponse.MESSAGE_20020);
+                    response.setMessage(HintService.getHint(HintCodeConstants.FILE_SEND_WITHOUT_BOX));
 
                     return response;
                 }
@@ -2747,7 +2759,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             if (waybillTraceManager.isWaybillWaste(waybill)){
                 response.setCode(DeliveryResponse.CODE_WAYBILL_IS_WASTE);
-                response.setMessage(DeliveryResponse.MESSAGE_WAYBILL_IS_WASTE);
+                response.setMessage(HintService.getHint(HintCodeConstants.WASTE_WAYBILL_TEMP_STORE));
             }
         }
 
@@ -2783,7 +2795,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 packageWeightings.get(0).getWeight().compareTo(0.0) <= 0 ||
                 packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
             response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
-            response.setMessage(DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
+            response.setMessage(HintService.getHint(HintCodeConstants.ZY_BOX_MISSING_WEIGHT_OR_VOLUME));
             // 待用，整箱未称时提交拦截报表
             this.sendBusinessInterceptMsg(tSendM, response);
         }
@@ -2854,12 +2866,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if (inspectionExceptionService.queryExceptions(tSendM.getCreateSiteCode(),tSendM.getReceiveSiteCode(),tSendM.getBoxCode()) > 0) {
                         // 第三方发货验证是否存在异常
                         response.setCode(DeliveryResponse.CODE_Delivery_ALL_CHECK);
-                        response.setMessage(DeliveryResponse.MESSAGE_Delivery_ALL_CHECK);
+                        response.setMessage(HintService.getHint(HintCodeConstants.THIRD_BOX_INSPECTION_EXCEPTION));
                     }
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
-                response.setMessage(DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+                response.setMessage(HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING));
             }
         }
         return response;
@@ -2878,11 +2890,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (box != null) {
                 if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
                     response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
+                    response.setMessage(HintService.getHint(HintCodeConstants.BOX_DESTINATION_AND_RECEVIE_SITE_DIFFERENCE));
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
-                response.setMessage(DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+                response.setMessage(HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING));
             }
         } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
             response.setMessage(StringHelper.getStringValue(1));
@@ -2895,7 +2907,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 Sorting nSorting = getLastSortingDate(tSorting);
                 if (!nSorting.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
                     response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
+                    response.setMessage(HintService.getHint(HintCodeConstants.BOX_DESTINATION_AND_RECEVIE_SITE_DIFFERENCE));
                 }
             }
         }
@@ -2913,14 +2925,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             if (boxService.checkBoxIsSent(tSendM.getBoxCode(), tSendM.getCreateSiteCode())) {
                 response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+                response.setMessage(HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY));
             }
         } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
             // 再投标识
             tSendMList = this.sendMDao.findSendMByBoxCode(tSendM);
             if (tSendMList != null && !tSendMList.isEmpty()) {
                 response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+                response.setMessage(HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY));
             }
         }
 
@@ -2949,7 +2961,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 if (isSendByWaybillProcessing(tSendM)) {
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_DELIVERY_BY_WAYBILL_PROCESSING,
-                            DeliveryResponse.MESSAGE_DELIVERY_BY_WAYBILL_PROCESSING, null);
+                            HintService.getHint(HintCodeConstants.DELIVERY_BY_WAYBILL_PROCESSING), null);
                 }
                 SendDetail mSendDetail = new SendDetail();
                 if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())) {
@@ -2975,7 +2987,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 				} else {
 					return new ThreeDeliveryResponse(
 							DeliveryResponse.CODE_Delivery_NO_MESAGE,
-							DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+							HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING), null);
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
@@ -3005,7 +3017,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 if(checkBoardIsDepartured(tSendM)){
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SENDED_ERROR,
-                            DeliveryResponse.MESSAGE_BOARD_SENDED_ERROR,null);
+                            HintService.getHint(HintCodeConstants.ABORT_CANCEL_AFTER_BOARD_SENT),null);
                 }
 
                 //3.校验是否有板号和批次号对应的发货数据
@@ -3014,14 +3026,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     //提示没有找到板号的发货明细
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_NO_BOARDSEND_DETAIL_ERROR,
-                            DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR, null);
+                            HintService.getHint(HintCodeConstants.BOARD_SENDM_MISSING), null);
                 }
                 //4.校验是否有同一板号的发货任务没有跑完
                 String redisKey = REDIS_PREFIX_BOARD_DELIVERY + tSendM.getBoxCode();
                 if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SEND_NOT_FINISH_ERROR,
-                            DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR,null);
+                            HintService.getHint(HintCodeConstants.BOARD_DELIVERY_PROCESSING),null);
                 }
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
@@ -3042,7 +3054,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 List<SendM> sendMList = this.sendMDao.selectBySiteAndSendCode(tSendM.getCreateSiteCode(),tSendM.getSendCode());
                 if (sendMList == null || sendMList.isEmpty()) {
                     return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                            DeliveryResponse.MESSAGE_DELIVERY_NO_SENDCODE, null);
+                            HintService.getHint(HintCodeConstants.QUERY_DELIVERY_BY_BATCH_MISSING), null);
                 }
                 Set<String> boardSet = new TreeSet<>();
                 /* 循环处理明细数据，分包裹和箱号两种，按批次号取消的场景大循环需要注意 */
@@ -3178,9 +3190,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 String sendCode = this.sendDatailDao.querySendCodeBySelective(sendDetail);
                 if (StringHelper.isEmpty(sendCode)) {
                     if(isWaybillCode){
-                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_WAYBILL);
+                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                                HintService.getHint(HintCodeConstants.WAYBILL_SENDM_MISSING));
                     }else {
-                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE);
+                        return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                                HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING));
                     }
                 }
 
@@ -3190,7 +3204,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 //查询Send_m表中的批次号
                 String sendCode = this.sendMDao.querySendCodeBySelective(tSendM);
                 if (StringHelper.isEmpty(sendCode)) {
-                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                            HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING));
                 }
 
                 SendDetail sendDetail = new SendDetail();
@@ -3215,7 +3230,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
                 if(sendMList == null || sendMList.isEmpty()){
                     //提示没有找到板号的发货明细
-                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR);
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                            HintService.getHint(HintCodeConstants.BOARD_SENDM_MISSING));
                 }
 
                 SendDetail sendDetail = new SendDetail();
@@ -3227,22 +3243,25 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 List<String> sendDList=sendDatailDao.queryBoxCodeSingleBySendCode(sendDetail);
                 if(sendDList == null || sendDList.isEmpty()){
                     //提示没有找到板号的发货明细
-                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR);
+                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                            HintService.getHint(HintCodeConstants.BOARD_SENDM_MISSING));
                 }
 
                 sendDList.removeAll(sendMList);
                 if(sendDList == null || sendDList.isEmpty()){
-                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_BOARD);
+                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, HintService.getHint(HintCodeConstants.UNIQUE_BOARD_IN_THE_BATCH));
                 }
 
                 return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
             }
         } catch (Exception e) {
             log.error("取消发货校验封车异常", e);
-            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERR);
+            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR,
+                    HintService.getHint(HintCodeConstants.ABORT_DELIVERY_CHECK_SEAL_ERROR));
         }
 
-        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERR);
+        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR,
+                HintService.getHint(HintCodeConstants.ABORT_DELIVERY_CHECK_SEAL_ERROR));
     }
 
     /**
@@ -3267,15 +3286,18 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         //如果取消后批次内无货物
         if(sendDatailDao.queryCountExclusion(querySendDatail)<=0){
             if(isPackageCode){
-                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_PACKAGE);
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY,
+                        HintService.getHint(HintCodeConstants.UNIQUE_PACKAGE_IN_THE_BATCH));
             }
 
             if(isWaybillCode){
-                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_WAYBILL);
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY,
+                        HintService.getHint(HintCodeConstants.UNIQUE_WAYBILL_IN_THE_BATCH));
             }
 
             if(isBoxcode){
-                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ONLY_BOX);
+                return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ONLY,
+                        HintService.getHint(HintCodeConstants.UNIQUE_BOX_IN_THE_BATCH));
             }
         }
 
@@ -3294,7 +3316,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (sealCarInfo != null) {
                 //如果是已解封车状态返回拦截
                 if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
-                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_UNSEAL);
+                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL,
+                            HintService.getHint(HintCodeConstants.CANCEL_DELIVERY_CHECK_UNSEAL));
                 }
 
                 //已封车状态
@@ -3302,7 +3325,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     long date = System.currentTimeMillis();
                     //封车时间大于一小时
                     if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
-                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_SEAL);
+                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL,
+                                HintService.getHint(HintCodeConstants.ABORT_CANCEL_EXCEED_ONE_HOUR));
                     }
 
                     return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
@@ -3310,7 +3334,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
         }catch (Exception ex){
             log.error("根据批次号获取封车状态时异常", ex);
-            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_ERROR);
+            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ERROR,
+                    HintService.getHint(HintCodeConstants.GET_BATCH_SEAL_STATUS_ERROR));
         }
 
         return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL, DeliveryResponse.MESSAGE_CANCELDELIVERYCHECK_NOSEAL);
@@ -3529,7 +3554,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (caruser != null && !"".equals(caruser)) {
                 return new ThreeDeliveryResponse(
                         DeliveryResponse.CODE_Delivery_NO_DEPART,
-                        DeliveryResponse.MESSAGE_Delivery_NO_DEPART, null);
+                        HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
             }
 
             tSendDatail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
@@ -3537,13 +3562,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (sendDatailDao.querySendDatailBySendStatus(tSendDatail) != null) {
                 return new ThreeDeliveryResponse(
                         DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                        DeliveryResponse.MESSAGE_Delivery_IS_MESAGE, null);
+                        HintService.getHint(HintCodeConstants.DELIVERY_PROCESSING), null);
             }
             return this.cancelDeliveryStatusByBox(dSendM, tSendDatail);
         } else {
             return new ThreeDeliveryResponse(
                     DeliveryResponse.CODE_Delivery_NO_MESAGE,
-                    DeliveryResponse.MESSAGE_Delivery_NO_MESAGE, null);
+                    HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING), null);
         }
     }
 
@@ -3564,13 +3589,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 				if (caruser != null && !"".equals(caruser)) {
 					return new ThreeDeliveryResponse(
 							DeliveryResponse.CODE_Delivery_NO_DEPART,
-							DeliveryResponse.MESSAGE_Delivery_NO_DEPART, null);
+							HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
 				}
 				break;
 			} else {
 				return new ThreeDeliveryResponse(
 						DeliveryResponse.CODE_Delivery_NO_MESAGE,
-						DeliveryResponse.MESSAGE_Delivery_NO_MESAGE, null);
+						HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING), null);
 			}
 		}
 		for (SendDetail dSendDetail : tList) {
@@ -4484,7 +4509,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             tDeliveryResponse =  forwardComputer.compute(allList, true);
         }
         //派车单发货不齐不返回明细数据
-        String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? DeliveryResponse.MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE : "";
+        String msg = tDeliveryResponse != null && !tDeliveryResponse.isEmpty() ? HintService.getHint(HintCodeConstants.WAYBILL_SEND_NOT_COMPLETE) : "";
 //        if(!DeliveryResponse.CODE_OK.equals(scheduleWaybillResponse.getCode())){
 //            msg = StringUtils.isNotBlank(msg) ? "运单/" + msg : scheduleWaybillResponse.getMessage();
 //        }
@@ -4764,7 +4789,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
             response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
-            response.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            response.setMessage(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             return response;
         }
 
@@ -4790,7 +4815,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         //3.B网包装耗材服务确认拦截
         if (! this.checkWaybillConsumable(sendM)) {
             response.setCode(DeliveryResponse.CODE_29120);
-            response.setMessage(DeliveryResponse.MESSAGE_29120);
+            response.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM_TIPS_SECOND));
             return response;
         }
 
@@ -4818,7 +4843,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             log.warn("快运发货目的站点非分拣中心，不校验B2B路由：{}",receiveSiteCode);
             if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
+                response.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_C_TO_B));
                 return response;
             }
             return response;
@@ -4829,7 +4854,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         log.debug("根据包裹号或箱号获取目的分拣中心：{}",destinationSiteCode);
         if(destinationSiteCode == null){
             response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-            response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
+            response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
             return response;
         }
         try {
@@ -4842,7 +4867,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             if(routers == null || routers.isEmpty()){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
+                response.setMessage(HintService.getHint(HintCodeConstants.MISSING_ROUTER));
             }else{
                 List<B2BRouterNode> nodes = b2bRouterService.getNextCodes(originalSiteCode, destinationSiteCode, receiveSiteCode);
                 if(log.isDebugEnabled()){
@@ -4850,7 +4875,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 }
                 if(nodes == null || nodes.isEmpty()){
                     response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-                    response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
+                    response.setMessage(HintService.getHint(HintCodeConstants.NEXT_ROUTER_AND_DESTINATION_DIFFERENCE));
                 }
             }
         }catch (Exception e){
@@ -4888,11 +4913,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     if (receiveSiteCode.equals(lastSendM.getReceiveSiteCode())) {
                         //当前发货目的地 与 最后一次发货目的地相同，提示已发货
                         deliveryResponse.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-                        deliveryResponse.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+                        deliveryResponse.setMessage(HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY));
                     } else {
                         //如果不相同，提示一个确认框
                         deliveryResponse.setCode(DeliveryResponse.CODE_CONFIRM_CANCEL_LAST_SEND);
-                        deliveryResponse.setMessage(DeliveryResponse.MESSAGE_CONFIRM_CANCEL_LAST_SEND);
+                        deliveryResponse.setMessage(HintService.getHint(HintCodeConstants.CANCEL_LAST_SEND));
                     }
                 }
             }
@@ -5074,24 +5099,32 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         if(!noHasWeightWaybills.isEmpty()){
         	interceptResult.toFail();
-        	interceptResult.setMessage("运单无总重量："+noHasWeightWaybills);
+        	Map<String, String> argsMap = new HashMap<>();
+        	argsMap.put(HintArgsConstants.ARG_FIRST, noHasWeightWaybills.toString());
+        	interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_TOTAL_WEIGHT, argsMap));
         	return interceptResult;
         }
         //added by hanjiaxing3 2019.04.10 临时欠款运单校验量方
         if(! noHasVolumeWaybills.isEmpty()) {
             interceptResult.toFail();
-            interceptResult.setMessage("运单无总体积：" + noHasVolumeWaybills);
+            Map<String, String> argsMap = new HashMap<>();
+            argsMap.put(HintArgsConstants.ARG_FIRST, noHasVolumeWaybills.toString());
+            interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_TOTAL_VOLUME, argsMap));
             return interceptResult;
         }
         //end
         if(!noHasFreightWaybills.isEmpty()){
         	interceptResult.toFail();
-        	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
+            Map<String, String> argsMap = new HashMap<>();
+            argsMap.put(HintArgsConstants.ARG_FIRST, noHasFreightWaybills.toString());
+        	interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_RECEIVE_FREIGHT, argsMap));
         	return interceptResult;
         }
         if(!sendNoHasFreightWaybills.isEmpty()){
             interceptResult.toFail();
-            interceptResult.setMessage("运单无寄付运费金额："+sendNoHasFreightWaybills);
+            Map<String, String> argsMap = new HashMap<>();
+            argsMap.put(HintArgsConstants.ARG_FIRST, sendNoHasFreightWaybills.toString());
+            interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_SEND_FREIGHT, argsMap));
             return interceptResult;
         }
         return interceptResult;
@@ -5116,7 +5149,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         if (tDeliveryResponse != null && !tDeliveryResponse.isEmpty()) {
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_THREE_SORTING,
-                    DeliveryResponse.MESSAGE_Delivery_THREE_SORTING, tDeliveryResponse);
+                    HintService.getHint(HintCodeConstants.WAYBILL_SEND_DIFFERENCE), tDeliveryResponse);
         } else {
             return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
         }
@@ -6918,7 +6951,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         //运单是否发货
                         Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
                         if(!isCanSend){
-                            response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,DeliveryResponse.MESSAGE_Delivery_SAVE);
+                            response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,
+                                    HintService.getHint(HintCodeConstants.JP_TEMP_STORE));
                         }
                     }
                 }

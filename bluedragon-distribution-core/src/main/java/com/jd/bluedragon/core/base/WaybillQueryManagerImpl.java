@@ -1031,7 +1031,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2)) {
                     res += TextConstants.PRODUCT_NAME_SXTK_JR;
                 }
-                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)) {
+                if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
+                    // 生鲜特快次晨
                     res += TextConstants.PRODUCT_NAME_SXTK_CC;
                 }
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_C)){
@@ -1041,23 +1043,37 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_0,WaybillSignConstants.CHAR_116_1)){
                 //10-特快送
                 res = TextConstants.PRODUCT_NAME_TKS;
-            }else if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2)
-                    && BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_1,WaybillSignConstants.CHAR_16_2
-                    ,WaybillSignConstants.CHAR_16_3,WaybillSignConstants.CHAR_16_7,WaybillSignConstants.CHAR_16_8))
+            }else if((BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_2))
                     ||
                     (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
                             && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_2))){
                 //11-特快送即日
                 res = TextConstants.PRODUCT_NAME_TKSJR;
-            }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
-                    ||
-                    (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
-                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3))){
+            }else if(
+                        (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                        && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
+                        ) ||
+                        (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                            && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)
+                        )
+                    ){
                 //12-特快送次晨
                 res = TextConstants.PRODUCT_NAME_TKSCC;
             }else if(BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
                     && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_4)){
                 //15-特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }
+            else if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_4)
+                    && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
+                // 特快送
+                res = TextConstants.PRODUCT_NAME_TKS;
+            }
+            else if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_31, WaybillSignConstants.CHAR_31_1)
+                    && BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_116, WaybillSignConstants.CHAR_116_3)
+                    && !BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_16, WaybillSignConstants.CHAR_16_4)) {
+                // 特快送
                 res = TextConstants.PRODUCT_NAME_TKS;
             }
 
