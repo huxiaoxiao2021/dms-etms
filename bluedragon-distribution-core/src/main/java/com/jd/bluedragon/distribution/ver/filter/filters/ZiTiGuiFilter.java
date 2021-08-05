@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -51,7 +53,7 @@ public class ZiTiGuiFilter implements Filter {
         if (BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay())) {
             if (SiteHelper.isPickup(request.getReceiveSite())) {
                 throw new SortingCheckException(SortingResponse.CODE_29116,
-                        SortingResponse.MESSAGE_29116);
+                        HintService.getHintWithFuncModule(HintCodeConstants.ZITIGUI_WAYBILL, request.getFuncModule()));
             }
             // 自提柜跨分拣取消提示
             if (! ZITIGUI.equals(request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
@@ -60,14 +62,14 @@ public class ZiTiGuiFilter implements Filter {
                     selfhelpBoxBelongSiteCode = baseService.getSiteSelfDBySiteCode(waybillSite.getCode());
                 }
                 if (!SiteHelper.isMatchOfBoxBelongSiteAndReceivedSite(selfhelpBoxBelongSiteCode, request.getsReceiveSiteCode())) {
-                    throw new SortingCheckException(SortingResponse.CODE_39116, SortingResponse.MESSAGE_39116);
+                    throw new SortingCheckException(SortingResponse.CODE_39116, HintService.getHintWithFuncModule(HintCodeConstants.ZITIGUI_WAYBILL_BOXING, request.getFuncModule()));
                 } else {
                     isSelfOrderDisToSelfOrderSite = Boolean.TRUE;
                 }
             }
         } else if (! BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay()) && ZITIGUI.equals(request.getsReceiveSiteSubType())) {
             throw new SortingCheckException(SortingResponse.CODE_29209,
-                    SortingResponse.MESSAGE_29209);
+                    HintService.getHintWithFuncModule(HintCodeConstants.SITE_FOR_ZITIGUI_WAYBILL, request.getFuncModule()));
         }
 
         request.setSelfOrderDisToSelfOrderSite(isSelfOrderDisToSelfOrderSite); //fixme 更改domain

@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -44,13 +46,14 @@ public class RWaybillFilter implements Filter {
             if (sceduleSiteCode != null) {
                 waybillSite = siteService.get(sceduleSiteCode);
             } else {
-                throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL, SortingResponse.MESSAGE_WAYBILL_SITE_NULL);
+                throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL,
+                        HintService.getHintWithFuncModule(HintCodeConstants.PRE_SITE_CLOSED_WHEN_SORTING, request.getFuncModule()));
             }
         }
 
         // 获取正常站点\反调度站点后，如果预分拣站点仍然不存在或者<0，则提示超区订单
         if (null == waybillSite || null == waybillSite.getCode() || waybillSite.getCode() < 0) {
-            throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SUPER_AREA, SortingResponse.MESSAGE_WAYBILL_SUPER_AREA);
+            throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SUPER_AREA, HintService.getHintWithFuncModule(HintCodeConstants.OVER_AREA_WAYBILL, request.getFuncModule()));
         }
 
         /**

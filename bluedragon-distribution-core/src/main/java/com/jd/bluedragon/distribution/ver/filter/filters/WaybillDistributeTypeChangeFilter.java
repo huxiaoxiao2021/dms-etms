@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -10,14 +14,13 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -58,7 +61,14 @@ public class WaybillDistributeTypeChangeFilter implements Filter {
                     }
                     warnMessage.append(",").append(noPrintPackages.get(i));
                 }
-                throw new SortingCheckException(SortingResponse.CODE_29411, MessageFormat.format(SortingResponse.MESSAGE_29411,waybillCode,warnMessage,countNoReprint));
+
+                Map<String, String> hintArgs = Maps.newHashMap();
+                hintArgs.put(HintArgsConstants.ARG_FIRST, waybillCode);
+                hintArgs.put(HintArgsConstants.ARG_SECOND, warnMessage.toString());
+                hintArgs.put(HintArgsConstants.ARG_THIRD, countNoReprint.toString());
+
+                throw new SortingCheckException(SortingResponse.CODE_29411,
+                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_DISTRIBUTION_CHANGE_INTERCEPT, request.getFuncModule(), hintArgs));
             }
         }
 

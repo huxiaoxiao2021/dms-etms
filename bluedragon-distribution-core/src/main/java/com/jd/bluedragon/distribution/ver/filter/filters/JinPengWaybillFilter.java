@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.google.common.base.Strings;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -56,7 +58,7 @@ public class JinPengWaybillFilter implements Filter {
                     boolean result = storagePackageMService.checkWaybillCanSend(waybillCode,waybillSign);
                     //判断运单是否发货
                     if(! result){
-                        throw new SortingCheckException(SortingResponse.CODE_29310, SortingResponse.MESSAGE_29310);
+                        throw new SortingCheckException(SortingResponse.CODE_29310, HintService.getHintWithFuncModule(HintCodeConstants.JP_TEMP_STORE, request.getFuncModule()));
                     }
                 }
             }

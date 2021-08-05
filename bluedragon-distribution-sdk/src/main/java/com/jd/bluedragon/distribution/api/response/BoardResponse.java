@@ -49,11 +49,6 @@ public class BoardResponse implements Serializable{
     public static final Integer CODE_BOARD_CHANGE = 39999;
     public static final String Message_BOARD_CHANGE = "  确定绑到新板上？";
 
-    /**
-     * 一单多件不齐
-     */
-    public static final Integer CODE_PACAGES_NOT_ENOUGH=39001;
-
 
     /** 板号 */
     private String boardCode;

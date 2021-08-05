@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -76,18 +78,18 @@ public class WaybillTypeFilter implements Filter {
                 //如果缓存中有，那么比较缓存中取出的类型是否和运单waybillSign判断得到的类型一致，如果不一致则提示
                 if (WAYBILL_TYPE_COMMON.equals(boxWaybillType) && WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(waybillType)) {
                     //箱内装的是普通运单，当前运单为移动仓内配单
-                    throw new SortingCheckException(SortingResponse.CODE_29408, SortingResponse.MESSAGE_29408);
+                    throw new SortingCheckException(SortingResponse.CODE_29408, HintService.getHintWithFuncModule(HintCodeConstants.MOVING_WAREHOUSE_WAYBILL_INTERCEPT, request.getFuncModule()));
                 } else if (WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(boxWaybillType) && WAYBILL_TYPE_COMMON.equals(waybillType)) {
                     //箱内装的是移动仓内配单，当前运单为普通运单
-                    throw new SortingCheckException(SortingResponse.CODE_29407, SortingResponse.MESSAGE_29407);
+                    throw new SortingCheckException(SortingResponse.CODE_29407, HintService.getHintWithFuncModule(HintCodeConstants.MOVING_WAREHOUSE_BOX_INTERCEPT, request.getFuncModule()));
                 }else if (request.getBusinessType() != null && request.getBusinessType() == Constants.BUSSINESS_TYPE_REVERSE){
                     //只有逆向的时候考虑半退问题
                     if(WAYBILL_TYPE_COMMON.equals(boxWaybillType) && WAYBILL_TYPE_PART_REVERSE.equals(waybillType)) {
                     //箱内装的是普通运单，当前运单为半退
-                    throw new SortingCheckException(SortingResponse.CODE_29416, SortingResponse.MESSAGE_29416);
+                    throw new SortingCheckException(SortingResponse.CODE_29416, HintService.getHintWithFuncModule(HintCodeConstants.PART_REVERSE_WAYBILL_INTERCEPT, request.getFuncModule()));
                     } else if (WAYBILL_TYPE_PART_REVERSE.equals(boxWaybillType) && WAYBILL_TYPE_COMMON.equals(waybillType)) {
                         //箱内装的是半退单，当前运单为普通运单
-                        throw new SortingCheckException(SortingResponse.CODE_29415, SortingResponse.MESSAGE_29415);
+                        throw new SortingCheckException(SortingResponse.CODE_29415, HintService.getHintWithFuncModule(HintCodeConstants.PART_REVERSE_BOX_INTERCEPT, request.getFuncModule()));
 
                     }
                 }

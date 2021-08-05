@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.rule.service.RuleService;
@@ -34,12 +36,12 @@ public class OneWaybillMultiPackFilter implements Filter {
             WaybillCache waybill = request.getWaybillCache();
             if (waybill == null) {
                 throw new SortingCheckException(SortingResponse.CODE_39002,
-                        SortingResponse.MESSAGE_39002);
+                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
             }
             //不支持一单多件的运单
             if (waybill.getQuantity() > 1) {
                 throw new SortingCheckException(SortingResponse.CODE_29404,
-                        SortingResponse.MESSAGE_29404);
+                        HintService.getHintWithFuncModule(HintCodeConstants.SCAN_BARCODE_LIMIT, request.getFuncModule()));
             }
 
             //扫的是运单号，而且是一单一件的，根据rule的配置进行判断
@@ -50,13 +52,13 @@ public class OneWaybillMultiPackFilter implements Filter {
                 //开关关闭不支持扫运单号
                 if (rule0 == null || rule0.getInOut().equals("OFF")) {
                     throw new SortingCheckException(SortingResponse.CODE_29404,
-                            SortingResponse.MESSAGE_29404);
+                            HintService.getHintWithFuncModule(HintCodeConstants.SCAN_BARCODE_LIMIT, request.getFuncModule()));
                 }
                 //开关开启，只有配置的商家才支持扫运单号（如果以后按运单发货推广开，content为空所有商家的一单一件都可以通过）
                 if (rule0.getInOut().equals("ON") && StringUtils.isNotBlank(rule0.getContent()) &&
                         !rule0.getContent().contains(waybill.getBusiId() + "")) {
                     throw new SortingCheckException(SortingResponse.CODE_29404,
-                            SortingResponse.MESSAGE_29404);
+                            HintService.getHintWithFuncModule(HintCodeConstants.SCAN_BARCODE_LIMIT, request.getFuncModule()));
                 }
                 if(WaybillUtil.isLasWaybillCode(request.getPackageCode())){
                     request.setPackageCode(request.getPackageCode() + SUFFIX_PACKAGE_CODE_LAS);

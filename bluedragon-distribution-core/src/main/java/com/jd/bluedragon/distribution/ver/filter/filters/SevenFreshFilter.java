@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -24,7 +26,7 @@ public class SevenFreshFilter implements Filter {
         Integer waybillType = request.getWaybillCache().getType();
         if(SEVEN_FRESH_INTERCEPT.equals(waybillType)) {
             logger.info("7fresh见标拦截,waybillType:" + waybillType);
-            throw new SortingCheckException(SortingResponse.CODE_29119, SortingResponse.MESSAGE_29119);
+            throw new SortingCheckException(SortingResponse.CODE_29119, HintService.getHintWithFuncModule(HintCodeConstants.SEVEN_FRESH_HINT, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);
