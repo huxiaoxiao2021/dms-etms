@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
 import com.jd.bluedragon.distribution.business.service.BusinessReturnAdressService;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
@@ -70,6 +71,7 @@ import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -213,9 +215,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
 
-    // 换单打印节点
-    @Value("${businessIntercept.dispose.node.exchangeWaybill}")
-    private Integer disposeNodeExchangeWaybill;
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     /**
      * 处理逆向打印数据
@@ -408,17 +409,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         try {
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
             saveDisposeAfterInterceptMsgDto.setBarCode(reversePrintRequest.getOldCode());
-            saveDisposeAfterInterceptMsgDto.setDisposeNode(disposeNodeExchangeWaybill);
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.EXCHANGE_WAYBILL));
             saveDisposeAfterInterceptMsgDto.setOperateTime(reversePrintRequest.getOperateUnixTime());
             saveDisposeAfterInterceptMsgDto.setOperateUserErp(reversePrintRequest.getStaffErpCode());
             saveDisposeAfterInterceptMsgDto.setOperateUserCode(reversePrintRequest.getStaffId());
             saveDisposeAfterInterceptMsgDto.setOperateUserName(reversePrintRequest.getStaffRealName());
             saveDisposeAfterInterceptMsgDto.setSiteCode(reversePrintRequest.getSiteCode());
             saveDisposeAfterInterceptMsgDto.setSiteName(reversePrintRequest.getSiteName());
-            log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            // log.info("ReversePrintServiceImpl sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
             businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
         } catch (Exception e) {
-            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JSON.toJSONString(reversePrintRequest), e);
+            log.error("ReversePrintServiceImpl sendDisposeAfterInterceptMsg exception, reversePrintRequest: [{}]" , JsonHelper.toJson(reversePrintRequest), e);
             result.toError("保存换单操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;

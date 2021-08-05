@@ -8,5 +8,7 @@ package com.jd.bluedragon.distribution.businessIntercept.constants;
  */
 public class Constant {
 
-    public static final String PDA_DEVICE_CODE = "PDA";
+    public static final String DEVICE_CODE_PDA = "PDA";
+
+    public static final String DEVICE_CODE_PRINT = "PRINT";
 }

@@ -150,8 +150,6 @@ public class DeliveryResource {
     @Autowired
     private WaybillCacheService waybillCacheService;
 
-
-
     @Autowired
     private LogEngine logEngine;
 

@@ -45,6 +45,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -129,6 +130,7 @@ import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
@@ -401,6 +403,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
 
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
+
     /**
      * 自动过期时间 30分钟
      */
@@ -423,14 +428,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private final Integer BATCH_NUM = 999;
 
     private final Integer BATCH_NUM_M = 99;
-
-    // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.operate.node.send}")
-    private Integer interceptOperateNodeSend;
-    // 拦截报表操作节点设备类型
-    @Value("${businessIntercept.device.type.pda}")
-    private Integer interceptOperateDeviceTypePda;
-
 
     /**
      * 组板发货任务的Redis缓存key的前缀
@@ -567,11 +564,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             saveInterceptMsgDto.setInterceptMessage(result.getMessage());
             saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
             saveInterceptMsgDto.setSiteCode(deliveryRequest.getSiteCode());
-            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getInterceptOperateDeviceTypePda());
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
             long operateTimeMillis = DateUtil.parse(deliveryRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME).getTime();
             saveInterceptMsgDto.setOperateTime(operateTimeMillis);
-            saveInterceptMsgDto.setOperateNode(interceptOperateNodeSend);
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getInterceptOperateNodeSend());
             saveInterceptMsgDto.setSiteName(deliveryRequest.getSiteName());
             saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getUserCode());
             saveInterceptMsgDto.setOperateUserName(deliveryRequest.getUserName());
@@ -597,6 +594,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param businessType
      * @return
      */
+    @Override
     public DeliveryResponse doCheckDeliveryInfo(String boxCode,
                                                  Integer siteCode,
                                                  Integer receiveSiteCode,
@@ -686,6 +684,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
     }
 
+    @Override
     public DeliveryResponse sendDeliveryInfoForKY(List<DeliveryRequest> request,SendBizSourceEnum sourceEnum){
         List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
         List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
@@ -968,6 +967,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME.equals(weightAndVolumeCheck.getCode())){
             SendResult sendResult = new SendResult();
             sendResult.init(SendResult.CODE_SENDED,weightAndVolumeCheck.getMessage());
+            // 待用，整箱未称时提交拦截报表
+            // this.sendBusinessInterceptMsg(domain, weightAndVolumeCheck);
             return  sendResult;
         }
         if (isCancelLastSend) {
@@ -1550,6 +1551,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param boxCode
      * @return
      */
+    @Override
     public List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum){
         Box box = this.boxService.findBoxByCode(boxCode);
         if(box != null) {
@@ -2794,8 +2796,50 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 packageWeightings.get(0).getVolume().compareTo(0.0) <= 0){
             response.setCode(DeliveryResponse.CODE_CANCELDELIVERYCHECK_ZERO_WEIGHT_VOLUME);
             response.setMessage(HintService.getHint(HintCodeConstants.ZY_BOX_MISSING_WEIGHT_OR_VOLUME));
+            // 待用，整箱未称时提交拦截报表
+            this.sendBusinessInterceptMsg(tSendM, response);
         }
         return response;
+    }
+
+    /**
+     * 发送拦截消息
+     * @param deliveryRequest 请求参数
+     * @param result 校验结果
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2020-12-22 18:18:15 周二
+     */
+    private boolean sendBusinessInterceptMsg(SendM deliveryRequest, DeliveryResponse result){
+        log.info("DeliveryServiceImpl sendBusinessInterceptMsg param {}, {}", JSON.toJSONString(deliveryRequest), JSON.toJSONString(result));
+        try {
+            SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+            saveInterceptMsgDto.setInterceptCode(result.getCode());
+            saveInterceptMsgDto.setInterceptMessage(result.getMessage());
+            saveInterceptMsgDto.setBarCode(deliveryRequest.getBoxCode());
+            saveInterceptMsgDto.setSiteCode(deliveryRequest.getCreateSiteCode());
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PDA));
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
+            long operateTimeMillis = System.currentTimeMillis();
+            if(deliveryRequest.getOperateTime() != null){
+                operateTimeMillis = deliveryRequest.getOperateTime().getTime();
+            }
+            saveInterceptMsgDto.setOperateTime(operateTimeMillis);
+            saveInterceptMsgDto.setOperateNode(businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SEND));
+            saveInterceptMsgDto.setOperateUserCode(deliveryRequest.getCreateUserCode());
+            saveInterceptMsgDto.setOperateUserName(deliveryRequest.getCreateUser());
+
+            try {
+                businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
+            } catch (Exception e) {
+                String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
+                log.error("DeliveryServiceImpl.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("DeliveryServiceImpl.sendBusinessInterceptMsg call sendInterceptMsg exception [{}]" , e.getMessage(), e);
+        }
+        return true;
     }
 
     /**
@@ -3606,6 +3650,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param tSendM 发货相关数据
      */
+    @Override
     public boolean cancelSendM(SendM tSendM) {
         return this.sendMDao.cancelSendM(tSendM);
     }
@@ -3615,6 +3660,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param tSendDetail 发货相关数据
      */
+    @Override
     public boolean cancelSendDatailByPackage(SendDetail tSendDetail) {
         if (tSendDetail != null) {
             try {
@@ -3633,6 +3679,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      *
      * @param sendM 发货相关数据
      */
+    @Override
     public boolean cancelSendDatailByBox(SendM sendM) {
         SendDetail tSendDatail = new SendDetail();
         tSendDatail.setBoxCode(sendM.getBoxCode());
@@ -4431,6 +4478,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return false;
     }
 
+    @Override
     public List<SendDetail> findOrder(SendDetail sendDetail) {
         return sendDatailDao.findOrder(sendDetail);
     }
@@ -4440,6 +4488,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param sendMList
      * @return
      */
+    @Override
     public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList){
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
@@ -4478,6 +4527,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
    * @param queryType
    * @return
    */
+    @Override
   public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType) {
     // 未扫描包裹
     List<SendThreeDetail> notScaned = null;
@@ -4725,6 +4775,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @flag 新老版本标识，0是老版本调用，1是新版本调用接口
      * @return
      */
+    @Override
     public DeliveryResponse checkRouterForKY(SendM sendM, Integer flag){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
@@ -5084,6 +5135,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return
      */
     @SuppressWarnings("rawtypes")
+    @Override
     public ThreeDeliveryResponse checkThreePackage(List<SendM> sendMList) {
         List<SendThreeDetail> tDeliveryResponse = null;
         Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
@@ -5211,6 +5263,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param sendMList
      * @param allList
      */
+    @Override
     public void getAllList(List<SendM> sendMList, List<SendDetail> allList) {
         for (SendM tSendM : sendMList) {
             SendDetail tSendDatail = new SendDetail();
@@ -5402,6 +5455,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param receiveSiteCode
      * @return
      */
+    @Override
     public List<SendThreeDetail> checkSortingDiff(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
 
         List<SendDetail> allList = new ArrayList<SendDetail>();
@@ -5491,6 +5545,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param receiveSiteCode
      * @return
      */
+    @Override
     public Integer appendPackageNum(String boxCode, Integer createSiteCode,
                                     Integer receiveSiteCode) {
 
@@ -5732,6 +5787,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
     }
 
+    @Override
     public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);
@@ -6105,7 +6161,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      */
     private final List<SendThreeDetail> setSortingBoxCode(
         Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
-      if (null == list || list.isEmpty()) return list;
+      if (null == list || list.isEmpty()) {
+          return list;
+      }
       List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
       List<String> packageCodes = new ArrayList<>();
       for (SendThreeDetail item : list) {
@@ -6749,6 +6807,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.DeliveryServiceImpl.doBoardDeliveryCancel", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
     public boolean doBoardDeliveryCancel(Task task){
         if(log.isDebugEnabled()){
             log.debug("按板取消发货开始：{}" ,JsonHelper.toJson(task));
@@ -7116,6 +7175,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param sendCode
      * @return
      */
+    @Override
     public boolean checkSendCodeIsOld(String sendCode) {
         // 获取批次创建时间
         try{
@@ -7136,6 +7196,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param sendCode
      * @return
      */
+    @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
         // 查redis后查运输接口兜底
         if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
