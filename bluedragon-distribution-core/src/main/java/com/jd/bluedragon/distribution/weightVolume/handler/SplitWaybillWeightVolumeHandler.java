@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
@@ -33,6 +34,9 @@ public class SplitWaybillWeightVolumeHandler extends AbstractWeightVolumeHandler
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
                                                 Waybill waybill,InvokeResult<Boolean> result) {}
+
+    @Override
+    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {}
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

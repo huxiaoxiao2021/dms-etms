@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.third.domain.ThirdBoxDetail;
 import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -22,10 +23,7 @@ import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetBoxWeig
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetErrorRes;
 import com.jd.bluedragon.external.crossbow.economicNet.domain.EconomicNetResult;
 import com.jd.bluedragon.external.crossbow.economicNet.manager.EconomicNetBusinessManager;
-import com.jd.bluedragon.utils.BaseContants;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -39,10 +37,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.jd.bluedragon.Constants.TENANT_CODE_ECONOMIC;
@@ -100,6 +98,37 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
         if(condition.getVolume() <= Constants.DOUBLE_ZERO
                 && condition.getHeight() * condition.getHeight() * condition.getHeight() <= Constants.DOUBLE_ZERO){
             result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_7);
+        }
+    }
+
+    @Override
+    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(!BusinessHelper.isBoxcode(condition.getBarCode())){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_0);
+            return;
+        }
+        if(Objects.equals(condition.getCheckWeight(),true)){
+            if(condition.getWeight() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_1);
+                return;
+            }
+        }
+        if(Objects.equals(condition.getCheckLWH(),true)){
+            if(condition.getLength() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
+                return;
+            }
+            if(condition.getWidth() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
+                return;
+            }
+            if(condition.getHeight() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
+                return;
+            }
+        }
+        if(Objects.equals(condition.getCheckVolume(),true)){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_5);
         }
     }
 
