@@ -69,6 +69,14 @@ public class CacheKeyConstants {
 	 * 包裹抽检记录的缓存
 	 */
 	public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
+    /**
+     * 抽检包裹上传图片的缓存
+     */
+	public static final String CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG = "spotCheck.pictureUrl-%s-%s";
+    /**
+     * 包裹抽检是否超标的缓存
+     */
+	public static final String CACHE_KEY_SPOT_IS_EXCESS_FLAG = "spotCheck.isExcess-%s-%s";
 	/**
 	 * 包裹发货状态缓存redis的key
 	 */

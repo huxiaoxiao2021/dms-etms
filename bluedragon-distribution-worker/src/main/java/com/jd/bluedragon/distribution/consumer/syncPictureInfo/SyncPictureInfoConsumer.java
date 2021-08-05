@@ -1,14 +1,19 @@
 package com.jd.bluedragon.distribution.consumer.syncPictureInfo;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @ClassName: syncPictureInfoConsumer
@@ -23,6 +28,10 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -51,11 +60,20 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
             return;
         }
 
-        // 给FXM发消息并更新es数据
-        // weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode);
-
+        // 记录图片缓存
+        addPictureUrlRedis(pictureInfoMq);
         // 上传成功后，发送MQ消息，进行下一步操作
-        weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode);
+        weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode, pictureInfoMq.getUrl());
+    }
+
+    private void addPictureUrlRedis(PictureInfoMq pictureInfoMq) {
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG,
+                    pictureInfoMq.getWaybillOrPackCode(), pictureInfoMq.getSiteCode());
+            jimdbCacheService.setEx(key, pictureInfoMq.getUrl(), 30, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("设置站点{}上传的包裹{}图片链接缓存异常!", pictureInfoMq.getSiteCode(), pictureInfoMq.getWaybillOrPackCode());
+        }
     }
 
 
@@ -86,6 +104,11 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
          * 上传时间
          * */
         private Long upLoadTime;
+
+        /**
+         * 图片链接
+         */
+        private String url;
 
         public String getWaybillOrPackCode() {
             return waybillOrPackCode;
@@ -125,6 +148,14 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
         public void setUpLoadTime(Long upLoadTime) {
             this.upLoadTime = upLoadTime;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 
