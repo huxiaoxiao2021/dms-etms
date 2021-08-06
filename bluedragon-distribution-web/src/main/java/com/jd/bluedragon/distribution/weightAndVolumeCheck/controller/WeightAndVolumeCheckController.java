@@ -15,6 +15,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckRecordTypeEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
@@ -86,7 +87,17 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
+        condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
 
+        PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
+        return result;
+    }
+
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping("/packageDetailListData")
+    @ResponseBody
+    public PagerResult<WeightVolumeCollectDto> packageDetailListData(@RequestBody WeightAndVolumeCheckCondition condition){
+        condition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
@@ -107,6 +118,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
+            condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
             weightAndVolumeCheckService.export(condition,bfw);
             exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
         }catch (Exception e){

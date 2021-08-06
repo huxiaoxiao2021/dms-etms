@@ -1,5 +1,6 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
+    var packageDetailQueryUrl = '/weightAndVolumeCheck/packageDetailListData';
     var checkOverExportLimitUrl = '/weightAndVolumeCheck/checkOverExportLimit';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
@@ -245,10 +246,56 @@ $(function () {
                 return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
             }
         },{
+            field: 'fullCollect',
+            title: '是否集齐',
+            align: 'center',
+            formatter: function (value, row, index) {
+                if(row.spotCheckType != 3 || row.recordType != 2){
+                    return ''
+                }
+                const fullCollectResult = value == 1 ? "是" : "否";
+                return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
+            },
+            events: {
+                // 一单多件包裹抽检明细查看
+                'click .full-collect-detail-btn': function(e, value, row, index) {
+                    console.log('full-collect-detail-btn click')
+                    $packageDetailContainer.show()
+                    detailTable.queryParams.recordType = 1
+                    detailTable.queryParams.waybillCode = row.waybillCode
+                    detailTable.queryParams.createSiteCode = row.reviewSiteCode
+                    if($packageCodeInput.val() !== ''){
+                        detailTable.queryParams.waybillOrPackCode = $packageCodeInput.val() !== ''
+                    }
+                    $packageDetailBsTable.bootstrapTable('refreshOptions', {url: packageDetailQueryUrl})
+                    layer.open({
+                        id:'packageDetailLayer',
+                        type: 1,
+                        title:'一单多件包裹抽检明细',
+                        shadeClose: true,
+                        shade: 0.7,
+                        maxmin: true,
+                        area: 'auto',
+                        maxWidth: '1200',
+                        content: $packageDetailContainer,
+                        success: function(layero, index){
+                        },
+                        cancel: function(index, layero){
+                            layer.close(index)
+                            $packageDetailContainer.hide()
+                        },
+                        end: function (){
+                            $packageDetailContainer.hide()
+                        }
+                    });
+                },
+            }
+        },{
             field: 'isHasPicture',
             title: '有无图片',
             align: 'center',
             formatter: function (value, row, index) {
+                // todo 一单多件抽检类型的 优化为弹出多个图片分页展示
                 return value == 1 ? "有" : "无";
             }
         },{
@@ -260,6 +307,9 @@ $(function () {
                 if(row.isExcess == 0){
                     flage = null;
                 }else{
+                    if(row.spotCheckType == 3 && row.recordType == 2){
+                        return ''
+                    }
                     if(row.isHasPicture == null || row.isHasPicture == 0){
                         flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                             '<br/>'
@@ -436,6 +486,210 @@ $(function () {
     tableInit().init();
     pageInit().init();
     initExport(tableInit());
+
+    // 一单多件包裹明细
+    const detailTable = {
+        queryParams: {},
+        tableColums: [
+            {
+                checkbox: true
+            }, {
+                field: 'reviewDate',
+                title: '复核日期',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
+            }, {
+                field: 'waybillCode',
+                title: '运单号',
+                align: 'center'
+            }, {
+                field: 'packageCode',
+                title: '扫描条码',
+                align: 'center'
+            }, {
+                field: 'spotCheckType',
+                title: '业务类型',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return (value != null && value == "1") ? "B网" : "C网";
+                }
+            }, {
+                field: 'productTypeName',
+                title: '产品标识',
+                align: 'center'
+            }, {
+                field: 'busiCode',
+                title: '商家ID',
+                align: 'center',
+                visible: false
+            }, {
+                field: 'merchantCode',
+                title: '配送商家编号',
+                align: 'center'
+            }, {
+                field: 'busiName',
+                title: '商家名称',
+                align: 'center'
+            }, {
+                field: 'isTrustBusi',
+                title: '信任商家',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return value == "1" ? "是" : "否";
+                }
+            }, {
+                field: 'reviewOrgName',
+                title: '复核区域',
+                align: 'center'
+            }, {
+                field: 'reviewSiteCode',
+                title: '复核分拣',
+                align: 'center',
+                visible: false
+            }, {
+                field: 'reviewSiteName',
+                title: '复核分拣'
+            }, {
+                field: 'reviewSubType',
+                title: '机构类型',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
+                }
+            }, {
+                field: 'reviewErp',
+                title: '复核人erp',
+                align: 'center'
+            }, {
+                field: 'reviewWeight',
+                title: '复核重量',
+                align: 'center'
+            }, {
+                field: 'reviewLWH',
+                title: '复核长宽高',
+                align: 'center'
+            }, {
+                field: 'reviewVolumeWeight',
+                title: '复核体积重量',
+                align: 'center'
+            }, {
+                field: 'moreBigWeight',
+                title: '复核较大值',
+                align: 'center'
+            }, {
+                field: 'volumeRate',
+                title: '计泡系数',
+                align: 'center'
+            }, {
+                field: 'excessReason',
+                title: '超标原因',
+                align: 'center',
+                visible: false
+            }, {
+                field: 'fromSource',
+                title: '数据来源',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    // 为了兼容之前定义的枚举。。。。
+                    if (value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" || value == "SPOT_CHECK_CLIENT_PLATE") {
+                        return "平台打印抽检";
+                    }
+                    if (value == "DMS_AUTOMATIC_MEASURE" || value == "SPOT_CHECK_DWS") {
+                        return "DWS抽检";
+                    }
+                    return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
+                }
+            }, {
+                field: 'isHasPicture',
+                title: '有无图片',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return value == 1 ? "有" : "无";
+                }
+            }, {
+                field: 'upPicture',
+                title: '照片',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    let flage;
+                    if (row.isHasPicture == 1) {
+                        flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
+                    } else {
+                        flage
+                    }
+                    return flage;
+                },
+                events: {
+                    'click .search': function (e, value, row, index) {
+                        var spotCheckType = row.spotCheckType == null ? 0 : row.spotCheckType;
+                        var fromSource = row.fromSource;
+                        var isWaybillSpotCheck = row.isWaybillSpotCheck == null ? -1 : row.isWaybillSpotCheck;
+                        if (spotCheckType == 1 && (fromSource == "SPOT_CHECK_DMS_WEB" || fromSource == "SPOT_CHECK_ANDROID")) {
+                            //B网
+                            window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode=" + row.packageCode
+                                + "&siteCode=" + row.reviewSiteCode + "&isWaybillSpotCheck=" + isWaybillSpotCheck + "&fromSource=" + row.fromSource);
+                        } else {
+                            //C网
+                            $.ajax({
+                                type: "get",
+                                url: searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" + row.reviewSiteCode,
+                                data: {},
+                                async: false,
+                                success: function (data) {
+                                    if (data && data.code == 200) {
+                                        layer.open({
+                                            type: 2,
+                                            title: "",
+                                            shadeClose: true,
+                                            shade: 0.5,
+                                            area: ['500px', '400px'],
+                                            content: data.data,
+                                            success: function (layero, index) {
+                                                layer.iframeAuto(index);
+                                            }
+                                        });
+                                    } else {
+                                        Jd.alert(data.message);
+                                    }
+                                }
+                            });
+                        }
+                    }
+                }
+            }],
+        refresh: function () {
+            $packageDetailBsTable.bootstrapTable('refreshOptions', {pageNumber: 1});
+        }
+    };
+    const $packageDetailForm = $('#packageDetailForm')
+    const $packageCodeInput = $packageDetailForm.find('#packageCode')
+    const $packageDetailContainer = $('#packageDetailContainer')
+    const $packageDetailBsTable = $('#packageDetailTable').bootstrapTable({
+        url: '', // 请求后台的URL（*）
+        method: 'post', // 请求方式（*）
+        toolbar: '#detailToolbar', // 工具按钮用哪个容器
+        queryParams: detailTable.queryParams, // 查询参数（*）
+        height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+        uniqueId: "ID", // 每一行的唯一标识，一般为主键列
+        pagination: true, // 是否显示分页（*）
+        pageNumber: 1, // 初始化加载第一页，默认第一页
+        pageSize: 10, // 每页的记录行数（*）
+        pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
+        cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+        sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
+        striped: true, // 是否显示行间隔色
+        showColumns: true, // 是否显示所有的列
+        sortable: true, // 是否启用排序
+        sortOrder: "asc", // 排序方式
+        showRefresh: true, // 是否显示刷新按钮
+        minimumCountColumns: 2, // 最少允许的列数
+        clickToSelect: true, // 是否启用点击选中行
+        showToggle: true, // 是否显示详细视图和列表视图的切换按钮
+        strictSearch: true,
+        columns: detailTable.tableColums
+    });
 
 });
 

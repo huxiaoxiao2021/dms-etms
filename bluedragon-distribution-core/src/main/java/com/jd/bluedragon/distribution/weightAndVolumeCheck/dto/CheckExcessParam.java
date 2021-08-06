@@ -28,6 +28,11 @@ public class CheckExcessParam {
      */
     private Double reviewWeight;
 
+    /**
+     * 分拣复核体积
+     */
+    private Double reviewVolume;
+
     public BigDecimal getSumLWH() {
         return sumLWH;
     }
@@ -66,6 +71,15 @@ public class CheckExcessParam {
 
     public void setCheckMoreBigValue(Double checkMoreBigValue) {
         this.checkMoreBigValue = checkMoreBigValue;
+    }
+
+    public Double getReviewVolume() {
+        return reviewVolume;
+    }
+
+    public CheckExcessParam setReviewVolume(Double reviewVolume) {
+        this.reviewVolume = reviewVolume;
+        return this;
     }
 }
     
