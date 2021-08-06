@@ -20,7 +20,7 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.dms.utils.WaybillVasConstant;
+import com.jd.bluedragon.dms.utils.WaybillVasUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -148,10 +148,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
 
-    /*
-    * 包裹有话说增值服务编码
-    * */
-    private static final String PACKAGE_SAY = "festivalAttachment";
+
 
 	@Override
     @PFTracing(name = "DMSWEB.BasicWaybillPrintHandler.handle.Tracing")
@@ -601,10 +598,18 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         if (null == context.getBigWaybillDto() || CollectionUtils.isEmpty(context.getBigWaybillDto().getWaybillVasList())){
             return ;
         }
+        String vasSign = WaybillVasUtil.DEFAULT_VAS_SIGN;
         /*增值服务打标-包裹有话说*/
         if (isHasPackageSay(context)){
-            context.getBasePrintWaybill().setWaybillVasSign(String.valueOf(WaybillVasConstant.packageSay));
+            vasSign = WaybillVasUtil.markingPackageSaySign(vasSign);
         }
+        // 精准送仓
+        // todo 需要确认运单增值服务具体的值在哪个字段上
+        if(){
+            vasSign = WaybillVasUtil.markingJZSCSign(vasSign);
+        }
+
+        context.getBasePrintWaybill().setWaybillVasSign(vasSign);
     }
 
     /**
@@ -619,7 +624,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         List<WaybillVasDto> waybillVasDtos = context.getBigWaybillDto().getWaybillVasList();
         for (int i =0 ;i < waybillVasDtos.size();i++){
             WaybillVasDto tmp = waybillVasDtos.get(i);
-            if (PACKAGE_SAY.equals(tmp.getVasNo())){
+            if (WaybillVasUtil.PACKAGE_SAY.equals(tmp.getVasNo())){
                 return Boolean.TRUE;
             }
         }
