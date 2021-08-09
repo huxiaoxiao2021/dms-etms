@@ -1,12 +1,6 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
