@@ -780,8 +780,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     /**
      * 1、针对C抽B的：是否超标不填
-     * 2、生鲜：分拣较大值 < 计费结算重量（核对较大值）则不超标
-     * 3、分拣较大值 <= 1.5 && 计费结算重量（核对较大值）<= 1.5 则不超标
+     * 2、生鲜：分拣较大值 < 核对较大值,则不超标
+     * 3、分拣较大值 <= 1.5 && 核对较大值 <= 1.5 则不超标
      * @param weightVolumeCollectDto
      * @param waybill
      */
@@ -792,8 +792,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         // 分拣复核较大值
         double reviewMore = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
-        // 计费结算重量或核对较大值
-        double checkMore = weightVolumeCollectDto.getBillingCalcWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getBillingCalcWeight();
+        // 核对较大值
+        double checkMore = weightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getContrastLarge();
         if(BusinessUtil.isFresh(waybill.getWaybillSign()) && reviewMore < checkMore){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
             weightVolumeCollectDto.setExcessReason(Constants.EMPTY_FILL);
