@@ -258,7 +258,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             response.setData(list);
             return response;
         }catch (RpcException e){
-            log.warn("jsf服务端查询超时，请重新查询!");
+            log.warn("jsf服务端查询超时，请重新查询!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage("请重新查询!");
         }catch (Exception e){
