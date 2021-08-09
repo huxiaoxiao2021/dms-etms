@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
@@ -37,26 +39,26 @@ public class LuxuryFilter implements Filter {
                     && !SiteHelper.matchSiteTypeRule(rule1.getContent(), request.getsReceiveSiteSubType())
                     && !SiteHelper.matchSiteRule(rule2.getContent(), request.getsReceiveSiteCode())) {
                 throw new SortingCheckException(SortingResponse.CODE_29109,
-                        SortingResponse.MESSAGE_29109);
+                        HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL, request.getFuncModule()));
             } else if (!SiteHelper.isPartnerBySiteSubType(request.getReceiveSite()) && !SiteHelper.matchSiteTypeRule(rule1.getContent(), request.getsReceiveSiteSubType())) {
                 throw new SortingCheckException(SortingResponse.CODE_29109,
-                        SortingResponse.MESSAGE_29109);
+                        HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL, request.getFuncModule()));
             } else if (BoxHelper.isLuxuryForForward(request.getBox())) {
                 Site site = siteService.get(request.getBox().getReceiveSiteCode());
                 if ((site == null || site.getType() == null) && ! SiteHelper.isPartnerBySiteSubType(request.getReceiveSite())) {
                     String sBoxReceiveSiteType =  request.getsReceiveSiteSubType();
                     if (!SiteHelper.matchSiteTypeRule(rule1.getContent(), sBoxReceiveSiteType)) {
                         throw new SortingCheckException(SortingResponse.CODE_29109,
-                                SortingResponse.MESSAGE_29109);
+                                HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL, request.getFuncModule()));
                     }
                 }
             } else if (BusinessUtil.isBoxcode(request.getBoxCode()) && !BoxHelper.isLuxuryForForward2(request.getBox())) {
                 throw new SortingCheckException(SortingResponse.CODE_29107,
-                        SortingResponse.MESSAGE_29107);
+                        HintService.getHintWithFuncModule(HintCodeConstants.LUXURY_WAYBILL_CHOOSE_BOX, request.getFuncModule()));
             }
         } else if (BoxHelper.isLuxuryForForward(request.getBox())) {
             throw new SortingCheckException(SortingResponse.CODE_29006,
-                    SortingResponse.MESSAGE_29006);
+                    HintService.getHintWithFuncModule(HintCodeConstants.BOX_USE_FOR_LUXURY_WAYBILL, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);

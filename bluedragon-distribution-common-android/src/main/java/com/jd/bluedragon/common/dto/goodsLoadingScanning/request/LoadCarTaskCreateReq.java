@@ -47,6 +47,16 @@ public class LoadCarTaskCreateReq implements Serializable {
      */
     private String createUserName;
 
+    /**
+     * 车辆最大载重,吨
+     */
+    private Double weight;
+
+    /**
+     * 车辆最大体积,立方米
+     */
+    private Double volume;
+
     public LoadCarTaskCreateReq() {
     }
 
@@ -104,5 +114,21 @@ public class LoadCarTaskCreateReq implements Serializable {
 
     public void setCreateUserName(String createUserName) {
         this.createUserName = createUserName;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }

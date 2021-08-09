@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.hint.service;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.comp.api.hint.vo.HintResp;
@@ -104,5 +105,27 @@ public class HintService {
      */
     public static String getHint(String reversedStr, String hintCode){
         return HintService.getHint(reversedStr, hintCode, null) ;
+    }
+
+    /**
+     * 根据功能模块获取提示语
+     * @param hintCode
+     * @param module
+     * @return
+     */
+    public static String getHintWithFuncModule(String hintCode, int module) {
+        // TODO 补全提示语功能模块的语义
+        return getHint(hintCode, Maps.<String, String>newHashMap());
+    }
+
+    /**
+     * 根据功能模块获取提示语
+     * @param hintCode
+     * @param module
+     * @return
+     */
+    public static String getHintWithFuncModule(String hintCode, int module, Map<String, String> paramsMap) {
+        // TODO 补全提示语功能模块的语义
+        return getHint(hintCode, paramsMap);
     }
 }

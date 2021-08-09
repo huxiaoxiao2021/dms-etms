@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
@@ -38,14 +40,16 @@ public class PartnerSiteFilter implements Filter {
                 && !SiteHelper.isDistributionCenter(request.getReceiveSite()) ) {
 
             if (null == waybillSite || null == waybillSite.getCode() || waybillSite.getCode() <= 0) {
-                throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL, SortingResponse.MESSAGE_WAYBILL_SITE_NULL);
+                throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL,
+                        HintService.getHintWithFuncModule(HintCodeConstants.PRE_SITE_CLOSED_WHEN_SORTING, request.getFuncModule()));
             }
 
             //预分拣站点和目的站点不符时，从基础资料的站点-合作站点绑定关系中找出三方-合作站点所属站点
             if(!SiteHelper.isMatchOfBoxBelongSiteAndReceivedSite(waybillSite.getCode(), request.getsReceiveSiteCode())){
                 Integer belongSiteCode = baseMajorManager.getPartnerSiteBySiteId(waybillSite.getCode());
                 if (!SiteHelper.isMatchOfBoxBelongSiteAndReceivedSite(belongSiteCode, request.getsReceiveSiteCode())) {
-                    throw new SortingCheckException(SortingResponse.CODE_39000, SortingResponse.MESSAGE_39000);
+                    throw new SortingCheckException(SortingResponse.CODE_39000,
+                            HintService.getHintWithFuncModule(HintCodeConstants.SITE_NOT_EQUAL_RECEIVE_SITE, request.getFuncModule()));
                 } else {
                     isPartnerOrderDisToSelfOrderSite = Boolean.TRUE;
                 }

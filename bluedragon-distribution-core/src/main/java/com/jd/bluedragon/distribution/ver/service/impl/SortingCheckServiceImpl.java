@@ -6,6 +6,9 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -13,6 +16,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -44,6 +48,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -96,18 +101,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     // 拦截报表发送服务
     @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
-    // 拦截报表操作节点分拣类型
-    @Value("${businessIntercept.operate.node.sorting}")
-    private Integer interceptOperateNodeSorting;
-    // 拦截报表操作节点发货类型
-    @Value("${businessIntercept.operate.node.send}")
-    private Integer interceptOperateNodeSend;
-    // 拦截报表操作节点组板类型
-    @Value("${businessIntercept.operate.node.boardCombination}")
-    private Integer interceptOperateNodeBoardCombination;
-    // 拦截报表操作节点设备类型
-    @Value("${businessIntercept.device.type.pda}")
-    private Integer interceptOperateDeviceTypePda;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -138,9 +134,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             if (this.isNeedCheck(uccPropertyConfiguration.getSwitchVerToWebSites(), pdaOperateRequest.getCreateSiteCode())) {
                 Integer businessType = pdaOperateRequest.getBusinessType();
                 if (BusinessUtil.isForward(businessType)) {
+                    filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
                     ForwardFilterChain forwardFilterChain = getForwardFilterChain();
                     forwardFilterChain.doFilter(filterContext, forwardFilterChain);
                 } else if (BusinessUtil.isReverse(businessType)) {
+                    filterContext.setFuncModule(HintModuleConstants.REVERSE_SORTING);
                     ReverseFilterChain reverseFilterChain = getReverseFilterChain();
                     reverseFilterChain.doFilter(filterContext, reverseFilterChain);
                 }
@@ -199,8 +197,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setInterceptMessage(checkException.getMessage());
             saveInterceptMsgDto.setBarCode(filterContext.getPackageCode());
             saveInterceptMsgDto.setSiteCode(filterContext.getCreateSiteCode());
-            saveInterceptMsgDto.setDeviceType(interceptOperateDeviceTypePda);
-            saveInterceptMsgDto.setDeviceCode(Constant.PDA_DEVICE_CODE);
+            saveInterceptMsgDto.setDeviceType(businessInterceptConfigHelper.getOperateDeviceTypeByConstants(OperateDeviceTypeConstants.PDA));
+            saveInterceptMsgDto.setDeviceCode(Constant.DEVICE_CODE_PDA);
             PdaOperateRequest pdaOperateRequest = filterContext.getPdaOperateRequest();
             long operateTimeMillis = System.currentTimeMillis();
             if(pdaOperateRequest.getOperateTime() != null){
@@ -213,10 +211,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             saveInterceptMsgDto.setOperateUserName(pdaOperateRequest.getOperateUserName());
             saveInterceptMsgDto.setOnlineStatus(filterContext.getOnlineStatus());
 
-            String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
             try {
                 businessInterceptReportService.sendInterceptMsg(saveInterceptMsgDto);
             } catch (Exception e) {
+                String saveInterceptMqMsg = JSON.toJSONString(saveInterceptMsgDto);
                 logger.error("SortingCheckServiceImpl call sendInterceptMsg exception [{}]" , saveInterceptMqMsg, e);
             }
         } catch (Exception e) {
@@ -237,10 +235,10 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         int operateNode = 0;
         if(pdaOperateRequest.getOperateNode() != null){
             if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SEND){
-                operateNode = interceptOperateNodeSend;
+                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SEND);
             }
             if(pdaOperateRequest.getOperateNode() == OperateNodeConstants.SORTING){
-                operateNode = interceptOperateNodeSorting;
+                operateNode = businessInterceptConfigHelper.getOperateNodeByConstants(OperateNodeConstants.SORTING);
             }
         }
         return operateNode;
@@ -266,6 +264,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             try {
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
+                filterContext.setFuncModule(HintModuleConstants.FORWARD_DELIVERY);
                 DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
                 deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
             } catch (IllegalWayBillCodeException e) {
@@ -325,6 +324,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
                 //初始化拦截链上下文
                 filterContext = this.initFilterParam(boardCombinationRequest);
+                filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
                 //获取校验链
                 FilterChain boardCombinationChain = getBoardCombinationFilterChain();
                 //校验过程
@@ -445,7 +445,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         WaybillCache waybillCache = this.waybillCacheService.getFromCache(filterContext.getWaybillCode());
         filterContext.setWaybillCache(waybillCache);
         if (waybillCache == null) {
-            throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+            throw new SortingCheckException(SortingResponse.CODE_39002,
+                    HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
         }
 
         if (waybillCache.getOrgId() == null) {

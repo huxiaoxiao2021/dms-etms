@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -29,7 +31,7 @@ public class ContractFilter implements Filter {
         if (WaybillCacheHelper.isContract(request.getWaybillCache(), rule1.getContent())
                 && !SiteHelper.matchSiteTypeRule(rule2.getContent(), request.getsReceiveSiteSubType())) {
             throw new SortingCheckException(SortingResponse.CODE_29105,
-                    SortingResponse.MESSAGE_29105);
+                    HintService.getHintWithFuncModule(HintCodeConstants.CONTRACT_WAYBILL, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);

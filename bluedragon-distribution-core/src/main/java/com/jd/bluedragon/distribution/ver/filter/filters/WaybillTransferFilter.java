@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 public class WaybillTransferFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,7 +48,12 @@ public class WaybillTransferFilter implements Filter {
                     }
                     warnMessage.append(",").append(noPrintPackages.get(i));
                 }
-                throw new SortingCheckException(SortingResponse.CODE_29410, MessageFormat.format(SortingResponse.MESSAGE_29410,waybillCode, warnMessage.toString(),countNoReprint));
+                Map<String, String> hintArgs = Maps.newHashMap();
+                hintArgs.put(HintArgsConstants.ARG_FIRST, waybillCode);
+                hintArgs.put(HintArgsConstants.ARG_SECOND, warnMessage.toString());
+                hintArgs.put(HintArgsConstants.ARG_THIRD, countNoReprint.toString());
+                throw new SortingCheckException(SortingResponse.CODE_29410,
+                        HintService.getHintWithFuncModule(HintCodeConstants.PACKAGE_REPRINT_TO_TRANSFER, request.getFuncModule(), hintArgs));
             }
         }
 

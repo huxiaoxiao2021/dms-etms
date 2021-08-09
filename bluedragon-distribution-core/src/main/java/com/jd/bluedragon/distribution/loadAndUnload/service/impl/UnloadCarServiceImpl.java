@@ -17,6 +17,8 @@ import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.domain.UnloadCarCompleteMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -74,6 +76,7 @@ import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.tms.basic.dto.BasicVehicleDto;
 import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
@@ -225,6 +228,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration ;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -674,12 +680,23 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
                 return dtoInvokeResult;
             }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
+                return dtoInvokeResult;
+            }
+
             // 包裹是否扫描成功
             packageIsScanBoard(request);
             // 多货包裹标识
@@ -1272,9 +1289,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 return invokeResult;
             }
 
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return invokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return invokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                invokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
                 return invokeResult;
             }
 
@@ -1773,8 +1798,13 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             if (siteOrgDto == null) {
                 logger.warn("根据封车消息创建卸车任务--isExpressCenterSite--查询基础资料信息为空dmsSiteId[{}],batchCode", createSiteCode,batchCode);
             }
-            if(siteOrgDto != null && Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType())){
-                logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+            //操作站点为集配站或者操作类型为营业部，，且流向转运中心
+            if(siteOrgDto != null && (Constants.JI_PEI_CODE_9605.equals(siteOrgDto.getSubType()) || Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType()))){
+                if(Constants.TERMINAL_SITE_TYPE_4.equals(siteOrgDto.getSiteType())) {
+                    logger.info("{}为营业部批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+                }else {
+                    logger.info("{}为集配站批次，需要从运输获取相关信息，封车网点为{}",batchCode,createSiteCode);
+                }
                 //集配站的批次号，通过运输接口获取相应的批次下包裹信息。
                 CargoDetailDto cargoDetailDto = new CargoDetailDto();
                 //批次号
@@ -2419,6 +2449,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setStartSiteCode(tmsSealCar.getOperateSiteId());
         unloadCar.setStartSiteName(tmsSealCar.getOperateSiteName());
         unloadCar.setCreateTime(new Date());
+        unloadCar.setTransWay(tmsSealCar.getTransWay());
 
 //        CommonDto<SealCarDto> sealCarDto = vosManager.querySealCarInfoBySealCarCode(tmsSealCar.getSealCarCode());
 //        if (CommonDto.CODE_SUCCESS == sealCarDto.getCode() && sealCarDto.getData() != null) {
@@ -2429,7 +2460,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 //            return false;
 //        }
         try {
-            unloadCarDao.add(unloadCar);
+//            unloadCarDao.add(unloadCar);
+            this.fillUnloadCarTaskDuration(unloadCar);
         } catch (Exception e) {
             logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
             return false;
@@ -2556,6 +2588,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         unloadCar.setUpdateUserName(unloadCarTaskReq.getUser().getUserName());
         Date updateTime = DateHelper.parseDateTime(unloadCarTaskReq.getOperateTime());
         unloadCar.setUpdateTime(updateTime);
+        //校验卸车任务是否超时
+        if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCarTaskReq.getTaskStatus()) {
+            UnloadCar unloadCarParam = new UnloadCar();
+            unloadCarParam.setSealCarCode(unloadCarTaskReq.getTaskCode());
+            List<UnloadCar> list = unloadCarDao.selectByCondition(unloadCarParam);
+            if(CollectionUtils.isNotEmpty(list)) {
+                UnloadCar dbRes = list.get(0);
+                //时效：单位min
+                if(dbRes.getStartTime() != null && dbRes.getDuration() != null) {
+                    Long planEndTime = dbRes.getStartTime().getTime() + dbRes.getDuration() * 60 * 1000l;
+                    Long updateTimeTemp = updateTime.getTime();
+                    unloadCar.setEndStatus(updateTimeTemp > planEndTime ? UnloadCarConstant.UNLOAD_CAR_COMPLETE_TIMEOUT : UnloadCarConstant.UNLOAD_CAR_COMPLETE_NORMAL);
+                }
+            }
+        }
         int count = unloadCarDao.updateUnloadCarTaskStatus(unloadCar);
         if (count < 1) {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -2656,7 +2703,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             result.setMessage("该操作仅限卸车负责人使用！");
             return result;
         }
-
+        if (StringUtils.equals(taskHelpersReq.getUser().getUserErp(), taskHelpersReq.getHelperERP())) {
+            result.parameterError("卸车协助人不允许添加本任务的负责人");
+            return result;
+        }
         try {
             if (taskHelpersReq.getOperateType() == OperateTypeEnum.DELETE_HELPER.getType()) {
                 //删除协助人
@@ -2931,6 +2981,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCar.setDistributeTime(new Date());
             unloadCar.setOperateUserErp(tmsSealCar.getOperateUserCode());
             unloadCar.setOperateUserName(tmsSealCar.getOperateUserName());
+            unloadCar.setStatus(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType());
             //同步卸车负责人与卸车任务之间关系
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(tmsSealCar.getSealCarCode());
@@ -2939,7 +2990,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setCreateTime(new Date());
             try {
-                unloadCarDao.add(unloadCar);
+//                unloadCarDao.add(unloadCar);
+                this.fillUnloadCarTaskDuration(unloadCar);
                 unloadCarDistributionDao.add(unloadCarDistribution);
             } catch (Exception e) {
                 logger.error("卸车任务数据插入失败，数据：{},返回值:{}",JsonHelper.toJson(tmsSealCar),e);
@@ -3143,7 +3195,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
                         logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        result.setMessage(HintService.getHint(HintCodeConstants.ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME));
                         return result;
                     }
                 }
@@ -3152,7 +3204,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if(deliveryPackageD.getAgainWeight() == null || deliveryPackageD.getAgainWeight()<=0){
                         logger.info("此包裹{}无重量体积，请到转运工作台按包裹录入重量体积",barCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.PACKAGE_NO_WEIGHT);
+                        result.setMessage(HintService.getHint(HintCodeConstants.ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME));
                         return result;
                     }
                 }
@@ -3296,10 +3348,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         InvokeResult<UnloadScanDetailDto> dtoInvokeResult = new InvokeResult<>();
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         try {
-            UnloadCar unloadCar = unloadCarDao.selectBySealCarCode(request.getSealCarCode());
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCode());
             if (unloadCar == null) {
                 BeanUtils.copyProperties(result, dtoInvokeResult);
                 dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "封车编码不合法");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_START.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务未开始，请联系卸车负责人开始任务");
+                return dtoInvokeResult;
+            }
+            if (unloadCar.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType())) {
+                BeanUtils.copyProperties(result, dtoInvokeResult);
+                dtoInvokeResult.customMessage(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "任务已结束，扫描失败");
                 return dtoInvokeResult;
             }
             // 包裹是否扫描成功
@@ -3470,6 +3532,50 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             return true;
         }
         return false;
+    }
+
+
+    public void fillUnloadCarTaskDuration(UnloadCar unloadCar){
+        //时效
+        Integer duration = 0;
+        if(unloadCar.getTransWay() != null && StringUtils.isNotBlank(unloadCar.getVehicleNumber())) {
+            BasicVehicleDto basicVehicleDto = basicQueryWSManager.getVehicleByVehicleNumber(unloadCar.getVehicleNumber());
+            if(basicVehicleDto != null && basicVehicleDto.getVehicleType() != null) {
+                Integer vehicleType = basicVehicleDto.getVehicleType();
+                //todo zcf 线路类型待定
+                Integer lineType = 123;
+                //todo zcf 车型+运输方式+线路类型 调用路由jsf接口获取时效   待定
+                duration = 0;
+            }
+        }
+        if(duration <= 0) {
+            unloadCar.setDuration(UnloadCarConstant.UNLOAD_CAR_DURATION_DEFAULT);
+            unloadCar.setDurationType(UnloadCarConstant.UNLOAD_CAR_DURATION_TYPE_DEFAULT);
+        }else {
+            unloadCar.setDuration(duration);
+            unloadCar.setDurationType(UnloadCarConstant.UNLOAD_CAR_DURATION_TYPE_ROUTE);
+        }
+        unloadCarDao.add(unloadCar);
+    }
+
+    @Override
+    public UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq) {
+        UnloadCarTaskDto res = new UnloadCarTaskDto();
+        UnloadCar unloadCar = new UnloadCar();
+        unloadCar.setSealCarCode(unloadCarTaskReq.getTaskCode());
+        List<UnloadCar> list = unloadCarDao.selectByCondition(unloadCar);
+        if(CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        UnloadCar dbRes = list.get(0);
+        res.setCarCode(dbRes.getSealCarCode());
+        Long startTime = dbRes.getStartTime() == null ? null : dbRes.getStartTime().getTime();
+        res.setStartTime(startTime);
+        //时效：单位min
+        Integer duration = dbRes.getDuration();
+        Long planEndTime = startTime == null ? null : startTime + duration * 60 * 1000l;
+        res.setPlanEndTime(planEndTime);
+        return res;
     }
 
 }

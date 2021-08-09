@@ -76,4 +76,6 @@ public class WaybillPrintMessages{
 	 */
 	public static final String MESSAGE_NEED_COLLECT_FINISHED="此运单未揽收完成禁止打印面单，请揽收";
 
+	public static final String MESSAGE_WAYBILL_FINISHED_INTERCEPT = "【此单已%s】，禁止包裹补打";
+
 }

@@ -51,18 +51,38 @@ public class WeightVolumeRuleCheckDto {
     private Double volume;
 
     /**
-     * 是否开启称重
+     * 是否校验称重
      */
     private Boolean checkWeight;
 
     /**
-     * 是否开启长宽高校验
+     * 是否校验长宽高
      */
     private Boolean checkLWH;
     /**
-     * 是否开启体积校验
+     * 是否校验体积
      */
     private Boolean checkVolume;
+
+    /**
+     * 操作站点编号
+     */
+    private Integer operateSiteCode;
+
+    /**
+     * 操作站点名称
+     */
+    private String operateSiteName;
+
+    /**
+     * 操作人ERP编号
+     */
+    private String operatorCode;
+
+    /**
+     * 操作人姓名
+     */
+    private String operatorName;
 
     public String getBarCode() {
         return barCode;
@@ -150,5 +170,37 @@ public class WeightVolumeRuleCheckDto {
 
     public void setCheckVolume(Boolean checkVolume) {
         this.checkVolume = checkVolume;
+    }
+
+    public Integer getOperateSiteCode() {
+        return operateSiteCode;
+    }
+
+    public void setOperateSiteCode(Integer operateSiteCode) {
+        this.operateSiteCode = operateSiteCode;
+    }
+
+    public String getOperateSiteName() {
+        return operateSiteName;
+    }
+
+    public void setOperateSiteName(String operateSiteName) {
+        this.operateSiteName = operateSiteName;
+    }
+
+    public String getOperatorCode() {
+        return operatorCode;
+    }
+
+    public void setOperatorCode(String operatorCode) {
+        this.operatorCode = operatorCode;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 }

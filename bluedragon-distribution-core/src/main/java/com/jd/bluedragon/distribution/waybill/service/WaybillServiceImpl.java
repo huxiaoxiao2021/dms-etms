@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -305,7 +307,7 @@ public class WaybillServiceImpl implements WaybillService {
                 if(abnormalWaybill == null) {
                     invokeResult.setData(false);
                     invokeResult.setCode(SortingResponse.CODE_29121);
-                    invokeResult.setMessage(SortingResponse.MESSAGE_29121);
+                    invokeResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_DELIVERED_WHILE_REVERSE));
                     return invokeResult;
                 }
             }
@@ -903,31 +905,37 @@ public class WaybillServiceImpl implements WaybillService {
 
         if (WaybillCancelInterceptTypeEnum.CANCEL.getCode() == interceptType) {
             if (interceptMode == WaybillCancelInterceptModeEnum.NOTICE.getCode()) {//目前三方验货 要求通知类型的也要拦截
-                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
+                result.customMessage(SortingResponse.CODE_29311, HintService.getHint(HintCodeConstants.CANCEL_WAYBILL_INTERCEPT));
                 return result;
             }
             if (interceptMode == WaybillCancelInterceptModeEnum.INTERCEPT.getCode()) {
-                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
+                result.customMessage(SortingResponse.CODE_29311, HintService.getHint(HintCodeConstants.CANCEL_WAYBILL_INTERCEPT));
                 return result;
             }
         }
 
         if (WaybillCancelInterceptTypeEnum.REFUSE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29312, SortingResponse.MESSAGE_29312);
+            result.customMessage(SortingResponse.CODE_29312, HintService.getHint(HintCodeConstants.REFUSE_RECEIVE_INTERCEPT));
             return result;
         }
 
         if (WaybillCancelInterceptTypeEnum.MALICE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29313, SortingResponse.MESSAGE_29313);
+            result.customMessage(SortingResponse.CODE_29313, HintService.getHint(HintCodeConstants.MALICIOUS_WAYBILL_INTERCEPT));
+            return result;
+        }
+
+        // 病单提示
+        if (WaybillCancelInterceptTypeEnum.STORAGE_SICK.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29315, SortingResponse.MESSAGE_29315);
             return result;
         }
 
         if (WaybillCancelInterceptTypeEnum.WHITE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
+            result.customMessage(SortingResponse.CODE_29316, HintService.getHint(HintCodeConstants.WHITE_BILL_FORCE_INTERCEPT));
             return result;
         }
         if (WaybillCancelInterceptTypeEnum.CANCEL_SYS_RETURN.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29317, SortingResponse.MESSAGE_29317);
+            result.customMessage(SortingResponse.CODE_29317, HintService.getHint(HintCodeConstants.RETURN_GOODS_INTERCEPT));
             return result;
         }
         return result;

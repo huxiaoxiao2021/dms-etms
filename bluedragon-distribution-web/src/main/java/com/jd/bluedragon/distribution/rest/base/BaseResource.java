@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CarrierQueryRequest;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
@@ -809,7 +811,7 @@ public class BaseResource {
 		if (null == siteName) {
 			log.warn("没有对应站点:code={}",code);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_SITE_EMPTY);
+                    HintService.getHint(HintCodeConstants.SITE_NOT_EXIST));
 			return response;
 		}
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);

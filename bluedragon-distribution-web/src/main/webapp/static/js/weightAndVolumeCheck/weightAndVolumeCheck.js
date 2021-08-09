@@ -143,15 +143,11 @@ $(function () {
             align: 'center'
         },{
             field: 'reviewWeight',
-            title: '分拣复重kg',
+            title: '复核重量',
             align: 'center'
         },{
             field: 'reviewLWH',
-            title: '复核长宽高cm',
-            align: 'center'
-        }, {
-            field: 'volumeRate',
-            title: '计泡系数',
+            title: '复核长宽高',
             align: 'center'
         },{
             field: 'reviewVolumeWeight',
@@ -159,7 +155,11 @@ $(function () {
             align: 'center'
         },{
             field: 'moreBigWeight',
-            title: '较大重量值kg',
+            title: '复核较大值',
+            align: 'center'
+        },{
+            field: 'volumeRate',
+            title: '计泡系数',
             align: 'center'
         },{
             field: 'billingOrgName',
@@ -179,7 +179,7 @@ $(function () {
             align: 'center'
         },{
             field: 'billingCalcWeight',
-            title: '计费结算重量kg',
+            title: '计费结算重量',
             align: 'center',
             formatter : function (value, row, index) {
                 if(row.contrastSourceFrom == 0 || row.contrastSourceFrom == null){
@@ -200,8 +200,8 @@ $(function () {
             title: '核对体积重量',
             align: 'center'
         },{
-            field: 'billingWeightDifference',
-            title: '计费结算重量差异',
+            field: 'contrastLarge',
+            title: '核对较大值',
             align: 'center'
         },{
             field: 'contrastSourceFrom',
@@ -210,6 +210,10 @@ $(function () {
             formatter: function (value, row, index) {
                 return value == "1" ? "运单" : "计费";
             }
+        },{
+            field: 'largeDiff',
+            title: '较大值差异',
+            align: 'center'
         },{
             field: 'diffStandard',
             title: '误差标准值',
@@ -222,20 +226,10 @@ $(function () {
                 return value == "1" ? "超标" : value == "0" ? "未超标" : "";
             }
         },{
-            field: 'weightDiff',
-            title: '重量差异',
-            align: 'center'
-        },{
-            field: 'volumeWeightDiff',
-            title: '体积重量差异',
-            align: 'center'
-        },{
-            field: 'volumeWeightIsExcess',
-            title: '体积重量是否超标',
+            field: 'excessReason',
+            title: '超标原因',
             align: 'center',
-            formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "";
-            }
+            visible: false
         },{
             field: 'fromSource',
             title: '数据来源',

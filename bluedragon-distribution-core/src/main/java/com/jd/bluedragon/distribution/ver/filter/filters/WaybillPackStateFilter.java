@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -46,7 +48,7 @@ public class WaybillPackStateFilter implements Filter {
             //当前站点是否操作异常处理标识
             boolean abnormalSign = this.isTreatedAbnormal(waybillCode, request.getCreateSiteCode());
             if(! abnormalSign) {
-                throw new SortingCheckException(SortingResponse.CODE_29418, SortingResponse.MESSAGE_29418);
+                throw new SortingCheckException(SortingResponse.CODE_29418, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_APPROPRIVATED, request.getFuncModule()));
             }
         }
 

@@ -19,6 +19,8 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +78,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
     private WaybillQueryManager waybillQueryManager;
 
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.SpecialTextWaybillHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("包裹标签打印-站点名称显示处理");
 		Integer targetSiteCode = context.getRequest().getTargetSiteCode();

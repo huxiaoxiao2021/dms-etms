@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -19,6 +20,8 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +64,7 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
 		NEED_INTERCEPT_CODES_MAP.put(SortingResponse.CODE_29318, SortingResponse.MESSAGE_29318_SORTING);
 	}
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.InterceptWaybillHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.info("包裹标签打印-拦截信息处理");
 		InterceptResult<String> result = context.getResult();

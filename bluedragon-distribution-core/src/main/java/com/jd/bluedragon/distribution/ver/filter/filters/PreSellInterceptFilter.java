@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigDto;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
@@ -39,13 +41,13 @@ public class PreSellInterceptFilter implements Filter {
         //预售未付款，提示退仓（正向单）
         if((BusinessUtil.isWaybillMarkForward(waybillSign) || BusinessUtil.isForeignForward(waybillSign))
                 && BusinessUtil.isPreSellWithNoPayToWms(sendPay)) {
-            throw new SortingCheckException(DmsMessageConstants.CODE_29419, DmsMessageConstants.MESSAGE_29419);
+            throw new SortingCheckException(DmsMessageConstants.CODE_29419, HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FINAL_PAY, request.getFuncModule()));
         }
         //预售未付款，提示暂存分拣（正向单）
         if((BusinessUtil.isWaybillMarkForward(waybillSign) || BusinessUtil.isForeignForward(waybillSign))
                 && BusinessUtil.isPreSellWithNoPayStorage(sendPay)
                 && checkIsPreSellStorageSite(request.getCreateSiteCode())) {
-            throw new SortingCheckException(DmsMessageConstants.CODE_29420, DmsMessageConstants.MESSAGE_29420);
+            throw new SortingCheckException(DmsMessageConstants.CODE_29420, HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
         }
         chain.doFilter(request, chain);
     }

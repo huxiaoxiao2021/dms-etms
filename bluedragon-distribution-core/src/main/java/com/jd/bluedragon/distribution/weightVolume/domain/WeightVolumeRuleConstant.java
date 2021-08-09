@@ -53,7 +53,7 @@ public class WeightVolumeRuleConstant {
      * 基础校验
      */
     public static final String RESULT_BASIC_MESSAGE = "缺少必要参数!";
-    public static final String RESULT_BASIC_MESSAGE_0 = "单号不能为空!";
+    public static final String RESULT_BASIC_MESSAGE_0 = "单号不符合规则!";
     public static final String RESULT_BASIC_MESSAGE_1 = "重量必须大于零!";
     public static final String RESULT_BASIC_MESSAGE_2 = "长必须大于零!";
     public static final String RESULT_BASIC_MESSAGE_3 = "宽必须大于零!";

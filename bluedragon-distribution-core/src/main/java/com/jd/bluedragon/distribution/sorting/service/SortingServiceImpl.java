@@ -9,6 +9,8 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -1387,7 +1389,8 @@ public class SortingServiceImpl implements SortingService {
 		if(canCancel){
 			return SortingResponse.ok();
 		}
-		return SortingResponse.sortingNotFund();
+		return new SortingResponse(SortingResponse.CODE_SORTING_RECORD_NOT_FOUND,
+                HintService.getHint(HintCodeConstants.NO_SORTING_RECORD));
 	}
 
 	public SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords){
@@ -1398,7 +1401,8 @@ public class SortingServiceImpl implements SortingService {
 			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
 			List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
 			if (null != sendMList && !sendMList.isEmpty()) {
-				return SortingResponse.sortingSended();
+				return new SortingResponse(SortingResponse.CODE_SORTING_SENDED,
+                        HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_SENDING));
 			}
 			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
 			if (sorting.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
@@ -1406,23 +1410,27 @@ public class SortingServiceImpl implements SortingService {
 						.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
 				int inspectionCount = inspectionService.inspectionCount(inspection);
 				if (inspectionCount > 0) {
-					return SortingResponse.sortingInspected();
+					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
+                            HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
 				}
 			}
 			sortingRecords.addAll(sortingDao.findByBoxCode(sorting));
 			if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
 				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
-				return SortingResponse.packageNumLimit();
+				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+                        HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
 			}
 		} else {
 			sortingRecords.addAll(queryByCode2(sorting));
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
 				log.warn("取消分拣--->包裹已经发货");
 				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货","SortingServiceImpl#getSortingRecords");
-				return SortingResponse.sortingSended();
+				return new SortingResponse(SortingResponse.CODE_SORTING_SENDED,
+                        HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_SENDING));
 			} else if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
 				log.warn("{}的包裹数：{}，大于两万，已反馈现场提报IT",sorting.getPackageCode(),sortingRecords.size());
-				return SortingResponse.packageNumLimit();
+				return new SortingResponse(SortingResponse.CODE_PACKAGE_NUM_LIMIT,
+                        HintService.getHint(HintCodeConstants.PACKAGE_NUM_GTE_TWENTY_THOUSAND));
 			}
 
 			if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
@@ -1442,7 +1450,8 @@ public class SortingServiceImpl implements SortingService {
 					}
 				}
 				if (unfilledOrdersCount == sortingRecords.size()) {
-					return SortingResponse.sortingInspected();
+					return new SortingResponse(SortingResponse.CODE_SORTING_INSPECTED,
+                            HintService.getHint(HintCodeConstants.FAIL_CANCEL_SORTING_AFTER_INSPECTING));
 				}
 			}
 		}

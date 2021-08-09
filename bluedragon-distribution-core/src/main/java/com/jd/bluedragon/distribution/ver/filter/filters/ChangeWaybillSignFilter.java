@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -38,7 +40,8 @@ public class ChangeWaybillSignFilter implements Filter {
                 response = waybillService.checkWaybillBlock(request.getWaybillCode(), CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
             }
             if (response == null || !BlockResponse.UNBLOCK.equals(response.getCode())) {
-                throw  new SortingCheckException(SortingResponse.CODE_39123, SortingResponse.MESSAGE_39123);
+                throw  new SortingCheckException(SortingResponse.CODE_39123,
+                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE, request.getFuncModule()));
             }
         }
         //endregion

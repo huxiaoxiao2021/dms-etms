@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -33,14 +35,16 @@ public class AirBoxFilter implements Filter {
 
                 //新增逻辑：如果箱子为航空运输且包裹为非航空包裹提示：
                 if(1==box_transport && waybill_transport==0){
-                    throw new SortingCheckException(SortingResponse.CODE_39121, SortingResponse.MESSAGE_39121_1);
+                    throw new SortingCheckException(SortingResponse.CODE_39121,
+                            HintService.getHintWithFuncModule(HintCodeConstants.AIR_BOX_FOR_AIR_WAYBILL, request.getFuncModule()));
                 }else if ((box_transport + waybill_transport) == 1 && SiteHelper.isDistributionCenter(request.getsReceiveBoxSite())) {
-                    throw new SortingCheckException(SortingResponse.CODE_39121, SortingResponse.MESSAGE_39121);
+                    throw new SortingCheckException(SortingResponse.CODE_39121,
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_BOX_TRANSPORT_DIFFERENCE, request.getFuncModule()));
                 }
             } else {/*自营运单*/
                 if ((!WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) && box_transport == 1 ) {
                     throw new SortingCheckException(SortingResponse.CODE_39121,
-                            SortingResponse.MESSAGE_39121_1);
+                            HintService.getHintWithFuncModule(HintCodeConstants.AIR_BOX_FOR_AIR_WAYBILL, request.getFuncModule()));
                 }
             }
         }

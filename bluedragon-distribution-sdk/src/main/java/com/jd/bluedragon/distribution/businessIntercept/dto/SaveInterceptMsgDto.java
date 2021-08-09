@@ -33,6 +33,11 @@ public class SaveInterceptMsgDto implements Serializable {
     private Integer operateNode;
 
     /**
+     * 操作子节点
+     */
+    private Integer operateSubNode;
+
+    /**
      * 场地ID
      */
     private Integer siteCode;
@@ -127,6 +132,15 @@ public class SaveInterceptMsgDto implements Serializable {
 
     public void setOperateNode(Integer operateNode) {
         this.operateNode = operateNode;
+    }
+
+    public Integer getOperateSubNode() {
+        return operateSubNode;
+    }
+
+    public SaveInterceptMsgDto setOperateSubNode(Integer operateSubNode) {
+        this.operateSubNode = operateSubNode;
+        return this;
     }
 
     public Integer getSiteCode() {
@@ -240,6 +254,7 @@ public class SaveInterceptMsgDto implements Serializable {
                 ", packageCode='" + packageCode + '\'' +
                 ", waybillCode='" + waybillCode + '\'' +
                 ", operateNode=" + operateNode +
+                ", operateSubNode=" + operateSubNode +
                 ", siteCode=" + siteCode +
                 ", siteName='" + siteName + '\'' +
                 ", deviceType=" + deviceType +

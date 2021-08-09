@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 public class BusinessNetInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BusinessNetInterceptHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();

@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bk.common.util.string.StringUtils;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -29,7 +31,7 @@ public class DmsToVendorFilter implements Filter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private DmsToVendorDispatchService dmsToVendorDispatchService;;
+    private DmsToVendorDispatchService dmsToVendorDispatchService;
 
     @Autowired
     private SiteService siteService;
@@ -52,7 +54,8 @@ public class DmsToVendorFilter implements Filter {
             boolean result = this.dispatchToExpress(createSiteCode.getCode(), waybill.getBusiId(), waybill.getWaybillSign());
             //拦截校验住，给出提示信息
             if(result){
-                throw new SortingCheckException(SortingResponse.CODE_39133, SortingResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
+                throw new SortingCheckException(SortingResponse.CODE_39133,
+                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_C_TO_B, request.getFuncModule()));
             }
         }
         chain.doFilter(request, chain);

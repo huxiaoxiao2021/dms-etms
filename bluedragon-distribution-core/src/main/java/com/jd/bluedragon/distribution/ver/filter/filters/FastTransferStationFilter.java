@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -9,7 +11,6 @@ import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SiteHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,8 @@ public class FastTransferStationFilter implements Filter {
                         if (sceduleSiteCode != null && sceduleSiteCode.toString().equals(request.getsReceiveSiteCode())) {
                             //如果站点相等,则什么也不做
                         } else {
-                            throw new SortingCheckException(SortingResponse.CODE_39000, SortingResponse.MESSAGE_39000);
+                            throw new SortingCheckException(SortingResponse.CODE_39000,
+                                    HintService.getHintWithFuncModule(HintCodeConstants.SITE_NOT_EQUAL_RECEIVE_SITE, request.getFuncModule()));
                         }
                     }
                 } else {//如果预分拣站点为空
@@ -64,7 +66,8 @@ public class FastTransferStationFilter implements Filter {
                     if (sceduleSiteCode != null && sceduleSiteCode.toString().equals(request.getsReceiveSiteCode())) {
                         //如果站点相等,则什么也不做
                     } else {
-                        throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL, SortingResponse.MESSAGE_WAYBILL_SITE_NULL);
+                        throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_NULL,
+                                HintService.getHintWithFuncModule(HintCodeConstants.PRE_SITE_CLOSED_WHEN_SORTING, request.getFuncModule()));
                     }
 
                 }
