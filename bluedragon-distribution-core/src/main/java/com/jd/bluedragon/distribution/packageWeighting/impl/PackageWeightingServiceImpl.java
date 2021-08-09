@@ -88,10 +88,10 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                     }
                     //如果是包裹维度，一个一个包裹判断，是否有包裹不满足条件(经济网只校验重量，不校验体积)
                     if (WaybillUtil.isEconomicNet(waybillCode)) {
-                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0) {
+                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() < 0) {
                             hasWVflag = false;
                         }
-                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume().doubleValue() <= 0) {
+                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() < 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume().doubleValue() < 0) {
                         logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         hasWVflag = false;
                     }
@@ -99,11 +99,11 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                 } else {
                     //如果是快运称重维度，没重量量方就直接返回false(经济网只校验重量，不校验体积)
                     if (WaybillUtil.isEconomicNet(waybillCode)) {
-                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0) {
+                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() < 0) {
                             return false;
                         }
                         return true;
-                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume().doubleValue() <= 0) {
+                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight().doubleValue() < 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume().doubleValue() < 0) {
                         logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         return false;
                     } else {
