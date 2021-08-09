@@ -49,7 +49,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.jsf.gd.error.ClientTimeoutException;
+import com.jd.jsf.gd.error.RpcException;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.BoardMeasureDto;
@@ -260,8 +260,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
             response.setData(list);
             return response;
-        }catch (ClientTimeoutException e){
-            log.warn("jsf服务端查询超时，请重新查询!");
+        }catch (RpcException e){
+            log.warn("jsf服务端查询超时，请重新查询!", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage("请重新查询!");
         }catch (Exception e){
