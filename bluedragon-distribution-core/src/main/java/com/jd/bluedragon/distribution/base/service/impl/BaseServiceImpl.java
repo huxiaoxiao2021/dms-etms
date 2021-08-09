@@ -507,9 +507,11 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		/****************************** 包裹号处理 *********************************************/
 		StringBuffer packageCodeBuffer = new StringBuffer();
 		String packageCode = "";
-		for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
-			packageCodeBuffer.append(packageD.getPackageBarcode());
-			packageCodeBuffer.append(",");
+		if(bigWaybillDto.getPackageList() != null){
+			for (DeliveryPackageD packageD : bigWaybillDto.getPackageList()) {
+				packageCodeBuffer.append(packageD.getPackageBarcode());
+				packageCodeBuffer.append(",");
+			}
 		}
 		if (packageCodeBuffer.length() > 0) {
 			packageCode = packageCodeBuffer.toString();
