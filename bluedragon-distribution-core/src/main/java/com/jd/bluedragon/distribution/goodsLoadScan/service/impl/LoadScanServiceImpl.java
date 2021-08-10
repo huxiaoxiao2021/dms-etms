@@ -1234,13 +1234,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             response.setMessage("包裹已发货，请核实包裹状态");
             return response;
         }
-        Integer nextDmsSiteId = loadScanDto.getNextSiteId();
-        // 如果ES中的路由还没计算出来，再实时调用一次
-        if (nextDmsSiteId == null) {
-            log.info("分拣报表中的路由还没计算出来，开始实时调用路由接口taskId={},packageCode={}", taskId, packageCode);
-            nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
-            log.info("实时调用路由接口结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
-        }
+        Integer nextDmsSiteId = waybillService.getRouterFromMasterDb(waybillCode, loadCar.getCreateSiteCode().intValue());
+        log.info("实时获取waybill表router路由结束taskId={},packageCode={},nextDmsSiteId={}", taskId, packageCode, nextDmsSiteId);
+
         //跨越校验
         JdVerifyResponse<Void> kyCheckResponse = this.checkKyCondition(waybillCode,req,loadCar,response);
         if(kyCheckResponse != null){
