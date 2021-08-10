@@ -2277,7 +2277,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         inspection.setUserName(request.getOperateUserName());
         inspection.setSiteCode(request.getOperateSiteCode());
         inspection.setSiteName(request.getOperateSiteName());
-        inspection.setOperateTime(DateHelper.formatDateTime(new Date(request.getOperateTime())));
+        inspection.setOperateTime(DateHelper.formatDateTime(new Date()));
         inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         // 按运单维度验货
         if (StringUtils.isNotBlank(request.getWaybillCode())) {
@@ -2291,7 +2291,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         taskRequest.setKeyword1(String.valueOf(request.getOperateUserCode()));
         taskRequest.setKeyword2(request.getBarCode());
         taskRequest.setType(Task.TASK_TYPE_INSPECTION);
-        taskRequest.setOperateTime(DateHelper.formatDateTime(new Date(request.getOperateTime())));
+        taskRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
         taskRequest.setSiteCode(request.getOperateSiteCode());
         taskRequest.setSiteName(request.getOperateSiteName());
         taskRequest.setUserCode(request.getOperateUserCode());
