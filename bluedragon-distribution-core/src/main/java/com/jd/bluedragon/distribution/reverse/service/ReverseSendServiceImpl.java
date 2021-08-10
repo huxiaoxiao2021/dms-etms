@@ -599,7 +599,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 ReverseSendAsiaWms newsend = null;
                 String packcodes = (String) entry.getValue();
-                newsend = baseWmsService.getWaybillByOrderCode(wallBillCode, packcodes, site, false);
+                newsend = baseWmsService.getWaybillByOrderCode(wallBillCode,operCodeMap.get(wallBillCode).getOrderId(),packcodes, site, false);
                 removeDuplicatedProduct(newsend);
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
@@ -639,7 +639,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
 
                 ReverseSendAsiaWms newsend = null;
-                newsend = baseWmsService.getWaybillByOrderCode(wallBillCode, packcodes, site, false);
+                newsend = baseWmsService.getWaybillByOrderCode(wallBillCode,orderId, packcodes, site, false);
                 removeDuplicatedProduct(newsend);
                 if (lossCount != 0) {
                     // 运单系统拿出的商品明细
