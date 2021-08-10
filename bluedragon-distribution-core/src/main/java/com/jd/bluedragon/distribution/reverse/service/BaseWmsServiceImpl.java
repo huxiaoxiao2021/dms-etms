@@ -32,7 +32,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	
 	@Override
-	public ReverseSendAsiaWms getWaybillByOrderCode(String orderCode,String packcodes, WmsSite site,boolean falge) {
+	public ReverseSendAsiaWms getWaybillByOrderCode(String waybillCode ,String orderCode,String packcodes, WmsSite site,boolean falge) {
 		ReverseSendAsiaWms reverseSendWms = new ReverseSendAsiaWms();
 		reverseSendWms.setCky2(site.getCky2());
 		reverseSendWms.setLossQuantity(0);
@@ -41,7 +41,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 		reverseSendWms.setStoreId(site.getStoreId());
 		
 		if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-			log.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
+			log.info("BaseWmsServiceImpl 运单号{} 订单号： {} 获得商品数据为空", waybillCode,orderCode);
 		}
 		return reverseSendWms;
 	}
