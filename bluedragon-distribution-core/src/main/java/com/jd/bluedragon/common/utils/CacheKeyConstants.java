@@ -70,6 +70,10 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
     /**
+     * 包裹抽检记录的缓存
+     */
+    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s:";
+    /**
      * 抽检包裹上传图片的缓存
      */
 	public static final String CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG = "spotCheck.pictureUrl-%s-%s";
