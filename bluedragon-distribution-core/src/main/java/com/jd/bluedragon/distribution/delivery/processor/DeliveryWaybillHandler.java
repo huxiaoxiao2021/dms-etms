@@ -110,8 +110,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
     @Override
     public boolean dealCoreDelivery(SendMWrapper wrapper) {
         int pageSize = wrapper.getPageSize();
-        int pageNo = wrapper.getPageNo();
-        final int totalPage = wrapper.getTotalPage();
+        final int pageNo = wrapper.getPageNo();
 
         // 分页获取运单包裹数据
         final String waybillCode = wrapper.getWaybillCode();
@@ -140,8 +139,12 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
                     log.warn("[运单]获取批次任务缓存数据为空. key:{}", waybillBatchUniqKey);
                     return;
                 }
+
+                // 设置单页处理完成标志位
+                redisClientCache.setBit(redisKey, pageNo, true);
+
                 // 全部分页任务处理完成，生成发货任务
-                if (Integer.parseInt(redisVal) == totalPage) {
+                if (Integer.parseInt(redisVal) == redisClientCache.bitCount(redisKey).intValue()) {
 
                     redisClientCache.del(redisKey);
 

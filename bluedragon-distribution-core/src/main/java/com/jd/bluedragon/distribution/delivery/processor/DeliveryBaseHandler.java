@@ -161,6 +161,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             sendMList.add(domain);
         }
 
+        final int pageNo = wrapper.getPageNo();
         final int pageTotal = wrapper.getTotalPage();
         final String batchUniqKey = wrapper.getBatchUniqKey();
 
@@ -173,8 +174,12 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     log.warn("[包裹/箱号]获取批次任务缓存数据为空. key:{}", batchUniqKey);
                     return;
                 }
+
+                // 设置单页处理完成标志位
+                redisClientCache.setBit(redisKey, pageNo, true);
+
                 // 全部分页任务处理完成，生成发货任务
-                if (Integer.parseInt(redisVal) == pageTotal) {
+                if (Integer.parseInt(redisVal) == redisClientCache.bitCount(redisKey).intValue()) {
 
                     redisClientCache.del(redisKey);
 
