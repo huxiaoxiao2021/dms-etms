@@ -21,6 +21,8 @@ public class WaybillVasUtil {
 
     // 精准送仓
     public static final int JZSC_SIGN_INDEX = 2;
+    // 精准送仓值
+    public static final String JZSC_VALUE = "ll-a-0060";
 
     /**
      *  打标 包裹有话说 第一位 1

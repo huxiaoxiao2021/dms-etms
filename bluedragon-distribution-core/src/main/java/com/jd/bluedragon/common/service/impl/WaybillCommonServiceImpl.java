@@ -1611,19 +1611,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
             // todo 需要确认精准送仓 优先于 送货入仓 是不打印送货入仓还是放在后面
             //精准送仓 优先于 送货入仓
-            if(WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
+            if(WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())
+                    && TextConstants.B2B_FRESH_EXPRESS.equals(printWaybill.getjZDFlag())){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
-            }
-            //送货入仓
-            if(BusinessUtil.isSignChar(waybillSign,42,'1')){
-                if(BusinessUtil.isSignInChars(waybillSign,89,'1','2')){
-                    if(BusinessUtil.isSignChar(waybillSign,80,'B')){
-                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE + ",";
+            }else{
+                //送货入仓
+                if(BusinessUtil.isSignChar(waybillSign,42,'1')){
+                    if(BusinessUtil.isSignInChars(waybillSign,89,'1','2')){
+                        if(BusinessUtil.isSignChar(waybillSign,80,'B')){
+                            specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE + ",";
+                        }
+                    } else {
+                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
                     }
-                } else {
-                    specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
                 }
             }
+
             //装车
             if(BusinessUtil.isSignChar(waybillSign,41,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";

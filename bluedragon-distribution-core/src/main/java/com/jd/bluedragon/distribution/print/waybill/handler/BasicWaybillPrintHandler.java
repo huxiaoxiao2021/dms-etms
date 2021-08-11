@@ -605,7 +605,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
         // 精准送仓
         // todo 需要确认运单增值服务具体的值在哪个字段上
-        if(){
+        if(isHasJzsc(context,WaybillVasUtil.JZSC_VALUE)){
             vasSign = WaybillVasUtil.markingJZSCSign(vasSign);
         }
 
@@ -625,6 +625,25 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         for (int i =0 ;i < waybillVasDtos.size();i++){
             WaybillVasDto tmp = waybillVasDtos.get(i);
             if (WaybillVasUtil.PACKAGE_SAY.equals(tmp.getVasNo())){
+                return Boolean.TRUE;
+            }
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 是否有 '包裹有话说' 精准送仓
+     * @param context
+     * @return
+     */
+    private boolean isHasJzsc(WaybillPrintContext context,String jzscValue) {
+        if (null == context.getBigWaybillDto() || CollectionUtils.isEmpty(context.getBigWaybillDto().getWaybillVasList())){
+            return Boolean.FALSE;
+        }
+        List<WaybillVasDto> waybillVasDtos = context.getBigWaybillDto().getWaybillVasList();
+        for (int i =0 ;i < waybillVasDtos.size();i++){
+            WaybillVasDto tmp = waybillVasDtos.get(i);
+            if (jzscValue.equals(tmp.getVasNo())){
                 return Boolean.TRUE;
             }
         }
