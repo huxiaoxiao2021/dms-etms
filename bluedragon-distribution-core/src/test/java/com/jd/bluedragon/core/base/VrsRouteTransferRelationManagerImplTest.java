@@ -22,19 +22,19 @@ public class VrsRouteTransferRelationManagerImplTest extends TestCase {
     public void testQueryRecommendRoute() throws Exception{
 
         vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
-        vrsRouteTransferRelationManager.queryRecommendRoute("2","",new Date(), RouteProductEnum.T1);
-        vrsRouteTransferRelationManager.queryRecommendRoute("3","",new Date(), RouteProductEnum.T1);
+//        vrsRouteTransferRelationManager.queryRecommendRoute("2","",new Date(), RouteProductEnum.T1);
+//        vrsRouteTransferRelationManager.queryRecommendRoute("3","",new Date(), RouteProductEnum.T1);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("","",new Date(), RouteProductEnum.T1);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
-        Thread.sleep(3000);
-        vrsRouteTransferRelationManager.queryRecommendRoute("4","",new Date(), RouteProductEnum.T1);
-        vrsRouteTransferRelationManager.queryRecommendRoute("5","",new Date(), RouteProductEnum.T1);
-        Thread.sleep(6000);
-//        Thread.sleep(2000);
-        vrsRouteTransferRelationManager.queryRecommendRoute("6","",new Date(), RouteProductEnum.T1);
+//        Thread.sleep(3000);
+//        vrsRouteTransferRelationManager.queryRecommendRoute("4","",new Date(), RouteProductEnum.T1);
+//        vrsRouteTransferRelationManager.queryRecommendRoute("5","",new Date(), RouteProductEnum.T1);
+//        Thread.sleep(6000);
+////        Thread.sleep(2000);
+//        vrsRouteTransferRelationManager.queryRecommendRoute("6","",new Date(), RouteProductEnum.T1);
 //        Thread.sleep(2000);
 //        vrsRouteTransferRelationManager.queryRecommendRoute("1","",new Date(), RouteProductEnum.T1);
 //        Thread.sleep(2000);

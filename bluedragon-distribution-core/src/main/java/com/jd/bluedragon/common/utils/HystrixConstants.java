@@ -10,6 +10,14 @@ import com.netflix.hystrix.HystrixCommandGroupKey;
  **/
 public class HystrixConstants {
 
-    private String HystrixCommandGroupKey;
+    /**
+     * 如账户服务定义一个group key，订单服务定义另一个group key。
+     */
+    public static final String PRINT_HYSTRIX_COMMAND_GROUPKEY = "printGroup";
+
+    /**
+     * 线程池key 同一类业务请求 最好一个，注意互相影响
+     */
+    public static final String PRINT_HYSTRIX_THREADPOOL_KEY = "printThreadPool";
 
 }
