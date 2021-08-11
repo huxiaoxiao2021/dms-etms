@@ -930,11 +930,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }else {
             packNum = waybill.getGoodNumber();
         }
-        if(packNum == null || packNum > Constants.CONSTANT_NUMBER_ONE){
-            if(packNum != null && BusinessUtil.isPurematch(waybill.getWaybillSign())){
+        if(packNum == null){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "未能获取到运单包裹数，请稍后再试!");
+            return false;
+        }
+        if(packNum > Constants.CONSTANT_NUMBER_ONE){
+            if(BusinessUtil.isPurematch(waybill.getWaybillSign())){
+                if(!WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"C网纯配运单重量体积抽查只支持扫包裹，请勿扫描其他类型条码");
+                    return false;
+                }
                 return true;
             }
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"重量体积抽查只支持一单一件!");
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"非C网纯配运单重量体积抽查只支持一单一件!");
             return false;
         }
 
