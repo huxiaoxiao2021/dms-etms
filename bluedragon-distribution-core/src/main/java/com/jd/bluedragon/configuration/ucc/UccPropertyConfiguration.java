@@ -455,6 +455,19 @@ public class UccPropertyConfiguration {
      */
     private double spotCheckNoExcessLimit;
 
+    /**
+     * 老发货异步任务开关
+     */
+    private String deliverySendAsyncSite;
+
+    public String getDeliverySendAsyncSite() {
+        return deliverySendAsyncSite;
+    }
+
+    public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
+        this.deliverySendAsyncSite = deliverySendAsyncSite;
+    }
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }

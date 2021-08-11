@@ -127,6 +127,7 @@
         <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
+        <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 	</bean>
 
@@ -224,6 +225,7 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
+                <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
 			</list>
 		</property>

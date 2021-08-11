@@ -196,4 +196,8 @@ public class DeliveryResponse extends JdResponse {
     public void setTipMessages(List<String> tipMessages) {
         this.tipMessages = tipMessages;
     }
+
+    public static DeliveryResponse oK() {
+        return new DeliveryResponse(CODE_OK, MESSAGE_OK);
+    }
 }

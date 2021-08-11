@@ -201,6 +201,13 @@
 					<entry key="task_board_send_cancel_1321_DMS" value="${jmq.task.topic.boardSendCancel.dms}"/>
 					<entry key="task_board_send_cancel_1321_PRE" value="${jmq.task.topic.boardSendCancel.pre}"/>
 					<entry key="task_board_send_cancel_1321_UAT" value="${jmq.task.topic.boardSendCancel.uat}"/>
+
+                    <!-- 发货异步任务 -->
+                    <entry key="task_send_1350_DMS" value="${jmq.task.topic.delivery.async.dms}"/>
+                    <entry key="task_send_1350_PRE" value="${jmq.task.topic.delivery.async.pre}"/>
+                    <entry key="task_send_1350_UAT" value="${jmq.task.topic.delivery.async.uat}"/>
+
+
 				</map>
 	    	</constructor-arg>
 	    </bean>
