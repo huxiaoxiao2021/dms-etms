@@ -882,6 +882,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
                 WeightVolumeCollectDto waybillWeightVolumeCollectDtoUpdate = this.assemble4MultiplePackage(waybillWeightVO, waybill, spotCheckSourceEnum, new InvokeResult<Boolean>(), waybillWeightVolumeCollectDto);
                 waybillWeightVolumeCollectDtoUpdate.setReviewErp(null); // 不更新抽检人erp，仍取第一次抽检人的erp
+                waybillWeightVolumeCollectDtoUpdate.setFullCollect(Constants.YN_YES);
                 // 更新运单纬度数据
                 reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDtoUpdate);
             }
