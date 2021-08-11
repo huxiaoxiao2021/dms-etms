@@ -85,40 +85,40 @@
         <appender-ref ref="console" />
     </category>
 
-    <logger name="com.jd.dbs.transaction">
-        <level value="DEBUG" />
-    </logger>
+<!--    <logger name="com.jd.dbs.transaction">-->
+<!--        <level value="DEBUG" />-->
+<!--    </logger>-->
 
-    <logger name="com.jd.etms.basic.cache">
-        <level value="DEBUG" />
-    </logger>
+<!--    <logger name="com.jd.etms.basic.cache">-->
+<!--        <level value="DEBUG" />-->
+<!--    </logger>-->
 
-    <logger name="com.jd.etms.message">
-        <level value="DEBUG"/>
-        <appender-ref ref="bluedragon.etms.mq.sender"/>
-    </logger>
+<!--    <logger name="com.jd.etms.message">-->
+<!--        <level value="DEBUG"/>-->
+<!--        <appender-ref ref="bluedragon.etms.mq.sender"/>-->
+<!--    </logger>-->
 
-    <logger name="com.jd.bluedragon.distribution.loghub">
-        <level value="DEBUG"/>
-        <appender-ref ref="bluedragon.loghub"/>
-        <appender-ref ref="console"/>
-    </logger>
+<!--    <logger name="com.jd.bluedragon.distribution.loghub">-->
+<!--        <level value="DEBUG"/>-->
+<!--        <appender-ref ref="bluedragon.loghub"/>-->
+<!--        <appender-ref ref="console"/>-->
+<!--    </logger>-->
 
-    <logger name="com.jd.bluedragon">
-        <level value="DEBUG"/>
-        <appender-ref ref="bluedragon.error"/>
-        <appender-ref ref="console"/>
-    </logger>
+<!--    <logger name="com.jd.bluedragon">-->
+<!--        <level value="DEBUG"/>-->
+<!--        <appender-ref ref="bluedragon.error"/>-->
+<!--        <appender-ref ref="console"/>-->
+<!--    </logger>-->
 
-    <logger name="com.jd.bluedragon.distribution.rest.task.TaskResource">
-        <level value="DEBUG"/>
-        <appender-ref ref="bluedragon.task"/>
-    </logger>
+<!--    <logger name="com.jd.bluedragon.distribution.rest.task.TaskResource">-->
+<!--        <level value="DEBUG"/>-->
+<!--        <appender-ref ref="bluedragon.task"/>-->
+<!--    </logger>-->
 
     <root>
         <priority value="DEBUG" />
         <appender-ref ref="console" />
-        <appender-ref ref="bluedragon" />
+<!--        <appender-ref ref="bluedragon" />-->
         <!--<appender-ref ref="CoalescingStatistics" />-->
     </root>
 
