@@ -51,7 +51,7 @@ public class CommandQueryRecommendRoute extends HystrixCommand<CommonDto<Recomme
     public CommonDto<RecommendRouteResp> run() throws Exception {
         CallerInfo info = Profiler.registerInfo("dms.base.routeComputeUtil.rpc.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            log.info("查询远程路由接口异常-run-startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
+            log.info("查询远程路由接口-run-startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
                     ,startNode,endNodeCode,operateTime.getTime(),routeProduct);
             return routeComputeUtil.queryRecommendRoute(startNode,endNodeCode,operateTime,routeProduct);
         }  catch (Exception e) {
