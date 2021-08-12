@@ -452,6 +452,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     public Integer sendBoardBindingsNew(BoardCombinationRequest request, BoardResponse boardResponse, Board oldBoard,
                                         CombinationBoardRequest combinationBoardRequest) throws Exception {
         boardResponse.setBoardCode(request.getBoardCode());
+        boardResponse.setReceiveSiteCode(request.getReceiveSiteCode());
+        boardResponse.setReceiveSiteName(request.getReceiveSiteName());
         boardResponse.setPackageCode(request.getBoxOrPackageCode());
 
         String boardCode = request.getBoardCode();
