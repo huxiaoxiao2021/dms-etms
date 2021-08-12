@@ -1615,23 +1615,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(waybillExt != null){
                 productType = waybillExt.getProductType();
             }
-            //判断是否为冷链卡班且外仓
-            boolean isColdChainKBAndOuterWare = BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)
-                    && BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign());
             //精准送仓 优先于 送货入仓
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),54,'2')){
-                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
-                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7')
-                            ||(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1') && !isColdChainKBAndOuterWare)){
-                        if(WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
-                            specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
-                        }
-                    }
-                }else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')) {
-                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7') && WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
-                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
-                    }
-                }
+            if(BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)&& WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
             }else{
                 //送货入仓
                 if(BusinessUtil.isSignChar(waybillSign,42,'1')){
