@@ -2698,7 +2698,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
 
-        if (JdResponse.CODE_OK.equals(response)) {
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = checkBoxSendProcessing(tSendM);
         }
 
