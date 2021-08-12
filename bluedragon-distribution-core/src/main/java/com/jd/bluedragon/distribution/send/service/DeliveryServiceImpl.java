@@ -4093,6 +4093,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         log.info("按运单发货所有包裹处理完成,移除运单锁:packLockKey={}", packLockKey);
                     }
                 }
+
+                // 解锁包裹/箱号发货
+                String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_LOCK_KEY, sendM.getBoxCode(), sendM.getCreateSiteCode());
+                redisClientCache.del(redisKey);
+
             }
         } catch (Exception e) {
             log.error("按运单发货所有包裹处理完成,移除运单锁异常:" + tSendM, e);

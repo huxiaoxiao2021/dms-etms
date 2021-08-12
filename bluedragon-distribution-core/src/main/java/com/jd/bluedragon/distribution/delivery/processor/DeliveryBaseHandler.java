@@ -216,9 +216,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
                     redisClientCache.del(countRedisKey);
 
-                    // 解锁包裹/箱号的锁定
-                    releaseLockStatus(wrapper.getBarCodeList(), sendM.getCreateSiteCode());
-
                     // 插入发货任务
                     deliveryService.addTaskSend(callbacks.get(0));
 
@@ -230,16 +227,5 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         });
 
         return true;
-    }
-
-    /**
-     * 批量解除包裹的锁定状态
-     * @param barCodeList
-     */
-    private void releaseLockStatus(List<String> barCodeList, Integer siteCode) {
-        for (String barCode : barCodeList) {
-            String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_LOCK_KEY, barCode, siteCode);
-            redisClientCache.del(redisKey);
-        }
     }
 }
