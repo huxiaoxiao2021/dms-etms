@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.Pager;
@@ -54,7 +55,7 @@ public interface WeightAndVolumeCheckService {
      * 查看超标图片（一单多件）
      * @return 图片列表
      */
-    InvokeResult<Pager<String>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager);
+    InvokeResult<Pager<WeightVolumePictureDto>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager);
 
     /**
      * 查看超标图片（B网）

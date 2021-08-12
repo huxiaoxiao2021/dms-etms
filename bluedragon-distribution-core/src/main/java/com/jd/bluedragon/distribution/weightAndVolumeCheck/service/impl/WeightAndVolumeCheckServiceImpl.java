@@ -306,11 +306,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return 图片列表
      */
     @Override
-    public InvokeResult<Pager<String>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager){
-        InvokeResult<Pager<String>> result = new InvokeResult<>();
+    public InvokeResult<Pager<WeightVolumePictureDto>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager){
+        InvokeResult<Pager<WeightVolumePictureDto>> result = new InvokeResult<>();
         final WeightVolumeQueryCondition waybillSpotCheckCondition = weightVolumeQueryConditionPager.getSearchVo();
-        Pager<String> dataPager = new Pager<>();
-        List<String> dataList = new ArrayList<>();
+        Pager<WeightVolumePictureDto> dataPager = new Pager<>();
+        List<WeightVolumePictureDto> dataList = new ArrayList<>();
         try {
             // 先查询运单所有包裹抽检记录
             if(waybillSpotCheckCondition.getReviewSiteCode() == null){
@@ -334,7 +334,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 //获取最近的对应的图片并返回
                 String excessPictureUrl = searchPictureUrlRecent(prefixName, 1);
                 if(StringUtils.isNotEmpty(excessPictureUrl)){
-                    dataList.add(excessPictureUrl);
+                    WeightVolumePictureDto weightVolumePictureDto = new WeightVolumePictureDto();
+                    weightVolumePictureDto.setWaybillCode(waybillSpotCheckCondition.getWaybillCode());
+                    weightVolumePictureDto.setPackageCode(packageCode);
+                    weightVolumePictureDto.setUrl(excessPictureUrl);
+                    dataList.add(weightVolumePictureDto);
                 }
             }
         }catch (Exception e){

@@ -307,9 +307,9 @@ $(function () {
                 if(row.isExcess == 0){
                     flage = null;
                 }else{
-                    if(row.spotCheckType == 3 && row.recordType == 2){
+                    /*if(row.spotCheckType == 3 && row.recordType == 2){
                         return ''
-                    }
+                    }*/
                     if(row.isHasPicture == null || row.isHasPicture == 0){
                         flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                             '<br/>'
@@ -328,7 +328,6 @@ $(function () {
                         shadeClose: true,
                         shade: 0.7,
                         maxmin: true,
-                        shadeClose: false,
                         area: ['1000px', '500px'],
                         content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewDate=" + row.reviewDate,
                         success: function(layero, index){
@@ -343,7 +342,11 @@ $(function () {
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
                             +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
-                    }else {
+                    } else if(spotCheckType == 3 && row.recordType == 2) {
+                        //B网
+                        window.open("/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode="+row.waybillCode
+                            +"&siteCode="+row.reviewSiteCode +"&pageNo=1&pageSize=20");
+                    } else {
                         //C网
                         $.ajax({
                             type : "get",
@@ -617,11 +620,25 @@ $(function () {
                     if (row.isHasPicture == 1) {
                         flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
                     } else {
-                        flage
+                        flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>'
                     }
                     return flage;
                 },
                 events: {
+                    'click .upLoad': function(e, value, row, index) {
+                        layer.open({
+                            id:'upExcessPicture',
+                            type: 2,
+                            title:'超标图片上传',
+                            shade: 0.7,
+                            maxmin: true,
+                            shadeClose: false,
+                            area: ['1000px', '500px'],
+                            content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewDate=" + row.reviewDate,
+                            success: function(layero, index){
+                            }
+                        });
+                    },
                     'click .search': function (e, value, row, index) {
                         var spotCheckType = row.spotCheckType == null ? 0 : row.spotCheckType;
                         var fromSource = row.fromSource;
@@ -663,6 +680,11 @@ $(function () {
             $packageDetailBsTable.bootstrapTable('refreshOptions', {pageNumber: 1});
         }
     };
+    detailTable.getSearchParams = function (params) {
+        detailTable.queryParams.limit = params.limit
+        detailTable.queryParams.offset = params.offset
+        return detailTable.queryParams;
+    };
     const $packageDetailForm = $('#packageDetailForm')
     const $packageCodeInput = $packageDetailForm.find('#packageCode')
     const $packageDetailContainer = $('#packageDetailContainer')
@@ -670,7 +692,7 @@ $(function () {
         url: '', // 请求后台的URL（*）
         method: 'post', // 请求方式（*）
         toolbar: '#detailToolbar', // 工具按钮用哪个容器
-        queryParams: detailTable.queryParams, // 查询参数（*）
+        queryParams: detailTable.getSearchParams, // 查询参数（*）
         height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
         uniqueId: "ID", // 每一行的唯一标识，一般为主键列
         pagination: true, // 是否显示分页（*）

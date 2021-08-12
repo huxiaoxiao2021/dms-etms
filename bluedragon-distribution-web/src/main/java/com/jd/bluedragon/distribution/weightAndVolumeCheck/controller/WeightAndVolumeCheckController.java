@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
@@ -165,7 +166,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String importErpCode = erpUser.getUserCode();
+        String importErpCode = "bjxings";//erpUser.getUserCode();
         Integer siteCode = -1;
         try{
             BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(importErpCode);
@@ -258,20 +259,17 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
      * @return
      */
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/searchPicture4MultiplePackage", method = RequestMethod.GET)
+    @RequestMapping(value = "/searchPicture4MultiplePackage", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<Pager<String>> searchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
-                                                                     @QueryParam("siteCode")Integer siteCode,
-                                                                     @QueryParam("pageNo") Integer pageNo,
-                                                                     @QueryParam("pageSize") Integer pageSize) {
-
+    public InvokeResult<Pager<WeightVolumePictureDto>> searchPicture4MultiplePackage(@RequestBody WeightAndVolumeCheckCondition condition) {
         Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager = new Pager<>();
         WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
-        weightVolumeQueryCondition.setWaybillCode(waybillCode);
-        weightVolumeQueryCondition.setReviewSiteCode(siteCode);
+        weightVolumeQueryCondition.setWaybillCode(condition.getWaybillCode());
+        weightVolumeQueryCondition.setReviewSiteCode(condition.getCreateSiteCode().intValue());
+        weightVolumeQueryCondition.setPackageCode(condition.getWaybillOrPackCode());
         weightVolumeQueryConditionPager.setSearchVo(weightVolumeQueryCondition);
-        weightVolumeQueryConditionPager.setPageNo(pageNo);
-        weightVolumeQueryConditionPager.setPageSize(pageSize);
+        weightVolumeQueryConditionPager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
+        weightVolumeQueryConditionPager.setPageSize(condition.getLimit());
         return weightAndVolumeCheckService.searchPicture4MultiplePackage(weightVolumeQueryConditionPager);
     }
 
