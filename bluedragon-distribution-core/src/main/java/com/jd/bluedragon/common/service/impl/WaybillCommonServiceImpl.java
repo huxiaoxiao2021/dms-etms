@@ -1609,11 +1609,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybillSign,49,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
             }
-            // todo 需要确认精准送仓 优先于 送货入仓 是不打印送货入仓还是放在后面
+            // 精准送仓
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            String productType = null;
+            if(waybillExt != null){
+                productType = waybillExt.getProductType();
+            }
+            //判断是否为冷链卡班且外仓
+            boolean isColdChainKBAndOuterWare = BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)
+                    && BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign());
             //精准送仓 优先于 送货入仓
-            if(WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())
-                    && TextConstants.B2B_FRESH_EXPRESS.equals(printWaybill.getjZDFlag())){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),54,'2')){
+                if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
+                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7')
+                            ||(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'1') && !isColdChainKBAndOuterWare)){
+                        if(WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
+                            specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
+                        }
+                    }
+                }else if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'3')) {
+                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'7') && WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
+                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
+                    }
+                }
             }else{
                 //送货入仓
                 if(BusinessUtil.isSignChar(waybillSign,42,'1')){
