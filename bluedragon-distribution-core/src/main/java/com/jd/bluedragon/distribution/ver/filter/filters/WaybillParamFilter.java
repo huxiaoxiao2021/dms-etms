@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -43,7 +45,7 @@ public class WaybillParamFilter implements Filter {
 
         if (waybillCache == null) {
             throw new SortingCheckException(SortingResponse.CODE_39002,
-                    SortingResponse.MESSAGE_39002);
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
         }
 
         if (waybillCache.getOrgId() == null) {

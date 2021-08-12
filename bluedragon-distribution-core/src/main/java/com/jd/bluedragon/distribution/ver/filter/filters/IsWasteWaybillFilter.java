@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -29,7 +32,7 @@ public class IsWasteWaybillFilter implements Filter {
         logger.info("do IsWasteWaybillFilter process waybillCode[{}]" + request.getWaybillCode());
         String waybillCode = request.getWaybillCode();
         if (waybillTraceManager.isWaybillWaste(waybillCode)){
-            throw new SortingCheckException(SortingResponse.CODE_29320, SortingResponse.MESSAGE_29320);
+            throw new SortingCheckException(SortingResponse.CODE_29320, HintService.getHintWithFuncModule(HintCodeConstants.WASTE_WAYBILL_TEMP_STORE, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);

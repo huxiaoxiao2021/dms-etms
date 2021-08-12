@@ -15,6 +15,7 @@ public class WaybillConsumableRecord extends DbEntity {
 
 	private static final long serialVersionUID = 1L;
 
+	private Long id;
 	 /** 分拣中心编号 */
 	private Integer dmsId;
 
@@ -243,5 +244,13 @@ public class WaybillConsumableRecord extends DbEntity {
 		return this.confirmTime;
 	}
 
+	@Override
+	public Long getId() {
+		return id;
+	}
 
+	@Override
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

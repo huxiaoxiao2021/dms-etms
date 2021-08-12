@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.jmq.common.exception.JMQException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,15 +37,20 @@ public class BusinessInterceptRecordBoxHandler extends BusinessInterceptRecordAb
             sortingParam.setCreateSiteCode(msgDto.getSiteCode());
             sortingParam.setBoxCode(msgDto.getBarCode());
             List<Sorting> sortingList = sortingService.findByBoxCode(sortingParam);
-            if (sortingList.size() > 0) {
-                for (Sorting sorting : sortingList) {
-                    SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
-                    BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
-                    saveInterceptMsgDto.setPackageCode(sorting.getPackageCode());
-                    saveInterceptMsgDto.setWaybillCode(sorting.getWaybillCode());
-                    log.info("BusinessInterceptRecordBoxHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JsonHelper.toJson(saveInterceptMsgDto));
-                    businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JsonHelper.toJson(saveInterceptMsgDto));
-                }
+            if (CollectionUtils.isEmpty(sortingList)) {
+                log.warn("BusinessInterceptRecordBoxHandler doHandle sortingList is empty {}", msgDto.getBarCode());
+                // 按箱号处理发送拦截消息
+                log.info("BusinessInterceptRecordBoxHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JsonHelper.toJson(msgDto));
+                businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JsonHelper.toJson(msgDto));
+                return result;
+            }
+            for (Sorting sorting : sortingList) {
+                SaveInterceptMsgDto saveInterceptMsgDto = new SaveInterceptMsgDto();
+                BeanUtils.copyProperties(msgDto, saveInterceptMsgDto);
+                saveInterceptMsgDto.setPackageCode(sorting.getPackageCode());
+                saveInterceptMsgDto.setWaybillCode(sorting.getWaybillCode());
+                log.info("BusinessInterceptRecordBoxHandler sendInterceptMsg businessOperateInterceptSendProducer param: {}", JsonHelper.toJson(saveInterceptMsgDto));
+                businessOperateInterceptSendProducer.send(msgDto.getBarCode(), JsonHelper.toJson(saveInterceptMsgDto));
             }
         } catch (JMQException e) {
             log.error("BusinessInterceptRecordBoxHandler doHandle businessOperateInterceptSendProducer send exception: {}", JsonHelper.toJson(msgDto), e);

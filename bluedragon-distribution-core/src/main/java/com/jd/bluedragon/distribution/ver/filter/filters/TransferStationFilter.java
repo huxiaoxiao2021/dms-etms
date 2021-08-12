@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -47,11 +49,11 @@ public class TransferStationFilter implements Filter {
             if (SiteHelper.isFastStation(transferStationSite)) {
                 if (!istransferStationSiteEquals || !istransferStationSiteReceiveSiteEquals) {
                     throw new SortingCheckException(SortingResponse.CODE_39118,
-                            SortingResponse.MESSAGE_39118);
+                            HintService.getHintWithFuncModule(HintCodeConstants.FAST_STATION_WAYBILL, request.getFuncModule()));
                 }
             } else {
                 throw new SortingCheckException(SortingResponse.CODE_39003,
-                        SortingResponse.MESSAGE_39003);
+                        HintService.getHintWithFuncModule(HintCodeConstants.TRANSFER_STATION_WAYBILL, request.getFuncModule()));
             }
         }
         //endregion

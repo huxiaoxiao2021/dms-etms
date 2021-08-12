@@ -4,14 +4,12 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public  class SendMDao extends BaseDao<SendM>  {
 	
@@ -250,4 +248,23 @@ public  class SendMDao extends BaseDao<SendM>  {
         sendM.setOperateTime(startDate);
         return this.getSqlSession().selectList(SendMDao.namespace + ".findAllSendCodesWithStartTime",sendM);
     }
+
+	/**
+	 * 批量查询已发货批次
+	 *
+	 * @param createSiteCode
+	 * @param receiveSiteCodes
+	 * @param startDate
+	 * @return
+	 */
+	public List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate) {
+		if(createSiteCode == null || startDate == null || CollectionUtils.isEmpty(receiveSiteCodes)){
+			throw new IllegalArgumentException("始发分拣中心、目的分拣中心、起始时间不能为空.");
+		}
+		Map<String, Object> searchParams = new HashMap<>();
+		searchParams.put("createSiteCode", createSiteCode);
+		searchParams.put("receiveSiteCodes", receiveSiteCodes);
+		searchParams.put("operateTime", startDate);
+		return this.getSqlSession().selectList(SendMDao.namespace + ".batchSearchBySiteCodeAndStartTime",searchParams);
+	}
 }

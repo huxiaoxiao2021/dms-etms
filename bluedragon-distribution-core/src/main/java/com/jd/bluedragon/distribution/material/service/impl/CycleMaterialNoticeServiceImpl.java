@@ -1,20 +1,23 @@
 package com.jd.bluedragon.distribution.material.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelationMQ;
 import com.jd.bluedragon.distribution.material.service.CycleMaterialNoticeService;
-import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -63,5 +66,37 @@ public class CycleMaterialNoticeServiceImpl implements CycleMaterialNoticeServic
             businessId = relationMQ.getWaybillCode().get(0);
         }
         return businessId;
+    }
+
+    /**
+     * 批量发送发货物资消息
+     *
+     * @param list
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.CycleMaterialNoticeService.batchSendDeliveryMessage", mState = {JProEnum.TP}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<Boolean> batchSendDeliveryMessage(List<BoxMaterialRelationMQ> list) {
+        JdResult<Boolean> result = new JdResult<>();
+        result.toSuccess();
+        if (CollectionUtils.isEmpty(list)) {
+            return result;
+        }
+
+        List<Message> messageList = Lists.newArrayListWithCapacity(list.size());
+
+        for (BoxMaterialRelationMQ boxMaterialRelationMQ : list) {
+
+            Message message = new Message();
+            message.setBusinessId(boxMaterialRelationMQ.getBoxCode());
+            message.setText(JSON.toJSONString(boxMaterialRelationMQ));
+            message.setTopic(deliverGoodsNoticeSendMQ.getTopic());
+
+            messageList.add(message);
+        }
+
+        deliverGoodsNoticeSendMQ.batchSendOnFailPersistent(messageList);
+
+        return result;
     }
 }

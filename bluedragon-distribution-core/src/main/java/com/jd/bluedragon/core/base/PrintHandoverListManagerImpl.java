@@ -6,15 +6,12 @@ import com.jd.dms.wb.report.api.IPrintHandoverListJsfService;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
 import com.jd.dms.wb.report.api.dto.base.BaseEntity;
 import com.jd.dms.wb.report.api.dto.base.Pager;
-import com.jd.dms.wb.report.api.dto.printhandover.SummaryPrintResult;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * 打印交接清单包装服务
@@ -35,17 +32,6 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
     @Override
     public PageData<PrintHandoverListDto> queryPrintHandOverListByQueryCondition(Pager<PrintHandoverLitQueryCondition> pager) {
         BaseEntity<PageData<PrintHandoverListDto>> baseEntity = printHandoverListJsfService.queryPrintHandOverListByQueryCondition(pager);
-        if(baseEntity != null && baseEntity.isSuccess()){
-            return baseEntity.getData();
-        }
-        return null;
-    }
-
-    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.batchSummaryPrintHandOverListByQueryCondition", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public List<SummaryPrintResult> batchSummaryPrintHandOverListByQueryCondition(PrintHandoverLitQueryCondition condition) {
-        BaseEntity<List<SummaryPrintResult>> baseEntity = printHandoverListJsfService.batchSummaryPrintHandOverListByQueryCondition(condition);
         if(baseEntity != null && baseEntity.isSuccess()){
             return baseEntity.getData();
         }

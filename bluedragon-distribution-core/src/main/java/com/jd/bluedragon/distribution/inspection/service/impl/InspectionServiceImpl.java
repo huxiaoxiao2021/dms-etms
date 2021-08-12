@@ -9,17 +9,23 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InsepctionCheckDto;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.InspectionCheckCondition;
 import com.jd.bluedragon.distribution.inspection.constants.InspectionExeModeEnum;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -27,7 +33,9 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.*;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionJsfService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -79,7 +87,7 @@ import java.util.*;
  * 
  */
 @Service
-public class InspectionServiceImpl implements InspectionService {
+public class InspectionServiceImpl implements InspectionService , InspectionJsfService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -195,7 +203,7 @@ public class InspectionServiceImpl implements InspectionService {
 		// 运单绑定集包袋校验
 		if(WaybillUtil.isWaybillCode(barCode)
 				&& checkIsBindMaterial(waybillCode)){
-			jdResponse.toFail(com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_CHECK_MATERIAL_ERROR);
+			jdResponse.toFail(HintService.getHint(HintCodeConstants.WAYBILL_BIND_RECYCLE_BAG));
 			return jdResponse;
 		}
 		InspectionResult inspectionResult = new InspectionResult("");
@@ -825,7 +833,7 @@ public class InspectionServiceImpl implements InspectionService {
 						//运单是否发货
 						Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
 						if(!isCanSend){
-							hintMessage = "暂存集齐后发货";
+							hintMessage = HintService.getHint(HintCodeConstants.JP_TEMP_STORE_TOGETHER);
 						}
 					}
 				}
@@ -836,7 +844,7 @@ public class InspectionServiceImpl implements InspectionService {
 				if(destinationDmsInfo != null
 						&& Objects.equals(destinationDmsId,dmsSiteCode)
                         && BusinessUtil.isEdnDmsSite(destinationDmsInfo.getSubType())){
-					hintMessage = "此单为企配仓运单，必须操作暂存上架";
+					hintMessage = HintService.getHint(HintCodeConstants.QPC_TEMP_STORE);
 				}
 			}
 		}
@@ -1033,4 +1041,107 @@ public class InspectionServiceImpl implements InspectionService {
 
         return sites.contains(siteCode.toString());
     }
+
+	@Override
+	public InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum) {
+		return inspection(vo, inspectionBizSourceEnum);
+	}
+
+	@Override
+    public InvokeResult<Boolean> inspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum){
+		InvokeResult<Boolean> result = new InvokeResult<>();
+		result.setData(Boolean.TRUE);
+		result.success();
+
+		//拆分运单包裹列表  拆分箱号列表
+		List<TaskRequest> reqs =  changeToInspectionReq(vo, inspectionBizSourceEnum);
+
+		for(TaskRequest req : reqs){
+			TaskResponse taskResponse = taskService.add(req);
+			if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(taskResponse.getCode())){
+				//失败阻断 允许重试幂等即可
+				result.setData(Boolean.FALSE);
+				result.customMessage(JdResponse.CODE_FAIL,taskResponse.getMessage());
+				return result;
+			}
+		}
+		return result;
+	}
+
+
+	/**
+	 * {"sealBoxCode":null,"boxCode":null,"packageBarOrWaybillCode":"JDVA00182404142-1-1-","exceptionType":null,"operateType":0,"receiveSiteCode":0,"bizSource":31,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 20:57:34.000"}
+	 * {"shieldsCarCode":null,"carCode":null,"sealBoxCode":null,"packOrBox":"BC1001210427200014348517","turnoverBoxCode":null,"queueNo":null,"departureCarId":null,"shieldsCarTime":null,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 21:00:00.642"}
+	 * @param vo
+	 * @return
+	 */
+	private List<TaskRequest> changeToInspectionReq(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum){
+
+		List<Map<String,String>> boxes = new ArrayList<>();
+		List<Map<String,String>> others = new ArrayList<>();
+		makeToInspectionBody( vo,boxes,others, inspectionBizSourceEnum);
+
+		List<TaskRequest> requests = new ArrayList<>();
+		for(Map<String,String> boxBody : boxes){
+			TaskRequest request = new TaskRequest();
+			request.setType(Task.TASK_TYPE_RECEIVE);
+			request.setBody(Constants.PUNCTUATION_OPEN_BRACKET
+					+ JsonHelper.toJson(boxBody)
+					+ Constants.PUNCTUATION_CLOSE_BRACKET);
+			request.setKeyword1(String.valueOf(vo.getSiteCode()));
+			request.setReceiveSiteCode(vo.getSiteCode());
+			request.setSiteCode(vo.getSiteCode());
+			request.setBoxCode(boxBody.get("packOrBox"));
+			requests.add(request);
+		}
+
+		for(Map<String,String> otherBody : others){
+			TaskRequest request = new TaskRequest();
+			request.setType(Task.TASK_TYPE_INSPECTION);
+			request.setBody(Constants.PUNCTUATION_OPEN_BRACKET
+					+ JsonHelper.toJson(otherBody)
+					+ Constants.PUNCTUATION_CLOSE_BRACKET);
+			request.setKeyword1(String.valueOf(vo.getSiteCode()));
+			request.setReceiveSiteCode(vo.getSiteCode());
+			request.setSiteCode(vo.getSiteCode());
+			requests.add(request);
+		}
+
+		return requests;
+
+	}
+
+	/**
+	 * {"sealBoxCode":null,"boxCode":null,"packageBarOrWaybillCode":"JDVA00182404142-1-1-","exceptionType":null,"operateType":0,"receiveSiteCode":0,"bizSource":31,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 20:57:34.000"}
+	 * {"shieldsCarCode":null,"carCode":null,"sealBoxCode":null,"packOrBox":"BC1001210427200014348517","turnoverBoxCode":null,"queueNo":null,"departureCarId":null,"shieldsCarTime":null,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 21:00:00.642"}
+	 * @param vo
+	 * @return
+	 */
+	private void makeToInspectionBody(InspectionVO vo,List<Map<String,String>> boxes,List<Map<String,String>> others,
+									  InspectionBizSourceEnum inspectionBizSourceEnum){
+
+		for(String barCode : vo.getBarCodes()){
+			Map<String,String> map = new HashMap<>();
+			map.put("userCode",String.valueOf(vo.getUserCode()));
+			map.put("userName",vo.getUserName());
+			map.put("siteCode",String.valueOf(vo.getSiteCode()));
+			map.put("siteName",vo.getSiteName());
+			map.put("operateTime",vo.getOperateTime());
+			map.put("businessType",String.valueOf(Constants.BUSSINESS_TYPE_POSITIVE));
+			if(inspectionBizSourceEnum != null){
+				map.put("bizSource",inspectionBizSourceEnum.getCode().toString());
+			}
+			if(BusinessUtil.isBoxcode(barCode)){
+				//箱号
+				map.put("packOrBox",barCode);
+				boxes.add(map);
+			}else{
+				//非箱号
+				map.put("packageBarOrWaybillCode",barCode);
+
+				others.add(map);
+			}
+		}
+	}
+
 }

@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -19,10 +20,10 @@ import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -81,8 +82,10 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     @Override
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         InvokeResult<Boolean> result = new  InvokeResult<Boolean>();
+        // 初始化上下文
+        WeightVolumeContext weightVolumeContext = initWeightVolumeContext(condition);
         // 基础校验
-        basicVerification(condition,result);
+        basicVerification(condition, weightVolumeContext, result);
         if(!result.codeSuccess()){
             return result;
         }
@@ -97,10 +100,23 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         if(dwsWeightVolumeCheck(condition,weightVolumeRuleConstant,result)){
             return result;
         }
-        Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
         // 校验处理
-        weightVolumeRuleCheckHandler(condition,weightVolumeRuleConstant,waybill,result);
+        weightVolumeRuleCheckHandler(condition,weightVolumeRuleConstant, weightVolumeContext.getWaybill(), result);
         return result;
+    }
+
+    /**
+     * 初始化称重量方上下文
+     * @param condition
+     * @return
+     */
+    private WeightVolumeContext initWeightVolumeContext(WeightVolumeRuleCheckDto condition) {
+        WeightVolumeContext weightVolumeContext = new WeightVolumeContext();
+        BeanUtils.copyProperties(condition, weightVolumeContext);
+        if(WaybillUtil.isWaybillCode(condition.getBarCode()) || WaybillUtil.isPackageCode(condition.getBarCode())){
+            weightVolumeContext.setWaybill(waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode())));
+        }
+        return weightVolumeContext;
     }
 
     private boolean dwsWeightVolumeCheck(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant, InvokeResult<Boolean> result) {
@@ -142,26 +158,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     protected abstract void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant,
                                                          Waybill waybill,InvokeResult<Boolean> result);
 
-    /**
-     * 基础校验
-     * @param condition
-     * @param result
-     */
-    private void basicVerification(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
-        if(StringUtils.isEmpty(condition.getBarCode())){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_0);
-            return;
-        }
-        if(condition.getWeight() == null
-                || condition.getLength() == null || condition.getWidth() == null
-                || condition.getHeight() == null || condition.getVolume() == null){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE);
-            return;
-        }
-        if(Objects.equals(condition.getCheckWeight(),true) && condition.getWeight() <= Constants.DOUBLE_ZERO){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_1);
-        }
-    }
+
+    protected abstract void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);
 
     /**
      * C网特殊规则校验

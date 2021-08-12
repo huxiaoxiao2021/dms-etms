@@ -26,9 +26,7 @@ public class GoddessServiceImpl implements GoddessService {
     @Override
     @Deprecated
     public void save(Goddess domain) {
-        if(null!=domain&& StringUtils.isNotBlank(domain.getKey())){
-            goddessDao.batchInsert(domain);
-        }
+        return;
     }
 
     @Override

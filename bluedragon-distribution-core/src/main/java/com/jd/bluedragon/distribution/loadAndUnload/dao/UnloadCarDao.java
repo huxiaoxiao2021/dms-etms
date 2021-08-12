@@ -30,6 +30,10 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
         return this.getSqlSession().selectOne(namespace + ".selectBySealCarCode",sealCarCode);
     }
 
+    public UnloadCar selectBySealCarCodeWithStatus(String sealCarCode) {
+        return this.getSqlSession().selectOne(namespace + ".selectBySealCarCodeWithStatus",sealCarCode);
+    }
+
     public List<UnloadCarTask> queryByCondition(UnloadCarCondition condition) {
          return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
     }
@@ -64,5 +68,9 @@ public class UnloadCarDao extends BaseDao<UnloadCar> {
 
     public int updateStartTime(UnloadCar params) {
         return this.getSqlSession().update(namespace + ".updateStartTime",params);
+    }
+
+    public List<UnloadCar> selectByCondition(UnloadCar unloadCar) {
+        return this.getSqlSession().selectList(namespace + ".selectByCondition", unloadCar);
     }
 }

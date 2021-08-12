@@ -8,9 +8,9 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckD
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+import com.jd.dms.logger.annotation.BusinessLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -41,6 +41,7 @@ public class WeightVolumeResource {
      */
     @POST
     @Path("/weightVolume/weightVolumeRuleCheck")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101801)
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
     }
@@ -52,6 +53,7 @@ public class WeightVolumeResource {
      */
     @POST
     @Path("/weightVolume/upload")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1018, operateType = 101802)
     public InvokeResult<Boolean> upload(WeightVolumeCondition condition) {
         InvokeResult<Boolean> result = new InvokeResult<>();
         // 称重数据超额处理

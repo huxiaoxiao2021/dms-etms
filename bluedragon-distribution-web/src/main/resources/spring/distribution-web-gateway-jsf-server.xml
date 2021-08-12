@@ -366,4 +366,21 @@
                   ref="noticeGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 清场库存盘点服务 给安卓使用 -->
+    <bean id="stockInventoryGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.StockInventoryGatewayServiceImpl" />
+    <jsf:provider id="jsfStockInventoryGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.StockInventoryGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="stockInventoryGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+    <!-- 耗材确认PDA -->
+    <bean id="waybillConsumableGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WaybillConsumableGatewayServiceImpl" />
+    <jsf:provider id="jsfWaybillConsumableGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WaybillConsumableGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillConsumableGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

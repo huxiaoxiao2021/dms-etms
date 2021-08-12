@@ -3,9 +3,12 @@ package com.jd.bluedragon.distribution.weightVolume.service;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.handler.PackageWeightVolumeHandler;
 import com.jd.bluedragon.distribution.weightvolume.DMSWeightVolumeJSFService;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeJSFEntity;
 import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,11 +20,14 @@ import org.springframework.stereotype.Service;
  * @author wuzuxiang
  * @since 2020/1/10
  **/
+@Slf4j
 @Service("dmsWeightVolumeJSFService")
 public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService {
 
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
+    @Autowired
+    private PackageWeightVolumeHandler packageWeightVolumeHandler;
 
     @Override
     public InvokeResult<Boolean> dealSyncWeightVolume(WeightVolumeJSFEntity entity) {
@@ -91,5 +97,21 @@ public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService 
             return invokeResult;
         }
         return invokeResult;
+    }
+
+    @Override
+    public InvokeResult<Boolean> automaticWeightCheckExcess(WeightVolumeJSFEntity entity) {
+        if (log.isInfoEnabled()) {
+            log.info("自动化称重抽检参数:{}", JsonHelper.toJson(entity));
+        }
+        WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
+        BeanUtils.copyProperties(entity, weightVolumeEntity);
+
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> invokeResult =
+                packageWeightVolumeHandler.automaticDealSportCheck(weightVolumeEntity);
+
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        BeanUtils.copyProperties(invokeResult, result);
+        return result;
     }
 }

@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -33,7 +35,7 @@ public class BusinessHallFreightSendReceiveFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         logger.info("do BusinessHallFreightSendReceiveFilter process packageCode[{}]" + request.getPackageCode());
         if(! this.businessHallFreightSendReceiveCheck(request.getWaybillCode(),request.getWaybillCache().getWaybillSign())){
-            throw new SortingCheckException(SortingResponse.CODE_29414, SortingResponse.MESSAGE_29414);
+            throw new SortingCheckException(SortingResponse.CODE_29414, HintService.getHintWithFuncModule(HintCodeConstants.BUSINESS_HALL_WAYBILL_NOT_RECV, request.getFuncModule()));
         }
         chain.doFilter(request, chain);
     }

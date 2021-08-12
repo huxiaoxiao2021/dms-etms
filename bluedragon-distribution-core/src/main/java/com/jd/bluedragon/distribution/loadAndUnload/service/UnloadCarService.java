@@ -189,4 +189,12 @@ public interface UnloadCarService {
 
     //卸车任务补全司机信息。
     public void distributeUnloadCarTask(TmsSealCar tmsSealCar);
+
+    /**
+     * 卸车任务创建补充时效信息
+     * @param unloadCar
+     */
+    public void fillUnloadCarTaskDuration(UnloadCar unloadCar);
+
+    UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
 }

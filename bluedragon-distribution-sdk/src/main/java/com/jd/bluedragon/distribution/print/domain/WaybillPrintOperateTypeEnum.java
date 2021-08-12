@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.print.domain;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 打印平台操作类型
@@ -73,6 +72,31 @@ public enum WaybillPrintOperateTypeEnum {
     	SET_REPRINT_TYPES.add(SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
     	SET_REPRINT_TYPES.add(SMS_REVERSE_CHANGE_REPRINT.getType());
     }
+
+    public static Map<Integer, String> ENUM_MAP;
+
+    public static List<Integer> ENUM_LIST;
+
+    static {
+        //将所有枚举装载到map中
+        ENUM_MAP = new HashMap<Integer, String>();
+        ENUM_LIST = new ArrayList<Integer>();
+        for (WaybillPrintOperateTypeEnum enumItem : WaybillPrintOperateTypeEnum.values()) {
+            ENUM_MAP.put(enumItem.getType(), enumItem.getName());
+            ENUM_LIST.add(enumItem.getType());
+        }
+    }
+
+    /**
+     * 通过code获取name
+     *
+     * @param code 编码
+     * @return string
+     */
+    public static String getEnumNameByCode(Integer code) {
+        return ENUM_MAP.get(code);
+    }
+
     /**
      * 判断是否换单打印
      * @return

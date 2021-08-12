@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
@@ -33,6 +35,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,8 @@ import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE;
 
 
 @Component
@@ -346,6 +351,24 @@ public class BoxResource {
         return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
     }
 
+    /**
+     * 为自动分拣机生成箱号
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/autoSorting/create")
+    @JProfiler(jKey = "DMS.WEB.BoxResource.autoSortingCreate", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingCreate(BoxRequest request) {
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result =  create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE.getCode(),true);
+        //计算滑道号和笼车号
+        if(RESULT_SUCCESS_CODE == result.getCode() && result.getData() != null){
+            boxService.computeRouter(result.getData().getRouterInfo());
+        }
+        return result;
+    }
+
     private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request, String systemType,boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
@@ -524,20 +547,20 @@ public class BoxResource {
     }
 
     private BoxResponse boxNoFound() {
-        return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
+        return new BoxResponse(BoxResponse.CODE_BOX_NOT_FOUND, HintService.getHint(HintCodeConstants.BOX_NOT_EXIST));
     }
 
     private BoxResponse boxNoBingDing(){
-        return  new BoxResponse(BoxResponse.CODE_BC_BOX_NO_BINDING,BoxResponse.MESSAGE_BC_NO_BINDING);
+        return  new BoxResponse(BoxResponse.CODE_BC_BOX_NO_BINDING, HintService.getHint(HintCodeConstants.BOX_UNBIND_RECYCLE_BAG));
     }
 
 
     private BoxResponse boxHasBeanSended() {
-        return new BoxResponse(BoxResponse.CODE_BOX_SENDED, BoxResponse.MESSAGE_BOX_SENDED);
+        return new BoxResponse(BoxResponse.CODE_BOX_SENDED, HintService.getHint(HintCodeConstants.BOX_SENT));
     }
 
     private BoxResponse boxNoPrint() {
-        return new BoxResponse(BoxResponse.CODE_BOX_NO_PRINT, BoxResponse.MESSAGE_BOX_NO_PRINT);
+        return new BoxResponse(BoxResponse.CODE_BOX_NO_PRINT, HintService.getHint(HintCodeConstants.BOX_NO_USE));
     }
 
     private BoxResponse paramError() {
@@ -736,5 +759,7 @@ public class BoxResource {
         }
         return false;
     }
+
+
 
 }

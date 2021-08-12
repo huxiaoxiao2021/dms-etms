@@ -51,6 +51,7 @@ public class LoadIllegalException extends RuntimeException {
     public static final String BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE = "包裹已经扫描,请勿重复扫描!";
 
     public static final String PACKAGE_ALREADY_BIND="此包裹已在板号【%s】内，是否确认重新组板？";
+    public static final String INIT_PACKAGE_CANCEL = "商家自送运单【%s】已取消,验收失败";
 
     public static final String PACKAGE_NO_WEIGHT="此包裹无重量体积，请到转运工作台按包裹录入重量体积";
 

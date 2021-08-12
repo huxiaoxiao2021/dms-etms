@@ -70,10 +70,12 @@ public class WaybillPrintMessages{
 	/**
 	 * B2C&C2C寄付现结的单子禁止打印
 	 */
-	public static final String MESSAGE_B2C_C2C_PREPAID_INTERCEPT="寄付现结订单，请在揽收端完成称重！";
+	public static final String MESSAGE_B2C_C2C_PREPAID_INTERCEPT="现结订单，请在揽收端完成称重！";
 	/**
 	 * 该运单未揽收完成时提示信息
 	 */
 	public static final String MESSAGE_NEED_COLLECT_FINISHED="此运单未揽收完成禁止打印面单，请揽收";
+
+	public static final String MESSAGE_WAYBILL_FINISHED_INTERCEPT = "【此单已%s】，禁止包裹补打";
 
 }

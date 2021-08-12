@@ -2,13 +2,15 @@ package com.jd.bluedragon.distribution.rest.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.VmsManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CarrierQueryRequest;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.PdaSystemMenuRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
@@ -43,6 +46,7 @@ import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
+import com.jd.tms.basic.dto.SimpleCarrierDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -57,10 +61,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @Component
@@ -115,6 +116,12 @@ public class BaseResource {
 
 	@Autowired
 	private RouteComputeUtil routeComputeUtil;
+
+	@Autowired
+	private CarrierQueryWSManager carrierQueryWSManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -804,7 +811,7 @@ public class BaseResource {
 		if (null == siteName) {
 			log.warn("没有对应站点:code={}",code);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_SITE_EMPTY);
+                    HintService.getHint(HintCodeConstants.SITE_NOT_EXIST));
 			return response;
 		}
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -1204,6 +1211,48 @@ public class BaseResource {
 		}
 		
 		return responseList;
+	}
+
+	@POST
+	@Path("/bases/fuzzyQueryCarrierInfo")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.fuzzyQueryCarrierInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<List<SimpleCarrierDto>> fuzzyQueryCarrierInfo(CarrierQueryRequest request) {
+		InvokeResult<List<SimpleCarrierDto>> result = new InvokeResult<List<SimpleCarrierDto>>();
+		if(!checkAndDealParams(request, result)){
+			return result;
+		}
+		CarrierDto condition = new CarrierDto();
+		condition.setCarrierId(request.getCarrierId() == null ? null : Long.parseLong(request.getCarrierId()));
+		condition.setCarrierCode(request.getCarrierCode());
+		condition.setCarrierName(request.getCarrierName());
+		result.setData(carrierQueryWSManager.queryCarrierByLikeCondition(condition));
+		return result;
+	}
+
+	/**
+	 * 参数校验及处理
+	 *
+	 * @param result
+	 * @return
+	 */
+	private boolean checkAndDealParams(CarrierQueryRequest request, InvokeResult<List<SimpleCarrierDto>> result) {
+		result.parameterError(InvokeResult.PARAM_ERROR);
+		if(request == null){
+			return false;
+		}
+		if(request.getCarrierId() != null && !NumberHelper.isNumber(request.getCarrierId())){
+			return false;
+		}
+		// 字符串截取长度
+		int substringLength = 50;
+		if(StringUtils.isNotEmpty(request.getCarrierCode()) && request.getCarrierCode().length() > substringLength){
+			request.setCarrierCode(request.getCarrierCode().substring(Constants.NUMBER_ZERO, substringLength));
+		}
+		if(StringUtils.isNotEmpty(request.getCarrierName()) && request.getCarrierName().length() > substringLength){
+			request.setCarrierName(request.getCarrierName().substring(Constants.NUMBER_ZERO, substringLength));
+		}
+		result.success();
+		return true;
 	}
 
 	/**
@@ -1678,6 +1727,23 @@ public class BaseResource {
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
+		return result;
+	}
+
+
+	@POST
+	@Path("/bases/checkMenuIsOffline")
+	@JProfiler(jKey = "DMS.WEB.BaseResource.checkMenuIsOffline", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<Boolean>  checkMenuIsOffline(PdaSystemMenuRequest request){
+		InvokeResult<Boolean> result = new InvokeResult<>();
+		// 待下线||已下线PDA菜单编码集合
+		String offlinePdaMenuCodes = uccPropertyConfiguration.getOfflinePdaMenuCode();
+		boolean menuCodeIsOffline = false;
+		if(StringUtils.isNotEmpty(offlinePdaMenuCodes)){
+			menuCodeIsOffline = Arrays.asList(offlinePdaMenuCodes.split(Constants.SEPARATOR_COMMA)).contains(request.getMenuCode());
+			result.setMessage("此功能已下线，有疑问请咨询分拣小秘（xnfjxm）");
+		}
+		result.setData(menuCodeIsOffline);
 		return result;
 	}
 

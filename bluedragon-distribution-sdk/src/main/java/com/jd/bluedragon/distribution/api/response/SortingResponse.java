@@ -96,6 +96,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29313= 29313;
     public static final String MESSAGE_29313 = "此单为[恶意订单拦截],请退货";
 
+
+    public static final Integer CODE_29315= 29315;
+    public static final String MESSAGE_29315 = "此单为[仓储异常病单],请退货";
+
     public static final Integer CODE_29316 = 29316;
     public static final String MESSAGE_29316 = "此单为[白条强制拦截],请退货";
     
@@ -312,11 +316,11 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29306 = 29306;
     public static final String MESSAGE_29306 = "此单为[商家拦截订单],请退货";
 
-    //病单拦截提示信息
+    // 理赔完成拦截订单提示信息
     public static final Integer CODE_29308 = 29308;
     public static final String MESSAGE_29308 = "此单为[理赔完成拦截订单],请退就近分拣逆向处置组";
 
-    //病单拦截提示信息
+    // 理赔完成拦截逆向订单提示信息
     public static final Integer CODE_29309 = 29309;
     public static final String MESSAGE_29309 = "此单为[理赔完成拦截订单]逆向订单,请暂存";
 
@@ -367,7 +371,7 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_29414 = "运单为寄付营业厅运单，未操作揽收完成不允许发货/建箱!";
 
     public static final Integer CODE_29411 = 29411;
-    public static final String MESSAGE_29411 = "运单{0}配送方式或时间变化,{1}共{2}个包裹需换面单，请【包裹补打】换面单!";
+    public static final String MESSAGE_29411 = "运单{0}配送方式或时间变化,{1}共{2}个包裹需换面单，请操作【包裹补打】!";
 
     public static final Integer CODE_29415 = 29415;
     public static final String MESSAGE_29415 = "此箱号内为半退单，需单独建箱，其他类型运单禁止混装";

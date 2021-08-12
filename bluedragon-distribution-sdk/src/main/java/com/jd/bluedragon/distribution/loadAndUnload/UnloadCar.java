@@ -117,6 +117,23 @@ public class UnloadCar extends DbEntity {
     private Date startTime;
 
     private Date endTime;
+    /**
+     * 运输方式
+     */
+    private Integer transWay;
+    /**
+     * 卸车时效（单位：分钟）
+     */
+    private Integer duration;
+    /**
+     * 卸车时效类型 ：0-默认方式（120min）1-调用路由时间
+     */
+    private Integer durationType;
+    /**
+     * 任务完成状态：0-正常完成，1-超时完成
+     */
+    private Integer endStatus;
+
 
     public Date getEndTime() {
         return endTime;
@@ -324,5 +341,37 @@ public class UnloadCar extends DbEntity {
 
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
+    }
+
+    public Integer getTransWay() {
+        return transWay;
+    }
+
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
+    }
+
+    public Integer getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Integer duration) {
+        this.duration = duration;
+    }
+
+    public Integer getDurationType() {
+        return durationType;
+    }
+
+    public void setDurationType(Integer durationType) {
+        this.durationType = durationType;
+    }
+
+    public Integer getEndStatus() {
+        return endStatus;
+    }
+
+    public void setEndStatus(Integer endStatus) {
+        this.endStatus = endStatus;
     }
 }

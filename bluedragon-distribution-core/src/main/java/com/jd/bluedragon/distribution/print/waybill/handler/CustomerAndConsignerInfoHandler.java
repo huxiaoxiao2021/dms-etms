@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +39,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.CustomerAndConsignerInfoHandler.handle",mState={JProEnum.TP,JProEnum.FunctionError})
 	public JdResult<String> handle(WaybillPrintContext context) {
 		if(context == null){
 			log.warn("处理面单收/寄件信息，context为空");

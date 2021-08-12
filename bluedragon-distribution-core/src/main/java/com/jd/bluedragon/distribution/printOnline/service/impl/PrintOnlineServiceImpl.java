@@ -143,7 +143,7 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
         int packCount = 0;
         int requiredPackNum = 0; //应发
         int actualPackNum = 0; //实发
-        int sumVolume = 0;
+        double sumVolume = Constants.DOUBLE_ZERO;
         if(summaryPrintResult.getDetails()!=null && !summaryPrintResult.getDetails().isEmpty()){
 
             for(SummaryPrintBoxEntity summaryPrintBoxEntity : summaryPrintResult.getDetails()){
@@ -155,7 +155,7 @@ public class PrintOnlineServiceImpl implements IPrintOnlineService {
                 }
                 requiredPackNum += summaryPrintBoxEntity.getPackageBarRecNum();
                 actualPackNum += summaryPrintBoxEntity.getPackageBarNum();
-                sumVolume += summaryPrintBoxEntity.getVolume();
+                sumVolume += summaryPrintBoxEntity.getVolume() == null ? Constants.DOUBLE_ZERO : summaryPrintBoxEntity.getVolume();
             }
         }
 

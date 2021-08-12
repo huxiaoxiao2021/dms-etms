@@ -176,6 +176,62 @@
         yn = 1
     </update>
 
+
+    <update id="updateCrossBoxById" parameterType="crossBox">
+        update cross_box
+        <set>
+            <if test="originalDmsId != null">
+                original_dms_id = #{originalDmsId,jdbcType=INTEGER},
+            </if>
+            <if test="originalDmsName != null">
+                original_dms_name = #{originalDmsName,jdbcType=VARCHAR},
+            </if>
+            <if test="destinationDmsId != null">
+                destination_dms_id =
+                #{destinationDmsId,jdbcType=INTEGER},
+            </if>
+            <if test="destinationDmsName != null">
+                destination_dms_name =
+                #{destinationDmsName,jdbcType=VARCHAR},
+            </if>
+            <if test="transferOneId != null">
+                transfer_one_id = #{transferOneId,jdbcType=INTEGER},
+            </if>
+            <if test="transferOneName != null">
+                transfer_one_name = #{transferOneName,jdbcType=VARCHAR},
+            </if>
+            transfer_two_id = #{transferTwoId,jdbcType=INTEGER},
+            transfer_two_name = #{transferTwoName,jdbcType=VARCHAR},
+            transfer_three_id = #{transferThreeId,jdbcType=INTEGER},
+            transfer_three_name = #{transferThreeName,jdbcType=VARCHAR},
+            <if test="fullLine != null">
+                full_line = #{fullLine,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null">
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="updateOperatorName != null">
+                update_operator_name =
+                #{updateOperatorName,jdbcType=VARCHAR},
+            </if>
+            <if test="effectiveDate != null">
+                effective_date = #{effectiveDate,jdbcType=VARCHAR},
+            </if>
+
+            <if test="expiryDate != null">
+                expiry_date = #{expiryDate,jdbcType=VARCHAR},
+            </if>
+            <if test="originId != null">
+                origin_id = #{originId,jdbcType=INTEGER},
+            </if>
+            <if test="yn != null">
+                yn = #{yn,jdbcType=INTEGER},
+            </if>
+            update_time = #{updateTime,jdbcType=TIMESTAMP}
+        </set>
+        where id=#{id}
+    </update>
+
     <select id="getFullLineById" parameterType="crossBox"
             resultType="String">
 		select full_line from cross_box
@@ -259,12 +315,63 @@
         limit 1
     </select>
 
-    <select id="getFullLineByDmsId" parameterType="crossBox"
+    <select id="getFullLineByDmsId" parameterType="int"
             resultType="String">
         select full_line from cross_box
         where
         original_dms_id =
         #{originalDmsId,jdbcType=INTEGER} and destination_dms_id =
         #{destinationDmsId,jdbcType=INTEGER} and yn =1
+    </select>
+
+    <select id="selectCrossBoxBySiteCode" parameterType="java.util.Map"
+            resultMap="crossBoxMap">
+        select
+        <include refid="sql_columns"/>
+        from cross_box
+        where transfer_one_id= #{siteCode}  union
+        select
+        <include refid="sql_columns"/>
+        from cross_box
+        where transfer_two_id = #{siteCode} union
+        select
+        <include refid="sql_columns"/>
+        from cross_box
+        where transfer_three_id = #{siteCode} union
+        select
+        <include refid="sql_columns"/>
+        from cross_box
+        where original_dms_id = #{siteCode} union
+        select
+        <include refid="sql_columns"/>
+        from cross_box
+        where destination_dms_id=#{siteCode}
+        LIMIT #{offset},#{limit}
+    </select>
+
+    <select id="countCrossBoxBySiteCode" parameterType="int"
+            resultType="int">
+        select count(*) from (
+            select
+            id
+            from cross_box
+            where transfer_one_id= #{siteCode}  union
+            select
+            id
+            from cross_box
+            where transfer_two_id = #{siteCode} union
+            select
+            id
+            from cross_box
+            where transfer_three_id = #{siteCode} union
+            select
+            id
+            from cross_box
+            where original_dms_id = #{siteCode} union
+            select
+            id
+            from cross_box
+            where destination_dms_id=#{siteCode}
+        )  t
     </select>
 </mapper>

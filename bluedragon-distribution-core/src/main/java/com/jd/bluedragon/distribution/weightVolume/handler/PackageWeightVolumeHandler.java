@@ -14,12 +14,14 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -31,7 +33,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,10 +71,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
                                                 Waybill waybill,InvokeResult<Boolean> result) {
-        packageWeightBasicCheck(condition,result);
-        if(!result.codeSuccess()){
-            return;
-        }
         if(BusinessUtil.isCInternet(waybill.getWaybillSign())){
             checkCInternetRule(condition,weightVolumeRuleConstant,result);
             return;
@@ -81,20 +78,37 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         checkBInternetRule(condition,weightVolumeRuleConstant,waybill,result);
     }
 
-    private void packageWeightBasicCheck(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
-        if(!Objects.equals(condition.getCheckLWH(),true)){
-           return;
-        }
-        if(condition.getLength() <= Constants.DOUBLE_ZERO){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
+    @Override
+    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(!WaybillUtil.isWaybillCode(condition.getBarCode()) && !WaybillUtil.isPackageCode(condition.getBarCode())){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_0);
             return;
         }
-        if(condition.getWidth() <= Constants.DOUBLE_ZERO){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
-            return;
+        // 信任商家不校验重量体积（站点平台打印除外）
+        Waybill waybill = weightVolumeContext.getWaybill();
+        if(!Objects.equals(condition.getSourceCode(), FromSourceEnum.DMS_CLIENT_SITE_PLATE_PRINT.name())){
+            if(BusinessHelper.isTrust(waybill.getWaybillSign())){
+                return;
+            }
         }
-        if(condition.getHeight() <= Constants.DOUBLE_ZERO){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
+        if(Objects.equals(condition.getCheckWeight(),true)){
+            if(condition.getWeight() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_1);
+                return;
+            }
+        }
+        if(Objects.equals(condition.getCheckLWH(),true)){
+            if(condition.getLength() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
+                return;
+            }
+            if(condition.getWidth() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
+                return;
+            }
+            if(condition.getHeight() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
+            }
         }
     }
 
@@ -107,15 +121,8 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
             entity.setVolume(entity.getHeight() * entity.getLength() * entity.getWidth());
         }
 
-        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
-        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
-            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
-            InvokeResult<Boolean> result
-                    = weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS,new InvokeResult<Boolean>());
-            if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()){
-                logger.warn("包裹【{}】自动化体积重量抽检失败：{}",packWeightVO.getCodeStr(),result.getMessage());
-            }
-        }
+        // 抽检数据处理
+        spotCheckDeal(entity);
 
         PackOpeDto packOpeDto = new PackOpeDto();
         packOpeDto.setWaybillCode(entity.getWaybillCode());
@@ -165,6 +172,35 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         } catch (RuntimeException | JMQException e) {
             logger.warn("按包裹称重量方发生异常，处理失败：{}",JsonHelper.toJson(entity));
         }
+    }
+
+    /**
+     * 抽检数据处理
+     *  自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+     * @param entity
+     */
+    private void spotCheckDeal(WeightVolumeEntity entity) {
+        if(!FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) || isFirstWeightVolume(entity)){
+            return;
+        }
+        weightAndVolumeCheckService.dealSportCheck(convertToPackWeightVO(entity), SpotCheckSourceEnum.SPOT_CHECK_DWS);
+    }
+
+    public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeEntity entity) {
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler参数:{}", JsonHelper.toJson(entity));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
+        if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            return weightAndVolumeCheckService.checkIsExcess(packWeightVO);
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("自动化称重抽检-handler-不满足自动化抽检条件-参数:{}", JsonHelper.toJson(entity));
+        }
+        result.setMessage("首次称重不进行抽检!");
+        return result;
     }
 
     private void setPackOpeSiteType(WeightVolumeEntity entity, PackOpeDto packOpeDto){
