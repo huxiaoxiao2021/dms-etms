@@ -295,7 +295,6 @@ $(function () {
             title: '有无图片',
             align: 'center',
             formatter: function (value, row, index) {
-                // todo 一单多件抽检类型的 优化为弹出多个图片分页展示
                 return value == 1 ? "有" : "无";
             }
         },{
@@ -311,6 +310,9 @@ $(function () {
                         return ''
                     }*/
                     if(row.isHasPicture == null || row.isHasPicture == 0){
+                        if(row.spotCheckType == 3 && row.recordType == 2){
+                            return ''
+                        }
                         flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                             '<br/>'
                     }else{
