@@ -1233,11 +1233,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
          * ④	分拣【较大值】与计费系统【唯一值】计费较大值，均小于等于1.5公斤，不论误差多少均判断为正常
          */
         Double reviewWeight = weightVolumeCollectDto.getReviewWeight();
+        Double reviewVolume = weightVolumeCollectDto.getReviewVolume();
         Double reviewVolumeWeight = weightVolumeCollectDto.getReviewVolumeWeight();
         if(reviewWeight > reviewVolumeWeight){
             return this.weightAndVolumeCPureTypeCheckAForDwsHandler;
         } else {
-            if(reviewVolumeWeight < Double.parseDouble(multiplePackageVolumeStandard)){
+            if(reviewVolume < Double.parseDouble(multiplePackageVolumeStandard)){
                 return this.weightAndVolumeCPureTypeCheckAForDwsHandler;
             }else {
                 return this.weightAndVolumeCPureTypeCheckBForDwsHandler;
