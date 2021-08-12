@@ -36,6 +36,8 @@
 		</property>
 	</bean>
 
+
+
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
@@ -128,6 +130,17 @@
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+	</bean>
+	<!-- hystrix 动态配置 -->
+	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
+		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
+		<property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
+		<property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
+		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:10}"/>
+		<property name="circuitBreakerForceOpen" value="${route.circuitBreakerForceOpen:false}"/>
+		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:5000}"/>
+		<property name="maximumSize" value="${route.maximumSize:4}"/>
+		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:2}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -225,7 +238,18 @@
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+
+                <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
+                <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerErrorThresholdPercentage</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerForceOpen</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
+                <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 			</list>
 		</property>
 	</bean>
+
+
 </beans>
