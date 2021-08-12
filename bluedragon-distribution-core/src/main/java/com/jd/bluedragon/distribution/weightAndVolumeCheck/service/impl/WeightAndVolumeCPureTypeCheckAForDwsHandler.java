@@ -26,7 +26,7 @@ public class WeightAndVolumeCPureTypeCheckAForDwsHandler extends AbstractCheckSt
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
         standardDto.setExcessFlag(this.isExcess(checkExcessParam, standardDto));
-        standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getSumLWH().doubleValue(), checkExcessParam.getCheckMoreBigValue()));
+        // standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getSumLWH().doubleValue(), checkExcessParam.getCheckMoreBigValue()));
         return standardDto;
     }
 
@@ -58,7 +58,10 @@ public class WeightAndVolumeCPureTypeCheckAForDwsHandler extends AbstractCheckSt
         String excessReasonTemplate = "分拣较大值%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
 
         StringBuilder stringBuilder = new StringBuilder();
-        if (firstWeight <= moreBigValue && checkMoreBigValue > firstWeight) {
+        if (moreBigValue <= firstWeight) {
+            if(checkMoreBigValue <= firstWeight){
+                return false;
+            }
             if (differenceValue > firstStage) {
                 stringBuilder.append(firstStage);
                 standardDto.setHitMessage(stringBuilder.toString());

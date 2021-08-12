@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.CheckExcessParam;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.StandardDto;
 import org.springframework.stereotype.Service;
@@ -25,14 +26,15 @@ public class WeightAndVolumeCPureTypeCheckBForDwsHandler extends AbstractCheckSt
     @Override
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
-        standardDto.setExcessFlag(this.isExcess(checkExcessParam));
-        standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getSumLWH().doubleValue()));
+        standardDto.setExcessFlag(this.isExcess(checkExcessParam, standardDto));
         return standardDto;
     }
 
-    private boolean isExcess(CheckExcessParam checkExcessParam){
+    private boolean isExcess(CheckExcessParam checkExcessParam, StandardDto standardDto){
         Double reviewVolume = checkExcessParam.getReviewVolume();
         Double differenceValue = checkExcessParam.getDifferenceValue();
+        Double moreBigValue = checkExcessParam.getMoreBigValue();
+
         Double dwsPureFirstVolume =  new Double(this.dwsPureStandardBFirstVolume);
         Double dwsPureSecondVolume =  new Double(this.dwsPureStandardBSecondVolume);
         Double dwsPureThirdVolume =  new Double(this.dwsPureStandardBThirdVolume);
@@ -42,26 +44,42 @@ public class WeightAndVolumeCPureTypeCheckBForDwsHandler extends AbstractCheckSt
         Double dwsPureSecondVolumeDeviation =  new Double(this.dwsPureStandardBSecondVolumeDeviation);
         Double dwsPureThirdVolumeDeviation =  new Double(this.dwsPureStandardBThirdVolumeDeviation);
         Double dwsPureFourthVolumeDeviation =  new Double(this.dwsPureStandardBFourthVolumeDeviation);
+
+        String excessReasonTemplate = "分拣较大值为%s且体积在%s立方厘米至%s立方厘米之间并且误差%s超过标准值%s";
+        StringBuilder stringBuilder = new StringBuilder();
+
         if (reviewVolume.compareTo(dwsPureFirstVolume) >= 0 && reviewVolume.compareTo(dwsPureSecondVolume) < 0) {
             if (differenceValue.compareTo(dwsPureFirstVolumeDeviation) > 0) {
+                stringBuilder.append(dwsPureFirstVolumeDeviation);
+                standardDto.setHitMessage(stringBuilder.toString());
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureFirstVolume, dwsPureSecondVolume, differenceValue, dwsPureFirstVolumeDeviation));
                 return true;
             }
             return false;
         }
         if (reviewVolume.compareTo(dwsPureSecondVolume) >= 0 && reviewVolume.compareTo(dwsPureThirdVolume) < 0) {
             if (differenceValue.compareTo(dwsPureSecondVolumeDeviation) > 0) {
+                stringBuilder.append(dwsPureSecondVolumeDeviation);
+                standardDto.setHitMessage(dwsPureSecondVolumeDeviation.toString());
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureSecondVolume, dwsPureThirdVolume, differenceValue, dwsPureSecondVolumeDeviation));
                 return true;
             }
             return false;
         }
         if (reviewVolume.compareTo(dwsPureThirdVolume) >= 0 && reviewVolume.compareTo(dwsPureFourthVolume) < 0) {
             if (differenceValue.compareTo(dwsPureThirdVolumeDeviation) > 0) {
+                stringBuilder.append(dwsPureThirdVolumeDeviation);
+                standardDto.setHitMessage(dwsPureSecondVolumeDeviation.toString());
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureThirdVolume, dwsPureFourthVolume, differenceValue, dwsPureThirdVolumeDeviation));
                 return true;
             }
             return false;
         }
         if (reviewVolume.compareTo(dwsPureFourthVolume) >= 0) {
             if (differenceValue.compareTo(dwsPureFourthVolumeDeviation) > 0) {
+                stringBuilder.append(dwsPureThirdVolumeDeviation);
+                standardDto.setHitMessage(dwsPureSecondVolumeDeviation.toString());
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureFourthVolume, "∞", differenceValue, "体积2%"));
                 return true;
             }
             return false;
