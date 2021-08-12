@@ -1373,6 +1373,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 复核较大值
         Double moreBigValue = waybillWeightVolumeCollectDto.getReviewWeight() >= reviewVolumeWeight ? waybillWeightVolumeCollectDto.getReviewWeight() : reviewVolumeWeight;
         waybillWeightVolumeCollectDto.setMoreBigWeight(moreBigValue);
+        // 较大值差异
+        double contrastLarge = waybillWeightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : waybillWeightVolumeCollectDto.getContrastLarge();
+        double moreBigWeight = waybillWeightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : waybillWeightVolumeCollectDto.getMoreBigWeight();
+        waybillWeightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
         // 抽检核对数据
         // assembleContrastData(waybillWeightVolumeCollectDto);
         // 超标处理
