@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckC
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 
@@ -50,6 +51,12 @@ public interface WeightAndVolumeCheckService {
     InvokeResult<String> searchExcessPicture(String packageCode,Integer siteCode);
 
     /**
+     * 查看超标图片（一单多件）
+     * @return 图片列表
+     */
+    InvokeResult<Pager<String>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager);
+
+    /**
      * 查看超标图片（B网）
      * @param packageCode
      * @param siteCode
@@ -63,6 +70,13 @@ public interface WeightAndVolumeCheckService {
      * @return
      */
     String searchPictureUrlRecent(String prefixName);
+
+    /**
+     * 根据前缀获取最近上传的图片
+     * @param prefixName
+     * @return
+     */
+    String searchPictureUrlRecent(String prefixName, Integer maxKeys);
 
     /**
      * 根据条件查询

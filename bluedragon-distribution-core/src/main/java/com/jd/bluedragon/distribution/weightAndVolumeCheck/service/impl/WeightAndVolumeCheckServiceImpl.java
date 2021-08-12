@@ -301,6 +301,52 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
+    /**
+     * 查看超标图片（一单多件）
+     * @return 图片列表
+     */
+    @Override
+    public InvokeResult<Pager<String>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager){
+        InvokeResult<Pager<String>> result = new InvokeResult<>();
+        final WeightVolumeQueryCondition waybillSpotCheckCondition = weightVolumeQueryConditionPager.getSearchVo();
+        Pager<String> dataPager = new Pager<>();
+        List<String> dataList = new ArrayList<>();
+        try {
+            // 先查询运单所有包裹抽检记录
+            if(waybillSpotCheckCondition.getReviewSiteCode() == null){
+                result.parameterError("参数错误，reviewSiteCode不能为空");
+                return result;
+            }
+            if(waybillSpotCheckCondition.getWaybillCode() == null){
+                result.parameterError("参数错误，waybillCode不能为空");
+                return result;
+            }
+            int siteCode = waybillSpotCheckCondition.getReviewSiteCode();
+            waybillSpotCheckCondition.setIsHasPicture(Constants.YN_YES);
+            waybillSpotCheckCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+
+            final BaseEntity<Pager<String>> packageCodesResult = reportExternalService.getSpotCheckPackageCodesByCondition(weightVolumeQueryConditionPager);
+            final Pager<String> packageCodePager = packageCodesResult.getData();
+            dataPager.setTotal(packageCodePager.getTotal());
+            final List<String> packageCodeList = packageCodePager.getData();
+            for (String packageCode : packageCodeList) {
+                String prefixName = packageCode + Constants.UNDERLINE_FILL + siteCode + Constants.UNDERLINE_FILL;
+                //获取最近的对应的图片并返回
+                String excessPictureUrl = searchPictureUrlRecent(prefixName, 1);
+                if(StringUtils.isNotEmpty(excessPictureUrl)){
+                    dataList.add(excessPictureUrl);
+                }
+            }
+        }catch (Exception e){
+            log.error("searchPicture4MultiplePackage 获取图片链接失败! {}", JsonHelper.toJson(weightVolumeQueryConditionPager));
+            result.parameterError(String.format("查看单号%s站点%s的图片失败!", waybillSpotCheckCondition.getWaybillCode(), waybillSpotCheckCondition.getReviewSiteCode()));
+        }
+        dataPager.setData(dataList);
+        result.setData(dataPager);
+
+        return result;
+    }
+
     @Override
     public InvokeResult<List<String>> searchExcessPictureOfB2b(String barCode, Integer siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<>();
@@ -333,8 +379,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     @Override
-    public String searchPictureUrlRecent(String prefixName) {
-        ObjectListing objectListing = listObject(prefixName, null, 100);
+    public String searchPictureUrlRecent(String prefixName, Integer maxKeys) {
+        if(maxKeys == null || maxKeys <= 0){
+            maxKeys = 1000;
+        }
+        ObjectListing objectListing = listObject(prefixName, null, maxKeys);
         if(objectListing != null && CollectionUtils.isNotEmpty(objectListing.getObjectSummaries())){
             List<String> pictureUrlList = new ArrayList<>(3);
             for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
@@ -350,6 +399,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return findRecentUrl(prefixName, pictureUrlList);
         }
         return Constants.EMPTY_FILL;
+    }
+
+    @Override
+    public String searchPictureUrlRecent(String prefixName) {
+        return this.searchPictureUrlRecent(prefixName, null);
     }
 
     /**
@@ -779,13 +833,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeQueryConditionPager.setPageSize(waybillPackTotalNum);
         weightVolumeQueryConditionPager.setPageNo(1);
         weightVolumeQueryConditionPager.setSearchVo(packageWeightVolumeQuery);
-        BaseEntity<List<String>> packageCodesResult = reportExternalService.getSpotCheckPackageCodesByCondition(weightVolumeQueryConditionPager);
-        log.info("getSpotPackageTotal packageCodesResult {}", packageCodesResult);
+        BaseEntity<Pager<String>> packageCodesResult = reportExternalService.getSpotCheckPackageCodesByCondition(weightVolumeQueryConditionPager);
+        // log.info("getSpotPackageTotal packageCodesResult {}", packageCodesResult);
         if(packageCodesResult.getCode() != BaseEntity.CODE_SUCCESS){
             log.error("getSpotPackageTotal error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageWeightVolumeQuery), packageCodesResult.getMessage());
             return spotCheckPackageExistResult;
         }
-        final List<String> packageCodeExistEsList = packageCodesResult.getData();
+        final List<String> packageCodeExistEsList = packageCodesResult.getData().getData();
 
         Set<String> packageCodeSet = new HashSet<>(packageCodeExistEsList);
         if(packageCodeSet.contains(weightVolumeCollectDto.getWaybillCode())){
@@ -2031,7 +2085,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
             condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            condition.setIsHasPicture(1);
+            condition.setIsHasPicture(Constants.YN_YES);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
             if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
@@ -2113,7 +2167,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 上传图片环节 || 图片早于抽检数据环节
         if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG
                 || weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.IMG_BEFORE_DATA){
-            // 1 一单
+            // 1 一单一件处理
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
             final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
             if(!isMultiplePackage){
@@ -2152,19 +2206,30 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private InvokeResult<Boolean> handleBySendOpForImgMessage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage){
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
-        // 1.1 查询最新一条抽检记录是否有图片，有则下发到FXM
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        int packNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
+        final boolean isMultiplePackage = packNum > Constants.CONSTANT_NUMBER_ONE;
+        // 如果是运单，则按运单号更新所有包裹发货状态
         WeightVolumeQueryCondition query = new WeightVolumeQueryCondition();
         query.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
-        String waybillCode = WaybillUtil.getWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
-        query.setWaybillCode(waybillCode);
-        query.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
+        String waybillCode = weightAndVolumeCheckHandleMessage.getWaybillCode();
+        if (WaybillUtil.isWaybillCode(weightAndVolumeCheckHandleMessage.getPackageCode())) {
+            query.setWaybillCode(waybillCode);
+            if(isMultiplePackage){
+                // 只更新运单发货状态
+                query.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_MULTIPLE_PACKAGE.getCode());
+                query.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+            }
+        } else {
+            query.setPackageCode(weightAndVolumeCheckHandleMessage.getPackageCode());
+        }
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         pager.setSearchVo(query);
         pager.setPageNo(1);
-        pager.setPageSize(1);
+        pager.setPageSize(packNum);
         BaseEntity<Pager<WeightVolumeCollectDto>> weightVolumeExistResult = reportExternalService.getPagerByConditionForWeightVolume(pager);
         if(weightVolumeExistResult.getCode() != BaseEntity.CODE_SUCCESS){
-            log.warn("queryLatestHasUploadPictureCheckRecord getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), weightVolumeExistResult.getMessage());
+            log.warn("updatePackageSendStatus getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), weightVolumeExistResult.getMessage());
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setData(false);
             return result;
@@ -2176,27 +2241,25 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         // 已有的抽检记录，只更新抽检记录中的发货状态
         List<WeightVolumeCollectDto> existList = pageData.getData();
-        List<WeightVolumeCollectDto> existCurrentSiteList = new ArrayList<>();  // 有抽检记录的数据
         for (WeightVolumeCollectDto weightVolumeCollectDto : existList) {
-            if(Objects.equals(weightAndVolumeCheckHandleMessage.getSiteCode(), weightVolumeCollectDto.getReviewSiteCode())){
-                existCurrentSiteList.add(weightVolumeCollectDto);
-                weightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
-                // 更新发货状态
-                reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
-            }
+            WeightVolumeCollectDto updateWeightVolumeCollectDto = new WeightVolumeCollectDto();
+            updateWeightVolumeCollectDto.setPackageCode(weightVolumeCollectDto.getPackageCode());
+            updateWeightVolumeCollectDto.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+            updateWeightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+            // 更新发货状态
+            reportExternalService.updateForWeightVolume(updateWeightVolumeCollectDto);
         }
-        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
-        final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
         if(!isMultiplePackage){
-            List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = this.getHasPictureCheckRecordList(existCurrentSiteList);
+            // 一单一件处理
+            List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = this.getHasPictureCheckRecordList(existList);
             // 无上传图片的抽检记录，此时还不能下发给下游，直接返回
             if(CollectionUtils.isEmpty(existCurrentSiteHasPictureList)){
                 return result;
             }
-            // 下发
+            // 如果有图片，则下发fxm
             this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
         } else {
-            // 一单多件则按运单纬度处理下发
+            // 如果满足条件，一单多件则按运单纬度处理下发fxm
             this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         }
         return result;
@@ -2222,57 +2285,74 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private boolean checkCanSendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill) {
         // 如果运单整体已发货，就不用再关系包裹发货状态
-        final boolean waybillSendStatusCache = this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        boolean waybillSendStatus = this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        final int waybillPackTotalNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
+        // 查找运单纬度的发货状态
+        WeightVolumeQueryCondition waybillVolumeQueryCondition = new WeightVolumeQueryCondition();
+        waybillVolumeQueryCondition.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+        waybillVolumeQueryCondition.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        waybillVolumeQueryCondition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        waybillVolumeQueryCondition.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_MULTIPLE_PACKAGE.getCode());
+        waybillVolumeQueryCondition.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+        // 找es已满足条件的总数
+        BaseEntity<Long> totalResult = reportExternalService.countByParam(waybillVolumeQueryCondition);
+        if(totalResult.getCode() != BaseEntity.CODE_SUCCESS){
+            log.error("checkCanSendMqToFxmForMultiplePackage warn waybillVolumeQueryCondition {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(waybillVolumeQueryCondition), totalResult.getMessage());
+            return false;
+        }
+        long total = totalResult.getData();
+        if(total >= waybillPackTotalNum){
+            waybillSendStatus = true;
+        }
         // 如果是C网纯配运单，且是DWS上传的，判断 发货 + 照片 + 集齐
-        WeightVolumeQueryCondition query = new WeightVolumeQueryCondition();
-        query.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
-        query.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
-        query.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
-        query.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_MULTIPLE_PACKAGE.getCode());
-        query.setIsHasPicture(Constants.YN_YES);
+        WeightVolumeQueryCondition packageVolumeQueryCondition = new WeightVolumeQueryCondition();
+        packageVolumeQueryCondition.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+        packageVolumeQueryCondition.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        packageVolumeQueryCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+        packageVolumeQueryCondition.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_MULTIPLE_PACKAGE.getCode());
+        packageVolumeQueryCondition.setIsHasPicture(Constants.YN_YES);
         // 如果缓存未记录已发货，则需要查es中的发货状态
-        if(!waybillSendStatusCache){
-            query.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+        if(!waybillSendStatus){
+            packageVolumeQueryCondition.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
         }
         // 找es已满足条件的总数
-        BaseEntity<Long> totalResult = reportExternalService.countByParam(query);
+        totalResult = reportExternalService.countByParam(packageVolumeQueryCondition);
         if(totalResult.getCode() != BaseEntity.CODE_SUCCESS){
-            log.error("checkCanSendMqToFxmForMultiplePackage warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), totalResult.getMessage());
+            log.error("checkCanSendMqToFxmForMultiplePackage warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageVolumeQueryCondition), totalResult.getMessage());
             return false;
         }
         // 找es不满足发货、有图片的数据的包裹列表，根据此包裹列表，查找缓存中是否有记录，如果发货、有图片二者缓存都有，则满足条件
-        final int waybillPackTotalNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
-        long total = totalResult.getData();
+        total = totalResult.getData();
         if(total >= waybillPackTotalNum){
             return true;
         }
         // 运单整体未发货
         List<String> notSendSpotCheckPackageCodeList = new ArrayList<>();
-        if(!waybillSendStatusCache){
+        if(!waybillSendStatus){
             // 查找未发货数据
             WeightVolumeQueryCondition notSendSpotCheckCondition = new WeightVolumeQueryCondition();
-            BeanUtils.copyProperties(query, notSendSpotCheckCondition);
+            BeanUtils.copyProperties(packageVolumeQueryCondition, notSendSpotCheckCondition);
             notSendSpotCheckCondition.setNotSendWaybillStatus(Constants.YN_YES);
             notSendSpotCheckCondition.setIsHasPicture(null);
             Pager<WeightVolumeQueryCondition> notSendSpotCheckConditionPager = new Pager<>();
             notSendSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
             notSendSpotCheckConditionPager.setPageNo(1);
             notSendSpotCheckConditionPager.setSearchVo(notSendSpotCheckCondition);
-            final BaseEntity<List<String>> notSendSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(notSendSpotCheckConditionPager);
+            final BaseEntity<Pager<String>> notSendSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(notSendSpotCheckConditionPager);
             // 遍历包裹数据，查找缓存，命中缓存都是已发货
-            notSendSpotCheckPackageCodeList = notSendSpotCheckResult.getData();
+            notSendSpotCheckPackageCodeList = notSendSpotCheckResult.getData().getData();
         }
         // 查找无图片数据
         WeightVolumeQueryCondition noPicSpotCheckCondition = new WeightVolumeQueryCondition();
-        BeanUtils.copyProperties(query, noPicSpotCheckCondition);
+        BeanUtils.copyProperties(packageVolumeQueryCondition, noPicSpotCheckCondition);
         noPicSpotCheckCondition.setIsNoPicture(Constants.YN_NO);
         noPicSpotCheckCondition.setWaybillStatus(null);
         Pager<WeightVolumeQueryCondition> noPicSpotCheckConditionPager = new Pager<>();
         noPicSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
         noPicSpotCheckConditionPager.setPageNo(1);
         noPicSpotCheckConditionPager.setSearchVo(noPicSpotCheckCondition);
-        final BaseEntity<List<String>> noPicSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(noPicSpotCheckConditionPager);
-        final List<String> noPicSpotCheckPackageCodeList = noPicSpotCheckResult.getData();
+        final BaseEntity<Pager<String>> noPicSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(noPicSpotCheckConditionPager);
+        final List<String> noPicSpotCheckPackageCodeList = noPicSpotCheckResult.getData().getData();
 
         // 查找交集
         final HashSet<String> notSendAndNoPicSpotCheckPackageCodeSet = new HashSet<>(notSendSpotCheckPackageCodeList);
@@ -2280,14 +2360,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 遍历未发货+无图片交集，判断是否满足既有发货缓存又有图片缓存
         for (String packageCode : notSendAndNoPicSpotCheckPackageCodeSet) {
             String pictureUrl = this.getPackagePicUrlCache(packageCode, weightAndVolumeCheckHandleMessage.getSiteCode());
-            final boolean packageSendStatus = waybillSendStatusCache || this.getWaybillSendStatusCache(packageCode);
+            final boolean packageSendStatus = waybillSendStatus || this.getWaybillSendStatusCache(packageCode);
             // 有图片
             if(StringUtils.isNotEmpty(pictureUrl) && packageSendStatus){
                 total++;
             }
         }
 
-        if(!waybillSendStatusCache){
+        if(!waybillSendStatus){
             // 遍历仅未发货包裹数据，判断是否有发货缓存
             List<String> justNotSendSpotCheckPackageCodeList = new ArrayList<>(notSendSpotCheckPackageCodeList);
             notSendSpotCheckPackageCodeList.removeAll(justNotSendSpotCheckPackageCodeList);
@@ -2340,7 +2420,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private List<WeightVolumeCollectDto> getHasPictureCheckRecordList(List<WeightVolumeCollectDto> existCurrentSiteList){
         List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = new ArrayList<>();
         for (WeightVolumeCollectDto weightVolumeCollectDto : existCurrentSiteList) {
-            if(Objects.equals(weightVolumeCollectDto.getIsHasPicture(), Constants.YN_YES)){
+            if(Objects.equals(weightVolumeCollectDto.getIsHasPicture(), Constants.YN_YES) && Objects.equals(weightVolumeCollectDto.getIsExcess(), Constants.YN_YES)){
                 existCurrentSiteHasPictureList.add(weightVolumeCollectDto);
             }
         }

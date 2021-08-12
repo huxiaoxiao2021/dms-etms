@@ -16,7 +16,9 @@ import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckRecordTypeEnum;
+import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -231,6 +233,46 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
                                             @QueryParam("siteCode")Integer siteCode) {
 
         return weightAndVolumeCheckService.searchExcessPicture(packageCode,siteCode);
+    }
+
+    /**
+     * 跳转到B网超标图片页面
+     * @param waybillCode
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/toSearchPicture4MultiplePackage")
+    public String toSearchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
+                                           @QueryParam("siteCode")Integer siteCode,
+                                           @QueryParam("pageNo") Integer pageNo,
+                                           @QueryParam("pageSize") Integer pageSize, Model model){
+        model.addAttribute("siteCode",siteCode);
+        model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("pageNo",pageNo);
+        model.addAttribute("pageSize",pageSize);
+        return "/weightAndVolumeCheck/multiplePackageExcessPicture";
+    }
+
+    /**
+     * 查看一单多件超标图片
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/searchPicture4MultiplePackage", method = RequestMethod.GET)
+    @ResponseBody
+    public InvokeResult<Pager<String>> searchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
+                                                                     @QueryParam("siteCode")Integer siteCode,
+                                                                     @QueryParam("pageNo") Integer pageNo,
+                                                                     @QueryParam("pageSize") Integer pageSize) {
+
+        Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager = new Pager<>();
+        WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
+        weightVolumeQueryCondition.setWaybillCode(waybillCode);
+        weightVolumeQueryCondition.setReviewSiteCode(siteCode);
+        weightVolumeQueryConditionPager.setSearchVo(weightVolumeQueryCondition);
+        weightVolumeQueryConditionPager.setPageNo(pageNo);
+        weightVolumeQueryConditionPager.setPageSize(pageSize);
+        return weightAndVolumeCheckService.searchPicture4MultiplePackage(weightVolumeQueryConditionPager);
     }
 
     /**
