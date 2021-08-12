@@ -916,6 +916,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             waybillWeightVolumeCollectDto.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
             boolean contrastDataFromFinance = this.assembleContrastDataFromFinance(waybillWeightVolumeCollectDto);
             // 从计费取到重量，则进行超标判断
+            WeightVolumeCollectDto waybillWeightVolumeCollectDtoUpdate = new WeightVolumeCollectDto();
             if(contrastDataFromFinance){
                 WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
                 weightVolumeQueryCondition.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
@@ -940,8 +941,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 waybillWeightVolumeCollectDto.setReviewWeight(sumCollect.getReviewWeight() + weightVolumeCollectDto.getReviewWeight());
                 waybillWeightVolumeCollectDto.setReviewVolume(sumCollect.getReviewVolume() + weightVolumeCollectDto.getReviewVolume());
 
-                WeightVolumeCollectDto waybillWeightVolumeCollectDtoUpdate = this.assemble4MultiplePackage(waybillWeightVO, waybill, spotCheckSourceEnum, new InvokeResult<Boolean>(), waybillWeightVolumeCollectDto);
+                waybillWeightVolumeCollectDtoUpdate = this.assemble4MultiplePackage(waybillWeightVO, waybill, spotCheckSourceEnum, new InvokeResult<Boolean>(), waybillWeightVolumeCollectDto);
                 waybillWeightVolumeCollectDtoUpdate.setReviewErp(null); // 不更新抽检人erp，仍取第一次抽检人的erp
+                waybillWeightVolumeCollectDtoUpdate.setFullCollect(Constants.YN_YES);
+                // 更新运单纬度数据
+                reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDtoUpdate);
+            } else {
+                // 更新集齐数据
+                waybillWeightVolumeCollectDtoUpdate.setPackageCode(weightVolumeCollectDto.getWaybillCode());
+                waybillWeightVolumeCollectDtoUpdate.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
                 waybillWeightVolumeCollectDtoUpdate.setFullCollect(Constants.YN_YES);
                 // 更新运单纬度数据
                 reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDtoUpdate);
@@ -2246,6 +2254,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         pager.setSearchVo(query);
         pager.setPageNo(1);
         pager.setPageSize(packNum);
+        pager.setSearchVo(query);
         BaseEntity<Pager<WeightVolumeCollectDto>> weightVolumeExistResult = reportExternalService.getPagerByConditionForWeightVolume(pager);
         if(weightVolumeExistResult.getCode() != BaseEntity.CODE_SUCCESS){
             log.warn("updatePackageSendStatus getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), weightVolumeExistResult.getMessage());

@@ -79,7 +79,7 @@ public class WeightAndVolumeCPureTypeCheckBForDwsHandler extends AbstractCheckSt
             if (differenceValue.compareTo(dwsPureFourthVolumeDeviation) > 0) {
                 stringBuilder.append(dwsPureThirdVolumeDeviation);
                 standardDto.setHitMessage(dwsPureSecondVolumeDeviation.toString());
-                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureFourthVolume, "∞", differenceValue, "体积2%"));
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, dwsPureFourthVolume, "∞", differenceValue, "2kg"));
                 return true;
             }
             return false;
