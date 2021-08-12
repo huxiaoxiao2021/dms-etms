@@ -54,6 +54,7 @@ import com.jd.etms.receive.api.response.GrossReturnResponse;
 import com.jd.etms.receive.api.saf.GrossReturnSaf;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.business.api.BackAddressInfoApi;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
@@ -245,6 +246,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private DmsWaybillReverseResponseDTO convertDmsWaybillReverseResponseDTO(SubmitWaybillResponse submitWaybillResponse) {
 		if(submitWaybillResponse != null) {
 			DmsWaybillReverseResponseDTO dmsWaybillReverseResponseDTO = new DmsWaybillReverseResponseDTO();
+			dmsWaybillReverseResponseDTO.setWaybillCode(submitWaybillResponse.getWaybillCode());
 			//收货人信息
 			WaybillConsigneeDto consigneeDto = submitWaybillResponse.getWaybillConsigneeDto();
 			if(consigneeDto != null) {
@@ -496,7 +498,10 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 			return false;
 		}
         if(StringHelper.isNotEmpty(waybillCode)){
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, false, false, false);
+        	WChoice wChoice = new WChoice();
+        	wChoice.setQueryWaybillC(true);
+        	wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
             if(baseEntity != null
                     && baseEntity.getData() != null
                     && baseEntity.getData().getWaybill() != null
