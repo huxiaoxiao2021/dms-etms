@@ -2697,6 +2697,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Override
     public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend, Integer opType) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
+
+        if (JdResponse.CODE_OK.equals(response)) {
+            response = checkBoxSendProcessing(tSendM);
+        }
+
         if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = waybillWasteCheck(tSendM);
         }
@@ -3160,18 +3165,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return new ThreeDeliveryResponse(
                 DeliveryResponse.CODE_Delivery_NO_MESAGE,
                 DeliveryResponse.MESSAGE_Delivery_NO_REQUEST, null);
-    }
-
-    /**
-     * 按运单发货正在执行中
-     * @param tSendM
-     * @return
-     */
-    private boolean sendByWaybillProcessing(SendM tSendM) {
-        String waybillCode = WaybillUtil.getWaybillCode(tSendM.getBoxCode());
-        String batchUniqKey = waybillCode + Constants.UNDER_LINE + tSendM.getCreateSiteCode();
-        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
-        return StringUtils.isNotBlank(redisClientCache.get(redisKey));
     }
 
     /**
@@ -4829,6 +4822,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
         }
 
+        // 校验发货任务是否在处理中
+        response = checkBoxSendProcessing(sendM);
+        if (!DeliveryResponse.CODE_OK.equals(response.getCode())) {
+            return response;
+        }
+
         //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
             response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
@@ -4931,6 +4930,59 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         return response;
+    }
+
+    /**
+     * 校验包裹/箱号/运单正在处理发货中
+     * @param tSendM
+     * @return
+     */
+    private DeliveryResponse checkBoxSendProcessing(SendM tSendM) {
+        String barCode = tSendM.getBoxCode();
+        if (BusinessUtil.isBoxcode(barCode)) {
+            if (sendByBoxOrPackProcessing(tSendM)) {
+                return new DeliveryResponse(DeliveryResponse.BARCODE_DELIVERY_IS_PROCESSING, "该箱号发货正在处理中，请等待处理完成!");
+            }
+        }
+        else if (WaybillUtil.isPackageCode(barCode)) {
+            if (sendByWaybillProcessing(tSendM)) {
+                return new DeliveryResponse(DeliveryResponse.BARCODE_DELIVERY_IS_PROCESSING,
+                        HintService.getHint(HintCodeConstants.WAYBILL_SEND_IS_PROCESSING));
+            }
+            if (sendByBoxOrPackProcessing(tSendM)) {
+                return new DeliveryResponse(DeliveryResponse.BARCODE_DELIVERY_IS_PROCESSING, "该包裹发货正在处理中，请等待处理完成!");
+            }
+        }
+        else if (WaybillUtil.isWaybillCode(barCode)) {
+            if (sendByWaybillProcessing(tSendM)) {
+                return new DeliveryResponse(DeliveryResponse.BARCODE_DELIVERY_IS_PROCESSING,
+                        HintService.getHint(HintCodeConstants.WAYBILL_SEND_IS_PROCESSING));
+            }
+        }
+
+        return DeliveryResponse.oK();
+    }
+
+    /**
+     * 按运单发货正在处理中
+     * @param tSendM
+     * @return
+     */
+    private boolean sendByWaybillProcessing(SendM tSendM) {
+        String waybillCode = WaybillUtil.getWaybillCode(tSendM.getBoxCode());
+        String batchUniqKey = waybillCode + Constants.UNDER_LINE + tSendM.getCreateSiteCode();
+        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
+        return StringUtils.isNotBlank(redisClientCache.get(redisKey));
+    }
+
+    /**
+     * 按箱号/包裹号发货正在处理中
+     * @param tSendM
+     * @return
+     */
+    private boolean sendByBoxOrPackProcessing(SendM tSendM) {
+        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_LOCK_KEY, tSendM.getBoxCode(), tSendM.getCreateSiteCode());
+        return StringUtils.isNotBlank(redisClientCache.get(redisKey));
     }
 
     /**

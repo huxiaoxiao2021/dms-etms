@@ -164,6 +164,8 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_WAYBILL_IS_WASTE = 40020;
     public static final String MESSAGE_WAYBILL_IS_WASTE = "弃件禁止操作，请按公司规定暂存";
 
+    public static final Integer BARCODE_DELIVERY_IS_PROCESSING = 40030;
+
     /**取消发货校验提示语 End*/
 
     /**

@@ -96,21 +96,23 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
         int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
-
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+
+        SendM sendM = wrapper.getSendM();
 
         // 生成本次发货的唯一标识
         String batchUniqKey = genBatchTaskUniqKey(wrapper);
 
         // 设置本次发货的批处理锁，值为本次任务的总页数
-        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
-        redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+        lockPageDelivery(batchUniqKey, pageTotal);
+
+        // 锁定本次发货的包裹/箱号
+        batchLockBox(wrapper.getBarCodeList(), sendM.getCreateSiteCode());
 
         List<List<String>> pageBarCode = CollectionHelper.splitList(wrapper.getBarCodeList(), onePageSize);
 
         for (int i = 0; i < pageTotal; i++) {
 
-            SendM sendM = wrapper.getSendM();
             SendMWrapper copyWrapper = new SendMWrapper();
             copyWrapper.setSendM(sendM);
             copyWrapper.setBatchUniqKey(batchUniqKey);
@@ -145,13 +147,39 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     }
 
     /**
+     * 锁定本次批处理任务
+     * @param batchUniqKey
+     * @param pageTotal
+     * @return
+     */
+    private boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
+        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
+        return redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+    }
+
+    /**
+     * 批量锁定包裹/箱号发货数据
+     * @param barCodeList
+     * @param siteCode
+     * @return
+     */
+    private boolean batchLockBox(List<String> barCodeList, Integer siteCode) {
+        for (String barCode : barCodeList) {
+            String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_LOCK_KEY, barCode, siteCode);
+            redisClientCache.set(redisKey, "lock", EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+        }
+
+        return true;
+    }
+
+    /**
      * 处理发货逻辑
      *
      * @param wrapper
      * @return
      */
     @Override
-    public boolean dealCoreDelivery(SendMWrapper wrapper) {
+    public boolean dealCoreDelivery(final SendMWrapper wrapper) {
         List<SendM> sendMList = Lists.newArrayListWithCapacity(wrapper.getBarCodeList().size());
         final SendM sendM = wrapper.getSendM();
         for (String barCode : wrapper.getBarCodeList()) {
@@ -183,10 +211,15 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 // 全部分页任务处理完成，生成发货任务
                 if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {
 
+                    // 删除批任务处理锁
                     redisClientCache.del(redisKey);
+
                     redisClientCache.del(countRedisKey);
 
-                    // 发货任务
+                    // 解锁包裹/箱号的锁定
+                    releaseLockStatus(wrapper.getBarCodeList(), sendM.getCreateSiteCode());
+
+                    // 插入发货任务
                     deliveryService.addTaskSend(callbacks.get(0));
 
                     if (log.isInfoEnabled()) {
@@ -197,5 +230,16 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         });
 
         return true;
+    }
+
+    /**
+     * 批量解除包裹的锁定状态
+     * @param barCodeList
+     */
+    private void releaseLockStatus(List<String> barCodeList, Integer siteCode) {
+        for (String barCode : barCodeList) {
+            String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_LOCK_KEY, barCode, siteCode);
+            redisClientCache.del(redisKey);
+        }
     }
 }

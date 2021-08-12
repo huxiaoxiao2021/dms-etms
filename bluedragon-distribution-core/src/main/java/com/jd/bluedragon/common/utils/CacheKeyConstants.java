@@ -161,6 +161,7 @@ public class CacheKeyConstants {
 
     public static final String PACKAGE_SEND_BATCH_KEY = DMS_CACHE_PREFIX + "delivery.packageSend:%s";
     public static final String PACKAGE_SEND_COUNT_KEY = DMS_CACHE_PREFIX + "delivery.packageSend.count:%s";
+    public static final String PACKAGE_SEND_LOCK_KEY = DMS_CACHE_PREFIX + "delivery.packageSend.lock:%s:%s";
 
     public static final String WAYBILL_SEND_BATCH_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend:%s";
     public static final String WAYBILL_SEND_COUNT_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend.count:%s";

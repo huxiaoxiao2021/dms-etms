@@ -60,10 +60,11 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
 
             // 生成本次发货的唯一标识
             String batchUniqKey = waybillCode + Constants.UNDER_LINE + wrapper.getSendM().getCreateSiteCode();
-            // 设置本次发货的批处理锁
-            String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
-            redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
 
+            // 设置本次发货的批处理锁
+            lockDeliveryByWaybill(batchUniqKey, pageTotal);
+
+            // 插入分页任务
             for (int i = 0; i < pageTotal; i++) {
 
                 SendM sendM = wrapper.getSendM();
@@ -99,6 +100,22 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
         }
 
         return DeliveryResponse.oK();
+    }
+
+    /**
+     * 锁定按运单发货
+     * @param batchUniqKey
+     * @param pageTotal
+     * @return
+     */
+    private boolean lockDeliveryByWaybill(String batchUniqKey, int pageTotal) {
+        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
+        boolean lockRet = redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+        if (log.isInfoEnabled()) {
+            log.info("按运单发货锁定运单数据. key:{}", batchUniqKey);
+        }
+
+        return lockRet;
     }
 
     /**
