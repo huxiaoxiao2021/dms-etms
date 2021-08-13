@@ -2334,7 +2334,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return false;
         }
         long total = totalResult.getData();
-        if(total >= waybillPackTotalNum){
+        if(total == 1){
             waybillSendStatus = true;
         }
         // 如果是C网纯配运单，且是DWS上传的，判断 发货 + 照片 + 集齐
