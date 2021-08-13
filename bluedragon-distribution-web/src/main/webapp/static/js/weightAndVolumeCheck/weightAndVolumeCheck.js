@@ -611,7 +611,7 @@ $(function () {
                 title: '是否发货',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value == 1 ? "是" : "否";
+                    return value == 2 ? "是" : "否";
                 }
             }, {
                 field: 'isHasPicture',

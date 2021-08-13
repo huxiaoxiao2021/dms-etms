@@ -1008,6 +1008,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"C网纯配运单重量体积抽查只支持扫包裹，请勿扫描其他类型条码");
                     return false;
                 }
+                // 增加ucc开关
+                if(uccPropertyConfiguration.getMultiplePackageSpotCheckSwitchOn() && !uccPropertyConfiguration.matchMultiplePackageSpotCheckSite(packWeightVO.getOperatorSiteCode())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地未开通一单多件抽检功能");
+                    return false;
+                }
                 return true;
             }
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"非C网纯配运单重量体积抽查只支持一单一件!");
