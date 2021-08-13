@@ -2,6 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.jsf.degrade.route.CommandQueryRecommendRoute;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -35,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,11 +81,14 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
 
+    @Resource
+    private HystrixRouteUccPropertyConfiguration hystrixRouteUccPropertyConfiguration;
+
     @Override
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
-            CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
+            CommonDto<RecommendRouteResp> commonDto = new CommandQueryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct,routeComputeUtil,hystrixRouteUccPropertyConfiguration).execute();
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
                 log.warn("查询远程路由中转信息失败,参数列表：startNode:{},endNodeCode:{},predictSendTime:{},routeProduct:{}"
                         ,startNode,endNodeCode,predictSendTime.getTime(),routeProduct);
