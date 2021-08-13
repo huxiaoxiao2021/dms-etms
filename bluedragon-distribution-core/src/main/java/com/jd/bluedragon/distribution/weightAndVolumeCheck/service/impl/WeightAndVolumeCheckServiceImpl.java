@@ -2365,7 +2365,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             // 查找未发货数据
             WeightVolumeQueryCondition notSendSpotCheckCondition = new WeightVolumeQueryCondition();
             BeanUtils.copyProperties(packageVolumeQueryCondition, notSendSpotCheckCondition);
-            notSendSpotCheckCondition.setNotSendWaybillStatus(Constants.YN_YES);
+            notSendSpotCheckCondition.setWaybillStatus(null);
+            notSendSpotCheckCondition.setNotSendWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
             notSendSpotCheckCondition.setIsHasPicture(null);
             Pager<WeightVolumeQueryCondition> notSendSpotCheckConditionPager = new Pager<>();
             notSendSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
@@ -2403,8 +2404,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(!waybillSendStatus){
             // 遍历仅未发货包裹数据，判断是否有发货缓存
             List<String> justNotSendSpotCheckPackageCodeList = new ArrayList<>(notSendSpotCheckPackageCodeList);
-            notSendSpotCheckPackageCodeList.removeAll(justNotSendSpotCheckPackageCodeList);
-            for (String packageCode : notSendSpotCheckPackageCodeList) {
+            notSendSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
+            for (String packageCode : justNotSendSpotCheckPackageCodeList) {
                 if(this.getWaybillSendStatusCache(packageCode)){
                     total++;
                 }
