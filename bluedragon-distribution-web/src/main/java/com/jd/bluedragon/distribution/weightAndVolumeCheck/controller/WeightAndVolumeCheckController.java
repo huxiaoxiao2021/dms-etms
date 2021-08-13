@@ -146,10 +146,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/toUpload")
     public String toUpload(@QueryParam("waybillCode")String waybillCode,
                            @QueryParam("packageCode")String packageCode,
-                           @QueryParam("reviewDate")String reviewDate,Model model) {
+                           @QueryParam("reviewDate")String reviewDate,
+                           @QueryParam("reviewSiteCode")String reviewSiteCode,Model model) {
         model.addAttribute("waybillCode",waybillCode);
         model.addAttribute("packageCode",packageCode);
         model.addAttribute("reviewDate",reviewDate);
+        model.addAttribute("reviewSiteCode",reviewSiteCode);
 
         return "weightAndVolumeCheck/excessPictureUpload";
     }
@@ -169,9 +171,14 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         String importErpCode = erpUser.getUserCode();
         Integer siteCode = -1;
         try{
+            String reviewSiteCode = request.getParameter("reviewSiteCode");
             BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(importErpCode);
             if(baseDto != null){
                 siteCode = baseDto.getSiteCode();
+            }
+            if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
+                result.parameterError("当前用户所属场地与该抽检记录操作场地不一致，不能上传图片");
+                return result;
             }
         }catch (Exception e){
             log.error("通过登陆人erp获取所属分拣中心异常：{}",importErpCode,e);

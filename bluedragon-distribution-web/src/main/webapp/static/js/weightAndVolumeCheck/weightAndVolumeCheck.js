@@ -643,7 +643,7 @@ $(function () {
                             maxmin: true,
                             shadeClose: false,
                             area: ['1000px', '500px'],
-                            content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewDate=" + row.reviewDate,
+                            content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewSiteCode=" + row.reviewSiteCode + "&reviewDate=" + row.reviewDate,
                             success: function(layero, index){
                             }
                         });

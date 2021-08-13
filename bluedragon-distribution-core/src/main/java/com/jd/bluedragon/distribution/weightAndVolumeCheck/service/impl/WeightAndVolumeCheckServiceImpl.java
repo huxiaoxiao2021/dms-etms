@@ -898,6 +898,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         waybillWeightVolumeCollectDto.setReviewLWH("0*0*0");
         waybillWeightVolumeCollectDto.setPackageCode(waybillWeightVolumeCollectDto.getWaybillCode());
         waybillWeightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        // waybillWeightVolumeCollectDto.setIsHasPicture(null);
 
         // 1. 获取已抽检包裹数
         SpotCheckPackageExistResult spotCheckPackageExistResult = this.getSpotPackageTotal(weightVolumeCollectDto, waybillPackTotalNum);

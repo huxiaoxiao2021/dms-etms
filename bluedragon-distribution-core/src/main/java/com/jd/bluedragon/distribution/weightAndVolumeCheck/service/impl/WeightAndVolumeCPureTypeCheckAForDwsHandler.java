@@ -25,6 +25,7 @@ public class WeightAndVolumeCPureTypeCheckAForDwsHandler extends AbstractCheckSt
     @Override
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
+        standardDto.setExcessReason(Constants.EMPTY_FILL);
         standardDto.setExcessFlag(this.isExcess(checkExcessParam, standardDto));
         // standardDto.setHitMessage(this.getStandardVal(checkExcessParam.getSumLWH().doubleValue(), checkExcessParam.getCheckMoreBigValue()));
         return standardDto;
@@ -75,7 +76,7 @@ public class WeightAndVolumeCPureTypeCheckAForDwsHandler extends AbstractCheckSt
             if (differenceValue > secondStage) {
                 stringBuilder.append(secondStage);
                 standardDto.setHitMessage(stringBuilder.toString());
-                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, firstWeight, secondWeight, differenceValue, firstStage));
+                standardDto.setExcessReason(String.format(excessReasonTemplate, moreBigValue, firstWeight, secondWeight, differenceValue, secondStage));
                 return true;
             }
             return false;

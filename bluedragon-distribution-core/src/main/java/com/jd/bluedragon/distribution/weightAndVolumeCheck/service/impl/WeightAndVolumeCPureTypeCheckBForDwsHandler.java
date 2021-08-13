@@ -26,6 +26,7 @@ public class WeightAndVolumeCPureTypeCheckBForDwsHandler extends AbstractCheckSt
     @Override
     public StandardDto checkExcess(CheckExcessParam checkExcessParam) {
         StandardDto standardDto = new StandardDto();
+        standardDto.setExcessReason(Constants.EMPTY_FILL);
         standardDto.setExcessFlag(this.isExcess(checkExcessParam, standardDto));
         return standardDto;
     }
