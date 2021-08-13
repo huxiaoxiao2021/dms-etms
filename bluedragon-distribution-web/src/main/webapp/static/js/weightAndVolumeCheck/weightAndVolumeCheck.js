@@ -607,6 +607,13 @@ $(function () {
                     return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
                 }
             }, {
+                field: 'waybillStatus',
+                title: '是否发货',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return value == 1 ? "是" : "否";
+                }
+            }, {
                 field: 'isHasPicture',
                 title: '有无图片',
                 align: 'center',
