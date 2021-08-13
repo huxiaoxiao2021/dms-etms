@@ -2373,7 +2373,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 查找无图片数据
         WeightVolumeQueryCondition noPicSpotCheckCondition = new WeightVolumeQueryCondition();
         BeanUtils.copyProperties(packageVolumeQueryCondition, noPicSpotCheckCondition);
-        noPicSpotCheckCondition.setIsNoPicture(Constants.YN_NO);
+        noPicSpotCheckCondition.setIsHasPicture(Constants.YN_NO);
         noPicSpotCheckCondition.setWaybillStatus(null);
         Pager<WeightVolumeQueryCondition> noPicSpotCheckConditionPager = new Pager<>();
         noPicSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
