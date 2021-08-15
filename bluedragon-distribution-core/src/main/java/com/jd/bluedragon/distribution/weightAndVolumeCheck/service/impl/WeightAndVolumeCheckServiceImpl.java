@@ -146,6 +146,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 包裹抽检数据运单保存的包裹数据集合
      */
     private Integer waybillPackageWeightCheckRecordExpireTime = 30;
+    /**
+     * 抽检数据下发fxm缓存过期时间
+     */
+    private Integer cacheFxmSendWaybillExpireTime = 15;
 
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
@@ -2300,6 +2304,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     private void sendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill){
+        // 如果已经存在下发fxm的mq缓存，短时时间内不用再次下发
+        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightAndVolumeCheckHandleMessage.getWaybillCode());
+        final boolean cacheFxmSendWaybillExist = jimdbCacheService.exists(cacheFxmSendWaybillKey);
+        if(cacheFxmSendWaybillExist){
+            log.info("sendMqToFxmForMultiplePackage cacheFxmSendWaybillExist will not send {}", weightAndVolumeCheckHandleMessage.getWaybillCode());
+        }
         // 一单多件则按运单纬度处理下发
         final boolean canSendMqToFxmForMultiplePackage = this.checkCanSendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         if(canSendMqToFxmForMultiplePackage){
@@ -2548,6 +2558,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
         log.info("sendMqToFxm abnormalResultMq {}", JsonHelper.toJson(abnormalResultMq));
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+        // 存储运单纬度的fxm下发缓存
+        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightVolumeCollectDto.getWaybillCode());
+        jimdbCacheService.setEx(cacheFxmSendWaybillKey, "1", this.cacheFxmSendWaybillExpireTime, TimeUnit.MINUTES);
     }
 
     /**
