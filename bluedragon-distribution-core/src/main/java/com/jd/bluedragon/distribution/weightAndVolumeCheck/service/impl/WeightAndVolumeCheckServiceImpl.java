@@ -2317,6 +2317,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             final WeightVolumeCollectDto waybillWeightVolumeCollectDto = this.getWaybillWeightVolumeCollectDto4MultiplePackage(weightAndVolumeCheckHandleMessage);
             if(waybillWeightVolumeCollectDto != null){
                 this.sendMqToFxm(waybillWeightVolumeCollectDto);
+                // 存储运单纬度的fxm下发缓存
+                jimdbCacheService.setEx(cacheFxmSendWaybillKey, "1", this.cacheFxmSendWaybillExpireTime, TimeUnit.MINUTES);
             }
         }
     }
@@ -2558,9 +2560,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
         log.info("sendMqToFxm abnormalResultMq {}", JsonHelper.toJson(abnormalResultMq));
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
-        // 存储运单纬度的fxm下发缓存
-        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightVolumeCollectDto.getWaybillCode());
-        jimdbCacheService.setEx(cacheFxmSendWaybillKey, "1", this.cacheFxmSendWaybillExpireTime, TimeUnit.MINUTES);
     }
 
     /**
