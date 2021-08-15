@@ -2405,7 +2405,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(!waybillSendStatus){
             // 遍历仅未发货包裹数据，判断是否有发货缓存
             List<String> justNotSendSpotCheckPackageCodeList = new ArrayList<>(notSendSpotCheckPackageCodeList);
-            notSendSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
+            justNotSendSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
             for (String packageCode : justNotSendSpotCheckPackageCodeList) {
                 if(this.getWaybillSendStatusCache(packageCode)){
                     total++;
