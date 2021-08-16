@@ -2309,6 +2309,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         final boolean cacheFxmSendWaybillExist = jimdbCacheService.exists(cacheFxmSendWaybillKey);
         if(cacheFxmSendWaybillExist){
             log.info("sendMqToFxmForMultiplePackage cacheFxmSendWaybillExist will not send {}", weightAndVolumeCheckHandleMessage.getWaybillCode());
+            return;
         }
         // 一单多件则按运单纬度处理下发
         final boolean canSendMqToFxmForMultiplePackage = this.checkCanSendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
