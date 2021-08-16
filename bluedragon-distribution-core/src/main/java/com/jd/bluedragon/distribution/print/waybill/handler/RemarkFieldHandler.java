@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_RESCHEDULE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT;
 
 /**
  * 
@@ -108,6 +110,18 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					remark = basePrintWaybill.getBusiOrderCode();
 				}
 			}
+			log.info("waybillCode:{},request.getOperateType:{}, remark:{}", waybillCode, request.getOperateType(), remark);
+			if(SWITCH_BILL_PRINT.getType().equals(request.getOperateType())
+					|| SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())
+					|| SMS_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())){
+				if(context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null
+						&& StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getRelWaybillCode())){
+					remark += DmsConstants.REL_WAYBILL_CODE;
+					remark += context.getBigWaybillDto().getWaybill().getRelWaybillCode();
+					log.info("waybillCode:{}, RelWaybillCode:{}", waybillCode, context.getBigWaybillDto().getWaybill().getRelWaybillCode());
+				}
+			}
+			log.info("waybillCode:{},remark:{}", waybillCode, remark);
 		}catch (Exception e){
 			log.error("版本号异常!");
 		}
