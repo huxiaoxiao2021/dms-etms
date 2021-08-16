@@ -2285,7 +2285,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             updateWeightVolumeCollectDto.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
             updateWeightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
             // 更新发货状态
-            reportExternalService.updateForWeightVolume(updateWeightVolumeCollectDto);
+            BaseEntity<Boolean> updateResult = reportExternalService.updateForWeightVolume(updateWeightVolumeCollectDto);
+            if(!updateResult.isSuccess()){
+                log.error("handleBySendOpForImgMessage updateForWeightVolume error {}", JsonHelper.toJson(updateResult));
+            }
         }
         if(!isMultiplePackage){
             // 一单一件处理
