@@ -2218,7 +2218,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 updateWeightVolumeCollectDto.setPackageCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
                 updateWeightVolumeCollectDto.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
                 updateWeightVolumeCollectDto.setIsHasPicture(Constants.YN_YES);
-                reportExternalService.insertOrUpdateForWeightVolume(updateWeightVolumeCollectDto);
+                BaseEntity<String> updateResult = reportExternalService.insertOrUpdateForWeightVolume(updateWeightVolumeCollectDto);
+                if(!updateResult.isSuccess()){
+                    log.error("handleAfterUploadImgMessageOrAfterSend updateForWeightVolume error {}", JsonHelper.toJson(updateResult));
+                }
                 // 再处理下发
                 this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
             }
