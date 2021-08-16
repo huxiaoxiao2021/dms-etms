@@ -474,6 +474,16 @@ public class UccPropertyConfiguration {
      */
     private double spotCheckNoExcessLimit;
 
+    /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1309,4 +1319,53 @@ public class UccPropertyConfiguration {
 	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
 		this.needUseNewReverseApi = needUseNewReverseApi;
 	}
+
+    public int getMultiplePackageSpotCheckSwitch() {
+        return multiplePackageSpotCheckSwitch;
+    }
+
+    public void setMultiplePackageSpotCheckSwitch(int multiplePackageSpotCheckSwitch) {
+        this.multiplePackageSpotCheckSwitch = multiplePackageSpotCheckSwitch;
+    }
+
+    public boolean getMultiplePackageSpotCheckSwitchOn() {
+        return Objects.equals(Constants.YN_YES, multiplePackageSpotCheckSwitch);
+    }
+
+    public String getMultiplePackageSpotCheckSites() {
+        return multiplePackageSpotCheckSites;
+    }
+
+    public void setMultiplePackageSpotCheckSites(String multiplePackageSpotCheckSites) {
+        this.multiplePackageSpotCheckSites = multiplePackageSpotCheckSites;
+    }
+    public List<String> getMultiplePackageSpotCheckSitesList() {
+        if(multiplePackageSpotCheckSites == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(multiplePackageSpotCheckSites.split(Constants.SEPARATOR_COMMA));
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> _multiplePackageSpotCheckSitesList = new ArrayList<>();
+    public void setMultiplePackageSpotCheckSitesList(String multiplePackageSpotCheckSites) {
+        this.multiplePackageSpotCheckSites = multiplePackageSpotCheckSites;
+        this._multiplePackageSpotCheckSitesList = this.getMultiplePackageSpotCheckSitesList();
+    }
+
+    public boolean matchMultiplePackageSpotCheckSite(int siteId) {
+        if(StringUtils.isBlank(multiplePackageSpotCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, multiplePackageSpotCheckSites)){
+            return true;
+        }
+        if(_multiplePackageSpotCheckSitesList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
 }

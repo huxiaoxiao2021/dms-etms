@@ -616,12 +616,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
             }
 
+            String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(sendDetail.getPackageBarcode());
+            // 如果是运单纬度发货，则存运单纬度缓存
+            if(WaybillUtil.isWaybillCode(sendDetail.getPackageBarcode())){
+                key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybill.getWaybillCode());
+            }
+
             // 先存一遍缓存
-            String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybill.getWaybillCode());
             try {
                 redisClientCache.setEx(key, Constants.YN_YES.toString(), this.weightCheckSendStatusExpireTime, TimeUnit.DAYS);
             }catch (Exception e){
-                log.error("存储运单发货状态【{}】异常", key);
+                log.error("pushWeightCheckMq 存储运单或包裹发货状态【{}】异常", key);
             }
 
             String packageCode = sendDetail.getPackageBarcode();

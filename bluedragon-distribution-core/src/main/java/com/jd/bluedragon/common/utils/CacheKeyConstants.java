@@ -70,6 +70,10 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
     /**
+     * 包裹抽检记录的缓存
+     */
+    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s:";
+    /**
      * 抽检包裹上传图片的缓存
      */
 	public static final String CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG = "spotCheck.pictureUrl-%s-%s";
@@ -81,6 +85,10 @@ public class CacheKeyConstants {
 	 * 包裹发货状态缓存redis的key
 	 */
 	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:";
+    /**
+     * 包裹发货状态缓存redis的key
+     */
+    public static final String CACHE_KEY_FXM_SEND_WAYBILL = "dmsWeb:spotCheck:fxmSend:%s";
 	/**
 	 * 卸车任务已拦截包裹扫描
 	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
