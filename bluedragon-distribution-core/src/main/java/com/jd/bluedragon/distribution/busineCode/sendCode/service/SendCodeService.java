@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.busineCode.sendCode.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.busineCode.sendCode.domain.SendCodeDto;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -39,4 +41,27 @@ public interface SendCodeService {
      * @return
      */
     Boolean isFreshSendCode(String sendCode);
+
+    /**
+     * 批次号有效性校验
+     * <ul>
+     *     <li>校验正则</li>
+     *     <li>校验批次号是否存在</li>
+     * </ul>
+     * @param sendCode 批次号
+     * @return
+     */
+    InvokeResult<Boolean> validateSendCodeEffective(String sendCode);
+
+    /**
+     * 批量校验批次号有效性
+     * <ul>
+     *     <li>校验正则</li>
+     *     <li>校验批次号是否存在</li>
+     * </ul>
+     *
+     * @param sendCodeList
+     * @return
+     */
+    InvokeResult<Boolean> batchValidateSendCodeEffective(List<String> sendCodeList);
 }

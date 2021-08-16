@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
-import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -29,7 +30,7 @@ public class AllianceBusiFilter implements Filter {
 
         //只有加盟商运单校验
         if(! this.check(request.getWaybillCache())) {
-            throw new SortingCheckException(SortingResponse.CODE_29552, SortingResponse.MESSAGE_29552);
+            throw new SortingCheckException(SortingResponse.CODE_29552, HintService.getHintWithFuncModule(HintCodeConstants.ALLIANCE_NEED_WEIGHT, request.getFuncModule()));
         }
         chain.doFilter(request,chain);
     }

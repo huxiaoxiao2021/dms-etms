@@ -346,6 +346,13 @@ public interface DeliveryService {
     boolean transitSend(SendM tSendM);
 
     /**
+     * 批量插入中转任务
+     * @param sendMList
+     * @return
+     */
+    boolean batchTransitSend(List<SendM> sendMList);
+
+    /**
      * 判断是当前发货是否为中转发货
      *
      * @param domain 发货对象
@@ -494,4 +501,17 @@ public interface DeliveryService {
      * @return
      */
     DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList);
+
+    /**
+     * 插入发货任务
+     * @param sendM
+     */
+    void addTaskSend(SendM sendM);
+
+    /**
+     * 发货核心逻辑
+     * @param source
+     * @param sendMList
+     */
+    void deliveryCoreLogic(Integer source, List<SendM> sendMList);
 }

@@ -10,6 +10,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao;
@@ -935,7 +937,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
                     && baseSite.getSubType() != null && baseSite.getSubType() == Constants.B2B_SITE_TYPE
                     && loginSiteIsLast(null,waybillCode,siteCode)){
                 result.setCode(HINT_CODE);
-                result.setMessage(HINT_MESSAGE);
+                result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_NEED_TEMP_STORE));
                 String lockKey = IS_NEED_STORAGE_LOCK_BEGIN + waybillCode + "_" + siteCode;
                 if(cacheService.setNx(lockKey,"",7, TimeUnit.DAYS)){
                     result.setData(true);

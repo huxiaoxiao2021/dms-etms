@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.gantry.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.PopPickupRequest;
@@ -8,13 +9,13 @@ import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.gantry.domain.GantryResidentDto;
-import com.jd.bluedragon.distribution.gantry.exception.GantryResidentException;
 import com.jd.bluedragon.distribution.gantry.service.GantryResidentScanService;
 import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +68,9 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
     @Autowired
     private PopPrintService popPrintService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.CORE.GantryResidentScanServiceImpl.dealLogic",
             mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -74,8 +79,9 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
         String waybillCode = WaybillUtil.getWaybillCode(gantryResidentDto.getBarCode());
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if(waybill == null){
-            logger.error("根据运单号【{}】获取运单信息失败!",waybillCode);
-            throw new GantryResidentException(String.format(GantryResidentException.WAYBILL_NOT_EXIST,waybillCode));
+            logger.warn("根据运单号{}未获取到运单信息!", waybillCode);
+            noWaybillDeal(gantryResidentDto);
+            return;
         }
         // 1030-pop收货任务
         addPopReceiveTask(gantryResidentDto,waybill);
@@ -86,6 +92,28 @@ public class GantryResidentScanServiceImpl implements GantryResidentScanService 
         // 处理pop数据
         dealPopData(gantryResidentDto,waybill);
 
+    }
+
+    /**
+     *  无运单信息处理
+     *      发送包裹已接货、配送员揽收的全程跟踪
+     * @param gantryResidentDto
+     */
+    private void noWaybillDeal(GantryResidentDto gantryResidentDto) {
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(gantryResidentDto.getOperateSiteCode());
+        if(BusinessHelper.isSiteType(baseSite.getSiteType()) && gantryResidentDto.isSendPickup()){
+            Date operatorTime = new Date(System.currentTimeMillis() - 30000L);
+            PopPrintRequest req = new PopPrintRequest();
+            req.setPackageBarcode(gantryResidentDto.getBarCode());
+            req.setWaybillCode(WaybillUtil.getWaybillCode(gantryResidentDto.getBarCode()));
+            req.setOperateSiteCode(gantryResidentDto.getOperateSiteCode());
+            req.setOperateSiteName(gantryResidentDto.getOperateSiteName());
+            req.setOperatorCode(gantryResidentDto.getOperatorId());
+            req.setOperatorName(gantryResidentDto.getOperatorName());
+            popPrintService.toTask(req, WaybillStatus.WAYBILL_TRACK_UP_DELIVERY, Constants.TRACE_PACK_RECEIVE, operatorTime);
+            popPrintService.toTask(req, WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,
+                    String.format(Constants.TRACE_DELIVERY_COLLECT, gantryResidentDto.getOperatorName()), operatorTime);
+        }
     }
 
     /**

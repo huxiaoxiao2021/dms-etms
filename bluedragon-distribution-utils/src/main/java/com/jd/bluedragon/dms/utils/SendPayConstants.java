@@ -21,6 +21,10 @@ public interface SendPayConstants {
 	int POSITION_146 = 146;
 	char CHAR_146_1 = '1';
 	/**
+	 * sendpay 第146位=4   面单产品打印【冷链卡班】占位符 jzdflag
+	 */
+	char CHAR_146_4 = '4';
+	/**
 	 * SendPay第188位隐藏收件人信息标识
 	 */
 	int POSITION_188 = 188;

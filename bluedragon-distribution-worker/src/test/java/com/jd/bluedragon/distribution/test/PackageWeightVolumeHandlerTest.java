@@ -32,16 +32,17 @@ public class PackageWeightVolumeHandlerTest {
     public void dealSportCheck(){
         try {
             PackWeightVO packWeightVO = new PackWeightVO();
-            packWeightVO.setHigh(11.3D);
-            packWeightVO.setLength(20.3D);
-            packWeightVO.setWidth(10.3D);
+            packWeightVO.setWeight(6.0D);
+            packWeightVO.setHigh(3.3D);
+            packWeightVO.setLength(3.3D);
+            packWeightVO.setWidth(3.3D);
             packWeightVO.setErpCode("bjxings");
-            packWeightVO.setOperatorSiteCode(39);
-            packWeightVO.setOperatorSiteName("石景山营业部");
+            packWeightVO.setOperatorSiteCode(910);
+            packWeightVO.setOperatorSiteName("北京马驹桥分拣中心");
             packWeightVO.setOrganizationCode(6);
             packWeightVO.setOrganizationName("总公司");
-            packWeightVO.setCodeStr("JDV000693632590-1-1-");
-            weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS, new InvokeResult<Boolean>());
+            packWeightVO.setCodeStr("JDV000464669019-1-1-");
+            weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS);
             Assert.assertTrue(true);
         }catch (Exception e){
             logger.error("服务异常!", e);

@@ -13,7 +13,7 @@ public class ExportWeightVolumeCollectDto implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Date reviewDate;
+    private String reviewDate;
     private String waybillCode;
     private String packageCode;
     /**
@@ -21,23 +21,23 @@ public class ExportWeightVolumeCollectDto implements Serializable {
      */
     private String isTrustBusi;
     private String busiName;
-    private Integer busiCode;
-    private Integer reviewOrgCode;
+    private String busiCode;
+    private String reviewOrgCode;
     private String reviewOrgName;
-    private Integer reviewSiteCode;
+    private String reviewSiteCode;
     private String reviewSiteName;
     private String reviewSubType;
     private String reviewErp;
-    private Double reviewWeight;
+    private String reviewWeight;
     private String reviewLWH;
-    private Double reviewVolume;
-    private Integer billingOrgCode;
+    private String reviewVolume;
+    private String billingOrgCode;
     private String billingOrgName;
-    private Integer billingDeptCode;
+    private String billingDeptCode;
     private String billingDeptName;
     private String billingErp;
-    private Double billingWeight;
-    private Double billingVolume;
+    private String billingWeight;
+    private String billingVolume;
     private String weightDiff;
     private String volumeWeightDiff;
     private String diffStandard;
@@ -50,14 +50,14 @@ public class ExportWeightVolumeCollectDto implements Serializable {
      */
     private String isHasPicture;
     private String pictureAddress;
-    private Double reviewVolumeWeight;
-    private Double billingVolumeWeight;
+    private String reviewVolumeWeight;
+    private String billingVolumeWeight;
     /**
      * 体积重量是否超标
      */
     private String volumeWeightIsExcess;
     private String billingCompany;
-    private Integer productTypeCode;
+    private String productTypeCode;
     private String productTypeName;
     /**
      * 抽检类型
@@ -73,18 +73,20 @@ public class ExportWeightVolumeCollectDto implements Serializable {
      */
     private String fromSource;
     private String merchantCode;
-    private Integer waybillStatus;
-    private Integer volumeRate;
-    private Double moreBigWeight;
-    private Double billingCalcWeight;
-    private Double billingWeightDifference;
+    private String waybillStatus;
+    private String volumeRate;
+    private String moreBigWeight;
+    private String billingCalcWeight;
+    private String billingWeightDifference;
     private String contrastSourceFrom;
+    private String contrastLarge;
+    private String largeDiff;
 
-    public Date getReviewDate() {
+    public String getReviewDate() {
         return reviewDate;
     }
 
-    public void setReviewDate(Date reviewDate) {
+    public void setReviewDate(String reviewDate) {
         this.reviewDate = reviewDate;
     }
 
@@ -120,19 +122,19 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.busiName = busiName;
     }
 
-    public Integer getBusiCode() {
+    public String getBusiCode() {
         return busiCode;
     }
 
-    public void setBusiCode(Integer busiCode) {
+    public void setBusiCode(String busiCode) {
         this.busiCode = busiCode;
     }
 
-    public Integer getReviewOrgCode() {
+    public String getReviewOrgCode() {
         return reviewOrgCode;
     }
 
-    public void setReviewOrgCode(Integer reviewOrgCode) {
+    public void setReviewOrgCode(String reviewOrgCode) {
         this.reviewOrgCode = reviewOrgCode;
     }
 
@@ -144,11 +146,11 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.reviewOrgName = reviewOrgName;
     }
 
-    public Integer getReviewSiteCode() {
+    public String getReviewSiteCode() {
         return reviewSiteCode;
     }
 
-    public void setReviewSiteCode(Integer reviewSiteCode) {
+    public void setReviewSiteCode(String reviewSiteCode) {
         this.reviewSiteCode = reviewSiteCode;
     }
 
@@ -176,11 +178,11 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.reviewErp = reviewErp;
     }
 
-    public Double getReviewWeight() {
+    public String getReviewWeight() {
         return reviewWeight;
     }
 
-    public void setReviewWeight(Double reviewWeight) {
+    public void setReviewWeight(String reviewWeight) {
         this.reviewWeight = reviewWeight;
     }
 
@@ -192,19 +194,19 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.reviewLWH = reviewLWH;
     }
 
-    public Double getReviewVolume() {
+    public String getReviewVolume() {
         return reviewVolume;
     }
 
-    public void setReviewVolume(Double reviewVolume) {
+    public void setReviewVolume(String reviewVolume) {
         this.reviewVolume = reviewVolume;
     }
 
-    public Integer getBillingOrgCode() {
+    public String getBillingOrgCode() {
         return billingOrgCode;
     }
 
-    public void setBillingOrgCode(Integer billingOrgCode) {
+    public void setBillingOrgCode(String billingOrgCode) {
         this.billingOrgCode = billingOrgCode;
     }
 
@@ -216,11 +218,11 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.billingOrgName = billingOrgName;
     }
 
-    public Integer getBillingDeptCode() {
+    public String getBillingDeptCode() {
         return billingDeptCode;
     }
 
-    public void setBillingDeptCode(Integer billingDeptCode) {
+    public void setBillingDeptCode(String billingDeptCode) {
         this.billingDeptCode = billingDeptCode;
     }
 
@@ -240,19 +242,19 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.billingErp = billingErp;
     }
 
-    public Double getBillingWeight() {
+    public String getBillingWeight() {
         return billingWeight;
     }
 
-    public void setBillingWeight(Double billingWeight) {
+    public void setBillingWeight(String billingWeight) {
         this.billingWeight = billingWeight;
     }
 
-    public Double getBillingVolume() {
+    public String getBillingVolume() {
         return billingVolume;
     }
 
-    public void setBillingVolume(Double billingVolume) {
+    public void setBillingVolume(String billingVolume) {
         this.billingVolume = billingVolume;
     }
 
@@ -304,19 +306,19 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.pictureAddress = pictureAddress;
     }
 
-    public Double getReviewVolumeWeight() {
+    public String getReviewVolumeWeight() {
         return reviewVolumeWeight;
     }
 
-    public void setReviewVolumeWeight(Double reviewVolumeWeight) {
+    public void setReviewVolumeWeight(String reviewVolumeWeight) {
         this.reviewVolumeWeight = reviewVolumeWeight;
     }
 
-    public Double getBillingVolumeWeight() {
+    public String getBillingVolumeWeight() {
         return billingVolumeWeight;
     }
 
-    public void setBillingVolumeWeight(Double billingVolumeWeight) {
+    public void setBillingVolumeWeight(String billingVolumeWeight) {
         this.billingVolumeWeight = billingVolumeWeight;
     }
 
@@ -336,11 +338,11 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.billingCompany = billingCompany;
     }
 
-    public Integer getProductTypeCode() {
+    public String getProductTypeCode() {
         return productTypeCode;
     }
 
-    public void setProductTypeCode(Integer productTypeCode) {
+    public void setProductTypeCode(String productTypeCode) {
         this.productTypeCode = productTypeCode;
     }
 
@@ -392,43 +394,43 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.merchantCode = merchantCode;
     }
 
-    public Integer getWaybillStatus() {
+    public String getWaybillStatus() {
         return waybillStatus;
     }
 
-    public void setWaybillStatus(Integer waybillStatus) {
+    public void setWaybillStatus(String waybillStatus) {
         this.waybillStatus = waybillStatus;
     }
 
-    public Integer getVolumeRate() {
+    public String getVolumeRate() {
         return volumeRate;
     }
 
-    public void setVolumeRate(Integer volumeRate) {
+    public void setVolumeRate(String volumeRate) {
         this.volumeRate = volumeRate;
     }
 
-    public Double getMoreBigWeight() {
+    public String getMoreBigWeight() {
         return moreBigWeight;
     }
 
-    public void setMoreBigWeight(Double moreBigWeight) {
+    public void setMoreBigWeight(String moreBigWeight) {
         this.moreBigWeight = moreBigWeight;
     }
 
-    public Double getBillingCalcWeight() {
+    public String getBillingCalcWeight() {
         return billingCalcWeight;
     }
 
-    public void setBillingCalcWeight(Double billingCalcWeight) {
+    public void setBillingCalcWeight(String billingCalcWeight) {
         this.billingCalcWeight = billingCalcWeight;
     }
 
-    public Double getBillingWeightDifference() {
+    public String getBillingWeightDifference() {
         return billingWeightDifference;
     }
 
-    public void setBillingWeightDifference(Double billingWeightDifference) {
+    public void setBillingWeightDifference(String billingWeightDifference) {
         this.billingWeightDifference = billingWeightDifference;
     }
 
@@ -438,5 +440,21 @@ public class ExportWeightVolumeCollectDto implements Serializable {
 
     public void setContrastSourceFrom(String contrastSourceFrom) {
         this.contrastSourceFrom = contrastSourceFrom;
+    }
+
+    public String getContrastLarge() {
+        return contrastLarge;
+    }
+
+    public void setContrastLarge(String contrastLarge) {
+        this.contrastLarge = contrastLarge;
+    }
+
+    public String getLargeDiff() {
+        return largeDiff;
+    }
+
+    public void setLargeDiff(String largeDiff) {
+        this.largeDiff = largeDiff;
     }
 }

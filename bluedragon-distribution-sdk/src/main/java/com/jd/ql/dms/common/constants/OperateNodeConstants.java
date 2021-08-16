@@ -9,7 +9,7 @@ package com.jd.ql.dms.common.constants;
 public class OperateNodeConstants {
 
 
-    // 验货节点
+    // 收货节点
     public static final int RECEIVE = 1;
 
     // 验货节点
@@ -20,4 +20,13 @@ public class OperateNodeConstants {
     
     // 发货节点
     public static final int SEND = 4;
+
+    // 打印节点
+    public static final int PRINT = 5;
+
+    // 打印子节点--平台打印
+    public static final int PRINT__PLAT_PRINT = 501;
+
+    // 称重节点
+    public static final int MEASURE_WEIGHT = 6;
 }

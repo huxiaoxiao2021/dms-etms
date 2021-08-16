@@ -98,6 +98,7 @@ public class TaskServiceImpl implements TaskService {
 	@Autowired
 	private AsynBufferDemotionUtil asynBufferDemotionUtil;
 
+	@JProfiler(jKey = "DMS.WEB.TaskServiceImpl.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public TaskResponse add(TaskRequest request) {
 		//加入监控，开始
 		CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);
@@ -124,7 +125,7 @@ public class TaskServiceImpl implements TaskService {
 
 		//加入监控结束
 		Profiler.registerInfoEnd(info);
-
+		CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add2", false, true);
 		for (Object element : array) {
 			if (Task.TASK_TYPE_REVERSE_SPWARE.equals(request.getType())) {
 				Map<String, Object> reverseSpareMap = (Map<String, Object>) element;
@@ -202,7 +203,7 @@ public class TaskServiceImpl implements TaskService {
 				this.taskAssemblingAndSave(request, eachJson);
 			}
 		}
-
+		Profiler.registerInfoEnd(info2);
 		return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
 				DateHelper.formatDateTime(new Date()));
 	}

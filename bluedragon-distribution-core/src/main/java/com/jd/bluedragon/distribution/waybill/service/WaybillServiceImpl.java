@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
@@ -20,6 +22,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -48,14 +51,12 @@ import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -65,10 +66,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class WaybillServiceImpl implements WaybillService {
@@ -122,7 +120,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private BlockerQueryWSJsfManager blockerQueryWSJsfManager;
-
+    @Autowired
+    private SiteService siteService;
 
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
@@ -141,7 +140,8 @@ public class WaybillServiceImpl implements WaybillService {
 	private static final String MESSAGE_WAYBILL_NOE_FOUND = "运单不存在";
 
 	private static final String DEFAUIT_PACKAGE_WEIGHT = "0.0";
-
+    /* 基础资料subType:6420快运中心 */
+    private static final Integer SUBTYPE_6420 = 6420;
 	@Override
     public BigWaybillDto getWaybill(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
@@ -307,7 +307,7 @@ public class WaybillServiceImpl implements WaybillService {
                 if(abnormalWaybill == null) {
                     invokeResult.setData(false);
                     invokeResult.setCode(SortingResponse.CODE_29121);
-                    invokeResult.setMessage(SortingResponse.MESSAGE_29121);
+                    invokeResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_DELIVERED_WHILE_REVERSE));
                     return invokeResult;
                 }
             }
@@ -762,6 +762,84 @@ public class WaybillServiceImpl implements WaybillService {
         return BusinessHelper.fileTypePackage(waybillSign);
     }
 
+    @Override
+    public Integer getFinalOrFirstRouterFromDb(String waybillCode,int locationFlag) {
+        // 根据waybillCode查库获取路由信息
+        String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        log.info("获取路由字符串为{}",router);
+        //如果没有路由信息 调用运单的路由信息 获取始发和目的转运中心
+        if (StringUtils.isBlank(router)) {
+            BaseEntity<Waybill> result = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+            if(log.isInfoEnabled()){
+                log.info("从数据库实时获取运单路由返回空|getWaybillByWaybillCode：waybillCode={},result={}", waybillCode, JsonHelper.toJson(result));
+            }
+            if(result.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && result.getData() != null){
+                Waybill waybill = result.getData();
+                WaybillExt waybillExt= waybill.getWaybillExt();
+                if(waybillExt != null){
+                    if(locationFlag == -1){
+                        //将dmsid转成纯数字id
+                        log.info("getFinalOrFirstRouterFromDb-router is null;return endDmsId:{}",waybillExt.getEndDmsId());
+                        return waybillExt.getEndDmsId();
+                    }else {
+                        log.info("getFinalOrFirstRouterFromDb-router is null;return startDmsId:{}",waybillExt.getStartDmsId());
+                        return waybillExt.getStartDmsId();
+                    }
+                }
+            }
+        }else{
+            //如果从分拣数据库中能查询到路由信息
+            String[] routerNodes = router.split("\\|");
+            List<String> routerList = Arrays.asList(routerNodes);
+            if(log.isInfoEnabled()){
+                log.info("获取路由routerList字符串为{}", JsonHelper.toJson(routerList));
+            }
+            int routeSize = routerList.size();
+            if(locationFlag == -1){
+                //目的转运中心
+                Integer lastSiteCode = 0;
+                for(int i=routeSize-1; i>=0; i--){
+                    //获取目的转运中心
+                    String siteCode = routerList.get(i);
+                    Site site = siteService.get(Integer.parseInt(siteCode));
+                    if(SUBTYPE_6420.equals(site.getSubType())){
+                        lastSiteCode = Integer.parseInt(siteCode);
+                        break;
+                    }
+                }
+                log.info("获取路由lastSiteCode字符串为{}",lastSiteCode);
+                return lastSiteCode;
+            }else if(locationFlag == 0){
+                //始发转运中心code
+                Integer startSiteCode = 0;
+                for(String  routerStr : routerList){
+                    //判断路由节点是否是始发转运中心 subtype 6420
+                    Site site = siteService.get(Integer.parseInt(routerStr));
+                    if(SUBTYPE_6420.equals(site.getSubType())){
+                        startSiteCode = Integer.parseInt(routerStr);
+                        break;
+                    }
+                }
+                log.info("获取路由startSiteCode字符串为{}",startSiteCode);
+                return startSiteCode;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public boolean isStartOrEndSite(Integer operateSiteCode, String waybillCode, int locationFlag) {
+        //操作所属站点code和目的转运中心code
+        Integer finalRouterCode = getFinalOrFirstRouterFromDb(waybillCode, locationFlag);
+        if(operateSiteCode != null && Objects.equals(operateSiteCode,finalRouterCode)){
+            log.info("isStartOrEndSite-return true;operateSiteCode={},waybillCode={}",operateSiteCode,waybillCode);
+            return true;
+        }else{
+            log.info("isStartOrEndSite-return false;operateSiteCode={},waybillCode={}",operateSiteCode,waybillCode);
+            return false;
+        }
+    }
+
     /**
      * 根据FeatureType获取拦截结果
      *
@@ -827,31 +905,37 @@ public class WaybillServiceImpl implements WaybillService {
 
         if (WaybillCancelInterceptTypeEnum.CANCEL.getCode() == interceptType) {
             if (interceptMode == WaybillCancelInterceptModeEnum.NOTICE.getCode()) {//目前三方验货 要求通知类型的也要拦截
-                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
+                result.customMessage(SortingResponse.CODE_29311, HintService.getHint(HintCodeConstants.CANCEL_WAYBILL_INTERCEPT));
                 return result;
             }
             if (interceptMode == WaybillCancelInterceptModeEnum.INTERCEPT.getCode()) {
-                result.customMessage(SortingResponse.CODE_29311, SortingResponse.MESSAGE_29311);
+                result.customMessage(SortingResponse.CODE_29311, HintService.getHint(HintCodeConstants.CANCEL_WAYBILL_INTERCEPT));
                 return result;
             }
         }
 
         if (WaybillCancelInterceptTypeEnum.REFUSE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29312, SortingResponse.MESSAGE_29312);
+            result.customMessage(SortingResponse.CODE_29312, HintService.getHint(HintCodeConstants.REFUSE_RECEIVE_INTERCEPT));
             return result;
         }
 
         if (WaybillCancelInterceptTypeEnum.MALICE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29313, SortingResponse.MESSAGE_29313);
+            result.customMessage(SortingResponse.CODE_29313, HintService.getHint(HintCodeConstants.MALICIOUS_WAYBILL_INTERCEPT));
+            return result;
+        }
+
+        // 病单提示
+        if (WaybillCancelInterceptTypeEnum.STORAGE_SICK.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29315, SortingResponse.MESSAGE_29315);
             return result;
         }
 
         if (WaybillCancelInterceptTypeEnum.WHITE.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29316, SortingResponse.MESSAGE_29316);
+            result.customMessage(SortingResponse.CODE_29316, HintService.getHint(HintCodeConstants.WHITE_BILL_FORCE_INTERCEPT));
             return result;
         }
         if (WaybillCancelInterceptTypeEnum.CANCEL_SYS_RETURN.getCode() == interceptType) {
-            result.customMessage(SortingResponse.CODE_29317, SortingResponse.MESSAGE_29317);
+            result.customMessage(SortingResponse.CODE_29317, HintService.getHint(HintCodeConstants.RETURN_GOODS_INTERCEPT));
             return result;
         }
         return result;

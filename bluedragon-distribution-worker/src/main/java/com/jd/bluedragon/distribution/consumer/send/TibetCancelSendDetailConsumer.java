@@ -98,7 +98,7 @@ public class TibetCancelSendDetailConsumer extends MessageBaseConsumer {
         ItmsResponse response = tibetBizService.downSendCancelDataToItms(cancelSendDto);
 
         if (log.isInfoEnabled()) {
-            log.info("西藏模式给ITMS下发发货数据. data:{}, response:{}", JsonHelper.toJson(cancelSendDto), JsonHelper.toJson(response));
+            log.info("西藏模式给ITMS下发取消发货数据. data:{}, response:{}", JsonHelper.toJson(cancelSendDto), JsonHelper.toJson(response));
         }
 
         if (!response.success()) {

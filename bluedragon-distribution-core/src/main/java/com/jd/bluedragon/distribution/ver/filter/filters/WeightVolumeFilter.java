@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -75,22 +77,8 @@ public class WeightVolumeFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         //是否开启C网运单校验 标识
-        boolean switchOn = false;
-        //默认false 不开全国校验
-        if(uccPropertyConfiguration.getWeightVolumeFilterWholeCountryFlag()){
-            switchOn = true;
-        }else{
-        //加一个分拣规则
-            Rule rule = null;
-            try {
-                rule = request.getRuleMap().get(RULE_WEIGHT_VOLUMN_SWITCH);
-            } catch (Exception e) {
-                logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_WEIGHT_VOLUMN_SWITCH + "] 没有匹配的规则");
-            }
-            if (rule != null && SWITCH_OFF.equals(rule.getContent())) {//为了上部分站点测试，暂时改变参数的含义 推全国再改回去
-                switchOn = true;
-            }
-        }
+        boolean switchOn = this.getValidateWeightSwitch(request);
+
         String waybillCode = request.getWaybillCode();
         String waybillSign = request.getWaybillCache().getWaybillSign();
         String packageCode = request.getPackageCode();
@@ -111,10 +99,14 @@ public class WeightVolumeFilter implements Filter {
         if(logger.isInfoEnabled()) {
             logger.info("无重量体积校验：waybillSign=" + waybillSign + ",waybillCode=" + waybillCode + ",packageCode=" + packageCode);
         }
+
+        // 一单多件不需要拦截
+        final boolean isMultiplePackage = this.isMultiplePackage(request);
+
         //众邮无重量拦截
-        if( isEconomicNetNeedWeight){
-            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
-                throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
+        if(isEconomicNetNeedWeight){
+            if(!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
+                throw new SortingCheckException(SortingResponse.CODE_29403, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
             }
          //纯配外单无重量拦截-不校验体积
         }else if(isAllPureNeedWeight){
@@ -129,38 +121,42 @@ public class WeightVolumeFilter implements Filter {
                 if(!Objects.equals(InvokeResult.RESULT_SUCCESS_CODE,result.getCode())){
                     //return result;
                     logger.info("WeighVolumeFilter-doFilter,判断是否KA校验,66位为3,但校验不通过,package:{},waybillSin:{}",packageCode,waybillSign);
-                    throw  new SortingCheckException(result.getCode(),result.getMessage());
+                    throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
-                JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-                if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_39002);
-                }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                    throw  new SortingCheckException(jdResponse.getCode() ,SortingResponse.MESSAGE_29419);
+                if(!isMultiplePackage){
+                    JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+                    if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
+                        throw new SortingCheckException(jdResponse.getCode(),
+                                HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
+                    }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
+                        throw new SortingCheckException(jdResponse.getCode(), HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT, request.getFuncModule()));
+                    }
                 }
             }
 
         }else if (isNeedWeight) {
             //查询重量体积信息
-            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+            if (!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
                 }
                 //从运单接口查  数据没有下放的极端情况下 一般不会走
                 WaybillCache waybillNoCache = waybillCacheService.getNoCache(waybillCode);
                 if (waybillNoCache == null) {
-                    throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+                    throw new SortingCheckException(SortingResponse.CODE_39002,
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
                 }
                 //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
-                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
-                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
+                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() < 0
+                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) < 0) {
                     logger.warn("未查询到重量体积信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
 
                     /* C网提示，B网拦截 */
                     if(BusinessUtil.isSignChar(waybillSign, 40, '0')){
-                        throw new SortingCheckException(SortingResponse.CODE_39128, SortingResponse.MESSAGE_39128);
+                        throw new SortingCheckException(SortingResponse.CODE_39128, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_WHEN_BOXING, request.getFuncModule()));
                     }else {
-                        throw new SortingCheckException(SortingResponse.CODE_29403, SortingResponse.MESSAGE_29403);
+                        throw new SortingCheckException(SortingResponse.CODE_29403, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
                     }
                 }
             }
@@ -168,7 +164,38 @@ public class WeightVolumeFilter implements Filter {
         chain.doFilter(request, chain);
     }
 
+    private boolean getValidateWeightSwitch(FilterContext request){
+        boolean switchOn = false;
+        //默认false 不开全国校验
+        if(uccPropertyConfiguration.getWeightVolumeFilterWholeCountryFlag()){
+            switchOn = true;
+        }else{
+            //加一个分拣规则
+            Rule rule = null;
+            try {
+                rule = request.getRuleMap().get(RULE_WEIGHT_VOLUMN_SWITCH);
+            } catch (Exception e) {
+                logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_WEIGHT_VOLUMN_SWITCH + "] 没有匹配的规则");
+            }
+            if (rule != null && SWITCH_OFF.equals(rule.getContent())) {//为了上部分站点测试，暂时改变参数的含义 推全国再改回去
+                switchOn = true;
+            }
+        }
+        return switchOn;
+    }
 
+    /**
+     * 是否是一单多件
+     * @param request 拦截上下文
+     * @return 结果
+     */
+    private boolean isMultiplePackage(FilterContext request) {
+        Integer waybillPackageTotal = request.getWaybillCache().getQuantity();
+        if(waybillPackageTotal != null && waybillPackageTotal > Constants.CONSTANT_NUMBER_ONE){
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 众邮运单是否拦截 -

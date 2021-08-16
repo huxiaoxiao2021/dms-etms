@@ -68,4 +68,12 @@ public interface AsynBufferService {
      */
     boolean inspectionSplitWaybillProcess(Task task) throws Exception;
 
+    /**
+     * 发货异步任务
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    boolean deliverySendProcess(final Task task) throws Exception;
+
 }

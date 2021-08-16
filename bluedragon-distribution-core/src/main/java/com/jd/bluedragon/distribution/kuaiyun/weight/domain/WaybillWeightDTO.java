@@ -11,7 +11,7 @@ public class WaybillWeightDTO
     /*重量 单位kg*/
     private Double weight;
 
-    /*体积 单位立方米*/
+    /*体积 单位立方米 或者 立方厘米（目前已知统一的称重都是立方厘米，pc页面快运称重是立方厘米但是在发给运单dms_waybill_weight的时候会转换成立方厘米）*/
     private Double volume;
 
     /*是否存在运单信息 10 存在 20 不存在*/

@@ -348,7 +348,6 @@ public class CrossBoxController {
 			}
 
 			// 组合完整路线
-			getFullLine(crossBox);
 			crossBox.setYn(1);
 			crossBox.setUpdateOperatorName(userName);
 			crossBox.setCreateOperatorName(userName);
@@ -379,7 +378,6 @@ public class CrossBoxController {
 				userName = erpUser.getUserName();
 			}
 
-			getFullLine(crossDmsBox);
 			crossDmsBox.setYn(1);
 			crossDmsBox.setUpdateOperatorName(userName);
 			crossDmsBox.setUpdateTime(new Date());
@@ -583,7 +581,7 @@ public class CrossBoxController {
 			return resData;
 		}
 
-		String fullLine = getFullLine(crossBox);
+		String fullLine = crossBoxService.getFullLine(crossBox);
 		crossBox.setFullLine(fullLine);
 		resData.setData(crossBox);
 		return resData;
@@ -634,48 +632,7 @@ public class CrossBoxController {
 		return  result;
 	}
 
-	private String getFullLine(CrossBox crossDmsBox) {
-		StringBuffer fullLineBuffer = new StringBuffer();
-		String originalDms = null;
-		String destinationDms = null;
-		String transfer1 = null;
-		String transfer2 = null;
-		String transfer3 = null;
-		if (crossDmsBox.getOriginalDmsId() != null) {
-			originalDms = getDmsNameForLine(crossDmsBox.getOriginalDmsId());
-		}
-		if (crossDmsBox.getDestinationDmsId() != null) {
-			destinationDms = getDmsNameForLine(crossDmsBox.getDestinationDmsId());
-		}
-		if (crossDmsBox.getTransferOneId() != null) {
-			transfer1 = getDmsNameForLine(crossDmsBox.getTransferOneId());
-		}
-		if (crossDmsBox.getTransferTwoId() != null) {
-			transfer2 = getDmsNameForLine(crossDmsBox.getTransferTwoId());
-		}
-		if (crossDmsBox.getTransferThreeId() != null) {
-			transfer3 = getDmsNameForLine(crossDmsBox.getTransferThreeId());
-		}
-		if (StringUtils.isNotBlank(originalDms)) {
-			fullLineBuffer.append(originalDms);
-		}
-		if (StringUtils.isNotBlank(transfer1)) {
-			fullLineBuffer.append(transfer1);
-		}
-		if (StringUtils.isNotBlank(transfer2)) {
-			fullLineBuffer.append(transfer2);
-		}
-		if (StringUtils.isNotBlank(transfer3)) {
-			fullLineBuffer.append(transfer3);
-		}
-		if (StringUtils.isNotBlank(destinationDms)) {
-			fullLineBuffer.append(destinationDms);
-		}
-		String temp = fullLineBuffer.toString();
-		String fullline = temp.substring(0, temp.length() - 2);
-		crossDmsBox.setFullLine(fullline);
-		return fullline;
-	}
+
 
 	private String getDmsName(Integer dmsCode) {
 		StringBuffer sf = null;
@@ -691,24 +648,6 @@ public class CrossBoxController {
 		}
 	}
 
-	private String getDmsNameForLine(Integer dmsCode) {
-		StringBuffer sf = null;
-		if (dmsCode != null) {
-			sf = new StringBuffer();
-			BaseStaffSiteOrgDto result = baseSiteManager.getBaseSiteBySiteId(dmsCode);
-			if (result != null) {
-				if (StringUtils.isNotBlank(result.getDmsShortName())) {
-					sf.append(result.getDmsShortName());
-				} else {
-					sf.append(result.getSiteName());
-				}
-				sf.append("--");
-			}
-			return sf.toString();
-		} else {
-			return null;
-		}
-	}
 
 	protected <T> T newObject(Class<T> cls) {
 		try {

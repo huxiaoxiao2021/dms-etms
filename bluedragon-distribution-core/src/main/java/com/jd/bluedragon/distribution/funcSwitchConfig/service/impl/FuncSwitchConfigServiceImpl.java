@@ -9,6 +9,8 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.DeviceConfigInfoJsfServiceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.external.domain.DmsFuncSwitchDto;
@@ -797,10 +799,10 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
     @Override
     public JdResponse<Void> checkAllPureWeight(WaybillCache waybillCache, String waybillCode, String packageCode){
         if (waybillCache == null) {
-            return new JdResponse(SortingResponse.CODE_39002,SortingResponse.MESSAGE_39002);
+            return new JdResponse(SortingResponse.CODE_39002, HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
         }
-        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>0）
-        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
+        //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>=0）
+        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() >= 0) {
             return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
         }
 
@@ -810,7 +812,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             if(logger.isInfoEnabled()) {
                 logger.info("本地库未查到纯配外单重量,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
             }
-            return  new JdResponse(SortingResponse.CODE_29419,SortingResponse.MESSAGE_29419);
+            return new JdResponse(SortingResponse.CODE_29419, HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT));
         }
         return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
     }
@@ -920,6 +922,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
      * true 拦截  false 不拦截
      * @return
      */
+    @Override
     public boolean getBcBoxFilterStatus(Integer menuCode,Integer siteCode){
         if(!getAllCountryFromCacheOrDb(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode())){
             //ucc 配置为1 全国不拦截  配置站点编码:

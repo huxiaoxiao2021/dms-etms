@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.domain.Site;
@@ -39,7 +41,7 @@ public class TipMessageFilter implements Filter {
             List<String> tipMessageList = new ArrayList<String>();
             request.setTipMessages(tipMessageList);
             if(isWaybillNeedAddQuarantine(request.getWaybillCode(),request.getCreateSiteCode())){
-                tipMessageList.add(TIP_MESSAGE_NEED_ADD_QUARANTINE);
+                tipMessageList.add(HintService.getHintWithFuncModule(HintCodeConstants.JY_CARD_CHECK, request.getFuncModule()));
             }
 
         }

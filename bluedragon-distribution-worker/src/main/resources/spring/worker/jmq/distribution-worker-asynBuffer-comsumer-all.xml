@@ -653,6 +653,23 @@
                         <constructor-arg name="methodName" value="doBoardDeliveryCancel"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 发货异步任务 -->
+                <entry key="${jmq.task.topic.delivery.async.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="deliverySendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+                <entry key="${jmq.task.topic.delivery.async.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="deliverySendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
             </map>
         </constructor-arg>
     </bean>

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
@@ -14,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestBody;
 
 
 /**
@@ -40,7 +43,7 @@ public class FreightFilter implements Filter {
             fixFreight(waybillCache);
             if (!NumberHelper.gt0(waybillCache.getFreight())) {
                 logger.warn("运单无到付运费金额:" + waybillCache.getWaybillCode());
-                throw new SortingCheckException(SortingResponse.CODE_29405, SortingResponse.MESSAGE_29405);
+                throw new SortingCheckException(SortingResponse.CODE_29405, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_RECEIVE_FREIGHT, request.getFuncModule()));
             }
         }
         //b2b校验是否包含-寄付运费
@@ -48,7 +51,7 @@ public class FreightFilter implements Filter {
             fixFreight(waybillCache);
             if (!NumberHelper.gt0(waybillCache.getFreight()) && !BusinessUtil.isFYWZ(waybillCache.getWaybillSign())) {
                 logger.warn("运单无寄付运费金额:" + waybillCache.getWaybillCode());
-                throw new SortingCheckException(SortingResponse.CODE_29406, SortingResponse.MESSAGE_29406);
+                throw new SortingCheckException(SortingResponse.CODE_29406, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_SEND_FREIGHT, request.getFuncModule()));
             }
         }
 
@@ -67,7 +70,7 @@ public class FreightFilter implements Filter {
                 logger.error("运费拦截查询运单信息失败： " + waybillCache.getWaybillCode(), e);
             }
             if (waybillNoCache == null) {
-                throw new SortingCheckException(SortingResponse.CODE_39002, SortingResponse.MESSAGE_39002);
+                throw new SortingCheckException(SortingResponse.CODE_39002, HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
             }
             waybillCache.setFreight(waybillNoCache.getFreight());
         }

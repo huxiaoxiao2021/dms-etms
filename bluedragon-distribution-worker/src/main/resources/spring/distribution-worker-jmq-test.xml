@@ -325,7 +325,6 @@
     <jmq:consumer id="jmq.tmsVehicleJobCancelConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tmsVehicleJobCancel}" listener="tmsVehicleJobCancelConsumer"/>
     </jmq:consumer>
-
     <!--冷链验货消费-->
     <jmq:consumer id="jmq.coldChainInspectionConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.coldChainInspection}" listener="coldChainInspectionConsumer"/>
@@ -337,6 +336,10 @@
     <!--冷链快运发货消费-->
     <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
+    </jmq:consumer>
+    <!--站点名称变更消费-->
+    <jmq:consumer id="jmq.baseSiteChangeConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.baseSiteChange}" listener="baseSiteChangeConsumer"/>
     </jmq:consumer>
 
     <!-- 消费发货明细MQ 给ITMS系统发送发货数据 -->

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.urban.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.urban.dao.TransbillMDao;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
@@ -11,6 +12,8 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillScheduleDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +95,7 @@ public class TransbillMServiceImpl implements TransbillMService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.TransbillMServiceImpl.getByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public TransbillM getByWaybillCode(String waybillCode) {
         if (StringUtils.isNotBlank(waybillCode)) {
             TransbillM transbillM=new TransbillM();

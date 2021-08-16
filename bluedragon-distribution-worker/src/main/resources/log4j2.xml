@@ -73,11 +73,13 @@
         <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
         <Logger name="com.jd.dbs.transaction" level="ERROR" additivity="true"/>
         <Logger name="com.jd.etms.basic.cache" level="ERROR" additivity="true"/>
-
-        <Root level="INFO" name="rootAsyncLogger">
+        <AsyncLogger name="com.jd.dms.logger.aop.BusinessLogWriter" level="INFO" additivity="false">
+            <appender-ref ref="business.log"/>
+        </AsyncLogger>
+        <AsyncLogger level="INFO" name="rootAsyncLogger">
             <AppenderRef ref="console"/>
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
-        </Root>
+        </AsyncLogger>
     </Loggers>
 </Configuration>

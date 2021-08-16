@@ -50,6 +50,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.KY_DELIVERY;
+import static com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -203,20 +204,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             return result;
         }
 
-        //拆分运单包裹列表  拆分箱号列表
-        List<TaskRequest> reqs =  changeToInspectionReq(vo);
 
-        for(TaskRequest req : reqs){
-            TaskResponse taskResponse = taskService.add(req);
-            if(!com.jd.bluedragon.distribution.api.JdResponse.CODE_OK.equals(taskResponse.getCode())){
-                //失败阻断 允许重试幂等即可
-                result.setData(Boolean.FALSE);
-                result.customMessage(JdResponse.CODE_FAIL,taskResponse.getMessage());
-                return result;
-            }
-        }
-
-        return result;
+        return inspectionService.addInspection(vo, null);
     }
 
 
@@ -729,77 +718,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return sendM;
     }
 
-    /**
-     * {"sealBoxCode":null,"boxCode":null,"packageBarOrWaybillCode":"JDVA00182404142-1-1-","exceptionType":null,"operateType":0,"receiveSiteCode":0,"bizSource":31,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 20:57:34.000"}
-     * {"shieldsCarCode":null,"carCode":null,"sealBoxCode":null,"packOrBox":"BC1001210427200014348517","turnoverBoxCode":null,"queueNo":null,"departureCarId":null,"shieldsCarTime":null,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 21:00:00.642"}
-     * @param vo
-     * @return
-     */
-    private void makeToInspectionBody(InspectionVO vo,List<Map<String,String>> boxes,List<Map<String,String>> others){
 
-        for(String barCode : vo.getBarCodes()){
-            Map<String,String> map = new HashMap<>();
-            map.put("userCode",String.valueOf(vo.getUserCode()));
-            map.put("userName",vo.getUserName());
-            map.put("siteCode",String.valueOf(vo.getSiteCode()));
-            map.put("siteName",vo.getSiteName());
-            map.put("operateTime",vo.getOperateTime());
-            map.put("businessType",String.valueOf(Constants.BUSSINESS_TYPE_POSITIVE));
 
-            if(BusinessUtil.isBoxcode(barCode)){
-                //箱号
-                map.put("packOrBox",barCode);
-                boxes.add(map);
-            }else{
-                //非箱号
-                map.put("packageBarOrWaybillCode",barCode);
-                //map.put("bizSource","31");
-                others.add(map);
-            }
-        }
-    }
 
-    /**
-     * {"sealBoxCode":null,"boxCode":null,"packageBarOrWaybillCode":"JDVA00182404142-1-1-","exceptionType":null,"operateType":0,"receiveSiteCode":0,"bizSource":31,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 20:57:34.000"}
-     * {"shieldsCarCode":null,"carCode":null,"sealBoxCode":null,"packOrBox":"BC1001210427200014348517","turnoverBoxCode":null,"queueNo":null,"departureCarId":null,"shieldsCarTime":null,"id":0,"businessType":10,"userCode":10053,"userName":"刑松","siteCode":39,"siteName":"石景山营业部","operateTime":"2021-05-03 21:00:00.642"}
-     * @param vo
-     * @return
-     */
-    private List<TaskRequest> changeToInspectionReq(InspectionVO vo){
-
-        List<Map<String,String>> boxes = new ArrayList<>();
-        List<Map<String,String>> others = new ArrayList<>();
-        makeToInspectionBody( vo,boxes,others);
-
-        List<TaskRequest> requests = new ArrayList<>();
-        for(Map<String,String> boxBody : boxes){
-            TaskRequest request = new TaskRequest();
-            request.setType(Task.TASK_TYPE_RECEIVE);
-            request.setBody(Constants.PUNCTUATION_OPEN_BRACKET
-                    + JsonHelper.toJson(boxBody)
-                    + Constants.PUNCTUATION_CLOSE_BRACKET);
-            request.setKeyword1(String.valueOf(vo.getSiteCode()));
-            request.setReceiveSiteCode(vo.getSiteCode());
-            request.setSiteCode(vo.getSiteCode());
-            request.setBoxCode(boxBody.get("packOrBox"));
-            requests.add(request);
-        }
-
-        for(Map<String,String> otherBody : others){
-            TaskRequest request = new TaskRequest();
-            request.setType(Task.TASK_TYPE_INSPECTION);
-            request.setBody(Constants.PUNCTUATION_OPEN_BRACKET
-                    + JsonHelper.toJson(otherBody)
-                    + Constants.PUNCTUATION_CLOSE_BRACKET);
-            request.setKeyword1(String.valueOf(vo.getSiteCode()));
-            request.setReceiveSiteCode(vo.getSiteCode());
-            request.setSiteCode(vo.getSiteCode());
-            requests.add(request);
-        }
-
-        return requests;
-
-    }
 
     private boolean checkOpeSite(Integer opeSiteCode){
         //登录人机构不是冷链分拣中心

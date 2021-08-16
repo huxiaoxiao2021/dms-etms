@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.service;
 
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumablePackUserRequest;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
@@ -42,6 +39,7 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
      */
     int updatePackUserErpByWaybillCode(List<String> waybillCodeList, String userErp, LoginUser loginUser);
 
+
     /**
      * 通过id更新打包人
      * @param
@@ -56,4 +54,5 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
      */
     int getNoPackUserErpRecordCount(String waybillCode);
 
+    void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
 }

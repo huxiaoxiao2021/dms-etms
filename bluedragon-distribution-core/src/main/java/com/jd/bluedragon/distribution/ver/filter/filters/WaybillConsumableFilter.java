@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.ver.domain.FilterContext;
@@ -40,7 +42,7 @@ public class WaybillConsumableFilter implements Filter {
         }
 
         if(Boolean.FALSE.equals(isConfirmed)){
-            throw new SortingCheckException(SortingResponse.CODE_29120, SortingResponse.MESSAGE_29120);
+            throw new SortingCheckException(SortingResponse.CODE_29120, HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);
