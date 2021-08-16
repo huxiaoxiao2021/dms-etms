@@ -2364,6 +2364,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         packageVolumeQueryCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
         packageVolumeQueryCondition.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_MULTIPLE_PACKAGE.getCode());
         packageVolumeQueryCondition.setIsHasPicture(Constants.YN_YES);
+        packageVolumeQueryCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
         // 如果缓存未记录已发货，则需要查es中的发货状态
         if(!waybillSendStatus){
             packageVolumeQueryCondition.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
