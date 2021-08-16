@@ -2388,6 +2388,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             notSendSpotCheckCondition.setWaybillStatus(null);
             notSendSpotCheckCondition.setNotSendWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
             notSendSpotCheckCondition.setIsHasPicture(null);
+            notSendSpotCheckCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
             Pager<WeightVolumeQueryCondition> notSendSpotCheckConditionPager = new Pager<>();
             notSendSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
             notSendSpotCheckConditionPager.setPageNo(1);
@@ -2401,6 +2402,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         BeanUtils.copyProperties(packageVolumeQueryCondition, noPicSpotCheckCondition);
         noPicSpotCheckCondition.setIsHasPicture(Constants.YN_NO);
         noPicSpotCheckCondition.setWaybillStatus(null);
+        noPicSpotCheckCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
         Pager<WeightVolumeQueryCondition> noPicSpotCheckConditionPager = new Pager<>();
         noPicSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
         noPicSpotCheckConditionPager.setPageNo(1);
@@ -2440,7 +2442,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 total++;
             }
         }
-        if(total >= waybillPackTotalNum){
+        if(total + 1 >= waybillPackTotalNum){
             return true;
         } else {
             log.info("checkCanSendMqToFxmForMultiplePackage 未集齐，不发送");
