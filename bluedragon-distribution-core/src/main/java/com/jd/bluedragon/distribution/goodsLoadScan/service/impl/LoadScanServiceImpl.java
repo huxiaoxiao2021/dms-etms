@@ -2196,6 +2196,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             return false;
         }
         Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+        if (waybill == null) {
+            return false;
+        }
         BigDecimal waybillWeight = new BigDecimal(0);
         BigDecimal waybillVolume = new BigDecimal(0);
         //先取复重、复量方,不存在取原重、原体积
