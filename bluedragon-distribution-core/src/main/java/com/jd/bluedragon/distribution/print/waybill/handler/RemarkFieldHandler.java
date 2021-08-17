@@ -110,25 +110,26 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 					remark = basePrintWaybill.getBusiOrderCode();
 				}
 			}
-			log.info("waybillCode:{},request.getOperateType:{}, remark:{}", waybillCode, request.getOperateType(), remark);
-			if(SWITCH_BILL_PRINT.getType().equals(request.getOperateType())
-					|| SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())
-					|| SMS_REVERSE_CHANGE_PRINT.getType().equals(request.getOperateType())){
-				if(context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null
-						&& StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getRelWaybillCode())){
-					remark += DmsConstants.REL_WAYBILL_CODE;
-					remark += context.getBigWaybillDto().getWaybill().getRelWaybillCode();
-					log.info("waybillCode:{}, RelWaybillCode:{}", waybillCode, context.getBigWaybillDto().getWaybill().getRelWaybillCode());
-				}
-			}
-			log.info("waybillCode:{},remark:{}", waybillCode, remark);
 		}catch (Exception e){
-			log.error("版本号异常!");
+			log.error("RemarkFieldHandler error! {}",waybillCode,e);
 		}
 		//Sendpay292位为1，面单打印“合约机 需激活”
 		if(BusinessUtil.isContractPhone(sendPay)){
 			remark = StringHelper.appendIfNotExist(remark, TextConstants.REMARK_CONTRACT_PHONE);
 		}
+		/**
+		 * 爱回收
+		 */
+		if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
+				|| SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
+				|| SMS_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
+			if(context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null
+					&& StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getRelWaybillCode())){
+				remark += DmsConstants.REL_WAYBILL_CODE;
+				remark += context.getBigWaybillDto().getWaybill().getRelWaybillCode();
+			}
+		}
+		log.info("RemarkFieldHandler waybillCode:{},remark:{}", waybillCode, remark);
 		basePrintWaybill.setRemark(remark);
 		return context.getResult();
 	}
