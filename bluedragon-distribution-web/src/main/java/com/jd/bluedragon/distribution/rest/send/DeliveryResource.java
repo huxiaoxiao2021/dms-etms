@@ -687,6 +687,7 @@ public class DeliveryResource {
         }
     }
 
+    @Deprecated
     @POST
     @Path("/delivery/router/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification", mState = {JProEnum.TP})
@@ -694,6 +695,11 @@ public class DeliveryResource {
         return checkThreeDelivery(request,Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
     }
 
+    /**
+     * 快运发货、冷链发货调用
+     * @param request
+     * @return
+     */
     @POST
     @Path("/delivery/router/verification/new")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)

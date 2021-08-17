@@ -1,0 +1,37 @@
+package com.jd.bluedragon.distribution.delivery.processor;
+
+import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
+import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
+
+/**
+ * @ClassName IDeliveryBaseHandler
+ * @Description
+ * @Author wyh
+ * @Date 2021/8/9 11:41
+ **/
+public interface IDeliveryBaseHandler {
+
+    /**
+     * 生成该次发货操作的唯一标识
+     * @param wrapper
+     * @return
+     */
+    String genBatchTaskUniqKey(SendMWrapper wrapper);
+
+    /**
+     * 生成发货异步任务
+     * @param wrapper
+     * @return
+     */
+    DeliveryResponse initDeliveryTask(SendMWrapper wrapper);
+
+    /**
+     * 处理发货逻辑
+     * @param wrapper
+     * @return
+     */
+    boolean dealCoreDelivery(SendMWrapper wrapper);
+}

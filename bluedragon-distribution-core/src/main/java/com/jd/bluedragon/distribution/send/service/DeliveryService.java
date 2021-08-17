@@ -501,4 +501,17 @@ public interface DeliveryService {
      * @return
      */
     DeliveryResponse dealFileBoxBatchSending(SendBizSourceEnum source, List<SendM> sendMList, List<SendM> fileSendMList);
+
+    /**
+     * 插入发货任务
+     * @param sendM
+     */
+    void addTaskSend(SendM sendM);
+
+    /**
+     * 发货核心逻辑
+     * @param source
+     * @param sendMList
+     */
+    void deliveryCoreLogic(Integer source, List<SendM> sendMList);
 }

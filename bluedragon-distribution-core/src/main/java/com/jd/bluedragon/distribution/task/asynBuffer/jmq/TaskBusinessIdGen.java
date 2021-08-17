@@ -100,6 +100,11 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
                 return waybillCode;
             }
         }
+
+        if (Task.TASK_TYPE_DELIVERY_ASYNC.equals(taskType)) {
+            return task.getKeyword2();
+        }
+
         return null;
     }
 }

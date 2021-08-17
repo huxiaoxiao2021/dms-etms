@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.inspection.InspectionOperateTypeEnum;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
@@ -160,6 +161,37 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
         catch (Exception ex) {
             log.error("验货拆分任务执行失败, task: {}. 异常: ", task.getBody() , ex);
+            return false;
+        }
+
+        return true;
+    }
+
+    @Autowired
+    private IDeliveryOperationService deliveryOperationService;
+
+    /**
+     * 发货异步任务
+     * @param task
+     * @return
+     */
+    @Override
+    public boolean deliverySendProcess(final Task task) {
+        if (null == task || StringUtils.isBlank(task.getBody())) {
+            return true;
+        }
+        try {
+            String umpKey = "DmsWorker.Task.deliverySendProcess.execute";
+            String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
+            UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {
+                @Override
+                public void process() throws Exception {
+                    deliveryOperationService.dealDeliveryTask(task);
+                }
+            });
+        }
+        catch (Throwable ex) {
+            log.error("发货异步任务执行失败, task: {}. 异常: ", task.getBody() , ex);
             return false;
         }
 

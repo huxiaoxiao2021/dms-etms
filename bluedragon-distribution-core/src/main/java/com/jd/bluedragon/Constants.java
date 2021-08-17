@@ -1490,6 +1490,12 @@ public class Constants {
     public static final Integer NUMBER_ZERO = 0;
 
     /**
+     * SendD取消状态
+     */
+    public static final int OPERATE_TYPE_CANCEL_L = 0;
+    public static final int OPERATE_TYPE_CANCEL_Y = 1;
+
+    /**
      * 线路类型-默认值0
      */
     public static Integer LINE_TYPE_DEFAULT = 0;

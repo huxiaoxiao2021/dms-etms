@@ -309,7 +309,7 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
-    
+
     /**
      * 是否走新的逆向接口
      */
@@ -483,6 +483,19 @@ public class UccPropertyConfiguration {
      * 一单多件抽检场地配置，配置ALL表示全部开启
      */
     private String multiplePackageSpotCheckSites;
+
+    /**
+     * 老发货异步任务开关
+     */
+    private String deliverySendAsyncSite;
+
+    public String getDeliverySendAsyncSite() {
+        return deliverySendAsyncSite;
+    }
+
+    public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
+        this.deliverySendAsyncSite = deliverySendAsyncSite;
+    }
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;

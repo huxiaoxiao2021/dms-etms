@@ -1511,7 +1511,18 @@
 			<artifactId>mobilePhoneMsg-sender-client-jsf</artifactId>
 			<version>3.2-SNAPSHOT</version>
 		</dependency>
-
+		<!-- 熔断降级组件 https://github.com/Netflix/Hystrix/wiki/How-To-Use -->
+		<dependency>
+			<groupId>com.netflix.hystrix</groupId>
+			<artifactId>hystrix-core</artifactId>
+			<version>1.5.18</version>
+		</dependency>
+		<!-- 熔断降级组件-注解插件 https://github.com/Netflix/Hystrix/tree/master/hystrix-contrib/hystrix-javanica -->
+		<dependency>
+			<groupId>com.netflix.hystrix</groupId>
+			<artifactId>hystrix-javanica</artifactId>
+			<version>1.5.12</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.lljk</groupId>
 			<artifactId>ccmp-ctm-api</artifactId>

@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
 
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd" default-lazy-init="true">
 
  	<aop:aspectj-autoproxy/>
 
@@ -63,7 +63,7 @@
 	<import resource="distribution-beans.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-waybill.xml" />
 
-	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
+	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper"/>
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.ws" />
