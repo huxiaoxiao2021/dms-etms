@@ -573,6 +573,15 @@ public class LoadScanServiceImpl implements LoadScanService {
         reportList = dmsDisSendService.getLoadScanListByWaybillCode(waybillCodeList, createSiteId);
 
         log.info("根据暂存表记录反查分拣报表正常返回，taskId={},size={}", req.getTaskId(), reportList.size());
+        if (CollectionUtils.isEmpty(reportList)) {
+            scanDetailDto.setGoodsDetailDtoList(goodsDetailDtoList);
+            scanDetailDto.setTotalWeight(0d);
+            scanDetailDto.setTotalVolume(0d);
+            scanDetailDto.setTotalPackageNum(0);
+            response.setCode(JdCResponse.CODE_SUCCESS);
+            response.setData(scanDetailDto);
+            return response;
+        }
         // 转换数据
         if (!CollectionUtils.isEmpty(reportList)) {
             log.info("根据暂存表记录反查分拣报表结束，开始转换数据。taskId={}", req.getTaskId());
