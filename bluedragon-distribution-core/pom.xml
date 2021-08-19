@@ -60,12 +60,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>ql-dms-report</groupId>
-			<artifactId>report-sdk</artifactId>
-			<version>1.1.32-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
 			<groupId>com.jd.b2b.wt</groupId>
 			<artifactId>wt-assemble-sdk</artifactId>
 			<version>0.0.1-SNAPSHOT</version>

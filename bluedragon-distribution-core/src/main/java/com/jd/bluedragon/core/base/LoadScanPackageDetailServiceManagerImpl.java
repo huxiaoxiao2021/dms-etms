@@ -6,24 +6,25 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ql.dms.report.LoadScanPackageDetailService;
-import com.jd.ql.dms.report.domain.BaseEntity;
-import com.jd.ql.dms.report.domain.LoadScanDto;
-import com.jd.ql.dms.report.domain.LoadScanReqDto;
+import com.jd.merchant.api.common.dto.BaseEntity;
+import com.jd.merchant.api.pack.dto.LoadScanDto;
+import com.jd.merchant.api.pack.dto.LoadScanReqDto;
+import com.jd.merchant.api.pack.ws.LoadScanPackageDetailWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Service("loadScanPackageDetailServiceManager")
 public class LoadScanPackageDetailServiceManagerImpl implements LoadScanPackageDetailServiceManager {
-    @Autowired
-    private LoadScanPackageDetailService loadScanPackageDetailService;
+
+    @Resource
+    private LoadScanPackageDetailWS loadScanPackageDetailWs;
 
 
     /**
@@ -44,7 +45,7 @@ public class LoadScanPackageDetailServiceManagerImpl implements LoadScanPackageD
             loadScanReqDto.setFormTime(fromTime.getTime());
             loadScanReqDto.setToTime(System.currentTimeMillis());
             loadScanReqDto.setLoadWaybillCodeList(waybillCodeList);
-            BaseEntity<List<LoadScanDto>> jsfRes = loadScanPackageDetailService.getWaitLoadWaybillInfo(loadScanReqDto);
+            BaseEntity<List<LoadScanDto>> jsfRes = loadScanPackageDetailWs.getWaitLoadWaybillInfo(loadScanReqDto);
             if(jsfRes == null) {
                 log.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--error--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
                 res.toError("查询库存运单信息失败");
