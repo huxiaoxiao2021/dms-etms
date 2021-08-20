@@ -296,6 +296,7 @@ $(function () {
                                         }
                                     });
                                     if(!sign){
+                                        $('#waybillDataTable').bootstrapTable("removeAll");
                                         $('#waybillDataTable').bootstrapTable('append', data.data);
                                     }
                                 },
@@ -311,6 +312,7 @@ $(function () {
                                 }
                             });
                             if(!sign){
+                                $('#waybillDataTable').bootstrapTable("removeAll");
                                 $('#waybillDataTable').bootstrapTable('append', data.data);
                             }
                         }
@@ -391,32 +393,22 @@ $(function () {
 
         //运单维度
         if($('#checkOfWaybill').attr("checked")){
-            var waybillData = $('#waybillDataTable').bootstrapTable('getSelections');
-            if(waybillData.length == 0){
-                Jd.alert('请选中在提交!');
-                return;
-            }
-            if(waybillData.length > 1){
-                Jd.alert('请选中一条记录提交!');
+            var waybillData = $('#waybillDataTable').bootstrapTable('getData');
+            var uploadNum = $('#waybillDataTable')[0].rows[1].cells[6].innerHTML;
+            if(waybillData[0].isExcess == 1 && uploadNum != 5){
+                Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片!');
                 return;
             }
             var param = {};
-            for(var i=0;i<waybillData.length;i++){
-                var uploadNum = $('#waybillDataTable')[0].rows[i+1].cells[6].innerHTML;
-                if(waybillData[i].isExcess == 1 && uploadNum != 5){
-                    Jd.alert('请先上传'+waybillData[i].waybillCode+'的超标图片!');
-                    return;
-                }
-                param.isWaybill = 1;
-                param.waybillOrPackageCode = waybillData[i].waybillCode;
-                param.packNum = waybillData[i].packNum;
-                param.waybillWeight = waybillData[i].waybillWeight;
-                param.waybillVolume = waybillData[i].waybillVolume;
-                param.isExcess = waybillData[i].isExcess;
-                param.upLoadNum = uploadNum;
-                param.createSiteCode = $('#createSiteCode').val();
-                param.loginErp = $('#loginErp').val();
-            }
+            param.isWaybill = 1;
+            param.waybillOrPackageCode = waybillData[0].waybillCode;
+            param.packNum = waybillData[0].packNum;
+            param.waybillWeight = waybillData[0].waybillWeight;
+            param.waybillVolume = waybillData[0].waybillVolume;
+            param.isExcess = waybillData[0].isExcess;
+            param.upLoadNum = uploadNum;
+            param.createSiteCode = $('#createSiteCode').val();
+            param.loginErp = $('#loginErp').val();
 
             jQuery.ajax({
                 type: 'post',
@@ -438,10 +430,10 @@ $(function () {
             //包裹维度
             var allTableData = $('#packageDataTable').bootstrapTable('getData');
             //判断是否全部提交
-            var isExcess = $('#packageDataTable')[0].rows[1].cells[5].innerHTML;
+            var isExcess = $('#packageDataTable')[0].rows[1].cells[6].innerHTML;
             if(isExcess == '是'){
                 for(var i = 0;i<allTableData.length;i++){
-                    var upLoadNum = $('#packageDataTable')[0].rows[i+1].cells[6].innerHTML;
+                    var upLoadNum = $('#packageDataTable')[0].rows[i+1].cells[7].innerHTML;
                     if(upLoadNum !='5'){
                         Jd.alert('请全部上传后再提交!');
                         return;
