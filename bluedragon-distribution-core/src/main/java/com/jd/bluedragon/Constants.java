@@ -1568,6 +1568,15 @@ public class Constants {
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
 
     /**
+     * B网特快重货重泡比
+     * */
+    public static final int VOLUME_RATIO_TKZH = 6000;
+    /**
+     * B网非特快重货重泡比
+     * */
+    public static final int VOLUME_RATIO_NOT_TKZH = 4800;
+
+    /**
      * 驻厂操作全程跟踪
      */
     public static final String TRACE_PACK_RECEIVE = "订单/包裹已接货";

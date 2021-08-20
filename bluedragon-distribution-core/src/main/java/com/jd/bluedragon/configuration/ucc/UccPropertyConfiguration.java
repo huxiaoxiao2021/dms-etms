@@ -425,14 +425,6 @@ public class UccPropertyConfiguration {
      */
     private boolean paralleGetPackageSwitch;
 
-    public boolean getCheckSignAndReturn() {
-        return checkSignAndReturn;
-    }
-
-    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
-        this.checkSignAndReturn = checkSignAndReturn;
-    }
-
     /**
      * 反调度校验滑道信息 开关
      * true :检验 false 不校验
@@ -454,6 +446,14 @@ public class UccPropertyConfiguration {
      * 抽检不超标限制
      */
     private double spotCheckNoExcessLimit;
+
+    /**
+     * 开启新抽检场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  null表示未开启
+     */
+    private String newSpotCheckSiteCodes;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1079,6 +1079,13 @@ public class UccPropertyConfiguration {
     public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
         this.dazongPackageOperateMax = dazongPackageOperateMax;
     }
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
 
     public boolean getInspectNoSendNoLoadWaybillDemotion() {
         return inspectNoSendNoLoadWaybillDemotion;
@@ -1226,5 +1233,13 @@ public class UccPropertyConfiguration {
 
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
+    }
+
+    public String getNewSpotCheckSiteCodes() {
+        return newSpotCheckSiteCodes;
+    }
+
+    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
+        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
     }
 }

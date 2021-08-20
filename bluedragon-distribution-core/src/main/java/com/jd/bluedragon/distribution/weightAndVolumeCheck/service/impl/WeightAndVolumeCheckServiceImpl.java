@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
-import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
@@ -11,7 +10,6 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
-import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -29,9 +27,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.common.Page;
@@ -85,11 +80,6 @@ import java.util.concurrent.TimeUnit;
 public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-    /**
-     * C网抽检是否下发MQ缓存前缀
-     * */
-    private static final String B2C_SPOT_CHECK_ISSUE = "B2C_SPOT_CHECK_ISSUE_";
 
     @Value("${spotCheck.fourSumLWH:70}")
     public String fourSumLWH;
@@ -172,9 +162,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
-    @Autowired
-    private LogEngine logEngine;
-
     /**
      * 不允许第二个分拣中心称重的返回码
      */
@@ -183,11 +170,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 抽检发现超标返回码
      */
     private final int CHECK_OVER_STANDARD_CODE = 30002;
-    /**
-     * 无计费数据返回码
-     */
-    private final int NO_CHARGE_SYSTEM_DATA_CODE = 30003;
-
     /**
      * standard  超标校验对象为空 返回码
      */
@@ -381,87 +363,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 发消息并更新es
      * @param packageCode
      * @param siteCode
-     * @deprecated
-     */
-    @Override
-    public void sendMqAndUpdate(String packageCode, Integer siteCode){
-
-        //获取图片链接
-        InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
-        if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
-                || StringUtils.isEmpty(result.getData())){
-            log.warn("运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
-            return;
-        }
-        String pictureAddress = result.getData();
-
-        WeightVolumeCollectDto weightVolumeCollectDto;
-        try {
-            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-            condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            condition.setIsHasPicture(0);
-            condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
-            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
-            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
-                    || baseEntity.getData().get(0) == null){
-                log.warn("通过运单【{}】站点【{}】查询超标数据为空",packageCode,siteCode);
-                return;
-            }
-            weightVolumeCollectDto = baseEntity.getData().get(0);
-        }catch (Exception e){
-            log.warn("通过运单【{}】站点【{}】查询超标数据异常",packageCode,siteCode,e);
-            return;
-        }
-
-        //更新es数据设置图片连接
-        try {
-            weightVolumeCollectDto.setPictureAddress(pictureAddress);
-            weightVolumeCollectDto.setIsHasPicture(1);
-            reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
-        }catch (Exception e){
-            log.warn("通过运单【{}】站点【{}】更新超标数据异常",packageCode,siteCode,e);
-        }
-
-        // 同一包裹只下发一次超标数据（一单一件）
-        String key = B2C_SPOT_CHECK_ISSUE.concat(WaybillUtil.getWaybillCode(packageCode));
-        try {
-            String redisValue = jimdbCacheService.get(key);
-            if(redisValue != null && Boolean.valueOf(redisValue) == true){
-                return;
-            }
-        }catch (Exception e){
-            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
-        }
-
-        // 发对外消息
-        Date reviewDate = weightVolumeCollectDto.getReviewDate();
-        Date uploadTime = new Date();
-        if(checkIsOverTime(reviewDate,uploadTime)){
-            log.warn("运单【{}】上传图片时间【{}】已超过站点【{}】的抽检时间【{}】【{}】天",packageCode,
-                    DateHelper.formatDateTime(uploadTime),siteCode,DateHelper.formatDateTime(reviewDate),defaultIntervalDays);
-            return;
-        }
-        AbnormalResultMq abnormalResultMq = convertToAbnormalResultMq(weightVolumeCollectDto);
-        if(abnormalResultMq == null){
-            return;
-        }
-        log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
-        dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
-
-        // 设置下发缓存
-        try {
-            jimdbCacheService.setEx(key,String.valueOf(true),15, TimeUnit.DAYS);
-        }catch (Exception e){
-            log.error("设置C网抽检下发MQ缓存【{}】异常",key);
-        }
-
-    }
-
-    /**
-     * 发消息并更新es
-     * @param packageCode
-     * @param siteCode
      */
     @Override
     public void updateImgAndSendHandleMq(String packageCode, Integer siteCode, String pictureUrl){
@@ -587,7 +488,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 ? new BigDecimal(Constants.DOUBLE_ZERO) : BigDecimal.valueOf(weightVolumeCollectDto.getBillingVolume()));
         abnormalResultMq.setDutyType(weightVolumeCollectDto.getDutyType());
         abnormalResultMq.setDutyErp(weightVolumeCollectDto.getBillingErp());
-        abnormalResultMq.setReviewDutyType(weightVolumeCollectDto.getDutyType());
+        abnormalResultMq.setReviewDutyType(DutyTypeEnum.DMS.getCode());
         abnormalResultMq.setBusinessObjectId(weightVolumeCollectDto.getBusiCode());
         abnormalResultMq.setBusinessObject(weightVolumeCollectDto.getBusiName());
         abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
@@ -604,7 +505,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
         abnormalResultMq.setReviewDate(weightVolumeCollectDto.getReviewDate());
-        abnormalResultMq.setReviewMechanismType(weightVolumeCollectDto.getReviewSubType());
         abnormalResultMq.setReviewErp(weightVolumeCollectDto.getReviewErp());
         abnormalResultMq.setReviewWeight(weightVolumeCollectDto.getReviewWeight());
         abnormalResultMq.setReviewVolume(weightVolumeCollectDto.getReviewVolume());
@@ -696,10 +596,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             sendWaybillTrace(weightVolumeCollectDto);
             // 缓存抽检记录
             cachePackageOrWaybillCheckRecord(packWeightVO.getCodeStr());
-            // 特殊场景处理
-            specialSceneDeal(weightVolumeCollectDto);
-            // 记录抽检操作日志
-            recordSpotCheckLog(weightVolumeCollectDto, spotCheckSourceEnum);
 
             result.setData(Objects.equals(weightVolumeCollectDto.getIsExcess(), IsExcessEnum.EXCESS_ENUM_YES.getCode()));
         }catch (Exception e){
@@ -723,28 +619,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             jimdbCacheService.setEx(key, weightVolumeCollectDto.getIsExcess(), 30, TimeUnit.MINUTES);
         }catch (Exception e){
             log.error("设置包裹{}站点{}是否超标缓存异常!", weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getReviewSiteCode());
-        }
-    }
-
-    /**
-     * 特殊场景处理
-     *  1、图片早于超标数据的场景
-     * @param weightVolumeCollectDto
-     */
-    private void specialSceneDeal(WeightVolumeCollectDto weightVolumeCollectDto) {
-        // 超标且有图片则下发超标mq（场景：上传图片时间早于超标数据落库时间）
-        if(Objects.equals(weightVolumeCollectDto.getIsExcess(), IsExcessEnum.EXCESS_ENUM_YES.getCode())
-                && StringUtils.isNotEmpty(weightVolumeCollectDto.getPictureAddress())){
-            WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
-            weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.IMG_BEFORE_DATA);
-            weightAndVolumeCheckHandleMessage.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
-            weightAndVolumeCheckHandleMessage.setPackageCode(weightVolumeCollectDto.getPackageCode());
-            weightAndVolumeCheckHandleMessage.setSiteCode(weightVolumeCollectDto.getReviewSiteCode());
-            try {
-                weightAndVolumeCheckHandleProducer.send(weightVolumeCollectDto.getPackageCode(), JSON.toJSONString(weightAndVolumeCheckHandleMessage));
-            } catch (Exception e) {
-                log.warn("imgUnloadTime before spotCheckDataTime send exception", e);
-            }
         }
     }
 
@@ -1773,55 +1647,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 更新抽检记录的图片
-     * @param packageCode 运单或包裹号
-     * @param siteCode 站点
-     * @return 更新后的抽检记录，可能为空
-     * @author fanggang7
-     * @time 2020-08-26 15:17:53 周三
-     */
-    private WeightVolumeCollectDto updateCheckRecordImage(String packageCode, Integer siteCode){
-        //获取图片链接
-        InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
-        if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
-                || StringUtils.isEmpty(result.getData())){
-            log.warn("运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
-            return null;
-        }
-        String pictureAddress = result.getData();
-
-        WeightVolumeCollectDto weightVolumeCollectDto;
-        try {
-            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-            condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            condition.setIsHasPicture(0);
-            condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
-            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
-            if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
-                    || baseEntity.getData().get(0) == null){
-                log.warn("通过运单【{}】站点【{}】查询超标数据为空",packageCode,siteCode);
-                return null;
-            }
-            weightVolumeCollectDto = baseEntity.getData().get(0);
-        }catch (Exception e){
-            log.warn("通过运单【{}】站点【{}】查询超标数据异常",packageCode,siteCode,e);
-            return null;
-        }
-
-        //更新es数据设置图片连接
-        try {
-            weightVolumeCollectDto.setPictureAddress(pictureAddress);
-            weightVolumeCollectDto.setIsHasPicture(1);
-            reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
-            return weightVolumeCollectDto;
-        }catch (Exception e){
-            log.warn("通过运单【{}】站点【{}】更新超标数据异常",packageCode,siteCode,e);
-            return null;
-        }
-    }
-
-    /**
      * 处理消费称重抽检处理消息
      *
      * @param weightAndVolumeCheckHandleMessage 消息体
@@ -1835,9 +1660,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
 
-        // 上传图片环节 || 图片早于抽检数据环节
-        if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG
-                || weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.IMG_BEFORE_DATA){
+        // 上传图片环节
+        if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG){
             // 1.1 检查运单状态，如果运单状态为未发货，不下发
             WeightVolumeCollectDto weightVolumeCollectDto = this.getUploadImgRecord(weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
             // 1.2 运单状态为已发货，则下发到FXM
@@ -2005,43 +1829,4 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return StringUtils.isBlank(baseEntity.getData().get(0).getPictureAddress()) ? list : Arrays.asList(baseEntity.getData().get(0).getPictureAddress().split(";"));
     }
 
-
-    /**
-     * 记录抽检记录
-     * @param weightVolumeCollectDto
-     */
-    @Override
-    public void recordSpotCheckLog(WeightVolumeCollectDto weightVolumeCollectDto, SpotCheckSourceEnum spotCheckSourceEnum) {
-        BusinessLogConstans.OperateTypeEnum operateTypeEnum;
-        if(Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE)
-                || Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_DWS)){
-            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_C;
-        }else if(Objects.equals(spotCheckSourceEnum, SpotCheckSourceEnum.SPOT_CHECK_DMS_WEB)){
-            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_B;
-        }else {
-            operateTypeEnum = BusinessLogConstans.OperateTypeEnum.SPOT_CHECK_ANDROID;
-        }
-        try {
-            long startTime = System.currentTimeMillis();
-            JSONObject request = new JSONObject();
-            request.put("operatorCode", weightVolumeCollectDto.getReviewErp());
-            request.put("siteCode", weightVolumeCollectDto.getReviewSiteCode());
-            request.put("operateTime", weightVolumeCollectDto.getReviewDate().getTime());
-            request.put("waybillCode", weightVolumeCollectDto.getWaybillCode());
-            request.put("packageCode", weightVolumeCollectDto.getPackageCode());
-            long endTime = System.currentTimeMillis();
-
-            BusinessLogProfiler logProfiler = new BusinessLogProfilerBuilder()
-                    .operateTypeEnum(operateTypeEnum)
-                    .processTime(endTime, startTime)
-                    .operateRequest(request)
-                    .reMark(weightVolumeCollectDto.getExcessReason())
-                    .methodName("WeightAndVolumeCheckServiceImpl")
-                    .build();
-
-            logEngine.addLog(logProfiler);
-        }catch (Exception e){
-            log.error("WeightAndVolumeCheckServiceImpl recordSpotCheckLog异常!", e);
-        }
-    }
 }

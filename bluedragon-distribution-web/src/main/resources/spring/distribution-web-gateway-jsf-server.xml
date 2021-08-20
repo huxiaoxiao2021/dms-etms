@@ -383,4 +383,13 @@
                   ref="waybillConsumableGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 人工抽检 -->
+    <bean id="artificialSpotCheckGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ArtificialSpotCheckGatewayServiceImpl" />
+    <jsf:provider id="jsfArtificialSpotCheckGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ArtificialSpotCheckGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="artificialSpotCheckGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

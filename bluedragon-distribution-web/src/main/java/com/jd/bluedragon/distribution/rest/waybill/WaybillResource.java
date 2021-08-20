@@ -26,6 +26,13 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.common.util.MessageUtils;
 import com.jd.etms.api.common.enums.RequirementEnum;
@@ -197,6 +204,12 @@ public class WaybillResource {
 
 	@Autowired
 	private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+	@Autowired
+	private SpotCheckCurrencyService spotCheckCurrencyService;
+
+	@Autowired
+	private SpotCheckDealService spotCheckDealService;
 
 	@Autowired
 	private SiteService siteService;
@@ -2122,9 +2135,19 @@ public class WaybillResource {
     @Path("/package/weight/warn/check")
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.packageWeightCheck", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
-		return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		try {
+			if(!spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
+				result =  weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
+			}else {
+				result = spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
+			}
+		}catch (Exception e){
+			log.error("客户端抽检处理异常!", e);
+			result.error();
+		}
+		return result;
     }
-
 
     /**
 	 * 判断运单是否存在是否妥投
@@ -2533,5 +2556,27 @@ public class WaybillResource {
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.checkWaybillForPreSortOnSite", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<String> checkWaybillForPreSortOnSite(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest) {
 		return waybillService.checkWaybillForPreSortOnSite(waybillForPreSortOnSiteRequest);
+	}
+
+	private SpotCheckDto transferToSpotCheckDto(PackWeightVO packWeightVO) {
+		SpotCheckDto spotCheckDto = new SpotCheckDto();
+		spotCheckDto.setBarCode(packWeightVO.getCodeStr());
+		spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName());
+		spotCheckDto.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
+		spotCheckDto.setWeight(packWeightVO.getWeight());
+		spotCheckDto.setLength(packWeightVO.getLength());
+		spotCheckDto.setWidth(packWeightVO.getWidth());
+		spotCheckDto.setHeight(packWeightVO.getHigh());
+		spotCheckDto.setVolume(packWeightVO.getVolume());
+		spotCheckDto.setOrgId(packWeightVO.getOrganizationCode());
+		spotCheckDto.setOrgName(packWeightVO.getOrganizationName());
+		spotCheckDto.setSiteCode(packWeightVO.getOperatorSiteCode());
+		spotCheckDto.setSiteName(packWeightVO.getOperatorSiteName());
+		spotCheckDto.setOperateUserErp(packWeightVO.getErpCode());
+		spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
+		spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
+		// 一单一件默认包裹维度抽检
+		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+		return spotCheckDto;
 	}
 }

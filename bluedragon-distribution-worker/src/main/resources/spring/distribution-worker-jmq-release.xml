@@ -340,5 +340,10 @@
     <jmq:consumer id="jmq.baseSiteChangeConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.baseSiteChange}" listener="baseSiteChangeConsumer"/>
     </jmq:consumer>
+
+    <!-- dws抽检处理消费 -->
+    <jmq:consumer id="jmq.dmsSpotCheckDealConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dwsSpotCheck}" listener="dmsSpotCheckDealConsumer"/>
+    </jmq:consumer>
 </beans>
 

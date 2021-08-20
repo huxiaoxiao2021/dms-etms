@@ -134,6 +134,7 @@ $(function () {
             field: 'reviewSubType',
             title: '机构类型',
             align: 'center',
+            visible: false,
             formatter: function (value, row, index) {
                 return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
             }
