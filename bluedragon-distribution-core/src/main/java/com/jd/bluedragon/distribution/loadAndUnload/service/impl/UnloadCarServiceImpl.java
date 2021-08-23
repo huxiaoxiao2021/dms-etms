@@ -2881,6 +2881,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         return result;
     }
 
+    @Override
     public void distributeUnloadCarTask(TmsSealCar tmsSealCar) {
         //解封车消息报文
         //{"sealCarCode":"SC21051894360237","status":20,"operateUserCode":"zhengying34","operateUserName":"郑英","operateTime":"2021-05-18 11:26:50",
@@ -2891,34 +2892,17 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 //        "batchCodes":["R1394494286313459712"],"transBookCode":null,"volume":null,"weight":null,"transWay":2,"vehicleNumber":"粤A9D2L6","operateSiteId":122503,
 //        "operateSiteCode":"595Y013","operateSiteName":"泉州狮城营业部","warehouseCode":null,"largeCargoDetails":null,"pieceCount":null}
         // 根据封车编码查询卸车任务
-        UnloadCar unloadCar = this.selectBySealCarCode(tmsSealCar.getSealCarCode());
+        UnloadCar param = new UnloadCar();
+        param.setSealCarCode(tmsSealCar.getSealCarCode());
+        List<UnloadCar> unloadCars = unloadCarDao.selectByUnloadCar(param);
         //如果未查询到判断是否验收的卸车任务,是的话 需要根据创建卸车任务，并初始化相应的运单维度数据.
-        if (unloadCar == null) {
-            unloadCar = new UnloadCar();
+        if (CollectionUtils.isEmpty(unloadCars)) {
+            UnloadCar unloadCar = new UnloadCar();
             logger.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务,接下来走补偿逻辑，tmsSealCar={}", JsonHelper.toJson(tmsSealCar));
             //解封车操作网点
             Integer curSiteId = tmsSealCar.getOperateSiteId();
             if (curSiteId == null) {
-                logger.warn("封车编码【{}】解封车消息未写入操作网点,不写入卸车任务!", unloadCar.getSealCarCode());
-                return ;
-            }
-            //先查询按照车牌号是否已经创建了空任务。若已创建,则不继续走逻辑。
-            UnloadCar unloadCarSearch = new UnloadCar();
-            unloadCarSearch.setEndSiteCode(curSiteId);
-            unloadCarSearch.setVehicleNumber(tmsSealCar.getVehicleNumber());
-            //增加创建时间判断。空任务创建完也可能不操作.
-            Calendar executeDate = Calendar.getInstance();
-            executeDate.set(Calendar.HOUR_OF_DAY, 0);
-            executeDate.set(Calendar.MINUTE, 0);
-            executeDate.set(Calendar.SECOND, 0);
-            Date startDate = executeDate.getTime();
-            executeDate.add(executeDate.DATE,1);
-            Date endDate = executeDate.getTime();
-            unloadCarSearch.setStartTime(startDate);
-            unloadCarSearch.setEndTime(endDate);
-            List<UnloadCar> list = unloadCarDao.selectTaskByLicenseNumberAndSiteCode(unloadCarSearch);
-            if(CollectionUtils.isNotEmpty(list)){
-                logger.warn("封车编码【{}】对应的车牌号{},已生成卸车任务，此次不写入卸车任务!", tmsSealCar.getSealCarCode(),tmsSealCar.getVehicleNumber());
+                logger.warn("封车编码【{}】解封车消息未写入操作网点,不写入卸车任务!", tmsSealCar.getSealCarCode());
                 return ;
             }
             //封车网点
@@ -2998,6 +2982,10 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             }
             //自动生成任务逻辑走完,不论成功与否,不再重试，后续逻辑也不用走
             logger.warn("消费解封车消息时，根据封车编码没有找到对应的卸车任务,已触发卸车任务生成封车编码={}", tmsSealCar.getSealCarCode());
+            return;
+        }
+        UnloadCar unloadCar = unloadCars.get(0);
+        if (UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType() != unloadCar.getStatus()) {
             return;
         }
         // 卸车任务ID列表
