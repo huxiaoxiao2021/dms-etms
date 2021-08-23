@@ -772,17 +772,49 @@ public class BusinessUtil {
      * @param waybillSign
      * @return*/
     public static boolean isKyLdop(String waybillSign){
-        if(waybillSign == null){
-            return false;
-        }
-        if(isSignChar(waybillSign,40,'2') && isSignInChars(waybillSign,80,'0','1')
-                || (isSignInChars(waybillSign,40,'2','3') && isSignInChars(waybillSign,80,'2','9'))
+        if(isTKLD(waybillSign) || isTKZH(waybillSign) || isTYLD(waybillSign) || isTHLD(waybillSign)
                 || (isSignChar(waybillSign,89,'0') && isSignChar(waybillSign,99,'0')
                 && isSignChar(waybillSign,54,'0') && isSignInChars(waybillSign,62,'0','1','4')
                 && isSignChar(waybillSign,29,'2') && isSignChar(waybillSign,10,'1'))){
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断是否特快零担
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKLD(String waybillSign){
+        return isSignChar(waybillSign,40,'2') && isSignChar(waybillSign,80,'0');
+    }
+
+    /**
+     * 判断是否特快重货
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKZH(String waybillSign){
+        return isSignInChars(waybillSign,40,'2', '3') && isSignChar(waybillSign,80,'9');
+    }
+
+    /**
+     * 判断是否特运零担
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTYLD(String waybillSign){
+        return isSignInChars(waybillSign,40,'2', '3') && isSignChar(waybillSign,80,'2');
+    }
+
+    /**
+     * 判断是否特惠零担
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTHLD(String waybillSign){
+        return isSignChar(waybillSign,40,'2') && isSignChar(waybillSign,80,'1');
     }
 
     /**

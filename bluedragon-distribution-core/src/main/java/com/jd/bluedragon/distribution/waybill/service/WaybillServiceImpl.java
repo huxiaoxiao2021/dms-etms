@@ -802,7 +802,7 @@ public class WaybillServiceImpl implements WaybillService {
                     //获取目的转运中心
                     String siteCode = routerList.get(i);
                     Site site = siteService.get(Integer.parseInt(siteCode));
-                    if(SUBTYPE_6420.equals(site.getSubType())){
+                    if(site != null && SUBTYPE_6420.equals(site.getSubType())){
                         lastSiteCode = Integer.parseInt(siteCode);
                         break;
                     }
@@ -815,7 +815,7 @@ public class WaybillServiceImpl implements WaybillService {
                 for(String  routerStr : routerList){
                     //判断路由节点是否是始发转运中心 subtype 6420
                     Site site = siteService.get(Integer.parseInt(routerStr));
-                    if(SUBTYPE_6420.equals(site.getSubType())){
+                    if(site != null && SUBTYPE_6420.equals(site.getSubType())){
                         startSiteCode = Integer.parseInt(routerStr);
                         break;
                     }
