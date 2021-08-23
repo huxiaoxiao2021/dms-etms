@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -78,7 +79,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             if (WaybillUtil.isPackageCode(barCode)) {
                 packageSendWrapper.add(barCode);
             }
-            else if (BusinessUtil.isBoxcode(barCode)) {
+            else if (BusinessHelper.isBoxcode(barCode)) {
                 boxSendWrapper.add(barCode);
             }
             else if (WaybillUtil.isWaybillCode(barCode)) {
