@@ -30,7 +30,7 @@ public class ClientLogGatewayServiceImpl implements ClientLogGatewayService {
     private ClientLogResource clientLogResource;
 
     /**
-     * 批量一车一单发货
+     * 操作日志上报
      *
      * @param request
      */

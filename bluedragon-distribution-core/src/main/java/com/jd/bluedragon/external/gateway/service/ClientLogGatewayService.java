@@ -14,7 +14,7 @@ import com.jd.bluedragon.distribution.api.request.ClientRequest;
 public interface ClientLogGatewayService {
 
     /**
-     * 批量一车一单发货
+     * 操作日志上报
      */
     JdCResponse clientLog(ClientRequest request);
 }
