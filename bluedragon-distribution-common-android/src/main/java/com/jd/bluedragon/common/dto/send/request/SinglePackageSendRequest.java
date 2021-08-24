@@ -28,7 +28,7 @@ public class SinglePackageSendRequest implements Serializable {
     private String turnoverBoxCode;
     private boolean forceSend;
     private boolean cancelLastSend;
-     private Integer cancelWholeBoard;
+    private Integer sendForWholeBoard;
     private String bizSource;
     /*
     调用次数;前端有递归调用的场景
@@ -107,12 +107,12 @@ public class SinglePackageSendRequest implements Serializable {
         this.cancelLastSend = cancelLastSend;
     }
 
-    public Integer getCancelWholeBoard() {
-        return cancelWholeBoard;
+    public Integer getSendForWholeBoard() {
+        return sendForWholeBoard;
     }
 
-    public SinglePackageSendRequest setCancelWholeBoard(Integer cancelWholeBoard) {
-        this.cancelWholeBoard = cancelWholeBoard;
+    public SinglePackageSendRequest setSendForWholeBoard(Integer sendForWholeBoard) {
+        this.sendForWholeBoard = sendForWholeBoard;
         return this;
     }
 

@@ -11,6 +11,12 @@ import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -18,6 +24,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BoardBarcodeTypeEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -56,6 +63,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private SortingCheckService sortingCheckService;
+
+    @Autowired
+    private BoxService boxService;
+
     /**
      * 获取组板已存在的未完成数据
      * @param operatorInfo 操作人信息
@@ -91,6 +104,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 virtualBoardResultDtoList.add(virtualBoardResultDto);
             }
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--exception param {} exception {}", JsonHelper.toJson(operatorInfo), e.getMessage(), e);
         }
         return result;
@@ -138,6 +152,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             BeanUtils.copyProperties(virtualBoardResultDtoData, virtualBoardResultDto);
             result.setData(virtualBoardResultDto);
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.createOrGetBoard--exception param {} exception {}", JsonHelper.toJson(addOrGetVirtualBoardPo), e.getMessage(), e);
         } finally {
         }
@@ -245,19 +260,23 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             if(!baseCheckResult.isSuccess()){
                 return result;
             }
-            // 拦截链校验
             // 根据板号查询已有板号，校验板号数据，状态是否正确，并得到具体流向
             // 校验板号中已装数据是否达到上限
             // 查询包裹号预分拣数据，得到包裹流向，与传过来的板号匹配流向，匹配上一个则可以绑定
             // ---- 如果是包裹号，则根据包裹号得到运单数据
             final String barCode = bindToVirtualBoardPo.getBarCode();
             boolean isPackageCode = false, isBoxCode = false;
-            if (Objects.equals(BusinessUtil.getBarCodeType(barCode), BarCodeType.PACKAGE_CODE)) {
+            final BarCodeType barCodeTypeEnumName = BusinessUtil.getBarCodeType(barCode);
+            if (Objects.equals(barCodeTypeEnumName, BarCodeType.PACKAGE_CODE)) {
                 isPackageCode = true;
-            }
-            if (Objects.equals(BusinessUtil.getBarCodeType(barCode), BarCodeType.BOX_CODE)) {
+            } else if (Objects.equals(barCodeTypeEnumName, BarCodeType.BOX_CODE)) {
                 isBoxCode = true;
+            } else {
+                result.toFail("请扫描包裹号或箱号");
+                return result;
             }
+            final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+            Integer destinationId = null;
             if(isPackageCode){
                 final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
                 if(waybill == null){
@@ -268,32 +287,44 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     result.toFail("运单对应的预分拣站点为空");
                     return result;
                 }
-                final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
-                convertToTcParam.setDestinationId(waybill.getOldSiteId());
-                convertToTcParam.setBarcodeType(BoardBarcodeTypeEnum.PACKAGE.getCode());
-                // 调板号服务绑定到板号
-                final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
-                if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
-                    log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
-                    result.toFail(handleResult.getMesseage());
+                destinationId = waybill.getOldSiteId();
+                // 拦截链校验
+                final BoardCombinationRequest boardCombinationRequest = new BoardCombinationRequest();
+                boardCombinationRequest.setBoxOrPackageCode(bindToVirtualBoardPo.getBarCode());
+                boardCombinationRequest.setReceiveSiteCode(waybill.getOldSiteId());
+                boardCombinationRequest.setSiteCode(operatorInfo.getSiteCode());
+                boardCombinationRequest.setSiteName(operatorInfo.getSiteName());
+                boardCombinationRequest.setUserCode(operatorInfo.getUserCode());
+                boardCombinationRequest.setUserName(operatorInfo.getUserName());
+                boardCombinationRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+                final BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(boardCombinationRequest);
+                if (!interceptResult.getCode().equals(200)) {//如果校验不OK
+                    result.toFail(interceptResult.getMessage());
                     return result;
                 }
-                final com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoData = handleResult.getData();
-                if(virtualBoardResultDtoData == null){
-                    log.error("VirtualBoardServiceImpl.bindToBoard--null-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
-                    result.toFail("未获取到数据，请稍后再试");
-                    return result;
-                }
-                VirtualBoardResultDto virtualBoardResultDto = new VirtualBoardResultDto();
-                BeanUtils.copyProperties(virtualBoardResultDtoData, virtualBoardResultDto);
-                result.setData(virtualBoardResultDto);
             }
             // 如果是箱号，校验箱号流向
             if(isBoxCode){
-                ;
+                final Box boxExist = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
+                if (boxExist == null) {
+                    result.toFail("未找到对应箱号，请检查");
+                    return result;
+                }
+                destinationId = boxExist.getReceiveSiteCode();
+            }
+            final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
+            convertToTcParam.setDestinationId(destinationId);
+            convertToTcParam.setBarcodeType(barCodeTypeEnumName.getCode());
+            // 调板号服务绑定到板号
+            final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
+            if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+                log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
+                result.toFail(handleResult.getMesseage());
+                return result;
             }
             // 发送组板全程跟踪
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.bindToBoard--exception param {} exception {}", JsonHelper.toJson(bindToVirtualBoardPo), e.getMessage(), e);
         } finally {
         }
@@ -356,6 +387,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             }
 
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.removeDestination--exception param {} exception {}", JsonHelper.toJson(removeDestinationPo), e.getMessage(), e);
         } finally {
         }
@@ -411,6 +443,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 return result;
             }
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.closeBoard--exception param {} exception {}", JsonHelper.toJson(closeVirtualBoardPo), e.getMessage(), e);
         } finally {
         }
@@ -470,6 +503,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             BeanUtils.copyProperties(unbindVirtualBoardResultData, unbindVirtualBoardResultDto);
             result.setData(unbindVirtualBoardResultDto);
         } catch (Exception e) {
+            result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.unbindToBoard--exception param {} exception {}", JsonHelper.toJson(unbindToVirtualBoardPo), e.getMessage(), e);
         } finally {
         }

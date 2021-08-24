@@ -186,26 +186,30 @@
 
     <!-- 虚拟组板扫描拦截链 -->
     <bean id="virtualBoardCombinationChain" class="com.jd.bluedragon.distribution.ver.filter.chains.VirtualBoardCombinationChain" scope="prototype" destroy-method="destory">
-        <property name="filterList" ref="coldChainDeliveryFilterList">
+        <property name="filterList" ref="virtualBoardCombinationFilterList">
         </property>
     </bean>
-    <util:list id="virtualBoardCombinationChain">
+    <util:list id="virtualBoardCombinationFilterList">
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OneWaybillMultiPackFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TipMessageFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FilePackageSortingFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.JinPengWaybillFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FilePackageSendingFilter" />
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CityDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LuxuryFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TransferStationFilter"/>
@@ -219,7 +223,8 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
     </util:list>

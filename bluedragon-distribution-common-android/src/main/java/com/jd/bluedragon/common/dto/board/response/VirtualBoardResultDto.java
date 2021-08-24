@@ -23,11 +23,6 @@ public class VirtualBoardResultDto implements Serializable {
     private Integer boardStatus;
 
     /**
-     * 板类型
-     */
-    private Integer boardType;
-
-    /**
      * 目的地ID
      */
     private Integer destinationId;
@@ -52,6 +47,8 @@ public class VirtualBoardResultDto implements Serializable {
      */
     private Integer waybillTotal;
 
+    private Long createTimeMillSeconds;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -67,15 +64,6 @@ public class VirtualBoardResultDto implements Serializable {
 
     public VirtualBoardResultDto setBoardStatus(Integer boardStatus) {
         this.boardStatus = boardStatus;
-        return this;
-    }
-
-    public Integer getBoardType() {
-        return boardType;
-    }
-
-    public VirtualBoardResultDto setBoardType(Integer boardType) {
-        this.boardType = boardType;
         return this;
     }
 
@@ -121,6 +109,15 @@ public class VirtualBoardResultDto implements Serializable {
 
     public VirtualBoardResultDto setWaybillTotal(Integer waybillTotal) {
         this.waybillTotal = waybillTotal;
+        return this;
+    }
+
+    public Long getCreateTimeMillSeconds() {
+        return createTimeMillSeconds;
+    }
+
+    public VirtualBoardResultDto setCreateTimeMillSeconds(Long createTimeMillSeconds) {
+        this.createTimeMillSeconds = createTimeMillSeconds;
         return this;
     }
 }

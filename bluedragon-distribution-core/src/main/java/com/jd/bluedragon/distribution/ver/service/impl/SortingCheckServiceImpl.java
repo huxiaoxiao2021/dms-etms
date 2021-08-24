@@ -677,6 +677,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return (BoardCombinationChain) beanFactory.getBean("boardCombinationChain");
     }
 
+    /**
+     * 获取虚拟组板校验链
+     * @return
+     */
+    public FilterChain getVirtualBoardCombinationFilterChain(){
+        return (VirtualBoardCombinationChain) beanFactory.getBean("virtualBoardCombinationChain");
+    }
+
     private SortingCheck convertToSortingCheck(PdaOperateRequest request){
         SortingCheck sortingCheck = new SortingCheck();
         sortingCheck.setBoxCode(request.getBoxCode());
@@ -813,17 +821,13 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         FilterContext filterContext = null;
         try {
-            if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
-                //初始化拦截链上下文
-                filterContext = this.initFilterParam(boardCombinationRequest);
-                filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
-                //获取校验链
-                FilterChain boardCombinationChain = getBoardCombinationFilterChain();
-                //校验过程
-                boardCombinationChain.doFilter(filterContext, boardCombinationChain);
-            } else {
-                return jsfSortingResourceService.boardCombinationCheck(boardCombinationRequest);
-            }
+            //初始化拦截链上下文
+            filterContext = this.initFilterParam(boardCombinationRequest);
+            filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
+            //获取校验链
+            FilterChain virtualBoardCombinationChain = getVirtualBoardCombinationFilterChain();
+            //校验过程
+            virtualBoardCombinationChain.doFilter(filterContext, virtualBoardCombinationChain);
 
         } catch (IllegalWayBillCodeException e) {
             logger.error("非法运单号：IllegalWayBillCodeException", e);
@@ -848,34 +852,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
         this.addSortingCheckStatisticsLog(this.convertPdaOperateRequest(boardCombinationRequest), response.getCode(), response.getMessage());
         return response;
-    }
-
-    /**
-     * 上下文参数判断
-     */
-    private FilterContext initFilterParam1(BoardCombinationRequest boardCombinationRequest) throws SortingCheckException {
-
-        if (StringHelper.isEmpty(boardCombinationRequest.getBoxOrPackageCode())) {
-            throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
-        }
-        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getSiteCode())) {
-            throw new SortingCheckException(SortingResponse.CODE_29200, SortingResponse.MESSAGE_29200);
-        }
-        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getReceiveSiteCode())) {
-            throw new SortingCheckException(SortingResponse.CODE_29201, SortingResponse.MESSAGE_29201);
-        }
-
-        FilterContext filterContext = new FilterContext();
-        filterContext.setRuleMap(getRuleList(boardCombinationRequest.getSiteCode()));
-        filterContext.setBoxCode(boardCombinationRequest.getBoxOrPackageCode());
-        filterContext.setCreateSiteCode(boardCombinationRequest.getSiteCode());
-        filterContext.setReceiveSiteCode(boardCombinationRequest.getReceiveSiteCode());
-        filterContext.setBusinessType(boardCombinationRequest.getBusinessType());
-        filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
-        filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
-        filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
-
-        return filterContext;
     }
 
 }

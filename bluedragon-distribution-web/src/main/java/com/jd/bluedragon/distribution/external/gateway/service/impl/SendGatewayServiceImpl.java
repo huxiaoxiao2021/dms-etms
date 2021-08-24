@@ -103,6 +103,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
         request.setIsForceSend(cRequest.isForceSend());
         request.setIsCancelLastSend(cRequest.isCancelLastSend());
+        request.setSendForWholeBoard(cRequest.getSendForWholeBoard());
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
         request.setBoxCode(cRequest.getBoxCode());
         request.setSendCode(cRequest.getSendCode());
