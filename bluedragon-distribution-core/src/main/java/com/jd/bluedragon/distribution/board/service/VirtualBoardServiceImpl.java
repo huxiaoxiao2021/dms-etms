@@ -87,6 +87,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkBaseParam(operatorInfo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
@@ -135,6 +137,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkParam4CreateOrGetBoard(addOrGetVirtualBoardPo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
@@ -259,6 +263,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 基本校验，参数、板号总数等
             final Result<Void> baseCheckResult = this.checkParam4BindToBoard(bindToVirtualBoardPo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             // 根据板号查询已有板号，校验板号数据，状态是否正确，并得到具体流向
@@ -379,6 +385,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkParam4RemoveDestination(removeDestinationPo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             final Response<Void> handleResult = virtualBoardJsfManager.removeDestination(this.getConvertToTcParam(removeDestinationPo));
@@ -436,6 +444,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkParam4CloseBoard(closeVirtualBoardPo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             final Response<Void> handleResult = virtualBoardJsfManager.closeBoard(this.getConvertToTcParam(closeVirtualBoardPo));
@@ -492,6 +502,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkParam4UnbindToBoard(unbindToVirtualBoardPo);
             if(!baseCheckResult.isSuccess()){
+                result.setCode(baseCheckResult.getCode());
+                result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
             final Response<com.jd.transboard.api.dto.UnbindVirtualBoardResultDto> handleResult = virtualBoardJsfManager.unbindToBoard(this.getConvertToTcParam(unbindToVirtualBoardPo));
