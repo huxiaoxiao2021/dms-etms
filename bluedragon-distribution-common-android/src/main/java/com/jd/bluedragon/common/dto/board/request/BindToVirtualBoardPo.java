@@ -29,6 +29,11 @@ public class BindToVirtualBoardPo implements Serializable {
      */
     private List<String> boardCodeList;
 
+    /**
+     * 最多扫入个数
+     */
+    private Integer maxItemCount;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -53,6 +58,15 @@ public class BindToVirtualBoardPo implements Serializable {
 
     public BindToVirtualBoardPo setBoardCodeList(List<String> boardCodeList) {
         this.boardCodeList = boardCodeList;
+        return this;
+    }
+
+    public Integer getMaxItemCount() {
+        return maxItemCount;
+    }
+
+    public BindToVirtualBoardPo setMaxItemCount(Integer maxItemCount) {
+        this.maxItemCount = maxItemCount;
         return this;
     }
 }

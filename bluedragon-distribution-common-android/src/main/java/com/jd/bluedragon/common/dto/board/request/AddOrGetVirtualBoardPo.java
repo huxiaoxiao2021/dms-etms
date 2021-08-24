@@ -24,6 +24,11 @@ public class AddOrGetVirtualBoardPo implements Serializable {
      */
     private Integer destinationId;
 
+    /**
+     * 最多流向个数
+     */
+    private Integer maxDestinationCount;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -39,6 +44,15 @@ public class AddOrGetVirtualBoardPo implements Serializable {
 
     public AddOrGetVirtualBoardPo setDestinationId(Integer destinationId) {
         this.destinationId = destinationId;
+        return this;
+    }
+
+    public Integer getMaxDestinationCount() {
+        return maxDestinationCount;
+    }
+
+    public AddOrGetVirtualBoardPo setMaxDestinationCount(Integer maxDestinationCount) {
+        this.maxDestinationCount = maxDestinationCount;
         return this;
     }
 }

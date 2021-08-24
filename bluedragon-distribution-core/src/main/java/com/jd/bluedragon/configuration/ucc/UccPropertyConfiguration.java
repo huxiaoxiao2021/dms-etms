@@ -425,6 +425,16 @@ public class UccPropertyConfiguration {
      */
     private boolean paralleGetPackageSwitch;
 
+    /**
+     * 虚拟组板最多流向个数
+     */
+    private int virtualBoardMaxDestinationCount;
+
+    /**
+     * 虚拟组板最多放置包裹个数
+     */
+    private int virtualBoardMaxItemCount;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1239,5 +1249,21 @@ public class UccPropertyConfiguration {
 
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
+    }
+
+    public int getVirtualBoardMaxDestinationCount() {
+        return virtualBoardMaxDestinationCount;
+    }
+
+    public void setVirtualBoardMaxDestinationCount(int virtualBoardMaxDestinationCount) {
+        this.virtualBoardMaxDestinationCount = virtualBoardMaxDestinationCount;
+    }
+
+    public int getVirtualBoardMaxItemCount() {
+        return virtualBoardMaxItemCount;
+    }
+
+    public void setVirtualBoardMaxItemCount(int virtualBoardMaxItemCount) {
+        this.virtualBoardMaxItemCount = virtualBoardMaxItemCount;
     }
 }

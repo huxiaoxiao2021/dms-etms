@@ -131,6 +131,8 @@
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+        <property name="virtualBoardMaxDestinationCount" value="${virtualBoardMaxDestinationCount:5}" />
+        <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -249,6 +251,8 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+                <value>hystrixRouteUccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
+                <value>hystrixRouteUccPropertyConfiguration.virtualBoardMaxItemCount</value>
 			</list>
 		</property>
 	</bean>

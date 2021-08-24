@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.coo.ucc.client.config.UccPropertyConfig;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.waybill.domain.Waybill;
@@ -69,6 +71,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private BoxService boxService;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 获取组板已存在的未完成数据
@@ -141,21 +146,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
+            addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
             final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
                 result.toFail(handleResult.getMesseage());
                 return result;
             }
-            final com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoData = handleResult.getData();
-            if(virtualBoardResultDtoData == null){
-                log.error("VirtualBoardServiceImpl.createOrGetBoard--null-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
-                result.toFail("未获取到数据，请稍后再试");
-                return result;
-            }
-            VirtualBoardResultDto virtualBoardResultDto = new VirtualBoardResultDto();
-            BeanUtils.copyProperties(virtualBoardResultDtoData, virtualBoardResultDto);
-            result.setData(virtualBoardResultDto);
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.createOrGetBoard--exception param {} exception {}", JsonHelper.toJson(addOrGetVirtualBoardPo), e.getMessage(), e);
@@ -320,10 +317,11 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
                 destinationId = boxExist.getReceiveSiteCode();
             }
+            // 调板号服务绑定到板号
+            bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
             final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
             convertToTcParam.setDestinationId(destinationId);
             convertToTcParam.setBarcodeType(barCodeTypeEnumName.getCode());
-            // 调板号服务绑定到板号
             final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
