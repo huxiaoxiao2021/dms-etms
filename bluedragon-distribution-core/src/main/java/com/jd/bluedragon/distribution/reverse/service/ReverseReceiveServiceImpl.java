@@ -242,6 +242,10 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	    	//仓储收货回传
 	    	if(receiveType==1||receiveType==5 || receiveType == 6 || receiveType == 7){
 	    		SendM sendM =sendMDao.selectBySendCode(source.getSendCode());
+	    		if(sendM == null){
+	    		    log.error("sendReportLoss sendM is null! {}",source.getSendCode());
+	    		    return;
+                }
 	    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode());
 	    		dmsId = dto.getSiteCode().toString();
 	    		dmsName = dto.getSiteName();
@@ -251,6 +255,10 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	    	}else if(receiveType==3){
 	    		List<ReverseSpare> reverseSpareList = reverseSpareService.queryBySpareTranCode(source.getSendCode());
 	    		SendM sendM =sendMDao.selectBySendCode(reverseSpareList.get(0).getSendCode());
+                if(sendM == null){
+                    log.error("sendReportLoss sendM is null! {}",reverseSpareList.get(0).getSendCode());
+                    return;
+                }
 	    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode());
 	    		dmsId = dto.getSiteCode().toString();
 	    		dmsName = dto.getSiteName();
