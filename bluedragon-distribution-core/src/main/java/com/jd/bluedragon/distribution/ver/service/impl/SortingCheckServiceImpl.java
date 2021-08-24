@@ -787,4 +787,95 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return (ColdChainDeliveryFilterChain) this.beanFactory.getBean("coldChainDeliveryFilterChain");
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.virtualBoardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse virtualBoardCombinationCheck(BoardCombinationRequest boardCombinationRequest) {
+        return this.virtualBoardCombinationCheck(boardCombinationRequest, false);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.virtualBoardCombinationCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse virtualBoardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest) {
+        return this.virtualBoardCombinationCheck(boardCombinationRequest, true);
+    }
+
+    /**
+     * 虚拟组板
+     * @param boardCombinationRequest
+     * @param reportIntercept
+     * @return
+     */
+    private BoardCombinationJsfResponse virtualBoardCombinationCheck(BoardCombinationRequest boardCombinationRequest, boolean reportIntercept) {
+
+        if (boardCombinationRequest == null) {
+            return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        FilterContext filterContext = null;
+        try {
+            if (this.isNeedCheck(uccPropertyConfiguration.getBoardCombinationSwitchVerToWebSites(), boardCombinationRequest.getSiteCode())) {
+                //初始化拦截链上下文
+                filterContext = this.initFilterParam(boardCombinationRequest);
+                filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
+                //获取校验链
+                FilterChain boardCombinationChain = getBoardCombinationFilterChain();
+                //校验过程
+                boardCombinationChain.doFilter(filterContext, boardCombinationChain);
+            } else {
+                return jsfSortingResourceService.boardCombinationCheck(boardCombinationRequest);
+            }
+
+        } catch (IllegalWayBillCodeException e) {
+            logger.error("非法运单号：IllegalWayBillCodeException", e);
+        } catch (Exception ex) {
+            if (ex instanceof SortingCheckException) {
+                SortingCheckException checkException = (SortingCheckException) ex;
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
+                return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
+            } else {
+                logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(boardCombinationRequest), ex);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            }
+        }
+
+        if(response.getMessage() != null && response.getMessage().contains("装箱")) {
+            response.setMessage(response.getMessage().replace("装箱", "组板"));
+        }
+
+        this.addSortingCheckStatisticsLog(this.convertPdaOperateRequest(boardCombinationRequest), response.getCode(), response.getMessage());
+        return response;
+    }
+
+    /**
+     * 上下文参数判断
+     */
+    private FilterContext initFilterParam1(BoardCombinationRequest boardCombinationRequest) throws SortingCheckException {
+
+        if (StringHelper.isEmpty(boardCombinationRequest.getBoxOrPackageCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
+        }
+        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29200, SortingResponse.MESSAGE_29200);
+        }
+        if (! NumberHelper.isPositiveNumber(boardCombinationRequest.getReceiveSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29201, SortingResponse.MESSAGE_29201);
+        }
+
+        FilterContext filterContext = new FilterContext();
+        filterContext.setRuleMap(getRuleList(boardCombinationRequest.getSiteCode()));
+        filterContext.setBoxCode(boardCombinationRequest.getBoxOrPackageCode());
+        filterContext.setCreateSiteCode(boardCombinationRequest.getSiteCode());
+        filterContext.setReceiveSiteCode(boardCombinationRequest.getReceiveSiteCode());
+        filterContext.setBusinessType(boardCombinationRequest.getBusinessType());
+        filterContext.setPackageCode(boardCombinationRequest.getBoxOrPackageCode());
+        filterContext.setPdaOperateRequest(this.convertPdaOperateRequest(boardCombinationRequest));
+        filterContext.setOnlineStatus(boardCombinationRequest.getOnlineStatus());
+
+        return filterContext;
+    }
+
 }
