@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
@@ -289,15 +290,16 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
                 destinationId = waybill.getOldSiteId();
                 // 拦截链校验
-                final BoardCombinationRequest boardCombinationRequest = new BoardCombinationRequest();
-                boardCombinationRequest.setBoxOrPackageCode(bindToVirtualBoardPo.getBarCode());
-                boardCombinationRequest.setReceiveSiteCode(waybill.getOldSiteId());
-                boardCombinationRequest.setSiteCode(operatorInfo.getSiteCode());
-                boardCombinationRequest.setSiteName(operatorInfo.getSiteName());
-                boardCombinationRequest.setUserCode(operatorInfo.getUserCode());
-                boardCombinationRequest.setUserName(operatorInfo.getUserName());
-                boardCombinationRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
-                final BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(boardCombinationRequest);
+                final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+                pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
+                pdaOperateRequest.setBoxCode(bindToVirtualBoardPo.getBarCode());
+                pdaOperateRequest.setReceiveSiteCode(waybill.getOldSiteId());
+                pdaOperateRequest.setCreateSiteCode(operatorInfo.getSiteCode());
+                pdaOperateRequest.setCreateSiteName(operatorInfo.getSiteName());
+                pdaOperateRequest.setOperateUserCode(operatorInfo.getUserCode());
+                pdaOperateRequest.setOperateUserName(operatorInfo.getUserName());
+                pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+                final BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
                 if (!interceptResult.getCode().equals(200)) {//如果校验不OK
                     result.toFail(interceptResult.getMessage());
                     return result;

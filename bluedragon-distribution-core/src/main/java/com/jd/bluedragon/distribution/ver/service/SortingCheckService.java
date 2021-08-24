@@ -73,7 +73,7 @@ public interface SortingCheckService {
      */
     SortingJsfResponse coldChainSendCheck(DeliveryRequest request, boolean reportIntercept);
 
-    BoardCombinationJsfResponse virtualBoardCombinationCheck(BoardCombinationRequest boardCombinationRequest);
+    BoardCombinationJsfResponse virtualBoardCombinationCheck(PdaOperateRequest pdaOperateRequest);
 
-    BoardCombinationJsfResponse virtualBoardCombinationCheckAndReportIntercept(BoardCombinationRequest boardCombinationRequest);
+    BoardCombinationJsfResponse virtualBoardCombinationCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest);
 }
