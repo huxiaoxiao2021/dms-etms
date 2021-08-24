@@ -915,7 +915,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param packageCode 包裹号
      */
     private boolean checkInterceptionValidate(JdCResponse<Void> response, Long taskId, String packageCode) {
-        InvokeResult<String> invokeResult = unloadCarService.interceptValidateUnloadCar(packageCode);
+        InvokeResult<String> invokeResult = unloadCarService.interceptValidateLoadCar(packageCode);
         if (invokeResult != null) {
             if (InvokeResult.RESULT_INTERCEPT_CODE.equals(invokeResult.getCode())) {
                 log.warn("【B网快运发货】规则校验失败：{},taskId={},packageCode={}", invokeResult.getMessage(), taskId, packageCode);
@@ -929,7 +929,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     /**
      * 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
-     * @param records 板上有效的包裹列表
+     * @param records 板上有效的包裹列表无重量，请补称重量方
      * @param waybillMap 运单集合，key为运单号，value为查询库存参数对象
      * @param map 运单集合，key为运单号，value为板上这个运单所对应的包裹数
      */
