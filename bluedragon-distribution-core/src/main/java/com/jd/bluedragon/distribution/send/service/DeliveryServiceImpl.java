@@ -1324,7 +1324,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             return result;
         }
 
-        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
+        if (checkSendCodeIsSealed(domain.getSendCode())) {
             result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             return result;
         }
