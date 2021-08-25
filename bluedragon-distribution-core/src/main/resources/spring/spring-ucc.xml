@@ -242,6 +242,8 @@
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+				<value>uccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
+				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
@@ -251,8 +253,6 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
-                <value>hystrixRouteUccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
-                <value>hystrixRouteUccPropertyConfiguration.virtualBoardMaxItemCount</value>
 			</list>
 		</property>
 	</bean>

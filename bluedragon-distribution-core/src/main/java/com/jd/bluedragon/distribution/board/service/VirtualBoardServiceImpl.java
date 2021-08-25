@@ -153,9 +153,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
             try{
-                // 同一操作人及目的地加锁，解决并发问题
-                boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
-                if (!isExistHandling) {
+                try {
+                    // 同一操作人及目的地加锁，解决并发问题
+                    boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
+                    if (!isExistHandling) {
+                        result.setCode(JdCResponse.CODE_FAIL);
+                        result.setMessage("操作太快，正在处理中");
+                        return result;
+                    }
+                } catch (Exception e) {
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
                     return result;
@@ -285,9 +291,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_BIND;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
             try {
-                // 同一操作人及目的地加锁，解决并发问题
-                boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
-                if (!isExistHandling) {
+                try {
+                    // 同一操作人及目的地加锁，解决并发问题
+                    boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
+                    if (!isExistHandling) {
+                        result.setCode(JdCResponse.CODE_FAIL);
+                        result.setMessage("操作太快，正在处理中");
+                        return result;
+                    }
+                } catch (Exception e) {
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
                     return result;
