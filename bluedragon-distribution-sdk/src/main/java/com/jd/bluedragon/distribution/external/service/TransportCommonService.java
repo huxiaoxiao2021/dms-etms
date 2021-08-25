@@ -14,6 +14,7 @@ public interface TransportCommonService {
 
     /**
      * 卸车的拦截校验
+     * code=200接口调用成功，data=true  需要拦截，，拦截消息看msg
      */
     InvokeResult<Boolean> interceptValidateUnloadCar(TransportServiceRequest transportServiceRequest);
 
