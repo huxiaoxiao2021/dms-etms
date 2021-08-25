@@ -8,28 +8,27 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.coo.ucc.client.config.UccPropertyConfig;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.Response;
-import com.jd.transboard.api.enums.BoardBarcodeTypeEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -41,9 +40,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 虚拟组板服务
@@ -72,6 +73,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     @Autowired
     private BoxService boxService;
 
+    @Resource
+    private CacheService jimdbCacheService;
+
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
@@ -88,7 +92,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         List<VirtualBoardResultDto> virtualBoardResultDtoList = new ArrayList<>();
         JdCResponse<List<VirtualBoardResultDto>> result = new JdCResponse<>(ResponseEnum.SUCCESS.getIndex(), null, virtualBoardResultDtoList);
         try {
-            // 存入缓存，防止并发
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkBaseParam(operatorInfo);
             if(!baseCheckResult.isSuccess()){
@@ -138,7 +141,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         JdCResponse<VirtualBoardResultDto> result = new JdCResponse<>();
         result.toSucceed();
         try {
-            // 存入缓存，防止并发
             // 1. 参数验证
             final Result<Void> baseCheckResult = this.checkParam4CreateOrGetBoard(addOrGetVirtualBoardPo);
             if(!baseCheckResult.isSuccess()){
@@ -146,17 +148,29 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
-            addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
-            final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
-            if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
-                log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
-                result.toFail(handleResult.getMesseage());
-                return result;
+            // 存入缓存，防止并发
+            final OperatorInfo operatorInfo = addOrGetVirtualBoardPo.getOperatorInfo();
+            String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION;
+            String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
+            try{
+                // 同一操作人及目的地加锁，解决并发问题
+                boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
+                if (!isExistHandling) {
+                    throw new RuntimeException("操作太快，正在处理中");
+                }
+                addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
+                final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
+                if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+                    log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
+                    result.toFail(handleResult.getMesseage());
+                    return result;
+                }
+            } finally {
+                jimdbCacheService.del(key);
             }
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.createOrGetBoard--exception param {} exception {}", JsonHelper.toJson(addOrGetVirtualBoardPo), e.getMessage(), e);
-        } finally {
         }
         return result;
     }
@@ -264,69 +278,81 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
-            // 根据板号查询已有板号，校验板号数据，状态是否正确，并得到具体流向
-            // 校验板号中已装数据是否达到上限
-            // 查询包裹号预分拣数据，得到包裹流向，与传过来的板号匹配流向，匹配上一个则可以绑定
-            // ---- 如果是包裹号，则根据包裹号得到运单数据
-            final String barCode = bindToVirtualBoardPo.getBarCode();
-            boolean isPackageCode = false, isBoxCode = false;
-            final BarCodeType barCodeTypeEnumName = BusinessUtil.getBarCodeType(barCode);
-            if (Objects.equals(barCodeTypeEnumName, BarCodeType.PACKAGE_CODE)) {
-                isPackageCode = true;
-            } else if (Objects.equals(barCodeTypeEnumName, BarCodeType.BOX_CODE)) {
-                isBoxCode = true;
-            } else {
-                result.toFail("请扫描包裹号或箱号");
-                return result;
-            }
+            // 存入缓存，防止并发
             final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
-            Integer destinationId = null;
-            if(isPackageCode){
-                final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
-                if(waybill == null){
-                    result.toFail("未查找到运单数据");
+            String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_BIND;
+            String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
+            try {
+                // 同一操作人及目的地加锁，解决并发问题
+                boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
+                if (!isExistHandling) {
+                    throw new RuntimeException("操作太快，正在处理中");
+                }
+                // 根据板号查询已有板号，校验板号数据，状态是否正确，并得到具体流向
+                // 校验板号中已装数据是否达到上限
+                // 查询包裹号预分拣数据，得到包裹流向，与传过来的板号匹配流向，匹配上一个则可以绑定
+                // ---- 如果是包裹号，则根据包裹号得到运单数据
+                final String barCode = bindToVirtualBoardPo.getBarCode();
+                boolean isPackageCode = false, isBoxCode = false;
+                final BarCodeType barCodeTypeEnumName = BusinessUtil.getBarCodeType(barCode);
+                if (Objects.equals(barCodeTypeEnumName, BarCodeType.PACKAGE_CODE)) {
+                    isPackageCode = true;
+                } else if (Objects.equals(barCodeTypeEnumName, BarCodeType.BOX_CODE)) {
+                    isBoxCode = true;
+                } else {
+                    result.toFail("请扫描包裹号或箱号");
                     return result;
                 }
-                if(waybill.getOldSiteId() == null){
-                    result.toFail("运单对应的预分拣站点为空");
+                Integer destinationId = null;
+                if (isPackageCode) {
+                    final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+                    if (waybill == null) {
+                        result.toFail("未查找到运单数据");
+                        return result;
+                    }
+                    if (waybill.getOldSiteId() == null) {
+                        result.toFail("运单对应的预分拣站点为空");
+                        return result;
+                    }
+                    destinationId = waybill.getOldSiteId();
+                    // 拦截链校验
+                    final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+                    pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
+                    pdaOperateRequest.setBoxCode(bindToVirtualBoardPo.getBarCode());
+                    pdaOperateRequest.setReceiveSiteCode(waybill.getOldSiteId());
+                    pdaOperateRequest.setCreateSiteCode(operatorInfo.getSiteCode());
+                    pdaOperateRequest.setCreateSiteName(operatorInfo.getSiteName());
+                    pdaOperateRequest.setOperateUserCode(operatorInfo.getUserCode());
+                    pdaOperateRequest.setOperateUserName(operatorInfo.getUserName());
+                    pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+                    final BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
+                    if (!interceptResult.getCode().equals(200)) {//如果校验不OK
+                        result.toFail(interceptResult.getMessage());
+                        return result;
+                    }
+                }
+                // 如果是箱号，校验箱号流向
+                if (isBoxCode) {
+                    final Box boxExist = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
+                    if (boxExist == null) {
+                        result.toFail("未找到对应箱号，请检查");
+                        return result;
+                    }
+                    destinationId = boxExist.getReceiveSiteCode();
+                }
+                // 调板号服务绑定到板号
+                bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
+                final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
+                convertToTcParam.setDestinationId(destinationId);
+                convertToTcParam.setBarcodeType(barCodeTypeEnumName.getCode());
+                final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
+                if (!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())) {
+                    log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
+                    result.toFail(handleResult.getMesseage());
                     return result;
                 }
-                destinationId = waybill.getOldSiteId();
-                // 拦截链校验
-                final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-                pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
-                pdaOperateRequest.setBoxCode(bindToVirtualBoardPo.getBarCode());
-                pdaOperateRequest.setReceiveSiteCode(waybill.getOldSiteId());
-                pdaOperateRequest.setCreateSiteCode(operatorInfo.getSiteCode());
-                pdaOperateRequest.setCreateSiteName(operatorInfo.getSiteName());
-                pdaOperateRequest.setOperateUserCode(operatorInfo.getUserCode());
-                pdaOperateRequest.setOperateUserName(operatorInfo.getUserName());
-                pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
-                final BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
-                if (!interceptResult.getCode().equals(200)) {//如果校验不OK
-                    result.toFail(interceptResult.getMessage());
-                    return result;
-                }
-            }
-            // 如果是箱号，校验箱号流向
-            if(isBoxCode){
-                final Box boxExist = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
-                if (boxExist == null) {
-                    result.toFail("未找到对应箱号，请检查");
-                    return result;
-                }
-                destinationId = boxExist.getReceiveSiteCode();
-            }
-            // 调板号服务绑定到板号
-            bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
-            final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
-            convertToTcParam.setDestinationId(destinationId);
-            convertToTcParam.setBarcodeType(barCodeTypeEnumName.getCode());
-            final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
-            if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
-                log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
-                result.toFail(handleResult.getMesseage());
-                return result;
+            } finally {
+                jimdbCacheService.del(key);
             }
             // 发送组板全程跟踪
         } catch (Exception e) {
@@ -542,6 +568,20 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             return result.toFail("参数错误，barCode不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
         return result;
+    }
+
+    /**
+     * 处理定时完结板号任务
+     * @param task 任务参数
+     * @return 返回板结果
+     * @author fanggang7
+     * @time 2021-08-22 17:39:26 周日
+     */
+    @Override
+    public boolean handleTimingCloseBoard(Task task) {
+        // 托盘号生成24小时后，自动完结
+        // 查询创建时间已过24小时，且板号为未完结状态的板号
+        return true;
     }
 
     /**

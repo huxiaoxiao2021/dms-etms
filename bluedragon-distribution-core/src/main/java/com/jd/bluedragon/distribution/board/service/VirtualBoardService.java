@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.distribution.task.domain.Task;
 
 import java.util.List;
 
@@ -70,6 +71,15 @@ public interface VirtualBoardService {
      * @time 2021-08-14 18:25:31 周六
      */
     JdCResponse<UnbindVirtualBoardResultDto> unbindToBoard(UnbindToVirtualBoardPo unbindToVirtualBoardPo);
+
+    /**
+     * 处理定时完结板号任务
+     * @param task 任务参数
+     * @return 返回板结果
+     * @author fanggang7
+     * @time 2021-08-22 17:39:26 周日
+     */
+    boolean handleTimingCloseBoard(Task task);
 
     /**
      * 处理定时完结板号
