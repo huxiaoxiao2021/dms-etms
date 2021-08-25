@@ -682,6 +682,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return (BoardCombinationChain) beanFactory.getBean("boardCombinationChain");
     }
 
+    /**
+     * 获取虚拟组板校验链
+     * @return
+     */
+    public FilterChain getVirtualBoardCombinationFilterChain(){
+        return (VirtualBoardCombinationChain) beanFactory.getBean("virtualBoardCombinationChain");
+    }
+
     private SortingCheck convertToSortingCheck(PdaOperateRequest request){
         SortingCheck sortingCheck = new SortingCheck();
         sortingCheck.setBoxCode(request.getBoxCode());
@@ -790,6 +798,72 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     private ColdChainDeliveryFilterChain getColdChainDeliveryFilterChain() {
         return (ColdChainDeliveryFilterChain) this.beanFactory.getBean("coldChainDeliveryFilterChain");
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.virtualBoardCombinationCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse virtualBoardCombinationCheck(PdaOperateRequest pdaOperateRequest) {
+        return this.virtualBoardCombinationCheck(pdaOperateRequest, false);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.virtualBoardCombinationCheckAndReportIntercept", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BoardCombinationJsfResponse virtualBoardCombinationCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest) {
+        return this.virtualBoardCombinationCheck(pdaOperateRequest, true);
+    }
+
+    /**
+     * 虚拟组板
+     * @param pdaOperateRequest
+     * @param reportIntercept
+     * @return
+     */
+    private BoardCombinationJsfResponse virtualBoardCombinationCheck(PdaOperateRequest pdaOperateRequest, boolean reportIntercept) {
+
+        if (pdaOperateRequest == null) {
+            return new BoardCombinationJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
+        }
+        BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        FilterContext filterContext = null;
+        try {
+            /*//初始化拦截链上下文
+            filterContext = this.initFilterParam(pdaOperateRequest);
+            filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
+            //获取校验链
+            FilterChain virtualBoardCombinationChain = getVirtualBoardCombinationFilterChain();
+            //校验过程
+            virtualBoardCombinationChain.doFilter(filterContext, virtualBoardCombinationChain);*/
+
+            //初始化拦截链上下文
+            filterContext = this.initContext(pdaOperateRequest);
+            ProceedFilterChain proceedFilterChain = getProceedFilterChain();
+            proceedFilterChain.doFilter(filterContext, proceedFilterChain);
+            filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
+            ForwardFilterChain forwardFilterChain = getForwardFilterChain();
+            forwardFilterChain.doFilter(filterContext, forwardFilterChain);
+        } catch (IllegalWayBillCodeException e) {
+            logger.error("非法运单号：IllegalWayBillCodeException", e);
+        } catch (Exception ex) {
+            if (ex instanceof SortingCheckException) {
+                SortingCheckException checkException = (SortingCheckException) ex;
+                if(reportIntercept){
+                    // 发出拦截报表mq
+                    this.sendInterceptMsg(filterContext, checkException);
+                }
+                return new BoardCombinationJsfResponse(checkException.getCode(), checkException.getMessage());
+            } else {
+                logger.error("组板验证服务异常，参数：{}", JsonHelper.toJson(pdaOperateRequest), ex);
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            }
+        }
+
+        if(response.getMessage() != null && response.getMessage().contains("装箱")) {
+            response.setMessage(response.getMessage().replace("装箱", "组板"));
+        }
+
+        this.addSortingCheckStatisticsLog(pdaOperateRequest, response.getCode(), response.getMessage());
+        return response;
     }
 
 }

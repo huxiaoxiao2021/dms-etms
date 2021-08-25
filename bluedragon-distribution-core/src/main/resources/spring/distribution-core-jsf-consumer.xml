@@ -287,6 +287,10 @@
     <jsf:consumer id="boardMeasureService" interface="com.jd.transboard.api.service.BoardMeasureService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!-- 分拣虚拟组板服务 -->
+    <jsf:consumer id="virtualBoardJsfService" interface="com.jd.transboard.api.service.IVirtualBoardService"
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!-- 路由 谭杨-->
     <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
         <property name="jimClient" ref="redisClient"/>

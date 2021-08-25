@@ -173,4 +173,10 @@ public class CacheKeyConstants {
 
     public static final String WAYBILL_SEND_BATCH_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend:%s";
     public static final String WAYBILL_SEND_COUNT_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend.count:%s";
+
+    public static final String VIRTUAL_BOARD_CREATE_DESTINATION = "dmsWeb:virtualBoard:createDestination:%s_%s";
+    public static final int VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT = 60;
+
+    public static final String VIRTUAL_BOARD_BIND = "dmsWeb:virtualBoard:bind:%s_%s";
+    public static final int VIRTUAL_BOARD_BIND_TIMEOUT = 60;
 }
