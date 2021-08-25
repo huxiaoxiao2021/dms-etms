@@ -30,7 +30,7 @@ import java.util.Map;
  * 转运依赖分拣相关服务
  */
 @Slf4j
-@Service("loadAndUnloadCommonService")
+@Service("transportCommonService")
 public class TransportCommonServiceImpl implements TransportCommonService {
 
     @Resource
