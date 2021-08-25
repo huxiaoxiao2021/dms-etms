@@ -29,6 +29,7 @@ import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BoardBarcodeTypeEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -360,7 +361,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
                 convertToTcParam.setDestinationId(destinationId);
-                convertToTcParam.setBarcodeType(barCodeTypeEnumName.getCode());
+                convertToTcParam.setBarcodeType(isPackageCode ? BoardBarcodeTypeEnum.PACKAGE.getCode() : BoardBarcodeTypeEnum.BOX.getCode());
                 final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.bindToBoard(convertToTcParam);
                 if (!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())) {
                     log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
