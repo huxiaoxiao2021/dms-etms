@@ -833,17 +833,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            Integer businessType = pdaOperateRequest.getBusinessType();
-            if (BusinessUtil.isForward(businessType)) {
-                filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
-                ForwardFilterChain forwardFilterChain = getForwardFilterChain();
-                forwardFilterChain.doFilter(filterContext, forwardFilterChain);
-            } else if (BusinessUtil.isReverse(businessType)) {
-                filterContext.setFuncModule(HintModuleConstants.REVERSE_SORTING);
-                ReverseFilterChain reverseFilterChain = getReverseFilterChain();
-                reverseFilterChain.doFilter(filterContext, reverseFilterChain);
-            }
-
+            filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
+            ForwardFilterChain forwardFilterChain = getForwardFilterChain();
+            forwardFilterChain.doFilter(filterContext, forwardFilterChain);
         } catch (IllegalWayBillCodeException e) {
             logger.error("非法运单号：IllegalWayBillCodeException", e);
         } catch (Exception ex) {

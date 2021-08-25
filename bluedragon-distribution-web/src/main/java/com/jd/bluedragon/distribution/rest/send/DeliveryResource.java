@@ -53,7 +53,6 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
-import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -420,6 +419,12 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(checkResponse.getCode(),checkResponse.getMessage(), null);
         }
 
+        // 如果是按包裹找整板进行发货
+        final InvokeResult<Void> handleCancelSendByPackageOrBoxCodeForWholeBoardResult = this.handleCancelSendByPackageOrBoxCodeForWholeBoard(request);
+        if(!Objects.equals(handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+            return new ThreeDeliveryResponse(handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getCode(), handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getMessage(), null);
+        }
+
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             SendM sendMDomain = toSendM(request);
@@ -445,6 +450,35 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    /**
+     * 按包裹号、箱号找到整板进行整板发货
+     * @author fanggang7
+     * @time 2021-08-24 18:31:56 周二
+     */
+    private InvokeResult<Void> handleCancelSendByPackageOrBoxCodeForWholeBoard(DeliveryRequest request) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        final boolean isCancelPackageForWholeBoard = WaybillUtil.isPackageCode(request.getBoxCode()) && Objects.equals(request.getCancelWholeBoard(), Constants.YN_YES);
+        if(!isCancelPackageForWholeBoard){
+            return result;
+        }
+        // 根据箱号找到板号
+        final Response<Board> boardResult = virtualBoardService.getBoardByBarCode(request.getBoxCode(), request.getSiteCode());
+        if(!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", JsonHelper.toJson(boardResult));
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("根据包裹或箱号查找板号数据异常");
+            return result;
+        }
+        final Board board = boardResult.getData();
+        if(board == null){
+            result.setCode(InvokeResult.RESULT_NULL_CODE);
+            result.setMessage("根据包裹或箱号未找到对应板数据");
+            return result;
+        }
+        request.setBoxCode(board.getCode());
+        return result;
     }
 
     /**
