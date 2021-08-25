@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.board.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 取消组板结果
@@ -51,6 +52,11 @@ public class UnbindVirtualBoardResultDto implements Serializable {
      * 运单取消总数
      */
     private Integer packageCancelTotal;
+
+    /**
+     * 取消的条码列表
+     */
+    private List<String> cancelBarcodeList;
 
     public String getBoardCode() {
         return boardCode;
@@ -121,6 +127,15 @@ public class UnbindVirtualBoardResultDto implements Serializable {
 
     public UnbindVirtualBoardResultDto setPackageCancelTotal(Integer packageCancelTotal) {
         this.packageCancelTotal = packageCancelTotal;
+        return this;
+    }
+
+    public List<String> getCancelBarcodeList() {
+        return cancelBarcodeList;
+    }
+
+    public UnbindVirtualBoardResultDto setCancelBarcodeList(List<String> cancelBarcodeList) {
+        this.cancelBarcodeList = cancelBarcodeList;
         return this;
     }
 }

@@ -13,16 +13,20 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
@@ -33,6 +37,8 @@ import com.jd.transboard.api.enums.BoardBarcodeTypeEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -43,6 +49,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -79,6 +86,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private TaskService taskService;
 
     /**
      * 获取组板已存在的未完成数据
@@ -368,6 +378,19 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     result.toFail(handleResult.getMesseage());
                     return result;
                 }
+
+                final com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoData = handleResult.getData();
+                if (virtualBoardResultDtoData == null) {
+                    log.error("VirtualBoardServiceImpl.bindToBoard--fail-- param {} result {}", JsonHelper.toJson(bindToVirtualBoardPo), JsonHelper.toJson(handleResult));
+                    result.toFail("组板异常");
+                    return result;
+                }
+                VirtualBoardResultDto virtualBoardResultDto = new VirtualBoardResultDto();
+                BeanUtils.copyProperties(virtualBoardResultDtoData, virtualBoardResultDto);
+                result.setData(virtualBoardResultDto);
+
+                //发送全称跟踪，整板则按板中所有包裹号进行处理
+                sendWaybillTrace(bindToVirtualBoardPo, virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
             } finally {
                 jimdbCacheService.del(key);
             }
@@ -406,6 +429,90 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             return result.toFail(String.format("最多可传入%s个板号", 5), ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
         return result;
+    }
+
+    /**
+     * 发送全程跟踪
+     * @param operateType
+     */
+    private void sendWaybillTrace(BindToVirtualBoardPo bindToVirtualBoardPo, String boardCode, String destinationName, Integer operateType) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            WaybillStatus waybillStatus = new WaybillStatus();
+            //设置站点相关属性
+            waybillStatus.setPackageCode(bindToVirtualBoardPo.getBarCode());
+            final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+
+            waybillStatus.setCreateSiteCode(operatorInfo.getSiteCode());
+            waybillStatus.setCreateSiteName(operatorInfo.getSiteName());
+
+            waybillStatus.setOperatorId(operatorInfo.getUserCode());
+            waybillStatus.setOperator(operatorInfo.getUserName());
+            waybillStatus.setOperateTime(new Date());
+            waybillStatus.setOperateType(operateType);
+
+            if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
+                waybillStatus.setRemark("包裹号：" + waybillStatus.getPackageCode() + "已进行组板，板号" + boardCode + "，等待送往" + destinationName);
+            } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
+                waybillStatus.setRemark("已取消组板，板号" + boardCode);
+            }
+
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            log.error("组板操作发送全称跟踪失败:{}", JsonHelper.toJson(bindToVirtualBoardPo), e);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 转换成全称跟踪的Task
+     *
+     * @param waybillStatus
+     * @return
+     */
+    private Task toTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
+    }
+
+    /**
+     * 组装回全称跟踪对象
+     *
+     * @param request
+     * @return
+     */
+    private WaybillStatus getWaybillStatus(BoardCombinationRequest request, Integer operateType) {
+        WaybillStatus tWaybillStatus = new WaybillStatus();
+        //设置站点相关属性
+        tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
+
+        tWaybillStatus.setCreateSiteCode(request.getSiteCode());
+        tWaybillStatus.setCreateSiteName(request.getSiteName());
+
+        tWaybillStatus.setOperatorId(request.getUserCode());
+        tWaybillStatus.setOperator(request.getUserName());
+        tWaybillStatus.setOperateTime(new Date());
+        tWaybillStatus.setOperateType(operateType);
+
+        if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
+            tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
+        } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
+            tWaybillStatus.setRemark("已取消组板，板号" + request.getBoardCode());
+        }
+
+        return tWaybillStatus;
     }
 
     /**
@@ -557,6 +664,14 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             UnbindVirtualBoardResultDto unbindVirtualBoardResultDto = new UnbindVirtualBoardResultDto();
             BeanUtils.copyProperties(unbindVirtualBoardResultData, unbindVirtualBoardResultDto);
             result.setData(unbindVirtualBoardResultDto);
+
+            //发送取消组板的全称跟踪
+            for (String barcode : unbindVirtualBoardResultDto.getCancelBarcodeList()) {
+                UnbindToVirtualBoardPo unbindToVirtualBoardPoTemp = new UnbindToVirtualBoardPo();
+                BeanUtils.copyProperties(unbindToVirtualBoardPo, unbindToVirtualBoardPoTemp);
+                unbindToVirtualBoardPoTemp.setBarCode(barcode);
+                sendWaybillTrace(unbindToVirtualBoardPoTemp, unbindVirtualBoardResultDto.getBoardCode(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+            }
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.unbindToBoard--exception param {} exception {}", JsonHelper.toJson(unbindToVirtualBoardPo), e.getMessage(), e);
@@ -585,6 +700,38 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             return result.toFail("参数错误，barCode不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
         return result;
+    }
+
+    /**
+     * 发送全程跟踪
+     * @param operateType
+     */
+    private void sendWaybillTrace(UnbindToVirtualBoardPo unbindToVirtualBoardPo, String boardCode, Integer operateType) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            WaybillStatus waybillStatus = new WaybillStatus();
+            //设置站点相关属性
+            waybillStatus.setPackageCode(unbindToVirtualBoardPo.getBarCode());
+            final OperatorInfo operatorInfo = unbindToVirtualBoardPo.getOperatorInfo();
+
+            waybillStatus.setCreateSiteCode(operatorInfo.getSiteCode());
+            waybillStatus.setCreateSiteName(operatorInfo.getSiteName());
+            waybillStatus.setOperatorId(operatorInfo.getUserCode());
+            waybillStatus.setOperator(operatorInfo.getUserName());
+            waybillStatus.setOperateTime(new Date());
+            waybillStatus.setOperateType(operateType);
+            if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
+                waybillStatus.setRemark("已取消组板，板号" + boardCode);
+            }
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            log.error("组板操作发送全称跟踪失败:{}", JsonHelper.toJson(unbindToVirtualBoardPo), e);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
     }
 
     /**
