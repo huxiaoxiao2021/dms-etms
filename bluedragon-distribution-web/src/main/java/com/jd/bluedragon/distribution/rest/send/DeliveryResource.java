@@ -257,7 +257,8 @@ public class DeliveryResource {
         }
         final Board board = boardResult.getData();
         if(board == null){
-            result.customMessage(BoardResponse.CODE_BOARD_NOT_FOUND, "根据包裹或箱号未找到对应板数据");
+            SendResult sendResult = new SendResult(SendResult.CODE_SENDED, "根据包裹或箱号未找到对应板数据");
+            result.setData(sendResult);
             return result;
         }
         domain.setBoardCode(board.getCode());
