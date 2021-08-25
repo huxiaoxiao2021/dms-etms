@@ -2,12 +2,12 @@
 <project
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.jd.bluedragon</groupId>
 	<artifactId>bluedragon-distribution-sdk</artifactId>
-	<version>1.7.4-SNAPSHOT</version>
+	<version>1.7.6-test-SNAPSHOT</version>
 	<name>bluedragon-distribution-sdk</name>
 	<url>http://bluedragon.360buy.com</url>
 	<packaging>jar</packaging>
@@ -22,7 +22,7 @@
 		<jackson.version>1.9.2</jackson.version>
 		<resteasy.version>2.2.3.GA</resteasy.version>
 	</properties>
-	
+
 	<dependencies>
 <!-- 		<dependency>
 			<groupId>junit</groupId>
