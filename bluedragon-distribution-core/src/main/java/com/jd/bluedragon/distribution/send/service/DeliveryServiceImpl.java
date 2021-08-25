@@ -88,7 +88,6 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.*;
-import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
@@ -7395,93 +7394,4 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             Profiler.registerInfoEnd(info);
         }
     }
-
-    /**
-     * 获取已发货批次下和指定运单下的包裹号
-     * @param createSiteCode 当前网点
-     * @param batchCode 批次号
-     * @param waybillCode 运单号
-     * @return 包裹号集合
-     */
-    @Override
-    public InvokeResult<List<String>> queryPackageCodeBySendAndWaybillCode(Integer createSiteCode, String batchCode, String waybillCode) {
-        InvokeResult<List<String>> result = new InvokeResult<>();
-        List<String> packageCodeList;
-        try {
-            SendDetailDto params = new SendDetailDto();
-            params.setCreateSiteCode(createSiteCode);
-            params.setSendCode(batchCode);
-            params.setWaybillCode(waybillCode);
-            params.setIsCancel(0);
-            packageCodeList = sendDatailDao.queryPackageCodeBySendAndWaybillCode(params);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            result.setData(packageCodeList);
-        } catch (Exception e) {
-            log.error("queryPackageCodeBySendAndWaybillCode|查询批次【{}】,操作站点【{}】,运单号【{}】的包裹数异常", batchCode, createSiteCode, waybillCode, e);
-            result.customMessage(500, "服务器执行异常");
-        }
-        return result;
-    }
-
-    @Override
-    public InvokeResult<List<String>> queryPackageCodeBySendCode(Integer createSiteCode, String batchCode) {
-        InvokeResult<List<String>> result = new InvokeResult<>();
-        //从分拣获取批次下的包裹数据。
-        try {
-            SendDetailDto params = new SendDetailDto();
-            params.setCreateSiteCode(createSiteCode);
-            params.setSendCode(batchCode);
-            params.setIsCancel(0);
-            List<String> packageCodeList = sendDatailDao.queryPackageCodeBySendCode(params);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            result.setData(packageCodeList);
-        } catch (Exception e) {
-            log.error("queryPackageCodeBySendCode|查询批次【{}】,操作站点【{}】的包裹数异常", batchCode, createSiteCode, e);
-            result.customMessage(500, "服务器执行异常");
-        }
-        return result;
-    }
-
-    @Override
-    public InvokeResult<String> findByWaybillCodeOrPackageCode(Integer createSiteCode, Integer receiveSiteCode, String barCode) {
-        InvokeResult<String> result = new InvokeResult<>();
-        try {
-            SendDetail sendDetail = new SendDetail();
-            sendDetail.setPackageBarcode(barCode);
-            sendDetail.setCreateSiteCode(createSiteCode);
-            sendDetail.setReceiveSiteCode(receiveSiteCode);
-            List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            if (CollectionUtils.isNotEmpty(sendDetailList)) {
-                result.setData(sendDetailList.get(0).getSendCode());
-            }
-        } catch (Exception e) {
-            log.error("findByWaybillCodeOrPackageCode|查询包裹号【{}】,操作站点【{}】,下一站点【{}】的包裹明细异常", barCode, createSiteCode, receiveSiteCode, e);
-            result.customMessage(500, "服务器执行异常");
-        }
-        return result;
-    }
-
-    @Override
-    public InvokeResult<Map<String, Integer>> queryPackageAndWaybillNumByBatchCodes(Integer createSiteCode, List<String> batchCodes) {
-        InvokeResult<Map<String, Integer>> result = new InvokeResult<>();
-        Map<String, Object> params = new HashMap<String, Object>();
-        params.put("createSiteCode", createSiteCode);
-        params.put("sendCodes", batchCodes);
-        try {
-            Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
-            Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
-            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-            Map<String, Integer> map = new HashMap<>(2);
-            map.put("waybill", waybillNum);
-            map.put("package", packageNum);
-            result.setData(map);
-        } catch (Exception e) {
-            log.error("queryPackageAndWaybillNumByBatchCodes|查询批次【{}】,操作站点【{}】的包裹数异常", batchCodes, createSiteCode, e);
-            result.customMessage(500, "服务器执行异常");
-        }
-        return result;
-    }
-
-
 }

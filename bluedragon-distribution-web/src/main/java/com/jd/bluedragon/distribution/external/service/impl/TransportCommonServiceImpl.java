@@ -2,21 +2,29 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BoardCommonManager;
+import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
 import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 转运依赖分拣相关服务
@@ -33,6 +41,13 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
     @Resource
     private WaybillService waybillService;
+
+    @Resource
+    private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
+
+    @Resource
+    private SendDatailDao sendDatailDao;
+
 
     @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.interceptValidateUnloadCar", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
@@ -156,5 +171,110 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             return result;
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.checkAllianceMoney", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<Boolean> checkAllianceMoney(String waybillCode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE);
+        boolean flag = false;
+        try {
+            // 加盟商余额校验
+            if (allianceBusiDeliveryDetailService.checkExist(waybillCode)
+                    && !allianceBusiDeliveryDetailService.checkMoney(waybillCode)) {
+                flag = true;
+            }
+            result.setData(flag);
+            return result;
+        } catch (Exception e) {
+            log.error("盟商余额校验出现异常，请求参数waybillCode={},error=", waybillCode, e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.queryPackageCodeBySendAndWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<List<String>> queryPackageCodeBySendAndWaybillCode(Integer createSiteCode, String batchCode, String waybillCode) {
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        List<String> packageCodeList;
+        try {
+            SendDetailDto params = new SendDetailDto();
+            params.setCreateSiteCode(createSiteCode);
+            params.setSendCode(batchCode);
+            params.setWaybillCode(waybillCode);
+            params.setIsCancel(0);
+            packageCodeList = sendDatailDao.queryPackageCodeBySendAndWaybillCode(params);
+            result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
+            result.setData(packageCodeList);
+        } catch (Exception e) {
+            log.error("queryPackageCodeBySendAndWaybillCode|查询批次【{}】,操作站点【{}】,运单号【{}】的包裹数异常", batchCode, createSiteCode, waybillCode, e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.queryPackageCodeBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<List<String>> queryPackageCodeBySendCode(Integer createSiteCode, String batchCode) {
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        //从分拣获取批次下的包裹数据。
+        try {
+            SendDetailDto params = new SendDetailDto();
+            params.setCreateSiteCode(createSiteCode);
+            params.setSendCode(batchCode);
+            params.setIsCancel(0);
+            List<String> packageCodeList = sendDatailDao.queryPackageCodeBySendCode(params);
+            result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
+            result.setData(packageCodeList);
+        } catch (Exception e) {
+            log.error("queryPackageCodeBySendCode|查询批次【{}】,操作站点【{}】的包裹数异常", batchCode, createSiteCode, e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.findByWaybillCodeOrPackageCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<String> findByWaybillCodeOrPackageCode(Integer createSiteCode, Integer receiveSiteCode, String barCode) {
+        InvokeResult<String> result = new InvokeResult<>();
+        try {
+            SendDetail sendDetail = new SendDetail();
+            sendDetail.setPackageBarcode(barCode);
+            sendDetail.setCreateSiteCode(createSiteCode);
+            sendDetail.setReceiveSiteCode(receiveSiteCode);
+            List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
+            result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
+            if (CollectionUtils.isNotEmpty(sendDetailList)) {
+                result.setData(sendDetailList.get(0).getSendCode());
+            }
+        } catch (Exception e) {
+            log.error("findByWaybillCodeOrPackageCode|查询包裹号【{}】,操作站点【{}】,下一站点【{}】的包裹明细异常", barCode, createSiteCode, receiveSiteCode, e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.queryPackageAndWaybillNumByBatchCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<Map<String, Integer>> queryPackageAndWaybillNumByBatchCodes(Integer createSiteCode, List<String> batchCodes) {
+        InvokeResult<Map<String, Integer>> result = new InvokeResult<>();
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("createSiteCode", createSiteCode);
+        params.put("sendCodes", batchCodes);
+        try {
+            Integer waybillNum = sendDatailDao.queryWaybillNumBybatchCodes(params);
+            Integer packageNum = sendDatailDao.queryPackageNumBybatchCodes(params);
+            result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
+            Map<String, Integer> map = new HashMap<>(2);
+            map.put("waybill", waybillNum);
+            map.put("package", packageNum);
+            result.setData(map);
+        } catch (Exception e) {
+            log.error("queryPackageAndWaybillNumByBatchCodes|查询批次【{}】,操作站点【{}】的包裹数异常", batchCodes, createSiteCode, e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
     }
 }
