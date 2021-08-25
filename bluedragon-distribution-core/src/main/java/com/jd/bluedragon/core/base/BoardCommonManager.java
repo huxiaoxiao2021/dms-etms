@@ -82,4 +82,9 @@ public interface BoardCommonManager {
      */
     InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
 
+    /**
+     * 装卸车的拦截校验
+     */
+    InvokeResult<Boolean> loadUnloadInterceptValidate(String waybillCode, String waybillSign);
+
 }

@@ -591,4 +591,36 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         return result;
     }
 
+
+    @Override
+    public InvokeResult<Boolean> loadUnloadInterceptValidate(String waybillCode, String waybillSign) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+
+        JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
+        if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+            logger.info("运单【{}】已被拦截【{}】", waybillCode, jdResponse.getMessage());
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(jdResponse.getMessage());
+            return result;
+        }
+        //有包装服务
+        boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
+        if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+            logger.warn("loadUnloadInterceptValidate 装卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+            return result;
+        }
+        //金鹏订单
+        if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
+            logger.warn("loadUnloadInterceptValidate 装卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
+            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+            result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+            return result;
+        }
+        return result;
+    }
+
 }
