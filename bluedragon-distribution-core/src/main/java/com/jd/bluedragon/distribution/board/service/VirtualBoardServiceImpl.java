@@ -156,7 +156,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 // 同一操作人及目的地加锁，解决并发问题
                 boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
                 if (!isExistHandling) {
-                    throw new RuntimeException("操作太快，正在处理中");
+                    result.setCode(JdCResponse.CODE_FAIL);
+                    result.setMessage("操作太快，正在处理中");
+                    return result;
                 }
                 addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
                 final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
@@ -286,7 +288,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 // 同一操作人及目的地加锁，解决并发问题
                 boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
                 if (!isExistHandling) {
-                    throw new RuntimeException("操作太快，正在处理中");
+                    result.setCode(JdCResponse.CODE_FAIL);
+                    result.setMessage("操作太快，正在处理中");
+                    return result;
                 }
                 // 根据板号查询已有板号，校验板号数据，状态是否正确，并得到具体流向
                 // 校验板号中已装数据是否达到上限
