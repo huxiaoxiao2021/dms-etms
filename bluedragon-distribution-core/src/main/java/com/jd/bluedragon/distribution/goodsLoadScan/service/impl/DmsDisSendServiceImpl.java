@@ -1,16 +1,28 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.goodsLoadScan.service.DmsDisSendService;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.merchant.api.common.dto.BaseEntity;
 import com.jd.merchant.api.pack.dto.LoadScanDto;
+import com.jd.merchant.api.pack.dto.LoadScanReqDto;
 import com.jd.merchant.api.pack.ws.LoadScanPackageDetailWS;
+import com.jd.ql.dms.report.LoadScanPackageDetailService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service("dmsDisSendService")
@@ -21,12 +33,27 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     @Resource
     private LoadScanPackageDetailWS loadScanPackageDetailWs;
 
+    @Resource
+    private LoadScanPackageDetailService loadScanPackageDetailService;
+
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
         BaseEntity<List<LoadScanDto>> baseEntity;
         try {
             // 根据包裹号查找运单号
-            baseEntity = loadScanPackageDetailWs.findLoadScanList(scanDtoList, currentSiteId);
+            if (uccPropertyConfiguration.isUseNewInventoryEs()) {
+                baseEntity = loadScanPackageDetailWs.findLoadScanList(scanDtoList, currentSiteId);
+            } else {
+                List<com.jd.ql.dms.report.domain.LoadScanDto> loadScanDtoList = new ArrayList<>();
+                BeanUtils.copyProperties(scanDtoList, loadScanDtoList);
+                com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.LoadScanDto>> result
+                        = loadScanPackageDetailService.findLoadScanList(loadScanDtoList, currentSiteId);
+                baseEntity = new BaseEntity<>();
+                BeanUtils.copyProperties(result, baseEntity);
+            }
         } catch (Exception e) {
             logger.error("根据运单号列表去ES查询运单明细接口发生异常，currentSiteId={},e=", currentSiteId,  e);
             return new ArrayList<>();
@@ -46,7 +73,16 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
         BaseEntity<LoadScanDto> baseEntity;
         try {
-            baseEntity = loadScanPackageDetailWs.findLoadScan(loadScanDto);
+            if (uccPropertyConfiguration.isUseNewInventoryEs()) {
+                baseEntity = loadScanPackageDetailWs.findLoadScan(loadScanDto);
+            } else {
+                com.jd.ql.dms.report.domain.LoadScanDto scanDto = new com.jd.ql.dms.report.domain.LoadScanDto();
+                BeanUtils.copyProperties(loadScanDto, scanDto);
+                com.jd.ql.dms.report.domain.BaseEntity<com.jd.ql.dms.report.domain.LoadScanDto> result
+                        = loadScanPackageDetailService.findLoadScan(scanDto);
+                baseEntity = new BaseEntity<>();
+                BeanUtils.copyProperties(result, baseEntity);
+            }
         } catch (Exception e) {
             logger.error("根据包裹号和运单号去ES查询包裹流向发生异常，packageCode={},waybillCode={}",
                     loadScanDto.getPackageCode(), loadScanDto.getWayBillCode());
@@ -70,7 +106,14 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     public List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId, List<String> packageCodes) {
         BaseEntity<List<String>> baseEntity;
         try {
-            baseEntity = loadScanPackageDetailWs.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
+            if (uccPropertyConfiguration.isUseNewInventoryEs()) {
+                baseEntity = loadScanPackageDetailWs.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
+            } else {
+                com.jd.ql.dms.report.domain.BaseEntity<List<String>> result
+                        = loadScanPackageDetailService.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
+                baseEntity = new BaseEntity<>();
+                BeanUtils.copyProperties(result, baseEntity);
+            }
         } catch (Exception e) {
             logger.error("根据已装包裹号列表和运单号去ES查询未装包裹号列表发生异常，waybillCode={},createSiteId={},e=",
                     waybillCode, createSiteId, e);
@@ -88,6 +131,49 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
             return new ArrayList<>();
         }
         return baseEntity.getData();
+    }
+
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo",mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public JdCResponse<List<LoadScanDto>> getInspectNoSendWaybillInfo(LoadCar loadCar, List<String> waybillCodeList) {
+        JdCResponse<List<LoadScanDto>> res = new JdCResponse<>();
+        LoadScanReqDto loadScanReqDto = new LoadScanReqDto();
+        try {
+            loadScanReqDto.setCreateSiteId(loadCar.getCreateSiteCode().intValue());
+            loadScanReqDto.setNextSiteId(loadCar.getEndSiteCode().intValue());
+            Date fromTime = DateHelper.newTimeRangeHoursAgo(new Date(), GoodsLoadScanConstants.WAIT_LOAD_RANGE_FROM_HOURS);
+            loadScanReqDto.setFormTime(fromTime.getTime());
+            loadScanReqDto.setToTime(System.currentTimeMillis());
+            loadScanReqDto.setLoadWaybillCodeList(waybillCodeList);
+            BaseEntity<List<LoadScanDto>> jsfRes;
+            if (uccPropertyConfiguration.isUseNewInventoryEs()) {
+                jsfRes = loadScanPackageDetailWs.getWaitLoadWaybillInfo(loadScanReqDto);
+            } else {
+                com.jd.ql.dms.report.domain.LoadScanReqDto scanReqDto = new com.jd.ql.dms.report.domain.LoadScanReqDto();
+                BeanUtils.copyProperties(loadScanReqDto, scanReqDto);
+                com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.LoadScanDto>> result
+                        = loadScanPackageDetailService.getWaitLoadWaybillInfo(scanReqDto);
+                jsfRes = new BaseEntity<>();
+                BeanUtils.copyProperties(result, jsfRes);
+            }
+            if(jsfRes == null) {
+                logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--error--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
+                res.toError("查询库存运单信息失败");
+                return res;
+            }else if(jsfRes.getCode() != BaseEntity.CODE_SUCCESS) {
+                logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--fail--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
+                res.toFail(jsfRes.getMessage());
+                return res;
+            }
+            res.setData(jsfRes.getData());
+            res.toSucceed();
+            return res;
+
+        }catch (Exception e) {
+            logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--调用分拣报表查询已验未发jsf异常--，参数=【{}】", JsonHelper.toJson(loadScanReqDto), e);
+            res.toFail("JSF调用失败");
+            return res;
+        }
     }
 
 }

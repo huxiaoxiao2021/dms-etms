@@ -666,6 +666,10 @@
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="loadScanPackageDetailService" interface="com.jd.ql.dms.report.LoadScanPackageDetailService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <jsf:consumer id="loadScanPackageDetailWS" interface="com.jd.merchant.api.pack.ws.LoadScanPackageDetailWS"
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -753,6 +757,10 @@
     <!-- 波次服务 -->
     <jsf:consumer id="transferWaveJsfService" interface="com.jd.dms.wb.report.api.ITransferWaveJsfService"
                   alias="${jsf.alias.transferWaveJsfService}" protocol="jsf" timeout="${jsf.timeout.transferWaveJsfService}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="loadCarTaskServiceWS" interface="com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.tys.loadCarTaskServiceWS.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
 </beans>

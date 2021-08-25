@@ -460,6 +460,12 @@ public class UccPropertyConfiguration {
      */
     private String deliverySendAsyncSite;
 
+    /**
+     * 使用新库存ES 开关
+     * true :开启 false 不开启
+     */
+    private boolean useNewInventoryEs;
+
     public String getDeliverySendAsyncSite() {
         return deliverySendAsyncSite;
     }
@@ -1239,5 +1245,13 @@ public class UccPropertyConfiguration {
 
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
+    }
+
+    public boolean isUseNewInventoryEs() {
+        return useNewInventoryEs;
+    }
+
+    public void setUseNewInventoryEs(boolean useNewInventoryEs) {
+        this.useNewInventoryEs = useNewInventoryEs;
     }
 }

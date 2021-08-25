@@ -131,6 +131,7 @@
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+		<property name="useNewInventoryEs" value="${useNewInventoryEs:true}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -240,6 +241,7 @@
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+				<value>uccPropertyConfiguration.useNewInventoryEs</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

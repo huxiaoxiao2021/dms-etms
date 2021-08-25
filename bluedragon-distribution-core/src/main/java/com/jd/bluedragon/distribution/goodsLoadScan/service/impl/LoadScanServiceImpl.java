@@ -14,7 +14,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetail
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.LoadScanPackageDetailServiceManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -143,8 +142,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private LoadService loadService;
 
-    @Autowired
-    private LoadScanPackageDetailServiceManager loadScanPackageDetailServiceManager;
 
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
 
@@ -2369,7 +2366,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         Map<String, Integer> loadWaybillMap = null;
 
         //查询已验未发未装车数据
-        JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = loadScanPackageDetailServiceManager.getInspectNoSendWaybillInfo(loadCar, null);
+        JdCResponse<List<LoadScanDto>> inventoryWaybillListRes = dmsDisSendService.getInspectNoSendWaybillInfo(loadCar, null);
         if(inventoryWaybillListRes == null || !JdCResponse.CODE_SUCCESS.equals(inventoryWaybillListRes.getCode())) {
                 log.error("LoadScanServiceImpl.getInspectNoSendNoLoadWaybillDetail---error--获取流向已验未发待装数据失败， 查询参数req=【{}】, 返回=【{}】", JsonHelper.toJson(req), JsonHelper.toJson(inventoryWaybillListRes));
                 res.toFail(inventoryWaybillListRes == null ? "获取库存运单失败" : inventoryWaybillListRes.getMessage());
