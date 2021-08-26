@@ -501,9 +501,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(CollectionUtils.isEmpty(bindToVirtualBoardPo.getBoardCodeList())){
             return result.toFail("参数错误，boardCodeList不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
-        if(bindToVirtualBoardPo.getBoardCodeList().size() > 5){
-            return result.toFail(String.format("最多可传入%s个板号", 5), ResultCodeConstant.ILLEGAL_ARGUMENT);
+        List<String> notBlankCodeList = new ArrayList<>();
+        for (String boardCode : bindToVirtualBoardPo.getBoardCodeList()) {
+            if(StringUtils.isNotBlank(boardCode)){
+                notBlankCodeList.add(boardCode);
+            }
         }
+        bindToVirtualBoardPo.setBoardCodeList(notBlankCodeList);
         return result;
     }
 
