@@ -351,6 +351,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                     destinationId = waybill.getOldSiteId();
+
+                    // 先校验已扫板流向
+                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
+                    if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
+                        result.toFail(checkMatchBoardDestinationResult.getMessage());
+                        return result;
+                    }
                     // 拦截链校验
                     final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
                     pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
@@ -375,6 +382,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                     destinationId = boxExist.getReceiveSiteCode();
+                    // 先校验已扫板流向
+                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
+                    if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
+                        result.toFail(checkMatchBoardDestinationResult.getMessage());
+                        return result;
+                    }
                 }
                 // 已在同场地发货，不可再组板
                 final SendM recentSendMByParam = getRecentSendMByParam(bindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
@@ -414,6 +427,27 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.bindToBoard--exception param {} exception {}", JsonHelper.toJson(bindToVirtualBoardPo), e.getMessage(), e);
         } finally {
+        }
+        return result;
+    }
+
+    private Result<Boolean> checkMatchBoardDestination(BindToVirtualBoardPo bindToVirtualBoardPo, Integer destinationId) {
+        Result<Boolean> result = Result.success(false);
+        final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+        final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
+        if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));
+            result.toFail("获取已扫流向失败，请稍后再试");
+            return result;
+        }
+        final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = handleResult.getData();
+        if (CollectionUtils.isEmpty(virtualBoardResultDtoQueryData)) {
+            return result;
+        }
+        for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+            if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+                return result.setData(true);
+            }
         }
         return result;
     }
