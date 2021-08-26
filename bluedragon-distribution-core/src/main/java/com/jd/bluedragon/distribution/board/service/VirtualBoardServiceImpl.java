@@ -437,19 +437,19 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
         if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));
-            result.toFail("获取已扫流向失败，请稍后再试");
-            return result;
+            return result.toFail("获取已扫流向失败，请稍后再试");
         }
         final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = handleResult.getData();
         if (CollectionUtils.isEmpty(virtualBoardResultDtoQueryData)) {
             return result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
         }
+        boolean hasMatchDestinationIdFlag = false;
         for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
             if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
-                return result.toSuccess(true, null);
+                hasMatchDestinationIdFlag = true;
             }
         }
-        return result;
+        return hasMatchDestinationIdFlag ? result.toSuccess(true, null) : result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
     }
 
     /**
