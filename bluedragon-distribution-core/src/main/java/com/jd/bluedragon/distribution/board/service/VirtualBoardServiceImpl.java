@@ -446,7 +446,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
             if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
-                return result.toSuccess(true);
+                return result.toSuccess(true, null);
             }
         }
         return result;
