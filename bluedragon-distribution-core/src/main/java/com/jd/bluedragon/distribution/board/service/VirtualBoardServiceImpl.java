@@ -6,8 +6,8 @@ import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
-import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -19,6 +19,9 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -86,6 +89,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private SendMService sendMService;
+
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
 
     @Autowired
     private TaskService taskService;
@@ -342,6 +351,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                     destinationId = waybill.getOldSiteId();
+
+                    // 先校验已扫板流向
+                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
+                    if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
+                        result.toFail(checkMatchBoardDestinationResult.getMessage());
+                        return result;
+                    }
                     // 拦截链校验
                     final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
                     pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
@@ -366,6 +382,18 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                     destinationId = boxExist.getReceiveSiteCode();
+                    // 先校验已扫板流向
+                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
+                    if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
+                        result.toFail(checkMatchBoardDestinationResult.getMessage());
+                        return result;
+                    }
+                }
+                // 已在同场地发货，不可再组板
+                final SendM recentSendMByParam = getRecentSendMByParam(bindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
+                if (recentSendMByParam != null) {
+                    result.toFail("该包裹已发货");
+                    return result;
                 }
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
@@ -401,6 +429,54 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         } finally {
         }
         return result;
+    }
+
+    private Result<Boolean> checkMatchBoardDestination(BindToVirtualBoardPo bindToVirtualBoardPo, Integer destinationId) {
+        Result<Boolean> result = Result.success(false);
+        final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+        final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
+        if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));
+            result.toFail("获取已扫流向失败，请稍后再试");
+            return result;
+        }
+        final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = handleResult.getData();
+        if (CollectionUtils.isEmpty(virtualBoardResultDtoQueryData)) {
+            return result;
+        }
+        for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+            if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+                return result.setData(true);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 获取最近一次的发货信息
+     *
+     * @param boxCode
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime) {
+        //查询箱子发货记录
+        /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
+        SendM queryPara = new SendM();
+        queryPara.setBoxCode(boxCode);
+        queryPara.setCreateSiteCode(createSiteCode);
+        if (receiveSiteCode != null) {
+            queryPara.setReceiveSiteCode(receiveSiteCode);
+        }
+        if (operateTime != null){
+            queryPara.setUpdateTime(operateTime);
+        }
+        List<SendM> sendMList = sendMService.findByParams(queryPara);
+        if (null != sendMList && sendMList.size() > 0) {
+            return sendMList.get(0);
+        }
+        return null;
     }
 
     private com.jd.transboard.api.dto.BindToVirtualBoardPo getConvertToTcParam(BindToVirtualBoardPo bindToVirtualBoardPo) {
@@ -654,6 +730,16 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setMessage(baseCheckResult.getMessage());
                 return result;
             }
+            final OperatorInfo operatorInfo = unbindToVirtualBoardPo.getOperatorInfo();
+            // 校验是否已封车，已封车不可取消
+            final SendM recentSendM = getRecentSendMByParam(unbindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
+            if (recentSendM != null) {
+                if (newSealVehicleService.checkSendCodeIsSealed(recentSendM.getSendCode())) {
+                    result.toFail("该箱/包裹已封车，不可取消组板");
+                    return result;
+                }
+            }
+
             final Response<com.jd.transboard.api.dto.UnbindVirtualBoardResultDto> handleResult = virtualBoardJsfManager.unbindToBoard(this.getConvertToTcParam(unbindToVirtualBoardPo));
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.unbindToBoard--fail-- param {} result {}", JsonHelper.toJson(unbindToVirtualBoardPo), JsonHelper.toJson(handleResult));
