@@ -1593,14 +1593,6 @@
 			<version>1.0.35-SNAPSHOT</version>
 		</dependency>
 
-
-		<dependency>
-			<groupId>com.zhongyouex.order</groupId>
-			<artifactId>zhongyouex-order-api</artifactId>
-			<version>1.0.0-uat-SNAPSHOT</version>
-		</dependency>
-
-
 		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
