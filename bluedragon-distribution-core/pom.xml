@@ -1096,6 +1096,12 @@
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
 			<version>1.0.5-uat-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--路由系统-->
@@ -1355,12 +1361,22 @@
 					<groupId>com.alibaba</groupId>
 					<artifactId>fastjson</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>log4j-1.2-api</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lop</groupId>
 			<artifactId>crossbow-api</artifactId>
 			<version>${crossbow.api.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j-1.2-api</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 <!--		<dependency>-->
 <!--			<groupId>com.jd.lsb</groupId>-->
