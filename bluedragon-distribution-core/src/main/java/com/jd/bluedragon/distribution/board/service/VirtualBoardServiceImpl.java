@@ -442,11 +442,11 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = handleResult.getData();
         if (CollectionUtils.isEmpty(virtualBoardResultDtoQueryData)) {
-            return result;
+            return result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
         }
         for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
             if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
-                return result.setData(true);
+                return result.toSuccess(true);
             }
         }
         return result;
