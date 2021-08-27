@@ -453,20 +453,20 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             Task tTask = new Task();
             final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
             tTask.setCreateSiteCode(operatorInfo.getSiteCode());
-            tTask.setKeyword2(String.valueOf(virtualBoardResultDto.getBoardCode()));
+            tTask.setKeyword1(String.valueOf(virtualBoardResultDto.getBoardCode()));
             tTask.setReceiveSiteCode(destinationId);
             tTask.setType(taskType);
             tTask.setTableName(Task.getTableName(taskType));
             String ownSign = BusinessHelper.getOwnSign();
             tTask.setOwnSign(ownSign);
-            tTask.setKeyword1(virtualBoardResultDto.getBoardCode());
+            tTask.setKeyword2(operatorInfo.getSiteCode().toString());
             tTask.setFingerprint(Md5Helper.encode(operatorInfo.getSiteCode() + "_" + tTask.getKeyword1() + virtualBoardResultDto.getBoardCode() + tTask.getKeyword2()));
             final Integer virtualBoardAutoCloseDays = uccPropertyConfiguration.getVirtualBoardAutoCloseDays();
             tTask.setExecuteTime(DateUtil.addDate(new Date(), (virtualBoardAutoCloseDays != null && virtualBoardAutoCloseDays > 0) ? virtualBoardAutoCloseDays : 1));
 
             CloseVirtualBoardPo closeVirtualBoardPo = new CloseVirtualBoardPo();
             closeVirtualBoardPo.setOperatorInfo(operatorInfo);
-            closeVirtualBoardPo.setBoardCode(bindToVirtualBoardPo.getBarCode());
+            closeVirtualBoardPo.setBoardCode(virtualBoardResultDto.getBoardCode());
             tTask.setBoxCode(bindToVirtualBoardPo.getBarCode());
             tTask.setBody(JsonHelper.toJson(closeVirtualBoardPo));
             log.info("pushBoardAutoCloseTask 组板超时自动完结任务推送成功：板号={}", virtualBoardResultDto.getBoardCode());
