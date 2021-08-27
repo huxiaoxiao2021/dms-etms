@@ -454,6 +454,11 @@ public class UccPropertyConfiguration {
      */
     private int virtualBoardMaxItemCount;
 
+    /**
+     * 虚拟组板自动关闭天数
+     */
+    private Integer virtualBoardAutoCloseDays;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1406,5 +1411,14 @@ public class UccPropertyConfiguration {
 
     public void setVirtualBoardMaxItemCount(int virtualBoardMaxItemCount) {
         this.virtualBoardMaxItemCount = virtualBoardMaxItemCount;
+    }
+
+    public Integer getVirtualBoardAutoCloseDays() {
+        return virtualBoardAutoCloseDays;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardAutoCloseDays(Integer virtualBoardAutoCloseDays) {
+        this.virtualBoardAutoCloseDays = virtualBoardAutoCloseDays;
+        return this;
     }
 }

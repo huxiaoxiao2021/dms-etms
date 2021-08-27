@@ -826,19 +826,11 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         BoardCombinationJsfResponse response = new BoardCombinationJsfResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         FilterContext filterContext = null;
         try {
-            /*//初始化拦截链上下文
-            filterContext = this.initFilterParam(pdaOperateRequest);
-            filterContext.setFuncModule(HintModuleConstants.BOARD_COMBINATION);
-            //获取校验链
-            FilterChain virtualBoardCombinationChain = getVirtualBoardCombinationFilterChain();
-            //校验过程
-            virtualBoardCombinationChain.doFilter(filterContext, virtualBoardCombinationChain);*/
-
             //初始化拦截链上下文
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            
+
             final FilterChain virtualBoardCombinationFilterChain = getVirtualBoardCombinationFilterChain();
             virtualBoardCombinationFilterChain.doFilter(filterContext, virtualBoardCombinationFilterChain);
         } catch (IllegalWayBillCodeException e) {

@@ -459,7 +459,7 @@ public class DeliveryResource {
      */
     private InvokeResult<Void> handleCancelSendByPackageOrBoxCodeForWholeBoard(DeliveryRequest request) {
         InvokeResult<Void> result = new InvokeResult<>();
-        final boolean isCancelPackageForWholeBoard = WaybillUtil.isPackageCode(request.getBoxCode()) && Objects.equals(request.getCancelWholeBoard(), Constants.YN_YES);
+        final boolean isCancelPackageForWholeBoard = (WaybillUtil.isPackageCode(request.getBoxCode()) || BusinessUtil.isBoxcode(request.getBoxCode())) && Objects.equals(request.getCancelWholeBoard(), Constants.YN_YES);
         if(!isCancelPackageForWholeBoard){
             return result;
         }
