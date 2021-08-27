@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -31,12 +32,16 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
+import com.jd.eclp.common.util.DateUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BoardBarcodeTypeEnum;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -71,6 +76,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -417,8 +425,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 BeanUtils.copyProperties(virtualBoardResultDtoData, virtualBoardResultDto);
                 result.setData(virtualBoardResultDto);
 
-                //发送全称跟踪，整板则按板中所有包裹号进行处理
+                // 发送全称跟踪，整板则按板中所有包裹号进行处理
                 sendWaybillTrace(bindToVirtualBoardPo, virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+
+                // 写自动关闭板号任务
+                if(virtualBoardResultDto.getNewBoardIsCreated() != null && virtualBoardResultDto.getNewBoardIsCreated()){
+                    this.pushBoardAutoCloseTask(bindToVirtualBoardPo, virtualBoardResultDto, destinationId, Task.TASK_TYPE_VIRTUAL_BOARD_AUTO_CLOSE);
+                }
             } finally {
                 jimdbCacheService.del(key);
             }
@@ -429,6 +442,39 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         } finally {
         }
         return result;
+    }
+
+    /**
+     * 推组板发货任务
+     * @return
+     */
+    private boolean pushBoardAutoCloseTask(BindToVirtualBoardPo bindToVirtualBoardPo, VirtualBoardResultDto virtualBoardResultDto, Integer destinationId, Integer taskType) {
+        try {
+            Task tTask = new Task();
+            final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+            tTask.setCreateSiteCode(operatorInfo.getSiteCode());
+            tTask.setKeyword2(String.valueOf(virtualBoardResultDto.getBoardCode()));
+            tTask.setReceiveSiteCode(destinationId);
+            tTask.setType(taskType);
+            tTask.setTableName(Task.getTableName(taskType));
+            String ownSign = BusinessHelper.getOwnSign();
+            tTask.setOwnSign(ownSign);
+            tTask.setKeyword1(virtualBoardResultDto.getBoardCode());
+            tTask.setFingerprint(Md5Helper.encode(operatorInfo.getSiteCode() + "_" + tTask.getKeyword1() + virtualBoardResultDto.getBoardCode() + tTask.getKeyword2()));
+            final Integer virtualBoardAutoCloseDays = uccPropertyConfiguration.getVirtualBoardAutoCloseDays();
+            tTask.setExecuteTime(DateUtil.addDate(new Date(), (virtualBoardAutoCloseDays != null && virtualBoardAutoCloseDays > 0) ? virtualBoardAutoCloseDays : 1));
+
+            CloseVirtualBoardPo closeVirtualBoardPo = new CloseVirtualBoardPo();
+            closeVirtualBoardPo.setOperatorInfo(operatorInfo);
+            closeVirtualBoardPo.setBoardCode(bindToVirtualBoardPo.getBarCode());
+            tTask.setBoxCode(bindToVirtualBoardPo.getBarCode());
+            tTask.setBody(JsonHelper.toJson(closeVirtualBoardPo));
+            log.info("pushBoardAutoCloseTask 组板超时自动完结任务推送成功：板号={}", virtualBoardResultDto.getBoardCode());
+            taskService.doAddTask(tTask, false);
+        } catch (Exception e) {
+            log.error("pushBoardAutoCloseTask exception ", e);
+        }
+        return true;
     }
 
     private Result<Boolean> checkMatchBoardDestination(BindToVirtualBoardPo bindToVirtualBoardPo, Integer destinationId) {
@@ -835,6 +881,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     public boolean handleTimingCloseBoard(Task task) {
         // 托盘号生成24小时后，自动完结
         // 查询创建时间已过24小时，且板号为未完结状态的板号
+        CloseVirtualBoardPo closeVirtualBoardPo = JsonHelper.fromJson(task.getBody(), CloseVirtualBoardPo.class);
+        if(closeVirtualBoardPo == null || StringUtils.isBlank(closeVirtualBoardPo.getBoardCode())){
+            log.error("handleTimingCloseBoard--fail taskBody is null");
+            return false;
+        }
+        handleTimingCloseBoard(closeVirtualBoardPo);
         return true;
     }
 
@@ -846,9 +898,25 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @time 2021-08-22 17:39:26 周日
      */
     @Override
-    public JdCResponse<Void> handleTimingCloseBoard(CloseVirtualBoardPo closeVirtualBoardPo) {
+    public Result<Void> handleTimingCloseBoard(CloseVirtualBoardPo closeVirtualBoardPo) {
+        Result<Void> result = Result.success();
         // 托盘号生成24小时后，自动完结
-        // 查询创建时间已过24小时，且板号为未完结状态的板号
+        // 根据板号查询板状态和创建时间
+        final Response<Board> boardResult = groupBoardManager.getBoard(closeVirtualBoardPo.getBoardCode());
+        if(!Objects.equals(200, boardResult.getCode())) {
+            return result.toFail("根据板号查询板数据异常");
+        }
+        final Board board = boardResult.getData();
+        if(board == null){
+            return result.toFail("根据板号未查询到板数据");
+        }
+        if(Objects.equals(board.getStatus(), BoardStatus.CLOSED.getIndex())){
+            return result.toSuccess("已经是完结状态");
+        }
+        final Response<Boolean> closeResult = groupBoardManager.closeBoard(closeVirtualBoardPo.getBoardCode());
+        if(!Objects.equals(200, closeResult.getCode())) {
+            return result.toFail("关闭板异常");
+        }
         return null;
     }
 }

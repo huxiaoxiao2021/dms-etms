@@ -18,6 +18,11 @@ public class VirtualBoardResultDto implements Serializable {
     private String boardCode;
 
     /**
+     * 是否创建了新板
+     */
+    private Boolean newBoardIsCreated;
+
+    /**
      * 板状态
      */
     private Integer boardStatus;
@@ -55,6 +60,15 @@ public class VirtualBoardResultDto implements Serializable {
 
     public VirtualBoardResultDto setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+        return this;
+    }
+
+    public Boolean getNewBoardIsCreated() {
+        return newBoardIsCreated;
+    }
+
+    public VirtualBoardResultDto setNewBoardIsCreated(Boolean newBoardIsCreated) {
+        this.newBoardIsCreated = newBoardIsCreated;
         return this;
     }
 

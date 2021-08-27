@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 
 import java.util.List;
 
@@ -88,5 +89,5 @@ public interface VirtualBoardService {
      * @author fanggang7
      * @time 2021-08-22 17:39:26 周日
      */
-    JdCResponse<Void> handleTimingCloseBoard(CloseVirtualBoardPo closeVirtualBoardPo);
+    Result<Void> handleTimingCloseBoard(CloseVirtualBoardPo closeVirtualBoardPo);
 }
