@@ -838,9 +838,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             filterContext = this.initContext(pdaOperateRequest);
             ProceedFilterChain proceedFilterChain = getProceedFilterChain();
             proceedFilterChain.doFilter(filterContext, proceedFilterChain);
-            filterContext.setFuncModule(HintModuleConstants.FORWARD_SORTING);
-            ForwardFilterChain forwardFilterChain = getForwardFilterChain();
-            forwardFilterChain.doFilter(filterContext, forwardFilterChain);
+            
+            final FilterChain virtualBoardCombinationFilterChain = getVirtualBoardCombinationFilterChain();
+            virtualBoardCombinationFilterChain.doFilter(filterContext, virtualBoardCombinationFilterChain);
         } catch (IllegalWayBillCodeException e) {
             logger.error("非法运单号：IllegalWayBillCodeException", e);
         } catch (Exception ex) {
