@@ -244,6 +244,16 @@
         <property name="desc" value="组板取消发货"/>
     </bean>
 
+    <bean id="virtualBoardAutoCloseTask" class="com.jd.bluedragon.distribution.worker.virtualBoard.VirtualBoardAutoCloseTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="VirtualBoardAutoCloseTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1322"/>
+        <property name="desc" value="虚拟组板超时未完结板号自动完结处理"/>
+    </bean>
+
     <bean id="cycleBoxStatusTask" class="com.jd.bluedragon.distribution.worker.cyclebox.CycleBoxStatusTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
