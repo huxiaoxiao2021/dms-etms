@@ -277,5 +277,15 @@
         <property name="ownSign" value="${ownSign}" />
         <property name="desc" value="转运清场盘点异常状态定时处理" />
     </bean>
+
+    <bean id="virtualBoardAutoCloseTask"
+          class="com.jd.bluedragon.distribution.worker.virtualBoard.VirtualBoardAutoCloseTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="VirtualBoardAutoCloseTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="desc" value="虚拟组板24小时未完结板号自动完结处理" />
+    </bean>
     
 </beans>

@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
+import com.jd.bluedragon.distribution.task.dao.VirtualBoardAutoCloseTaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -61,6 +62,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
     private TaskDao taskDao;
+
+	@Autowired
+	private VirtualBoardAutoCloseTaskDao virtualBoardAutoCloseTaskDao;
     
 	@Autowired
     private RedisTaskService redisTaskService;
@@ -516,6 +520,9 @@ public class TaskServiceImpl implements TaskService {
                 log.warn(" Duplicate task: {}",task.getBody());
             }
         }else{
+            if (Task.TASK_TYPE_VIRTUAL_BOARD_AUTO_CLOSE.equals(task.getType())) {
+                return virtualBoardAutoCloseTaskDao.add(task);
+            }
             return routerDao.add(TaskDao.namespace, task);
         }
         return 0;

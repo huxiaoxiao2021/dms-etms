@@ -18,6 +18,7 @@
 	
 	<mappers>
 		<mapper resource="mappers/mysql/task/TaskMapper.xml"/>
+		<mapper resource="mappers/mysql/task/VirtualBoardAutoCloseTaskMapper.xml"/>
 	</mappers>
-	
+
 </configuration>

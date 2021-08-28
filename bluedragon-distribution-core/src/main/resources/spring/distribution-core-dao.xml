@@ -381,6 +381,11 @@
           class="com.jd.bluedragon.distribution.popReveice.dao.TaskPopRecieveCountDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <bean id="virtualBoardAutoCloseTaskDao" class="com.jd.bluedragon.distribution.task.dao.VirtualBoardAutoCloseTaskDao">
+        <property name="sqlSession" ref="taskSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="taskSqlSessionTemplate"/>
+    </bean>
     <!-- task end -->
     <bean id="unDivBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
