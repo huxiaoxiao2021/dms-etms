@@ -7,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 
- * @ClassName: BoardDeliveryTask
- * @Description: 组板发货
- * @author: wuyoude
- * @date: 2018年3月29日 下午3:31:31
+ * 组板自动完结
+ * @author fanggang7
+ * @time 2021-08-28 21:41:48 周六
  *
  */
 public class VirtualBoardAutoCloseTask extends DBSingleScheduler {
@@ -20,7 +19,7 @@ public class VirtualBoardAutoCloseTask extends DBSingleScheduler {
 
     @Override
     public boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        //调用组板发货处理逻辑
+        //调用组板自动完结板号处理逻辑
         return virtualBoardService.handleTimingCloseBoard(task);
     }
 
