@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_RESCHEDULE_PRINT;
 import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT;
 
 /**
  * 
@@ -109,12 +111,25 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 				}
 			}
 		}catch (Exception e){
-			log.error("版本号异常!");
+			log.error("RemarkFieldHandler error! {}",waybillCode,e);
 		}
 		//Sendpay292位为1，面单打印“合约机 需激活”
 		if(BusinessUtil.isContractPhone(sendPay)){
 			remark = StringHelper.appendIfNotExist(remark, TextConstants.REMARK_CONTRACT_PHONE);
 		}
+		/**
+		 * 爱回收
+		 */
+		if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
+				|| SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
+				|| SMS_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
+			if(context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null
+					&& StringUtils.isNotBlank(context.getBigWaybillDto().getWaybill().getRelWaybillCode())){
+				remark += DmsConstants.REL_WAYBILL_CODE;
+				remark += context.getBigWaybillDto().getWaybill().getRelWaybillCode();
+			}
+		}
+		log.info("RemarkFieldHandler waybillCode:{},remark:{}", waybillCode, remark);
 		basePrintWaybill.setRemark(remark);
 		return context.getResult();
 	}
