@@ -130,6 +130,7 @@
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
+        <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -240,6 +241,7 @@
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+                <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
