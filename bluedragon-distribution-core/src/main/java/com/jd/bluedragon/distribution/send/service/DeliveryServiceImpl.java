@@ -5221,10 +5221,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     }
                     //end
         		}
-        		//b2b校验是否包含-到付运费
-        		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
-        			noHasFreightWaybills.add(waybillCode);
-        		}
+        		//b2b校验是否包含-到付运费 2021年08月30日13:46:57 移除
+
         		//b2b校验是否包含-寄付运费
         		if(sendFreightInterception && !BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
                     sendNoHasFreightWaybills.add(waybillCode);
