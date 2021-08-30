@@ -19,6 +19,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -39,7 +40,7 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     @Resource
     private FuncSwitchConfigApiService funcSwitchConfigApiService;
 
-    @Resource
+    @Autowired
     private WaybillService waybillService;
 
     @Resource
