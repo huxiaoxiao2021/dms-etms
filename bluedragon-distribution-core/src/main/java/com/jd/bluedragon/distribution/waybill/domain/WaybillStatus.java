@@ -78,7 +78,7 @@ public class WaybillStatus {
     public static final String WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG = "仓储收货确认";
 
     /**
-     * 全程跟踪消息类型mstType-仓储收货驳回
+     * 全程跟踪消息类型mstType-仓储收货驳回 
      **/
     public static final Integer WAYBILL_TRACK_MSGTYPE_CCSHBH = 1900;
     public static final String WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG = "仓储收货驳回";
