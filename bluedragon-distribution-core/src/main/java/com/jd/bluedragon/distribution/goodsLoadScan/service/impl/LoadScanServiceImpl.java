@@ -14,7 +14,6 @@ import com.jd.bluedragon.common.dto.goodsLoadingScanning.response.LoadScanDetail
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.LoadScanPackageDetailServiceManager;
 import com.jd.bluedragon.core.base.LoadCarTaskServiceWSManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -150,8 +149,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Autowired
     private LoadService loadService;
 
-    @Autowired
-    private LoadScanPackageDetailServiceManager loadScanPackageDetailServiceManager;
     @Resource
     private LoadCarTaskServiceWSManager loadCarTaskServiceWSManager;
 
