@@ -15,6 +15,7 @@
 <body>
 <input type="hidden" id="packageCode" value="$!{packageCode}"/>
 <input type="hidden" id="reviewDate" value="$!{reviewDate}"/>
+<input type="hidden" id="reviewSiteCode" value="$!{reviewSiteCode}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">重量体积抽检统计</a></li>
