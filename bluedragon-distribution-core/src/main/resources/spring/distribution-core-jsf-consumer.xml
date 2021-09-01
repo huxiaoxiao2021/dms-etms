@@ -676,6 +676,10 @@
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="loadScanPackageDetailWS" interface="com.jd.merchant.api.pack.ws.LoadScanPackageDetailWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--众邮箱服务-->
     <jsf:consumer id="boxOperateApi" interface="com.zhongyouex.order.api.box.BoxOperateApi"
                   protocol="jsf" alias="${jsf.zhongyouex.alias}" timeout="${jsf.zhongyouex.timeout}" lazy="${jsf.consumer.lazy}">

@@ -141,6 +141,7 @@
         <property name="virtualBoardMaxDestinationCount" value="${virtualBoardMaxDestinationCount:5}" />
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
+		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -261,6 +262,7 @@
 				<value>uccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
+				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

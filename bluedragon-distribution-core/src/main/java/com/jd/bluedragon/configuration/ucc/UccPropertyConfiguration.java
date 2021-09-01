@@ -504,6 +504,11 @@ public class UccPropertyConfiguration {
      */
     private String deliverySendAsyncSite;
 
+    /**
+     * 使用新库存ES的场地
+     */
+    private String useNewInventorySiteCodes;
+
     public String getDeliverySendAsyncSite() {
         return deliverySendAsyncSite;
     }
@@ -1420,5 +1425,13 @@ public class UccPropertyConfiguration {
     public UccPropertyConfiguration setVirtualBoardAutoCloseDays(Integer virtualBoardAutoCloseDays) {
         this.virtualBoardAutoCloseDays = virtualBoardAutoCloseDays;
         return this;
+    }
+
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
+
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
 }
