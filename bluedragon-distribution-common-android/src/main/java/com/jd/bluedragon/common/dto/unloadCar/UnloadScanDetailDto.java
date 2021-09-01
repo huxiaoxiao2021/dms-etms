@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.unloadCar;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 卸车任务扫描结果
@@ -81,6 +82,11 @@ public class UnloadScanDetailDto implements Serializable {
      * 板单绑定数量
      */
     private Integer boardWaybillCount;
+    /**
+     * 卸车扫描非弹框消息提示  K-优先级  V-话术
+     * 见：UnloadCarWarnEnum
+     */
+    Map<String, String> warnMsg;
 
 
     public Integer getTotalWaybillNum() {
@@ -193,5 +199,13 @@ public class UnloadScanDetailDto implements Serializable {
 
     public void setBoardWaybillCount(Integer boardWaybillCount) {
         this.boardWaybillCount = boardWaybillCount;
+    }
+
+    public Map<String, String> getWarnMsg() {
+        return warnMsg;
+    }
+
+    public void setWarnMsg(Map<String, String> warnMsg) {
+        this.warnMsg = warnMsg;
     }
 }

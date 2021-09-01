@@ -460,6 +460,19 @@ public class UccPropertyConfiguration {
      */
     private String deliverySendAsyncSite;
 
+    /**
+     * 日志查询功能开关 1：启用 0：禁用
+     */
+    private String businessLogQueryPageSwitch;
+
+    public String getBusinessLogQueryPageSwitch() {
+        return businessLogQueryPageSwitch;
+    }
+
+    public void setBusinessLogQueryPageSwitch(String businessLogQueryPageSwitch) {
+        this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
+    }
+
     public String getDeliverySendAsyncSite() {
         return deliverySendAsyncSite;
     }

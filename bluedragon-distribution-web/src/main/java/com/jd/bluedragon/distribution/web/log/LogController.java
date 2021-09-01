@@ -140,6 +140,11 @@ public class LogController {
     public TableResult getBusinessLog(@RequestBody HashMap request) {
         request.put("sourceSys","112"); //只从实操日志里面查
         TableResult businessLogList=new TableResult();
+        if (Constants.STRING_FLG_FALSE.equals(uccPropertyConfiguration.getBusinessLogQueryPageSwitch())) {
+            businessLogList.setStatusCode(TableResult.NULL_CODE);
+            businessLogList.setStatusMessage("此功能已下线！");
+            return businessLogList;
+        }
         logger.info("request[{}]", JsonHelper.toJson(request));
         try {
             String orderByField = (String)request.remove("orderByField");

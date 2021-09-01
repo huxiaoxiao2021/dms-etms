@@ -848,6 +848,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (this.getSealCarTimeBySendCode(sendCode) != null) {
             return true;
         }
+        try {
+            CommonDto<Boolean> isSealed = isBatchCodeHasSealed(sendCode);
+            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
+                    && isSealed.getData() != null && isSealed.getData()){
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
+        }
         return false;
     }
 
