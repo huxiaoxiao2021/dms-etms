@@ -45,10 +45,8 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
         BaseEntity<List<LoadScanDto>> baseEntity;
         try {
-            String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
             // 根据包裹号查找运单号
-            if (StringUtils.isNotBlank(siteCodes) && Arrays.asList(siteCodes.split(Constants.SEPARATOR_COMMA))
-                    .contains(String.valueOf(currentSiteId))) {
+            if (isUseNewInventory(String.valueOf(currentSiteId))) {
                 baseEntity = loadScanPackageDetailWs.findLoadScanList(scanDtoList, currentSiteId);
             } else {
                 List<com.jd.ql.dms.report.domain.LoadScanDto> loadScanDtoList = new ArrayList<>();
@@ -77,9 +75,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
         BaseEntity<LoadScanDto> baseEntity;
         try {
-            String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
-            if (StringUtils.isNotBlank(siteCodes) && Arrays.asList(siteCodes.split(Constants.SEPARATOR_COMMA))
-                    .contains(String.valueOf(loadScanDto.getCreateSiteId()))) {
+            if (isUseNewInventory(String.valueOf(loadScanDto.getCreateSiteId()))) {
                 baseEntity = loadScanPackageDetailWs.findLoadScan(loadScanDto);
             } else {
                 com.jd.ql.dms.report.domain.LoadScanDto scanDto = new com.jd.ql.dms.report.domain.LoadScanDto();
@@ -112,9 +108,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     public List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId, List<String> packageCodes) {
         BaseEntity<List<String>> baseEntity;
         try {
-            String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
-            if (StringUtils.isNotBlank(siteCodes) && Arrays.asList(siteCodes.split(Constants.SEPARATOR_COMMA))
-                    .contains(String.valueOf(createSiteId))) {
+            if (isUseNewInventory(String.valueOf(createSiteId))) {
                 baseEntity = loadScanPackageDetailWs.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
             } else {
                 com.jd.ql.dms.report.domain.BaseEntity<List<String>> result
@@ -154,9 +148,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
             loadScanReqDto.setToTime(System.currentTimeMillis());
             loadScanReqDto.setLoadWaybillCodeList(waybillCodeList);
             BaseEntity<List<LoadScanDto>> jsfRes;
-            String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
-            if (StringUtils.isNotBlank(siteCodes) && Arrays.asList(siteCodes.split(Constants.SEPARATOR_COMMA))
-                    .contains(String.valueOf(loadCar.getCreateSiteCode()))) {
+            if (isUseNewInventory(String.valueOf(loadCar.getCreateSiteCode()))) {
                 jsfRes = loadScanPackageDetailWs.getWaitLoadWaybillInfo(loadScanReqDto);
             } else {
                 com.jd.ql.dms.report.domain.LoadScanReqDto scanReqDto = new com.jd.ql.dms.report.domain.LoadScanReqDto();
@@ -184,6 +176,15 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
             res.toFail("JSF调用失败");
             return res;
         }
+    }
+
+    private boolean isUseNewInventory(String createSiteCode) {
+        String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
+        if (StringUtils.isBlank(siteCodes)) {
+            return false;
+        }
+        List<String> siteList = Arrays.asList(siteCodes.split(Constants.SEPARATOR_COMMA));
+        return siteList.contains(createSiteCode) || siteList.contains("true");
     }
 
 }
