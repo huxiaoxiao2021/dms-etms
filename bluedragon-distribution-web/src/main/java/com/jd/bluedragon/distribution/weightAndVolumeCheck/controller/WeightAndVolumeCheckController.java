@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
@@ -16,7 +17,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.ql.dms.report.domain.Enum.SpotCheckRecordTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
@@ -91,7 +90,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
         condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
-
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }

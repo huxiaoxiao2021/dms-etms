@@ -17,6 +17,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -123,9 +124,13 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             }
             summaryReviewWeightVolume(spotCheckContext);
         }
-        spotCheckContext.setIsGatherTogether(true);
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+        result = abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+        // 对比复核校验和数据提交的超标结果是否一致
+        if(StringUtils.isEmpty(spotCheckContext.getPictureAddress()) && Objects.equals(result.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
+        }
+        return result;
     }
 
     @Override

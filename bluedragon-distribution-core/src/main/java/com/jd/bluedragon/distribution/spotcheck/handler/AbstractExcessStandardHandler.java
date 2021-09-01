@@ -118,9 +118,11 @@ public class AbstractExcessStandardHandler {
         Double reviewLarge = spotCheckReviewDetail.getReviewLarge();
         checkExcessRequest.setReviewLarge(reviewLarge);
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        checkExcessRequest.setContrastWeight(spotCheckContrastDetail.getContrastWeight());
-        checkExcessRequest.setContrastVolume(spotCheckContrastDetail.getContrastVolume());
-        Double contrastLarge = spotCheckContrastDetail.getContrastLarge();
+        Double contrastWeight = spotCheckContrastDetail.getContrastWeight() == null ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastWeight();
+        Double contrastVolume = spotCheckContrastDetail.getContrastVolume() == null ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastVolume();
+        Double contrastLarge = spotCheckContrastDetail.getContrastLarge() == null ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastLarge();
+        checkExcessRequest.setContrastWeight(contrastWeight);
+        checkExcessRequest.setContrastVolume(contrastVolume);
         checkExcessRequest.setContrastLarge(contrastLarge);
         checkExcessRequest.setLargeDiff(Math.abs(reviewLarge - contrastLarge));
         return checkExcessRequest;

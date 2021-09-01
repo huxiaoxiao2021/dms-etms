@@ -48,8 +48,7 @@ public class ReportExternalManagerImpl implements ReportExternalManager {
 
     @Override
     public Integer countByParam(WeightVolumeQueryCondition condition) {
-        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.countByParam",
-                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.countByParam", Constants.UMP_APP_NAME_DMSWEB,false,true);
         int count = Constants.NUMBER_ZERO;
         try {
             BaseEntity<Long> baseEntity = reportExternalService.countByParam(condition);

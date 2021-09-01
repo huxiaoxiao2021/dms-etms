@@ -55,19 +55,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     private CacheService jimdbCacheService;
 
     @Override
-    public InvokeResult<Boolean> spotCheckHandlerTypeChoice(SpotCheckDto spotCheckDto) {
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        if(Objects.equals(spotCheckDto.getHandlerType(), SpotCheckHandlerTypeEnum.ONLY_DEAL_SPOT_CHECK.getCode())){
-            return dealSpotCheckData(spotCheckDto);
-        }
-        if(Objects.equals(spotCheckDto.getHandlerType(), SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode())){
-            return dealSpotCheck(spotCheckDto);
-        }
-        result.error("未知处理类型，不予处理!");
-        return result;
-    }
-
-    @Override
     public InvokeResult<Integer> checkIsExcess(SpotCheckDto spotCheckDto) {
         InvokeResult<Integer> checkResult = new InvokeResult<Integer>();
         // 参数校验
@@ -118,13 +105,20 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         // 超标校验
         InvokeResult<CheckExcessResult> checkExcessResult = checkIsExcess(spotCheckContext);
-        CheckExcessResult data = checkExcessResult.getData();
-        spotCheckContext.setExcessStatus(data.getExcessCode());
-        spotCheckContext.setExcessReason(data.getExcessReason());
-        spotCheckContext.setDiffStandard(data.getExcessStandard());
+        if(!checkExcessResult.codeSuccess()){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, checkExcessResult.getMessage());
+            return result;
+        }
+        supplementSpotCheckContext(spotCheckContext, checkExcessResult.getData());
         // 校验后处理
         dealAfterCheckSuc(spotCheckContext);
         return result;
+    }
+
+    private void supplementSpotCheckContext(SpotCheckContext spotCheckContext, CheckExcessResult checkExcessResult) {
+        spotCheckContext.setExcessStatus(checkExcessResult.getExcessCode());
+        spotCheckContext.setExcessReason(checkExcessResult.getExcessReason());
+        spotCheckContext.setDiffStandard(checkExcessResult.getExcessStandard());
     }
 
     /**
@@ -204,6 +198,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setPackNum(packNum);
         spotCheckContext.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
         spotCheckContext.setSpotCheckBusinessType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
+        // 集齐
+        if(!spotCheckContext.getIsMultiPack() || Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
+            spotCheckContext.setIsGatherTogether(true);
+        }
         // 信任商家
         if(BusinessUtil.isTrustBusi(waybill.getWaybillSign())){
             spotCheckContext.setIsTrustMerchant(true);
@@ -239,6 +237,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setSpotCheckReviewDetail(spotCheckReviewDetail);
         double reviewWeight = spotCheckDto.getWeight();
         spotCheckReviewDetail.setReviewWeight(reviewWeight);
+        spotCheckReviewDetail.setReviewTotalWeight(reviewWeight);
         spotCheckReviewDetail.setReviewLength(spotCheckDto.getLength());
         spotCheckReviewDetail.setReviewWidth(spotCheckDto.getWidth());
         spotCheckReviewDetail.setReviewHeight(spotCheckDto.getHeight());
@@ -249,7 +248,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             volume = spotCheckDto.getLength() * spotCheckDto.getWidth() * spotCheckDto.getHeight();
         }
         spotCheckReviewDetail.setReviewVolume(volume);
-        double reviewVolumeWeight = MathUtils.keepScale(volume / volumeRate, 2);
+        spotCheckReviewDetail.setReviewTotalVolume(volume);
+        double reviewVolumeWeight = MathUtils.keepScale(volume / volumeRate, 3);
         spotCheckReviewDetail.setReviewVolumeWeight(reviewVolumeWeight);
         spotCheckReviewDetail.setReviewLarge(Math.max(reviewWeight, reviewVolumeWeight));
         spotCheckReviewDetail.setReviewOrgId(spotCheckDto.getOrgId());
@@ -299,38 +299,55 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         weightVolumeCollectDto.setMoreBigWeight(spotCheckReviewDetail.getReviewLarge());
         // 核对数据
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        if(spotCheckContrastDetail != null){
-            weightVolumeCollectDto.setContrastSourceFrom(spotCheckContrastDetail.getContrastSourceFrom());
-            weightVolumeCollectDto.setBillingOrgCode(spotCheckContrastDetail.getContrastOrgId());
-            weightVolumeCollectDto.setBillingOrgName(spotCheckContrastDetail.getContrastOrgName());
-            weightVolumeCollectDto.setBillingDeptCodeStr(spotCheckContrastDetail.getContrastDeptCode());
-            weightVolumeCollectDto.setBillingDeptName(spotCheckContrastDetail.getContrastDeptName());
-            weightVolumeCollectDto.setBillingThreeLevelId(spotCheckContrastDetail.getDutyThirdId());
-            weightVolumeCollectDto.setBillingThreeLevelName(spotCheckContrastDetail.getDutyThirdName());
-            weightVolumeCollectDto.setBillingCompanyCode(spotCheckContrastDetail.getContrastSiteCode());
-            weightVolumeCollectDto.setBillingCompany(spotCheckContrastDetail.getContrastSiteName());
-            weightVolumeCollectDto.setBillingErp(spotCheckContrastDetail.getContrastOperateUserErp());
-            weightVolumeCollectDto.setBillingWeight(spotCheckContrastDetail.getContrastWeight());
-            weightVolumeCollectDto.setBillingVolume(spotCheckContrastDetail.getContrastVolume());
-            weightVolumeCollectDto.setBillingVolumeWeight(spotCheckContrastDetail.getContrastVolumeWeight());
-            weightVolumeCollectDto.setContrastLarge(spotCheckContrastDetail.getContrastLarge());
-            weightVolumeCollectDto.setBillingCalcWeight(spotCheckContrastDetail.getBillingCalcWeight());
-            weightVolumeCollectDto.setDutyType(spotCheckContrastDetail.getDutyType());
-            // 比较差异数据
-            double weightDiff = MathUtils.keepScale(Math.abs(spotCheckContrastDetail.getContrastWeight() - spotCheckReviewDetail.getReviewWeight()), 2);
-            weightVolumeCollectDto.setWeightDiff(String.valueOf(weightDiff));
-            double volumeWeightDiff = MathUtils.keepScale(Math.abs(spotCheckContrastDetail.getContrastVolumeWeight() - spotCheckReviewDetail.getReviewVolumeWeight()), 2);
-            weightVolumeCollectDto.setVolumeWeightDiff(String.valueOf(volumeWeightDiff));
-            weightVolumeCollectDto.setDiffStandard(spotCheckContext.getDiffStandard());
-            weightVolumeCollectDto.setIsExcess(spotCheckContext.getExcessStatus());
-            weightVolumeCollectDto.setExcessReason(spotCheckContext.getExcessReason());
-            weightVolumeCollectDto.setIsHasPicture(spotCheckContext.getIsHasPicture());
-            weightVolumeCollectDto.setPictureAddress(spotCheckContext.getPictureAddress());
-            weightVolumeCollectDto.setIsWaybillSpotCheck(spotCheckContext.getSpotCheckDimensionType());
-            double largeDiff = MathUtils.keepScale(Math.abs(spotCheckContrastDetail.getContrastLarge() - spotCheckReviewDetail.getReviewLarge()), 2);
-            weightVolumeCollectDto.setLargeDiff(largeDiff);
+        weightVolumeCollectDto.setContrastSourceFrom(spotCheckContrastDetail.getContrastSourceFrom());
+        weightVolumeCollectDto.setBillingOrgCode(spotCheckContrastDetail.getContrastOrgId());
+        weightVolumeCollectDto.setBillingOrgName(spotCheckContrastDetail.getContrastOrgName());
+        weightVolumeCollectDto.setBillingDeptCodeStr(spotCheckContrastDetail.getContrastDeptCode());
+        weightVolumeCollectDto.setBillingDeptName(spotCheckContrastDetail.getContrastDeptName());
+        weightVolumeCollectDto.setBillingThreeLevelId(spotCheckContrastDetail.getDutyThirdId());
+        weightVolumeCollectDto.setBillingThreeLevelName(spotCheckContrastDetail.getDutyThirdName());
+        weightVolumeCollectDto.setBillingCompanyCode(spotCheckContrastDetail.getContrastSiteCode());
+        weightVolumeCollectDto.setBillingCompany(spotCheckContrastDetail.getContrastSiteName());
+        weightVolumeCollectDto.setBillingErp(spotCheckContrastDetail.getContrastOperateUserErp());
+        weightVolumeCollectDto.setBillingWeight(spotCheckContrastDetail.getContrastWeight());
+        weightVolumeCollectDto.setBillingVolume(spotCheckContrastDetail.getContrastVolume());
+        weightVolumeCollectDto.setBillingVolumeWeight(spotCheckContrastDetail.getContrastVolumeWeight());
+        weightVolumeCollectDto.setContrastLarge(spotCheckContrastDetail.getContrastLarge());
+        weightVolumeCollectDto.setBillingCalcWeight(spotCheckContrastDetail.getBillingCalcWeight());
+        weightVolumeCollectDto.setDutyType(spotCheckContrastDetail.getDutyType());
+        // 比较差异数据
+        double weightDiff = MathUtils.keepScale(Math.abs((spotCheckContrastDetail.getContrastWeight() == null
+                ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastWeight()) - spotCheckReviewDetail.getReviewTotalWeight()), 3);
+        weightVolumeCollectDto.setWeightDiff(String.valueOf(weightDiff));
+        double volumeWeightDiff = MathUtils.keepScale(Math.abs((spotCheckContrastDetail.getContrastVolumeWeight() == null
+                ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastVolumeWeight()) - spotCheckReviewDetail.getReviewVolumeWeight()), 3);
+        weightVolumeCollectDto.setVolumeWeightDiff(String.valueOf(volumeWeightDiff));
+        weightVolumeCollectDto.setDiffStandard(spotCheckContext.getDiffStandard());
+        weightVolumeCollectDto.setIsExcess(spotCheckContext.getExcessStatus());
+        weightVolumeCollectDto.setExcessReason(spotCheckContext.getExcessReason());
+        weightVolumeCollectDto.setIsHasPicture(spotCheckContext.getIsHasPicture());
+        String pictureUrl = spotCheckContext.getPictureAddress();
+        if(StringUtils.isEmpty(pictureUrl)){
+            pictureUrl = getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         }
+        weightVolumeCollectDto.setPictureAddress(pictureUrl);
+        weightVolumeCollectDto.setIsWaybillSpotCheck(spotCheckContext.getSpotCheckDimensionType());
+        double largeDiff = MathUtils.keepScale(Math.abs((spotCheckContrastDetail.getContrastLarge() == null
+                ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastLarge()) - spotCheckReviewDetail.getReviewLarge()), 3);
+        weightVolumeCollectDto.setLargeDiff(largeDiff);
+        // 集齐
+        weightVolumeCollectDto.setFullCollect(spotCheckContext.getIsGatherTogether() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
         return weightVolumeCollectDto;
+    }
+
+    protected String getPicUrlCache(String packageCode, Integer siteCode) {
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packageCode, siteCode);
+            return jimdbCacheService.get(key);
+        }catch (Exception e){
+            logger.error("根据包裹号:{}站点:{}获取缓存异常!", packageCode, siteCode);
+        }
+        return null;
     }
 
     /**
@@ -340,7 +357,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      */
     protected void summaryReviewWeightVolume(SpotCheckContext spotCheckContext) {
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        if(spotCheckReviewDetail.getReviewTotalWeight() > Constants.DOUBLE_ZERO){
+        if(spotCheckReviewDetail.getReviewTotalWeight() > spotCheckReviewDetail.getReviewWeight()){
             // 表示已汇总
             return;
         }
@@ -364,9 +381,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         totalVolume += spotCheckReviewDetail.getReviewVolume();
         spotCheckReviewDetail.setReviewTotalWeight(totalWeight);
         spotCheckReviewDetail.setReviewTotalVolume(totalVolume);
-        double reviewVolumeWeight = MathUtils.keepScale(totalVolume / spotCheckContext.getVolumeRate(), 2);
+        double reviewVolumeWeight = MathUtils.keepScale(totalVolume / spotCheckContext.getVolumeRate(), 3);
         spotCheckReviewDetail.setReviewVolumeWeight(reviewVolumeWeight);
         spotCheckReviewDetail.setReviewLarge(Math.max(totalWeight, reviewVolumeWeight));
+        // 集齐
+        spotCheckContext.setIsGatherTogether(true);
     }
 
     /**
@@ -384,12 +403,17 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setReviewLWH(null);
             initialWaybillCollect.setReviewVolumeWeight(null);
             initialWaybillCollect.setMoreBigWeight(null);
+            initialWaybillCollect.setWeightDiff(null);
+            initialWaybillCollect.setVolumeWeightDiff(null);
             initialWaybillCollect.setLargeDiff(null);
             reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
         }
         // 集齐
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
-            reportExternalManager.insertOrUpdateForWeightVolume(assembleWeightVolumeCollectDto(spotCheckContext));
+            // 更新运单维度数据
+            WeightVolumeCollectDto updateWaybillCollect = assembleWeightVolumeCollectDto(spotCheckContext);
+            updateWaybillCollect.setPackageCode(spotCheckContext.getWaybillCode());
+            reportExternalManager.insertOrUpdateForWeightVolume(updateWaybillCollect);
             // 设置超标缓存
             setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         }
@@ -456,7 +480,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 packSet = JsonHelper.fromJson(packSetStr, Set.class);
                 packSet.add(packageCode);
             }
-            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 30, TimeUnit.MINUTES);
+            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 15, TimeUnit.DAYS);
         }catch (Exception e){
             logger.error("设置场地:{}运单号:{}下的包裹号:{}的抽检缓存异常!", siteCode, waybillCode, packageCode);
         }

@@ -279,11 +279,11 @@ public class SpotCheckContext implements Serializable {
     }
 
     public void setSpotCheckReviewDetail(SpotCheckReviewDetail spotCheckReviewDetail) {
-        this.spotCheckReviewDetail = spotCheckReviewDetail;
+        this.spotCheckReviewDetail = spotCheckReviewDetail == null ? new SpotCheckReviewDetail() : spotCheckReviewDetail;
     }
 
     public SpotCheckContrastDetail getSpotCheckContrastDetail() {
-        return spotCheckContrastDetail;
+        return spotCheckContrastDetail == null ? new SpotCheckContrastDetail() : spotCheckContrastDetail;
     }
 
     public void setSpotCheckContrastDetail(SpotCheckContrastDetail spotCheckContrastDetail) {

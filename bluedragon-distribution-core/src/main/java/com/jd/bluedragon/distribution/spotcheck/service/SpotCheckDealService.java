@@ -83,9 +83,27 @@ public interface SpotCheckDealService {
     String getSpotCheckPackCache(String waybillCode, Integer siteCode);
 
     /**
+     * 校验包裹是否操作过抽检
+     *
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    boolean checkPackHasSpotCheck(String packageCode, Integer siteCode);
+
+    /**
      * 下发超标数据
      *
      * @param weightVolumeCollectDto
      */
     void issueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto);
+
+    /**
+     * 处理上传图片
+     *
+     * @param packageCode
+     * @param siteCode
+     * @param url
+     */
+    void dealPictureUrl(String packageCode, Integer siteCode, String url);
 }

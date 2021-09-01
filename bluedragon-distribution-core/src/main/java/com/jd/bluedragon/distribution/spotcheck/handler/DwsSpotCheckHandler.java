@@ -11,6 +11,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,8 @@ import java.util.Objects;
  */
 @Service("dwsSpotCheckHandler")
 public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
+
+    private static Logger logger = LoggerFactory.getLogger(DwsSpotCheckHandler.class);
 
     @Autowired
     private SendDetailService sendDetailService;
@@ -99,7 +103,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
                 spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
             }
         }
-        spotCheckContext.setIsGatherTogether(true);
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 

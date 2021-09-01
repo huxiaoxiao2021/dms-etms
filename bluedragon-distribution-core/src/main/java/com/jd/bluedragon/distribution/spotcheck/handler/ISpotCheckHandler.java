@@ -12,14 +12,6 @@ import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 public interface ISpotCheckHandler {
 
     /**
-     * 抽检处理类型选择
-     *
-     * @param spotCheckDto
-     * @return
-     */
-    InvokeResult<Boolean> spotCheckHandlerTypeChoice(SpotCheckDto spotCheckDto);
-
-    /**
      * 校验是否超标
      * @param spotCheckDto
      * @return

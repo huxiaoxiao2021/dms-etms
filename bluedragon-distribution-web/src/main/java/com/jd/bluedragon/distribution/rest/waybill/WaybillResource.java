@@ -2137,11 +2137,10 @@ public class WaybillResource {
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try {
-			if(!spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
-				result =  weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
-			}else {
-				result = spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
+			if(spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
+				return spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
 			}
+			return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
 		}catch (Exception e){
 			log.error("客户端抽检处理异常!", e);
 			result.error();
@@ -2577,6 +2576,9 @@ public class WaybillResource {
 		spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+
+		// todo 测试
+		spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName());
 		return spotCheckDto;
 	}
 }

@@ -39,7 +39,7 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
         String packageCode = spotCheckContext.getPackageCode();
-        if(!spotCheckContext.getIsMultiPack()){
+        if(spotCheckContext.getIsMultiPack()){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_ONE_PACK);
             return;
         }
@@ -57,7 +57,7 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
             return;
         }
         // 是否已抽检
-        if(spotCheckDealService.checkIsHasSpotCheck(packageCode)){
+        if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
         }
     }
@@ -67,7 +67,7 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
         // 计费重量为0或null则从运单称重流水获取
-        if(spotCheckContrastDetail == null || spotCheckContrastDetail.getContrastWeight() == null
+        if(spotCheckContrastDetail.getContrastWeight() == null
                 || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
             spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
         }

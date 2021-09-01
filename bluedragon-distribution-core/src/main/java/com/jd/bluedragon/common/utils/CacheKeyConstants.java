@@ -65,16 +65,6 @@ public class CacheKeyConstants {
      *  封车编码绑定的包裹 key=前缀-封车编码-包裹号
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
-
-    /*****************************************抽检缓存start*******************************************/
-    /**
-     * B网抽检缓存前缀
-     * */
-    public static final String CACHE_KEY_B_SPOT_CHECK_PREFIX = "B_SPOT_CHECK_KEY_";
-    /**
-     * C网抽检缓存前缀
-     */
-    public static final String CACHE_KEY_C_SPOT_CHECK_PREFIX = "C_SPOT_CHECK_KEY_";
 	/**
 	 * 包裹抽检记录的缓存
 	 */
@@ -92,6 +82,8 @@ public class CacheKeyConstants {
      */
 	public static final String CACHE_KEY_SPOT_IS_EXCESS_FLAG = "spotCheck.isExcess-%s-%s";
 
+
+    /***************************************** 抽检缓存start *******************************************/
     /**
      * 抽检缓存前缀
      */
@@ -100,12 +92,17 @@ public class CacheKeyConstants {
      * 包裹抽检记录的缓存
      */
     public static final String CACHE_SPOT_CHECK_PACK_LIST = "spotCheck.packList-%S-%S";
-
     /**
-     * 包裹发货状态缓存redis的key
+     * 抽检包裹上传图片的缓存
      */
-    public static final String CACHE_KEY_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
-    /*****************************************抽检缓存end*******************************************/
+    public static final String CACHE_SPOT_CHECK_PICTURE = "spotCheck.pictureUrl-%s-%s";
+    /**
+     * 抽检下发fxm的缓存
+     */
+    public static final String CACHE_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
+
+    /***************************************** 抽检缓存end *******************************************/
+
 	/**
 	 * 包裹发货状态缓存redis的key
 	 */

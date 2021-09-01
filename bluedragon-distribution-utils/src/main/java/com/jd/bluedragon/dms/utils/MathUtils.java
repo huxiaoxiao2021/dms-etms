@@ -32,7 +32,7 @@ public class MathUtils {
      * @return
      */
     public static Double keepScale(double source, int scale) {
-        BigDecimal b = BigDecimal.valueOf((float) source * 100);
+        BigDecimal b = BigDecimal.valueOf((float) source);
         return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
 }

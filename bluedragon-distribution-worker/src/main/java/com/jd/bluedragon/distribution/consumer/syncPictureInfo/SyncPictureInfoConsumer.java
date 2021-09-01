@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.syncPictureInfo;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -28,6 +29,9 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -57,6 +61,12 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
         Integer siteCode = pictureInfoMq.getSiteCode();
         if(siteCode == null){
             log.warn("站点【{}】不能为空!",siteCode);
+            return;
+        }
+
+        // 执行新的图片处理逻辑
+        if(spotCheckDealService.isExecuteNewSpotCheck(siteCode)){
+            spotCheckDealService.dealPictureUrl(packageCode, siteCode, pictureInfoMq.getUrl());
             return;
         }
 
