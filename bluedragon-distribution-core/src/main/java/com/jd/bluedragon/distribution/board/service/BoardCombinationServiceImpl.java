@@ -50,6 +50,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
+import com.jd.transboard.api.enums.BoardStatus;
 import com.jd.transboard.api.service.BoardMeasureService;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -68,6 +69,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -186,8 +188,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //板号已完结
-        if (STATUS_BOARD_CLOSED.equals(tcResponse.getData().getStatus())) {
-            this.log.warn("板号{}的状态为已经完结",boardCode);
+        if (Objects.equals(BoardStatus.SEND.getIndex(), tcResponse.getData().getStatus())) {
+            this.log.warn("板号{}的状态为已经发货",boardCode);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
             return boardResponse;
         }
@@ -880,6 +882,19 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> closeBoard(String boardCode) {
         return groupBoardService.closeBoard(boardCode);
+    }
+
+    /**
+     * 改变板号状态为发货状态
+     * @param boardCode 板号
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2021-09-01 21:51:45 周三
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.changeBoardStatusSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Boolean> changeBoardStatusSend(String boardCode) {
+        return groupBoardService.changeBoardStatus(boardCode, BoardStatus.SEND.getIndex());
     }
 
     /**
