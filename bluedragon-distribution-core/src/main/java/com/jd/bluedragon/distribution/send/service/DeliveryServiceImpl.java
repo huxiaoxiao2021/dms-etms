@@ -1636,9 +1636,23 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
         //6.写组板发货任务完成，调用TC执行关板
-        closeBoard(boardCode, domain);
+        changeBoardStatusSend(boardCode, domain);
 
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 写组板发货任务完成，调用TC修改板状态为发货
+     */
+    private void changeBoardStatusSend(String boardCode, SendM domain){
+        try{
+            Response<Boolean> closeBoardResponse = boardCombinationService.changeBoardStatusSend(boardCode);
+            if(!JdResponse.CODE_OK.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()){
+                log.warn("组板发货调用TC置板号状态为发货,板号：{}，结果：{}" ,boardCode, JsonHelper.toJson(closeBoardResponse));
+            }
+        } catch (Exception e) {
+            log.error("组板发货调用TC改板状态异常：{}" , JsonHelper.toJson(domain),e);
+        }
     }
 
     /**
