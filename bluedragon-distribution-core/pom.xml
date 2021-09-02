@@ -1597,7 +1597,7 @@
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
 			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
-			<version>1.0.2-test-SNAPSHOT</version>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
