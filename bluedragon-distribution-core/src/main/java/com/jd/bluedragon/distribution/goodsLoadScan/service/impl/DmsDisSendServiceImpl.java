@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service.impl;
 
+import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -54,7 +55,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
                 com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.LoadScanDto>> result
                         = loadScanPackageDetailService.findLoadScanList(loadScanDtoList, currentSiteId);
                 String jsonResult = JsonHelper.toJson(result);
-                baseEntity = JsonHelper.fromJson(jsonResult, BaseEntity.class);
+                baseEntity = JsonHelper.fromJsonUseGson(jsonResult, new TypeToken<BaseEntity<List<LoadScanDto>>>(){}.getType());
             }
         } catch (Exception e) {
             logger.error("根据运单号列表去ES查询运单明细接口发生异常，currentSiteId={},e=", currentSiteId,  e);
@@ -83,7 +84,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
                 com.jd.ql.dms.report.domain.BaseEntity<com.jd.ql.dms.report.domain.LoadScanDto> result
                         = loadScanPackageDetailService.findLoadScan(scanDto);
                 String jsonResult = JsonHelper.toJson(result);
-                baseEntity = JsonHelper.fromJson(jsonResult, BaseEntity.class);
+                baseEntity = JsonHelper.fromJsonUseGson(jsonResult, new TypeToken<BaseEntity<LoadScanDto>>(){}.getType());
             }
         } catch (Exception e) {
             logger.error("根据包裹号和运单号去ES查询包裹流向发生异常，packageCode={},waybillCode={}",
@@ -114,7 +115,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
                 com.jd.ql.dms.report.domain.BaseEntity<List<String>> result
                         = loadScanPackageDetailService.findUnloadPackageCodes(waybillCode, createSiteId, packageCodes);
                 String jsonResult = JsonHelper.toJson(result);
-                baseEntity = JsonHelper.fromJson(jsonResult, BaseEntity.class);
+                baseEntity = JsonHelper.fromJsonUseGson(jsonResult, new TypeToken<BaseEntity<List<String>>>(){}.getType());
             }
         } catch (Exception e) {
             logger.error("根据已装包裹号列表和运单号去ES查询未装包裹号列表发生异常，waybillCode={},createSiteId={},e=",
@@ -156,7 +157,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
                 com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.LoadScanDto>> result
                         = loadScanPackageDetailService.getWaitLoadWaybillInfo(scanReqDto);
                 String jsonResult = JsonHelper.toJson(result);
-                jsfRes = JsonHelper.fromJson(jsonResult, BaseEntity.class);
+                jsfRes = JsonHelper.fromJsonUseGson(jsonResult, new TypeToken<BaseEntity<List<LoadScanDto>>>(){}.getType());
             }
             if(jsfRes == null) {
                 logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--error--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
