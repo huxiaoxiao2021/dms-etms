@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -16,7 +15,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
 import cn.jdl.oms.express.model.ModifyExpressOrderRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -34,8 +32,6 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
-import com.jd.common.util.MessageUtils;
-import com.jd.etms.api.common.enums.RequirementEnum;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +82,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
@@ -122,18 +117,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.*;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 @Component
 @Path(Constants.REST_URL)
@@ -1905,7 +1889,7 @@ public class WaybillResource {
 			//获取理赔状态及物权归属
 			LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,oldWaybillCode);
 			if(claimInfoRespDTO == null){
-				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage("理赔接口失败，请稍后再试");
 				return invokeResult;
 			}
@@ -1915,7 +1899,7 @@ public class WaybillResource {
 
 			if(LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == 0){
 				//twiceExchangeCheckDto.setReturnDestinationTypes("000");
-				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage("理赔中运单禁止换单，请稍后再试");
 				return invokeResult;
 			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
@@ -2576,9 +2560,6 @@ public class WaybillResource {
 		spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
-
-		// todo 测试
-		spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName());
 		return spotCheckDto;
 	}
 }
