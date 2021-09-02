@@ -1986,6 +1986,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         newCondition.setBillingErp(condition.getBillingErp());
         newCondition.setSpotCheckType(condition.getSpotCheckType());
         newCondition.setRecordType(condition.getRecordType());
+        newCondition.setQueryForWeb(condition.getQueryForWeb());
         return newCondition;
     }
 
