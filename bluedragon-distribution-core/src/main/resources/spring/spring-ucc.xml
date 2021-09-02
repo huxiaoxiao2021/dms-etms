@@ -133,6 +133,7 @@
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
         <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -244,6 +245,7 @@
                 <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
+				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

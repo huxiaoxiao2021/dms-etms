@@ -473,6 +473,11 @@ public class UccPropertyConfiguration {
         this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
     }
 
+    /**
+     * 使用新库存ES的场地
+     */
+    private String useNewInventorySiteCodes;
+
     public String getDeliverySendAsyncSite() {
         return deliverySendAsyncSite;
     }
@@ -1265,5 +1270,13 @@ public class UccPropertyConfiguration {
 
     public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
         this.itmsBizEnableSwitch = itmsBizEnableSwitch;
+    }
+
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
+
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
 }
