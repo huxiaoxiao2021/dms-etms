@@ -146,6 +146,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_SIGNBACK ="签单返还";
     private static final String SPECIAL_REQUIRMENT_PACK="包装";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
+    private static final String SPECIAL_REQUIRMENT_JZSC="精准送仓";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
     private static final String SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE="极速到仓";
     private static final String SPECIAL_REQUIRMENT_LOAD_CAR = "装车";
@@ -709,7 +710,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
 
             //包裹有话说
-            if (null != target.getWaybillVasSign() && BusinessUtil.isSignChar(target.getWaybillVasSign(),1,WaybillVasConstant.packageSay)){
+            if (WaybillVasUtil.isPackageSay(target.getWaybillVasSign())){
                 BaseEntity<List<WaybillAttachmentDto>> waybillAttachments = waybillQueryManager.getWaybillAttachmentByWaybillCodeAndType(waybill.getWaybillCode(), CUSTOMER_VIDEO);
                 if (CollectionUtils.isNotEmpty(waybillAttachments.getData())){
                     String attachmentUrl = this.getAttachmentUrl(waybillAttachments.getData());
@@ -1611,16 +1612,28 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybillSign,49,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
             }
-            //送货入仓
-            if(BusinessUtil.isSignChar(waybillSign,42,'1')){
-                if(BusinessUtil.isSignInChars(waybillSign,89,'1','2')){
-                    if(BusinessUtil.isSignChar(waybillSign,80,'B')){
-                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE + ",";
+            // 精准送仓
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            String productType = null;
+            if(waybillExt != null){
+                productType = waybillExt.getProductType();
+            }
+            //精准送仓 优先于 送货入仓
+            if(BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)&& WaybillVasUtil.isJZSC(printWaybill.getWaybillVasSign())){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_JZSC + ",";
+            }else{
+                //送货入仓
+                if(BusinessUtil.isSignChar(waybillSign,42,'1')){
+                    if(BusinessUtil.isSignInChars(waybillSign,89,'1','2')){
+                        if(BusinessUtil.isSignChar(waybillSign,80,'B')){
+                            specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SPEED_DELIVERY_WAREHOUSE + ",";
+                        }
+                    } else {
+                        specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
                     }
-                } else {
-                    specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
                 }
             }
+
             //装车
             if(BusinessUtil.isSignChar(waybillSign,41,'1')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_LOAD_CAR + ",";
