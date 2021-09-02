@@ -44,6 +44,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     @Override
     public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
         BaseEntity<List<LoadScanDto>> baseEntity;
+        logger.info("scanDtoList={}", JsonHelper.toJson(scanDtoList));
         try {
             // 根据包裹号查找运单号
             if (isUseNewInventory(String.valueOf(currentSiteId))) {
@@ -51,10 +52,13 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
             } else {
                 List<com.jd.ql.dms.report.domain.LoadScanDto> loadScanDtoList = new ArrayList<>();
                 BeanUtils.copyProperties(scanDtoList, loadScanDtoList);
+                logger.info("loadScanDtoList={}", JsonHelper.toJson(loadScanDtoList));
                 com.jd.ql.dms.report.domain.BaseEntity<List<com.jd.ql.dms.report.domain.LoadScanDto>> result
                         = loadScanPackageDetailService.findLoadScanList(loadScanDtoList, currentSiteId);
+                logger.info("result={}", JsonHelper.toJson(result));
                 baseEntity = new BaseEntity<>();
                 BeanUtils.copyProperties(result, baseEntity);
+                logger.info("baseEntity={}", JsonHelper.toJson(baseEntity));
             }
         } catch (Exception e) {
             logger.error("根据运单号列表去ES查询运单明细接口发生异常，currentSiteId={},e=", currentSiteId,  e);
