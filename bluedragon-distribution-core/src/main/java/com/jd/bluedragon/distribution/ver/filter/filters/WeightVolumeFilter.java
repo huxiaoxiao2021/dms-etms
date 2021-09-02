@@ -102,10 +102,11 @@ public class WeightVolumeFilter implements Filter {
 
         // 一单多件不需要拦截
         final boolean isMultiplePackage = this.isMultiplePackage(request);
+        final boolean isBFlag = !BusinessUtil.isSignChar(waybillSign, 40, '0');
 
         //众邮无重量拦截
         if(isEconomicNetNeedWeight){
-            if(!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
+            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
                 throw new SortingCheckException(SortingResponse.CODE_29403, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
             }
          //纯配外单无重量拦截-不校验体积
@@ -124,20 +125,26 @@ public class WeightVolumeFilter implements Filter {
                     throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
-                if(!isMultiplePackage){
-                    JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
-                    if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
-                        throw new SortingCheckException(jdResponse.getCode(),
-                                HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
-                    }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
-                        throw new SortingCheckException(jdResponse.getCode(), HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT, request.getFuncModule()));
-                    }
+                /*if(isMultiplePackage && !isBFlag){
+                    chain.doFilter(request, chain);
+                    return;
+                }*/
+                JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
+                if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
+                    throw new SortingCheckException(jdResponse.getCode(),
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
+                }else if(jdResponse.getCode().equals(SortingResponse.CODE_29419)){
+                    throw new SortingCheckException(jdResponse.getCode(), HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT, request.getFuncModule()));
                 }
             }
 
         }else if (isNeedWeight) {
             //查询重量体积信息
-            if (!isMultiplePackage && !packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+            /*if (isMultiplePackage && !isBFlag){
+                chain.doFilter(request, chain);
+                return;
+            }*/
+            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
                 }
@@ -148,8 +155,8 @@ public class WeightVolumeFilter implements Filter {
                             HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND, request.getFuncModule()));
                 }
                 //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
-                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() < 0
-                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) < 0) {
+                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                        || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
                     logger.warn("未查询到重量体积信息,waybillCode=" + waybillCode + ",packageCode=" + packageCode);
 
                     /* C网提示，B网拦截 */
