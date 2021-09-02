@@ -250,7 +250,7 @@ $(function () {
             title: '是否集齐',
             align: 'center',
             formatter: function (value, row, index) {
-                if(row.spotCheckType != 3 || row.recordType != 2){
+                if(row.multiplePackage && row.multiplePackage != 2){
                     return ''
                 }
                 const fullCollectResult = value == 1 ? "是" : "否";
@@ -310,7 +310,7 @@ $(function () {
                         return ''
                     }*/
                     if(row.isHasPicture == null || row.isHasPicture == 0){
-                        if(row.spotCheckType == 3 && row.recordType == 2){
+                        if(row.multiplePackage == 2 && row.recordType == 2){
                             return ''
                         }
                         flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
@@ -344,8 +344,8 @@ $(function () {
                         //B网
                         window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
                             +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
-                    } else if(spotCheckType == 3 && row.recordType == 2) {
-                        //B网
+                    } else if(row.multiplePackage == 2 && row.recordType == 2) {
+                        // 一单多件
                         window.open("/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode="+row.waybillCode
                             +"&siteCode="+row.reviewSiteCode +"&pageNo=1&pageSize=20");
                     } else {
