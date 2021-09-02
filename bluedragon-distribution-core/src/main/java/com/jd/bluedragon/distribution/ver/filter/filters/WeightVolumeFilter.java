@@ -125,10 +125,10 @@ public class WeightVolumeFilter implements Filter {
                     throw new SortingCheckException(result.getCode(),result.getMessage());
                 }
             }else {//原来逻辑
-                if(isMultiplePackage && !isBFlag){
+                /*if(isMultiplePackage && !isBFlag){
                     chain.doFilter(request, chain);
                     return;
-                }
+                }*/
                 JdResponse<Void> jdResponse = funcSwitchConfigService.checkAllPureWeight(request.getWaybillCache(), waybillCode, packageCode);
                 if(jdResponse.getCode().equals(SortingResponse.CODE_39002)){
                     throw new SortingCheckException(jdResponse.getCode(),
@@ -140,10 +140,10 @@ public class WeightVolumeFilter implements Filter {
 
         }else if (isNeedWeight) {
             //查询重量体积信息
-            if (isMultiplePackage && !isBFlag){
+            /*if (isMultiplePackage && !isBFlag){
                 chain.doFilter(request, chain);
                 return;
-            }
+            }*/
             if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
                 if(logger.isInfoEnabled()) {
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode=" + waybillCode + ",packageCode=" + waybillCode);
