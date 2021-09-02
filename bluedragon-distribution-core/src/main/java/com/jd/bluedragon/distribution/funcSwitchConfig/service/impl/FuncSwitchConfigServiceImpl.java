@@ -802,7 +802,7 @@ public class FuncSwitchConfigServiceImpl implements FuncSwitchConfigService {
             return new JdResponse(SortingResponse.CODE_39002, HintService.getHint(HintCodeConstants.WAYBILL_OR_PACKAGE_NOT_FOUND));
         }
         //判断运单上重量（复重:AGAIN_WEIGHT）是否存在（非空，>=0）
-        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() > 0) {
+        if (waybillCache.getAgainWeight() != null && waybillCache.getAgainWeight() >= 0) {
             return new JdResponse(Constants.SUCCESS_NO_CODE,"success");
         }
 
