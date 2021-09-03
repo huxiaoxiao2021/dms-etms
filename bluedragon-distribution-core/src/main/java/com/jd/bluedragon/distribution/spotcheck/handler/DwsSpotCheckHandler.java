@@ -73,16 +73,41 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
      *      1）、一单多件
      *          a、未集齐返回'待集齐计算'
      *          b、集齐则汇总复核数据
-     *          c、核对数据从计费获取
-     *      2）、一单一件
-     *          a、核对数据从计费获取
-     *          b、计费重量为0或空则从运单称重流水获取
+     *          c、核对数据运单获取
      *  2、超标判断
      * @param spotCheckContext
      * @return
      */
     @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
+        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+        if(!spotCheckDealService.gatherTogether(spotCheckContext)){
+            CheckExcessResult excessData = new CheckExcessResult();
+            excessData.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
+            result.setData(excessData);
+            return result;
+        }
+        summaryReviewWeightVolume(spotCheckContext);
+        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+    }
+
+    /**
+     * 超标校验
+     *  1、获取复核数据、核对数据
+     *      1）、一单多件
+     *          a、未集齐返回'待集齐计算'
+     *          b、集齐则汇总复核数据
+     *          c、核对数据从计费获取
+     *      2）、一单一件
+     *          a、核对数据从计费获取
+     *          b、核对数据先计费获取，计费重量为0或空则从运单称重流水获取
+     *  2、超标判断
+     * @param spotCheckContext
+     * @return
+     */
+    @Override
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
         InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
         if(spotCheckContext.getIsMultiPack()){
             // 一单多件

@@ -63,10 +63,15 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
+        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+    }
+
+    @Override
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        // 计费重量为0或null则从运单称重流水获取
         if(spotCheckContrastDetail.getContrastWeight() == null
                 || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
             spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);

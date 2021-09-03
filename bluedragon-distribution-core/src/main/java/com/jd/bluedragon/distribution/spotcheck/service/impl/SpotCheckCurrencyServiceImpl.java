@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.spotcheck.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
-import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.handler.SpotCheckHandlerStrategy;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -34,8 +35,8 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
         CallerInfo info = Profiler.registerInfo("dms.SpotCheckCurrencyService.checkIsExcess", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             result = spotCheckHandlerStrategy.checkIsExcess(spotCheckDto);
-        }catch (SpotCheckException e){
-            throw e;
+        }catch (SpotCheckBusinessException e){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
         }catch (Exception e){
             logger.error("服务异常,入参:{}", JsonHelper.toJson(spotCheckDto), e);
             result.error();
@@ -58,7 +59,10 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
         CallerInfo info = Profiler.registerInfo("dms.SpotCheckCurrencyService.spotCheckDeal", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             result = spotCheckHandlerStrategy.dealSpotCheck(spotCheckDto);
-        }catch (SpotCheckException e){
+        }catch (SpotCheckBusinessException e){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
+        }catch (SpotCheckSysException e){
+            logger.error("抽检系统异常，进行重试!");
             throw e;
         }catch (Exception e){
             logger.error("服务异常,入参:{}", JsonHelper.toJson(spotCheckDto), e);

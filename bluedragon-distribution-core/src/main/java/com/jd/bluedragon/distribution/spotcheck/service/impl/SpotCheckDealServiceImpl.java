@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.DutyTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -172,21 +173,43 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckContrastDetail.setDutyFirstName(firstWeightVolumeSummary.getOperateOrgName());
         spotCheckContrastDetail.setDutySecondId(String.valueOf(firstWeightVolumeSummary.getOperateAreaCode()));
         spotCheckContrastDetail.setDutySecondName(firstWeightVolumeSummary.getOperateAreaName());
-        if(BusinessUtil.isDistrubutionCenter(firstWeightVolumeSummary.getSiteType())){
-            // 站点类型为分拣
-            spotCheckContrastDetail.setDutyType(DutyTypeEnum.DMS.getCode());
-        }else  if(BusinessUtil.isSite(firstWeightVolumeSummary.getSiteType())){
-            // 站点类型站点
-            spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
-            spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
-            spotCheckContrastDetail.setDutyType(DutyTypeEnum.SITE.getCode());
-        }else if(BusinessUtil.isWmsSite(firstWeightVolumeSummary.getSiteType())){
-            // C网抽检暂无仓数据，则不记录二级，只三级
-            spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
-            spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
-            spotCheckContrastDetail.setDutyType(DutyTypeEnum.WMS.getCode());
-        }else {
-            spotCheckContrastDetail.setDutyType(DutyTypeEnum.OTHER.getCode());
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            // B网责任类型判断
+            if(BusinessUtil.isDistrubutionCenter(firstWeightVolumeSummary.getSiteType())){
+                // 站点类型为分拣
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.DMS.getCode());
+            }else  if(BusinessUtil.isSite(firstWeightVolumeSummary.getSiteType())){
+                // 站点类型站点
+                spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
+                spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.SITE.getCode());
+            }else if(BusinessUtil.isFleet(firstWeightVolumeSummary.getSiteType())){
+                // 站点类型车队
+                spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
+                spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.FLEET.getCode());
+            }else {
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.OTHER.getCode());
+            }
+        }
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            // C网责任类型判断
+            if(BusinessUtil.isDistrubutionCenter(firstWeightVolumeSummary.getSiteType())){
+                // 站点类型为分拣
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.DMS.getCode());
+            }else  if(BusinessUtil.isSite(firstWeightVolumeSummary.getSiteType())){
+                // 站点类型站点
+                spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
+                spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.SITE.getCode());
+            }else if(BusinessUtil.isWmsSite(firstWeightVolumeSummary.getSiteType())){
+                // C网抽检暂无仓数据，则不记录二级，只三级
+                spotCheckContrastDetail.setDutyThirdId(String.valueOf(firstWeightVolumeSummary.getOperateSiteCode()));
+                spotCheckContrastDetail.setDutyThirdName(firstWeightVolumeSummary.getOperateSiteName());
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.WMS.getCode());
+            }else {
+                spotCheckContrastDetail.setDutyType(DutyTypeEnum.OTHER.getCode());
+            }
         }
 
         double contrastWeight = firstWeightVolumeSummary.getTotalWeight() == null ? Constants.DOUBLE_ZERO : firstWeightVolumeSummary.getTotalWeight();
@@ -204,7 +227,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     /**
      * 获取称重汇总数据
-     *  1、B网
+     *  1、SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE 抽检
      *      0）、信任商家直接取运单waybill中的重量体积goodWeight、goodVolume（无操作站点先剔除此规则）
      *      1）、取运单号相关的所有称重量方记录（包裹和运单维度的都要）
      *      2）、剔除重量体积均为0（注意，只剔除都是0的）的无意义的称重量方记录（多为系统卡控需要，实际并未称重）（剔除后无称重数据则取揽收单位）
@@ -212,7 +235,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *      4）、筛选出该ERP操作的所有称重量方记录
      *      5）、若既有整单录入又有包裹录入 || 若是整单，以最后一次运单称重为对比对象
      *      6）、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
-     *  2、C网
+     *  2、SpotCheckSourceFromEnum.C_SPOT_CHECK_SOURCE 抽检
      *      1）、一单一件：取运单称重流水第一个操作人的称重量方记录
      *      2）、一单多件：无
      *
@@ -221,9 +244,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      */
     private WeightVolumeSummary getWeightVolumeSummary(SpotCheckContext spotCheckContext) {
         String waybillCode = spotCheckContext.getWaybillCode();
-        Page<PackFlowDetail> page = new Page<>();
-        page.setPageSize(1000);
-        Page<PackFlowDetail> result = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
+        Page<PackFlowDetail> result;
+        try {
+            Page<PackFlowDetail> page = new Page<>();
+            page.setPageSize(1000);
+            result = waybillPackageManager.getOpeDetailByCode(waybillCode, page);
+        }catch (Exception e){
+            throw new SpotCheckSysException(e.getMessage());
+        }
         if(result == null || CollectionUtils.isEmpty(result.getResult())){
             logger.warn("根据单号{}获取称重流水为空!", waybillCode);
             return null;
@@ -529,18 +557,19 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public void issueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto) {
+        if(!Objects.equals(weightVolumeCollectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+            return;
+        }
+        // 核对区域、核对操作站点、核对erp三者缺一则不下发
+        if(weightVolumeCollectDto.getBillingOrgCode() == null || StringUtils.isEmpty(weightVolumeCollectDto.getBillingCompany())
+                || StringUtils.isEmpty(weightVolumeCollectDto.getBillingErp())){
+            return;
+        }
         AbnormalResultMq abnormalResultMq = buildCommonAttr(weightVolumeCollectDto);
-        if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(weightVolumeCollectDto.getFromSource())){
-            if(!Objects.equals(weightVolumeCollectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-                return;
-            }
+        if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             assembleIssueSpotCheckDetailOfB(weightVolumeCollectDto, abnormalResultMq);
-        }else {
-            // 核对区域、核对操作站点、核对erp三者缺一则不下发
-            if(weightVolumeCollectDto.getBillingOrgCode() == null || StringUtils.isEmpty(weightVolumeCollectDto.getBillingCompany())
-                    || StringUtils.isEmpty(weightVolumeCollectDto.getBillingErp())){
-                return;
-            }
+        }
+        if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
             assembleIssueSpotCheckDetailOfC(weightVolumeCollectDto, abnormalResultMq);
         }
         if(logger.isInfoEnabled()){
@@ -605,12 +634,12 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
         abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + Constants.UNDERLINE_FILL + weightVolumeCollectDto.getReviewDate().getTime());
         abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + Constants.UNDERLINE_FILL + weightVolumeCollectDto.getReviewDate().getTime());
-        abnormalResultMq.setSource(SystemEnum.DMS.getCode());
-        abnormalResultMq.setFrom(String.valueOf(SystemEnum.DMS.getCode()));
+        abnormalResultMq.setSource(SpotCheckSystemEnum.DMS.getCode());
+        abnormalResultMq.setFrom(String.valueOf(SpotCheckSystemEnum.DMS.getCode()));
         abnormalResultMq.setBusinessType(BusinessHelper.translateSpotCheckTypeToBusinessType(weightVolumeCollectDto.getSpotCheckType()));
         abnormalResultMq.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
         // 复核数据
-        abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
+        abnormalResultMq.setBillCode(weightVolumeCollectDto.getWaybillCode());
         abnormalResultMq.setBusinessObjectId(weightVolumeCollectDto.getBusiCode());
         abnormalResultMq.setBusinessObject(weightVolumeCollectDto.getBusiName());
         abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
@@ -649,27 +678,31 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     private void assembleIssueSpotCheckDetailOfB(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
         abnormalResultMq.setInputMode(weightVolumeCollectDto.getIsWaybillSpotCheck());
-        List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
-        abnormalResultMq.setDetailList(detailList);
-        if(Objects.equals(weightVolumeCollectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
-            //运单维度
-            SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
-            detail.setBillCode(weightVolumeCollectDto.getWaybillCode());
-            detail.setWeight(weightVolumeCollectDto.getReviewWeight());
-            detail.setLength(weightVolumeCollectDto.getReviewVolume());
-            String pictureAddress = weightVolumeCollectDto.getPictureAddress();
-            if(StringUtils.isNotEmpty(pictureAddress)){
-                List<Map<String,String>> imgList = new ArrayList<>();
-                for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_COMMA)) {
-                    Map<String,String> imgMap = new LinkedHashMap<>();
-                    imgMap.put("url", pictureUrl);
-                    imgList.add(imgMap);
+        // 图片
+        if(Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName())){
+            List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
+            abnormalResultMq.setDetailList(detailList);
+            if(Objects.equals(weightVolumeCollectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
+                //运单维度
+                SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
+                detail.setBillCode(weightVolumeCollectDto.getWaybillCode());
+                detail.setWeight(weightVolumeCollectDto.getReviewWeight());
+                detail.setLength(weightVolumeCollectDto.getReviewVolume());
+                String pictureAddress = weightVolumeCollectDto.getPictureAddress();
+                if(StringUtils.isNotEmpty(pictureAddress)){
+                    List<Map<String,String>> imgList = new ArrayList<>();
+                    for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_COMMA)) {
+                        Map<String,String> imgMap = new LinkedHashMap<>();
+                        imgMap.put("url", pictureUrl);
+                        imgList.add(imgMap);
+                    }
+                    detail.setImgList(imgList);
                 }
-                detail.setImgList(imgList);
+                detailList.add(detail);
+            }else{
+                //包裹维度（前台已屏蔽）todo 待规划好后在补充
             }
-            detailList.add(detail);
-        }else{
-            //包裹维度（前台已屏蔽）todo 待规划好后在补充
         }
         if(DutyTypeEnum.FLEET.getCode().equals(abnormalResultMq.getDutyType())){
             //责任类型为车队
@@ -682,35 +715,43 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     || (DutyTypeEnum.SITE.getCode().equals(abnormalResultMq.getDutyType())
                     &&StringUtils.isEmpty(abnormalResultMq.getDutyErp()))){
                 //责任为分拣或车队或站点无erp
-                abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
+                abnormalResultMq.setTo(SpotCheckSystemEnum.ZHIKONG.getCode().toString());
             }else if(DutyTypeEnum.SITE.getCode().equals(abnormalResultMq.getDutyType())
                     && !StringUtils.isEmpty(abnormalResultMq.getDutyErp())){
                 //责任为站点有erp
                 StringBuilder to = new StringBuilder();
-                to.append(SystemEnum.TMS.getCode()).append(Constants.SEPARATOR_COMMA).append(SystemEnum.ZHIKONG.getCode());
+                to.append(SpotCheckSystemEnum.TMS.getCode()).append(Constants.SEPARATOR_COMMA).append(SpotCheckSystemEnum.ZHIKONG.getCode());
                 abnormalResultMq.setTo(to.toString());
             }else if(DutyTypeEnum.BIZ.getCode().equals(abnormalResultMq.getDutyType())){
                 //责任为信任商家
-                abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
+                abnormalResultMq.setTo(SpotCheckSystemEnum.PANZE.getCode().toString());
+            }else {
+                logger.warn("未知去向!");
             }
         }
-        //默认值:不认责判责
+        // 默认不认责判责
         abnormalResultMq.setIsAccusation(1);
         abnormalResultMq.setIsNeedBlame(0);
     }
 
     private void assembleIssueSpotCheckDetailOfC(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
-        if(abnormalResultMq.getDutyType() != null){
-            if(Objects.equals(abnormalResultMq.getDutyType(), DutyTypeEnum.DMS.getCode())
-                    || Objects.equals(abnormalResultMq.getDutyType(), DutyTypeEnum.SITE.getCode())){
-                //分拣、站点发给下游判责
-                abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
-            }else if(Objects.equals(abnormalResultMq.getDutyType(), DutyTypeEnum.WMS.getCode())){
-                //仓发给下游质控
-                abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
-            }
+        if(Objects.equals(abnormalResultMq.getDutyType(), SpotCheckSystemEnum.DMS.getCode())
+                || Objects.equals(abnormalResultMq.getDutyType(), SpotCheckSystemEnum.TMS.getCode())){
+            //分拣、站点发给下游判责
+            abnormalResultMq.setTo(SpotCheckSystemEnum.PANZE.getCode().toString());
+        }else if(Objects.equals(abnormalResultMq.getDutyType(), SpotCheckSystemEnum.JIFEI.getCode())){
+            //仓发给下游质控
+            abnormalResultMq.setTo(SpotCheckSystemEnum.ZHIKONG.getCode().toString());
+        }else {
+            logger.warn("未知去向!");
         }
-        //默认值:认责不判责
+        // 图片
+        if(Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
+                || (Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName())
+                && Objects.equals(weightVolumeCollectDto.getMultiplePackage(), Constants.CONSTANT_NUMBER_ONE))){
+            abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
+        }
+        // 默认认责不判责
         abnormalResultMq.setIsAccusation(0);
         abnormalResultMq.setIsNeedBlame(1);
     }

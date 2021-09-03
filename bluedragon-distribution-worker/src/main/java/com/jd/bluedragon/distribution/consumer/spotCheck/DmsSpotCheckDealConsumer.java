@@ -8,7 +8,8 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
@@ -61,7 +62,7 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
                 return;
             }
             spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
-        }catch (SpotCheckException e){
+        }catch (SpotCheckSysException e){
             log.warn("抽检异常进行并MQ进行重试");
             throw e;
         }catch(Exception e){

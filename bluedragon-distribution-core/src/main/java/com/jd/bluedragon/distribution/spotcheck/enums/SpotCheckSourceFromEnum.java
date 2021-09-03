@@ -41,12 +41,12 @@ public enum SpotCheckSourceFromEnum {
 
     static{
         C_SPOT_CHECK_SOURCE = new ArrayList<>();
-        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_CLIENT_PLATE.name);
-        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_DWS.name);
-        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_ARTIFICIAL.name);
+        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_CLIENT_PLATE.getName());
+        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_DWS.getName());
+        C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_ARTIFICIAL.getName());
         B_SPOT_CHECK_SOURCE = new ArrayList<>();
-        B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_DMS_WEB.name);
-        B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_ANDROID.name);
+        B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_DMS_WEB.getName());
+        B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_ANDROID.getName());
     }
 
     SpotCheckSourceFromEnum(int code, String name){

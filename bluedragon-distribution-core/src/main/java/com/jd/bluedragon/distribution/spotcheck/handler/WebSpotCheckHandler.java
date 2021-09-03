@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -72,7 +73,7 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
         spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
@@ -82,6 +83,13 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
             return result;
         }
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+    }
+
+    @Override
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
+        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
+        return result;
     }
 
     @Override

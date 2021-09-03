@@ -7,11 +7,11 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -73,6 +73,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         // 超标校验
         InvokeResult<CheckExcessResult> checkExcessResultInvokeResult = checkIsExcess(spotCheckContext);
+        checkResult.customMessage(checkExcessResultInvokeResult.getCode(), checkExcessResultInvokeResult.getMessage());
         checkResult.setData(checkExcessResultInvokeResult.getData().getExcessCode());
         return checkResult;
     }
@@ -135,7 +136,25 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param spotCheckContext
      * @return
      */
-    protected abstract InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext);
+    private InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            return checkIsExcessB(spotCheckContext);
+        }
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            return checkIsExcessC(spotCheckContext);
+        }
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "未知业务类型暂不支持!");
+        return result;
+    }
+
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext){
+        return null;
+    }
+
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext){
+        return null;
+    }
 
     /**
      * 校验成功后的处理
@@ -188,7 +207,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if(waybill == null){
             logger.error("根据运单号:{}未查询到运单信息!", waybillCode);
-            throw new RuntimeException(String.format("运单%s不存在!", waybillCode));
+            throw new SpotCheckBusinessException(String.format("运单%s不存在!", waybillCode));
         }
         spotCheckContext.setWaybill(waybill);
         Integer packNum = waybill.getGoodNumber();
@@ -197,13 +216,21 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         spotCheckContext.setPackNum(packNum);
         spotCheckContext.setIsMultiPack(packNum > Constants.CONSTANT_NUMBER_ONE);
-        spotCheckContext.setSpotCheckBusinessType(BusinessHelper.getSpotCheckTypeBorC(waybill.getWaybillSign()));
+        String waybillSign = waybill.getWaybillSign();
+        if(BusinessUtil.isCInternet(waybillSign)){
+            spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
+        }else if(BusinessUtil.isB2b(waybillSign)){
+            spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode());
+        }else {
+            logger.warn("未知业务类型不支持!（非B非C）");
+            throw new SpotCheckBusinessException("未知业务类型不支持!（非B非C）");
+        }
         // 集齐
         if(!spotCheckContext.getIsMultiPack() || Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
             spotCheckContext.setIsGatherTogether(true);
         }
         // 信任商家
-        if(BusinessUtil.isTrustBusi(waybill.getWaybillSign())){
+        if(BusinessUtil.isTrustBusi(waybillSign)){
             spotCheckContext.setIsTrustMerchant(true);
         }else {
             spotCheckContext.setIsTrustMerchant(false);
@@ -218,14 +245,14 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 计泡比系数
         int volumeRate;
         if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(spotCheckDto.getSpotCheckSourceFrom())){
-            volumeRate = BusinessUtil.isTKZH(waybill.getWaybillSign()) ? SpotCheckConstants.B_VOLUME_RATIO_TKZH : SpotCheckConstants.B_VOLUME_RATIO_NOT_TKZH;
+            volumeRate = BusinessUtil.isTKZH(waybillSign) ? SpotCheckConstants.B_VOLUME_RATIO_TKZH : SpotCheckConstants.B_VOLUME_RATIO_NOT_TKZH;
         }else {
-            volumeRate = BusinessUtil.isExpress(waybill.getWaybillSign()) ? SpotCheckConstants.C_VOLUME_RATIO_KY : SpotCheckConstants.C_VOLUME_RATIO_DEFAULT;
+            volumeRate = BusinessUtil.isExpress(waybillSign) ? SpotCheckConstants.C_VOLUME_RATIO_KY : SpotCheckConstants.C_VOLUME_RATIO_DEFAULT;
         }
         spotCheckContext.setVolumeRate(volumeRate);
 
         // 产品标识
-        DmsBaseDict dmsBaseDict = spotCheckDealService.getProductType(waybill.getWaybillSign());
+        DmsBaseDict dmsBaseDict = spotCheckDealService.getProductType(waybillSign);
         spotCheckContext.setProductTypeCode(dmsBaseDict == null ? null : dmsBaseDict.getTypeCode());
         spotCheckContext.setProductTypeName(dmsBaseDict == null ? null : dmsBaseDict.getMemo());
 
@@ -274,6 +301,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         weightVolumeCollectDto.setFromSource(spotCheckContext.getSpotCheckSourceFrom());
         weightVolumeCollectDto.setSpotCheckType(spotCheckContext.getSpotCheckBusinessType());
         weightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode()); // 默认记录为运单维度
+        weightVolumeCollectDto.setMultiplePackage(spotCheckContext.getIsMultiPack() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
         weightVolumeCollectDto.setReviewDate(spotCheckContext.getOperateTime());
         weightVolumeCollectDto.setWaybillCode(spotCheckContext.getWaybillCode());
         weightVolumeCollectDto.setPackageCode(spotCheckContext.getPackageCode());

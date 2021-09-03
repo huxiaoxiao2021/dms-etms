@@ -5,7 +5,6 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,8 +51,8 @@ public class AbstractExcessStandardHandler {
     /**
      * 超标标准选择
      *  0、特殊场景处理
-     *  1、B网抽检走重量体积标准
-     *  2、C网抽检单独判断
+     *  1、SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE 走重量体积标准
+     *  2、SpotCheckSourceFromEnum.C_SPOT_CHECK_SOURCE 单独判断
      *      1）、多包裹：
      *          a、复核重量 > 复合体积重量, 则执行重量标准
      *          b、复核重量 < 复合体积重量 && 复核体积 < 12700, 则执行重量标准
@@ -142,11 +141,6 @@ public class AbstractExcessStandardHandler {
         CheckExcessResult checkExcessResult = new CheckExcessResult();
         // C网特殊场景处理
         if(SpotCheckSourceFromEnum.C_SPOT_CHECK_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())){
-            if(spotCheckContext.getSpotCheckBusinessType().equals(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-                checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getCode());
-                checkExcessResult.setExcessReason(Constants.EMPTY_FILL);
-                return checkExcessResult;
-            }
             SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
             SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
             // 复核较大值

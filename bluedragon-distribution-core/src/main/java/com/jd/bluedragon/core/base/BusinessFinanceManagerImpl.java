@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
@@ -40,6 +41,7 @@ public class BusinessFinanceManagerImpl implements BusinessFinanceManager {
         }catch (Exception e){
             logger.error("运单号:{}查询计费称重量方数据异常!", waybillCode, e);
             Profiler.functionError(callerInfo);
+            throw new SpotCheckSysException(e.getMessage());
         }finally {
             Profiler.registerInfoEnd(callerInfo);
         }

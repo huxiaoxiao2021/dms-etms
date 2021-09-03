@@ -71,7 +71,7 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
         spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
@@ -81,6 +81,13 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
             return result;
         }
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+    }
+
+    @Override
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
+        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
+        return result;
     }
 
     @Override

@@ -112,7 +112,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
      * @return
      */
     @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcess(SpotCheckContext spotCheckContext) {
+    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
         InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
         // 是否集齐
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())) {
@@ -130,6 +130,13 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         if(StringUtils.isEmpty(spotCheckContext.getPictureAddress()) && Objects.equals(result.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
         }
+        return result;
+    }
+
+    @Override
+    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
+        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
         return result;
     }
 
