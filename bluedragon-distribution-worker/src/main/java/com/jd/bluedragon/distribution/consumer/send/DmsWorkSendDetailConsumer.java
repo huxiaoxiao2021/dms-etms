@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * 消费发货消息，组装【发货交接清单打印】功能的实体
  * @author hujiping
@@ -63,7 +65,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
 
     private void recordPrintHandoverListData(PrintHandoverListDto dto) {
         Boolean isSuccess = printHandoverListManager.recordForPrintHandoverList(dto);
-        if(isSuccess){
+        if(Objects.equals(isSuccess, true)){
             if(log.isInfoEnabled()){
                 log.info("消费发货消息前置打印交接清单数据落es成功!");
             }
