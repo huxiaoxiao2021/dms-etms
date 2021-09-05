@@ -855,7 +855,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
 
         // 先存一遍缓存
-        String waybillKey = CacheKeyConstants.CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST.concat(weightVolumeCollectDto.getWaybillCode());
+        String waybillKey = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST, weightVolumeCollectDto.getReviewSiteCode(), weightVolumeCollectDto.getWaybillCode());
         try {
             final String existPackageListStr = jimdbCacheService.get(waybillKey);
             if(com.jd.common.util.StringUtils.isNotEmpty(existPackageListStr)){

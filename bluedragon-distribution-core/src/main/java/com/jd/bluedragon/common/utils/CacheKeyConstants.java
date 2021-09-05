@@ -72,7 +72,7 @@ public class CacheKeyConstants {
     /**
      * 包裹抽检记录的缓存
      */
-    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s:";
+    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s-%s:";
     /**
      * 抽检包裹上传图片的缓存
      */
