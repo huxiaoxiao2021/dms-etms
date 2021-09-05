@@ -2309,7 +2309,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     private void sendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill){
         // 如果已经存在下发fxm的mq缓存，短时时间内不用再次下发
-        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightAndVolumeCheckHandleMessage.getWaybillCode());
+        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightAndVolumeCheckHandleMessage.getSiteCode(), weightAndVolumeCheckHandleMessage.getWaybillCode());
         final boolean cacheFxmSendWaybillExist = jimdbCacheService.exists(cacheFxmSendWaybillKey);
         if(cacheFxmSendWaybillExist){
             log.info("sendMqToFxmForMultiplePackage cacheFxmSendWaybillExist will not send {}", weightAndVolumeCheckHandleMessage.getWaybillCode());
@@ -2336,7 +2336,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private boolean checkCanSendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill) {
         // 如果运单整体已发货，就不用再关系包裹发货状态
-        boolean waybillSendStatus = this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        boolean waybillSendStatus = this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), weightAndVolumeCheckHandleMessage.getWaybillCode());
         final int waybillPackTotalNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
         // 查找运单纬度的发货状态
         WeightVolumeQueryCondition waybillVolumeQueryCondition = new WeightVolumeQueryCondition();
@@ -2415,7 +2415,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 遍历未发货+无图片交集，判断是否满足既有发货缓存又有图片缓存
         for (String packageCode : notSendAndNoPicSpotCheckPackageCodeSet) {
             String pictureUrl = this.getPackagePicUrlCache(packageCode, weightAndVolumeCheckHandleMessage.getSiteCode());
-            final boolean packageSendStatus = waybillSendStatus || this.getWaybillSendStatusCache(packageCode);
+            final boolean packageSendStatus = waybillSendStatus || this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), packageCode);
             // 有图片
             if(StringUtils.isNotEmpty(pictureUrl) && packageSendStatus){
                 total++;
@@ -2427,7 +2427,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             List<String> justNotSendSpotCheckPackageCodeList = new ArrayList<>(notSendSpotCheckPackageCodeList);
             justNotSendSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
             for (String packageCode : justNotSendSpotCheckPackageCodeList) {
-                if(this.getWaybillSendStatusCache(packageCode)){
+                if(this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), packageCode)){
                     total++;
                 }
             }
@@ -2517,8 +2517,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @author fanggang7
      * @time 2020-08-26 15:08:54 周三
      */
-    private boolean getWaybillSendStatusCache(String waybillCode) {
-        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybillCode);
+    private boolean getWaybillSendStatusCache(Integer siteCode, String waybillCode) {
+        String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, waybillCode);
         try {
             String redisValue = jimdbCacheService.get(key);
             if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) == Constants.YN_YES){
@@ -2538,7 +2538,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @time 2020-08-26 15:08:54 周三
      */
     private boolean getWaybillSendStatus(WeightVolumeCollectDto weightVolumeCollectDto){
-        final boolean waybillSendStatusCache = getWaybillSendStatusCache(weightVolumeCollectDto.getWaybillCode());
+        final boolean waybillSendStatusCache = getWaybillSendStatusCache(weightVolumeCollectDto.getReviewSiteCode(), weightVolumeCollectDto.getWaybillCode());
         if(waybillSendStatusCache){
             return true;
         }

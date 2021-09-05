@@ -616,10 +616,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
             }
 
-            String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(sendDetail.getPackageBarcode());
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, sendDetail.getCreateSiteCode(), sendDetail.getPackageBarcode());
             // 如果是运单纬度发货，则存运单纬度缓存
             if(WaybillUtil.isWaybillCode(sendDetail.getPackageBarcode())){
-                key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybill.getWaybillCode());
+                key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, sendDetail.getCreateSiteCode(), waybill.getWaybillCode());
             }
 
             // 先存一遍缓存
