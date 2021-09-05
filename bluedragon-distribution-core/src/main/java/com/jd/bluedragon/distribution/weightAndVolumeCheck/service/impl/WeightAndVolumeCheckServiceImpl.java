@@ -821,7 +821,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // packageWeightVolumeQuery.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightVolumeCollectDto.getPackageCode())));
 
         BaseEntity<Long> packageWeightVolumeTotalResult = reportExternalService.countByParam(packageWeightVolumeQuery);
-        log.info("packageWeightVolumeTotalResult {}", packageWeightVolumeTotalResult);
+        log.info("packageWeightVolumeTotalResult {}", JsonHelper.toJson(packageWeightVolumeTotalResult));
         if(packageWeightVolumeTotalResult.getCode() != BaseEntity.CODE_SUCCESS){
             log.error("getSpotPackageTotal error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageWeightVolumeQuery), packageWeightVolumeTotalResult.getMessage());
             return spotCheckPackageExistResult;
