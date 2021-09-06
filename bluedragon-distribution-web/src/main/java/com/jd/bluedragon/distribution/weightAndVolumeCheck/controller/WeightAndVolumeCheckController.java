@@ -90,6 +90,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
         condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        condition.setQueryForWeb(Constants.YN_YES);
+
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
@@ -120,6 +122,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
             condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+            condition.setQueryForWeb(Constants.YN_YES);
             weightAndVolumeCheckService.export(condition,bfw);
             exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
         }catch (Exception e){

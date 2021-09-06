@@ -72,7 +72,7 @@ public class CacheKeyConstants {
     /**
      * 包裹抽检记录的缓存
      */
-    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s:";
+    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s-%s:";
     /**
      * 抽检包裹上传图片的缓存
      */
@@ -106,11 +106,11 @@ public class CacheKeyConstants {
 	/**
 	 * 包裹发货状态缓存redis的key
 	 */
-	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:";
+	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:%s-%s";
     /**
      * 包裹发货状态缓存redis的key
      */
-    public static final String CACHE_KEY_FXM_SEND_WAYBILL = "dmsWeb:spotCheck:fxmSend:%s";
+    public static final String CACHE_KEY_FXM_SEND_WAYBILL = "dmsWeb:spotCheck:fxmSend:%s-%s";
 	/**
 	 * 卸车任务已拦截包裹扫描
 	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
