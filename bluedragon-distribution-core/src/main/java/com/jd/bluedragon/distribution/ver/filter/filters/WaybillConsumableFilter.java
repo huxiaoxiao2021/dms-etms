@@ -31,28 +31,35 @@ public class WaybillConsumableFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
-        logger.info("B网包装耗材确认拦截开始...");
         Boolean isConfirmed = null;
         Boolean isNotFound = null;
+        Boolean isForceIntercept = Boolean.FALSE;
         try {
+            //只有B网进行强制校验
+            isForceIntercept = Integer.valueOf(Constants.B2B_SITE_TYPE).equals(request.getCreateSite().getSubType());
+
             String waybillSign = request.getWaybillCache().getWaybillSign();
-            //只有B网进行校验
-            if(BusinessUtil.isNeedConsumable(waybillSign)
-              && Integer.valueOf(Constants.B2B_SITE_TYPE).equals(request.getCreateSite().getSubType())){
+            if(BusinessUtil.isNeedConsumable(waybillSign)){
                 isNotFound = isNotFoundRecord(request.getWaybillCode());
                 isConfirmed =  this.isConsumableConfirmed(request.getWaybillCode());
-                logger.info("B网包装耗材确认拦截开始"+request.getWaybillCode()+",isConfirmed:" + isConfirmed + " isNotFound:"+isNotFound);
+                logger.info("B网包装耗材确认拦截"+request.getWaybillCode()+",isConfirmed:" + isConfirmed + " isNotFound:"+isNotFound);
             }
         }catch (Exception e){
             logger.error("查询运单是否已经确认耗材失败，运单号：" + JsonHelper.toJson(request), e);
         }
         if(isConfirmed != null && isNotFound != null){
             if(Boolean.FALSE.equals(isNotFound) && Boolean.FALSE.equals(isConfirmed)){
-                throw new SortingCheckException(SortingResponse.CODE_29120,
-                        HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM, request.getFuncModule()));
+                if(isForceIntercept){
+                    //强制拦截
+                    throw new SortingCheckException(SortingResponse.CODE_29120,
+                            HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM, request.getFuncModule()));
+                }else{
+                    throw new SortingCheckException(SortingResponse.CODE_39119,
+                            HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM, request.getFuncModule()));
+                }
             }
             if(Boolean.TRUE.equals(isNotFound)){
-                //此运单需使用包装耗材，但不存在包装耗材任务  提示 不拦截
+                //此运单需使用包装耗材，但不存在包装耗材任务  只提示 不拦截
                 throw new SortingCheckException(SortingResponse.CODE_39119,
                         HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST, request.getFuncModule()));
             }
