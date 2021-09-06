@@ -186,6 +186,11 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         weightAndVolumeCheckService.dealSportCheck(convertToPackWeightVO(entity), SpotCheckSourceEnum.SPOT_CHECK_DWS);
     }
 
+    /**
+     * 自动化设备是否超标处理接口
+     * @param entity
+     * @return
+     */
     public InvokeResult<Boolean> automaticDealSportCheck(WeightVolumeEntity entity) {
         if (logger.isInfoEnabled()) {
             logger.info("自动化称重抽检-handler参数:{}", JsonHelper.toJson(entity));

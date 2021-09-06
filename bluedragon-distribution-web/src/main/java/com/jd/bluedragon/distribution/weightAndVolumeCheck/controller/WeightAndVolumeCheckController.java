@@ -9,13 +9,17 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.Enum.SpotCheckRecordTypeEnum;
+import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -86,7 +90,18 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
+        condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        condition.setQueryForWeb(Constants.YN_YES);
 
+        PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
+        return result;
+    }
+
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping("/packageDetailListData")
+    @ResponseBody
+    public PagerResult<WeightVolumeCollectDto> packageDetailListData(@RequestBody WeightAndVolumeCheckCondition condition){
+        condition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
@@ -107,6 +122,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
+            condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+            condition.setQueryForWeb(Constants.YN_YES);
             weightAndVolumeCheckService.export(condition,bfw);
             exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
         }catch (Exception e){
@@ -131,10 +148,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/toUpload")
     public String toUpload(@QueryParam("waybillCode")String waybillCode,
                            @QueryParam("packageCode")String packageCode,
-                           @QueryParam("reviewDate")String reviewDate,Model model) {
+                           @QueryParam("reviewDate")String reviewDate,
+                           @QueryParam("reviewSiteCode")String reviewSiteCode,Model model) {
         model.addAttribute("waybillCode",waybillCode);
         model.addAttribute("packageCode",packageCode);
         model.addAttribute("reviewDate",reviewDate);
+        model.addAttribute("reviewSiteCode",reviewSiteCode);
 
         return "weightAndVolumeCheck/excessPictureUpload";
     }
@@ -154,9 +173,14 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         String importErpCode = erpUser.getUserCode();
         Integer siteCode = -1;
         try{
+            String reviewSiteCode = request.getParameter("reviewSiteCode");
             BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(importErpCode);
             if(baseDto != null){
                 siteCode = baseDto.getSiteCode();
+            }
+            if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
+                result.parameterError("当前用户所属场地与该抽检记录操作场地不一致，不能上传图片");
+                return result;
             }
         }catch (Exception e){
             log.error("通过登陆人erp获取所属分拣中心异常：{}",importErpCode,e);
@@ -219,6 +243,43 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
                                             @QueryParam("siteCode")Integer siteCode) {
 
         return weightAndVolumeCheckService.searchExcessPicture(packageCode,siteCode);
+    }
+
+    /**
+     * 跳转到B网超标图片页面
+     * @param waybillCode
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/toSearchPicture4MultiplePackage")
+    public String toSearchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
+                                           @QueryParam("siteCode")Integer siteCode,
+                                           @QueryParam("pageNo") Integer pageNo,
+                                           @QueryParam("pageSize") Integer pageSize, Model model){
+        model.addAttribute("siteCode",siteCode);
+        model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("pageNo",pageNo);
+        model.addAttribute("pageSize",pageSize);
+        return "/weightAndVolumeCheck/multiplePackageExcessPicture";
+    }
+
+    /**
+     * 查看一单多件超标图片
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/searchPicture4MultiplePackage", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult<Pager<WeightVolumePictureDto>> searchPicture4MultiplePackage(@RequestBody WeightAndVolumeCheckCondition condition) {
+        Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager = new Pager<>();
+        WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
+        weightVolumeQueryCondition.setWaybillCode(condition.getWaybillCode());
+        weightVolumeQueryCondition.setReviewSiteCode(condition.getCreateSiteCode().intValue());
+        weightVolumeQueryCondition.setPackageCode(condition.getWaybillOrPackCode());
+        weightVolumeQueryConditionPager.setSearchVo(weightVolumeQueryCondition);
+        weightVolumeQueryConditionPager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
+        weightVolumeQueryConditionPager.setPageSize(condition.getLimit());
+        return weightAndVolumeCheckService.searchPicture4MultiplePackage(weightVolumeQueryConditionPager);
     }
 
     /**

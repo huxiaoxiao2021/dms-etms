@@ -36,8 +36,6 @@
 		</property>
 	</bean>
 
-
-
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
@@ -134,6 +132,8 @@
         <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
+		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
+		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -242,10 +242,11 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
-                <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
 				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
@@ -258,6 +259,4 @@
 			</list>
 		</property>
 	</bean>
-
-
 </beans>
