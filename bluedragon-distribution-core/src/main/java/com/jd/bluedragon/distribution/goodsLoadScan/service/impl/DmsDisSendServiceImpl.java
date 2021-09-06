@@ -41,6 +41,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.DmsDisSendServiceImpl.getLoadScanListByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId) {
         BaseEntity<List<LoadScanDto>> baseEntity;
@@ -72,6 +73,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
         return baseEntity.getData();
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.DmsDisSendServiceImpl.getLoadScanByWaybillAndPackageCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public LoadScanDto getLoadScanByWaybillAndPackageCode(LoadScanDto loadScanDto) {
         BaseEntity<LoadScanDto> baseEntity;
@@ -105,6 +107,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
         return baseEntity.getData();
     }
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.DmsDisSendServiceImpl.getUnloadPackageCodesByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId, List<String> packageCodes) {
         BaseEntity<List<String>> baseEntity;
@@ -136,7 +139,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
         return baseEntity.getData();
     }
 
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo",mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.DmsDisSendServiceImpl.getInspectNoSendWaybillInfo",mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdCResponse<List<LoadScanDto>> getInspectNoSendWaybillInfo(LoadCar loadCar, List<String> waybillCodeList) {
         JdCResponse<List<LoadScanDto>> res = new JdCResponse<>();
@@ -160,11 +163,11 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
                 jsfRes = JsonHelper.fromJsonUseGson(jsonResult, new TypeToken<BaseEntity<List<LoadScanDto>>>(){}.getType());
             }
             if(jsfRes == null) {
-                logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--error--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
+                logger.error("DmsDisSendServiceImpl.getInspectNoSendWaybillInfo--error--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
                 res.toError("查询库存运单信息失败");
                 return res;
             }else if(jsfRes.getCode() != BaseEntity.CODE_SUCCESS) {
-                logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--fail--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
+                logger.error("DmsDisSendServiceImpl.getInspectNoSendWaybillInfo--fail--装车任务查询待装运单信息失败，参数loadScanReqDto=【{}】", JsonHelper.toJson(loadScanReqDto));
                 res.toFail(jsfRes.getMessage());
                 return res;
             }
@@ -173,7 +176,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
             return res;
 
         }catch (Exception e) {
-            logger.error("LoadScanPackageDetailServiceManagerImpl.getInspectNoSendWaybillInfo--调用分拣报表查询已验未发jsf异常--，参数=【{}】", JsonHelper.toJson(loadScanReqDto), e);
+            logger.error("DmsDisSendServiceImpl.getInspectNoSendWaybillInfo--调用分拣报表查询已验未发jsf异常--，参数=【{}】", JsonHelper.toJson(loadScanReqDto), e);
             res.toFail("JSF调用失败");
             return res;
         }

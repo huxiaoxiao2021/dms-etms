@@ -505,6 +505,19 @@ public class UccPropertyConfiguration {
     private String deliverySendAsyncSite;
 
     /**
+     * 日志查询功能开关 1：启用 0：禁用
+     */
+    private String businessLogQueryPageSwitch;
+
+    public String getBusinessLogQueryPageSwitch() {
+        return businessLogQueryPageSwitch;
+    }
+
+    public void setBusinessLogQueryPageSwitch(String businessLogQueryPageSwitch) {
+        this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
+    }
+
+    /**
      * 使用新库存ES的场地
      */
     private String useNewInventorySiteCodes;
@@ -516,6 +529,16 @@ public class UccPropertyConfiguration {
     public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
         this.deliverySendAsyncSite = deliverySendAsyncSite;
     }
+
+    /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1316,19 +1339,6 @@ public class UccPropertyConfiguration {
         this.waybillMaxPackNum = waybillMaxPackNum;
     }
 
-    /**
-     * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
-     */
-    private String itmsBizEnableSwitch;
-
-    public String getItmsBizEnableSwitch() {
-        return itmsBizEnableSwitch;
-    }
-
-    public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
-        this.itmsBizEnableSwitch = itmsBizEnableSwitch;
-    }
-
     public double getSpotCheckNoExcessLimit() {
         return spotCheckNoExcessLimit;
     }
@@ -1343,6 +1353,19 @@ public class UccPropertyConfiguration {
 
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
+    }
+
+    /**
+     * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
+     */
+    private String itmsBizEnableSwitch;
+
+    public String getItmsBizEnableSwitch() {
+        return itmsBizEnableSwitch;
+    }
+
+    public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
+        this.itmsBizEnableSwitch = itmsBizEnableSwitch;
     }
 
 	public boolean isNeedUseNewReverseApi() {

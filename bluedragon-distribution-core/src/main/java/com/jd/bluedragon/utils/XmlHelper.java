@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.Converter;
 import com.thoughtworks.xstream.io.xml.DomDriver;
@@ -146,6 +147,7 @@ public class XmlHelper {
                 "org.springframework.beans.factory.support.RootBeanDefinition", "org.springframework.beans.factory.support.DefaultListableBeanFactory", "org.springframework.aop.support.DefaultBeanFactoryPointcutAdvisor", "org.springframework.aop.aspectj.annotation.BeanFactoryAspectInstanceFactory", "org.springframework.aop.aspectj.AspectJPointcutAdvisor", "org.springframework.aop.aspectj.AspectJAroundAdvice", "org.springframework.aop.aspectj.AspectInstanceFactory", "org.springframework.aop.aspectj.AbstractAspectJAdvice", "javax.script.ScriptEngineFactory", "com.sun.rowset.JdbcRowSetImpl", "com.rometools.rome.feed.impl.ToStringBean", "com.rometools.rome.feed.impl.EqualsBean", "java.beans.EventHandler", "javax.imageio.ImageIO$ContainsFilter", "java.util.Collections$EmptyIterator",
 
                 "javax.imageio.spi.FilterIterator", "java.lang.ProcessBuilder", "org.codehaus.groovy.runtime.MethodClosure", "groovy.util.Expando", "com.sun.xml.internal.ws.encoding.xml.XMLMessage$XmlDataSource"});
+        xStream.allowTypesByWildcard(new String[]{"**"});
         return xStream;
     }
 

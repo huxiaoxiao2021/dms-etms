@@ -48,15 +48,14 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.jsf.gd.util.JsonUtils;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS;
 import com.jd.merchant.api.pack.dto.LoadScanDto;
+import com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.merchant.api.common.dto.ResponseResult;
 import com.jd.merchant.api.pack.dto.DeliveryCheckDto;
 import com.jd.merchant.api.staging.ws.StagingServiceWS;
+import com.jd.ql.basic.util.DateUtil;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -90,8 +89,6 @@ public class LoadScanServiceImpl implements LoadScanService {
     private final static Logger log = LoggerFactory.getLogger(LoadScanServiceImpl.class);
 
     private final static int LOCK_TIME = 60;
-
-    private final static int BIG_LOCK_TIME = 300;
 
 
     @Autowired
@@ -152,10 +149,7 @@ public class LoadScanServiceImpl implements LoadScanService {
     @Resource
     private LoadCarTaskServiceWSManager loadCarTaskServiceWSManager;
 
-
     public static final String LOADS_CAN_LOCK_BEGIN = "LOADS_CAN_LOCK_";
-
-    public static final String LOADS_BIG_CAN_LOCK_BEGIN = "LOADS_BIG_CAN_LOCK_";
 
 
     @Autowired
@@ -680,16 +674,7 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("该板号属于重复扫！");
                 return response;
             }
-            //超出最大任务限制包裹数后禁止发货
-            int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
 
-            if(packageCount + insertRecords.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-                if(log.isWarnEnabled()) {
-                    log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
-                }
-                response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
-                return response;
-            }
             // 运单，包裹数
             Map<String, Integer> map = new HashMap<>(16);
             // 板上的运单记录
@@ -810,12 +795,11 @@ public class LoadScanServiceImpl implements LoadScanService {
         if (checkInterceptionValidate(response, taskId, packageCode)) {
             return response;
         }
-        //增加装车任务以及大宗运单的拦截判断。key即 任务号-运单号
-        String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
+
         try {
             // 获取锁
-            if (!lockUseParamKey(lockKey)) {
-                log.warn("运单暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
+            if (!lock(taskId, waybillCode, null)) {
+                log.info("运单暂存接口--获取锁失败：taskId={},packageCode={},transfer={},flowDisAccord={}", taskId,
                         packageCode, transfer, flowDisAccord);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
@@ -863,19 +847,9 @@ public class LoadScanServiceImpl implements LoadScanService {
             // 校验运单号是否属于重复扫
             handlePackagesOfWaybill(waybillCode, loadCar, packageList, insertPackageCodes, updateRecordIds);
             if (insertPackageCodes.isEmpty() && updateRecordIds.isEmpty()) {
-                log.warn("该运单号属于重复扫！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
+                log.error("该运单号属于重复扫！taskId={},packageCode={},waybillCode={}", taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("该运单号属于重复扫！");
-                return response;
-            }
-            //超出最大任务限制包裹数后禁止发货
-            int packageCount = goodsLoadScanRecordDao.getPackageCountByTaskId(taskId);
-
-            if(packageCount + insertPackageCodes.size() >= uccPropertyConfiguration.getLoadScanTaskPackageMaxSize()) {
-                if(log.isWarnEnabled()) {
-                    log.warn("任务【{}】关联包裹数超出最大包裹量（{}）限制", req.getTaskId(), uccPropertyConfiguration.getLoadScanTaskPackageMaxSize());
-                }
-                response.toFail("该任务装车包裹数超出最大包裹数量限制【" + uccPropertyConfiguration.getLoadScanTaskPackageMaxSize() + "】，无法进行发货");
                 return response;
             }
             GoodsLoadScanRecord record = createGoodsLoadScanRecord(taskId, waybillCode, null, null, transfer,
@@ -921,8 +895,7 @@ public class LoadScanServiceImpl implements LoadScanService {
             log.error("按运单号暂存逻辑发生错误e=", e);
         } finally {
             // 释放锁
-//            unLock(taskId, waybillCode, null);
-            unLockByParamKey(lockKey);
+            unLock(taskId, waybillCode, null);
         }
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setMessage(JdCResponse.MESSAGE_SUCCESS);
@@ -950,7 +923,7 @@ public class LoadScanServiceImpl implements LoadScanService {
 
     /**
      * 根据板上的包裹列表计算合并每个运单上的包裹数并根据运单去重
-     * @param records 板上有效的包裹列表
+     * @param records 板上有效的包裹列表无重量，请补称重量方
      * @param waybillMap 运单集合，key为运单号，value为查询库存参数对象
      * @param map 运单集合，key为运单号，value为板上这个运单所对应的包裹数
      */
@@ -987,7 +960,7 @@ public class LoadScanServiceImpl implements LoadScanService {
      * @param updateRecords 修改的包裹集合
      */
     private void handlePackagesOfBulk(List<String> packages, LoadCar loadCar, String boardCode, GoodsLoadingScanningReq req,
-                                       List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
+                                      List<GoodsLoadScanRecord> insertRecords, List<GoodsLoadScanRecord> updateRecords) {
         User user = req.getUser();
         Long taskId = loadCar.getId();
         Integer transfer = req.getTransfer();
@@ -1158,7 +1131,7 @@ public class LoadScanServiceImpl implements LoadScanService {
         try{
             List<LoadScanDto> loadScanDto = dmsDisSendService.getLoadScanListByWaybillCode(scanDtoList, createSiteId);
             if (loadScanDto == null || loadScanDto.isEmpty()) {
-                log.warn("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
+                log.error("根据包裹号和运单号从分拣报表查询运单信息返回空taskId={},packageCode={},waybillCode={}",taskId, packageCode, waybillCode);
                 response.setCode(JdCResponse.CODE_FAIL);
                 response.setMessage("根据包裹号查询运单库存失败");
                 return response;
@@ -1640,13 +1613,6 @@ public class LoadScanServiceImpl implements LoadScanService {
                 response.setMessage("多人同时操作该包裹所在的运单，请稍后重试！");
                 return response;
             }
-            String lockKey = LOADS_BIG_CAN_LOCK_BEGIN + taskId + "_" + waybillCode;
-            // 获取锁
-            if (existsRedisInfoByParamKey(lockKey)) {
-                response.setCode(JdCResponse.CODE_FAIL);
-                response.setMessage("该包裹所在的运单，正在使用大宗操作，请稍后！");
-                return response;
-            }
 
             // 校验该任务下运单数量是否已超过上限
             Integer waybillCount = goodsLoadScanDao.findWaybillCountByTaskId(taskId);
@@ -2043,37 +2009,6 @@ public class LoadScanServiceImpl implements LoadScanService {
         return true;
     }
 
-    private boolean lockUseParamKey(String paramKey) {
-        if(StringUtils.isBlank(paramKey)){
-            if(log.isWarnEnabled()){
-                log.warn("加锁时，锁的key为空.");
-            }
-            return false;
-        }
-        try {
-            return jimdbCacheService.setNx(paramKey, StringUtils.EMPTY, BIG_LOCK_TIME, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.error("装车扫描加锁时出现异常,异常信息为{}", e.getMessage(),e);
-            jimdbCacheService.del(paramKey);
-        }
-        return true;
-    }
-
-    private boolean existsRedisInfoByParamKey(String paramKey) {
-        if(StringUtils.isBlank(paramKey)){
-            if(log.isWarnEnabled()){
-                log.warn("获取锁信息时，锁的key为空.");
-            }
-            return false;
-        }
-        try {
-            return jimdbCacheService.exists(paramKey);
-        } catch (Exception e) {
-            log.error("装车扫描获取锁时出现异常,异常信息为{}", e.getMessage(),e);
-            return false;
-        }
-    }
-
     private String getLockFlag(String waybillCode, String boardCode) {
         if (StringUtils.isNotBlank(boardCode)) {
             return boardCode;
@@ -2088,14 +2023,6 @@ public class LoadScanServiceImpl implements LoadScanService {
             jimdbCacheService.del(lockKey);
         } catch (Exception e) {
             log.error("装车扫描unLock异常:taskId={},waybillCode={},boardCode={},e=", taskId, waybillCode, boardCode, e);
-        }
-    }
-    //根据key解锁
-    private void unLockByParamKey(String paramKey) {
-        try {
-            jimdbCacheService.del(paramKey);
-        } catch (Exception e) {
-            log.error("装车扫描unLockByParamKey异常:{},e=",e.getMessage(), e);
         }
     }
 
@@ -2235,47 +2162,25 @@ public class LoadScanServiceImpl implements LoadScanService {
             return response;
         }
         List<String> unloadPackages;
-//        try {
-//            // 获取锁
-//            if (!lock(taskId, waybillCode, null)) {
-//                log.info("未装包裹明细--获取锁失败：taskId={},waybillCode={}", taskId, waybillCode);
-//                response.setCode(JdCResponse.CODE_FAIL);
-//                response.setMessage("多人同时查看该运单下未装包裹明细，请稍后重试！");
-//                return response;
-//            }
+        try {
+            // 获取锁
+            if (!lock(taskId, waybillCode, null)) {
+                log.info("未装包裹明细--获取锁失败：taskId={},waybillCode={}", taskId, waybillCode);
+                response.setCode(JdCResponse.CODE_FAIL);
+                response.setMessage("多人同时查看该运单下未装包裹明细，请稍后重试！");
+                return response;
+            }
             // 从包裹记录表查询该运单下所有已装车的包裹
             List<String> packageCodes = goodsLoadScanRecordDao.selectPackageCodesByWaybillCode(taskId, waybillCode);
             // 从ES中根据已装车包裹筛选出未装包裹列表
             unloadPackages = dmsDisSendService.getUnloadPackageCodesByWaybillCode(waybillCode,
                     loadCar.getCreateSiteCode().intValue(), packageCodes);
-//        } finally {
-//            // 释放锁
-//            unLock(taskId, waybillCode, null);
-//        }
+        } finally {
+            // 释放锁
+            unLock(taskId, waybillCode, null);
+        }
         response.setCode(JdCResponse.CODE_SUCCESS);
         response.setData(unloadPackages);
-        return response;
-    }
-
-    @Override
-    public JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode) {
-        JdVerifyResponse<Void> response = new JdVerifyResponse();
-        response.toSuccess();
-        try{
-            BaseEntity<String> baseEntity =  waybillQueryManager.getWaybillSignByWaybillCode(waybillCode);
-            if(baseEntity != null && Objects.equals(baseEntity.getResultCode(),EnumBusiCode.BUSI_SUCCESS.getCode())
-                    && StringUtils.isNotBlank(baseEntity.getData())){
-                log.info("LoadScanServiceImpl-checkWaybillCode-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",baseEntity.getData());
-                if(BusinessUtil.needWeighingSquare(baseEntity.getData())){
-                    log.warn("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描！包裹号={},运单号={},运单标识={}", packageCode, waybillCode,baseEntity.getData());
-                    response.setCode(JdCResponse.CODE_FAIL);
-                    response.setMessage("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描!");
-                    return response;
-                }
-            }
-        }catch (Exception ex){
-            log.error("LoadScanServiceImpl-checkIsKaWaybillOrNo-error,运单号={},包裹号={},异常信息",waybillCode,packageCode,ex);
-        }
         return response;
     }
 
@@ -2412,6 +2317,29 @@ public class LoadScanServiceImpl implements LoadScanService {
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public JdVerifyResponse<Void> checkIsKaWaybillOrNo(String waybillCode,String packageCode) {
+        JdVerifyResponse<Void> response = new JdVerifyResponse();
+        response.toSuccess();
+        try{
+            BaseEntity<String> baseEntity =  waybillQueryManager.getWaybillSignByWaybillCode(waybillCode);
+            if(baseEntity != null && Objects.equals(baseEntity.getResultCode(),EnumBusiCode.BUSI_SUCCESS.getCode())
+                    && StringUtils.isNotBlank(baseEntity.getData())){
+                log.info("LoadScanServiceImpl-checkWaybillCode-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",baseEntity.getData());
+                if(BusinessUtil.needWeighingSquare(baseEntity.getData())){
+                    log.warn("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描！包裹号={},运单号={},运单标识={}", packageCode, waybillCode,baseEntity.getData());
+                    response.setCode(JdCResponse.CODE_FAIL);
+                    response.setMessage("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描!");
+                    return response;
+                }
+            }
+        }catch (Exception ex){
+            log.error("LoadScanServiceImpl-checkIsKaWaybillOrNo-error,运单号={},包裹号={},异常信息",waybillCode,packageCode,ex);
+        }
+        return response;
     }
 
     @Override

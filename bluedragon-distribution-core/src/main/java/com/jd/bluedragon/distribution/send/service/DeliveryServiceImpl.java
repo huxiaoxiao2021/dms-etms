@@ -113,10 +113,8 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.crossbow.itms.constants.ItmsConstants;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
-import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -154,7 +152,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -415,10 +412,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     @Autowired
-    private TibetBizService tibetBizService;
+    private IDeliveryOperationService deliveryOperationService;
 
     @Autowired
-    private IDeliveryOperationService deliveryOperationService;
+    private TibetBizService tibetBizService;
 
     /**
      * 自动过期时间 30分钟
@@ -926,10 +923,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
             funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
             funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
-            // 一单多件不拦截
-            if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
+            // 一单多件不拦截 又去除
+            /*if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
                 return response;
-            }
+            }*/
             // 是否满足无重量拦截条件
             boolean isAllPureNeedWeight = funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
             if(log.isInfoEnabled()){
@@ -3409,14 +3406,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                                 HintService.getHint(HintCodeConstants.CANCEL_DELIVERY_CHECK_UNSEAL));
                     }
 
-                //已封车状态
-                if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
-                    long date = System.currentTimeMillis();
-                    //封车时间大于一小时
-                    if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
-                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL,
-                                HintService.getHint(HintCodeConstants.ABORT_CANCEL_EXCEED_ONE_HOUR));
-                    }
+                    //已封车状态
+                    if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
+                        long date = System.currentTimeMillis();
+                        //封车时间大于一小时
+                        if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
+                            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL,
+                                    HintService.getHint(HintCodeConstants.ABORT_CANCEL_EXCEED_ONE_HOUR));
+                        }
 
                         return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
                     }
@@ -7354,19 +7351,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
         // 查redis后查运输接口兜底
-        if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
-            return true;
-        }
-        try {
-            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
-            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
-                    && isSealed.getData() != null && isSealed.getData()){
-                return true;
-            }
-        } catch (Exception e) {
-            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
-        }
-        return false;
+        return newSealVehicleService.checkSendCodeIsSealed(sendCode);
     }
 
     /**

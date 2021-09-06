@@ -339,6 +339,10 @@
     <jmq:consumer id="jmq.coldChainSendOfKYConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.oldChainSendOfKY}" listener="coldChainSendOfKYConsumer"/>
     </jmq:consumer>
+    <!--站点名称变更消费-->
+    <jmq:consumer id="jmq.baseSiteChangeConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.baseSiteChange}" listener="baseSiteChangeConsumer"/>
+    </jmq:consumer>
 
     <!-- 消费发货明细MQ 给ITMS系统发送发货数据 -->
     <jmq:consumer id="jmq.tibetSendDetailConsumer" transport="jmq.dmsWorkerForTibet.transport">
@@ -350,9 +354,5 @@
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="tibetCancelSendDetailConsumer"/>
     </jmq:consumer>
 
-    <!--站点名称变更消费-->
-    <jmq:consumer id="jmq.baseSiteChangeConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.baseSiteChange}" listener="baseSiteChangeConsumer"/>
-    </jmq:consumer>
 </beans>
 
