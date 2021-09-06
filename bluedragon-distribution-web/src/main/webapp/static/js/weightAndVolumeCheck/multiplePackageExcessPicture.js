@@ -2,6 +2,7 @@ $(function() {
 
     var waybillCode = $('#waybillCode').val()
     var siteCode = $('#siteCode').val()
+    var fromSource = $('#fromSource').val()
     var url = '/weightAndVolumeCheck/searchPicture4MultiplePackage';
 
     // 一单多件包裹明细
@@ -23,7 +24,17 @@ $(function() {
                 title: '图片链接',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return '<a href="' + value + '" target="_blank">' + value + '</a>'
+                    if(value == null || value === ''){
+                        return null;
+                    }
+                    let allPictureUrl = '';
+                    const total = value.split(";");
+                    let order = 0;
+                    for(const single of total){
+                        order ++;
+                        allPictureUrl += '<a href="' + single + '" target="_blank">图片' + order + '</a>&nbsp;'
+                    }
+                    return allPictureUrl;
                 }
             }
         ],
@@ -39,6 +50,7 @@ $(function() {
         }
         temp.waybillCode = waybillCode
         temp.createSiteCode = siteCode
+        temp.fromSource = fromSource
         temp.offset = params.offset;
         temp.limit = params.limit;
         // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的

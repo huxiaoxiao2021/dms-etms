@@ -66,6 +66,15 @@ public interface SpotCheckDealService {
     void recordSpotCheckLog(SpotCheckContext spotCheckContext);
 
     /**
+     * 包裹是否已发货
+     *
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    boolean checkIsHasSend(String packageCode, Integer siteCode);
+
+    /**
      * 运单是否操作过抽检
      *
      * @param waybillCode
@@ -97,6 +106,14 @@ public interface SpotCheckDealService {
      * @param weightVolumeCollectDto
      */
     void issueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto);
+
+    /**
+     * 是否抽检数据给计费
+     *
+     * @param collectDto
+     * @return
+     */
+    boolean isSueToFinance(WeightVolumeCollectDto collectDto);
 
     /**
      * 处理上传图片

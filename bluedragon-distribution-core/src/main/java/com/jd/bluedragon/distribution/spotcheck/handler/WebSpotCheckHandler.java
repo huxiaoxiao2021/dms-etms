@@ -97,7 +97,7 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
         // 设置超标缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
-        WeightVolumeCollectDto weightVolumeCollectDto = assembleWeightVolumeCollectDto(spotCheckContext);
+        WeightVolumeCollectDto weightVolumeCollectDto = assembleWaybillCollectDto(spotCheckContext);
         reportExternalManager.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         // 非快运外单只记录es
         if(!BusinessUtil.isKyLdop(spotCheckContext.getWaybill().getWaybillSign())){

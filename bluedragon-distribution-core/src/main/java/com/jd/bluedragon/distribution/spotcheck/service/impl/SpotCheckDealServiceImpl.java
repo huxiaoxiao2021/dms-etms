@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.DutyTypeEnum;
@@ -103,11 +105,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Qualifier("weightAndVolumeCheckHandleProducer")
     private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
 
+    @Autowired
+    private SendDetailService sendDetailService;
+
     @Override
     public void assembleContrastDataFromFinance(SpotCheckContext spotCheckContext) {
         // 从计费获取核对数据
         SpotCheckContrastDetail spotCheckContrastDetail = new SpotCheckContrastDetail();
         spotCheckContext.setSpotCheckContrastDetail(spotCheckContrastDetail);
+        // 核对来源：计费
+        spotCheckContrastDetail.setContrastSourceFrom(ContrastSourceFromEnum.SOURCE_FROM_BILLING.getCode());
         String waybillCode = spotCheckContext.getWaybillCode();
         ResponseDTO<BizDutyDTO> responseDto = businessFinanceManager.queryDutyInfo(waybillCode);
         if(responseDto == null || responseDto.getData() == null){
@@ -115,8 +122,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return;
         }
         BizDutyDTO bizDutyDTO = responseDto.getData();
-        // 核对来源：计费
-        spotCheckContrastDetail.setContrastSourceFrom(ContrastSourceFromEnum.SOURCE_FROM_BILLING.getCode());
         spotCheckContrastDetail.setContrastOperateUserErp(bizDutyDTO.getDutyErp());
         spotCheckContrastDetail.setContrastOrgId(bizDutyDTO.getFirstLevelId() == null ? null : Integer.parseInt(bizDutyDTO.getFirstLevelId()));
         spotCheckContrastDetail.setContrastOrgName(bizDutyDTO.getFirstLevelName());
@@ -404,8 +409,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     public boolean isExecuteNewSpotCheck(Integer siteCode) {
         try {
             String newSpotCheckSiteCodes = uccPropertyConfiguration.getNewSpotCheckSiteCodes();
+            // 全部关闭
             if(StringUtils.isEmpty(newSpotCheckSiteCodes)){
                 return false;
+            }
+            // 全部开启
+            if(Objects.equals(newSpotCheckSiteCodes, String.valueOf(true))){
+                return true;
             }
             return Arrays.asList(newSpotCheckSiteCodes.split(Constants.SEPARATOR_COMMA)).contains(String.valueOf(siteCode));
         }catch (Exception e){
@@ -496,6 +506,29 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
+    public boolean checkIsHasSend(String packageCode, Integer siteCode) {
+        boolean isHasSend = false;
+        try {
+
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, packageCode, siteCode);
+            if(!StringUtils.isEmpty(jimdbCacheService.get(key))){
+                isHasSend = true;
+            }else {
+                List<SendDetail> sendList;
+                if(WaybillUtil.isWaybillCode(packageCode)){
+                    sendList = sendDetailService.findByWaybillCodeOrPackageCode(siteCode, WaybillUtil.getWaybillCode(packageCode), null);
+                }else {
+                    sendList = sendDetailService.findByWaybillCodeOrPackageCode(siteCode, WaybillUtil.getWaybillCode(packageCode), packageCode);
+                }
+                isHasSend = CollectionUtils.isNotEmpty(sendList);
+            }
+        }catch (Exception e){
+            logger.error("根据包裹号:{}站点:{}查询是否操作过发货异常!", packageCode, siteCode, e);
+        }
+        return isHasSend;
+    }
+
+    @Override
     public boolean checkIsHasSpotCheck(String waybillCode) {
         boolean isHasSpotCheck = false;
         try {
@@ -575,7 +608,44 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据,明细如下:{}", weightVolumeCollectDto.getWaybillCode(), JsonHelper.toJson(abnormalResultMq));
         }
-        dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
+        dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+        // 推送给计费
+        if(isSueToFinance(weightVolumeCollectDto)){
+            abnormalResultMq.setTo(SpotCheckSystemEnum.JIFEI.getCode().toString());
+            dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
+        }
+    }
+
+    /**
+     * 抽检数据推送给计费（由fxm转发）,剔除以下场景
+     *  1、复核重量 < 复核体积重量
+     *  2、核对重量体积为0或null
+     *  3、信任商家
+     *  4、无图片
+     *  5、非一单一件（客户端和dws的一单一件才下发）
+     * @param collectDto
+     */
+    @Override
+    public boolean isSueToFinance(WeightVolumeCollectDto collectDto) {
+        if(!uccPropertyConfiguration.getIsIssueToFinance()){
+            return false;
+        }
+        if(collectDto.getReviewWeight() < collectDto.getReviewVolumeWeight()){
+            return false;
+        }
+        if(collectDto.getBillingWeight() == null || Objects.equals(collectDto.getBillingWeight(), Constants.DOUBLE_ZERO)
+                || collectDto.getBillingVolume() == null || Objects.equals(collectDto.getBillingVolume(), Constants.DOUBLE_ZERO)){
+            return false;
+        }
+        if(Objects.equals(collectDto.getIsTrustBusi(), Constants.CONSTANT_NUMBER_ONE)){
+            return false;
+        }
+        if(StringUtils.isEmpty(collectDto.getPictureAddress())){
+            return false;
+        }
+        return (Objects.equals(collectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
+                || (Objects.equals(collectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName()))
+                && Objects.equals(collectDto.getMultiplePackage(), Constants.NUMBER_ZERO));
     }
 
     @Override
@@ -692,7 +762,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 String pictureAddress = weightVolumeCollectDto.getPictureAddress();
                 if(StringUtils.isNotEmpty(pictureAddress)){
                     List<Map<String,String>> imgList = new ArrayList<>();
-                    for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_COMMA)) {
+                    for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_SEMICOLON)) {
                         Map<String,String> imgMap = new LinkedHashMap<>();
                         imgMap.put("url", pictureUrl);
                         imgList.add(imgMap);

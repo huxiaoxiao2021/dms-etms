@@ -451,9 +451,14 @@ public class UccPropertyConfiguration {
      * 开启新抽检场地
      *  多个场地以,分隔
      *  true表示全国
-     *  null表示未开启
+     *  空表示未开启
      */
     private String newSpotCheckSiteCodes;
+
+    /**
+     * 抽检数据是否下发给计费
+     */
+    private boolean isIssueToFinance;
 
     /**
      * 一单多件抽检功能开关，0-关，1-开
@@ -1251,6 +1256,14 @@ public class UccPropertyConfiguration {
 
     public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
         this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
+    }
+
+    public boolean getIsIssueToFinance() {
+        return isIssueToFinance;
+    }
+
+    public void setIsIssueToFinance(boolean issueToFinance) {
+        isIssueToFinance = issueToFinance;
     }
 
     public int getMultiplePackageSpotCheckSwitch() {

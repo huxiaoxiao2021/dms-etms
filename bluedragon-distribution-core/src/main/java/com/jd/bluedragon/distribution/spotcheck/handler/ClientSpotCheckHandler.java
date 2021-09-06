@@ -2,17 +2,13 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.Waybill;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -23,9 +19,6 @@ import java.util.Objects;
  */
 @Service("clientSpotCheckHandler")
 public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
-
-    @Autowired
-    private SendDetailService sendDetailService;
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
@@ -39,20 +32,22 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
         String packageCode = spotCheckContext.getPackageCode();
+        Integer siteCode = spotCheckContext.getReviewSiteCode();
         if(spotCheckContext.getIsMultiPack()){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_ONE_PACK);
             return;
         }
         // 纯配外单校验
+        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+            return;
+        }
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
         }
         // 是否已发货校验
-        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        Integer reviewSiteCode = spotCheckReviewDetail.getReviewSiteCode();
-        List<SendDetail> sendDetailRecords = sendDetailService.findByWaybillCodeOrPackageCode(reviewSiteCode, waybillCode, packageCode);
-        if(CollectionUtils.isNotEmpty(sendDetailRecords)){
+        if(spotCheckDealService.checkIsHasSend(packageCode, siteCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_MUST_BEFORE_SEND);
             return;
         }

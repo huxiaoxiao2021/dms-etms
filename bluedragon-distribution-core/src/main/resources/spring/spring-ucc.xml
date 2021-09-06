@@ -131,6 +131,7 @@
         <property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
         <property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
         <property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
+        <property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -231,6 +232,7 @@
                 <value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
                 <value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
                 <value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
+                <value>uccPropertyConfiguration.isIssueToFinance</value>
 			</list>
 		</property>
 	</bean>

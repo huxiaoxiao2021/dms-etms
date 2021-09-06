@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -8,6 +7,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
@@ -15,9 +15,12 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,8 @@ import java.util.Objects;
 @Service("artificialSpotCheckHandler")
 public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
+    private static Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckHandler.class);
+
     @Autowired
     private WaybillTraceManager waybillTraceManager;
 
@@ -47,9 +52,6 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     private AbstractExcessStandardHandler abstractExcessStandardHandler;
 
     @Autowired
-    private ReportExternalManager reportExternalManager;
-
-    @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
 
     @Override
@@ -59,6 +61,10 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         String packageCode = spotCheckContext.getPackageCode();
         Integer reviewSiteCode = spotCheckContext.getReviewSiteCode();
         // 纯配外单校验
+        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+            return;
+        }
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
@@ -126,9 +132,14 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         }
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
         result = abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
-        // 对比复核校验和数据提交的超标结果是否一致
-        if(StringUtils.isEmpty(spotCheckContext.getPictureAddress()) && Objects.equals(result.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+        // 对比复核校验时判定的超标结果  与  提交超标数据时判定的超标结果  是否一致
+        if(Objects.equals(spotCheckContext.getSpotCheckHandlerType(), SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode())
+                && StringUtils.isEmpty(spotCheckContext.getPictureAddress())
+                && Objects.equals(result.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("人工抽检入参:{},校验结果:{}", JsonHelper.toJson(spotCheckContext), JsonHelper.toJson(result));
         }
         return result;
     }
@@ -144,8 +155,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
             // 运单维度
-            setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
-            reportExternalManager.insertOrUpdateForWeightVolume(assembleWeightVolumeCollectDto(spotCheckContext));
+            onePackDeal(spotCheckContext);
         }else {
             // 包裹维度
             if(spotCheckContext.getIsMultiPack()){
@@ -168,6 +178,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         weightVolumeEntity.setVolume(spotCheckReviewDetail.getReviewVolume());
         boolean isWaybillSpotCheck = Objects.equals(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode(), spotCheckContext.getSpotCheckDimensionType());
         if(!isWaybillSpotCheck){
+            weightVolumeEntity.setBarCode(spotCheckContext.getPackageCode());
             weightVolumeEntity.setLength(spotCheckReviewDetail.getReviewLength());
             weightVolumeEntity.setWidth(spotCheckReviewDetail.getReviewWidth());
             weightVolumeEntity.setHeight(spotCheckReviewDetail.getReviewHeight());

@@ -82,10 +82,10 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
             return result;
         }
         if(reviewVolume >= fourVolume){
-            if(largeDiff > thirdVolumeStage){
+            if(largeDiff > fourVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
                 checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, fourVolume, "∞", largeDiff, thirdVolumeStage));
-                checkExcessResult.setExcessStandard(String.valueOf(thirdVolumeStage));
+                checkExcessResult.setExcessStandard(String.valueOf(fourVolumeStage));
                 return result;
             }
             return result;

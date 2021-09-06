@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.external.gateway.service.ArtificialSpotCheckGatewayService;
@@ -39,7 +40,10 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         JdCResponse<Integer> response = new JdCResponse<Integer>();
         response.toSucceed();
         try {
-            InvokeResult<Integer> invokeResult = spotCheckCurrencyService.checkIsExcess(transferSpotCheckDto(artificialSpotCheckRequest));
+            SpotCheckDto spotCheckDto = transferSpotCheckDto(artificialSpotCheckRequest);
+            spotCheckDto.setSpotCheckHandlerType(SpotCheckHandlerTypeEnum.ONLY_CHECK_IS_EXCESS.getCode());
+            InvokeResult<Integer> invokeResult = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
+            response.init(invokeResult.getCode(), invokeResult.getMessage());
             response.setData(invokeResult.getData());
         }catch (Exception e){
             logger.error("校验抽检是否超标异常!", e);
@@ -54,7 +58,10 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         JdCResponse<Void> response = new JdCResponse<Void>();
         response.toSucceed();
         try {
-            spotCheckCurrencyService.spotCheckDeal(transferSpotCheckDto(artificialSpotCheckRequest));
+            SpotCheckDto spotCheckDto = transferSpotCheckDto(artificialSpotCheckRequest);
+            spotCheckDto.setSpotCheckHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
+            InvokeResult<Boolean> result = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
+            response.init(result.getCode(), result.getMessage());
         }catch (Exception e){
             logger.error("提交抽检数据异常!", e);
             response.toError();
@@ -66,8 +73,10 @@ public class ArtificialSpotCheckGatewayServiceImpl implements ArtificialSpotChec
         SpotCheckDto spotCheckDto = new SpotCheckDto();
         spotCheckDto.setBarCode(artificialSpotCheckRequest.getBarCode());
         spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName());
-        spotCheckDto.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
         spotCheckDto.setWeight(artificialSpotCheckRequest.getWeight());
+        spotCheckDto.setLength(artificialSpotCheckRequest.getLength());
+        spotCheckDto.setWidth(artificialSpotCheckRequest.getWidth());
+        spotCheckDto.setHeight(artificialSpotCheckRequest.getHeight());
         spotCheckDto.setVolume(artificialSpotCheckRequest.getVolume());
         spotCheckDto.setOrgId(artificialSpotCheckRequest.getOperateOrgId());
         spotCheckDto.setOrgName(artificialSpotCheckRequest.getOperateOrgName());

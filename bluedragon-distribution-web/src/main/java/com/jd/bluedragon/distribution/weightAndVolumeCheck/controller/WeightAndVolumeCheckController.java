@@ -245,7 +245,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     }
 
     /**
-     * 跳转到B网超标图片页面
+     * 跳转图片查询页面
+     *
      * @param waybillCode
      * @return
      */
@@ -253,10 +254,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toSearchPicture4MultiplePackage")
     public String toSearchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
                                            @QueryParam("siteCode")Integer siteCode,
+                                           @QueryParam("fromSource")String fromSource,
                                            @QueryParam("pageNo") Integer pageNo,
                                            @QueryParam("pageSize") Integer pageSize, Model model){
         model.addAttribute("siteCode",siteCode);
         model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("fromSource",fromSource);
         model.addAttribute("pageNo",pageNo);
         model.addAttribute("pageSize",pageSize);
         return "/weightAndVolumeCheck/multiplePackageExcessPicture";
@@ -275,6 +278,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         weightVolumeQueryCondition.setWaybillCode(condition.getWaybillCode());
         weightVolumeQueryCondition.setReviewSiteCode(condition.getCreateSiteCode().intValue());
         weightVolumeQueryCondition.setPackageCode(condition.getWaybillOrPackCode());
+        weightVolumeQueryCondition.setFromSource(condition.getFromSource());
         weightVolumeQueryConditionPager.setSearchVo(weightVolumeQueryCondition);
         weightVolumeQueryConditionPager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
         weightVolumeQueryConditionPager.setPageSize(condition.getLimit());

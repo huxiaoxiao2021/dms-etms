@@ -33,6 +33,11 @@ public class SpotCheckDto implements Serializable {
      */
     private Integer spotCheckBusinessType;
     /**
+     * 抽检处理类型
+     * @see SpotCheckHandlerTypeEnum
+     */
+    private Integer spotCheckHandlerType;
+    /**
      * 重量
      */
     private Double weight;
@@ -121,6 +126,14 @@ public class SpotCheckDto implements Serializable {
 
     public void setSpotCheckBusinessType(Integer spotCheckBusinessType) {
         this.spotCheckBusinessType = spotCheckBusinessType;
+    }
+
+    public Integer getSpotCheckHandlerType() {
+        return spotCheckHandlerType;
+    }
+
+    public void setSpotCheckHandlerType(Integer spotCheckHandlerType) {
+        this.spotCheckHandlerType = spotCheckHandlerType;
     }
 
     public Double getWeight() {

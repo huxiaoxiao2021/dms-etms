@@ -125,9 +125,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private SpotCheckDealService spotCheckDealService;
 
-    @Autowired
-    private ReportExternalManager reportExternalManager;
-
     /**
      * 缓存redis的key
      */
@@ -157,6 +154,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 分隔符号
      */
     private final static String SEPARATOR = "-";
+
+    @Value("${pack.send.cache.time:30}")
+    private Integer packSendCacheTime;
 
     @Override
     public void consume(Message message) {
@@ -665,9 +665,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 未操作过抽检
                 return;
             }
-            String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(packageCode);
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, packageCode, siteCode);
             try {
-                redisClientCache.setEx(key, Constants.YN_YES.toString(), this.weightCheckSendStatusExpireTime, TimeUnit.DAYS);
+                redisClientCache.setEx(key, Constants.YN_YES.toString(), packSendCacheTime, TimeUnit.DAYS);
             }catch (Exception e){
                 log.error("设置包裹号:{}的发货缓存异常", packageCode);
             }

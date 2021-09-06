@@ -8,6 +8,8 @@ package com.jd.bluedragon.distribution.spotcheck.domain;
  */
 public class SpotCheckConstants {
 
+    public static final String PICTURE_LOOK_URL = "%s/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode=%s&siteCode=%s&fromSource=%s&pageNo=1&pageSize=20";
+
     /**
      * C网默认泡重比：8000
      * */
@@ -51,11 +53,13 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_ONE_PACK = "重量体积抽查只支持一单一件!";
 
-    public static final String SPOT_CHECK_ONLY_SUPPORT_MORE_PACK = "dws一单多件抽检只支持按包裹维度抽检!";
+    public static final String SPOT_CHECK_ONLY_SUPPORT_MORE_PACK = "dws只支持按包裹维度抽检!";
 
     public static final String SPOT_CHECK_ONLY_PACK = "请录入正确的包裹号!";
 
     public static final String SPOT_CHECK_ONLY_WAYBILL = "请录入正确的运单号!";
+
+    public static final String SPOT_CHECK_ONLY_SUPPORT_C = "非C网订单!";
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH = "非纯配外单不计入抽检!";
 

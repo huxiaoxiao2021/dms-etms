@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.domain;
 
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
@@ -35,6 +32,11 @@ public class SpotCheckContext implements Serializable {
      * @see SpotCheckDimensionEnum
      */
     private Integer spotCheckDimensionType;
+    /**
+     * 抽检处理类型
+     * @see SpotCheckHandlerTypeEnum
+     */
+    private Integer spotCheckHandlerType;
     /**
      * 运单号
      */
@@ -152,6 +154,14 @@ public class SpotCheckContext implements Serializable {
 
     public void setSpotCheckDimensionType(Integer spotCheckDimensionType) {
         this.spotCheckDimensionType = spotCheckDimensionType;
+    }
+
+    public Integer getSpotCheckHandlerType() {
+        return spotCheckHandlerType;
+    }
+
+    public void setSpotCheckHandlerType(Integer spotCheckHandlerType) {
+        this.spotCheckHandlerType = spotCheckHandlerType;
     }
 
     public String getWaybillCode() {

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
  * @author hujiping
  * @date 2021/8/10 9:36 上午
  */
-@Service("SpotCheckCurrencyService")
+@Service("spotCheckCurrencyService")
 public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
 
     private static Logger logger = LoggerFactory.getLogger(SpotCheckCurrencyServiceImpl.class);
