@@ -821,7 +821,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // packageWeightVolumeQuery.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightVolumeCollectDto.getPackageCode())));
 
         BaseEntity<Long> packageWeightVolumeTotalResult = reportExternalService.countByParam(packageWeightVolumeQuery);
-        log.info("packageWeightVolumeTotalResult {}", JsonHelper.toJson(packageWeightVolumeTotalResult));
+        // log.info("packageWeightVolumeTotalResult {}", JsonHelper.toJson(packageWeightVolumeTotalResult));
         if(packageWeightVolumeTotalResult.getCode() != BaseEntity.CODE_SUCCESS){
             log.error("getSpotPackageTotal error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageWeightVolumeQuery), packageWeightVolumeTotalResult.getMessage());
             return spotCheckPackageExistResult;
@@ -908,7 +908,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 1. 如果没有，则说明本次操作是第1个包裹，则写一个初始化的运单维度数据，否则不处理
         if(!spotCheckPackageExistResult.getWaybillSpotCheckExist()){
             reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDto);
-            log.info("insertOrUpdateForWeightVolume waybillWeightVolumeCollectDto {}", JsonHelper.toJson(waybillWeightVolumeCollectDto));
+            // log.info("insertOrUpdateForWeightVolume waybillWeightVolumeCollectDto {}", JsonHelper.toJson(waybillWeightVolumeCollectDto));
             return waybillWeightVolumeCollectDto;
         }
         // 2. 查看是否集齐，未集齐则不更新数据，集齐则处理整单超标数据，更新复核数据，超标数据
@@ -2566,7 +2566,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return;
         }
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
-        log.info("sendMqToFxm abnormalResultMq {}", JsonHelper.toJson(abnormalResultMq));
+        // log.info("sendMqToFxm abnormalResultMq {}", JsonHelper.toJson(abnormalResultMq));
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
     }
 
