@@ -53,6 +53,8 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
      */
     private Integer recordType;
 
+    private Integer queryForWeb;
+
     public Integer getSpotCheckType() {
         return spotCheckType;
     }
@@ -171,6 +173,15 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
 
     public WeightAndVolumeCheckCondition setRecordType(Integer recordType) {
         this.recordType = recordType;
+        return this;
+    }
+
+    public Integer getQueryForWeb() {
+        return queryForWeb;
+    }
+
+    public WeightAndVolumeCheckCondition setQueryForWeb(Integer queryForWeb) {
+        this.queryForWeb = queryForWeb;
         return this;
     }
 }

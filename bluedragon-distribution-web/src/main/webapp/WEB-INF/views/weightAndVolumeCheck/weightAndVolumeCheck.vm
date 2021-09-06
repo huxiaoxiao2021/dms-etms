@@ -51,7 +51,7 @@
                                     <div class="col-xs-6 ">
                                         <select type="text" class="form-control" id="isExcessSelect" name="isExcessSelect">
                                             <option value="">全部</option>
-                                            <option value="1">是</option>
+                                            <option value="1" selected>是</option>
                                             <option value="0">否</option>
                                         </select>
                                         <input type="hidden" id="isExcess" class="form-control  search-param " name="isExcess">
@@ -135,7 +135,7 @@
                                     <div class="col-xs-6 ">
                                         <select type="text" class="form-control" id="spotCheckTypeSelect" name="spotCheckTypeSelect">
                                             <option value="">全部</option>
-                                            <option value="0">C网</option>
+                                            <option value="0" selected>C网</option>
                                             <option value="1">B网</option>
                                         </select>
                                         <input type="hidden" id="spotCheckType" class="form-control  search-param " name="spotCheckType">
