@@ -147,27 +147,33 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Test //完成发货测试
     public void testGoodsLoadingDeliver() {
-        GoodsLoadingReq param = new GoodsLoadingReq();
+        for(int i = 0; i< 10; i++) {
 
-        User user = new User();
-        user.setUserName("bjxings");
-        user.setUserCode(10053);
-        param.setUser(user);
+            GoodsLoadingReq param = new GoodsLoadingReq();
 
-        CurrentOperate currentOperate = new CurrentOperate();
-        currentOperate.setSiteCode(910);
-        currentOperate.setSiteName("北京马驹桥分拣中心");
-        param.setCurrentOperate(currentOperate);
+            User user = new User();
+            user.setUserName("bjxings");
+            user.setUserCode(10053);
+            param.setUser(user);
 
-        param.setTaskId(114L);
-        param.setSendCode("910-483-20201029015536423");
-        param.setReceiveSiteCode(483);
+            CurrentOperate currentOperate = new CurrentOperate();
+            currentOperate.setSiteCode(910);
+            currentOperate.setSiteName("北京马驹桥分拣中心");
+            param.setCurrentOperate(currentOperate);
 
-        loadScanCacheService.unLock(param.getTaskId().toString());//测试代码
-        loadScanCacheService.delTaskLoadScan(param.getTaskId());
-        JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
+            param.setTaskId(158L);
+            param.setSendCode("910-483-20201029015536423");
+            param.setReceiveSiteCode(483);
 
-        System.out.println(res.getCode() + "----" + res.getMessage());
+            loadScanCacheService.unLock(param.getTaskId().toString());//测试代码
+            loadScanCacheService.delTaskLoadScan(param.getTaskId());
+            try{
+                JdCResponse res = goodsLoadingScanningService.goodsLoadingDeliver(param);
+                System.out.println(res.getCode() + "----" + res.getMessage());
+            }catch (Exception e) {
+                System.out.println("error");
+            }
+        }
     }
 
     @Test //取消发货测试

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
@@ -392,6 +393,13 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
                     response.toFail("发货站点编码不合法");
                     return response;
                 }
+                //如果前端操作场地和任务创建场地不同，以任务创建场地为主（避免操作人员所属场地变更但是组织架构尚未变更）
+                if(req.getCurrentOperate().getSiteCode() != loadCar.getCreateSiteCode().intValue()) {
+                    CurrentOperate currentOperate = new CurrentOperate();
+                    currentOperate.setSiteCode(loadCar.getCreateSiteCode().intValue());
+                    currentOperate.setSiteName(loadCar.getCreateSiteName());
+                    req.setCurrentOperate(currentOperate);
+                }
             }
 
             if(exceptionScanService.checkException(req.getTaskId())) {
@@ -403,7 +411,7 @@ public class GoodsLoadScanGatewayServiceImpl implements GoodsLoadScanGatewayServ
             if(!checkPhotoRes.getCode().equals(200)) {
                 response.toFail(checkPhotoRes.getMessage());
                 return response;
-            }else if(checkPhotoRes.getData()) {
+            }else if(checkPhotoRes.getData() != null && checkPhotoRes.getData()) {
                 response.toFail("操作装车完成，请先上传装车照片");
                 return response;
             }
