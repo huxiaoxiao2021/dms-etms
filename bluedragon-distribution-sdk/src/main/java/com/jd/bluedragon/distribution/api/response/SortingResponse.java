@@ -416,6 +416,9 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_39118 = 39118;
     public static final String MESSAGE_39118 = "此单为[速递中心订单],确定装箱？";
 
+    // 提示 此运单需使用包装耗材，但不存在包装耗材任务
+    public static final Integer CODE_39119 = 39119;
+
     public static final Integer CODE_39120 = 39120;
     public static final String MESSAGE_39120 = "[包裹]与[库房号]不一致,确定装箱？";
 
