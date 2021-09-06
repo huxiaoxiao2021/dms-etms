@@ -250,7 +250,7 @@ $(function () {
             title: '是否集齐',
             align: 'center',
             formatter: function (value, row, index) {
-                if(row.multiplePackage && row.multiplePackage != 1){
+                if(row.multiplePackage != null && row.multiplePackage != 1){
                     return ''
                 }
                 const fullCollectResult = value == 1 ? "是" : "否";
