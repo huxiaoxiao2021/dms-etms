@@ -31,6 +31,7 @@ $(function () {
         formData.append('image',$('#fileField')[0].files[0]);
         formData.append('packageCode',$('#packageCode').val());
         formData.append('reviewDate',$('#reviewDate').val());
+        formData.append('reviewSiteCode',$('#reviewSiteCode').val());
 
         $.ajax({
             url : uploadUrl,
