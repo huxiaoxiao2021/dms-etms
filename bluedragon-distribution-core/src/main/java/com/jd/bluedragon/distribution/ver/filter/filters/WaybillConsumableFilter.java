@@ -59,9 +59,15 @@ public class WaybillConsumableFilter implements Filter {
                 }
             }
             if(Boolean.TRUE.equals(isNotFound)){
-                //此运单需使用包装耗材，但不存在包装耗材任务  只提示 不拦截
-                throw new SortingCheckException(SortingResponse.CODE_39119,
-                        HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST, request.getFuncModule()));
+                if(isForceIntercept){
+                    //强制拦截
+                    throw new SortingCheckException(SortingResponse.CODE_29120,
+                            HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST, request.getFuncModule()));
+                }else{
+                    throw new SortingCheckException(SortingResponse.CODE_39119,
+                            HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST, request.getFuncModule()));
+                }
+
             }
         }
         chain.doFilter(request, chain);
