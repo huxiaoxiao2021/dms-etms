@@ -496,6 +496,16 @@ public class UccPropertyConfiguration {
      */
     private String multiplePackageSpotCheckSites;
 
+    /**
+     * 使用新卸车表的场地
+     */
+    private String useNewUnloadCarSiteCodes;
+
+    /**
+     * 使用转运卸车的erp
+     */
+    private String useTysUnloadCarErp;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1338,4 +1348,19 @@ public class UccPropertyConfiguration {
         return false;
     }
 
+    public String getUseNewUnloadCarSiteCodes() {
+        return useNewUnloadCarSiteCodes;
+    }
+
+    public void setUseNewUnloadCarSiteCodes(String useNewUnloadCarSiteCodes) {
+        this.useNewUnloadCarSiteCodes = useNewUnloadCarSiteCodes;
+    }
+
+    public String getUseTysUnloadCarErp() {
+        return useTysUnloadCarErp;
+    }
+
+    public void setUseTysUnloadCarErp(String useTysUnloadCarErp) {
+        this.useTysUnloadCarErp = useTysUnloadCarErp;
+    }
 }
