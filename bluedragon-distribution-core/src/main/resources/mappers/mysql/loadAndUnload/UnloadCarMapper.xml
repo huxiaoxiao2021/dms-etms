@@ -341,6 +341,7 @@
         update_time = NOW()
         WHERE
         YN = 1
+          and status = 0
         <if test="unloadCarIds != null">
             AND unload_car_id in
             <foreach item="item" index="index" collection="unloadCarIds"
@@ -399,6 +400,19 @@
         <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
+    </select>
+
+    <select id="getUnloadCarBySealCarCodes" resultType="java.lang.String">
+        SELECT
+        seal_car_code
+        FROM unload_car
+        WHERE
+        seal_car_code in
+        <foreach collection="list" item="item" index="index" separator="," open="(" close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        and status = 0
+        and YN = 1
     </select>
 
     <sql id="whereCondition">
