@@ -250,11 +250,11 @@ $(function () {
             title: '是否集齐',
             align: 'center',
             formatter: function (value, row, index) {
-                if(row.multiplePackage != null && row.multiplePackage != 1){
-                    return ''
+                if(row.multiplePackage != null && row.multiplePackage == 1){
+                    const fullCollectResult = value == 1 ? "是" : "否";
+                    return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
                 }
-                const fullCollectResult = value == 1 ? "是" : "否";
-                return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
+                return ''
             },
             events: {
                 // 一单多件包裹抽检明细查看
@@ -625,11 +625,11 @@ $(function () {
                 title: '照片',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    let flage;
+                    let flage = '';
                     if (row.isHasPicture == 1) {
                         flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
                     } else {
-                        flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>'
+                        //flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>'
                     }
                     return flage;
                 },
