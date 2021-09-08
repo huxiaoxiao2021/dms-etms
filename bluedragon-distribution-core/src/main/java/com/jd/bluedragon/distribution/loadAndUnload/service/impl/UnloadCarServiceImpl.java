@@ -2408,16 +2408,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean distributeTask(DistributeTaskRequest request) {
 
-        if (CollectionUtils.isEmpty(request.getSealCarCodes())) {
-            logger.warn("请求参数为空，请求体：{}", JsonHelper.toJson(request));
-            return false;
-        }
-        List<String> sealCarCodes = unloadCarDao.getUnloadCarBySealCarCodes(request.getSealCarCodes());
-        if (CollectionUtils.isEmpty(sealCarCodes)) {
-            logger.warn("这些任务均已分配负责人，请勿重复分配，请求体：{}", JsonHelper.toJson(request));
-            return false;
-        }
-
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("unloadUserErp",request.getUnloadUserErp());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
@@ -2434,14 +2424,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
 
         //同步卸车负责人与卸车任务之间关系
-        for (int i=0;i<sealCarCodes.size();i++) {
+        for (int i=0;i<request.getSealCarCodes().size();i++) {
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
-            unloadCarDistribution.setSealCarCode(sealCarCodes.get(i));
+            unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
             unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
             unloadCarDistribution.setUnloadUserName(request.getUnloadUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
-            unloadCarDistribution.setCreateTime(new Date());
-            unloadCarDistributionDao.add(unloadCarDistribution);
+            unloadCarDistribution.setUpdateTime(new Date());
+            List<String> unloadUserErps = unloadCarDistributionDao.selectUnloadUserBySealCarCode(request.getSealCarCodes().get(i));
+            if (CollectionUtils.isEmpty(unloadUserErps)) {
+                unloadCarDistribution.setCreateTime(new Date());
+                unloadCarDistributionDao.add(unloadCarDistribution);
+            } else {
+                unloadCarDistributionDao.updateUnloadUser(unloadCarDistribution);
+            }
         }
         return true;
     }
