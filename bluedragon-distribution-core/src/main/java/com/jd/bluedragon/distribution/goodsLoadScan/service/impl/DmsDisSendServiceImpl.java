@@ -48,8 +48,10 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
         try {
             // 根据包裹号查找运单号
             if (isUseNewInventory(String.valueOf(currentSiteId))) {
+                logger.info("DmsDisSendServiceImpl走新es");
                 baseEntity = loadScanPackageDetailWs.findLoadScanList(scanDtoList, currentSiteId);
             } else {
+                logger.info("DmsDisSendServiceImpl走旧es");
                 String jsonParam = JsonHelper.toJson(scanDtoList);
                 List<com.jd.ql.dms.report.domain.LoadScanDto> loadScanDtoList
                         = JsonHelper.jsonToList(jsonParam, com.jd.ql.dms.report.domain.LoadScanDto.class);
@@ -184,6 +186,7 @@ public class DmsDisSendServiceImpl implements DmsDisSendService {
 
     private boolean isUseNewInventory(String createSiteCode) {
         String siteCodes = uccPropertyConfiguration.getUseNewInventorySiteCodes();
+        logger.info("DmsDisSendServiceImpl判断走哪个es：siteCodes={}", siteCodes);
         if (StringUtils.isBlank(siteCodes)) {
             return false;
         }
