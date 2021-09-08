@@ -57,6 +57,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.ParamsMapUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -3155,7 +3156,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 if(!isTrust && isB2BPure && !isRefund){
                     if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0) {
                         logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
-                        warnMsg.put(UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getLevel(), barCode + UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getDesc());
+                        // warnMsg.put(UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getLevel(), barCode + UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getDesc());
+                        warnMsg.put(UnloadCarWarnEnum.NO_WEIGHT_FORBID_SEND_MESSAGE.getLevel(), HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_WEAK_INTERCEPT, 0));
                     }
                 }
                 //寄付临欠
@@ -3166,7 +3168,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if (!isRefund) {
                         logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        // result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        result.setMessage(HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_WEAK_INTERCEPT, 0));
                         return result;
                     }
                 }
@@ -3295,7 +3298,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if (waybillNoCache.getAgainWeight() == null ||  waybillNoCache.getAgainWeight() <= 0) {
                         logger.info("interceptValidate卸车无重量禁止发货单号：{}",waybillCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+                        // result.setMessage(LoadIllegalException.NO_WEIGHT_FORBID_SEND_MESSAGE);
+                        result.setMessage(HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, 0));
                         return result;
                     }
                 }
@@ -3307,7 +3311,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                     if (!isRefund) {
                         logger.warn("interceptValidate卸车运费临时欠款无重量体积禁止发货单号：{}", waybillCode);
                         result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
-                        result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        // result.setMessage(LoadIllegalException.FREIGTH_TEMPORARY_PAY_NO_WEIGHT_VOLUME_FORBID_SEND_MESSAGE);
+                        result.setMessage(HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, 0));
                         return result;
                     }
                 }
