@@ -497,14 +497,19 @@ public class UccPropertyConfiguration {
     private String multiplePackageSpotCheckSites;
 
     /**
-     * 使用新卸车表的场地
+     * 读转运卸车表开关
      */
-    private String useNewUnloadCarSiteCodes;
+    private boolean readUnloadFromTys;
 
     /**
-     * 使用转运卸车的erp
+     * 停止写分拣卸车表开关
      */
-    private String useTysUnloadCarErp;
+    private boolean stopWriteUnloadFromDms;
+
+    /**
+     * 写转运卸车表开关
+     */
+    private boolean writeUnloadFromTys;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1348,19 +1353,28 @@ public class UccPropertyConfiguration {
         return false;
     }
 
-    public String getUseNewUnloadCarSiteCodes() {
-        return useNewUnloadCarSiteCodes;
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
     }
 
-    public void setUseNewUnloadCarSiteCodes(String useNewUnloadCarSiteCodes) {
-        this.useNewUnloadCarSiteCodes = useNewUnloadCarSiteCodes;
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
     }
 
-    public String getUseTysUnloadCarErp() {
-        return useTysUnloadCarErp;
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
     }
 
-    public void setUseTysUnloadCarErp(String useTysUnloadCarErp) {
-        this.useTysUnloadCarErp = useTysUnloadCarErp;
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
     }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
 }

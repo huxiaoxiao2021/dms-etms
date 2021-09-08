@@ -49,8 +49,14 @@ public class UnloadCarConsumer extends MessageBaseConsumer {
             }
             // 消费解封车状态，自动分配卸车任务
             if (UNSEAL_CAR_STATUS.equals(tmsSealCar.getStatus())) {
-                unloadCarService.distributeUnloadCarTask(tmsSealCar);
-                return;
+                try {
+                    unloadCarService.distributeUnloadCarTask(tmsSealCar);
+                    return;
+                } catch (Exception e) {
+                    log.error("[卸车任务]消费解封车MQ,自动分配卸车任务时发生异常,e=", e);
+                    return;
+                }
+
             }
 
             if (StringUtils.isEmpty(tmsSealCar.getOperateSiteCode()) || CollectionUtils.isEmpty(tmsSealCar.getBatchCodes())){
