@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.Waybill;
@@ -59,19 +60,30 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        obtainContrast(spotCheckContext);
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
+        obtainContrast(spotCheckContext);
+        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+    }
+
+    @Override
+    protected void obtainContrast(SpotCheckContext spotCheckContext) {
+        // B网 则从运单获取核对数据
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+            return;
+        }
+        // C网 先从计费获取无则从运单获取核对数据
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
         if(spotCheckContrastDetail.getContrastWeight() == null
                 || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
             spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
         }
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 
     @Override

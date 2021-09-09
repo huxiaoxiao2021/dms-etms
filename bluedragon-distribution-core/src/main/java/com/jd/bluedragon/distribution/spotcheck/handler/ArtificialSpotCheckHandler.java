@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -74,6 +75,12 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
             return;
         }
+        // B网不支持包裹维度抽检
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
+                && Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ARTIFICIAL_PACK_FORBID_B);
+            return;
+        }
         // 是否发货
         // 1、运单维度抽检：只要其中某一包裹已经发货则提示按包裹维度操作抽检
         // 2、包裹维度抽检：只要操作了发货则提示禁止抽检
@@ -130,7 +137,8 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             }
             summaryReviewWeightVolume(spotCheckContext);
         }
-        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+        // 获取核对数据
+        obtainContrast(spotCheckContext);
         result = abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
         // 对比复核校验时判定的超标结果  与  提交超标数据时判定的超标结果  是否一致
         if(Objects.equals(spotCheckContext.getSpotCheckHandlerType(), SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode())
@@ -142,6 +150,15 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             logger.info("人工抽检入参:{},校验结果:{}", JsonHelper.toJson(spotCheckContext), JsonHelper.toJson(result));
         }
         return result;
+    }
+
+    @Override
+    protected void obtainContrast(SpotCheckContext spotCheckContext) {
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+            return;
+        }
+        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
     }
 
     @Override

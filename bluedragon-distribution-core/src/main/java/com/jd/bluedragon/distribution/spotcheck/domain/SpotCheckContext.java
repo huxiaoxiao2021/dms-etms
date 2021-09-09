@@ -72,6 +72,10 @@ public class SpotCheckContext implements Serializable {
      */
     private Boolean isTrustMerchant;
     /**
+     * 商家ID
+     */
+    private Integer merchantId;
+    /**
      * 商家编码
      */
     private String merchantCode;
@@ -226,6 +230,14 @@ public class SpotCheckContext implements Serializable {
 
     public void setIsTrustMerchant(Boolean trustMerchant) {
         isTrustMerchant = trustMerchant;
+    }
+
+    public Integer getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(Integer merchantId) {
+        this.merchantId = merchantId;
     }
 
     public String getMerchantCode() {

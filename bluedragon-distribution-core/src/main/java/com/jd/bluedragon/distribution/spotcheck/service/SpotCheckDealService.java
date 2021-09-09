@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.spotcheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 
 /**
@@ -123,4 +125,12 @@ public interface SpotCheckDealService {
      * @param url
      */
     void dealPictureUrl(String packageCode, Integer siteCode, String url);
+
+    /**
+     * 执行新下发逻辑
+     *
+     * @param message
+     * @return
+     */
+    InvokeResult<Boolean> executeNewHandleProcess(WeightAndVolumeCheckHandleMessage message);
 }

@@ -158,6 +158,13 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     /**
+     * 获取核对数据
+     *
+     * @param spotCheckContext
+     */
+    protected void obtainContrast(SpotCheckContext spotCheckContext){}
+
+    /**
      * 校验成功后的处理
      *
      * @param spotCheckContext
@@ -248,6 +255,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }else {
             spotCheckContext.setIsTrustMerchant(false);
         }
+        spotCheckContext.setMerchantId(waybill.getBusiId());
         spotCheckContext.setMerchantCode(waybill.getBusiOrderCode());
         spotCheckContext.setMerchantName(waybill.getBusiName());
 
@@ -412,6 +420,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         commonCollectDto.setPackageCode(spotCheckContext.getPackageCode());
         commonCollectDto.setIsTrustBusi(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
         commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
+        commonCollectDto.setBusiCode(spotCheckContext.getMerchantId());
+        commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
         commonCollectDto.setBusiName(spotCheckContext.getMerchantName());
         commonCollectDto.setProductTypeCode(spotCheckContext.getProductTypeCode());
         commonCollectDto.setProductTypeName(spotCheckContext.getProductTypeName());
@@ -561,7 +571,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     protected void setSpotCheckPackCache(String packageCode, Integer siteCode) {
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         try {
-            String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, waybillCode, siteCode);
+            String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
             Set<String> packSet = new HashSet<>();
             String packSetStr = spotCheckDealService.getSpotCheckPackCache(waybillCode, siteCode);
             if(StringUtils.isEmpty(packSetStr)){
@@ -570,7 +580,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 packSet = JsonHelper.fromJson(packSetStr, Set.class);
                 packSet.add(packageCode);
             }
-            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 15, TimeUnit.DAYS);
+            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 30, TimeUnit.MINUTES);
         }catch (Exception e){
             logger.error("设置场地:{}运单号:{}下的包裹号:{}的抽检缓存异常!", siteCode, waybillCode, packageCode);
         }
