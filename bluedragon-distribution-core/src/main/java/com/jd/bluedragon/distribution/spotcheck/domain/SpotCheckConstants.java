@@ -67,6 +67,8 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_FORBID_FINISHED_PACK = "此运单已经妥投,禁止抽检!";
 
+    public static final String SPOT_CHECK_ARTIFICIAL_PACK_FORBID_B = "人工包裹维度抽检不支持B网订单!";
+
     public static final String SPOT_CHECK_MUST_BEFORE_SEND = "此单已发货,禁止抽检!";
 
     public static final String SPOT_CHECK_PACK_SEND_TRANSFER = "运单下包裹%s已发货,请按包裹维度抽检!";

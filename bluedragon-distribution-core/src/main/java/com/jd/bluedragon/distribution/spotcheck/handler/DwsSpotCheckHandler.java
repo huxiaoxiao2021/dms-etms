@@ -1,18 +1,15 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 /**
  * dws抽检
@@ -39,11 +36,13 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
             return;
         }
-        // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-            return;
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
         }
+        // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
@@ -62,26 +61,16 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     /**
      * 超标校验
      *  1、获取复核数据、核对数据
-     *      1）、一单多件
-     *          a、未集齐返回'待集齐计算'
-     *          b、集齐则汇总复核数据
-     *          c、核对数据运单获取
+     *       a、未集齐返回'待集齐计算'
+     *       b、集齐则汇总复核数据
+     *       c、核对数据运单获取
      *  2、超标判断
      * @param spotCheckContext
      * @return
      */
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        if(!spotCheckDealService.gatherTogether(spotCheckContext)){
-            CheckExcessResult excessData = new CheckExcessResult();
-            excessData.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-            result.setData(excessData);
-            return result;
-        }
-        summaryReviewWeightVolume(spotCheckContext);
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+        return checkIsExcessC(spotCheckContext);
     }
 
     /**
@@ -110,15 +99,10 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
                 return result;
             }
             summaryReviewWeightVolume(spotCheckContext);
-            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+            obtainContrast(spotCheckContext);
         }else {
             // 一单一件
-            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
-            SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-            if(spotCheckContrastDetail.getContrastWeight() == null
-                    || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
-                spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-            }
+            obtainContrast(spotCheckContext);
         }
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
@@ -127,7 +111,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
      * 超标后续逻辑
      *  1、抽检数据落es
      *  2、抽检全程跟踪
-     *  3、上传称重流水
      *  4、记录抽检日志
      * @param spotCheckContext
      */
