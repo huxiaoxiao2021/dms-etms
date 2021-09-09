@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution;
 
 import com.jd.bluedragon.distribution.consumer.syncPictureInfo.SyncPictureInfoConsumer;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
@@ -27,9 +28,13 @@ public class SyncPictureInfoConsumerTest {
     @Autowired
     private SyncPictureInfoConsumer syncPictureInfoConsumer;
 
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
+
     @Test
     public void consumer() {
         try {
+            boolean b = spotCheckDealService.checkPackHasSpotCheck("JDV000705034296-1-3-", 39);
             String text = "{\n" +
                     "    \"waybillOrPackCode\":\"JDV000705034485-3-3-\",\n" +
                     "    \"siteCode\":\"910\",\n" +

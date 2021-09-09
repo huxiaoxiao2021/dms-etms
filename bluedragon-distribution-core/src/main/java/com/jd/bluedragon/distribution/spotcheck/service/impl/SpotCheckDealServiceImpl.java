@@ -576,7 +576,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean checkPackHasSpotCheck(String packageCode, Integer siteCode) {
         try {
-            String spotCheckPackCache = getSpotCheckPackCache(packageCode, siteCode);
+            String spotCheckPackCache = getSpotCheckPackCache(WaybillUtil.getWaybillCode(packageCode), siteCode);
             if(StringUtils.isEmpty(spotCheckPackCache)){
                 return false;
             }
