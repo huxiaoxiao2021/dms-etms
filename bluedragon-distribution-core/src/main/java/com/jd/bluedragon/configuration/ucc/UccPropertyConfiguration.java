@@ -461,6 +461,37 @@ public class UccPropertyConfiguration {
     private boolean isIssueToFinance;
 
     /**
+     * 老发货异步任务开关
+     */
+    private String deliverySendAsyncSite;
+
+    /**
+     * 日志查询功能开关 1：启用 0：禁用
+     */
+    private String businessLogQueryPageSwitch;
+
+    public String getBusinessLogQueryPageSwitch() {
+        return businessLogQueryPageSwitch;
+    }
+
+    public void setBusinessLogQueryPageSwitch(String businessLogQueryPageSwitch) {
+        this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
+    }
+
+    /**
+     * 使用新库存ES的场地
+     */
+    private String useNewInventorySiteCodes;
+
+    public String getDeliverySendAsyncSite() {
+        return deliverySendAsyncSite;
+    }
+
+    public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
+        this.deliverySendAsyncSite = deliverySendAsyncSite;
+    }
+
+    /**
      * 一单多件抽检功能开关，0-关，1-开
      */
     private int multiplePackageSpotCheckSwitch;
@@ -1264,6 +1295,27 @@ public class UccPropertyConfiguration {
 
     public void setIsIssueToFinance(boolean issueToFinance) {
         isIssueToFinance = issueToFinance;
+    }
+
+    /**
+     * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
+     */
+    private String itmsBizEnableSwitch;
+
+    public String getItmsBizEnableSwitch() {
+        return itmsBizEnableSwitch;
+    }
+
+    public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
+        this.itmsBizEnableSwitch = itmsBizEnableSwitch;
+    }
+
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
+
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
 
     public int getMultiplePackageSpotCheckSwitch() {

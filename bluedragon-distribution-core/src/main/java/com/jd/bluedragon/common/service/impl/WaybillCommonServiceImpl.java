@@ -910,7 +910,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
-
+        //sendPay146位为4时，面单产品打印【冷链卡班】占位符 jzdflag
+        if( BusinessUtil.isSignChar(waybill.getSendPay(),SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_4)){
+            target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+        }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);

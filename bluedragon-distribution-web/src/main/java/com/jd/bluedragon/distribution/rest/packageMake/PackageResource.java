@@ -5,7 +5,11 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -26,6 +30,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -80,6 +85,14 @@ public class PackageResource {
     @Autowired
     private ReprintRecordService reprintRecordService;
 
+    /**
+     * 拦截报表服务
+     */
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
@@ -185,6 +198,7 @@ public class PackageResource {
     		rePrintRecordMq.setOperateTime(new Date());
     		
     		packageRePrintProducer.sendOnFailPersistent(rePrintRecordMq.getWaybillCode(), JsonHelper.toJson(rePrintRecordMq));
+            this.sendDisposeAfterInterceptMsg(rePrintCallBackRequest);
     		
     		String barCode = rePrintRecordMq.getWaybillCode();
     		if(StringHelper.isNotEmpty(rePrintRecordMq.getPackageCode())){
@@ -204,6 +218,38 @@ public class PackageResource {
     	}
     	return result;
     }
+
+    /**
+     * 发送消息
+     * @param rePrintCallBackRequest 换单请求参数
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2020-12-14 14:11:58 周一
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsg(RePrintCallBackRequest rePrintCallBackRequest){
+        log.info("PackageResource sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JsonHelper.toJson(rePrintCallBackRequest));
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            saveDisposeAfterInterceptMsgDto.setBarCode(rePrintCallBackRequest.getPackageCode());
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.REPRINT));
+            saveDisposeAfterInterceptMsgDto.setOperateTime(System.currentTimeMillis());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(rePrintCallBackRequest.getUserErp());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(rePrintCallBackRequest.getUserCode());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(rePrintCallBackRequest.getUserName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(rePrintCallBackRequest.getSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(rePrintCallBackRequest.getSiteName());
+            // log.info("PackageResource sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("PackageResource sendDisposeAfterInterceptMsg exception, rePrintCallBackRequest: [{}]" , JsonHelper.toJson(rePrintCallBackRequest), e);
+            result.toError("补打操作操作上报到拦截报表失败，失败提示：" + e.getMessage());
+        }
+        return result;
+    }
+
     @GET
     @Path("/package/checkRePrint/{barCode}")
     @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)

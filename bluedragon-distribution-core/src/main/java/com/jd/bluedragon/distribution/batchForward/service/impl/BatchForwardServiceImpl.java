@@ -51,8 +51,9 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         InvokeResult result = new InvokeResult();
         //批次是否封车校验
-        if (newSealVehicleService.checkSendCodeIsSealed(request.getNewSendCode())) {
-            result.customMessage(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
+        StringBuffer customMsg = new StringBuffer().append("新批次号已操作封车，请换批次！");
+        if (newSealVehicleService.newCheckSendCodeSealed(request.getNewSendCode(), customMsg)) {
+            result.customMessage(SendResult.CODE_SENDED, customMsg.toString());
             return result;
         }
         //插入批次转发的任务

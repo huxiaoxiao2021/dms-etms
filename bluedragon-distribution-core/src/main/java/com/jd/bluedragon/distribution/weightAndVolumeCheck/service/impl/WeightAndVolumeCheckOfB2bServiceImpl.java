@@ -38,6 +38,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Enum.ContrastSourceFromEnum;
 import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -104,9 +105,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
      * */
     private static final double VOLUME_STANDARD_LOW = 0.1;
     /**
-     * 重泡比
+     * B网特快重货重泡比
      * */
-    private static final int VOLUME_RATIO = 8000;
+    private static final int VOLUME_RATIO_TKZH = 6000;
+    /**
+     * B网非特快重货重泡比
+     * */
+    private static final int VOLUME_RATIO_NOT_TKZH = 4800;
     /**
      * 重量维度
      * */
@@ -364,14 +369,13 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                                                            WaybillFlowDetail waybillFlowDetail,BaseStaffSiteOrgDto baseDto){
         WeightVolumeCollectDto collectDto = new WeightVolumeCollectDto();
         collectDto.setFromSource(spotCheckData.getFromSource());
-        collectDto.setBillingWeight(waybillFlowDetail.getTotalWeight()==null?0.00:waybillFlowDetail.getTotalWeight());
-        collectDto.setBillingVolume(waybillFlowDetail.getTotalVolume()==null?0.00:waybillFlowDetail.getTotalVolume());
-        collectDto.setBillingErp(waybillFlowDetail.getOperateErp());
+        collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());
+        collectDto.setContrastSourceFrom(ContrastSourceFromEnum.SOURCE_FROM_WAYBILL.getCode());
         collectDto.setIsWaybillSpotCheck(spotCheckData.getIsWaybillSpotCheck());
         collectDto.setIsExcess(spotCheckData.getIsExcess());
         collectDto.setIsHasPicture(spotCheckData.getIsExcess());
-        // 默认B网
-        collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());
+        // 设置产品类型
+        weightAndVolumeCheckService.setProductType(collectDto, waybill);
 
         if(spotCheckData.getIsWaybillSpotCheck() == 1){
             //运单维度
@@ -417,12 +421,25 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         collectDto.setReviewDate(new Date());
         collectDto.setWaybillCode(spotCheckData.getWaybillCode());
         collectDto.setPackageCode(spotCheckData.getWaybillCode());
-        collectDto.setReviewWeight(spotCheckData.getTotalWeight());
-        collectDto.setReviewVolumeWeight(keeTwoDecimals(collectDto.getReviewVolume()/VOLUME_RATIO));
-        collectDto.setBillingVolumeWeight(keeTwoDecimals(collectDto.getBillingVolume()/VOLUME_RATIO));
-        collectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(collectDto.getReviewWeight()-collectDto.getBillingWeight())));
-        collectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(collectDto.getReviewVolumeWeight()-collectDto.getBillingVolumeWeight())));
+        // 计泡系数
+        int volumeRate = BusinessUtil.isTKZH(waybill == null ? null : waybill.getWaybillSign()) ? VOLUME_RATIO_TKZH : VOLUME_RATIO_NOT_TKZH;
+        collectDto.setVolumeRate(volumeRate);
+        double reviewWeight = spotCheckData.getTotalWeight();
+        collectDto.setReviewWeight(reviewWeight);
+        double reviewVolumeWeight = keeTwoDecimals(collectDto.getReviewVolume() / volumeRate);
+        collectDto.setReviewVolumeWeight(reviewVolumeWeight);
+        // 复核较大值
+        collectDto.setMoreBigWeight(Math.max(reviewWeight, reviewVolumeWeight));
 
+        double contrastWeight = waybillFlowDetail.getTotalWeight() == null ? Constants.DOUBLE_ZERO : waybillFlowDetail.getTotalWeight();
+        double contrastVolume = waybillFlowDetail.getTotalVolume() == null ? Constants.DOUBLE_ZERO : waybillFlowDetail.getTotalVolume();
+        double contrastVolumeWeight = keeTwoDecimals(contrastVolume / volumeRate);
+        collectDto.setBillingWeight(contrastWeight);
+        collectDto.setBillingVolume(contrastVolume);
+        collectDto.setBillingVolumeWeight(contrastVolumeWeight);
+        // 核对较大值
+        collectDto.setContrastLarge(Math.max(contrastWeight, contrastVolumeWeight));
+        collectDto.setBillingErp(waybillFlowDetail.getOperateErp());
         if(baseDto != null){
             collectDto.setBillingOrgCode(baseDto.getOrgId());
             collectDto.setBillingOrgName(baseDto.getOrgName());
@@ -430,9 +447,10 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             collectDto.setBillingDeptName(baseDto.getSiteName());
             collectDto.setBillingCompany(baseDto.getSiteName());
         }
-
-        // 设置产品类型
-        weightAndVolumeCheckService.setProductType(collectDto, waybill);
+        // 较大值差异
+        collectDto.setLargeDiff(keeTwoDecimals(Math.abs(collectDto.getMoreBigWeight() - collectDto.getContrastLarge())));
+        collectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - contrastWeight)));
+        collectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolumeWeight - contrastVolumeWeight)));
         return collectDto;
     }
 

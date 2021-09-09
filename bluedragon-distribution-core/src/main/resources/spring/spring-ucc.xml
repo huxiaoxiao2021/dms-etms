@@ -118,6 +118,7 @@
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
         <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
+        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:''}" />
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
@@ -127,11 +128,25 @@
         <property name="waybillMaxPackNum" value="${waybillMaxPackNum:40000}" />
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
+        <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
+        <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
-        <property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
-        <property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
-        <property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
-        <property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
+		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
+		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
+		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
+		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
+		<property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
+	</bean>
+	<!-- hystrix 动态配置 -->
+	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
+		<property name="executionTimeoutInMilliseconds" value="${route.executionTimeoutInMilliseconds:1000}"/>
+		<property name="circuitBreakerEnabled" value="${route.circuitBreakerEnabled:true}"/>
+		<property name="fallbackEnabled" value="${route.fallbackEnabled:true}"/>
+		<property name="circuitBreakerErrorThresholdPercentage" value="${route.circuitBreakerErrorThresholdPercentage:10}"/>
+		<property name="circuitBreakerForceOpen" value="${route.circuitBreakerForceOpen:false}"/>
+		<property name="circuitBreakerSleepWindowInMilliseconds" value="${route.circuitBreakerSleepWindowInMilliseconds:5000}"/>
+		<property name="maximumSize" value="${route.maximumSize:4}"/>
+		<property name="circuitBreakerRequestVolumeThreshold" value="${route.circuitBreakerRequestVolumeThreshold:2}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -218,6 +233,7 @@
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
 				<value>uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation</value>
+                <value>uccPropertyConfiguration.itmsBizEnableSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>
@@ -229,10 +245,21 @@
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
-                <value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
-                <value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
-                <value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
-                <value>uccPropertyConfiguration.isIssueToFinance</value>
+                <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
+				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
+				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
+				<value>uccPropertyConfiguration.isIssueToFinance</value>
+
+                <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
+                <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerErrorThresholdPercentage</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerForceOpen</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
+                <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
+                <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
 			</list>
 		</property>
 	</bean>

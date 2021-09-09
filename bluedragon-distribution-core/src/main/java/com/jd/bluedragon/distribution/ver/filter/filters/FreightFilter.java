@@ -38,14 +38,8 @@ public class FreightFilter implements Filter {
 
         WaybillCache waybillCache = request.getWaybillCache();
 
-        //b2b校验是否包含-到付运费
-        if (BusinessHelper.isCheckFreightForB2b(waybillCache.getWaybillSign())) {
-            fixFreight(waybillCache);
-            if (!NumberHelper.gt0(waybillCache.getFreight())) {
-                logger.warn("运单无到付运费金额:" + waybillCache.getWaybillCode());
-                throw new SortingCheckException(SortingResponse.CODE_29405, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_RECEIVE_FREIGHT, request.getFuncModule()));
-            }
-        }
+        //b2b校验是否包含-到付运费 2021年08月30日13:47:07 移除
+
         //b2b校验是否包含-寄付运费
         if (BusinessHelper.isCheckSendFreightForB2b(waybillCache.getWaybillSign())) {
             fixFreight(waybillCache);

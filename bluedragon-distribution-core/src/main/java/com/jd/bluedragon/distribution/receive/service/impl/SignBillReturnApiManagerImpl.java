@@ -28,7 +28,7 @@ public class SignBillReturnApiManagerImpl implements SignBillReturnApiManager {
 
     @Override
     public InvokeResult<Boolean> checkSignBillReturn(String newWaybillCode, Integer siteId) {
-        CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.setUnloadScanDetail", false, true);
+        CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.distribution.receive.service.impl.SignBillReturnApiManagerImpl.checkSignBillReturn", false, true);
 
         InvokeResult<Boolean>  result = new InvokeResult<>();
         result.success();

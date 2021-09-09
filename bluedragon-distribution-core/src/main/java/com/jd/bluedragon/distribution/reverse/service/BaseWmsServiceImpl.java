@@ -32,16 +32,16 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	
 	@Override
-	public ReverseSendAsiaWms getWaybillByOrderCode(String orderCode,String packcodes, WmsSite site,boolean falge) {
+	public ReverseSendAsiaWms getWaybillByOrderCode(String waybillCode ,String orderCode,String packcodes, WmsSite site,boolean falge) {
 		ReverseSendAsiaWms reverseSendWms = new ReverseSendAsiaWms();
 		reverseSendWms.setCky2(site.getCky2());
 		reverseSendWms.setLossQuantity(0);
 		reverseSendWms.setOrgId(site.getOrgId());
-		reverseSendWms.setProList(getOrderProducts(orderCode,packcodes,site,falge));
+		reverseSendWms.setProList(getOrderProducts(waybillCode,orderCode,packcodes,site,falge));
 		reverseSendWms.setStoreId(site.getStoreId());
 		
 		if (reverseSendWms.getProList()==null||reverseSendWms.getProList().size()==0) {
-			log.info("BaseWmsServiceImpl 订单号： {} 获得商品数据为空", orderCode);
+			log.info("BaseWmsServiceImpl 运单号{} 订单号： {} 获得商品数据为空", waybillCode,orderCode);
 		}
 		return reverseSendWms;
 	}
@@ -54,7 +54,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	 * @param falge
 	 * @return 商品明细，如果是异地退取运单中商品明细，反之从上海亚一仓储接口取得商品明细
 	 */
-	public List<Product> getOrderProducts(String orderCode,String packcodes, WmsSite site,boolean falge) {
+	public List<Product> getOrderProducts(String waybillCode ,String orderCode,String packcodes, WmsSite site,boolean falge) {
 		this.log.info("亚一通过包裹获取出库明细getOrderProducts");
 		if (packExchangeBizTokenJasonAsia == null) {
 			initPackExchangeBizTokenAsia();
@@ -85,7 +85,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			}
 		}
 		//2.先从运单取得明细，及出库仓储号cky2\orgId\storeId
-		ReverseSendWms send = baseService.getWaybillByOrderCode(orderCode);
+		ReverseSendWms send = baseService.getWaybillByOrderCode(waybillCode);
 		
 		//3.判断是否是异地退货，也就是他仓退;默认非本仓
 		boolean isOtherStore = true;

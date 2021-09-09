@@ -10,7 +10,7 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String ALLIANCE_INTERCEPT_MESSAGE = "加盟商预付款余额不足，请联系加盟商处理!";
 
-    public static final String SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE = "封车编码【%s】未扫描包裹!";
+    public static final String SEAL_NOT_SCANPACK_INTERCEPT_MESSAGE = "此任务下无待卸包裹，请核实！";
 
     public static final String PACK_NOTIN_SEAL_INTERCEPT_MESSAGE = "此包裹不在卸车任务内,多货扫描!";
 
