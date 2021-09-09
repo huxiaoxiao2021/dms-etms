@@ -158,6 +158,32 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     /**
+     * 获取核对数据
+     *
+     * @param spotCheckContext
+     */
+    protected void obtainContrast(SpotCheckContext spotCheckContext){
+        // B网从运单获取
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+            return;
+        }
+        // C网:
+        // 一单多件从计费获取
+        // 一单一件从计费获取后无从运单获取
+        if(spotCheckContext.getIsMultiPack()){
+            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+            return;
+        }
+        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
+        if(spotCheckContrastDetail.getContrastWeight() == null
+                || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        }
+    }
+
+    /**
      * 校验成功后的处理
      *
      * @param spotCheckContext
@@ -248,6 +274,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }else {
             spotCheckContext.setIsTrustMerchant(false);
         }
+        spotCheckContext.setMerchantId(waybill.getBusiId());
         spotCheckContext.setMerchantCode(waybill.getBusiOrderCode());
         spotCheckContext.setMerchantName(waybill.getBusiName());
 
@@ -257,10 +284,12 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
 
         // 计泡比系数
         int volumeRate;
-        if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(spotCheckDto.getSpotCheckSourceFrom())){
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             volumeRate = BusinessUtil.isTKZH(waybillSign) ? SpotCheckConstants.B_VOLUME_RATIO_TKZH : SpotCheckConstants.B_VOLUME_RATIO_NOT_TKZH;
-        }else {
+        }else if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
             volumeRate = BusinessUtil.isExpress(waybillSign) ? SpotCheckConstants.C_VOLUME_RATIO_KY : SpotCheckConstants.C_VOLUME_RATIO_DEFAULT;
+        }else {
+            throw new SpotCheckBusinessException("未知业务类型不支持!（非B非C）");
         }
         spotCheckContext.setVolumeRate(volumeRate);
 
@@ -270,6 +299,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setProductTypeName(dmsBaseDict == null ? null : dmsBaseDict.getMemo());
 
         // 超标图片链接
+        spotCheckContext.setIsHasPicture(spotCheckDto.getPictureUrls() == null ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
         spotCheckContext.setPictureAddress(spotCheckDto.getPictureUrls() == null ? null : StringUtils.join(spotCheckDto.getPictureUrls().values(), Constants.SEPARATOR_SEMICOLON));
 
         // 复核明细
@@ -288,6 +318,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         double volume = spotCheckDto.getVolume() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getVolume();
         if(Objects.equals(volume, Constants.DOUBLE_ZERO)){
             volume = spotCheckDto.getLength() * spotCheckDto.getWidth() * spotCheckDto.getHeight();
+            volume = MathUtils.keepScale(volume, 3);
         }
         spotCheckReviewDetail.setReviewVolume(volume);
         spotCheckReviewDetail.setReviewTotalVolume(volume);
@@ -367,9 +398,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastVolumeWeight()) - totalVolume), 3);
         waybillCollectDto.setVolumeWeightDiff(String.valueOf(volumeWeightDiff));
         waybillCollectDto.setDiffStandard(spotCheckContext.getDiffStandard());
-        waybillCollectDto.setIsExcess(spotCheckContext.getExcessStatus());
+        // ExcessStatus 为null 则表示一单多件还未判断出超标状态：'待集齐计算'
+        waybillCollectDto.setIsExcess(spotCheckContext.getExcessStatus() == null ? ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode() : spotCheckContext.getExcessStatus());
         waybillCollectDto.setExcessReason(spotCheckContext.getExcessReason());
-        waybillCollectDto.setIsHasPicture(spotCheckContext.getIsHasPicture());
         double largeDiff = MathUtils.keepScale(Math.abs((spotCheckContrastDetail.getContrastLarge() == null
                 ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastLarge()) - reviewLarge), 3);
         waybillCollectDto.setLargeDiff(largeDiff);
@@ -411,6 +442,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         commonCollectDto.setWaybillCode(spotCheckContext.getWaybillCode());
         commonCollectDto.setPackageCode(spotCheckContext.getPackageCode());
         commonCollectDto.setIsTrustBusi(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
+        commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
+        commonCollectDto.setBusiCode(spotCheckContext.getMerchantId());
         commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
         commonCollectDto.setBusiName(spotCheckContext.getMerchantName());
         commonCollectDto.setProductTypeCode(spotCheckContext.getProductTypeCode());
@@ -488,7 +521,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param spotCheckContext
      */
     protected void multiPackDeal(SpotCheckContext spotCheckContext) {
-        if(StringUtils.isEmpty(spotCheckDealService.getSpotCheckPackCache(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
+        if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
             // 初始化运单维度记录
             WeightVolumeCollectDto initialWaybillCollect = assembleCommonCollectDto(spotCheckContext);
             initialWaybillCollect.setPackageCode(spotCheckContext.getWaybillCode());
@@ -500,6 +533,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setWeightDiff(null);
             initialWaybillCollect.setVolumeWeightDiff(null);
             initialWaybillCollect.setLargeDiff(null);
+            initialWaybillCollect.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
             reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
         }
         // 集齐
@@ -561,16 +595,16 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     protected void setSpotCheckPackCache(String packageCode, Integer siteCode) {
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         try {
-            String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, waybillCode, siteCode);
+            String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
             Set<String> packSet = new HashSet<>();
-            String packSetStr = spotCheckDealService.getSpotCheckPackCache(waybillCode, siteCode);
+            String packSetStr = spotCheckDealService.spotCheckPackSetStr(waybillCode, siteCode);
             if(StringUtils.isEmpty(packSetStr)){
                 packSet.add(packageCode);
             }else {
                 packSet = JsonHelper.fromJson(packSetStr, Set.class);
                 packSet.add(packageCode);
             }
-            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 15, TimeUnit.DAYS);
+            jimdbCacheService.setEx(packListKey, JsonHelper.toJson(packSet), 30, TimeUnit.MINUTES);
         }catch (Exception e){
             logger.error("设置场地:{}运单号:{}下的包裹号:{}的抽检缓存异常!", siteCode, waybillCode, packageCode);
         }

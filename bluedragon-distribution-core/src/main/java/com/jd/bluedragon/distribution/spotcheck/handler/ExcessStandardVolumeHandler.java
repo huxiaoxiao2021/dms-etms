@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessRequest;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessResult;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -51,40 +52,42 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
         checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
         result.setData(checkExcessResult);
         double reviewVolume = checkExcessRequest.getReviewVolume();
-        double largeDiff = checkExcessRequest.getLargeDiff();
+        double contrastVolume = checkExcessRequest.getContrastVolume();
+        // 体积误差
+        double diffVolume = MathUtils.keepScale(Math.abs(reviewVolume - contrastVolume), 3);
         // 超标原因
         String excessReasonTemplate = "体积在%scm³和%scm³之间并且误差%s超过误差标准值%skg";
         if(reviewVolume >= firstVolume && reviewVolume < secondVolume){
-            if(largeDiff > firstVolumeStage){
+            if(diffVolume > firstVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, firstVolume, secondVolume, largeDiff, firstVolumeStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, firstVolume, secondVolume, diffVolume, firstVolumeStage));
                 checkExcessResult.setExcessStandard(String.valueOf(firstVolumeStage));
                 return result;
             }
             return result;
         }
         if(reviewVolume >= secondVolume && reviewVolume < thirdVolume){
-            if(largeDiff > secondVolumeStage){
+            if(diffVolume > secondVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, secondVolume, thirdVolume, largeDiff, secondVolumeStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, secondVolume, thirdVolume, diffVolume, secondVolumeStage));
                 checkExcessResult.setExcessStandard(String.valueOf(secondVolumeStage));
                 return result;
             }
             return result;
         }
         if(reviewVolume >= thirdVolume && reviewVolume < fourVolume){
-            if(largeDiff > thirdVolumeStage){
+            if(diffVolume > thirdVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, thirdVolume, fourVolume, largeDiff, thirdVolumeStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, thirdVolume, fourVolume, diffVolume, thirdVolumeStage));
                 checkExcessResult.setExcessStandard(String.valueOf(thirdVolumeStage));
                 return result;
             }
             return result;
         }
         if(reviewVolume >= fourVolume){
-            if(largeDiff > fourVolumeStage){
+            if(diffVolume > fourVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, fourVolume, "∞", largeDiff, thirdVolumeStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, fourVolume, "∞", diffVolume, thirdVolumeStage));
                 checkExcessResult.setExcessStandard(String.valueOf(fourVolumeStage));
                 return result;
             }

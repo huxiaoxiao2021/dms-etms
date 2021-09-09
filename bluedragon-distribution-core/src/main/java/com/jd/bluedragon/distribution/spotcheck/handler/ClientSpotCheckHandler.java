@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -9,7 +8,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 /**
  * 客户端平台打印抽检
@@ -37,11 +35,13 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_ONE_PACK);
             return;
         }
-        // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-            return;
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
         }
+        // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
@@ -59,18 +59,13 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        obtainContrast(spotCheckContext);
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
-        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        if(spotCheckContrastDetail.getContrastWeight() == null
-                || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-        }
+        obtainContrast(spotCheckContext);
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 

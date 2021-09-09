@@ -514,7 +514,7 @@
     </bean>
 
     <!-- dws抽检 -->
-    <bean id="dwsSpotCheckProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
     </bean>
 </beans>

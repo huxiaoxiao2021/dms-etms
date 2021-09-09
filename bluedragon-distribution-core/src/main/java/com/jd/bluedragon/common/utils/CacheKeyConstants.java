@@ -87,11 +87,11 @@ public class CacheKeyConstants {
     /**
      * 抽检缓存前缀
      */
-    public static final String CACHE_SPOT_CHECK = "spotCheck-%S";
+    public static final String CACHE_SPOT_CHECK = "dmsWeb:packageOrWaybillCheckFlag:%S";
     /**
      * 包裹抽检记录的缓存
      */
-    public static final String CACHE_SPOT_CHECK_PACK_LIST = "spotCheck.packList-%S-%S";
+    public static final String CACHE_SPOT_CHECK_PACK_LIST = "dmsWeb:waybillSpotCheckList:%S-%S:";
     /**
      * 抽检包裹上传图片的缓存
      */

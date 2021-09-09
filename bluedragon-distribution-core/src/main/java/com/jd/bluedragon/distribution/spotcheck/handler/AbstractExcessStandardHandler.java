@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
@@ -38,10 +39,6 @@ public class AbstractExcessStandardHandler {
     @Autowired
     private IExcessStandardHandler excessStandardWeightHandler;
 
-    @Qualifier("excessStandardSideHandler")
-    @Autowired
-    private IExcessStandardHandler excessStandardSideHandler;
-
     @Qualifier("excessStandardVolumeHandler")
     @Autowired
     private IExcessStandardHandler excessStandardVolumeHandler;
@@ -51,20 +48,14 @@ public class AbstractExcessStandardHandler {
 
     /**
      * 超标标准选择
-     *  0、特殊场景处理
-     *  1、SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE 走重量体积标准
-     *  2、SpotCheckSourceFromEnum.C_SPOT_CHECK_SOURCE 单独判断
-     *      1)、人工抽检 同 dws一单多件
-     *      2)、客户端抽检
+     *   1、特殊场景处理
+     *   2、B网：
+     *      1）、走重量体积标准
+     *   3、C网：
      *          a、复核重量 > 复合体积重量, 则执行重量标准
-     *          b、复核重量 < 复合体积重量 && 周长 < 70, 则执行重量标准
-     *          c、复核重量 < 复合体积重量 && 周长 > 70, 则执行边长标准
-     *      3)、dws抽检
-     *          （1）、一单一件 同 客户端抽检
-     *          （2）、一单多件
-     *                  a、复核重量 > 复合体积重量, 则执行重量标准
-     *                  b、复核重量 < 复合体积重量 && 复核体积 < 12700, 则执行重量标准
-     *                  c、复核重量 < 复合体积重量 && 复核体积 > 12700, 则执行体积标准
+     *          b、复核重量 < 复合体积重量 && 复核体积 < 12700, 则执行重量标准
+     *          c、复核重量 < 复合体积重量 && 复核体积 > 12700, 则执行体积标准
+     *
      * @param spotCheckContext
      * @return
      */
@@ -76,47 +67,22 @@ public class AbstractExcessStandardHandler {
             return result;
         }
         CheckExcessRequest checkExcessRequest = buildCheckExcessRequest(spotCheckContext);
-        if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(checkExcessRequest.getSpotCheckSourceFrom())){
+        // B网
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             return excessStandardWeightVolumeHandler.checkIsExcess(checkExcessRequest);
         }
-        // 客户端抽检
-        if(Objects.equals(checkExcessRequest.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())){
-            return executeStandardA(checkExcessRequest);
-        }
-        // dws抽检
-        if(Objects.equals(checkExcessRequest.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName())){
-            if(Objects.equals(checkExcessRequest.getIsMorePack(), false)){
-                return executeStandardA(checkExcessRequest);
+        // C网
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            if(checkExcessRequest.getReviewWeight() > checkExcessRequest.getReviewVolumeWeight()){
+                return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
             }
-            return executeStandardB(checkExcessRequest);
+            if(checkExcessRequest.getReviewVolume() < volumeLimit){
+                return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
+            }
+            return excessStandardVolumeHandler.checkIsExcess(checkExcessRequest);
         }
-        if(Objects.equals(checkExcessRequest.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName())){
-            return executeStandardB(checkExcessRequest);
-        }
-        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "非法来源!");
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "非法业务类型!");
         return result;
-    }
-
-    private InvokeResult<CheckExcessResult> executeStandardA(CheckExcessRequest checkExcessRequest) {
-        if(checkExcessRequest.getReviewWeight() > checkExcessRequest.getReviewVolumeWeight()){
-            return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
-        }
-        double sumSide = checkExcessRequest.getReviewLength() + checkExcessRequest.getReviewWidth() + checkExcessRequest.getReviewHeight();
-        if(sumSide < sumSideLimit){
-            return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
-        }else {
-            return excessStandardSideHandler.checkIsExcess(checkExcessRequest);
-        }
-    }
-
-    private InvokeResult<CheckExcessResult> executeStandardB(CheckExcessRequest checkExcessRequest) {
-        if(checkExcessRequest.getReviewWeight() > checkExcessRequest.getReviewVolumeWeight()){
-            return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
-        }
-        if(checkExcessRequest.getReviewVolume() < volumeLimit){
-            return excessStandardWeightHandler.checkIsExcess(checkExcessRequest);
-        }
-        return excessStandardVolumeHandler.checkIsExcess(checkExcessRequest);
     }
 
     /**
@@ -148,7 +114,6 @@ public class AbstractExcessStandardHandler {
         checkExcessRequest.setContrastWeight(contrastWeight);
         checkExcessRequest.setContrastVolume(contrastVolume);
         checkExcessRequest.setContrastLarge(contrastLarge);
-        checkExcessRequest.setLargeDiff(Math.abs(reviewLarge - contrastLarge));
         return checkExcessRequest;
     }
 
