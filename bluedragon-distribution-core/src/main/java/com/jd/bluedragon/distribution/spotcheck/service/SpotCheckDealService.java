@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.spotcheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 
 /**
@@ -44,6 +46,13 @@ public interface SpotCheckDealService {
     boolean isExecuteNewSpotCheck(Integer siteCode);
 
     /**
+     * 是否执行BC融合
+     *
+     * @return
+     */
+    boolean isExecuteBCFuse();
+
+    /**
      * 是否集齐
      *
      * @param spotCheckContext
@@ -83,13 +92,13 @@ public interface SpotCheckDealService {
     boolean checkIsHasSpotCheck(String waybillCode);
 
     /**
-     * 获取已抽检包裹缓存
+     * 获取已抽检包裹号
      *
      * @param waybillCode
      * @param siteCode
      * @return
      */
-    String getSpotCheckPackCache(String waybillCode, Integer siteCode);
+    String spotCheckPackSetStr(String waybillCode, Integer siteCode);
 
     /**
      * 校验包裹是否操作过抽检
@@ -123,4 +132,12 @@ public interface SpotCheckDealService {
      * @param url
      */
     void dealPictureUrl(String packageCode, Integer siteCode, String url);
+
+    /**
+     * 执行新下发逻辑
+     *
+     * @param message
+     * @return
+     */
+    InvokeResult<Boolean> executeNewHandleProcess(WeightAndVolumeCheckHandleMessage message);
 }

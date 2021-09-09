@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -60,11 +61,13 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         String waybillCode = spotCheckContext.getWaybillCode();
         String packageCode = spotCheckContext.getPackageCode();
         Integer reviewSiteCode = spotCheckContext.getReviewSiteCode();
-        // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-            return;
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
         }
+        // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
@@ -72,6 +75,12 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         // 是否妥投
         if(waybillTraceManager.isWaybillFinished(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
+            return;
+        }
+        // B网不支持包裹维度抽检
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
+                && Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ARTIFICIAL_PACK_FORBID_B);
             return;
         }
         // 是否发货
@@ -130,7 +139,8 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             }
             summaryReviewWeightVolume(spotCheckContext);
         }
-        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+        // 获取核对数据
+        obtainContrast(spotCheckContext);
         result = abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
         // 对比复核校验时判定的超标结果  与  提交超标数据时判定的超标结果  是否一致
         if(Objects.equals(spotCheckContext.getSpotCheckHandlerType(), SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode())
@@ -146,9 +156,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
-        return result;
+        return checkIsExcessC(spotCheckContext);
     }
 
     @Override

@@ -655,32 +655,28 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     }
 
     private void newSpotCheckSendDeal(SendDetailMessage sendDetail) {
-        try {
-            String packageCode = sendDetail.getPackageBarcode();
-            Integer siteCode = sendDetail.getCreateSiteCode();
-            if(!WaybillUtil.isPackageCode(packageCode)){
-                return;
-            }
-            if(!spotCheckDealService.checkPackHasSpotCheck(packageCode, siteCode)){
-                // 未操作过抽检
-                return;
-            }
-            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, packageCode, siteCode);
-            try {
-                redisClientCache.setEx(key, Constants.YN_YES.toString(), packSendCacheTime, TimeUnit.DAYS);
-            }catch (Exception e){
-                log.error("设置包裹号:{}的发货缓存异常", packageCode);
-            }
-            // 操作过抽检下发mq处理
-            WeightAndVolumeCheckHandleMessage message = new WeightAndVolumeCheckHandleMessage();
-            message.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
-            message.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
-            message.setPackageCode(packageCode);
-            message.setSiteCode(siteCode);
-            weightAndVolumeCheckHandleProducer.sendOnFailPersistent(packageCode, JsonHelper.toJson(message));
-        }catch (Exception e){
-            log.warn("newSpotCheckSendDeal exception", e);
+        String packageCode = sendDetail.getPackageBarcode();
+        Integer siteCode = sendDetail.getCreateSiteCode();
+        if(!WaybillUtil.isPackageCode(packageCode)){
+            return;
         }
+        if(!spotCheckDealService.checkPackHasSpotCheck(packageCode, siteCode)){
+            // 未操作过抽检
+            return;
+        }
+        String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, packageCode);
+        try {
+            redisClientCache.setEx(key, Constants.YN_YES.toString(), packSendCacheTime, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("设置包裹号:{}的发货缓存异常", packageCode);
+        }
+        // 操作过抽检下发mq处理
+        WeightAndVolumeCheckHandleMessage message = new WeightAndVolumeCheckHandleMessage();
+        message.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
+        message.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        message.setPackageCode(packageCode);
+        message.setSiteCode(siteCode);
+        weightAndVolumeCheckHandleProducer.sendOnFailPersistent(packageCode, JsonHelper.toJson(message));
     }
 
 }

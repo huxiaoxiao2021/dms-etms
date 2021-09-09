@@ -209,7 +209,7 @@ $(function () {
             title: '核对来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "运单" : "计费";
+                return value === null ? null : value === 1 ? "运单" : "计费";
             }
         },{
             field: 'largeDiff',
@@ -246,7 +246,7 @@ $(function () {
                     return "网页抽检";
                 }
                 if(value === "SPOT_CHECK_ANDROID"){
-                    return "B网安卓抽检";
+                    return "安卓抽检";
                 }
                 if(value === "SPOT_CHECK_ARTIFICIAL"){
                     return "人工抽检";
@@ -257,11 +257,12 @@ $(function () {
             field: 'isWaybillSpotCheck',
             title: '抽检维度',
             align: 'center',
+            visible: false,
             formatter: function (value, row, index) {
                 if(value === 1){
                     return "运单抽检";
                 }
-                if(value === 0){
+                if(value == null || value === 0){
                     return "包裹抽检";
                 }
                 return null;
@@ -271,13 +272,13 @@ $(function () {
             title: '是否集齐',
             align: 'center',
             formatter: function (value, row, index) {
-                if(row.multiplePackage == null || row.multiplePackage == 0){
-                    return null;
+                if(row.multiplePackage == null || row.multiplePackage === 0){
+                    return '是';
                 }
-                const fullCollectResult = value === 1 ? "是" : "否";
                 if(row.isWaybillSpotCheck === 1){
                     return "是";
                 }
+                const fullCollectResult = value === 1 ? "是" : "否";
                 return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
             },
             events: {
@@ -313,16 +314,6 @@ $(function () {
                         }
                     });
                 },
-            }
-        },{
-            field: 'isHasPicture',
-            title: '有无图片',
-            align: 'center',
-            formatter: function (value, row, index) {
-                if(row.multiplePackage == null || row.multiplePackage === 0){
-                    return value === 1 ? "有" : "无";
-                }
-                return null;
             }
         },{
             field: 'upPicture',
@@ -604,7 +595,7 @@ $(function () {
                         return "网页抽检";
                     }
                     if(value === "SPOT_CHECK_ANDROID"){
-                        return "B网安卓抽检";
+                        return "安卓抽检";
                     }
                     if(value === "SPOT_CHECK_ARTIFICIAL"){
                         return "人工抽检";
@@ -616,7 +607,7 @@ $(function () {
                 title: '是否发货',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value == 2 ? "是" : "否";
+                    return value === 2 ? "是" : "否";
                 }
             }],
         refresh: function () {

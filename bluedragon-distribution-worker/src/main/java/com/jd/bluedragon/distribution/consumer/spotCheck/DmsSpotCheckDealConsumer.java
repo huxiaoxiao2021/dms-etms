@@ -2,13 +2,10 @@ package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.consumer.syncPictureInfo.SyncPictureInfoConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
-import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -33,7 +30,7 @@ import org.springframework.stereotype.Service;
 @Service("dmsSpotCheckDealConsumer")
 public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
 
-    private final Logger log = LoggerFactory.getLogger(SyncPictureInfoConsumer.class);
+    private final Logger log = LoggerFactory.getLogger(DmsSpotCheckDealConsumer.class);
 
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
@@ -77,7 +74,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         SpotCheckDto spotCheckDto = new SpotCheckDto();
         spotCheckDto.setBarCode(packWeightVO.getCodeStr());
         spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName());
-        spotCheckDto.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
         spotCheckDto.setWeight(packWeightVO.getWeight());
         spotCheckDto.setLength(packWeightVO.getLength());
         spotCheckDto.setWidth(packWeightVO.getWidth());
@@ -89,7 +85,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         spotCheckDto.setSiteName(packWeightVO.getOperatorSiteName());
         spotCheckDto.setOperateUserErp(packWeightVO.getErpCode());
         spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
-        spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
         return spotCheckDto;
     }
