@@ -355,7 +355,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                                 break;
                             }else {
                                 // 一单多件
-                                dataList.add(weightVolumePictureDto);
+                                if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())){
+                                    dataList.add(weightVolumePictureDto);
+                                }
                             }
                         }
                     }

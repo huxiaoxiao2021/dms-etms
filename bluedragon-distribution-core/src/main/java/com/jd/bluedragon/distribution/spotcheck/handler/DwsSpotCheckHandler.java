@@ -144,7 +144,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
      * 超标后续逻辑
      *  1、抽检数据落es
      *  2、抽检全程跟踪
-     *  3、上传称重流水
      *  4、记录抽检日志
      * @param spotCheckContext
      */
