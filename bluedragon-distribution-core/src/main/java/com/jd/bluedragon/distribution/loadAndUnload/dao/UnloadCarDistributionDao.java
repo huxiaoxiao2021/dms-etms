@@ -43,6 +43,10 @@ public class UnloadCarDistributionDao extends BaseDao<UnloadCarDistribution> {
         return this.getSqlSession().update(namespace + ".deleteUnloadCarTaskHelpers",params) > 0;
     }
 
+    public boolean deleteUnloadHelper(UnloadCarDistribution params) {
+        return this.getSqlSession().update(namespace + ".deleteUnloadHelper",params) > 0;
+    }
+
     public List<String> selectTasksByUser(String unloadUserErp) {
         return this.getSqlSession().selectList(namespace + ".selectTasksByUser",unloadUserErp);
     }

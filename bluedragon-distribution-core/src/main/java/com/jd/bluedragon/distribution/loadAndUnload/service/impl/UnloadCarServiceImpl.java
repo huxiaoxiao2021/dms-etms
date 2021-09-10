@@ -2437,6 +2437,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 unloadCarDistributionDao.add(unloadCarDistribution);
             } else {
                 unloadCarDistributionDao.updateUnloadUser(unloadCarDistribution);
+                // 如果自己还是协助人，需要删除
+                unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
             }
         }
         return true;
