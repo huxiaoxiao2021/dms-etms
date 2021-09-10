@@ -24,6 +24,10 @@
         <!-- 卸车扫描 -->
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScan" alias="unloadScan"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadScanRecord" alias="unloadScanRecord"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
+        <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" alias="unloadCarTransBoard"/>
     </typeAliases>
 
 
@@ -40,6 +44,10 @@
         <!-- 卸车扫描业务 -->
         <mapper resource="mappers/mysql/loadAndUnload/UnloadScanMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadScanRecordMapper.xml" />
+
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarForTysMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionForTysMapper.xml" />
+        <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardForTysMapper.xml" />
 
     </mappers>
 </configuration>

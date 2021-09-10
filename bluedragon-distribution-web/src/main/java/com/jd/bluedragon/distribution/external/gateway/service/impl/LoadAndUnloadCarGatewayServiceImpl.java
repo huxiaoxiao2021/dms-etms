@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarCommonService;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.rest.loadAndUnload.LoadAndUnloadVehicleResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -48,7 +50,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     private LoadAndUnloadVehicleResource loadAndUnloadVehicleResource;
 
     @Autowired
-    private UnloadCarDao unloadCarDao;
+    private UnloadCarCommonService unloadCarDao;
 
     @Autowired
     private UnloadCarService unloadCarService;
@@ -377,38 +379,48 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toConfirm("当前场地存在未结束的同车牌任务，创建人erp:" + list.get(0).getOperateUserErp());
             return jdCResponse;
         }
-        unloadCar.setSealCarCode(sealCarCode);
-        unloadCar.setStartSiteCode(req.getCreateSiteCode().intValue());
-        unloadCar.setStartSiteName(req.getCreateSiteName());
-        unloadCar.setUnloadUserErp(req.getOperateUserErp());
-        unloadCar.setUnloadUserName(req.getOperateUserName());
-        unloadCar.setUnloadUserErp(req.getOperateUserErp());
-        unloadCar.setUnloadUserName(req.getOperateUserName());
-        unloadCar.setWaybillNum(0);
-        unloadCar.setPackageNum(0);
-        unloadCar.setStatus(0);
-        unloadCar.setYn(1);
-        unloadCar.setTs(new Date());
-        unloadCar.setCreateTime(new Date());
+        try {
+            unloadCar.setSealCarCode(sealCarCode);
+            unloadCar.setStartSiteCode(req.getCreateSiteCode().intValue());
+            unloadCar.setStartSiteName(req.getCreateSiteName());
+            unloadCar.setUnloadUserErp(req.getOperateUserErp());
+            unloadCar.setUnloadUserName(req.getOperateUserName());
+            unloadCar.setUnloadUserErp(req.getOperateUserErp());
+            unloadCar.setUnloadUserName(req.getOperateUserName());
+            unloadCar.setWaybillNum(0);
+            unloadCar.setPackageNum(0);
+            unloadCar.setStatus(0);
+            unloadCar.setYn(1);
+            unloadCar.setTs(new Date());
+            unloadCar.setCreateTime(new Date());
 //        unloadCarDao.add(unloadCar);
-        unloadCarService.fillUnloadCarTaskDuration(unloadCar);
-        List<Integer> idList = new ArrayList<>();
-        idList.add(unloadCar.getUnloadCarId().intValue());
-        List<String> sealList = new ArrayList<>();
-        sealList.add(sealCarCode);
+            unloadCarService.fillUnloadCarTaskDuration(unloadCar);
+            List<Integer> idList = new ArrayList<>();
+            idList.add(unloadCar.getUnloadCarId().intValue());
+            List<String> sealList = new ArrayList<>();
+            sealList.add(sealCarCode);
 
-        // 分配卸车负责人
-        DistributeTaskRequest request = new DistributeTaskRequest();
-        request.setUnloadUserErp(req.getOperateUserErp());
-        request.setUnloadUserName(req.getOperateUserName());
-        request.setRailWayPlatForm(null);
-        request.setUnloadCarIds(idList);
-        request.setUpdateUserErp(req.getOperateUserErp());
-        request.setUpdateUserName(req.getOperateUserName());
-        request.setSealCarCodes(sealList);
-        unloadCarService.distributeTask(request);
-        jdCResponse.toSucceed("操作成功");
-        jdCResponse.setData(sealCarCode);
+            // 分配卸车负责人
+            DistributeTaskRequest request = new DistributeTaskRequest();
+            request.setUnloadUserErp(req.getOperateUserErp());
+            request.setUnloadUserName(req.getOperateUserName());
+            request.setRailWayPlatForm(null);
+            request.setUnloadCarIds(idList);
+            request.setUpdateUserErp(req.getOperateUserErp());
+            request.setUpdateUserName(req.getOperateUserName());
+            request.setSealCarCodes(sealList);
+
+            unloadCarService.distributeTask(request);
+            jdCResponse.toSucceed("操作成功");
+            jdCResponse.setData(sealCarCode);
+        } catch (LoadIllegalException ex) {
+            logger.error("手动创建卸车任务，分配卸车负责人发生异常，ex=", ex);
+            jdCResponse.toFail(ex.getMessage());
+            return jdCResponse;
+        } catch (Exception e) {
+            logger.error("手动创建卸车任务，分配卸车负责人发生异常，e=", e);
+            jdCResponse.toError("服务端异常");
+        }
         return jdCResponse;
     }
 

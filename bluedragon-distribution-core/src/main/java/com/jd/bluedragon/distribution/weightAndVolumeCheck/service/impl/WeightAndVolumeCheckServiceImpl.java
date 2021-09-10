@@ -768,6 +768,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 组装抽检数据
             WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, spotCheckSourceEnum, result);
+            // 一单一件时设置是否超标缓存
+            if(!this.getIsMultiplePackage(waybill, packWeightVO.getCodeStr())){
+                cachePackIsExcessRecord(weightVolumeCollectDto);
+            }
             // 如果是一单多件抽检，则更新运单纬度的数据
             this.handleMultiplePackage(packWeightVO, weightVolumeCollectDto, waybill, spotCheckSourceEnum);
             // 抽检数据落es
