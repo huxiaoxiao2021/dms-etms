@@ -23,9 +23,18 @@ public class UnloadCarDistributionDao extends BaseDao<UnloadCarDistribution> {
         return this.getSqlSession().insert(namespace + ".add",detail);
     }
 
+    public int updateUnloadUser(UnloadCarDistribution detail){
+        return this.getSqlSession().insert(namespace + ".updateUnloadUser",detail);
+    }
+
     public List<String> selectHelperBySealCarCode(String sealCarCode) {
         return this.getSqlSession().selectList(namespace + ".selectHelperBySealCarCode",sealCarCode);
     }
+
+    public List<String> selectUnloadUserBySealCarCode(String sealCarCode) {
+        return this.getSqlSession().selectList(namespace + ".selectUnloadUserBySealCarCode",sealCarCode);
+    }
+
 
     public List<UnloadCarDistribution> selectUnloadCarTaskHelpers(String sealCarCode) {
         return this.getSqlSession().selectList(namespace + ".selectUnloadCarTaskHelpers",sealCarCode);

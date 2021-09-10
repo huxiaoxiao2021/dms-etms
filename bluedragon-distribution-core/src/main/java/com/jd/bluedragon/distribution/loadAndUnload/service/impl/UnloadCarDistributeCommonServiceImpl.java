@@ -36,11 +36,30 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
     }
 
     @Override
+    public int updateUnloadUser(UnloadCarDistribution detail) {
+        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
+            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+                return unloadCarDistributionForTysDao.updateUnloadUser(detail);
+            }
+            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
+        }
+        return unloadCarDistributionDao.updateUnloadUser(detail);
+    }
+
+    @Override
     public List<String> selectHelperBySealCarCode(String sealCarCode) {
         if (uccPropertyConfiguration.isReadUnloadFromTys()) {
             return unloadCarDistributionForTysDao.selectHelperBySealCarCode(sealCarCode);
         }
         return unloadCarDistributionDao.selectHelperBySealCarCode(sealCarCode);
+    }
+
+    @Override
+    public List<String> selectUnloadUserBySealCarCode(String sealCarCode) {
+        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+            return unloadCarDistributionForTysDao.selectUnloadUserBySealCarCode(sealCarCode);
+        }
+        return unloadCarDistributionDao.selectUnloadUserBySealCarCode(sealCarCode);
     }
 
     @Override

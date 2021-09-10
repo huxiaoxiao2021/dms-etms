@@ -19,7 +19,11 @@ public interface UnloadCarDistributeCommonService {
      * @return*/
     public int add(UnloadCarDistribution detail);
 
+    public int updateUnloadUser(UnloadCarDistribution detail);
+
     public List<String> selectHelperBySealCarCode(String sealCarCode);
+
+    public List<String> selectUnloadUserBySealCarCode(String sealCarCode);
 
     public List<UnloadCarDistribution> selectUnloadCarTaskHelpers(String sealCarCode);
 
