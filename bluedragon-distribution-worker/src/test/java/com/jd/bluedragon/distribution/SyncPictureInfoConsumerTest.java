@@ -35,6 +35,7 @@ public class SyncPictureInfoConsumerTest {
     public void consumer() {
         try {
             boolean b = spotCheckDealService.checkPackHasSpotCheck("JDV000705034296-1-3-", 39);
+            boolean a = spotCheckDealService.checkPackHasSpotCheck("JDV000706600386-1-1-", 910);
             String text = "{\n" +
                     "    \"waybillOrPackCode\":\"JDV000705034485-3-3-\",\n" +
                     "    \"siteCode\":\"910\",\n" +

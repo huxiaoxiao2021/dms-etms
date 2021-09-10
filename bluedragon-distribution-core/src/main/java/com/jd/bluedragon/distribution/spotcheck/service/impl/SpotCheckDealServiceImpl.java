@@ -429,7 +429,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public boolean gatherTogether(SpotCheckContext spotCheckContext) {
-        String spotCheckPackCache = getSpotCheckPackCache(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode());
+        String spotCheckPackCache = spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode());
         if(StringUtils.isEmpty(spotCheckPackCache)){
             return false;
         }
@@ -550,7 +550,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
-    public String getSpotCheckPackCache(String waybillCode, Integer siteCode) {
+    public String spotCheckPackSetStr(String waybillCode, Integer siteCode) {
         String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
         try {
             String packSetStr = jimdbCacheService.get(packListKey);
@@ -576,7 +576,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean checkPackHasSpotCheck(String packageCode, Integer siteCode) {
         try {
-            String spotCheckPackCache = getSpotCheckPackCache(WaybillUtil.getWaybillCode(packageCode), siteCode);
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            // 运单维度状态是否操作过抽检
+            if(checkIsHasSpotCheck(waybillCode)){
+                return true;
+            }
+            // 一单多件按包裹维度操作抽检的场景
+            String spotCheckPackCache = spotCheckPackSetStr(waybillCode, siteCode);
             if(StringUtils.isEmpty(spotCheckPackCache)){
                 return false;
             }
@@ -672,7 +678,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         boolean isMultiPack = isMultiPack(waybill, packageCode);
         boolean packHasSpotCheck;
         if(isMultiPack){
-            String spotCheckPackCache = getSpotCheckPackCache(waybillCode, siteCode);
+            String spotCheckPackCache = spotCheckPackSetStr(waybillCode, siteCode);
             packHasSpotCheck = StringUtils.isNotEmpty(spotCheckPackCache) && spotCheckPackCache.contains(packageCode);
         }else {
             packHasSpotCheck = checkIsHasSpotCheck(waybillCode);

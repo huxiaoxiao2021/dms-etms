@@ -85,13 +85,13 @@ public interface SpotCheckDealService {
     boolean checkIsHasSpotCheck(String waybillCode);
 
     /**
-     * 获取已抽检包裹缓存
+     * 获取已抽检包裹号
      *
      * @param waybillCode
      * @param siteCode
      * @return
      */
-    String getSpotCheckPackCache(String waybillCode, Integer siteCode);
+    String spotCheckPackSetStr(String waybillCode, Integer siteCode);
 
     /**
      * 校验包裹是否操作过抽检

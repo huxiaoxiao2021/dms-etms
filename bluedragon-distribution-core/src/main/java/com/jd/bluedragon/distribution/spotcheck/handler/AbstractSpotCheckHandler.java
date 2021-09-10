@@ -498,7 +498,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param spotCheckContext
      */
     protected void multiPackDeal(SpotCheckContext spotCheckContext) {
-        if(StringUtils.isEmpty(spotCheckDealService.getSpotCheckPackCache(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
+        if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
             // 初始化运单维度记录
             WeightVolumeCollectDto initialWaybillCollect = assembleCommonCollectDto(spotCheckContext);
             initialWaybillCollect.setPackageCode(spotCheckContext.getWaybillCode());
@@ -573,7 +573,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         try {
             String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
             Set<String> packSet = new HashSet<>();
-            String packSetStr = spotCheckDealService.getSpotCheckPackCache(waybillCode, siteCode);
+            String packSetStr = spotCheckDealService.spotCheckPackSetStr(waybillCode, siteCode);
             if(StringUtils.isEmpty(packSetStr)){
                 packSet.add(packageCode);
             }else {
