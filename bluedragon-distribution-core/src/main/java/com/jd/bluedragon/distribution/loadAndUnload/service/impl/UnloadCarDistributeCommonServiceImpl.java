@@ -82,6 +82,17 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
     }
 
     @Override
+    public boolean deleteUnloadHelper(UnloadCarDistribution params) {
+        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
+            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+                return unloadCarDistributionForTysDao.deleteUnloadHelper(params);
+            }
+            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
+        }
+        return unloadCarDistributionDao.deleteUnloadHelper(params);
+    }
+
+    @Override
     public List<String> selectTasksByUser(String unloadUserErp) {
         if (uccPropertyConfiguration.isReadUnloadFromTys()) {
             return unloadCarDistributionForTysDao.selectTasksByUser(unloadUserErp);
