@@ -92,6 +92,30 @@
         </where>
     </select>
 
+    <select id="selectUnloadUserBySealCarCode" parameterType="String" resultType="String">
+        select
+        unload_user_erp
+        from
+        unload_car_distribute
+        <where>
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+            and unload_user_type = 0
+            <include refid="Base_Condition_Sql"/>
+        </where>
+    </select>
+
+    <update id="updateUnloadUser" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
+        UPDATE unload_car_distribute
+        SET
+        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR},
+        unload_user_name = #{unloadUserName,jdbcType=VARCHAR},
+        update_time = #{updateTime, jdbcType=TIMESTAMP}
+        where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and unload_user_type = 0
+        and yn = 1
+    </update>
+
     <select id="selectUnloadCarTaskHelpers" parameterType="String" resultMap="unloadCarDistribution">
         select
         <include refid="Base_Column_List" />
