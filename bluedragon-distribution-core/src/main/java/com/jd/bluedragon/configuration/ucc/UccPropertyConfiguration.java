@@ -500,6 +500,19 @@ public class UccPropertyConfiguration {
     private String multiplePackageSpotCheckSites;
 
     /**
+     * 开启新抽检场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String newSpotCheckSiteCodes;
+
+    /**
+     * 抽检数据是否下发给计费
+     */
+    private boolean isIssueToFinance;
+
+    /**
      * 老发货异步任务开关
      */
     private String deliverySendAsyncSite;
@@ -1343,6 +1356,22 @@ public class UccPropertyConfiguration {
 
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
+    }
+
+    public String getNewSpotCheckSiteCodes() {
+        return newSpotCheckSiteCodes;
+    }
+
+    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
+        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
+    }
+
+    public boolean getIsIssueToFinance() {
+        return isIssueToFinance;
+    }
+
+    public void setIsIssueToFinance(boolean issueToFinance) {
+        isIssueToFinance = issueToFinance;
     }
 
     /**

@@ -91,10 +91,10 @@
                                         <label for="checkOfWaybill">
                                         <input type="radio" id="checkOfWaybill" class="control-label" name="weightCheck" checked>按运单抽检
                                     </div>
-                                    <div class="col-xs-4" >
-                                        <label for="checkOfPackage">
-                                        <input type="radio" id="checkOfPackage" name="weightCheck" class="control-label">按包裹抽检
-                                    </div>
+##                                    <div class="col-xs-4" >
+##                                        <label for="checkOfPackage">
+##                                        <input type="radio" id="checkOfPackage" name="weightCheck" class="control-label">按包裹抽检
+##                                    </div>
                                 </div>
                             </div>
                         </div>

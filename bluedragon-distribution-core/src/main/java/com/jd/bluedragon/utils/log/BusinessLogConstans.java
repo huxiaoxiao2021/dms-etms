@@ -231,9 +231,11 @@ public class BusinessLogConstans {
         APPROVAL_START_FLOW(BizTypeEnum.APPROVAL,20201,"提交审批单"),
         APPROVAL_CALLBACK(BizTypeEnum.APPROVAL,20202,"审批结果回调"),
 
-        SPOT_CHECK_C(BizTypeEnum.SPOT_CHECK,202101,"C网抽检"),
-        SPOT_CHECK_B(BizTypeEnum.SPOT_CHECK,202102,"B网抽检"),
-        SPOT_CHECK_ANDROID(BizTypeEnum.SPOT_CHECK,202103,"安卓抽检");
+        SPOT_CHECK_CLIENT(BizTypeEnum.SPOT_CHECK,202101,"客户端抽检"),
+        SPOT_CHECK_DWS(BizTypeEnum.SPOT_CHECK,202102,"DWS抽检"),
+        SPOT_CHECK_ARTIFICIAL(BizTypeEnum.SPOT_CHECK,202103,"人工抽检"),
+        SPOT_CHECK_ANDROID(BizTypeEnum.SPOT_CHECK,202104,"安卓抽检"),
+        SPOT_CHECK_WEB(BizTypeEnum.SPOT_CHECK,202105,"网页抽检");
 
         private static Map<Integer,OperateTypeEnum> CODE_MAPPING = new HashMap<Integer,OperateTypeEnum>();
         /**

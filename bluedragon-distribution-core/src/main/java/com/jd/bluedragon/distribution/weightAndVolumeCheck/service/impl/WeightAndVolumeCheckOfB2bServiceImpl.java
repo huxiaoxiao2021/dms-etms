@@ -586,7 +586,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         abnormalResultMq.setReviewSecondLevelId(dto.getReviewSiteCode());
         abnormalResultMq.setReviewSecondLevelName(dto.getReviewSiteName());
         abnormalResultMq.setReviewErp(dto.getReviewErp());
-        abnormalResultMq.setReviewMechanismType(dto.getReviewSubType());
         abnormalResultMq.setReviewWeight(dto.getReviewWeight());
         abnormalResultMq.setReviewVolume(dto.getReviewVolume());
         abnormalResultMq.setWeightDiff(Double.parseDouble(dto.getWeightDiff()));

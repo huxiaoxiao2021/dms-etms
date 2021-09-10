@@ -12,6 +12,7 @@
 <body class="container-fluid" >
 <input style="display: none" id="waybillCode" value="${waybillCode}" />
 <input style="display: none" id="siteCode" value="${siteCode}" />
+<input style="display: none" id="fromSource" value="${fromSource}" />
 <input style="display: none" id="pageNo" value="${pageNo}" />
 <input style="display: none" id="pageSize" value="${pageSize}" />
 <div id="query-condition">

@@ -78,5 +78,9 @@ public enum FromSourceEnum {
     /**
      * 云分拣-按箱号称重
      */
-    CLPS_WEIGHT_BY_BOX;
+    CLPS_WEIGHT_BY_BOX,
+    /**
+     * 人工抽检
+     */
+    ARTIFICIAL_SPOT_CHECK;
 }

@@ -267,5 +267,9 @@
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="tibetCancelSendDetailConsumer"/>
     </jmq:consumer>
 
+    <!-- dws抽检处理消费 -->
+    <jmq:consumer id="jmq.dmsSpotCheckDealConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dwsSpotCheck}" listener="dmsSpotCheckDealConsumer"/>
+    </jmq:consumer>
 </beans>
 

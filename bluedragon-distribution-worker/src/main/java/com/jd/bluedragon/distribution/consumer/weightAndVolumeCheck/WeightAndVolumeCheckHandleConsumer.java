@@ -7,8 +7,6 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolu
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

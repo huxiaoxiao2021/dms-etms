@@ -23,4 +23,16 @@ public class MathUtils {
         BigDecimal dividenum = new BigDecimal(Double.toString(1000000));
         return b1.multiply(b2).multiply(b3).divide(dividenum, scale, BigDecimal.ROUND_HALF_UP).doubleValue();
     }
+
+    /**
+     * 保留多位小数
+     *
+     * @param source
+     * @param scale 保留几位小数
+     * @return
+     */
+    public static Double keepScale(double source, int scale) {
+        BigDecimal b = BigDecimal.valueOf((float) source);
+        return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+    }
 }

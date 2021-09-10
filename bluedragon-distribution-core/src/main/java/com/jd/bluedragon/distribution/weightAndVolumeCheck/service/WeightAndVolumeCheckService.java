@@ -87,17 +87,6 @@ public interface WeightAndVolumeCheckService {
     PagerResult<WeightVolumeCollectDto> queryByCondition(WeightAndVolumeCheckCondition condition);
 
     /**
-     * 发消息并更新
-     * @param packageCode
-     * @param siteCode
-     * @deprecated 业务逻辑变更
-     * （1）A分拣可操作多次抽检，每次正常发送全程跟踪称重量方日志，
-     * （2）A分拣如果多次抽检，则统计系统覆盖记录最新的一条抽检数据，只记录暂时先不下发
-     * （3）当包裹号操作【发货】扫描节点时，则触发将最新的一条超标抽检数据进行下发，最新的一条如果未超标则不下发。
-     */
-    void sendMqAndUpdate(String packageCode, Integer siteCode);
-
-    /**
      * 更新图片并发送处理消息
      * @param packageCode
      * @param siteCode
@@ -145,10 +134,4 @@ public interface WeightAndVolumeCheckService {
      */
     void export(WeightAndVolumeCheckCondition condition, BufferedWriter innerBfw);
 
-    /**
-     * 记录抽检日志
-     * @param weightVolumeCollectDto
-     * @param spotCheckSourceEnum
-     */
-    void recordSpotCheckLog(WeightVolumeCollectDto weightVolumeCollectDto, SpotCheckSourceEnum spotCheckSourceEnum);
 }
