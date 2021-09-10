@@ -755,4 +755,9 @@
                   alias="${jsf.alias.transferWaveJsfService}" protocol="jsf" timeout="${jsf.timeout.transferWaveJsfService}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="workingClockDataJsfService"
+                  interface="com.jd.dms.wb.report.api.working.WorkingClockDataJsfService"
+                  alias="${jsf.dmsWbReport.alias}"
+                  timeout="${jsf.dmsWbReport.timeout}" >
+    </jsf:consumer>
 </beans>
