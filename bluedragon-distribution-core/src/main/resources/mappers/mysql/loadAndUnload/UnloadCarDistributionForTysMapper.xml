@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao">
+<mapper namespace="com.jd.bluedragon.distribution.loadAndUnload.dao.tys.UnloadCarDistributionForTysDao">
 
 	<resultMap id="unloadCarDistribution" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" >
 		<id column="unload_distribute_id" property="unloadDistributeId" javaType="java.lang.Long" jdbcType="BIGINT" />
@@ -107,13 +107,13 @@
     <update id="updateUnloadUser" parameterType="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution">
         UPDATE unload_car_distribute
         SET
-        unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR},
-        unload_user_name = #{unloadUserName,jdbcType=VARCHAR},
-        update_time = #{updateTime, jdbcType=TIMESTAMP}
+            unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR},
+            unload_user_name = #{unloadUserName,jdbcType=VARCHAR},
+            update_time = #{updateTime, jdbcType=TIMESTAMP}
         where
-        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
-        and unload_user_type = 0
-        and yn = 1
+            seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+          and unload_user_type = 0
+          and yn = 1
     </update>
 
     <select id="selectUnloadCarTaskHelpers" parameterType="String" resultMap="unloadCarDistribution">
