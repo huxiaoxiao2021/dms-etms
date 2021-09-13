@@ -1761,7 +1761,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         headerMap.put("diffStandard","误差标准值");
         headerMap.put("isExcess","是否超标");
         headerMap.put("fromSource","数据来源");
-        headerMap.put("isWaybillSpotCheck","抽检维度");
+//        headerMap.put("isWaybillSpotCheck","抽检维度");
         headerMap.put("pictureAddress","图片链接");
         return headerMap;
     }
@@ -1877,7 +1877,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             exportWeightVolumeCollectDto.setDiffStandard(dto.getDiffStandard());
             exportWeightVolumeCollectDto.setIsExcess(Objects.equals(dto.getIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
             exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
-            exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode()) ? "运单抽检" : "包裹抽检");
+//            exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode()) ? "运单抽检" : "包裹抽检");
             exportWeightVolumeCollectDto.setPictureAddress(pictureLookUrl(dto));
             list.add(exportWeightVolumeCollectDto);
         }

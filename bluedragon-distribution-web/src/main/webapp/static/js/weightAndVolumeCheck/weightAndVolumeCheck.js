@@ -257,11 +257,12 @@ $(function () {
             field: 'isWaybillSpotCheck',
             title: '抽检维度',
             align: 'center',
+            visible: false,
             formatter: function (value, row, index) {
                 if(value === 1){
                     return "运单抽检";
                 }
-                if(value === 0){
+                if(value == null || value === 0){
                     return "包裹抽检";
                 }
                 return null;
@@ -606,7 +607,7 @@ $(function () {
                 title: '是否发货',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value == 2 ? "是" : "否";
+                    return value === 2 ? "是" : "否";
                 }
             }],
         refresh: function () {

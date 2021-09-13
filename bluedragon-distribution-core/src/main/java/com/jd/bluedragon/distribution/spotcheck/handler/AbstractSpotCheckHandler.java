@@ -278,6 +278,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckContext.setProductTypeName(dmsBaseDict == null ? null : dmsBaseDict.getMemo());
 
         // 超标图片链接
+        spotCheckContext.setIsHasPicture(spotCheckDto.getPictureUrls() == null ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
         spotCheckContext.setPictureAddress(spotCheckDto.getPictureUrls() == null ? null : StringUtils.join(spotCheckDto.getPictureUrls().values(), Constants.SEPARATOR_SEMICOLON));
 
         // 复核明细
@@ -375,9 +376,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastVolumeWeight()) - totalVolume), 3);
         waybillCollectDto.setVolumeWeightDiff(String.valueOf(volumeWeightDiff));
         waybillCollectDto.setDiffStandard(spotCheckContext.getDiffStandard());
-        waybillCollectDto.setIsExcess(spotCheckContext.getExcessStatus());
+        // ExcessStatus 为null 则表示一单多件还未判断出超标状态：'待集齐计算'
+        waybillCollectDto.setIsExcess(spotCheckContext.getExcessStatus() == null ? ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode() : spotCheckContext.getExcessStatus());
         waybillCollectDto.setExcessReason(spotCheckContext.getExcessReason());
-        waybillCollectDto.setIsHasPicture(spotCheckContext.getIsHasPicture());
         double largeDiff = MathUtils.keepScale(Math.abs((spotCheckContrastDetail.getContrastLarge() == null
                 ? Constants.DOUBLE_ZERO : spotCheckContrastDetail.getContrastLarge()) - reviewLarge), 3);
         waybillCollectDto.setLargeDiff(largeDiff);

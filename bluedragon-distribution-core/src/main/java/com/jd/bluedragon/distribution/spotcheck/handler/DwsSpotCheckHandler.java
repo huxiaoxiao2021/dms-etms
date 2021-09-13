@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +40,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             return;
         }
         // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-            return;
-        }
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
