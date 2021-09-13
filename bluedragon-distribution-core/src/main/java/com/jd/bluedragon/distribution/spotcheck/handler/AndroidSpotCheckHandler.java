@@ -38,9 +38,9 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
-        // 是否B网
-        if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_B);
+        // 纯配外单校验
+        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
             return;
         }
         // 是否妥投
@@ -51,6 +51,7 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
         // 是否已抽检
         if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
+            return;
         }
         // 重泡比校验
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();

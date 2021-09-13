@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.Waybill;
@@ -40,9 +40,9 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
-        // 是否B网
-        if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_B);
+        // 纯配外单校验
+        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
             return;
         }
         // 是否妥投
@@ -53,6 +53,7 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
         // 是否已抽检
         if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
+            return;
         }
         // 重泡比校验
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
@@ -74,7 +75,7 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        obtainContrast(spotCheckContext);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
         if(Objects.equals(spotCheckReviewDetail.getReviewSiteCode(), spotCheckContrastDetail.getContrastSiteCode())){
@@ -87,9 +88,18 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
-        return result;
+        return checkIsExcessB(spotCheckContext);
+    }
+
+    @Override
+    protected void obtainContrast(SpotCheckContext spotCheckContext) {
+        // B网 从运单获取核对数据
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+            return;
+        }
+        // C网 从运单获取核对数据
+        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
     }
 
     @Override
