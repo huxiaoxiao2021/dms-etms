@@ -39,8 +39,8 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
         // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+        if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
         }
         // 是否妥投
