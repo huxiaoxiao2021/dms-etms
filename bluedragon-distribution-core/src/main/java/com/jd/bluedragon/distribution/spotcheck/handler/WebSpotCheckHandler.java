@@ -4,7 +4,6 @@ import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.domain.Waybill;
@@ -40,6 +39,12 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
+        }
         // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
@@ -89,17 +94,6 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
         return checkIsExcessB(spotCheckContext);
-    }
-
-    @Override
-    protected void obtainContrast(SpotCheckContext spotCheckContext) {
-        // B网 从运单获取核对数据
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-            return;
-        }
-        // C网 从运单获取核对数据
-        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
     }
 
     @Override

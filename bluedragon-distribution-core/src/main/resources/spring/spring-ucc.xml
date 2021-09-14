@@ -136,6 +136,7 @@
 		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
 		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
 		<property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
+		<property name="executeBCFuse" value="${executeBCFuse:false}"></property>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -251,6 +252,7 @@
 				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
 				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
 				<value>uccPropertyConfiguration.isIssueToFinance</value>
+				<value>uccPropertyConfiguration.executeBCFuse</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

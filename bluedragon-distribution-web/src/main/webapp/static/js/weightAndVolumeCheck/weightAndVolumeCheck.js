@@ -209,7 +209,7 @@ $(function () {
             title: '核对来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "运单" : "计费";
+                return value === null ? null : value === 1 ? "运单" : "计费";
             }
         },{
             field: 'largeDiff',

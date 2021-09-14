@@ -61,11 +61,13 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         String waybillCode = spotCheckContext.getWaybillCode();
         String packageCode = spotCheckContext.getPackageCode();
         Integer reviewSiteCode = spotCheckContext.getReviewSiteCode();
-        // 纯配外单校验
-        if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-            return;
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
         }
+        // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
@@ -153,19 +155,8 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected void obtainContrast(SpotCheckContext spotCheckContext) {
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
-            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
-            return;
-        }
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-    }
-
-    @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
-        return result;
+        return checkIsExcessC(spotCheckContext);
     }
 
     @Override
