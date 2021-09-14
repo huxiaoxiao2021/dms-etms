@@ -1,0 +1,83 @@
+package com.jd.bluedragon.distribution.external.service;
+
+import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * 转运依赖分拣相关服务
+ */
+public interface TransportCommonService {
+
+    /**
+     * 卸车的拦截校验
+     * code=200接口调用成功，data=true  需要拦截，，拦截消息看msg
+     */
+    InvokeResult<Boolean> interceptValidateUnloadCar(TransportServiceRequest transportServiceRequest);
+
+    /**
+     * VER组板拦截校验
+     * @param request 组板检查请求
+     * @return 校验结果
+     */
+    InvokeResult<Void> boardCombinationCheck(BoardCommonRequest request);
+
+    /**
+     * 判断PDA登录ERP或登录ERP所属场地是否有配置验货/发货白名单
+     * @param transportServiceRequest
+     * @return
+     */
+    InvokeResult<Boolean> hasInspectOrSendFunction(TransportServiceRequest transportServiceRequest);
+
+    /**
+     * 获取路由下一场地编码
+     * @param transportServiceRequest
+     * @return
+     */
+    InvokeResult<Integer> getRouterNextSiteId(TransportServiceRequest transportServiceRequest);
+
+    /**
+     * 加盟商余额校验
+     * @param waybillCode 运单号
+     * @return 校验结果
+     */
+    InvokeResult<Boolean> checkAllianceMoney(String waybillCode);
+
+    /**
+     * 获取已发货批次下和指定运单下的包裹号
+     * @param createSiteCode 操作站点
+     * @param batchCode 批次号
+     * @param waybillCode 运单号
+     * @return
+     */
+    InvokeResult<List<String>> queryPackageCodeBySendAndWaybillCode(Integer createSiteCode, String batchCode, String waybillCode);
+
+    /**
+     * 获取已发货批次下的包裹号
+     * @param createSiteCode 操作站点
+     * @param batchCode 批次号
+     * @return
+     */
+    InvokeResult<List<String>> queryPackageCodeBySendCode(Integer createSiteCode, String batchCode);
+
+    /**
+     * 获取已发货批次下的包裹号
+     * @param createSiteCode 操作站点
+     * @param receiveSiteCode 下一站点
+     * @param barCode 包裹号或运单号
+     * @return
+     */
+    InvokeResult<String> findByWaybillCodeOrPackageCode(Integer createSiteCode, Integer receiveSiteCode, String barCode);
+
+    /**
+     * 获取已发货批次下的运单总数和包裹总数
+     * @param createSiteCode 操作站点
+     * @param batchCodes 批次号集合
+     * @return
+     */
+    InvokeResult<Map<String, Integer>> queryPackageAndWaybillNumByBatchCodes(Integer createSiteCode, List<String> batchCodes);
+
+}
