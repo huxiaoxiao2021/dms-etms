@@ -123,9 +123,9 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         }
         // C网:
         // 一单一件从计费获取后无从运单获取
-        // 一单从计费获取
+        // 一单多件从计费获取
         if(spotCheckContext.getIsMultiPack()){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
             return;
         }
         spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
