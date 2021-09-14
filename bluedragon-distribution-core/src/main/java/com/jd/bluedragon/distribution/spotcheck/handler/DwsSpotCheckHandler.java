@@ -128,6 +128,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
             return;
         }
+        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
         if(spotCheckContrastDetail.getContrastWeight() == null
                 || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
