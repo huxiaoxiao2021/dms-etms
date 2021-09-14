@@ -47,7 +47,7 @@
             </foreach>
         </if>
         <if test="startIndex != null">
-            and LIMIT #{startIndex},#{pageSize}
+         LIMIT #{startIndex},#{pageSize}
         </if>
     </select>
     <select id="countSitePage" resultType="int" parameterType="java.util.Map">
