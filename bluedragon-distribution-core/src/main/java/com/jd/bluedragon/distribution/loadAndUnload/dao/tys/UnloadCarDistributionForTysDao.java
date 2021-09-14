@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.loadAndUnload.dao;
+package com.jd.bluedragon.distribution.loadAndUnload.dao.tys;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution;
@@ -11,9 +11,9 @@ import java.util.List;
  * @author: hujiping
  * @date: 2020/6/23 11:27
  */
-public class UnloadCarDistributionDao extends BaseDao<UnloadCarDistribution> {
+public class UnloadCarDistributionForTysDao extends BaseDao<UnloadCarDistribution> {
 
-    public static final String namespace = UnloadCarDistributionDao.class.getName();
+    public static final String namespace = UnloadCarDistributionForTysDao.class.getName();
 
     /**
      * 新增
@@ -34,7 +34,6 @@ public class UnloadCarDistributionDao extends BaseDao<UnloadCarDistribution> {
     public List<String> selectUnloadUserBySealCarCode(String sealCarCode) {
         return this.getSqlSession().selectList(namespace + ".selectUnloadUserBySealCarCode",sealCarCode);
     }
-
 
     public List<UnloadCarDistribution> selectUnloadCarTaskHelpers(String sealCarCode) {
         return this.getSqlSession().selectList(namespace + ".selectUnloadCarTaskHelpers",sealCarCode);

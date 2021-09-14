@@ -1585,4 +1585,10 @@ public class Constants {
     public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
     /***跨越成功发送妥投消息前缀**/
     public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
+
+    /**
+     * 库表切换警告信息
+     */
+    public static final String UNLOAD_TRANSFER_WARN_MESSAGE = "抱歉，数据库正在升级中，请稍后再试";
+
 }

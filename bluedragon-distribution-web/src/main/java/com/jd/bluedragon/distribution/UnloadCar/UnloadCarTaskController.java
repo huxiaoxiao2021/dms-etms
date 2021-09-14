@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -72,9 +73,16 @@ public class UnloadCarTaskController extends DmsBaseController {
         if (erpUser != null) {
             request.setUpdateUserErp(erpUser.getUserCode());
             request.setUpdateUserName(erpUser.getUserName());
-            if (unloadCarService.distributeTask(request)) {
-                result.setCode(JdResponse.CODE_SUCCESS);
-                result.setMessage(JdResponse.MESSAGE_SUCCESS);
+            try {
+                if (unloadCarService.distributeTask(request)) {
+                    result.setCode(JdResponse.CODE_SUCCESS);
+                    result.setMessage(JdResponse.MESSAGE_SUCCESS);
+                }
+            } catch (LoadIllegalException e) {
+                log.error("分配卸车任务发生异常：e=", e);
+                result.setCode(JdResponse.CODE_FAIL);
+                result.setMessage(e.getMessage());
+                return result;
             }
         } else {
             result.setCode(com.jd.bluedragon.distribution.api.JdResponse.CODE_SERVICE_ERROR);
