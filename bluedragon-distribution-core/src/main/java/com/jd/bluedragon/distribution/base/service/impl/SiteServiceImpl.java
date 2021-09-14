@@ -19,6 +19,9 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.jsf.domain.SiteQuery;
+import com.jd.bluedragon.distribution.jsf.domain.SiteResponse;
+import com.jd.bluedragon.distribution.jsf.service.SiteJsfService;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.site.dao.SiteDao;
@@ -30,6 +33,7 @@ import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
@@ -43,7 +47,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service("siteService")
-public class SiteServiceImpl implements SiteService {
+public class SiteServiceImpl implements SiteService , SiteJsfService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     @Autowired
     RedisManager redisManager;
@@ -565,5 +569,39 @@ public class SiteServiceImpl implements SiteService {
             site.setSubType(site.getType());
         }
         return site;
+    }
+
+    @Override
+    public com.jd.ql.dms.common.domain.JdResponse<PageDto<SiteResponse>> querySitePage(PageDto<SiteQuery> siteQuery) {
+        com.jd.ql.dms.common.domain.JdResponse<PageDto<SiteResponse>> response = new com.jd.ql.dms.common.domain.JdResponse<>();
+        try {
+            PageDto<SiteResponse> pageDto = new PageDto<>();
+            response.setData(pageDto);
+            SiteQuery query = org.apache.commons.collections4.CollectionUtils.isEmpty(siteQuery.getResult() ) ?
+                    null : siteQuery.getResult().get(0);
+
+            List<Site> sites = siteDao.querySitePage(query, siteQuery.getOffset(), siteQuery.getPageSize());
+            if(CollectionUtils.isNotEmpty(sites)){
+                List<SiteResponse> siteResponses = new ArrayList<>(sites.size());
+                for (Site site: sites) {
+                    SiteResponse siteResponse = new SiteResponse();
+                    siteResponse.setSiteCode(site.getCode());
+                    siteResponse.setSiteName(site.getName());
+                    siteResponse.setOrgId(site.getOrgId());
+                    siteResponse.setSiteType(site.getType());
+                    siteResponse.setSubType(site.getSubType());
+                    siteResponses.add(siteResponse);
+                }
+                pageDto.setResult(siteResponses);
+
+            }
+            pageDto.setPageSize(siteQuery.getPageSize());
+            Integer total = siteDao.countSitePage(query, siteQuery.getOffset(), siteQuery.getPageSize());
+            pageDto.setTotalRow(total);
+        } catch (Exception e) {
+            log.error("分页根据条件查询站点信息异常",e);
+            response.toError("分页根据条件查询站点信息异常");
+        }
+        return response;
     }
 }
