@@ -2430,8 +2430,16 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
             unloadCarDistribution.setUnloadUserName(request.getUnloadUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
-            unloadCarDistribution.setCreateTime(new Date());
-            unloadCarDistributionDao.add(unloadCarDistribution);
+            unloadCarDistribution.setUpdateTime(new Date());
+            List<String> unloadUserErps = unloadCarDistributionDao.selectUnloadUserBySealCarCode(request.getSealCarCodes().get(i));
+            if (CollectionUtils.isEmpty(unloadUserErps)) {
+                unloadCarDistribution.setCreateTime(new Date());
+                unloadCarDistributionDao.add(unloadCarDistribution);
+            } else {
+                unloadCarDistributionDao.updateUnloadUser(unloadCarDistribution);
+                // 如果自己还是协助人，需要删除
+                unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+            }
         }
         return true;
     }
