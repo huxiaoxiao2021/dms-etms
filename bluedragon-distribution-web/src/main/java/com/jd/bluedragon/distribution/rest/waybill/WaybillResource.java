@@ -2558,7 +2558,6 @@ public class WaybillResource {
 		spotCheckDto.setSiteName(packWeightVO.getOperatorSiteName());
 		spotCheckDto.setOperateUserErp(packWeightVO.getErpCode());
 		spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
-		spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
 		// 一单一件默认包裹维度抽检
 		spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
 		return spotCheckDto;

@@ -36,8 +36,6 @@
 		</property>
 	</bean>
 
-
-
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
@@ -148,6 +146,7 @@
 		<property name="readUnloadFromTys" value="${readUnloadFromTys:false}" />
 		<property name="stopWriteUnloadFromDms" value="${stopWriteUnloadFromDms:false}" />
 		<property name="writeUnloadFromTys" value="${writeUnloadFromTys:false}" />
+		<property name="executeBCFuse" value="${executeBCFuse:false}"></property>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -275,6 +274,7 @@
 				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
 				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
 				<value>uccPropertyConfiguration.isIssueToFinance</value>
+				<value>uccPropertyConfiguration.executeBCFuse</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

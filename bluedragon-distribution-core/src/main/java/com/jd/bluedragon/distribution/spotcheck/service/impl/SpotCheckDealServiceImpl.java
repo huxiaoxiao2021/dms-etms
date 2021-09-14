@@ -428,6 +428,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
+    public boolean isExecuteBCFuse() {
+        try {
+            return uccPropertyConfiguration.getExecuteBCFuse();
+        }catch (Exception e){
+            logger.error("获取BC融合开关异常!", e);
+        }
+        return false;
+    }
+
+    @Override
     public boolean gatherTogether(SpotCheckContext spotCheckContext) {
         String spotCheckPackCache = spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode());
         if(StringUtils.isEmpty(spotCheckPackCache)){

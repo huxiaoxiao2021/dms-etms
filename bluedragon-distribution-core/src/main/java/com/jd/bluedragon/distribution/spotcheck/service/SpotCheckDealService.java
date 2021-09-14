@@ -46,6 +46,13 @@ public interface SpotCheckDealService {
     boolean isExecuteNewSpotCheck(Integer siteCode);
 
     /**
+     * 是否执行BC融合
+     *
+     * @return
+     */
+    boolean isExecuteBCFuse();
+
+    /**
      * 是否集齐
      *
      * @param spotCheckContext
