@@ -496,6 +496,21 @@ public class UccPropertyConfiguration {
      */
     private String multiplePackageSpotCheckSites;
 
+    /**
+     * 读转运卸车表开关
+     */
+    private boolean readUnloadFromTys;
+
+    /**
+     * 停止写分拣卸车表开关
+     */
+    private boolean stopWriteUnloadFromDms;
+
+    /**
+     * 写转运卸车表开关
+     */
+    private boolean writeUnloadFromTys;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1336,6 +1351,30 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
     }
 
 }

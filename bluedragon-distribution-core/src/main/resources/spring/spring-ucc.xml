@@ -134,6 +134,9 @@
 		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
 		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
 		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
+		<property name="readUnloadFromTys" value="${readUnloadFromTys:false}" />
+		<property name="stopWriteUnloadFromDms" value="${stopWriteUnloadFromDms:false}" />
+		<property name="writeUnloadFromTys" value="${writeUnloadFromTys:false}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -245,6 +248,9 @@
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
 				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
+				<value>uccPropertyConfiguration.readUnloadFromTys</value>
+				<value>uccPropertyConfiguration.stopWriteUnloadFromDms</value>
+				<value>uccPropertyConfiguration.writeUnloadFromTys</value>
 				<value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
 				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
 
