@@ -186,11 +186,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 try {
                     // 同一操作人及目的地加锁，解决并发问题
                     boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
-                    if (!isExistHandling) {
-                        result.setCode(JdCResponse.CODE_FAIL);
-                        result.setMessage("操作太快，正在处理中");
-                        return result;
-                    }
                 } catch (Exception e) {
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
@@ -324,11 +319,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 try {
                     // 同一操作人及目的地加锁，解决并发问题
                     boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
-                    if (!isExistHandling) {
-                        result.setCode(JdCResponse.CODE_FAIL);
-                        result.setMessage("操作太快，正在处理中");
-                        return result;
-                    }
                 } catch (Exception e) {
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
@@ -437,7 +427,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             } finally {
                 jimdbCacheService.del(key);
             }
-            // 发送组板全程跟踪
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.bindToBoard--exception param {} exception {}", JsonHelper.toJson(bindToVirtualBoardPo), e.getMessage(), e);
@@ -888,7 +877,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         try {
             final boolean matchVirtualSiteCanUseSite = uccPropertyConfiguration.matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
             result.setData(matchVirtualSiteCanUseSite);
-            result.setMessage(HintService.getHint(HintCodeConstants.YOUR_SITE_CAN_NOT_USE_FUNC));
+            if(!matchVirtualSiteCanUseSite){
+                result.setMessage(HintService.getHint(HintCodeConstants.YOUR_SITE_CAN_NOT_USE_FUNC));
+            }
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("VirtualBoardServiceImpl.canUseMenu--exception param {} exception {}", JsonHelper.toJson(operatorInfo), e.getMessage(), e);
