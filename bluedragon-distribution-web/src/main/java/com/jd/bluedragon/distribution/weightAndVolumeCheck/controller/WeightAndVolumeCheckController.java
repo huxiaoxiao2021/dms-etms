@@ -178,10 +178,10 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             if(baseDto != null){
                 siteCode = baseDto.getSiteCode();
             }
-            if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
+            /*if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
                 result.parameterError("当前用户所属场地与该抽检记录操作场地不一致，不能上传图片");
                 return result;
-            }
+            }*/
         }catch (Exception e){
             log.error("通过登陆人erp获取所属分拣中心异常：{}",importErpCode,e);
         }
