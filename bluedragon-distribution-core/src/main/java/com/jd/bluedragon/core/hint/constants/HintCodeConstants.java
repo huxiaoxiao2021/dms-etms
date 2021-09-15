@@ -833,4 +833,9 @@ public class HintCodeConstants {
      * 此箱号未绑定循环集包袋
      */
     public static String BOX_UNBIND_RECYCLE_BAG = "40017";
+
+    /**
+     * 你所在场地未开通此功能
+     */
+    public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
 }

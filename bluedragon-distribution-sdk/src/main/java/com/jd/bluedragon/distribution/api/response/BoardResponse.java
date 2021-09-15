@@ -20,7 +20,7 @@ public class BoardResponse implements Serializable{
     public static final String MESSAGE_BOARD_NOT_FOUND = "无板号信息.";
 
     public static final Integer CODE_BOARD_CLOSED = 20104;
-    public static final String MESSAGE_BOARD_CLOSED = "此板号已经完结.";
+    public static final String MESSAGE_BOARD_CLOSED = "此板号已经发货.";
 
     public static final Integer CODE_BOX_PACKAGE_SENDED = 20105;
     public static final String MESSAGE_BOX_PACKAGE_SENDED = "箱号/包裹号已经发货.";

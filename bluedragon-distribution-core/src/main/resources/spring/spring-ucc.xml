@@ -138,6 +138,7 @@
         <property name="virtualBoardMaxDestinationCount" value="${virtualBoardMaxDestinationCount:5}" />
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
+		<property name="virtualBoardCanUseSite" value="${virtualBoardCanUseSite:-1}" />
 		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
 		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
 		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
@@ -266,6 +267,7 @@
                 <value>uccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
+				<value>uccPropertyConfiguration.virtualBoardCanUseSite</value>
 				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
 				<value>uccPropertyConfiguration.readUnloadFromTys</value>
 				<value>uccPropertyConfiguration.stopWriteUnloadFromDms</value>
