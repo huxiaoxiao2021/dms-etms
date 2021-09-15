@@ -113,6 +113,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-09-14 11:22:19 周二
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.canUseMenu",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo) {
         return virtualBoardService.canUseMenu(operatorInfo);
     }
