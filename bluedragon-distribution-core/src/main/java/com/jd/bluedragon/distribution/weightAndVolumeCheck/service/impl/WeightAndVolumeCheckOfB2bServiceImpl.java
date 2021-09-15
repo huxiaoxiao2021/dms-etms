@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
+import com.google.common.collect.Maps;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -7,19 +8,16 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckData;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -167,6 +165,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private SpotCheckCurrencyService spotCheckCurrencyService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
 
 
     @Override
@@ -645,19 +649,12 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
 
     @Override
     public InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> checkIsExcessOfWaybill(WeightVolumeCheckConditionB2b condition) {
-
         InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> result = new InvokeResult<>();
         if(condition == null){
             result.parameterError("参数错误!");
             return result;
         }
-        //0.校验
-        String waybillOrPackageCode = condition.getWaybillOrPackageCode();
-        if(!WaybillUtil.isWaybillCode(waybillOrPackageCode)
-                && !WaybillUtil.isPackageCode(waybillOrPackageCode)){
-            result.parameterError("单号不符合规则!");
-            return result;
-        }
+
         String waybillCode = WaybillUtil.getWaybillCode(condition.getWaybillOrPackageCode());
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
                 = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
@@ -668,6 +665,30 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             }
         }else {
             result.parameterError("运单数据为空!");
+            return result;
+        }
+
+        List<WeightVolumeCheckOfB2bWaybill> list = new ArrayList<>();
+        result.setData(list);
+        WeightVolumeCheckOfB2bWaybill weightVolumeCheckOfB2bWaybill = new WeightVolumeCheckOfB2bWaybill();
+        list.add(weightVolumeCheckOfB2bWaybill);
+        weightVolumeCheckOfB2bWaybill.setWaybillCode(waybillCode);
+        weightVolumeCheckOfB2bWaybill.setWaybillWeight(condition.getWaybillWeight());
+        weightVolumeCheckOfB2bWaybill.setWaybillVolume(condition.getWaybillVolume());
+        weightVolumeCheckOfB2bWaybill.setUpLoadNum(0);//初始上传图片数量
+        weightVolumeCheckOfB2bWaybill.setPackNum(baseEntity.getData().getPackageList().size());
+        // 执行新抽检逻辑
+        if(spotCheckDealService.isExecuteNewSpotCheck(condition.getCreateSiteCode())){
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
+                    = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(condition, true));
+            weightVolumeCheckOfB2bWaybill.setIsExcess(checkIsExcessResult.getData());
+            return result;
+        }
+        //0.校验
+        String waybillOrPackageCode = condition.getWaybillOrPackageCode();
+        if(!WaybillUtil.isWaybillCode(waybillOrPackageCode)
+                && !WaybillUtil.isPackageCode(waybillOrPackageCode)){
+            result.parameterError("单号不符合规则!");
             return result;
         }
         //是否妥投
@@ -694,17 +715,6 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             result.customMessage(600,"当前运单平均单个包裹体积超过"+VOLUME_MAX_RATIO+"m³，请核实后重新录入!");
             return result;
         }
-
-        List<WeightVolumeCheckOfB2bWaybill> list = new ArrayList<>();
-        result.setData(list);
-        WeightVolumeCheckOfB2bWaybill weightVolumeCheckOfB2bWaybill = new WeightVolumeCheckOfB2bWaybill();
-        list.add(weightVolumeCheckOfB2bWaybill);
-        weightVolumeCheckOfB2bWaybill.setWaybillCode(waybillCode);
-        weightVolumeCheckOfB2bWaybill.setWaybillWeight(condition.getWaybillWeight());
-        weightVolumeCheckOfB2bWaybill.setWaybillVolume(condition.getWaybillVolume());
-        weightVolumeCheckOfB2bWaybill.setUpLoadNum(0);//初始上传图片数量
-        weightVolumeCheckOfB2bWaybill.setPackNum(baseEntity.getData().getPackageList().size());
-
         //判断是否超标
         Double nowWeight = condition.getWaybillWeight();
         Double nowVolume = condition.getWaybillVolume();
@@ -719,6 +729,37 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         weightVolumeCheckOfB2bWaybill.setIsExcess(sign? IsExcessEnum.EXCESS_ENUM_YES.getCode() :IsExcessEnum.EXCESS_ENUM_NO.getCode());
 
         return result;
+    }
+
+    private SpotCheckDto convertToSpotCheckDto(WeightVolumeCheckConditionB2b condition, boolean isCheckExcess) {
+        String waybillCode = WaybillUtil.getWaybillCode(condition.getWaybillOrPackageCode());
+        SpotCheckDto spotCheckDto = new SpotCheckDto();
+        spotCheckDto.setBarCode(waybillCode);
+        spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName());
+        spotCheckDto.setWeight(condition.getWaybillWeight());
+        spotCheckDto.setVolume(condition.getWaybillVolume() * SpotCheckConstants.CM3_M3_MAGNIFICATION);
+        String operateErp = condition.getLoginErp();
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(operateErp);
+        spotCheckDto.setOrgId(baseStaff.getOrgId());
+        spotCheckDto.setOrgName(baseStaff.getOrgName());
+        spotCheckDto.setSiteCode(condition.getCreateSiteCode());
+        spotCheckDto.setSiteName(baseStaff.getSiteName());
+        spotCheckDto.setOperateUserId(baseStaff.getStaffNo());
+        spotCheckDto.setOperateUserErp(operateErp);
+        spotCheckDto.setOperateUserName(baseStaff.getStaffName());
+        spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
+        spotCheckDto.setPictureUrls(isCheckExcess ?  null : searchPicUrl(waybillCode, condition.getCreateSiteCode()));
+        return spotCheckDto;
+    }
+
+    private Map<String, String> searchPicUrl(String waybillCode, Integer siteCode) {
+        Map<String, String> picUtlMap = new LinkedHashMap<>();
+        for (SpotCheckPictureDimensionEnum value : SpotCheckPictureDimensionEnum.values()) {
+            String prefixName = Constants.SPOT_CHECK_B + Constants.UNDER_LINE + waybillCode + Constants.UNDER_LINE + siteCode
+                    + Constants.UNDER_LINE + value.getCode() + Constants.UNDER_LINE;
+            picUtlMap.put(value.getName(), weightAndVolumeCheckService.searchPictureUrlRecent(prefixName));
+        }
+        return picUtlMap;
     }
 
     @Override
@@ -793,6 +834,11 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     public InvokeResult<String> dealExcessDataOfWaybill(WeightVolumeCheckConditionB2b param) {
         InvokeResult<String> result = new InvokeResult<>();
         try{
+            // 执行新抽检逻辑
+            if(spotCheckDealService.isExecuteNewSpotCheck(param.getCreateSiteCode())){
+                spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDto(param, false));
+                return result;
+            }
             //防止二次提交
             String waybillCode = WaybillUtil.getWaybillCode(param.getWaybillOrPackageCode());
             if(isSpotCheck(waybillCode,param.getCreateSiteCode())){

@@ -289,7 +289,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         spotCheckDto.setSiteName(entity.getOperateSiteName());
         spotCheckDto.setOperateUserErp(entity.getOperatorCode());
         spotCheckDto.setOperateUserName(entity.getOperatorName());
-        spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.ONLY_CHECK_IS_EXCESS.getCode());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
         return spotCheckDto;
     }

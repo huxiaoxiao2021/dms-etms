@@ -162,7 +162,26 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      *
      * @param spotCheckContext
      */
-    protected void obtainContrast(SpotCheckContext spotCheckContext){}
+    protected void obtainContrast(SpotCheckContext spotCheckContext){
+        // B网从运单获取
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+            return;
+        }
+        // C网:
+        // 一单多件从计费获取
+        // 一单一件从计费获取后无从运单获取
+        if(spotCheckContext.getIsMultiPack()){
+            spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+            return;
+        }
+        spotCheckDealService.assembleContrastDataFromFinance(spotCheckContext);
+        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
+        if(spotCheckContrastDetail.getContrastWeight() == null
+                || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
+            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
+        }
+    }
 
     /**
      * 校验成功后的处理

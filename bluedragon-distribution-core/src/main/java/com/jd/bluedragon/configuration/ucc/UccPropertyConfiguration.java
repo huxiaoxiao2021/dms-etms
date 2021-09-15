@@ -508,6 +508,11 @@ public class UccPropertyConfiguration {
     private String newSpotCheckSiteCodes;
 
     /**
+     * 是否执行BC融合
+     */
+    private boolean executeBCFuse;
+
+    /**
      * 抽检数据是否下发给计费
      */
     private boolean isIssueToFinance;
@@ -1379,6 +1384,14 @@ public class UccPropertyConfiguration {
 
     public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
         this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
+    }
+
+    public boolean getExecuteBCFuse() {
+        return executeBCFuse;
+    }
+
+    public void setExecuteBCFuse(boolean executeBCFuse) {
+        this.executeBCFuse = executeBCFuse;
     }
 
     public boolean getIsIssueToFinance() {

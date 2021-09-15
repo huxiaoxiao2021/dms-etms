@@ -28,7 +28,7 @@ public class SpotCheckDto implements Serializable {
      */
     private String spotCheckSourceFrom;
     /**
-     * 抽检类型
+     * 抽检业务类型
      * @see SpotCheckBusinessTypeEnum
      */
     private Integer spotCheckBusinessType;
@@ -85,11 +85,6 @@ public class SpotCheckDto implements Serializable {
      * 操作人名称
      */
     private String operateUserName;
-    /**
-     * 抽检处理类型
-     * @see SpotCheckHandlerTypeEnum
-     */
-    private Integer handlerType;
     /**
      * 抽检维度类型
      * @see SpotCheckDimensionEnum
@@ -230,14 +225,6 @@ public class SpotCheckDto implements Serializable {
 
     public void setOperateUserName(String operateUserName) {
         this.operateUserName = operateUserName;
-    }
-
-    public Integer getHandlerType() {
-        return handlerType;
-    }
-
-    public void setHandlerType(Integer handlerType) {
-        this.handlerType = handlerType;
     }
 
     public Integer getDimensionType() {
