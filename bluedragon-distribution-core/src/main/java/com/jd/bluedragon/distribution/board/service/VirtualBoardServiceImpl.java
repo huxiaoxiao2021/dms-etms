@@ -12,6 +12,8 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -868,6 +870,31 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }finally {
             Profiler.registerInfoEnd(info);
         }
+    }
+
+    /**
+     * 查询是否开通组板功能
+     * @param operatorInfo 操作人信息
+     * @return 返回是否能使用结果
+     * @author fanggang7
+     * @time 2021-09-14 11:22:19 周二
+     */
+    @Override
+    public JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo) {
+        log.info("VirtualBoardServiceImpl.canUseMenu--start-- param {}", JsonHelper.toJson(operatorInfo));
+        JdCResponse<Boolean> result = new JdCResponse<>();
+        result.setData(false);
+        result.toSucceed();
+        try {
+            final boolean matchVirtualSiteCanUseSite = uccPropertyConfiguration.matchVirtualSiteCanUseSite(operatorInfo.getSiteCode());
+            result.setData(matchVirtualSiteCanUseSite);
+            result.setMessage(HintService.getHint(HintCodeConstants.YOUR_SITE_CAN_NOT_USE_FUNC));
+        } catch (Exception e) {
+            result.toFail("接口异常");
+            log.error("VirtualBoardServiceImpl.canUseMenu--exception param {} exception {}", JsonHelper.toJson(operatorInfo), e.getMessage(), e);
+        } finally {
+        }
+        return result;
     }
 
     /**

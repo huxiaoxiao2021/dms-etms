@@ -104,4 +104,16 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     public JdCResponse<UnbindVirtualBoardResultDto> unbindToBoard(UnbindToVirtualBoardPo unbindToVirtualBoardPo) {
         return virtualBoardService.unbindToBoard(unbindToVirtualBoardPo);
     }
+
+    /**
+     * 查询是否开通组板功能
+     * @param operatorInfo 操作人信息
+     * @return 返回是否能使用结果
+     * @author fanggang7
+     * @time 2021-09-14 11:22:19 周二
+     */
+    @Override
+    public JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo) {
+        return virtualBoardService.canUseMenu(operatorInfo);
+    }
 }

@@ -440,6 +440,11 @@ public class UccPropertyConfiguration {
      */
     private Integer virtualBoardAutoCloseDays;
 
+    /**
+     * 虚拟组板可使用场地
+     */
+    private String virtualBoardCanUseSite;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -1279,5 +1284,40 @@ public class UccPropertyConfiguration {
     public UccPropertyConfiguration setVirtualBoardAutoCloseDays(Integer virtualBoardAutoCloseDays) {
         this.virtualBoardAutoCloseDays = virtualBoardAutoCloseDays;
         return this;
+    }
+
+    public String getVirtualBoardCanUseSite() {
+        return virtualBoardCanUseSite;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardCanUseSite(String virtualBoardCanUseSite) {
+        this.virtualBoardCanUseSite = virtualBoardCanUseSite;
+        this.virtualBoardCanUseSiteList = this.getVirtualBoardCanUseSiteList();
+        return this;
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
+
+    public List<String> getVirtualBoardCanUseSiteList() {
+        if(virtualBoardCanUseSiteList == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(virtualBoardCanUseSite.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchVirtualSiteCanUseSite(int siteId) {
+        if(StringUtils.isBlank(virtualBoardCanUseSite)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, virtualBoardCanUseSite)){
+            return true;
+        }
+        if(virtualBoardCanUseSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
     }
 }
