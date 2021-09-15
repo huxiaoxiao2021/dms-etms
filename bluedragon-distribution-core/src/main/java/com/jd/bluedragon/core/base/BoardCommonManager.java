@@ -1,8 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.transboard.api.dto.Board;
+
+import java.util.Map;
 
 /**
  * 组板公用逻辑
@@ -66,5 +69,22 @@ public interface BoardCommonManager {
      * @return
      */
     Integer getNextSiteCodeByRouter(String waybillCode, Integer siteCode);
+
+    /**
+     * 装卸车的拦截校验
+     * @param barCode
+     * @return
+     */
+    InvokeResult<String> interceptValidateUnloadCar(String barCode);
+
+    /***
+     * KA运单拦截
+     */
+    InvokeResult<String> kaWaybillCheck(String barCode, String waybillSign, InvokeResult<String> result);
+
+    /**
+     * 装卸车的拦截校验
+     */
+    InvokeResult<Boolean> loadUnloadInterceptValidate(String waybillCode, String waybillSign);
 
 }

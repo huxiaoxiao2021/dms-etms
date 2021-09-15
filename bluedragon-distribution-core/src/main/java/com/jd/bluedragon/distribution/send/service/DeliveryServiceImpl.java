@@ -111,6 +111,9 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCodeDto;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
+import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -147,7 +150,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -409,6 +411,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     @Autowired
     private IDeliveryOperationService deliveryOperationService;
+
+    @Autowired
+    private TibetBizService tibetBizService;
 
     /**
      * 自动过期时间 30分钟
@@ -740,8 +745,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
             String sendCode = coldChainSendService.getOrGenerateSendCode(request0.getTransPlanCode(), request0.getSiteCode(), request0.getReceiveSiteCode());
             // 批次号封车校验，已封车不能发货
-            if (checkSealCar && newSealVehicleService.checkSendCodeIsSealed(sendCode)) {
-                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, "该运输计划编码对应批次已经封车，请更换其他运输计划编码");
+            StringBuffer customMsg = new StringBuffer().append("该运输计划编码对应批次已经封车，请更换其他运输计划编码");
+            if (checkSealCar && newSealVehicleService.newCheckSendCodeSealed(sendCode, customMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, customMsg.toString());
             }
             request0.setSendCode(sendCode);
 
@@ -915,10 +921,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
             funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
             funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
-            // 一单多件不拦截
-            if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
+            // 一单多件不拦截 又去除
+            /*if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
                 return response;
-            }
+            }*/
             // 是否满足无重量拦截条件
             boolean isAllPureNeedWeight = funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
             if(log.isInfoEnabled()){
@@ -1324,8 +1330,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             return result;
         }
 
-        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-            result.init(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+        // 校验发货批次号状态
+        StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+        if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
+            result.init(SendResult.CODE_SENDED, customMsg.toString());
             return result;
         }
 
@@ -1337,7 +1345,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
         // 判断是否使用多次发货取消上次发货
         if (isUseMultiSendVerify) {
-            if (!isSkipMultiSendVerify) {
+
+            // 启用西藏业务模式，西藏模式去掉自动取消上次发货逻辑
+            boolean tibetMode = tibetBizService.tibetModeSwitch(domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+
+            if (!tibetMode && !isSkipMultiSendVerify) {
                 // 多次发货取消上次发货校验
                 if (!multiSendVerification(domain, result)) {
                     return result;
@@ -1600,8 +1612,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.BATCH_ORIGIN_AND_OPERATOR_ORIGIN_DIFFERENCE));
             }
             //2.判断批次号是否已经封车
-            if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
-                return new SendResult(SendResult.CODE_SENDED, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+            StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+            if (newSealVehicleService.newCheckSendCodeSealed(domain.getSendCode(), customMsg)) {
+                return new SendResult(SendResult.CODE_SENDED, customMsg.toString());
             }
             //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
             if(sendMDao.checkSendByBoard(domain)){
@@ -2397,9 +2410,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         Collections.sort(sendMList);
         // 批次号封车校验，已封车不能发货
         if (!SendBizSourceEnum.OFFLINE_OLD_SEND.equals(source) && !SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND.equals(source)
-                && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)
-        		&& newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
-            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+                && !SendBizSourceEnum.COLD_LOAD_CAR_SEND.equals(source)) {
+
+            StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+            if (newSealVehicleService.newCheckSendCodeSealed(sendMList.get(0).getSendCode(), customMsg)) {
+                return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, customMsg.toString());
+            }
         }
         Profiler.registerInfoEnd(info1);
 
@@ -3267,7 +3283,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 return checkAllow(sendDetail,isPackageCode || isSurfaceCode,isWaybillCode,isBoxcode);
             } else if (isBoardCode){
                 tSendM.setBoardCode(tSendM.getBoxCode());
-                DeliveryResponse checkResponse =sealCarCheck(tSendM.getSendCode());
+                DeliveryResponse checkResponse = sealCarCheck(tSendM.getSendCode());
                 //如果是未封车，则直接返回不拦截
                 if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
                     return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -3323,7 +3339,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return
      */
     public DeliveryResponse checkAllow(SendDetail querySendDatail,boolean isPackageCode,boolean isWaybillCode,boolean isBoxcode){
-        DeliveryResponse checkResponse =sealCarCheck(querySendDatail.getSendCode());
+        DeliveryResponse checkResponse = sealCarCheck(querySendDatail.getSendCode());
         //如果是未封车，则直接返回不拦截
         if (checkResponse.getCode().equals(DeliveryResponse.CODE_CANCELDELIVERYCHECK_NOSEAL)) {
             return new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
@@ -3360,26 +3376,45 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param batchCode
      * @return
      */
-    public DeliveryResponse sealCarCheck(String batchCode){
+    private DeliveryResponse sealCarCheck(String batchCode){
         try{
-            SealCarDto sealCarInfo= vosManager.querySealCarByBatchCode(batchCode);
-            if (sealCarInfo != null) {
-                //如果是已解封车状态返回拦截
-                if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
-                    return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL,
-                            HintService.getHint(HintCodeConstants.CANCEL_DELIVERY_CHECK_UNSEAL));
+            Integer createSite = SerialRuleUtil.getCreateSiteCodeFromSendCode(batchCode);
+            Integer receiveSite = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);
+            boolean tibetMode = tibetBizService.tibetModeSwitch(createSite, receiveSite);
+            if (tibetMode) {
+                ItmsCancelSendCheckSendCodeDto request = new ItmsCancelSendCheckSendCodeDto();
+                request.setReceiptCode(batchCode);
+                request.setOpeSiteId(String.valueOf(createSite));
+                ItmsResponse response = tibetBizService.cancelSendCheckSendCode(request);
+
+                if (log.isInfoEnabled()) {
+                    log.info("取消发货调用ITMS服务, 参数:{}, 结果:{}", JsonHelper.toJson(request), JsonHelper.toJson(response));
                 }
 
-                //已封车状态
-                if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
-                    long date = System.currentTimeMillis();
-                    //封车时间大于一小时
-                    if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
-                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL,
-                                HintService.getHint(HintCodeConstants.ABORT_CANCEL_EXCEED_ONE_HOUR));
+                if (!response.success()) {
+                    return DeliveryResponse.itmsFail(response.getMessage());
+                }
+            }
+            else {
+                SealCarDto sealCarInfo= vosManager.querySealCarByBatchCode(batchCode);
+                if (sealCarInfo != null) {
+                    //如果是已解封车状态返回拦截
+                    if(SEAL_CAR_STATUS_UNSEAL.equals(sealCarInfo.getStatus())){
+                        return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_UNSEAL,
+                                HintService.getHint(HintCodeConstants.CANCEL_DELIVERY_CHECK_UNSEAL));
                     }
 
-                    return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+                    //已封车状态
+                    if(SEAL_CAR_STATUS_SEAL.equals(sealCarInfo.getStatus())){
+                        long date = System.currentTimeMillis();
+                        //封车时间大于一小时
+                        if(date - (sealCarInfo.getSealCarTime()==null ? 0 :sealCarInfo.getSealCarTime().getTime()) > DateHelper.ONE_HOUR_MILLI){
+                            return new DeliveryResponse(DeliveryResponse.CODE_CANCELDELIVERYCHECK_SEAL,
+                                    HintService.getHint(HintCodeConstants.ABORT_CANCEL_EXCEED_ONE_HOUR));
+                        }
+
+                        return new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+                    }
                 }
             }
         }catch (Exception ex){
@@ -4848,10 +4883,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         //1.批次号封车校验，已封车不能发货
-        if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
-            response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
-            response.setMessage(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
-            return response;
+        if (StringUtils.isNotEmpty(sendM.getSendCode())) {
+            StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
+            if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
+                response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
+                response.setMessage(customMsg.toString());
+                return response;
+            }
         }
 
         //2.校验箱号或者包裹是否已发货
@@ -5192,10 +5230,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     }
                     //end
         		}
-        		//b2b校验是否包含-到付运费
-        		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
-        			noHasFreightWaybills.add(waybillCode);
-        		}
+        		//b2b校验是否包含-到付运费 2021年08月30日13:46:57 移除
+
         		//b2b校验是否包含-寄付运费
         		if(sendFreightInterception && !BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
                     sendNoHasFreightWaybills.add(waybillCode);
@@ -7313,19 +7349,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
         // 查redis后查运输接口兜底
-        if(newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null){
-            return true;
-        }
-        try {
-            CommonDto<Boolean> isSealed = newSealVehicleService.isBatchCodeHasSealed(sendCode);
-            if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
-                    && isSealed.getData() != null && isSealed.getData()){
-                return true;
-            }
-        } catch (Exception e) {
-            log.error("查询批次号【{}】是否封车异常!",sendCode,e);
-        }
-        return false;
+        return newSealVehicleService.checkSendCodeIsSealed(sendCode);
     }
 
     /**

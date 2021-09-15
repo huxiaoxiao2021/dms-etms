@@ -94,4 +94,11 @@ public interface LoadScanService {
      * 获取已验未发、未装车的运单明细
      */
     JdCResponse<LoadScanDetailDto> getInspectNoSendNoLoadWaybillDetail(GoodsLoadingScanningReq req);
+    /**
+     * 未装包裹明细列表查询
+     */
+    JdCResponse<Boolean> uploadPhotoCheck(GoodsLoadingReq goodsLoadingReq);
+
+
+
 }

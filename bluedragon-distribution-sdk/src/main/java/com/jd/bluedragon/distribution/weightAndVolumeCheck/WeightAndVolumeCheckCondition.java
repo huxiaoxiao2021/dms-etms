@@ -48,6 +48,13 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
     /** 抽检类型 */
     private Integer spotCheckType;
 
+    /**
+     * 抽检记录类型
+     */
+    private Integer recordType;
+
+    private Integer queryForWeb;
+
     public Integer getSpotCheckType() {
         return spotCheckType;
     }
@@ -158,5 +165,23 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
 
     public void setReviewEndTime(Date reviewEndTime) {
         this.reviewEndTime = reviewEndTime;
+    }
+
+    public Integer getRecordType() {
+        return recordType;
+    }
+
+    public WeightAndVolumeCheckCondition setRecordType(Integer recordType) {
+        this.recordType = recordType;
+        return this;
+    }
+
+    public Integer getQueryForWeb() {
+        return queryForWeb;
+    }
+
+    public WeightAndVolumeCheckCondition setQueryForWeb(Integer queryForWeb) {
+        this.queryForWeb = queryForWeb;
+        return this;
     }
 }

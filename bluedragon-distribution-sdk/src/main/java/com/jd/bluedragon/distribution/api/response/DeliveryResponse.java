@@ -166,6 +166,9 @@ public class DeliveryResponse extends JdResponse {
 
     public static final Integer BARCODE_DELIVERY_IS_PROCESSING = 40030;
 
+    // 调用ITMS系统失败时，转换为分拣内部Code，保留提示信息
+    public static final Integer CODE_ITMS_FAIL = 40021;
+
     /**取消发货校验提示语 End*/
 
     /**
@@ -201,5 +204,9 @@ public class DeliveryResponse extends JdResponse {
 
     public static DeliveryResponse oK() {
         return new DeliveryResponse(CODE_OK, MESSAGE_OK);
+    }
+
+    public static DeliveryResponse itmsFail(String message) {
+        return new DeliveryResponse(CODE_ITMS_FAIL, message);
     }
 }

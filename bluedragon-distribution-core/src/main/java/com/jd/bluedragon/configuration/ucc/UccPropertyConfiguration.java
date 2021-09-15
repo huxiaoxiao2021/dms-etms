@@ -480,6 +480,24 @@ public class UccPropertyConfiguration {
      */
     private String deliverySendAsyncSite;
 
+    /**
+     * 日志查询功能开关 1：启用 0：禁用
+     */
+    private String businessLogQueryPageSwitch;
+
+    public String getBusinessLogQueryPageSwitch() {
+        return businessLogQueryPageSwitch;
+    }
+
+    public void setBusinessLogQueryPageSwitch(String businessLogQueryPageSwitch) {
+        this.businessLogQueryPageSwitch = businessLogQueryPageSwitch;
+    }
+
+    /**
+     * 使用新库存ES的场地
+     */
+    private String useNewInventorySiteCodes;
+
     public String getDeliverySendAsyncSite() {
         return deliverySendAsyncSite;
     }
@@ -487,6 +505,31 @@ public class UccPropertyConfiguration {
     public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
         this.deliverySendAsyncSite = deliverySendAsyncSite;
     }
+
+    /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
+
+    /**
+     * 读转运卸车表开关
+     */
+    private boolean readUnloadFromTys;
+
+    /**
+     * 停止写分拣卸车表开关
+     */
+    private boolean stopWriteUnloadFromDms;
+
+    /**
+     * 写转运卸车表开关
+     */
+    private boolean writeUnloadFromTys;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1260,6 +1303,100 @@ public class UccPropertyConfiguration {
     public void setParalleGetPackageSwitch(boolean paralleGetPackageSwitch) {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
+
+    /**
+     * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
+     */
+    private String itmsBizEnableSwitch;
+
+    public String getItmsBizEnableSwitch() {
+        return itmsBizEnableSwitch;
+    }
+
+    public void setItmsBizEnableSwitch(String itmsBizEnableSwitch) {
+        this.itmsBizEnableSwitch = itmsBizEnableSwitch;
+    }
+
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
+
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
+    }
+
+    public int getMultiplePackageSpotCheckSwitch() {
+        return multiplePackageSpotCheckSwitch;
+    }
+
+    public void setMultiplePackageSpotCheckSwitch(int multiplePackageSpotCheckSwitch) {
+        this.multiplePackageSpotCheckSwitch = multiplePackageSpotCheckSwitch;
+    }
+
+    public boolean getMultiplePackageSpotCheckSwitchOn() {
+        return Objects.equals(Constants.YN_YES, multiplePackageSpotCheckSwitch);
+    }
+
+    public String getMultiplePackageSpotCheckSites() {
+        return multiplePackageSpotCheckSites;
+    }
+
+    public void setMultiplePackageSpotCheckSites(String multiplePackageSpotCheckSites) {
+        this.multiplePackageSpotCheckSites = multiplePackageSpotCheckSites;
+    }
+    public List<String> getMultiplePackageSpotCheckSitesList() {
+        if(multiplePackageSpotCheckSites == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(multiplePackageSpotCheckSites.split(Constants.SEPARATOR_COMMA));
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> _multiplePackageSpotCheckSitesList = new ArrayList<>();
+    public void setMultiplePackageSpotCheckSitesList(String multiplePackageSpotCheckSites) {
+        this.multiplePackageSpotCheckSites = multiplePackageSpotCheckSites;
+        this._multiplePackageSpotCheckSitesList = this.getMultiplePackageSpotCheckSitesList();
+    }
+
+    public boolean matchMultiplePackageSpotCheckSite(int siteId) {
+        if(StringUtils.isBlank(multiplePackageSpotCheckSites)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, multiplePackageSpotCheckSites)){
+            return true;
+        }
+        if(_multiplePackageSpotCheckSitesList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
 
     public int getVirtualBoardMaxDestinationCount() {
         return virtualBoardMaxDestinationCount;

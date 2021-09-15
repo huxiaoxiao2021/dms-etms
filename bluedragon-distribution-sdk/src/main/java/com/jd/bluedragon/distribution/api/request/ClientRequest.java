@@ -19,6 +19,8 @@ public class ClientRequest  extends JdRequest {
 
     private String userErp;
 
+    private String source;
+
     public String getBusinessName() {
         return businessName;
     }
@@ -41,5 +43,13 @@ public class ClientRequest  extends JdRequest {
 
     public void setBusinessCode(String businessCode) {
         this.businessCode = businessCode;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

@@ -24,7 +24,7 @@ import com.jd.bluedragon.external.gateway.service.GoodsLoadScanGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService;
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ql.dms.report.domain.LoadScanDto;
+import com.jd.merchant.api.pack.dto.LoadScanDto;
 import com.jd.service.common.json.JSON;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;

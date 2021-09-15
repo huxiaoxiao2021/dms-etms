@@ -47,6 +47,46 @@ public abstract class AbstractCheckStandardHandler implements WeightAndVolumeChe
     @Value("${spotCheck.fourSumLWHStage:0.8}")
     public String fourSumLWHStage;
 
+    /**
+     * Dws抽检C网纯配运单A标准 重量比较值
+     */
+    @Value("${spotCheck.dws.cPure.standardA.firstWeight:1.5}")
+    public String dwsPureStandardAFirstWeight;
+    @Value("${spotCheck.dws.cPure.standardA.secondWeight:20}")
+    public String dwsPureStandardASecondWeight;
+    @Value("${spotCheck.dws.cPure.standardA.thirdWeight:50}")
+    public String dwsPureStandardAThirdWeight;
+
+    @Value("${spotCheck.dws.cPure.standardB.firstWeightDeviation:0.5}")
+    public String dwsPureStandardBFirstWeightDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.secondWeightDeviation:0.5}")
+    public String dwsPureStandardBSecondWeightDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.thirdWeightDeviation:1}")
+    public String dwsPureStandardBThirdWeightDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.fourthWeightDeviation:0.02}")
+    public String dwsPureStandardBFourthWeightDeviation;
+
+    /**
+     * Dws抽检C网纯配运单B标准 体积比较值
+     */
+    @Value("${spotCheck.dws.cPure.standardB.firstVolume:12700}")
+    public String dwsPureStandardBFirstVolume;
+    @Value("${spotCheck.dws.cPure.standardB.secondVolume:37037}")
+    public String dwsPureStandardBSecondVolume;
+    @Value("${spotCheck.dws.cPure.standardB.thirdVolume:64000}")
+    public String dwsPureStandardBThirdVolume;
+    @Value("${spotCheck.dws.cPure.standardB.fourthVolume:296252}")
+    public String dwsPureStandardBFourthVolume;
+
+    @Value("${spotCheck.dws.cPure.standardB.firstVolumeDeviation:0.8}")
+    public String dwsPureStandardBFirstVolumeDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.secondVolumeDeviation:1}")
+    public String dwsPureStandardBSecondVolumeDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.thirdVolumeDeviation:1.5}")
+    public String dwsPureStandardBThirdVolumeDeviation;
+    @Value("${spotCheck.dws.cPure.standardB.fourthVolumeDeviation:2}")
+    public String dwsPureStandardBFourthVolumeDeviation;
+
     public Double keeTwoDecimals(Double param){
         if(param == null){
             return 0.00;

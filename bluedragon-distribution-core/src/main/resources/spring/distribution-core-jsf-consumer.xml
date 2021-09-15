@@ -69,7 +69,7 @@
     <jsf:consumer id="waybillCancelJsfService"
                   interface="com.jd.dms.ver.service.WaybillCancelJsfService"
                   alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>    
+    </jsf:consumer>
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -674,6 +674,10 @@
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="loadScanPackageDetailWS" interface="com.jd.merchant.api.pack.ws.LoadScanPackageDetailWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!--众邮箱服务-->
     <jsf:consumer id="boxOperateApi" interface="com.zhongyouex.order.api.box.BoxOperateApi"
                   protocol="jsf" alias="${jsf.zhongyouex.alias}" timeout="${jsf.zhongyouex.timeout}" lazy="${jsf.consumer.lazy}">
@@ -757,6 +761,10 @@
     <!-- 波次服务 -->
     <jsf:consumer id="transferWaveJsfService" interface="com.jd.dms.wb.report.api.ITransferWaveJsfService"
                   alias="${jsf.alias.transferWaveJsfService}" protocol="jsf" timeout="${jsf.timeout.transferWaveJsfService}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <jsf:consumer id="loadCarTaskServiceWS" interface="com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS"
+                  protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.tys.loadCarTaskServiceWS.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
 </beans>

@@ -36,8 +36,6 @@
 		</property>
 	</bean>
 
-
-
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
@@ -120,6 +118,7 @@
 		<property name="bigWaybillWaringSize" value="${bigWaybillWaringSize:5000}"/>
         <property name="siteEnableSendCodeEffectiveValidation" value="${siteEnableSendCodeEffectiveValidation:''}" />
         <property name="spotCheckIssueControl" value="${spotCheckIssueControl:true}"></property>
+        <property name="itmsBizEnableSwitch" value="${itmsBizEnableSwitch:''}" />
         <property name="hideSpecialStartSitePrintSwitch" value="${hideSpecialStartSitePrintSwitch:0}"></property> <!-- 隐藏特殊始发场地名称开关 0-关，1-开 -->
         <property name="hideSpecialStartSitPrintDestinationSiteList" value="${hideSpecialStartSitPrintDestinationSiteList:''}"></property> <!-- 隐藏特殊始发场地目的场地名单 -->
 		<property name="hideSpecialStartSitePrintReplaceSymbol" value="${hideSpecialStartSitePrintReplaceSymbol:''}"></property> <!-- 隐藏特殊始发场地字符串 0-关，1-开 -->
@@ -130,7 +129,14 @@
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
+        <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
+		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"></property> <!-- 一单多件抽检开关配置 -->
+		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"></property> <!-- 一单多件抽检场地配置 -->
+		<property name="readUnloadFromTys" value="${readUnloadFromTys:false}" />
+		<property name="stopWriteUnloadFromDms" value="${stopWriteUnloadFromDms:false}" />
+		<property name="writeUnloadFromTys" value="${writeUnloadFromTys:false}" />
         <property name="virtualBoardMaxDestinationCount" value="${virtualBoardMaxDestinationCount:5}" />
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
@@ -232,6 +238,7 @@
 				<value>uccPropertyConfiguration.bigWaybillWaringSize</value>
 				<value>uccPropertyConfiguration.spotCheckIssueControl</value>
 				<value>uccPropertyConfiguration.siteEnableSendCodeEffectiveValidation</value>
+                <value>uccPropertyConfiguration.itmsBizEnableSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintSwitch</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitPrintDestinationSiteList</value>
 				<value>uccPropertyConfiguration.hideSpecialStartSitePrintReplaceSymbol</value>
@@ -242,8 +249,14 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
-                <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
+                <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
+				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
+				<value>uccPropertyConfiguration.readUnloadFromTys</value>
+				<value>uccPropertyConfiguration.stopWriteUnloadFromDms</value>
+				<value>uccPropertyConfiguration.writeUnloadFromTys</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSwitch</value>
+				<value>uccPropertyConfiguration.multiplePackageSpotCheckSites</value>
 				<value>uccPropertyConfiguration.virtualBoardMaxDestinationCount</value>
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
@@ -260,6 +273,4 @@
 			</list>
 		</property>
 	</bean>
-
-
 </beans>

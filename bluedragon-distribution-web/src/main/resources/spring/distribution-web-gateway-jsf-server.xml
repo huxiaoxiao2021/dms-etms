@@ -171,6 +171,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <bean id="clientLogGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ClientLogGatewayServiceImpl"/>
+    <jsf:provider id="jsfClientLogGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.ClientLogGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="clientLogGatewayService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!-- 参数配置 -->
     <bean id="sysConfigManageGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SysConfigManageGateWayServiceImpl"/>
     <jsf:provider id="jsfSysConfigManageGateWayService"

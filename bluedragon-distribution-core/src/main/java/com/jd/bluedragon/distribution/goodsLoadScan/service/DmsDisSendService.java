@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.goodsLoadScan.service;
 
-import com.jd.ql.dms.report.domain.LoadScanDto;
+
+
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.distribution.loadAndUnload.LoadCar;
+import com.jd.merchant.api.pack.dto.LoadScanDto;
 
 import java.util.List;
 
@@ -13,17 +17,6 @@ public interface DmsDisSendService {
      * @return 包裹详情集合
      */
     List<LoadScanDto> getLoadScanListByWaybillCode(List<LoadScanDto> scanDtoList, Integer currentSiteId);
-
-    /**
-     * 根据运单号、当前网点、下一网点获取装车扫描列表
-     * @param waybillCodes  运单号列表
-     * @param currentSiteId 当前网点id
-     * @param nextSiteId 下一网点id
-     * @param rows 查询数量
-     * @return 包裹详情集合
-     */
-    List<LoadScanDto> getLoadScanByWaybillCodes(List<String> waybillCodes, Integer currentSiteId,
-                                                Integer nextSiteId, Integer rows);
 
     /**
      * 根据运单号获取装车扫描
@@ -41,12 +34,12 @@ public interface DmsDisSendService {
      */
     List<String> getUnloadPackageCodesByWaybillCode(String waybillCode, Integer createSiteId,
                                                     List<String> packageCodes);
+
     /**
-     * 根据运单号、当前网点查询库存包裹号列表
-     * @param waybillCode 运单号
-     * @param createSiteId 当前网点ID
-     * @return 库存包裹号列表
+     * 查询不包含运单号集合的库存信息
+     * @param loadCar  库存查询条件
+     * @param waybillCodeList   查询库存时需要去除的运单号
      */
-    LoadScanDto getPackageCodesByWaybillCode(String waybillCode, Integer createSiteId);
+    JdCResponse<List<LoadScanDto>> getInspectNoSendWaybillInfo(LoadCar loadCar, List<String> waybillCodeList);
 
 }

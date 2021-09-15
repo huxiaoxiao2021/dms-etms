@@ -19,10 +19,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.CheckExcessParam;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.ExportWeightVolumeCollectDto;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.StandardDto;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -53,9 +50,7 @@ import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.*;
-import com.jd.ql.dms.report.domain.Enum.ContrastSourceFromEnum;
-import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
-import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
+import com.jd.ql.dms.report.domain.Enum.*;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -63,6 +58,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -93,6 +89,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     @Value("${spotCheck.fourSumLWH:70}")
     public String fourSumLWH;
+
+    @Value("${spotCheck.multiplePackageVolumeStandard:12700}")
+    public String multiplePackageVolumeStandard;
 
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
@@ -140,6 +139,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private Integer packageWeightCheckRecordExpireTime = 7;
 
+    /**
+     * 包裹抽检数据运单保存的包裹数据集合
+     */
+    private Integer waybillPackageWeightCheckRecordExpireTime = 30;
+    /**
+     * 抽检数据下发fxm缓存过期时间
+     */
+    private Integer cacheFxmSendWaybillExpireTime = 15;
+
     @Autowired
     @Qualifier("dmsWeightVolumeExcess")
     private DefaultJMQProducer dmsWeightVolumeExcess;
@@ -165,6 +173,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Autowired
     @Qualifier("weightAndVolumeCheckBHandler")
     private WeightAndVolumeCheckStandardHandler weightAndVolumeCheckBHandler;
+
+    @Autowired
+    private WeightAndVolumeCPureTypeCheckAForDwsHandler weightAndVolumeCPureTypeCheckAForDwsHandler;
+
+    @Autowired
+    private WeightAndVolumeCPureTypeCheckBForDwsHandler weightAndVolumeCPureTypeCheckBForDwsHandler;
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -288,6 +302,56 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
+    /**
+     * 查看超标图片（一单多件）
+     * @return 图片列表
+     */
+    @Override
+    public InvokeResult<Pager<WeightVolumePictureDto>> searchPicture4MultiplePackage(Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager){
+        InvokeResult<Pager<WeightVolumePictureDto>> result = new InvokeResult<>();
+        final WeightVolumeQueryCondition waybillSpotCheckCondition = weightVolumeQueryConditionPager.getSearchVo();
+        Pager<WeightVolumePictureDto> dataPager = new Pager<>();
+        List<WeightVolumePictureDto> dataList = new ArrayList<>();
+        try {
+            // 先查询运单所有包裹抽检记录
+            if(waybillSpotCheckCondition.getReviewSiteCode() == null){
+                result.parameterError("参数错误，reviewSiteCode不能为空");
+                return result;
+            }
+            if(waybillSpotCheckCondition.getWaybillCode() == null){
+                result.parameterError("参数错误，waybillCode不能为空");
+                return result;
+            }
+            int siteCode = waybillSpotCheckCondition.getReviewSiteCode();
+            waybillSpotCheckCondition.setIsHasPicture(Constants.YN_YES);
+            waybillSpotCheckCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+
+            final BaseEntity<Pager<String>> packageCodesResult = reportExternalService.getSpotCheckPackageCodesByCondition(weightVolumeQueryConditionPager);
+            final Pager<String> packageCodePager = packageCodesResult.getData();
+            dataPager.setTotal(packageCodePager.getTotal());
+            final List<String> packageCodeList = packageCodePager.getData();
+            for (String packageCode : packageCodeList) {
+                String prefixName = packageCode + Constants.UNDERLINE_FILL + siteCode + Constants.UNDERLINE_FILL;
+                //获取最近的对应的图片并返回
+                String excessPictureUrl = searchPictureUrlRecent(prefixName, 1);
+                if(StringUtils.isNotEmpty(excessPictureUrl)){
+                    WeightVolumePictureDto weightVolumePictureDto = new WeightVolumePictureDto();
+                    weightVolumePictureDto.setWaybillCode(waybillSpotCheckCondition.getWaybillCode());
+                    weightVolumePictureDto.setPackageCode(packageCode);
+                    weightVolumePictureDto.setUrl(excessPictureUrl);
+                    dataList.add(weightVolumePictureDto);
+                }
+            }
+        }catch (Exception e){
+            log.error("searchPicture4MultiplePackage 获取图片链接失败! {}", JsonHelper.toJson(weightVolumeQueryConditionPager));
+            result.parameterError(String.format("查看单号%s站点%s的图片失败!", waybillSpotCheckCondition.getWaybillCode(), waybillSpotCheckCondition.getReviewSiteCode()));
+        }
+        dataPager.setData(dataList);
+        result.setData(dataPager);
+
+        return result;
+    }
+
     @Override
     public InvokeResult<List<String>> searchExcessPictureOfB2b(String barCode, Integer siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<>();
@@ -320,8 +384,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     @Override
-    public String searchPictureUrlRecent(String prefixName) {
-        ObjectListing objectListing = listObject(prefixName, null, 100);
+    public String searchPictureUrlRecent(String prefixName, Integer maxKeys) {
+        if(maxKeys == null || maxKeys <= 0){
+            maxKeys = 1000;
+        }
+        ObjectListing objectListing = listObject(prefixName, null, maxKeys);
         if(objectListing != null && CollectionUtils.isNotEmpty(objectListing.getObjectSummaries())){
             List<String> pictureUrlList = new ArrayList<>(3);
             for(ObjectSummary objectSummary : objectListing.getObjectSummaries()){
@@ -337,6 +404,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return findRecentUrl(prefixName, pictureUrlList);
         }
         return Constants.EMPTY_FILL;
+    }
+
+    @Override
+    public String searchPictureUrlRecent(String prefixName) {
+        return this.searchPictureUrlRecent(prefixName, null);
     }
 
     /**
@@ -476,8 +548,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             pictureUrl = result.getData();
         }
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packageCode);
 
-        if(!checkPackExcessRedisIsExist(packageCode, siteCode)){
+        if(!isMultiplePackage && !checkPackExcessRedisIsExist(packageCode, siteCode)){
             log.warn("根据包裹{}站点{}查询抽检数据不存在或抽检不超标!", packageCode, siteCode);
             return;
         }
@@ -624,6 +698,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         abnormalResultMq.setIsAccusation(0);
         abnormalResultMq.setIsNeedBlame(1);
         abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
+        // 如果是一单多件
+        if (Objects.equals(IsMultiPackEnum.MULTIPLE.getCode(), weightVolumeCollectDto.getMultiplePackage())) {
+            abnormalResultMq.setBillCode(weightVolumeCollectDto.getWaybillCode());
+            abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getWaybillCode());
+            abnormalResultMq.setId(weightVolumeCollectDto.getWaybillCode() + "_" + weightVolumeCollectDto.getReviewDate().getTime());
+            abnormalResultMq.setPictureAddress(null);
+        }
         return abnormalResultMq;
     }
 
@@ -678,8 +759,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        CallerInfo info = Profiler.registerInfo("dms.WeightAndVolumeCheckServiceImpl.dealSportCheck",
-                Constants.UMP_APP_NAME_DMSWEB, false, true);
+        CallerInfo info = Profiler.registerInfo("dms.WeightAndVolumeCheckServiceImpl.dealSportCheck", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try{
             // 校验是否能操作抽检
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
@@ -688,8 +768,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 组装抽检数据
             WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, spotCheckSourceEnum, result);
-            // 设置是否超标缓存
-            cachePackIsExcessRecord(weightVolumeCollectDto);
+            // 一单一件时设置是否超标缓存
+            if(!this.getIsMultiplePackage(waybill, packWeightVO.getCodeStr())){
+                cachePackIsExcessRecord(weightVolumeCollectDto);
+            }
+            // 如果是一单多件抽检，则更新运单纬度的数据
+            this.handleMultiplePackage(packWeightVO, weightVolumeCollectDto, waybill, spotCheckSourceEnum);
             // 抽检数据落es
             reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
             // 抽检全程跟踪
@@ -724,6 +808,160 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }catch (Exception e){
             log.error("设置包裹{}站点{}是否超标缓存异常!", weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getReviewSiteCode());
         }
+    }
+
+    private SpotCheckPackageExistResult getSpotPackageTotal(WeightVolumeCollectDto weightVolumeCollectDto, int waybillPackTotalNum){
+        // 1. 获取已抽检包裹数
+        // 1.1 是否第一个判断，则写入空的运单数据
+        // 1.2 是否集齐判断，集齐进行超标判断，更新运单数据
+        // 写入包裹纬度抽检数据缓存
+        SpotCheckPackageExistResult spotCheckPackageExistResult = new SpotCheckPackageExistResult(false, 0);
+
+        WeightVolumeQueryCondition packageWeightVolumeQuery = new WeightVolumeQueryCondition();
+        packageWeightVolumeQuery.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+        packageWeightVolumeQuery.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
+        packageWeightVolumeQuery.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+        packageWeightVolumeQuery.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+        // packageWeightVolumeQuery.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightVolumeCollectDto.getPackageCode())));
+
+        BaseEntity<Long> packageWeightVolumeTotalResult = reportExternalService.countByParam(packageWeightVolumeQuery);
+        // log.info("packageWeightVolumeTotalResult {}", JsonHelper.toJson(packageWeightVolumeTotalResult));
+        if(packageWeightVolumeTotalResult.getCode() != BaseEntity.CODE_SUCCESS){
+            log.error("getSpotPackageTotal error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageWeightVolumeQuery), packageWeightVolumeTotalResult.getMessage());
+            return spotCheckPackageExistResult;
+        }
+
+        long packageWeightVolumeExistTotal = packageWeightVolumeTotalResult.getData();
+        // 如果es中的就已能查到所有，直接返回
+        if(packageWeightVolumeExistTotal == waybillPackTotalNum){
+            spotCheckPackageExistResult.setPackageSpotCheckTotal(packageWeightVolumeExistTotal);
+            spotCheckPackageExistResult.setWaybillSpotCheckExist(true);
+            return spotCheckPackageExistResult;
+        }
+
+        packageWeightVolumeQuery.setRecordType(null);
+        Pager<WeightVolumeQueryCondition> weightVolumeQueryConditionPager = new Pager<>();
+        weightVolumeQueryConditionPager.setPageSize(waybillPackTotalNum);
+        weightVolumeQueryConditionPager.setPageNo(1);
+        weightVolumeQueryConditionPager.setSearchVo(packageWeightVolumeQuery);
+        BaseEntity<Pager<String>> packageCodesResult = reportExternalService.getSpotCheckPackageCodesByCondition(weightVolumeQueryConditionPager);
+        // log.info("getSpotPackageTotal packageCodesResult {}", packageCodesResult);
+        if(packageCodesResult.getCode() != BaseEntity.CODE_SUCCESS){
+            log.error("getSpotPackageTotal error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageWeightVolumeQuery), packageCodesResult.getMessage());
+            return spotCheckPackageExistResult;
+        }
+        final List<String> packageCodeExistEsList = packageCodesResult.getData().getData();
+
+        Set<String> packageCodeSet = new HashSet<>(packageCodeExistEsList);
+        if(packageCodeSet.contains(weightVolumeCollectDto.getWaybillCode())){
+            spotCheckPackageExistResult.setWaybillSpotCheckExist(true);
+            packageCodeSet.remove(weightVolumeCollectDto.getWaybillCode());
+        }
+
+        // 先存一遍缓存
+        String waybillKey = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST, weightVolumeCollectDto.getReviewSiteCode(), weightVolumeCollectDto.getWaybillCode());
+        try {
+            final String existPackageListStr = jimdbCacheService.get(waybillKey);
+            if(com.jd.common.util.StringUtils.isNotEmpty(existPackageListStr)){
+                spotCheckPackageExistResult.setWaybillSpotCheckExist(true);
+                Set<String> packageCodeExistCacheSet = new HashSet<>();
+                List<String> packageCodeList = JsonHelper.fromJson(existPackageListStr, new ArrayList<String>().getClass());
+                if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(packageCodeList)){
+                    packageCodeList.add(weightVolumeCollectDto.getPackageCode());
+                    packageCodeExistCacheSet.addAll(packageCodeList);
+                } else {
+                    packageCodeExistCacheSet.add(weightVolumeCollectDto.getPackageCode());
+                }
+                packageCodeSet.addAll(packageCodeExistCacheSet);
+            } else {
+                packageCodeSet.add(weightVolumeCollectDto.getPackageCode());
+            }
+            jimdbCacheService.setEx(waybillKey, JSON.toJSONString(packageCodeSet), this.waybillPackageWeightCheckRecordExpireTime, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("存储运单的包裹抽检数据【{}】异常", waybillKey);
+        }
+
+        spotCheckPackageExistResult.setPackageSpotCheckTotal(packageCodeSet.size());
+
+        return spotCheckPackageExistResult;
+    }
+
+    /**
+     * 一单多件抽检，更新运单纬度数据，汇集运单纬度数据
+     */
+    private WeightVolumeCollectDto handleMultiplePackage(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto, Waybill waybill, SpotCheckSourceEnum spotCheckSourceEnum){
+        if(!this.getIsMultiplePackage(waybill, packWeightVO.getCodeStr())){
+            return null;
+        }
+        int waybillPackTotalNum = this.getPackageNumberTotal(waybill, packWeightVO.getCodeStr());
+        WeightVolumeCollectDto waybillWeightVolumeCollectDto = new WeightVolumeCollectDto();
+        BeanUtils.copyProperties(weightVolumeCollectDto, waybillWeightVolumeCollectDto);
+        waybillWeightVolumeCollectDto.setReviewWeight((double) 0);
+        waybillWeightVolumeCollectDto.setReviewVolume((double) 0);
+        waybillWeightVolumeCollectDto.setReviewVolumeWeight((double) 0);
+        waybillWeightVolumeCollectDto.setMoreBigWeight((double) 0);
+        waybillWeightVolumeCollectDto.setReviewLWH("0*0*0");
+        waybillWeightVolumeCollectDto.setPackageCode(waybillWeightVolumeCollectDto.getWaybillCode());
+        waybillWeightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        // waybillWeightVolumeCollectDto.setIsHasPicture(null);
+
+        // 1. 获取已抽检包裹数
+        SpotCheckPackageExistResult spotCheckPackageExistResult = this.getSpotPackageTotal(weightVolumeCollectDto, waybillPackTotalNum);
+        long packageWeightVolumeExistTotal = spotCheckPackageExistResult.getPackageSpotCheckTotal();
+
+        // 1. 如果没有，则说明本次操作是第1个包裹，则写一个初始化的运单维度数据，否则不处理
+        if(!spotCheckPackageExistResult.getWaybillSpotCheckExist()){
+            reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDto);
+            // log.info("insertOrUpdateForWeightVolume waybillWeightVolumeCollectDto {}", JsonHelper.toJson(waybillWeightVolumeCollectDto));
+            return waybillWeightVolumeCollectDto;
+        }
+        // 2. 查看是否集齐，未集齐则不更新数据，集齐则处理整单超标数据，更新复核数据，超标数据
+        if(packageWeightVolumeExistTotal == waybillPackTotalNum){
+            // 汇总已有包裹总重量、体积 + 本次抽检的体积重量数据
+            // 取得计费数据
+            waybillWeightVolumeCollectDto.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
+            boolean contrastDataFromFinance = this.assembleContrastDataFromFinance(waybillWeightVolumeCollectDto);
+            // 从计费取到重量，则进行超标判断
+            WeightVolumeCollectDto waybillWeightVolumeCollectDtoUpdate = new WeightVolumeCollectDto();
+            if(contrastDataFromFinance){
+                WeightVolumeQueryCondition weightVolumeQueryCondition = new WeightVolumeQueryCondition();
+                weightVolumeQueryCondition.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+                weightVolumeQueryCondition.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
+                weightVolumeQueryCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightVolumeCollectDto.getPackageCode(), weightVolumeCollectDto.getWaybillCode())));
+                BaseEntity<WeightVolumeCollectDto> sumCollectResultByReviewSiteAndWaybillCodeResult = reportExternalService.getSumCollectResultByReviewSiteAndWaybillCode(weightVolumeQueryCondition);
+                if(sumCollectResultByReviewSiteAndWaybillCodeResult.getCode() != BaseEntity.CODE_SUCCESS){
+                    log.error("handleMultiplePackage error {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(weightVolumeQueryCondition), sumCollectResultByReviewSiteAndWaybillCodeResult.getMessage());
+                    return null;
+                }
+                final WeightVolumeCollectDto sumCollect = sumCollectResultByReviewSiteAndWaybillCodeResult.getData();
+                // 加上本次称重数据
+                PackWeightVO waybillWeightVO = new PackWeightVO();
+                BeanUtils.copyProperties(packWeightVO, waybillWeightVO);
+                waybillWeightVO.setCodeStr(weightVolumeCollectDto.getWaybillCode());
+                waybillWeightVO.setLength((double) 0);
+                waybillWeightVO.setWidth((double) 0);
+                waybillWeightVO.setHigh((double) 0);
+                waybillWeightVO.setVolume(sumCollect.getReviewVolume() + weightVolumeCollectDto.getReviewVolume());
+                waybillWeightVO.setWeight(sumCollect.getReviewWeight() + weightVolumeCollectDto.getReviewWeight());
+
+                waybillWeightVolumeCollectDto.setReviewWeight(sumCollect.getReviewWeight() + weightVolumeCollectDto.getReviewWeight());
+                waybillWeightVolumeCollectDto.setReviewVolume(sumCollect.getReviewVolume() + weightVolumeCollectDto.getReviewVolume());
+
+                waybillWeightVolumeCollectDtoUpdate = this.assemble4MultiplePackage(waybillWeightVO, waybill, spotCheckSourceEnum, new InvokeResult<Boolean>(), waybillWeightVolumeCollectDto);
+                waybillWeightVolumeCollectDtoUpdate.setReviewErp(null); // 不更新抽检人erp，仍取第一次抽检人的erp
+                waybillWeightVolumeCollectDtoUpdate.setFullCollect(Constants.YN_YES);
+                // 更新运单纬度数据
+                reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDtoUpdate);
+            } else {
+                // 更新集齐数据
+                waybillWeightVolumeCollectDtoUpdate.setPackageCode(weightVolumeCollectDto.getWaybillCode());
+                waybillWeightVolumeCollectDtoUpdate.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+                waybillWeightVolumeCollectDtoUpdate.setFullCollect(Constants.YN_YES);
+                // 更新运单纬度数据
+                reportExternalService.insertOrUpdateForWeightVolume(waybillWeightVolumeCollectDtoUpdate);
+            }
+        }
+        return waybillWeightVolumeCollectDto;
     }
 
     /**
@@ -766,16 +1004,56 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }else {
             packNum = waybill.getGoodNumber();
         }
-        if(packNum == null || packNum > Constants.CONSTANT_NUMBER_ONE){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"重量体积抽查只支持一单一件!");
+        if(packNum == null){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "未能获取到运单包裹数，请稍后再试!");
             return false;
         }
+        if(packNum > Constants.CONSTANT_NUMBER_ONE){
+            if(BusinessUtil.isPurematch(waybill.getWaybillSign())){
+                if(!WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"C网纯配运单重量体积抽查只支持扫包裹，请勿扫描其他类型条码");
+                    return false;
+                }
+                // 增加ucc开关
+                if(uccPropertyConfiguration.getMultiplePackageSpotCheckSwitchOn() && !uccPropertyConfiguration.matchMultiplePackageSpotCheckSite(packWeightVO.getOperatorSiteCode())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"当前场地未开通一单多件抽检功能");
+                    return false;
+                }
+                return true;
+            }
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"非C网纯配运单重量体积抽查只支持一单一件!");
+            return false;
+        }
+
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             // 非纯配外单不计入抽检 & 前台不提示
             result.success();
             return false;
         }
         return true;
+    }
+
+    private int getPackageNumberTotal(Waybill waybill, String packageCode){
+        int packNum = 1;
+        if(WaybillUtil.isPackageCode(packageCode)){
+            packNum = WaybillUtil.getPackNumByPackCode(packageCode);
+        }else {
+            Integer goodNumber = waybill.getGoodNumber();
+            if(goodNumber != null){
+                packNum = goodNumber;
+            }
+        }
+        return packNum;
+    }
+
+    /**
+     * 根据运单判断是否为一单多件
+     * @param waybill 运单
+     * @return 判定结果
+     */
+    private boolean getIsMultiplePackage(Waybill waybill, String packageCode) {
+        int packNum = this.getPackageNumberTotal(waybill, packageCode);
+        return packNum > Constants.CONSTANT_NUMBER_ONE;
     }
 
     /**
@@ -914,7 +1192,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             return result;
         }
         WeightVolumeCollectDto weightVolumeCollectDtoExist = weightVolumeCollectDtoInvokeResult.getData();
-        if(weightVolumeCollectDtoExist != null){
+        final List<Integer> excessResultList = new ArrayList<>(Arrays.asList(IsExcessEnum.EXCESS_ENUM_NO.getCode(), IsExcessEnum.EXCESS_ENUM_YES.getCode()));
+        if(weightVolumeCollectDtoExist != null && weightVolumeCollectDtoExist.getIsExcess() != null && excessResultList.contains(weightVolumeCollectDtoExist.getIsExcess())){
             // 校验是否为第一个抽检的单位
             if (!Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
                 result.setData(false);
@@ -923,7 +1202,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             // 有抽检记录，校验抽检记录上的发货状态
             if (Objects.equals(weightVolumeCollectDtoExist.getReviewSiteCode(), packWeightVO.getOperatorSiteCode())) {
-                boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist.getWaybillCode(), weightVolumeCollectDtoExist);
+                boolean waybillSendStatusFlag = this.getWaybillSendStatus(weightVolumeCollectDtoExist);
                 if(waybillSendStatusFlag){
                     result.setData(false);
                     result.customMessage(this.NOT_ALLOW_SECOND_SITE_CHECK_CODE, "抽检失败，此单已发货，不可再抽检，请在发货操作前进行抽检");
@@ -932,30 +1211,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
         }
         return result;
-    }
-
-    /**
-     * 获取包裹发货状态
-     * @param waybillCode 运单号
-     * @param weightVolumeCollectDto 抽检记录
-     * @return boolean 发货-true,未发货-false
-     * @author fanggang7
-     * @time 2020-08-26 15:08:54 周三
-     */
-    private boolean getWaybillSendStatus(String waybillCode, WeightVolumeCollectDto weightVolumeCollectDto){
-        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(waybillCode);
-        try {
-            String redisValue = jimdbCacheService.get(key);
-            if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) == Constants.YN_YES){
-                return true;
-            }
-        }catch (Exception e){
-            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
-        }
-        if(Objects.equals(weightVolumeCollectDto.getWaybillStatus(), WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY)){
-            return true;
-        }
-        return false;
     }
 
     /**
@@ -983,7 +1238,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param weightVolumeCollectDto
      * @return
      */
-    private StandardDto  checkStandard(WeightVolumeCollectDto weightVolumeCollectDto){
+    private StandardDto checkStandard(WeightVolumeCollectDto weightVolumeCollectDto){
         Double reviewWeight = weightVolumeCollectDto.getReviewWeight();
         Double reviewVolumeWeight = weightVolumeCollectDto.getReviewVolumeWeight();
         // 复核较大值
@@ -999,15 +1254,22 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
         }
 
-        WeightAndVolumeCheckStandardHandler weightAndVolumeCheckStandardHandler = this.getCheckStandardHandler(reviewWeight,reviewVolumeWeight,sumLWH);
+        WeightAndVolumeCheckStandardHandler weightAndVolumeCheckStandardHandler = null;
+        if(this.isMultiplePackage(weightVolumeCollectDto)){
+            weightAndVolumeCheckStandardHandler = this.getCheckStandardForMultiplePackageHandler(weightVolumeCollectDto);
+        } else {
+            weightAndVolumeCheckStandardHandler = this.getCheckStandardHandler(reviewWeight,reviewVolumeWeight,sumLWH);
+        }
+
         CheckExcessParam checkExcessParam = new CheckExcessParam();
         checkExcessParam.setSumLWH(sumLWH);
         checkExcessParam.setDifferenceValue(weightVolumeCollectDto.getLargeDiff());
         checkExcessParam.setMoreBigValue(moreBigValue);
         checkExcessParam.setCheckMoreBigValue(contrastLarge);
         checkExcessParam.setReviewWeight(reviewWeight);
+        checkExcessParam.setReviewVolume(weightVolumeCollectDto.getReviewVolume());
 
-        StandardDto  standardDto = weightAndVolumeCheckStandardHandler.checkExcess(checkExcessParam);
+        StandardDto standardDto = weightAndVolumeCheckStandardHandler.checkExcess(checkExcessParam);
 
         if(standardDto!=null && standardDto.getExcessFlag()){
             String baseMessage = "此次操作的重量:"+weightVolumeCollectDto.getReviewWeight()+"kg,体积重量:"+reviewVolumeWeight+"kg,核对较大值:"+contrastLarge+"kg，经校验误差值"+weightVolumeCollectDto.getLargeDiff()+"kg已超出规定";
@@ -1017,14 +1279,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return standardDto;
     }
 
+    private boolean isMultiplePackage(WeightVolumeCollectDto weightVolumeCollectDto) {
+        return Objects.equals(IsMultiPackEnum.MULTIPLE.getCode(), weightVolumeCollectDto.getMultiplePackage());
+    }
+
     /**
      * 判断是否走A标准还是B标准的 实现类
-     * @param reviewWeight
-     * @param reviewVolumeWeight
      * @param sumLWH
      * @return
      */
-    private WeightAndVolumeCheckStandardHandler getCheckStandardHandler(Double reviewWeight,Double reviewVolumeWeight,BigDecimal sumLWH) {
+    private WeightAndVolumeCheckStandardHandler getCheckStandardHandler(Double reviewWeight, Double reviewVolumeWeight, BigDecimal sumLWH) {
         if(reviewWeight > reviewVolumeWeight){
            return this.weightAndVolumeCheckAHandler;
         }else {
@@ -1033,6 +1297,32 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 return this.weightAndVolumeCheckAHandler;
             }else {
                return this.weightAndVolumeCheckBHandler;
+            }
+        }
+    }
+
+    /**
+     * 判断得到一单多件处理标准
+     * @return
+     */
+    private WeightAndVolumeCheckStandardHandler getCheckStandardForMultiplePackageHandler(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // 整单的分拣较大值与整单的计费结算重量计费较大值进行对比
+        /**
+         * ①	当分拣重量为较大值时，使用【较大值】与计费系统【唯一值】计费较大值比较，执行校验标准A
+         * ②	当分拣体积重量为较大值，且体积小于12700立方厘米时，使用【较大值】与计费系统【唯一值】计费较大值比较，执行校验标准A
+         * ③	当分拣体积重量为较大值，且体积大于12700立方厘米 时，使用【较大值】与计费系统【唯一值】计费较大值比较，执行校验标准B
+         * ④	分拣【较大值】与计费系统【唯一值】计费较大值，均小于等于1.5公斤，不论误差多少均判断为正常
+         */
+        Double reviewWeight = weightVolumeCollectDto.getReviewWeight();
+        Double reviewVolume = weightVolumeCollectDto.getReviewVolume();
+        Double reviewVolumeWeight = weightVolumeCollectDto.getReviewVolumeWeight();
+        if(reviewWeight > reviewVolumeWeight){
+            return this.weightAndVolumeCPureTypeCheckAForDwsHandler;
+        } else {
+            if(reviewVolume < Double.parseDouble(multiplePackageVolumeStandard)){
+                return this.weightAndVolumeCPureTypeCheckAForDwsHandler;
+            }else {
+                return this.weightAndVolumeCPureTypeCheckBForDwsHandler;
             }
         }
     }
@@ -1072,7 +1362,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private WeightVolumeCollectDto assemble(PackWeightVO packWeightVO, Waybill waybill, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
         // 抽检复核数据
-        WeightVolumeCollectDto weightVolumeCollectDto = assembleReviewData(packWeightVO, waybill, spotCheckSourceEnum.name());
+        WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
+        assembleReviewData(packWeightVO, weightVolumeCollectDto, waybill, spotCheckSourceEnum.name());
         // 抽检核对数据
         assembleContrastData(weightVolumeCollectDto);
         // 超标处理
@@ -1083,6 +1374,39 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         pictureUrlDeal(weightVolumeCollectDto);
 
         return weightVolumeCollectDto;
+    }
+
+    /**
+     * 组装抽检数据
+     *  1、分拣复核数据
+     *  2、核对数据：计费|运单称重流水（计费未获取到数据的兜底方案）
+     *  3、超标逻辑
+     * @param packWeightVO
+     */
+    private WeightVolumeCollectDto assemble4MultiplePackage(PackWeightVO packWeightVO, Waybill waybill, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result, WeightVolumeCollectDto waybillWeightVolumeCollectDto) {
+        final Double reviewVolumeSum = waybillWeightVolumeCollectDto.getReviewVolume();
+        // 抽检复核数据
+        assembleReviewData(packWeightVO, waybillWeightVolumeCollectDto, waybill, spotCheckSourceEnum.name());
+        // 一单多件的体积特殊处理
+        Double reviewVolumeWeight = getVolumeAndWeight(reviewVolumeSum /waybillWeightVolumeCollectDto.getVolumeRate());
+        waybillWeightVolumeCollectDto.setReviewVolumeWeight(reviewVolumeWeight);
+        waybillWeightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        waybillWeightVolumeCollectDto.setReviewVolume(reviewVolumeSum);
+        // 复核较大值
+        Double moreBigValue = waybillWeightVolumeCollectDto.getReviewWeight() >= reviewVolumeWeight ? waybillWeightVolumeCollectDto.getReviewWeight() : reviewVolumeWeight;
+        waybillWeightVolumeCollectDto.setMoreBigWeight(moreBigValue);
+        // 较大值差异
+        double contrastLarge = waybillWeightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : waybillWeightVolumeCollectDto.getContrastLarge();
+        double moreBigWeight = waybillWeightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : waybillWeightVolumeCollectDto.getMoreBigWeight();
+        waybillWeightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
+        // 抽检核对数据
+        // assembleContrastData(waybillWeightVolumeCollectDto);
+        // 超标处理
+        excessDeal(waybillWeightVolumeCollectDto, result);
+        // 特殊处理
+        specialTreatment(waybillWeightVolumeCollectDto, waybill);
+
+        return waybillWeightVolumeCollectDto;
     }
 
     private void pictureUrlDeal(WeightVolumeCollectDto weightVolumeCollectDto) {
@@ -1114,26 +1438,33 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void excessDeal(WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result) {
         //校验是否超标
-        StandardDto standardDto = checkStandard(weightVolumeCollectDto);
-        // 超标标识判断  1:是超标  0:未超标
-        if(standardDto == null){
-            // 未知
-            result.customMessage(STANDARD_ERROR_CODE, "无法获取是否超标standardDto对象");
+        // 如果是一单多件的包裹纬度数据，则不判断超标；如果是自动化来源的一单多件抽检，则必定超标
+        if(Objects.equals(IsMultiPackEnum.MULTIPLE.getCode(), weightVolumeCollectDto.getMultiplePackage())
+                && Objects.equals(SpotCheckRecordTypeEnum.PACKAGE.getCode(), weightVolumeCollectDto.getRecordType())){
             weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO_KNOW.getCode());
             weightVolumeCollectDto.setDiffStandard(Constants.EMPTY_FILL);
-        }else if(standardDto.getExcessFlag()){
-            //超标--- C抽B  临时不提示
-            if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(),SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
-                result.customMessage(CHECK_OVER_STANDARD_CODE, standardDto.getWarnMessage());
+        } else {
+            StandardDto standardDto = checkStandard(weightVolumeCollectDto);
+            // 超标标识判断  1:是超标  0:未超标
+            if(standardDto == null){
+                // 未知
+                result.customMessage(STANDARD_ERROR_CODE, "无法获取是否超标standardDto对象");
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO_KNOW.getCode());
+                weightVolumeCollectDto.setDiffStandard(Constants.EMPTY_FILL);
+            }else if(standardDto.getExcessFlag()){
+                //超标--- C抽B  临时不提示
+                if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(),SpotCheckTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+                    result.customMessage(CHECK_OVER_STANDARD_CODE, standardDto.getWarnMessage());
+                }
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
+                weightVolumeCollectDto.setDiffStandard(standardDto.getHitMessage());
+            }else{
+                //未超标
+                weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
+                weightVolumeCollectDto.setDiffStandard(Constants.EMPTY_FILL);
             }
-            weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            weightVolumeCollectDto.setDiffStandard(standardDto.getHitMessage());
-        }else{
-            //未超标
-            weightVolumeCollectDto.setIsExcess(IsExcessEnum.EXCESS_ENUM_NO.getCode());
-            weightVolumeCollectDto.setDiffStandard(Constants.EMPTY_FILL);
+            weightVolumeCollectDto.setExcessReason(standardDto == null ? Constants.EMPTY_FILL : standardDto.getExcessReason());
         }
-        weightVolumeCollectDto.setExcessReason(standardDto == null ? Constants.EMPTY_FILL : standardDto.getExcessReason());
     }
 
     /**
@@ -1142,9 +1473,39 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void assembleContrastData(WeightVolumeCollectDto weightVolumeCollectDto) {
         try{
+            // 如果是一单多件包裹纬度数据就不处理拉取计费数据
+            if(this.isMultiplePackage(weightVolumeCollectDto)
+                    && Objects.equals(SpotCheckRecordTypeEnum.PACKAGE.getCode(), weightVolumeCollectDto.getRecordType())){
+                return ;
+            }
+            this.assembleContrastDataFromFinance(weightVolumeCollectDto);
+        }catch (Exception e){
+            log.error("通过运单号{}获取计费信息异常!", weightVolumeCollectDto.getWaybillCode());
+        }
+
+        // 一单多件抽检目前不查找运单流水
+        if(!this.isMultiplePackage(weightVolumeCollectDto)){
+            // 计费重量为0则取运单流水
+            dealWaybillFlow(weightVolumeCollectDto);
+        }
+        // 较大值差异
+        double contrastLarge = weightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getContrastLarge();
+        double moreBigWeight = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
+        weightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
+    }
+
+    /**
+     * 从计费组装抽检核对数据
+     * @param weightVolumeCollectDto 抽检数据
+     * @author fanggang7
+     * @time 2021-07-29 17:35:51 周四
+     */
+    private boolean assembleContrastDataFromFinance(WeightVolumeCollectDto weightVolumeCollectDto) {
+        boolean hasBusinessFinanceFlag = false;
+        try {
             // 调用计费接口获取重量体积信息
             ResponseDTO<BizDutyDTO> responseDto = businessFinanceManager.queryDutyInfo(weightVolumeCollectDto.getWaybillCode());
-            if(responseDto != null && Objects.equals(responseDto.getStatusCode(), Constants.NUMBER_ZERO) && responseDto.getData() != null){
+            if (responseDto != null && Objects.equals(responseDto.getStatusCode(), Constants.NUMBER_ZERO) && responseDto.getData() != null) {
                 BizDutyDTO bizDutyDTO = responseDto.getData();
                 // 核对来源：计费
                 weightVolumeCollectDto.setContrastSourceFrom(ContrastSourceFromEnum.SOURCE_FROM_BILLING.getCode());
@@ -1165,23 +1526,19 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingVolume(billingVolume);
                 // 计费结算重量
                 weightVolumeCollectDto.setBillingCalcWeight(bizDutyDTO.getCalcWeight() == null ? Constants.DOUBLE_ZERO : bizDutyDTO.getCalcWeight().doubleValue());
-                double billingVolumeWeight = getVolumeAndWeight(billingVolume/weightVolumeCollectDto.getVolumeRate());
+                double billingVolumeWeight = getVolumeAndWeight(billingVolume / weightVolumeCollectDto.getVolumeRate());
                 // 核对体积重量
                 weightVolumeCollectDto.setBillingVolumeWeight(billingVolumeWeight);
                 // 核对较大值
                 Double contrastLarge = Math.max(billingWeight, billingVolumeWeight);
                 weightVolumeCollectDto.setContrastLarge(contrastLarge);
+                weightVolumeCollectDto.setLargeDiff(Math.abs(keeTwoDecimals(weightVolumeCollectDto.getContrastLarge() - weightVolumeCollectDto.getMoreBigWeight())));
+                hasBusinessFinanceFlag = true;
             }
-        }catch (Exception e){
-            log.error("通过运单号{}获取计费信息异常!", weightVolumeCollectDto.getWaybillCode());
+        } catch (Exception e) {
+            log.error("通过运单号{}获取计费信息异常!", weightVolumeCollectDto.getWaybillCode(), e);
         }
-
-        // 计费重量为0则取运单流水
-        dealWaybillFlow(weightVolumeCollectDto);
-        // 较大值差异
-        double contrastLarge = weightVolumeCollectDto.getContrastLarge() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getContrastLarge();
-        double moreBigWeight = weightVolumeCollectDto.getMoreBigWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getMoreBigWeight();
-        weightVolumeCollectDto.setLargeDiff(keeTwoDecimals(Math.abs(contrastLarge - moreBigWeight)));
+        return hasBusinessFinanceFlag;
     }
 
     /**
@@ -1360,8 +1717,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param sourceFrom
      * @return
      */
-    private WeightVolumeCollectDto assembleReviewData(PackWeightVO packWeightVO, Waybill waybill, String sourceFrom) {
-        WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
+    private void assembleReviewData(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto, Waybill waybill, String sourceFrom) {
         weightVolumeCollectDto.setFromSource(sourceFrom);
         weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
@@ -1427,7 +1783,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setIsHasPicture(Constants.NUMBER_ZERO);
         weightVolumeCollectDto.setPictureAddress(Constants.EMPTY_FILL);
 
-        return weightVolumeCollectDto;
+        // 一单多件
+        final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packWeightVO.getCodeStr());
+        if(isMultiplePackage){
+            weightVolumeCollectDto.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+            weightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+        }
+
     }
 
     /**
@@ -1630,6 +1992,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         newCondition.setReviewErp(condition.getReviewErp());
         newCondition.setBillingErp(condition.getBillingErp());
         newCondition.setSpotCheckType(condition.getSpotCheckType());
+        newCondition.setRecordType(condition.getRecordType());
+        newCondition.setQueryForWeb(condition.getQueryForWeb());
         return newCondition;
     }
 
@@ -1735,10 +2099,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
-     * 更新抽检记录的图片
+     * 查看抽检记录是否上传图片
      * @param packageCode 运单或包裹号
      * @param siteCode 站点
-     * @return 更新后的抽检记录，可能为空
+     * @return 上传图片的记录结果，可能为空
      * @author fanggang7
      * @time 2020-08-26 15:17:53 周三
      */
@@ -1747,7 +2111,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<String> result = searchExcessPicture(packageCode,siteCode);
         if(result == null || result.getCode() != InvokeResult.RESULT_SUCCESS_CODE
                 || StringUtils.isEmpty(result.getData())){
-            log.warn("运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
+            log.warn("WeightAndVolumeCheckServiceImpl.getUploadImgRecord 运单【{}】站点【{}】的超标图片为空",packageCode,siteCode);
             return null;
         }
 
@@ -1756,7 +2120,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
             condition.setReviewSiteCode(siteCode);
             condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            condition.setIsHasPicture(1);
+            condition.setIsHasPicture(Constants.YN_YES);
             condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
             if(baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())
@@ -1838,16 +2202,35 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 上传图片环节 || 图片早于抽检数据环节
         if(weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.UPLOAD_IMG
                 || weightAndVolumeCheckHandleMessage.getOpNode() == WeightAndVolumeCheckHandleMessage.IMG_BEFORE_DATA){
-            // 1.1 检查运单状态，如果运单状态为未发货，不下发
-            WeightVolumeCollectDto weightVolumeCollectDto = this.getUploadImgRecord(weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
-            // 1.2 运单状态为已发货，则下发到FXM
-            if(weightVolumeCollectDto != null){
-                boolean packageSendStatus = this.getWaybillSendStatus(weightAndVolumeCheckHandleMessage, weightVolumeCollectDto);
-                if(packageSendStatus){
-                    this.sendMqToFxm(weightVolumeCollectDto);
+            // 1 一单一件处理
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+            final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
+            if(!isMultiplePackage){
+                // 1.1 检查运单状态，如果运单状态为未发货，不下发
+                WeightVolumeCollectDto weightVolumeCollectDto = this.getUploadImgRecord(weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
+                // 1.2 一单一件运单状态为已发货，则下发到FXM
+                if(weightVolumeCollectDto != null){
+                    boolean packageSendStatus = this.getWaybillSendStatus(weightVolumeCollectDto);
+                    if(packageSendStatus){
+                        this.sendMqToFxm(weightVolumeCollectDto);
+                    }
+                    return result;
                 }
-                return result;
+            } else {
+                // 2 一单多件处理
+                // 更新运单纬度是否有图片字段数据
+                WeightVolumeCollectDto updateWeightVolumeCollectDto = new WeightVolumeCollectDto();
+                updateWeightVolumeCollectDto.setPackageCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+                updateWeightVolumeCollectDto.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+                updateWeightVolumeCollectDto.setIsHasPicture(Constants.YN_YES);
+                BaseEntity<String> updateResult = reportExternalService.insertOrUpdateForWeightVolume(updateWeightVolumeCollectDto);
+                if(!updateResult.isSuccess()){
+                    log.error("handleAfterUploadImgMessageOrAfterSend updateForWeightVolume error {}", JsonHelper.toJson(updateResult));
+                }
+                // 再处理下发
+                this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
             }
+
         }
 
         // 发货完成环节
@@ -1868,19 +2251,31 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private InvokeResult<Boolean> handleBySendOpForImgMessage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage){
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
-        // 1.1 查询最新一条抽检记录是否有图片，有则下发到FXM
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        int packNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
+        final boolean isMultiplePackage = packNum > Constants.CONSTANT_NUMBER_ONE;
+        // 如果是运单，则按运单号更新所有包裹发货状态
         WeightVolumeQueryCondition query = new WeightVolumeQueryCondition();
         query.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
-        String waybillCode = WaybillUtil.getWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
-        query.setWaybillCode(waybillCode);
-        query.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
+        String waybillCode = weightAndVolumeCheckHandleMessage.getWaybillCode();
+        if (WaybillUtil.isWaybillCode(weightAndVolumeCheckHandleMessage.getPackageCode())) {
+            query.setWaybillCode(waybillCode);
+            if(isMultiplePackage){
+                // 只更新运单发货状态
+                query.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+                query.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+            }
+        } else {
+            query.setPackageCode(weightAndVolumeCheckHandleMessage.getPackageCode());
+        }
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         pager.setSearchVo(query);
         pager.setPageNo(1);
-        pager.setPageSize(1);
+        pager.setPageSize(packNum);
+        pager.setSearchVo(query);
         BaseEntity<Pager<WeightVolumeCollectDto>> weightVolumeExistResult = reportExternalService.getPagerByConditionForWeightVolume(pager);
         if(weightVolumeExistResult.getCode() != BaseEntity.CODE_SUCCESS){
-            log.warn("queryLatestHasUploadPictureCheckRecord getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), weightVolumeExistResult.getMessage());
+            log.warn("updatePackageSendStatus getPagerByConditionForWeightVolume warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(query), weightVolumeExistResult.getMessage());
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setData(false);
             return result;
@@ -1892,23 +2287,189 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         // 已有的抽检记录，只更新抽检记录中的发货状态
         List<WeightVolumeCollectDto> existList = pageData.getData();
-        List<WeightVolumeCollectDto> existCurrentSiteList = new ArrayList<>();  // 有抽检记录的数据
         for (WeightVolumeCollectDto weightVolumeCollectDto : existList) {
-            if(Objects.equals(weightAndVolumeCheckHandleMessage.getSiteCode(), weightVolumeCollectDto.getReviewSiteCode())){
-                existCurrentSiteList.add(weightVolumeCollectDto);
-                weightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
-                // 更新发货状态
-                reportExternalService.updateForWeightVolume(weightVolumeCollectDto);
+            WeightVolumeCollectDto updateWeightVolumeCollectDto = new WeightVolumeCollectDto();
+            updateWeightVolumeCollectDto.setPackageCode(weightVolumeCollectDto.getPackageCode());
+            updateWeightVolumeCollectDto.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+            updateWeightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+            // 更新发货状态
+            BaseEntity<Boolean> updateResult = reportExternalService.updateForWeightVolume(updateWeightVolumeCollectDto);
+            if(!updateResult.isSuccess()){
+                log.error("handleBySendOpForImgMessage updateForWeightVolume error {}", JsonHelper.toJson(updateResult));
             }
         }
-        List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = this.getHasPictureCheckRecordList(existCurrentSiteList);
-        // 无上传图片的抽检记录，此时还不能下发给下游，直接返回
-        if(CollectionUtils.isEmpty(existCurrentSiteHasPictureList)){
-            return result;
+        if(!isMultiplePackage){
+            // 一单一件处理
+            List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = this.getHasPictureCheckRecordList(existList);
+            // 无上传图片的抽检记录，此时还不能下发给下游，直接返回
+            if(CollectionUtils.isEmpty(existCurrentSiteHasPictureList)){
+                return result;
+            }
+            // 如果有图片，则下发fxm
+            this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
+        } else {
+            // 如果满足条件，一单多件则按运单纬度处理下发fxm
+            this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         }
-        // 下发
-        this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
         return result;
+    }
+
+    private void sendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill){
+        // 如果已经存在下发fxm的mq缓存，短时时间内不用再次下发
+        String cacheFxmSendWaybillKey = String.format(CacheKeyConstants.CACHE_KEY_FXM_SEND_WAYBILL, weightAndVolumeCheckHandleMessage.getSiteCode(), weightAndVolumeCheckHandleMessage.getWaybillCode());
+        final boolean cacheFxmSendWaybillExist = jimdbCacheService.exists(cacheFxmSendWaybillKey);
+        if(cacheFxmSendWaybillExist){
+            log.info("sendMqToFxmForMultiplePackage cacheFxmSendWaybillExist will not send {}", weightAndVolumeCheckHandleMessage.getWaybillCode());
+            return;
+        }
+        // 一单多件则按运单纬度处理下发
+        final boolean canSendMqToFxmForMultiplePackage = this.checkCanSendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
+        if(canSendMqToFxmForMultiplePackage){
+            // 查询运单纬度数据，进行下发
+            final WeightVolumeCollectDto waybillWeightVolumeCollectDto = this.getWaybillWeightVolumeCollectDto4MultiplePackage(weightAndVolumeCheckHandleMessage);
+            if(waybillWeightVolumeCollectDto != null){
+                this.sendMqToFxm(waybillWeightVolumeCollectDto);
+                // 存储运单纬度的fxm下发缓存
+                jimdbCacheService.setEx(cacheFxmSendWaybillKey, "1", this.cacheFxmSendWaybillExpireTime, TimeUnit.MINUTES);
+            }
+        }
+    }
+
+    /**
+     * 判断是否能发送给fxm
+     * 发货+照片+超标+关键信息齐全+包裹集齐
+     * @param weightAndVolumeCheckHandleMessage
+     * @return
+     */
+    private boolean checkCanSendMqToFxmForMultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, Waybill waybill) {
+        // 如果运单整体已发货，就不用再关系包裹发货状态
+        boolean waybillSendStatus = this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), weightAndVolumeCheckHandleMessage.getWaybillCode());
+        final int waybillPackTotalNum = this.getPackageNumberTotal(waybill, weightAndVolumeCheckHandleMessage.getPackageCode());
+        // 查找运单纬度的发货状态
+        WeightVolumeQueryCondition waybillVolumeQueryCondition = new WeightVolumeQueryCondition();
+        waybillVolumeQueryCondition.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+        waybillVolumeQueryCondition.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        waybillVolumeQueryCondition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        waybillVolumeQueryCondition.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+        waybillVolumeQueryCondition.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+        // 找es已满足条件的总数
+        BaseEntity<Long> totalResult = reportExternalService.countByParam(waybillVolumeQueryCondition);
+        if(totalResult.getCode() != BaseEntity.CODE_SUCCESS){
+            log.error("checkCanSendMqToFxmForMultiplePackage warn waybillVolumeQueryCondition {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(waybillVolumeQueryCondition), totalResult.getMessage());
+            return false;
+        }
+        long total = totalResult.getData();
+        if(total == 1){
+            waybillSendStatus = true;
+        }
+        // 如果是C网纯配运单，且是DWS上传的，判断 发货 + 照片 + 集齐
+        WeightVolumeQueryCondition packageVolumeQueryCondition = new WeightVolumeQueryCondition();
+        packageVolumeQueryCondition.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+        packageVolumeQueryCondition.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        packageVolumeQueryCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+        packageVolumeQueryCondition.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+        packageVolumeQueryCondition.setIsHasPicture(Constants.YN_YES);
+        packageVolumeQueryCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
+        // 如果缓存未记录已发货，则需要查es中的发货状态
+        if(!waybillSendStatus){
+            packageVolumeQueryCondition.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+        }
+        // 找es已满足条件的总数
+        totalResult = reportExternalService.countByParam(packageVolumeQueryCondition);
+        if(totalResult.getCode() != BaseEntity.CODE_SUCCESS){
+            log.error("checkCanSendMqToFxmForMultiplePackage warn {}根据查询条件查询es失败,失败原因:{}", JsonHelper.toJson(packageVolumeQueryCondition), totalResult.getMessage());
+            return false;
+        }
+        // 找es不满足发货、有图片的数据的包裹列表，根据此包裹列表，查找缓存中是否有记录，如果发货、有图片二者缓存都有，则满足条件
+        total = totalResult.getData();
+        if(total >= waybillPackTotalNum){
+            return true;
+        }
+        // 运单整体未发货
+        List<String> notSendSpotCheckPackageCodeList = new ArrayList<>();
+        if(!waybillSendStatus){
+            // 查找未发货数据
+            WeightVolumeQueryCondition notSendSpotCheckCondition = new WeightVolumeQueryCondition();
+            BeanUtils.copyProperties(packageVolumeQueryCondition, notSendSpotCheckCondition);
+            notSendSpotCheckCondition.setWaybillStatus(null);
+            notSendSpotCheckCondition.setNotSendWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
+            notSendSpotCheckCondition.setIsHasPicture(null);
+            notSendSpotCheckCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
+            Pager<WeightVolumeQueryCondition> notSendSpotCheckConditionPager = new Pager<>();
+            notSendSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
+            notSendSpotCheckConditionPager.setPageNo(1);
+            notSendSpotCheckConditionPager.setSearchVo(notSendSpotCheckCondition);
+            final BaseEntity<Pager<String>> notSendSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(notSendSpotCheckConditionPager);
+            // 遍历包裹数据，查找缓存，命中缓存都是已发货
+            notSendSpotCheckPackageCodeList = notSendSpotCheckResult.getData().getData();
+        }
+        // 查找无图片数据
+        WeightVolumeQueryCondition noPicSpotCheckCondition = new WeightVolumeQueryCondition();
+        BeanUtils.copyProperties(packageVolumeQueryCondition, noPicSpotCheckCondition);
+        noPicSpotCheckCondition.setIsHasPicture(Constants.YN_NO);
+        noPicSpotCheckCondition.setWaybillStatus(null);
+        noPicSpotCheckCondition.setNotThesePackageCode(new ArrayList<>(Arrays.asList(weightAndVolumeCheckHandleMessage.getPackageCode())));
+        Pager<WeightVolumeQueryCondition> noPicSpotCheckConditionPager = new Pager<>();
+        noPicSpotCheckConditionPager.setPageSize(waybillPackTotalNum);
+        noPicSpotCheckConditionPager.setPageNo(1);
+        noPicSpotCheckConditionPager.setSearchVo(noPicSpotCheckCondition);
+        final BaseEntity<Pager<String>> noPicSpotCheckResult = reportExternalService.getSpotCheckPackageCodesByCondition(noPicSpotCheckConditionPager);
+        final List<String> noPicSpotCheckPackageCodeList = noPicSpotCheckResult.getData().getData();
+
+        // 查找交集
+        final HashSet<String> notSendAndNoPicSpotCheckPackageCodeSet = new HashSet<>(notSendSpotCheckPackageCodeList);
+        notSendAndNoPicSpotCheckPackageCodeSet.retainAll(new HashSet<>(noPicSpotCheckPackageCodeList));
+        // 遍历未发货+无图片交集，判断是否满足既有发货缓存又有图片缓存
+        for (String packageCode : notSendAndNoPicSpotCheckPackageCodeSet) {
+            String pictureUrl = this.getPackagePicUrlCache(packageCode, weightAndVolumeCheckHandleMessage.getSiteCode());
+            final boolean packageSendStatus = waybillSendStatus || this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), packageCode);
+            // 有图片
+            if(StringUtils.isNotEmpty(pictureUrl) && packageSendStatus){
+                total++;
+            }
+        }
+
+        if(!waybillSendStatus){
+            // 遍历仅未发货包裹数据，判断是否有发货缓存
+            List<String> justNotSendSpotCheckPackageCodeList = new ArrayList<>(notSendSpotCheckPackageCodeList);
+            justNotSendSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
+            for (String packageCode : justNotSendSpotCheckPackageCodeList) {
+                if(this.getWaybillSendStatusCache(weightAndVolumeCheckHandleMessage.getSiteCode(), packageCode)){
+                    total++;
+                }
+            }
+        }
+        // 遍历仅无图片包裹数据，判断是否有图片缓存
+        List<String> justNoPicSpotCheckPackageCodeList = new ArrayList<>(noPicSpotCheckPackageCodeList);
+        justNoPicSpotCheckPackageCodeList.removeAll(notSendAndNoPicSpotCheckPackageCodeSet);
+        for (String packageCode : justNoPicSpotCheckPackageCodeList) {
+            String pictureUrl = this.getPackagePicUrlCache(packageCode, weightAndVolumeCheckHandleMessage.getSiteCode());
+            if(StringUtils.isNotEmpty(pictureUrl)){
+                total++;
+            }
+        }
+        if(total + 1 >= waybillPackTotalNum){
+            return true;
+        } else {
+            log.info("checkCanSendMqToFxmForMultiplePackage 未集齐，不发送");
+        }
+
+        return false;
+    }
+
+    private WeightVolumeCollectDto getWaybillWeightVolumeCollectDto4MultiplePackage(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage){
+        // 查询运单纬度数据，进行下发
+        WeightVolumeQueryCondition query = new WeightVolumeQueryCondition();
+        query.setReviewSiteCode(weightAndVolumeCheckHandleMessage.getSiteCode());
+        query.setWaybillCode(weightAndVolumeCheckHandleMessage.getWaybillCode());
+        query.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        query.setMultiplePackage(IsMultiPackEnum.MULTIPLE.getCode());
+        final BaseEntity<List<WeightVolumeCollectDto>> waybillCollectResult = reportExternalService.getByParamForWeightVolume(query);
+        if(waybillCollectResult == null || CollectionUtils.isEmpty(waybillCollectResult.getData()) || waybillCollectResult.getData().get(0) == null){
+            log.warn("通过运单【{}】站点【{}】查询超标数据为空",weightAndVolumeCheckHandleMessage.getWaybillCode(), weightAndVolumeCheckHandleMessage.getSiteCode());
+            return null;
+        }
+        return waybillCollectResult.getData().get(0);
     }
 
     /**
@@ -1921,7 +2482,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private List<WeightVolumeCollectDto> getHasPictureCheckRecordList(List<WeightVolumeCollectDto> existCurrentSiteList){
         List<WeightVolumeCollectDto> existCurrentSiteHasPictureList = new ArrayList<>();
         for (WeightVolumeCollectDto weightVolumeCollectDto : existCurrentSiteList) {
-            if(weightVolumeCollectDto.getIsHasPicture() == 1){
+            if(Objects.equals(weightVolumeCollectDto.getIsHasPicture(), Constants.YN_YES) && Objects.equals(weightVolumeCollectDto.getIsExcess(), Constants.YN_YES)){
                 existCurrentSiteHasPictureList.add(weightVolumeCollectDto);
             }
         }
@@ -1939,22 +2500,54 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     /**
+     * 获取包裹图片缓存
+     * @return String 图片url，为空表示没有
+     * @author fanggang7
+     * @time 2021-08-11 00:40:25 周三
+     */
+    private String getPackagePicUrlCache(String packageCode, Integer siteCode) {
+        String key = String.format(CacheKeyConstants.CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG, packageCode, siteCode);
+        try {
+            String pictureUrl = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(pictureUrl)){
+                return pictureUrl;
+            }
+        }catch (Exception e){
+            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
+        }
+        return null;
+    }
+
+    /**
      * 获取包裹发货状态
-     * @param weightAndVolumeCheckHandleMessage 消息
-     * @param weightVolumeCollectDto 抽检记录
      * @return boolean 发货-true,未发货-false
      * @author fanggang7
      * @time 2020-08-26 15:08:54 周三
      */
-    private boolean getWaybillSendStatus(WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage, WeightVolumeCollectDto weightVolumeCollectDto){
-        String key = CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS.concat(weightAndVolumeCheckHandleMessage.getWaybillCode());
+    private boolean getWaybillSendStatusCache(Integer siteCode, String waybillCode) {
+        String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, waybillCode);
         try {
             String redisValue = jimdbCacheService.get(key);
             if(StringUtils.isNotEmpty(redisValue) && Integer.parseInt(redisValue) == Constants.YN_YES){
                 return true;
             }
         }catch (Exception e){
-            log.error("获取C网抽检下发MQ缓存【{}】异常",key);
+            log.error("获取获取包裹发货状态缓存【{}】异常", key);
+        }
+        return false;
+    }
+
+    /**
+     * 获取包裹发货状态
+     * @param weightVolumeCollectDto 抽检记录
+     * @return boolean 发货-true,未发货-false
+     * @author fanggang7
+     * @time 2020-08-26 15:08:54 周三
+     */
+    private boolean getWaybillSendStatus(WeightVolumeCollectDto weightVolumeCollectDto){
+        final boolean waybillSendStatusCache = getWaybillSendStatusCache(weightVolumeCollectDto.getReviewSiteCode(), weightVolumeCollectDto.getWaybillCode());
+        if(waybillSendStatusCache){
+            return true;
         }
         if(Objects.equals(weightVolumeCollectDto.getWaybillStatus(), WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY)){
             return true;
@@ -1976,9 +2569,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 下发
         AbnormalResultMq abnormalResultMq = convertToAbnormalResultMq(weightVolumeCollectDto);
         if(abnormalResultMq == null){
+            log.warn("sendMqToFxm convertToAbnormalResultMq 组装消息报文失败 {}", JsonHelper.toJson(weightVolumeCollectDto));
             return;
         }
         log.info("发送MQ【{}】,业务ID【{}】 ",dmsWeightVolumeExcess.getTopic(),abnormalResultMq.getAbnormalId());
+        // log.info("sendMqToFxm abnormalResultMq {}", JsonHelper.toJson(abnormalResultMq));
         dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
     }
 
