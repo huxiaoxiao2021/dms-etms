@@ -321,7 +321,7 @@ $(function () {
             align: 'center',
             formatter : function (value, row, index) {
                 const sourceFrom = row.fromSource;
-                if(sourceFrom === "SPOT_CHECK_CLIENT_PLATE" || sourceFrom === "SPOT_CHECK_DMS_WEB" || sourceFrom === "SPOT_CHECK_ANDROID"){
+                if(sourceFrom === "SPOT_CHECK_CLIENT_PLATE"){
                     if(row.isExcess === 0){
                         return null;
                     }
@@ -345,6 +345,9 @@ $(function () {
                     return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
                 }
                 if(sourceFrom === "SPOT_CHECK_ARTIFICIAL"){
+                    return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                }
+                if(sourceFrom === "SPOT_CHECK_DMS_WEB" || sourceFrom === "SPOT_CHECK_ANDROID"){
                     return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
                 }
                 return null;

@@ -32,14 +32,13 @@ public class SpotCheckTest {
     public void spotCheckDeal() {
         try {
             String text = "{\n" +
-                    "    \"barCode\":\"JDV000705034549-1-3-\",\n" +
-                    "    \"spotCheckSourceFrom\":\"SPOT_CHECK_ARTIFICIAL\",\n" +
-                    "    \"spotCheckBusinessType\":0,\n" +
+                    "    \"barCode\":\"JDV000706650345-1-3-\",\n" +
+                    "    \"spotCheckSourceFrom\":\"SPOT_CHECK_DWS\",\n" +
+                    "    \"spotCheckBusinessType\":1,\n" +
                     "    \"weight\":1.3,\n" +
                     "    \"length\":10.1,\n" +
                     "    \"width\":10.1,\n" +
                     "    \"height\":10.1,\n" +
-                    "    \"volume\":1000.1,\n" +
                     "    \"orgId\":6,\n" +
                     "    \"orgName\":\"总公司\",\n" +
                     "    \"siteCode\":39,\n" +
@@ -52,19 +51,19 @@ public class SpotCheckTest {
             SpotCheckDto spotCheckDto = JsonHelper.fromJson(text, SpotCheckDto.class);
 
             // 超标校验
-            InvokeResult<Integer> checkResult1 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000705034549-2-3-");
-            InvokeResult<Integer> checkResult2 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000705034549-3-3-");
-            InvokeResult<Integer> checkResult3 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
-            Assert.assertTrue(true);
-
-
-            // 超标处理
+//            InvokeResult<Integer> checkResult1 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
+//            spotCheckDto.setBarCode("JDV000705034549-2-3-");
+//            InvokeResult<Integer> checkResult2 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
+//            spotCheckDto.setBarCode("JDV000705034549-3-3-");
+//            InvokeResult<Integer> checkResult3 = spotCheckCurrencyService.checkIsExcess(spotCheckDto);
+//            Assert.assertTrue(true);
+//
+//
+//            // 超标处理
             InvokeResult<Boolean> result1 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000705034530-2-3-");
+            spotCheckDto.setBarCode("JDV000706650345-2-3-");
             InvokeResult<Boolean> result2 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000705034530-3-3-");
+            spotCheckDto.setBarCode("JDV000706650345-3-3-");
             InvokeResult<Boolean> result3 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
             Assert.assertTrue(true);
 

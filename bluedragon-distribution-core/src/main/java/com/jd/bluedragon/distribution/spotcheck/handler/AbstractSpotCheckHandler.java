@@ -532,6 +532,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setWeightDiff(null);
             initialWaybillCollect.setVolumeWeightDiff(null);
             initialWaybillCollect.setLargeDiff(null);
+            initialWaybillCollect.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
             reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
         }
         // 集齐
