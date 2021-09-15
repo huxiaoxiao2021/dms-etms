@@ -1476,6 +1476,30 @@ public class UccPropertyConfiguration {
         return false;
     }
 
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
 
     public int getVirtualBoardMaxDestinationCount() {
         return virtualBoardMaxDestinationCount;
@@ -1544,28 +1568,4 @@ public class UccPropertyConfiguration {
     public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
         this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
-    public boolean isReadUnloadFromTys() {
-        return readUnloadFromTys;
-    }
-
-    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
-        this.readUnloadFromTys = readUnloadFromTys;
-    }
-
-    public boolean isStopWriteUnloadFromDms() {
-        return stopWriteUnloadFromDms;
-    }
-
-    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
-        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
-    }
-
-    public boolean isWriteUnloadFromTys() {
-        return writeUnloadFromTys;
-    }
-
-    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
-        this.writeUnloadFromTys = writeUnloadFromTys;
-    }
-
 }
