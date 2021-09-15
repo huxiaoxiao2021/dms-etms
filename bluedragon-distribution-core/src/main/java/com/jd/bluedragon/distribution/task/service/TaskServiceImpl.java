@@ -1102,6 +1102,7 @@ public class TaskServiceImpl implements TaskService {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		Assert.notNull(ownSign, "ownSign must not be null");
+		Assert.notNull(lazyExecuteDays, "lazyExecuteDays must not be null");
 		TaskDao routerDao = taskDao;
 		return routerDao.findVirtualBoardTasks(type, fetchNum, ownSign, queueIds, lazyExecuteDays);
 	}
