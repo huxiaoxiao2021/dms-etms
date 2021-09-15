@@ -442,7 +442,7 @@
 		execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		WHERE yn = 1 AND execute_count < 5
-		AND execute_time <= timestampadd(day, #{lazyExecuteDays}, now()) AND task_status IN (0, 3)  ]]>
+		AND execute_time <= timestampadd(day, -#{lazyExecuteDays}, now()) AND task_status IN (0, 3)  ]]>
 		<if test="ownSign != null">
 			AND own_sign = #{ownSign,jdbcType=VARCHAR}
 		</if>
