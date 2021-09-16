@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
@@ -63,6 +65,16 @@ public class ClientResource {
 	public JdResult<DmsClientVersionResponse> getClientVersion(DmsClientVersionRequest dmsClientVersionRequest){
 		return dmsClientManager.getClientVersion(dmsClientVersionRequest);
 	}
+	/**
+	 * 获取线上版本号接口
+	 * @param dmsClientVersionRequest
+	 * @return
+	 */
+	@POST
+	@Path("/client/checkMenuAuth")
+	public JdResult<CheckMenuAuthResponse> checkMenuAuth(CheckMenuAuthRequest checkMenuAuthRequest){
+		return userService.checkMenuAuth(checkMenuAuthRequest);
+	}	
 }
 
 

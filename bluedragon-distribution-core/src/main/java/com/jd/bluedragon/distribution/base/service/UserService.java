@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
@@ -70,4 +71,10 @@ public interface UserService {
 	 * @return
 	 */
 	String getServerRunningMode();
+	/**
+	 * 校验菜单权限
+	 * @param checkMenuAuthRequest
+	 * @return
+	 */
+	JdResult<CheckMenuAuthResponse> checkMenuAuth(CheckMenuAuthRequest checkMenuAuthRequest);
 }

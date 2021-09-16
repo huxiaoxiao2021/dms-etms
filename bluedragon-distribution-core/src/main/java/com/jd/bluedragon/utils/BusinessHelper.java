@@ -944,4 +944,28 @@ public class BusinessHelper {
         }
         return Boolean.FALSE;
     }
+    /// <summary>
+    /// 判断站点类型是否转向站长工作台
+    /// </summary>
+    /// <param name="siteType"></param>
+    /// <param name="subSiteType"></param>
+    /// <returns></returns>
+    public static boolean isSmsZzgztSite(Integer siteType, Integer subSiteType)
+    {
+    	if(siteType == null) {
+    		return false;
+    	}
+        return siteType == 4
+            || siteType == 8
+            || siteType == 96
+            || siteType == 64
+            || (siteType == 16 
+            	&& subSiteType != null
+            	&&(subSiteType == 16
+                || subSiteType == 128
+                || subSiteType == 1605
+                || subSiteType == 99
+                || subSiteType == 1604)
+            );
+    }
 }

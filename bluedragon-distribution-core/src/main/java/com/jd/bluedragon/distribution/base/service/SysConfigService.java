@@ -53,4 +53,10 @@ public interface SysConfigService {
 	 * @return
 	 */
 	boolean getConfigByName(String configName);
+	/**
+	 * 获取字符串配置列表，没有配置返回空列表，缓存3分钟（redis）/1分钟（本地）
+	 * @param configName
+	 * @return
+	 */
+	List<String> getStringListConfig(String configName);
 }
