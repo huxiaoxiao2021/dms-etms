@@ -72,9 +72,31 @@ public class SysConfigServiceImpl implements SysConfigService {
     @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public List<SysConfig> getListByConfigName(String configName) {
+		return getListByConfigNameNoCache(configName);
+	}
+
+
+	/**
+	 * 通过配置名获取配置列表信息，无缓存
+	 */
+	@Override
+	public List<SysConfig> getListByConfigNameNoCache(String configName) {
 		SysConfig config = new SysConfig();
 		config.setConfigName(configName);
 		return this.sysConfigDao.getList(config);
+	}
+
+
+
+	/**
+	 * 修改内容
+	 *
+	 * @param sysConfig
+	 * @return
+	 */
+	@Override
+	public boolean updateContent(SysConfig sysConfig) {
+		return sysConfigDao.updateContent(sysConfig) > 0;
 	}
 
 	/**

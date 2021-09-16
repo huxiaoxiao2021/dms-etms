@@ -58,6 +58,7 @@
 
     <bean id="transactionManagerBase" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSourceBase"/>
+        <qualifier value="main_base"/>
     </bean>
 
     <bean id="sqlSessionFactoryBase" class="org.mybatis.spring.SqlSessionFactoryBean">

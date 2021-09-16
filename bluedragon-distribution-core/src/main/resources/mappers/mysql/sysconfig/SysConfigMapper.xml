@@ -82,6 +82,15 @@
             AND config_name = #{configName}
         </if>
 	</update>
+
+	<update id="updateContent" parameterType="sysconfig">
+		UPDATE sysconfig SET
+
+        config_content=#{configContent,jdbcType=VARCHAR},
+
+		update_time=NOW()
+		WHERE  config_name = #{configName}
+	</update>
 	
 	<delete id="del" parameterType="java.lang.Long">
 		DELETE FROM sysconfig WHERE config_id = #{config_id}
