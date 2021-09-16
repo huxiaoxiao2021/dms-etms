@@ -270,6 +270,7 @@ $(function () {
             param.waybillWeight = $('#waybillWeight').val();
             param.waybillVolume = $('#waybillVolume').val();
             param.createSiteCode = $('#createSiteCode').val();
+            param.loginErp = $('#loginErp').val();
 
             jQuery.ajax({
                 type: 'post',
