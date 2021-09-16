@@ -833,7 +833,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 }
             }
             if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())
-                    && StringUtils.isEmpty(collectDto.getPictureAddress())){
+                    && StringUtils.isEmpty(collectDto.getPictureAddress())
+                    && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(packageCode, siteCode))){
                 logger.warn("包裹号:{}站点:{}的图片还未上传!", packageCode, siteCode);
                 return;
             }
