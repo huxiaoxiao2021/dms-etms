@@ -85,6 +85,8 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                 JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(context.getResponse().getWaybillCode());
                 if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
                     waybillCancelJsfResponse = waybillCancelResponse.getData();
+                    /*waybillCancelJsfResponse.setCode(SortingResponse.CODE_29302);
+                    waybillCancelJsfResponse.setMessage(SortingResponse.MESSAGE_29302);*/
                 }
             }
         } catch (Exception e) {
@@ -141,6 +143,9 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
             } else if (SortingResponse.CODE_29303.equals(cancelWaybill.getCode())) {
                 waybill.setStatusCode(SortingResponse.CODE_29303);
                 waybill.setStatusMessage(SortingResponse.MESSAGE_29303);
+            } else {
+                waybill.setStatusCode(cancelWaybill.getCode());
+                waybill.setStatusMessage(cancelWaybill.getMessage());
             }
         }
     }
