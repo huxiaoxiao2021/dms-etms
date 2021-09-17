@@ -76,6 +76,10 @@
 				<entry key="100316"  value-ref="getBasicPrintInfo"/>
 				<!-- 自动贴单机打印 -->
 				<entry key="100317"  value-ref="generatePdfPackagePrint"/>
+				<!-- 100318-自动化获取包裹数据 -->
+				<entry key="100318"  value-ref="getBasicPrintInfo"/>
+				<!-- 100319-终端工作台-现场预分拣 -->
+				<entry key="100319"  value-ref="reSchedulePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -447,7 +451,7 @@
 			</list>
 		</property>
 	</bean>	
-    <!-- 现场预分拣-站长工作台 -->
+    <!-- 现场预分拣-站长工作台、终端-站长工作台 -->
     <bean id="reSchedulePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
         <property name="handlers">
             <list>

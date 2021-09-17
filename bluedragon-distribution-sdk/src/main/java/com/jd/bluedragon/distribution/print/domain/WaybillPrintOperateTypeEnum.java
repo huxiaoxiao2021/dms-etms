@@ -38,8 +38,15 @@ public enum WaybillPrintOperateTypeEnum {
     /**
      * 100316-终端外部渠道B2C打印，调用系统o2o-provider
      */
-    SMS_O2O_PRIVIDER_PACKAGE_REPRINT(100316, "终端外部渠道B2C打印");
-
+    SMS_O2O_PRIVIDER_PACKAGE_REPRINT(100316, "终端外部渠道B2C打印"),
+    /**
+     * 100318-分拣自动化：获取打印数据
+     */
+    DMS_AUTO_DEVICE_PRINT(100318, "分拣自动化：获取打印数据"),    
+    /**
+     * 100319-终端站长工作台：现场预分拣
+     */
+    SMS_SITE_MASTER_RESCHEDULE_PRINT(100319, "终端站长工作台：现场预分拣");
     private Integer type;//操作类型
     private String name;//操作名称
 
