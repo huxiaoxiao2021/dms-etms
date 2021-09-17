@@ -182,7 +182,7 @@ public class DmsConstants {
     /**
      * 封箱号正则
      */
-    public static final String  SEAL_BOX_NO="^(\\[0-9]{8,15}[A-Z]{1}$";
+    public static final String  SEAL_BOX_NO="^[0-9]{8,15}[A-Z]{1}$";
 
     /**
      * 集货区编码正则
