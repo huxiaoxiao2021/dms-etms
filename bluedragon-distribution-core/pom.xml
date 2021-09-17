@@ -1652,7 +1652,11 @@
             <artifactId>dms-component-sdk</artifactId>
             <groupId>com.jd.dms.comp</groupId>
         </dependency>
-
+		<!--工作台service-->
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>workbench-services-sdk</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>
