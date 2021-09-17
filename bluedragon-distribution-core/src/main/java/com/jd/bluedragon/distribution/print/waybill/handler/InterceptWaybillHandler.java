@@ -85,8 +85,6 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                 JsfResponse<WaybillCancelJsfResponse> waybillCancelResponse = cancelWaybillJsfManager.dealCancelWaybill(context.getResponse().getWaybillCode());
                 if(waybillCancelResponse != null && waybillCancelResponse.isSuccess()){
                     waybillCancelJsfResponse = waybillCancelResponse.getData();
-                    /*waybillCancelJsfResponse.setCode(SortingResponse.CODE_29302);
-                    waybillCancelJsfResponse.setMessage(SortingResponse.MESSAGE_29302);*/
                 }
             }
         } catch (Exception e) {
@@ -124,7 +122,7 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                     waybill.setStatusCode(SortingResponse.CODE_293000);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_293000);
                 }
-            } else if (SortingResponse.CODE_29302.equals(cancelWaybill.getCode())) {
+            } else if (SortingResponse.CODE_29302.equals(cancelWaybill.getCode()) || SortingResponse.CODE_39006.equals(cancelWaybill.getCode()) || SortingResponse.CODE_29311.equals(cancelWaybill.getCode())) {
                 if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
                     waybill.setStatusCode(SortingResponse.CODE_29302);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_29302);
@@ -144,8 +142,14 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                 waybill.setStatusCode(SortingResponse.CODE_29303);
                 waybill.setStatusMessage(SortingResponse.MESSAGE_29303);
             } else {
-                waybill.setStatusCode(cancelWaybill.getCode());
-                waybill.setStatusMessage(cancelWaybill.getMessage());
+                if(!SortingResponse.CODE_OK.equals(cancelWaybill.getCode())){
+                    if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
+                        waybill.setStatusCode(SortingResponse.CODE_29300);
+                    } else {
+                        waybill.setStatusCode(SortingResponse.CODE_293000);
+                    }
+                    waybill.setStatusMessage(cancelWaybill.getMessage());
+                }
             }
         }
     }
