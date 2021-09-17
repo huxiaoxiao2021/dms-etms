@@ -69,7 +69,7 @@
     <jsf:consumer id="waybillCancelJsfService"
                   interface="com.jd.dms.ver.service.WaybillCancelJsfService"
                   alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>    
+    </jsf:consumer>
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -788,5 +788,10 @@
                   timeout="${jsf.wbms.reverseWaybillApi.timeout}"
                   retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
+    </jsf:consumer>
+    <jsf:consumer id="workingClockDataJsfService"
+                  interface="com.jd.dms.wb.report.api.working.WorkingClockDataJsfService"
+                  alias="${jsf.dmsWbReport.alias}"
+                  timeout="${jsf.dmsWbReport.timeout}" >
     </jsf:consumer>
 </beans>

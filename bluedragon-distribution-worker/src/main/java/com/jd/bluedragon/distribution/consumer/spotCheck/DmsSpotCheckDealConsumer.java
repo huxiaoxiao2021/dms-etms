@@ -85,7 +85,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         spotCheckDto.setSiteName(packWeightVO.getOperatorSiteName());
         spotCheckDto.setOperateUserErp(packWeightVO.getErpCode());
         spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
-        spotCheckDto.setHandlerType(SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
         return spotCheckDto;
     }

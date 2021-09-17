@@ -459,6 +459,11 @@ public class UccPropertyConfiguration {
      */
     private Integer virtualBoardAutoCloseDays;
 
+    /**
+     * 虚拟组板可使用场地
+     */
+    private String virtualBoardCanUseSite;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -506,6 +511,11 @@ public class UccPropertyConfiguration {
      *  空表示未开启
      */
     private String newSpotCheckSiteCodes;
+
+    /**
+     * 是否执行BC融合
+     */
+    private boolean executeBCFuse;
 
     /**
      * 抽检数据是否下发给计费
@@ -1381,6 +1391,14 @@ public class UccPropertyConfiguration {
         this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
     }
 
+    public boolean getExecuteBCFuse() {
+        return executeBCFuse;
+    }
+
+    public void setExecuteBCFuse(boolean executeBCFuse) {
+        this.executeBCFuse = executeBCFuse;
+    }
+
     public boolean getIsIssueToFinance() {
         return isIssueToFinance;
     }
@@ -1458,6 +1476,30 @@ public class UccPropertyConfiguration {
         return false;
     }
 
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
 
     public int getVirtualBoardMaxDestinationCount() {
         return virtualBoardMaxDestinationCount;
@@ -1484,6 +1526,41 @@ public class UccPropertyConfiguration {
         return this;
     }
 
+    public String getVirtualBoardCanUseSite() {
+        return virtualBoardCanUseSite;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardCanUseSite(String virtualBoardCanUseSite) {
+        this.virtualBoardCanUseSite = virtualBoardCanUseSite;
+        this.virtualBoardCanUseSiteList = this.getVirtualBoardCanUseSiteList();
+        return this;
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
+
+    public List<String> getVirtualBoardCanUseSiteList() {
+        if(virtualBoardCanUseSiteList == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(virtualBoardCanUseSite.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchVirtualSiteCanUseSite(int siteId) {
+        if(StringUtils.isBlank(virtualBoardCanUseSite)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, virtualBoardCanUseSite)){
+            return true;
+        }
+        if(virtualBoardCanUseSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
+
     public String getUseNewInventorySiteCodes() {
         return useNewInventorySiteCodes;
     }
@@ -1491,28 +1568,4 @@ public class UccPropertyConfiguration {
     public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
         this.useNewInventorySiteCodes = useNewInventorySiteCodes;
     }
-    public boolean isReadUnloadFromTys() {
-        return readUnloadFromTys;
-    }
-
-    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
-        this.readUnloadFromTys = readUnloadFromTys;
-    }
-
-    public boolean isStopWriteUnloadFromDms() {
-        return stopWriteUnloadFromDms;
-    }
-
-    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
-        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
-    }
-
-    public boolean isWriteUnloadFromTys() {
-        return writeUnloadFromTys;
-    }
-
-    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
-        this.writeUnloadFromTys = writeUnloadFromTys;
-    }
-
 }

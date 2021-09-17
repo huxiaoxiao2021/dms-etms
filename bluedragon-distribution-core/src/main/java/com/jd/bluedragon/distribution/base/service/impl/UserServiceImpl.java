@@ -5,9 +5,10 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -15,6 +16,8 @@ import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig;
 import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig.ClientRunningModeConfigItem;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.*;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
+import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
@@ -23,6 +26,7 @@ import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -40,6 +44,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -408,5 +413,24 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	@Override
 	protected LoginClientService selectLoginClient() {
 		return (LoginClientService) baseService;
+	}
+	@Override
+	public JdResult<CheckMenuAuthResponse> checkMenuAuth(CheckMenuAuthRequest checkMenuAuthRequest) {
+		JdResult<CheckMenuAuthResponse> checkResult = new JdResult<CheckMenuAuthResponse>();
+		checkResult.toSuccess();
+		if(checkMenuAuthRequest == null
+				|| StringHelper.isEmpty(checkMenuAuthRequest.getMenuCode())
+				|| checkMenuAuthRequest.getSiteType() == null) {
+			checkResult.toFail("请求参数无效！缺少menuCode和siteType");
+			return checkResult;
+		}
+		if(BusinessHelper.isSmsZzgztSite(checkMenuAuthRequest.getSiteType(),checkMenuAuthRequest.getSiteSubType())) {
+	        //1、查询站点黑名单菜单编码
+	        List<String> smsSiteMenuBlacklist = sysConfigService.getStringListConfig(Constants.SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST);
+	        if(smsSiteMenuBlacklist.contains(checkMenuAuthRequest.getMenuCode())) {
+	        	checkResult.toFail(HintService.getHint(HintCodeConstants.PRINT_CLINET_SMS_SITE_MENU_NOAUTH));
+	        }
+		}
+		return checkResult;
 	}
 }

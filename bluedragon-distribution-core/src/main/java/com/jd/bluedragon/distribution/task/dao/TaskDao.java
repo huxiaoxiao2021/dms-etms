@@ -260,4 +260,15 @@ public class TaskDao extends BaseDao<Task> {
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findDeliveryToFinanceConvertTasks", request);
 	}
 
+	public List<Task> findVirtualBoardTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds, Integer lazyExecuteDays) {
+		Map<String, Object> request = new HashMap<String, Object>();
+		request.put("type", type);
+		request.put("tableName", Task.getTableName(type));
+		request.put("fetchNum", fetchNum);
+		request.put("ownSign", ownSign);
+		request.put("queueIds", queueIds);
+		request.put("lazyExecuteDays", lazyExecuteDays);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findVirtualBoardTasks", request);
+	}
+
 }

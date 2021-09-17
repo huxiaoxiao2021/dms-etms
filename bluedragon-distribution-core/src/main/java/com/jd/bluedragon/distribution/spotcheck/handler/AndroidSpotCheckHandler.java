@@ -11,7 +11,6 @@ import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 /**
  * 安卓抽检
@@ -38,9 +37,15 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
         String waybillCode = spotCheckContext.getWaybillCode();
-        // 是否B网
-        if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_B);
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
+        }
+        // 纯配外单校验
+        if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
         }
         // 是否妥投
@@ -51,6 +56,7 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
         // 是否已抽检
         if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
+            return;
         }
         // 重泡比校验
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
@@ -72,14 +78,7 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        if(Objects.equals(spotCheckReviewDetail.getReviewSiteCode(), spotCheckContrastDetail.getContrastSiteCode())){
-            InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_SAME_SITE);
-            return result;
-        }
+        obtainContrast(spotCheckContext);
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 

@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -12,7 +10,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
 
 /**
  * dws抽检
@@ -38,6 +35,12 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         if(!WaybillUtil.isPackageCode(packageCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
             return;
+        }
+        if(!spotCheckDealService.isExecuteBCFuse()){
+            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                return;
+            }
         }
         // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
@@ -112,27 +115,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             obtainContrast(spotCheckContext);
         }
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
-    }
-
-    @Override
-    protected void obtainContrast(SpotCheckContext spotCheckContext) {
-        // B网从运单获取
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-            return;
-        }
-        // C网:
-        // 一单一件从计费获取后无从运单获取
-        // 一单从计费获取
-        if(spotCheckContext.getIsMultiPack()){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-            return;
-        }
-        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        if(spotCheckContrastDetail.getContrastWeight() == null
-                || Objects.equals(spotCheckContrastDetail.getContrastWeight(), Constants.DOUBLE_ZERO)){
-            spotCheckDealService.assembleContrastDataFromWaybillFlow(spotCheckContext);
-        }
     }
 
     /**
