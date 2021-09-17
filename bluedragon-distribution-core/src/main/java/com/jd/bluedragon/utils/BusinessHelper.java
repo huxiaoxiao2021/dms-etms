@@ -15,6 +15,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class BusinessHelper {
@@ -25,6 +27,14 @@ public class BusinessHelper {
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
 
     public static final String TERMINAL_BATCH_CODE_REG = "^R\\d{19}$";//站点批次号正则
+    /**
+     * 指向工作台的站点类型
+     */
+    private static List<Integer> SMS_ZZGZT_SITE_TYPE_LIST = Arrays.asList(new Integer[]{4,8,96,64});
+    /**
+     * 指向工作台的站点子类型16
+     */
+    private static List<Integer> SMS_ZZGZT_SITE_SUB_TYPE_LIST16 = Arrays.asList(new Integer[]{16,128,1605,99,1604});
     /**
      * hash格式分页存储时，分页大小
      */
@@ -944,28 +954,20 @@ public class BusinessHelper {
         }
         return Boolean.FALSE;
     }
-    /// <summary>
-    /// 判断站点类型是否转向站长工作台
-    /// </summary>
-    /// <param name="siteType"></param>
-    /// <param name="subSiteType"></param>
-    /// <returns></returns>
+    /**
+     * 判断站点类型是否转向站长工作台
+     * @param siteType
+     * @param subSiteType
+     * @return
+     */
     public static boolean isSmsZzgztSite(Integer siteType, Integer subSiteType)
     {
     	if(siteType == null) {
     		return false;
     	}
-        return siteType == 4
-            || siteType == 8
-            || siteType == 96
-            || siteType == 64
-            || (siteType == 16 
+        return SMS_ZZGZT_SITE_TYPE_LIST.contains(siteType)
+            || (siteType.intValue() == 16 
             	&& subSiteType != null
-            	&&(subSiteType == 16
-                || subSiteType == 128
-                || subSiteType == 1605
-                || subSiteType == 99
-                || subSiteType == 1604)
-            );
+            	&& SMS_ZZGZT_SITE_SUB_TYPE_LIST16.contains(subSiteType));
     }
 }

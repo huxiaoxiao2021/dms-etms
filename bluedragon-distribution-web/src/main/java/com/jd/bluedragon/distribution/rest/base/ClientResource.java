@@ -66,8 +66,8 @@ public class ClientResource {
 		return dmsClientManager.getClientVersion(dmsClientVersionRequest);
 	}
 	/**
-	 * 获取线上版本号接口
-	 * @param dmsClientVersionRequest
+	 * 菜单权限校验
+	 * @param checkMenuAuthRequest
 	 * @return
 	 */
 	@POST
