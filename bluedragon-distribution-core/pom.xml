@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
-		<jmq.version>2.3.2</jmq.version>
+		<jmq.version>2.3.1</jmq.version>
 		<!--<etms.waybill.agent.version>4.2.199</etms.waybill.agent.version>-->
 		<etms.waybill.agent.version>4.2.208</etms.waybill.agent.version>
 
@@ -208,7 +208,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.7.3-uat-SNAPSHOT</version>
+			<version>1.7.7-uat-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1683,7 +1683,11 @@
             <artifactId>dms-component-sdk</artifactId>
             <groupId>com.jd.dms.comp</groupId>
         </dependency>
-
+		<!--工作台service-->
+		<dependency>
+			<groupId>com.jd.dms.wb</groupId>
+			<artifactId>workbench-services-sdk</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>

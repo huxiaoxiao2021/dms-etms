@@ -21,4 +21,59 @@
 		LIMIT 1
 	</select>
 
+    <select id="querySitePage" resultMap="site" parameterType="java.util.Map">
+        SELECT site_code, site_type, site_name, org_id, sub_type,city_id,province_id,air_sign,site_businesstype
+        FROM site
+        WHERE yn=1
+        <if test="siteCode != null">
+            and site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteName != null and siteName != ''">
+            and site_name like CONCAT('%',#{siteName},'%')
+        </if>
+        <if test="siteType != null">
+            and site_type = #{siteType}
+        </if>
+          <if test="orgId != null">
+            and org_id = #{orgId}
+          </if>
+        <if test="subType != null">
+            and sub_type = #{subType}
+        </if>
+        <if test="subTypes != null and subTypes.size() > 0">
+            AND sub_type IN
+            <foreach collection="subTypes" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        <if test="startIndex != null">
+         LIMIT #{startIndex},#{pageSize}
+        </if>
+    </select>
+    <select id="countSitePage" resultType="int" parameterType="java.util.Map">
+        SELECT count(*)
+        FROM site
+        WHERE yn=1
+        <if test="siteCode != null">
+            and site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteName != null and siteName != ''">
+            and site_name like CONCAT('%',#{siteName},'%')
+        </if>
+        <if test="siteType != null">
+            and site_type = #{siteType}
+        </if>
+        <if test="orgId != null">
+            and org_id = #{orgId}
+        </if>
+        <if test="subType != null">
+            and sub_type = #{subType}
+        </if>
+        <if test="subTypes != null and subTypes.size() > 0">
+            AND sub_type IN
+            <foreach collection="subTypes" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+    </select>
 </mapper>
