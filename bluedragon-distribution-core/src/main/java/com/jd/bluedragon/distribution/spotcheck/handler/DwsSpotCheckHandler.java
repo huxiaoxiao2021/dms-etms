@@ -61,26 +61,16 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     /**
      * 超标校验
      *  1、获取复核数据、核对数据
-     *      1）、一单多件
-     *          a、未集齐返回'待集齐计算'
-     *          b、集齐则汇总复核数据
-     *          c、核对数据运单获取
+     *       a、未集齐返回'待集齐计算'
+     *       b、集齐则汇总复核数据
+     *       c、核对数据运单获取
      *  2、超标判断
      * @param spotCheckContext
      * @return
      */
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        if(!spotCheckDealService.gatherTogether(spotCheckContext)){
-            CheckExcessResult excessData = new CheckExcessResult();
-            excessData.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-            result.setData(excessData);
-            return result;
-        }
-        summaryReviewWeightVolume(spotCheckContext);
-        obtainContrast(spotCheckContext);
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
+        return checkIsExcessC(spotCheckContext);
     }
 
     /**

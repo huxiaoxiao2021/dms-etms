@@ -235,7 +235,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     /**
      * 获取称重汇总数据
-     *  1、SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE 抽检
+     *  1、B网 抽检
      *      0）、信任商家直接取运单waybill中的重量体积goodWeight、goodVolume（无操作站点先剔除此规则）
      *      1）、取运单号相关的所有称重量方记录（包裹和运单维度的都要）
      *      2）、剔除重量体积均为0（注意，只剔除都是0的）的无意义的称重量方记录（多为系统卡控需要，实际并未称重）（剔除后无称重数据则取揽收单位）
@@ -243,9 +243,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      *      4）、筛选出该ERP操作的所有称重量方记录
      *      5）、若既有整单录入又有包裹录入 || 若是整单，以最后一次运单称重为对比对象
      *      6）、若是包裹，则筛选出所有包裹维度称重量方的记录，然后以包裹维度进行去重，仅保留时间靠后的那条，最后汇总得到的重量体积为对比对象
-     *  2、SpotCheckSourceFromEnum.C_SPOT_CHECK_SOURCE 抽检
-     *      1）、一单一件：取运单称重流水第一个操作人的称重量方记录
-     *      2）、一单多件：无
      *
      * @param spotCheckContext
      * @return
@@ -265,12 +262,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return null;
         }
         List<PackFlowDetail> packageOpeList = result.getResult();
+        // 汇总核对称重数据
         WeightVolumeSummary weightVolumeSummary = new WeightVolumeSummary();
-        if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())){
-            summaryWeightVolumeOfB(waybillCode, packageOpeList, weightVolumeSummary);
-        }else {
-            summaryWeightVolumeOfC(packageOpeList, weightVolumeSummary);
-        }
+        summaryWeightVolume(waybillCode, packageOpeList, weightVolumeSummary);
 
         Integer operateSiteCode = weightVolumeSummary.getOperateSiteCode();
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
@@ -283,7 +277,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         return weightVolumeSummary;
     }
 
-    private void summaryWeightVolumeOfB(String waybillCode, List<PackFlowDetail> packageOpeList, WeightVolumeSummary weightVolumeSummary) {
+    private void summaryWeightVolume(String waybillCode, List<PackFlowDetail> packageOpeList, WeightVolumeSummary weightVolumeSummary) {
 
         List<PackFlowDetail> needComputeList = new ArrayList<>();
         // 排除重量体积均为0的情况(系统卡控)
@@ -347,11 +341,12 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
         }else {
             // 存在运单维度称重则取运单维度记录
-            PackFlowDetail packFlowDetail = ((List<PackFlowDetail>) waybillMap.values()).get(0);
-            totalWeight = packFlowDetail.getpWeight() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWeight();
-            totalVolume = (packFlowDetail.getpLength() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpLength())
-                    * (packFlowDetail.getpWidth() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWidth())
-                    * (packFlowDetail.getpHigh() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpHigh());
+            for (PackFlowDetail packFlowDetail : waybillMap.values()) {
+                totalWeight = packFlowDetail.getpWeight() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWeight();
+                totalVolume = (packFlowDetail.getpLength() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpLength())
+                        * (packFlowDetail.getpWidth() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpWidth())
+                        * (packFlowDetail.getpHigh() == null ? Constants.DOUBLE_ZERO : packFlowDetail.getpHigh());
+            }
         }
         weightVolumeSummary.setTotalWeight(totalWeight);
         weightVolumeSummary.setTotalVolume(totalVolume);
@@ -838,7 +833,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 }
             }
             if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())
-                    && StringUtils.isEmpty(collectDto.getPictureAddress())){
+                    && StringUtils.isEmpty(collectDto.getPictureAddress())
+                    && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(packageCode, siteCode))){
                 logger.warn("包裹号:{}站点:{}的图片还未上传!", packageCode, siteCode);
                 return;
             }

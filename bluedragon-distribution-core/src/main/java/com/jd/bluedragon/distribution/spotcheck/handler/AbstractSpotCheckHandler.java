@@ -284,10 +284,12 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
 
         // 计泡比系数
         int volumeRate;
-        if(SpotCheckSourceFromEnum.B_SPOT_CHECK_SOURCE.contains(spotCheckDto.getSpotCheckSourceFrom())){
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             volumeRate = BusinessUtil.isTKZH(waybillSign) ? SpotCheckConstants.B_VOLUME_RATIO_TKZH : SpotCheckConstants.B_VOLUME_RATIO_NOT_TKZH;
-        }else {
+        }else if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
             volumeRate = BusinessUtil.isExpress(waybillSign) ? SpotCheckConstants.C_VOLUME_RATIO_KY : SpotCheckConstants.C_VOLUME_RATIO_DEFAULT;
+        }else {
+            throw new SpotCheckBusinessException("未知业务类型不支持!（非B非C）");
         }
         spotCheckContext.setVolumeRate(volumeRate);
 
@@ -530,6 +532,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setWeightDiff(null);
             initialWaybillCollect.setVolumeWeightDiff(null);
             initialWaybillCollect.setLargeDiff(null);
+            initialWaybillCollect.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
             reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
         }
         // 集齐

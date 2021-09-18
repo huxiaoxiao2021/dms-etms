@@ -682,6 +682,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
             com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
                     = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(condition, true));
             weightVolumeCheckOfB2bWaybill.setIsExcess(checkIsExcessResult.getData());
+            result.customMessage(checkIsExcessResult.getCode(), checkIsExcessResult.getMessage());
             return result;
         }
         //0.校验
@@ -836,7 +837,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         try{
             // 执行新抽检逻辑
             if(spotCheckDealService.isExecuteNewSpotCheck(param.getCreateSiteCode())){
-                spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDto(param, false));
+                com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> spotCheckDealResult
+                        = spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDto(param, false));
+                result.customMessage(spotCheckDealResult.getCode(), spotCheckDealResult.getMessage());
                 return result;
             }
             //防止二次提交
