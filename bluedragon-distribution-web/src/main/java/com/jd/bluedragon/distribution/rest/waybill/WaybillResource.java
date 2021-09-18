@@ -2545,8 +2545,7 @@ public class WaybillResource {
 	private SpotCheckDto transferToSpotCheckDto(PackWeightVO packWeightVO) {
 		SpotCheckDto spotCheckDto = new SpotCheckDto();
 		spotCheckDto.setBarCode(packWeightVO.getCodeStr());
-		spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName());
-		spotCheckDto.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
+		spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName());
 		spotCheckDto.setWeight(packWeightVO.getWeight());
 		spotCheckDto.setLength(packWeightVO.getLength());
 		spotCheckDto.setWidth(packWeightVO.getWidth());
