@@ -59,10 +59,6 @@ public class CheckExcessRequest {
      * 核对较大值
      */
     private Double contrastLarge;
-    /**
-     * 较大值差异
-     */
-    private Double largeDiff;
 
     public String getSpotCheckSourceFrom() {
         return spotCheckSourceFrom;
@@ -160,11 +156,4 @@ public class CheckExcessRequest {
         this.contrastLarge = contrastLarge;
     }
 
-    public Double getLargeDiff() {
-        return largeDiff;
-    }
-
-    public void setLargeDiff(Double largeDiff) {
-        this.largeDiff = largeDiff;
-    }
 }

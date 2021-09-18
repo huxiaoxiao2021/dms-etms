@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessRequest;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessResult;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -50,42 +51,44 @@ public class ExcessStandardSideHandler implements IExcessStandardHandler {
         CheckExcessResult checkExcessResult = new CheckExcessResult();
         checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
         result.setData(checkExcessResult);
-        // 较大值差异
-        double largeDiff = checkExcessRequest.getLargeDiff();
+        Double reviewWeight = checkExcessRequest.getReviewWeight();
+        Double contrastWeight = checkExcessRequest.getContrastWeight();
+        // 重量误差
+        double diffWeight = MathUtils.keepScale(Math.abs(reviewWeight - contrastWeight), 3);
         double sumSide = checkExcessRequest.getReviewLength() + checkExcessRequest.getReviewWidth() + checkExcessRequest.getReviewHeight();
         // 超标原因
         String excessReasonTemplate = "三边之和在%scm和%scm之间并且误差%s超过误差标准值%skg";
         if(sumSide >= firstSumSide && sumSide < secondSumSide){
-            if(largeDiff > firstSumSideStage){
+            if(diffWeight > firstSumSideStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, firstSumSide, secondSumSide, largeDiff, firstSumSideStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, firstSumSide, secondSumSide, diffWeight, firstSumSideStage));
                 checkExcessResult.setExcessStandard(String.valueOf(firstSumSideStage));
                 return result;
             }
             return result;
         }
         if(sumSide >= secondSumSide && sumSide < thirdSumSide){
-            if(largeDiff > secondSumSideStage){
+            if(diffWeight > secondSumSideStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, secondSumSide, thirdSumSide, largeDiff, secondSumSideStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, secondSumSide, thirdSumSide, diffWeight, secondSumSideStage));
                 checkExcessResult.setExcessStandard(String.valueOf(secondSumSideStage));
                 return result;
             }
             return result;
         }
         if(sumSide >= thirdSumSide && sumSide < fourSumSide){
-            if(largeDiff > thirdSumSideStage){
+            if(diffWeight > thirdSumSideStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, thirdSumSide, fourSumSide, largeDiff, thirdSumSideStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, thirdSumSide, fourSumSide, diffWeight, thirdSumSideStage));
                 checkExcessResult.setExcessStandard(String.valueOf(thirdSumSideStage));
                 return result;
             }
             return result;
         }
         if(sumSide >= fourSumSide){
-            if(largeDiff > fourSumSideStage){
+            if(diffWeight > fourSumSideStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, fourSumSide, "∞", largeDiff, fourSumSideStage));
+                checkExcessResult.setExcessReason(String.format(excessReasonTemplate, sumSide, fourSumSide, "∞", diffWeight, fourSumSideStage));
                 checkExcessResult.setExcessStandard(String.valueOf(fourSumSideStage));
                 return result;
             }

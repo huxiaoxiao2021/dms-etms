@@ -114,7 +114,6 @@ public class AbstractExcessStandardHandler {
         checkExcessRequest.setContrastWeight(contrastWeight);
         checkExcessRequest.setContrastVolume(contrastVolume);
         checkExcessRequest.setContrastLarge(contrastLarge);
-        checkExcessRequest.setLargeDiff(Math.abs(reviewLarge - contrastLarge));
         return checkExcessRequest;
     }
 

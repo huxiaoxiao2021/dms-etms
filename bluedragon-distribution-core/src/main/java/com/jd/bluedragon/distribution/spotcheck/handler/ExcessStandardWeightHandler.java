@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessRequest;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessResult;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -47,13 +48,12 @@ public class ExcessStandardWeightHandler implements IExcessStandardHandler {
         CheckExcessResult checkExcessResult = new CheckExcessResult();
         checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
         result.setData(checkExcessResult);
-        Double reviewWeight = checkExcessRequest.getReviewWeight();
         // 复核较大值
         Double reviewLarge = checkExcessRequest.getReviewLarge();
         // 核对较大值
         Double contrastLarge = checkExcessRequest.getContrastLarge();
-        // 较大值差异
-        double largeDiff = checkExcessRequest.getLargeDiff();
+        // 较大值误差
+        double largeDiff = MathUtils.keepScale(Math.abs(reviewLarge - contrastLarge), 3);
         // 超标原因
         String excessReasonTemplate = "分拣较大值%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
         if(reviewLarge <= firstWeight && contrastLarge > firstWeight){
@@ -84,7 +84,7 @@ public class ExcessStandardWeightHandler implements IExcessStandardHandler {
             return result;
         }
         if(reviewLarge > thirdWeight){
-            if(largeDiff > reviewWeight * thirdWeightStage){
+            if(largeDiff > reviewLarge * thirdWeightStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
                 checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewLarge, thirdWeight, "∞", largeDiff, thirdWeightStage));
                 checkExcessResult.setExcessStandard(String.valueOf(thirdWeightStage));

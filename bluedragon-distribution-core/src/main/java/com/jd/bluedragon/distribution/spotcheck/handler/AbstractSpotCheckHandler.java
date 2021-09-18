@@ -318,6 +318,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         double volume = spotCheckDto.getVolume() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getVolume();
         if(Objects.equals(volume, Constants.DOUBLE_ZERO)){
             volume = spotCheckDto.getLength() * spotCheckDto.getWidth() * spotCheckDto.getHeight();
+            volume = MathUtils.keepScale(volume, 3);
         }
         spotCheckReviewDetail.setReviewVolume(volume);
         spotCheckReviewDetail.setReviewTotalVolume(volume);

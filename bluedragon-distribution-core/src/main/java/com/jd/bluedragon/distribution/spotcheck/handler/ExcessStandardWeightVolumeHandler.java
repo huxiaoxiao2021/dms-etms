@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessRequest;
 import com.jd.bluedragon.distribution.spotcheck.domain.CheckExcessResult;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
+import com.jd.bluedragon.dms.utils.MathUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -55,30 +56,31 @@ public class ExcessStandardWeightVolumeHandler implements IExcessStandardHandler
         Double contrastVolume = checkExcessRequest.getContrastVolume();
         // 超标原因
         String excessReasonTemplate = "录入重量%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
-        double largeDiffWeight = Math.abs(reviewWeight - contrastWeight);
-        if(reviewWeight < bWeight && largeDiffWeight > bFirstWeightStage){
+        double diffWeight = MathUtils.keepScale(Math.abs(reviewWeight - contrastWeight), 3);
+
+        if(reviewWeight < bWeight && diffWeight > bFirstWeightStage){
             checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewWeight, Constants.NUMBER_ZERO, bWeight, largeDiffWeight, bFirstWeightStage));
+            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewWeight, Constants.NUMBER_ZERO, bWeight, diffWeight, bFirstWeightStage));
             checkExcessResult.setExcessStandard(String.valueOf(bFirstWeightStage));
             return result;
         }
-        if(reviewWeight >= bWeight && largeDiffWeight > bSecondWeightStage * reviewWeight){
+        if(reviewWeight >= bWeight && diffWeight > bSecondWeightStage * reviewWeight){
             checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewWeight, bWeight, "∞", largeDiffWeight, bSecondWeightStage));
+            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewWeight, bWeight, "∞", diffWeight, bSecondWeightStage));
             checkExcessResult.setExcessStandard(String.valueOf(bSecondWeightStage));
             return result;
         }
         excessReasonTemplate = "录入体积%s在%s方至%s方之间并且误差%s超过标准值%s";
-        double largeDiffVolume = Math.abs(reviewVolume - contrastVolume);
-        if(reviewVolume < bVolume && largeDiffVolume > bFirstVolumeStage){
+        double diffVolume = MathUtils.keepScale(Math.abs(reviewVolume - contrastVolume), 3);
+        if(reviewVolume < bVolume && diffVolume > bFirstVolumeStage){
             checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, Constants.NUMBER_ZERO, bVolume, largeDiffVolume, bFirstVolumeStage));
+            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, Constants.NUMBER_ZERO, bVolume, diffVolume, bFirstVolumeStage));
             checkExcessResult.setExcessStandard(String.valueOf(bFirstVolumeStage));
             return result;
         }
-        if(reviewVolume >= bVolume && largeDiffVolume > bSecondVolumeStage * reviewVolume){
+        if(reviewVolume >= bVolume && diffVolume > bSecondVolumeStage * reviewVolume){
             checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, bVolume, "∞", largeDiffVolume, bSecondVolumeStage));
+            checkExcessResult.setExcessReason(String.format(excessReasonTemplate, reviewVolume, bVolume, "∞", diffVolume, bSecondVolumeStage));
             checkExcessResult.setExcessStandard(String.valueOf(bSecondVolumeStage));
             return result;
         }
