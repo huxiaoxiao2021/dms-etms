@@ -185,7 +185,7 @@ public class CenterServiceResource {
 		choice.setQueryWaybillP(true);
 		choice.setQueryWaybillS(true);
 		choice.setQueryWaybillT(true);
-
+		choice.setQueryWaybillVas(true);
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
