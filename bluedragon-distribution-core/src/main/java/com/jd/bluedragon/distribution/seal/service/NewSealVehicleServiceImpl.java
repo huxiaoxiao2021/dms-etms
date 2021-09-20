@@ -824,7 +824,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealed",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode) {
-		CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealed(batchCode);
+        log.info("NewSealVehicleServiceImpl.isBatchCodeHasSealed param {}", batchCode);
+        CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealed(batchCode);
+        log.info("NewSealVehicleServiceImpl.isBatchCodeHasSealed result {}", JsonHelper.toJson(isSealed));
 		return isSealed;
 	}
 
@@ -975,7 +977,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
         else {
             if (checkSendCodeIsSealed(sendCode)) {
-                log.info("NewSealVehicleServiceImpl.newCheckSendCodeSealed check faild {}", sendCode);
+                log.info("NewSealVehicleServiceImpl.newCheckSendCodeSealed check failed {}", sendCode);
                 if (customMessage != null && customMessage.length() > 0) {
                     customMessage.setLength(0);
                     customMessage.append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
