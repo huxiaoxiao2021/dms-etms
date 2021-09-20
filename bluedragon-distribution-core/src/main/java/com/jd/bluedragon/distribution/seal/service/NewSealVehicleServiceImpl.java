@@ -904,10 +904,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
+        log.info("NewSealVehicleServiceImpl.checkSendCodeIsSealed sendCode {}", sendCode);
         if (this.getSealCarTimeBySendCode(sendCode) != null) {
             return true;
         }
         try {
+            log.info("NewSealVehicleServiceImpl.checkSendCodeIsSealed isBatchCodeHasSealed sendCode {}", sendCode);
             CommonDto<Boolean> isSealed = isBatchCodeHasSealed(sendCode);
             if(isSealed != null && isSealed.getCode() == CommonDto.CODE_SUCCESS
                     && isSealed.getData() != null && isSealed.getData()){
@@ -948,6 +950,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         // 启用西藏业务模式
         boolean tibetMode = tibetBizService.tibetModeSwitch(createSiteCode, receiveSiteCode);
         if (tibetMode) {
+            log.info("NewSealVehicleServiceImpl.newCheckSendCodeSealed tibetMode");
             ItmsSendCheckSendCodeDto request = new ItmsSendCheckSendCodeDto();
 
             // 此处可以使用批次号解析始发分拣中心，基于发货前校验了批次始发场地和操作人所属场地的一致性
@@ -972,6 +975,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
         else {
             if (checkSendCodeIsSealed(sendCode)) {
+                log.info("NewSealVehicleServiceImpl.newCheckSendCodeSealed check faild {}", sendCode);
                 if (customMessage != null && customMessage.length() > 0) {
                     customMessage.setLength(0);
                     customMessage.append(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
