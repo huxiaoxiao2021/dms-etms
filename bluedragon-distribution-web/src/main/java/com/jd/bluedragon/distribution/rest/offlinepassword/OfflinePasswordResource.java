@@ -32,7 +32,7 @@ public class OfflinePasswordResource {
 
     @GET
     @Path("/offlinePassword/updatePrime")
-    public OfflinePasswordPrimeResponse queryAbnormalorder(@QueryParam("siteCode")Integer siteCode){
+    public OfflinePasswordPrimeResponse updatePrime(@QueryParam("siteCode")Integer siteCode){
         CallerInfo info = null;
         OfflinePasswordPrimeResponse response = new OfflinePasswordPrimeResponse();
         if(siteCode == null){
