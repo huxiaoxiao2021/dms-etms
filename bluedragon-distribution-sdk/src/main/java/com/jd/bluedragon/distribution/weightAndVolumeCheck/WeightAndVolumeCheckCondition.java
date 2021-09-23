@@ -55,6 +55,16 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
 
     private Integer queryForWeb;
 
+    public String getFromSource() {
+        return fromSource;
+    }
+
+    public void setFromSource(String fromSource) {
+        this.fromSource = fromSource;
+    }
+
+    private String fromSource;
+
     public Integer getSpotCheckType() {
         return spotCheckType;
     }

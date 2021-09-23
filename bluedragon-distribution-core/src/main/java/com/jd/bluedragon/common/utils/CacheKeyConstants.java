@@ -81,6 +81,28 @@ public class CacheKeyConstants {
      * 包裹抽检是否超标的缓存
      */
 	public static final String CACHE_KEY_SPOT_IS_EXCESS_FLAG = "spotCheck.isExcess-%s-%s";
+
+
+    /***************************************** 抽检缓存start *******************************************/
+    /**
+     * 抽检缓存前缀
+     */
+    public static final String CACHE_SPOT_CHECK = "dmsWeb:packageOrWaybillCheckFlag:%S";
+    /**
+     * 包裹抽检记录的缓存
+     */
+    public static final String CACHE_SPOT_CHECK_PACK_LIST = "dmsWeb:waybillSpotCheckList:%S-%S:";
+    /**
+     * 抽检包裹上传图片的缓存
+     */
+    public static final String CACHE_SPOT_CHECK_PICTURE = "spotCheck.pictureUrl-%s-%s";
+    /**
+     * 抽检下发fxm的缓存
+     */
+    public static final String CACHE_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
+
+    /***************************************** 抽检缓存end *******************************************/
+
 	/**
 	 * 包裹发货状态缓存redis的key
 	 */

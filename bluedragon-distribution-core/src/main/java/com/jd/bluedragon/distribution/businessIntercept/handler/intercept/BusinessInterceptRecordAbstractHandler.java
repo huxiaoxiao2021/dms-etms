@@ -111,10 +111,10 @@ public abstract class BusinessInterceptRecordAbstractHandler implements IBusines
      */
     protected abstract Response<Boolean> doHandle(SaveInterceptMsgDto msgDto);
 
-    @Value("${businessIntercept.pda.interceptCode.waybillCancel}")
+    @Value("${businessIntercept.pda.interceptCode.waybillCancel:}")
     private String pdaInterceptCodeWaybillCancel;
 
-    @Value("${businessIntercept.automatic.interceptCode.waybillCancel}")
+    @Value("${businessIntercept.automatic.interceptCode.waybillCancel:}")
     private String automaticInterceptCodeWaybillCancel;
 
     /**

@@ -782,6 +782,10 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+    /**
+     * 配置信息-终端站点客户端菜单配置黑名单
+     */
+    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";    
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -1572,6 +1576,15 @@ public class Constants {
      * 快运使用的泡重比:6000
      */
     public static final Integer EXPRESS_VOLUME_RATE= 6000;
+
+    /**
+     * B网特快重货重泡比
+     * */
+    public static final int VOLUME_RATIO_TKZH = 6000;
+    /**
+     * B网非特快重货重泡比
+     * */
+    public static final int VOLUME_RATIO_NOT_TKZH = 4800;
 
     /**
      * 驻厂操作全程跟踪

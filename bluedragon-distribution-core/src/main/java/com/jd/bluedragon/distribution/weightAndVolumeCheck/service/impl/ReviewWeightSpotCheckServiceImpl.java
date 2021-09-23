@@ -17,7 +17,6 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
 import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
 import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -420,97 +419,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         condition.setReviewSiteCodes(siteCodes);
         condition.setSpotCheckType(weightAndVolumeCheckCondition.getSpotCheckType());
         return condition;
-    }
-
-    /**
-     * 根据复核日期、站点进行分组
-     * @param weightVolumeCollectDtos
-     * @return
-     */
-    private Map<Date, Map<Integer, List<WeightVolumeCollectDto>>> convertAndGroup(List<WeightVolumeCollectDto> weightVolumeCollectDtos) {
-
-
-        //1.按日期分组
-        Map<Date,List<WeightVolumeCollectDto>> mapOfDate = new HashMap<>();
-        for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDtos){
-            //将日期格式转换成yyyy-MM-dd类型
-            weightVolumeCollectDto.setReviewDate(DateHelper.parseDate(DateHelper.formatDate(weightVolumeCollectDto.getReviewDate())));
-            if(!mapOfDate.containsKey(weightVolumeCollectDto.getReviewDate())){
-
-                List list = new ArrayList<WeightVolumeCollectDto>();
-                list.add(weightVolumeCollectDto);
-                mapOfDate.put(weightVolumeCollectDto.getReviewDate(),list);
-
-            }else{
-                mapOfDate.get(weightVolumeCollectDto.getReviewDate()).add(weightVolumeCollectDto);
-            }
-        }
-
-        //2.按站点分组
-        Map<Date, Map<Integer, List<WeightVolumeCollectDto>>> map = new HashMap<>();
-        for(Date date : mapOfDate.keySet()){
-
-            //日期下的所有集合
-            List<WeightVolumeCollectDto> weightVolumeCollectDto1 = mapOfDate.get(date);
-            for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDto1){
-
-                if(!map.containsKey(date)){
-
-                    Map<Integer, List<WeightVolumeCollectDto>> mapOfSite = new HashMap<>();
-                    List list = new ArrayList<WeightVolumeCollectDto>();
-                    list.add(weightVolumeCollectDto);
-                    mapOfSite.put(weightVolumeCollectDto.getReviewSiteCode(),list);
-                    map.put(date,mapOfSite);
-
-                }else{
-
-                    if(!map.get(date).containsKey(weightVolumeCollectDto.getReviewSiteCode())){
-
-                        List<WeightVolumeCollectDto> list = new ArrayList<>();
-                        list.add(weightVolumeCollectDto);
-                        map.get(date).put(weightVolumeCollectDto.getReviewSiteCode(),list);
-                    }else{
-                        map.get(date).get(weightVolumeCollectDto.getReviewSiteCode()).add(weightVolumeCollectDto);
-                    }
-                }
-
-            }
-
-        }
-
-        return map;
-    }
-
-    /**
-     * 获取信任/普通商家包裹数量
-     * @param weightVolumeCollectDtos
-     * @param type 1:信任商家 0:普通商家
-     * @return
-     */
-    private Integer getPackageNumOfSpotCheck(List<WeightVolumeCollectDto> weightVolumeCollectDtos,int type) {
-        int count = 0;
-        for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDtos){
-            if(weightVolumeCollectDto.getIsTrustBusi() == type){
-                count++;
-            }
-        }
-        return count;
-    }
-
-    /**
-     * 获取信任/普通商家超标包裹数
-     * @param weightVolumeCollectDtos
-     * @param type 1:信任商家 0:普通商家
-     * @return
-     */
-    private Integer getPackageNumOfExcess(List<WeightVolumeCollectDto> weightVolumeCollectDtos, int type) {
-        int count = 0;
-        for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDtos){
-            if(weightVolumeCollectDto.getIsTrustBusi() == type && weightVolumeCollectDto.getIsExcess() == 1){
-                count++;
-            }
-        }
-        return count;
     }
 
     /**

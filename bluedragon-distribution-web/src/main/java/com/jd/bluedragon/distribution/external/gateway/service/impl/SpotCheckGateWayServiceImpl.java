@@ -5,17 +5,20 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
 import com.alibaba.fastjson.JSON;
-import com.jd.ql.dms.report.ReportExternalService;
-import com.jd.ql.dms.report.domain.BaseEntity;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,7 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @program: bluedragon-distribution
@@ -38,6 +43,15 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
 
     @Autowired
     private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
+
+    @Autowired
+    private SpotCheckCurrencyService spotCheckCurrencyService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -65,6 +79,13 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             return jdCResponse;
         }
         try {
+            // 执行新抽检逻辑
+            if(spotCheckDealService.isExecuteNewSpotCheck(req.getCreateSiteCode())){
+                com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
+                        = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(req));
+                jdCResponse.setData(checkIsExcessResult.getData());
+                return jdCResponse;
+            }
             WeightVolumeCheckConditionB2b conditionB2b = new WeightVolumeCheckConditionB2b();
             conditionB2b.setCreateSiteCode(req.getCreateSiteCode());
             conditionB2b.setWaybillOrPackageCode(req.getWaybillCode());
@@ -119,6 +140,12 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             return jdCResponse;
         }
         try {
+            // 执行新抽检逻辑
+            if(spotCheckDealService.isExecuteNewSpotCheck(req.getCreateSiteCode())){
+                spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDealDto(req));
+                jdCResponse.toSucceed("操作成功！");
+                return jdCResponse;
+            }
             InvokeResult<String> result = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(convert(req));
             if (null != result && Constants.SUCCESS_CODE.equals(result.getCode())) {
                 jdCResponse.toSucceed("操作成功！");
@@ -129,6 +156,46 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         }
         jdCResponse.toFail("操作失败！");
         return jdCResponse;
+    }
+
+    private SpotCheckDto convertToSpotCheckDto(SpotCheckCheckReq req) {
+        SpotCheckDto spotCheckDto = new SpotCheckDto();
+        spotCheckDto.setBarCode(req.getWaybillCode());
+        spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName());
+        spotCheckDto.setWeight(req.getWeight());
+        spotCheckDto.setVolume(req.getVolume() * SpotCheckConstants.CM3_M3_MAGNIFICATION);
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(req.getLoginErp());
+        spotCheckDto.setOrgId(baseStaff.getOrgId());
+        spotCheckDto.setOrgName(baseStaff.getOrgName());
+        spotCheckDto.setSiteCode(req.getCreateSiteCode());
+        spotCheckDto.setSiteName(baseStaff.getSiteName());
+        spotCheckDto.setOperateUserId(baseStaff.getStaffNo());
+        spotCheckDto.setOperateUserErp(req.getLoginErp());
+        spotCheckDto.setOperateUserName(baseStaff.getStaffName());
+        spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
+        return spotCheckDto;
+    }
+
+    private SpotCheckDto convertToSpotCheckDealDto(SpotCheckSubmitReq req) {
+        SpotCheckDto spotCheckDto = new SpotCheckDto();
+        spotCheckDto.setBarCode(req.getWaybillCode());
+        spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName());
+        spotCheckDto.setWeight(req.getWeight());
+        spotCheckDto.setVolume(req.getVolume() * SpotCheckConstants.CM3_M3_MAGNIFICATION);
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(req.getLoginErp());
+        spotCheckDto.setOrgId(baseStaff.getOrgId());
+        spotCheckDto.setOrgName(baseStaff.getOrgName());
+        spotCheckDto.setSiteCode(req.getCreateSiteCode());
+        spotCheckDto.setSiteName(baseStaff.getSiteName());
+        spotCheckDto.setOperateUserId(baseStaff.getStaffNo());
+        spotCheckDto.setOperateUserErp(req.getLoginErp());
+        spotCheckDto.setOperateUserName(baseStaff.getStaffName());
+        spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
+        spotCheckDto.setExcessStatus(req.getExcessFlag());
+        Map<String, String> picUtlMap = new LinkedHashMap<>();
+        picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_COMMA));
+        spotCheckDto.setPictureUrls(picUtlMap);
+        return spotCheckDto;
     }
 
 
