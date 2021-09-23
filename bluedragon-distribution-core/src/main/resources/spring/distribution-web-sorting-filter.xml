@@ -44,7 +44,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PickupFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
@@ -103,7 +102,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PickupFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
@@ -134,7 +132,6 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BianMinZiTiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.HeZuoDaiShouFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PartnerSiteFilter"/>
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PickupFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DoorReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OldReplaceFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ContractFilter"/>
