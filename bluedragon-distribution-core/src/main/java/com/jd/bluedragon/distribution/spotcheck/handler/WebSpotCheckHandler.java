@@ -41,7 +41,7 @@ public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
         String waybillCode = spotCheckContext.getWaybillCode();
         if(!spotCheckDealService.isExecuteBCFuse()){
             if(!BusinessUtil.isB2b(waybill.getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_B);
                 return;
             }
         }

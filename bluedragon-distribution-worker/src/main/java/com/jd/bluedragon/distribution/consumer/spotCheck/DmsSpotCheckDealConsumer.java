@@ -60,7 +60,7 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
             }
             spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
         }catch (SpotCheckSysException e){
-            log.warn("抽检异常进行并MQ进行重试");
+            log.warn("抽检异常进行并MQ进行重试", e);
             throw e;
         }catch(Exception e){
             Profiler.functionError(info);
