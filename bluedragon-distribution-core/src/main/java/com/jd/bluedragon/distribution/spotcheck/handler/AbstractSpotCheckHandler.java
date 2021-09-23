@@ -543,10 +543,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             // 设置超标缓存
             setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         }
-        // 新增包裹维度记录
-        reportExternalManager.insertOrUpdateForWeightVolume(assemblePackCollectDto(spotCheckContext));
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
+        // 新增包裹维度记录
+        reportExternalManager.insertOrUpdateForWeightVolume(assemblePackCollectDto(spotCheckContext));
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
         // 记录抽检操作日志
