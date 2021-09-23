@@ -426,6 +426,34 @@ public class UccPropertyConfiguration {
     private boolean paralleGetPackageSwitch;
 
     /**
+     * 虚拟组板最多流向个数
+     */
+    private int virtualBoardMaxDestinationCount;
+
+    /**
+     * 虚拟组板最多放置包裹个数
+     */
+    private int virtualBoardMaxItemCount;
+
+    /**
+     * 虚拟组板自动关闭天数
+     */
+    private Integer virtualBoardAutoCloseDays;
+
+    /**
+     * 虚拟组板可使用场地
+     */
+    private String virtualBoardCanUseSite;
+
+    public boolean getCheckSignAndReturn() {
+        return checkSignAndReturn;
+    }
+
+    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
+        this.checkSignAndReturn = checkSignAndReturn;
+    }
+
+    /**
      * 反调度校验滑道信息 开关
      * true :检验 false 不校验
      */
@@ -505,6 +533,21 @@ public class UccPropertyConfiguration {
      * 一单多件抽检场地配置，配置ALL表示全部开启
      */
     private String multiplePackageSpotCheckSites;
+
+    /**
+     * 读转运卸车表开关
+     */
+    private boolean readUnloadFromTys;
+
+    /**
+     * 停止写分拣卸车表开关
+     */
+    private boolean stopWriteUnloadFromDms;
+
+    /**
+     * 写转运卸车表开关
+     */
+    private boolean writeUnloadFromTys;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1130,13 +1173,6 @@ public class UccPropertyConfiguration {
     public void setDazongPackageOperateMax(Integer dazongPackageOperateMax) {
         this.dazongPackageOperateMax = dazongPackageOperateMax;
     }
-    public boolean getCheckSignAndReturn() {
-        return checkSignAndReturn;
-    }
-
-    public void setCheckSignAndReturn(boolean checkSignAndReturn) {
-        this.checkSignAndReturn = checkSignAndReturn;
-    }
 
     public boolean getInspectNoSendNoLoadWaybillDemotion() {
         return inspectNoSendNoLoadWaybillDemotion;
@@ -1379,4 +1415,88 @@ public class UccPropertyConfiguration {
         return false;
     }
 
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
+
+    public int getVirtualBoardMaxDestinationCount() {
+        return virtualBoardMaxDestinationCount;
+    }
+
+    public void setVirtualBoardMaxDestinationCount(int virtualBoardMaxDestinationCount) {
+        this.virtualBoardMaxDestinationCount = virtualBoardMaxDestinationCount;
+    }
+
+    public int getVirtualBoardMaxItemCount() {
+        return virtualBoardMaxItemCount;
+    }
+
+    public void setVirtualBoardMaxItemCount(int virtualBoardMaxItemCount) {
+        this.virtualBoardMaxItemCount = virtualBoardMaxItemCount;
+    }
+
+    public Integer getVirtualBoardAutoCloseDays() {
+        return virtualBoardAutoCloseDays;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardAutoCloseDays(Integer virtualBoardAutoCloseDays) {
+        this.virtualBoardAutoCloseDays = virtualBoardAutoCloseDays;
+        return this;
+    }
+
+    public String getVirtualBoardCanUseSite() {
+        return virtualBoardCanUseSite;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardCanUseSite(String virtualBoardCanUseSite) {
+        this.virtualBoardCanUseSite = virtualBoardCanUseSite;
+        this.virtualBoardCanUseSiteList = this.getVirtualBoardCanUseSiteList();
+        return this;
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
+
+    public List<String> getVirtualBoardCanUseSiteList() {
+        if(virtualBoardCanUseSiteList == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(virtualBoardCanUseSite.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchVirtualSiteCanUseSite(int siteId) {
+        if(StringUtils.isBlank(virtualBoardCanUseSite)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, virtualBoardCanUseSite)){
+            return true;
+        }
+        if(virtualBoardCanUseSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
 }

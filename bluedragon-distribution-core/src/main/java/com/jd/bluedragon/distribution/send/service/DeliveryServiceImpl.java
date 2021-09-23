@@ -1631,9 +1631,23 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
         //6.写组板发货任务完成，调用TC执行关板
-        closeBoard(boardCode, domain);
+        changeBoardStatusSend(boardCode, domain);
 
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 写组板发货任务完成，调用TC修改板状态为发货
+     */
+    private void changeBoardStatusSend(String boardCode, SendM domain){
+        try{
+            Response<Boolean> closeBoardResponse = boardCombinationService.changeBoardStatusSend(boardCode);
+            if(!JdResponse.CODE_OK.equals(closeBoardResponse.getCode()) || !closeBoardResponse.getData()){
+                log.warn("组板发货调用TC置板号状态为发货,板号：{}，结果：{}" ,boardCode, JsonHelper.toJson(closeBoardResponse));
+            }
+        } catch (Exception e) {
+            log.error("组板发货调用TC改板状态异常：{}" , JsonHelper.toJson(domain),e);
+        }
     }
 
     /**
@@ -4869,13 +4883,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         //1.批次号封车校验，已封车不能发货
-        if (StringUtils.isNotEmpty(sendM.getSendCode())) {
+        if (StringUtils.isNotEmpty(sendM.getSendCode()) && BusinessUtil.isSendCode(sendM.getSendCode())) {
             StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
                 response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
                 response.setMessage(customMsg.toString());
                 return response;
             }
+        }else{
+            log.warn("checkRouterForKY未校验封车状态，入参{}",JsonHelper.toJson(sendM));
         }
 
         //2.校验箱号或者包裹是否已发货

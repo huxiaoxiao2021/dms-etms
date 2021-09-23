@@ -231,6 +231,7 @@ public class HintCodeConstants {
 
     /**
      * 此[箱号]始发地与您所在的分拣中心不一致
+     * 此[箱号]始发地与您所在的分拣中心不一致，请重打箱号后再操作
      */
     public static String BOX_BEGINNING_DIFFERENT_FROM_CURRENT_SITE = "20033";
 
@@ -366,6 +367,7 @@ public class HintCodeConstants {
 
     /**
      * 包裹[目的地分拣中心]与扫描装箱箱号不一致,确定装箱？
+     * 包裹[目的地分拣中心]与扫描装箱箱号不一致，可能导致错发，是否继续？
      */
     public static String RECEIVE_SITE_AND_DESTINATION_DIFFERENCE = "20060";
 
@@ -741,8 +743,13 @@ public class HintCodeConstants {
 
 
     /*##############################################发货相关END#########################################################*/
-
-
+    
+    /**
+     * 打印客户端-站点人员无菜单权限提示
+     */
+    public static String PRINT_CLINET_SMS_SITE_MENU_NOAUTH = "60001";
+    /*##############################################发货相关END#########################################################*/
+    
     /**
      * 没有对应站点
      */
@@ -827,4 +834,9 @@ public class HintCodeConstants {
      * 此箱号未绑定循环集包袋
      */
     public static String BOX_UNBIND_RECYCLE_BAG = "40017";
+
+    /**
+     * 你所在场地未开通此功能
+     */
+    public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
 }

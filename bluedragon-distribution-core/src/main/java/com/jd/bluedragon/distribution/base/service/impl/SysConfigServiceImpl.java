@@ -6,11 +6,14 @@ import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.ql.dms.print.utils.StringHelper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 @Service("sysConfigService")
 public class SysConfigServiceImpl implements SysConfigService {
@@ -72,9 +75,31 @@ public class SysConfigServiceImpl implements SysConfigService {
     @Cache(key = "SysConfigServiceImpl.getListByConfigName@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
 	@Override
 	public List<SysConfig> getListByConfigName(String configName) {
+		return getListByConfigNameNoCache(configName);
+	}
+
+
+	/**
+	 * 通过配置名获取配置列表信息，无缓存
+	 */
+	@Override
+	public List<SysConfig> getListByConfigNameNoCache(String configName) {
 		SysConfig config = new SysConfig();
 		config.setConfigName(configName);
 		return this.sysConfigDao.getList(config);
+	}
+
+
+
+	/**
+	 * 修改内容
+	 *
+	 * @param sysConfig
+	 * @return
+	 */
+	@Override
+	public boolean updateContent(SysConfig sysConfig) {
+		return sysConfigDao.updateContent(sysConfig) > 0;
 	}
 
 	/**
@@ -117,5 +142,21 @@ public class SysConfigServiceImpl implements SysConfigService {
 			return false;
 		}
 
+	}
+
+	@Override
+	@Cache(key = "SysConfigServiceImpl.getStringListConfig@args0", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000
+		,redisEnable = true, redisExpiredTime = 3 * 60 * 1000)
+	public List<String> getStringListConfig(String configName) {
+		List<String> result = Collections.EMPTY_LIST;
+		SysConfig sysConfig = this.sysConfigDao.findConfigContentByConfigName(configName);
+		if(sysConfig != null
+				&& StringHelper.isNotEmpty(sysConfig.getConfigContent())) {
+			result = JsonHelper.jsonToList(sysConfig.getConfigContent(), String.class);
+			if(result == null) {
+				result = Collections.EMPTY_LIST;
+			}
+		}
+		return result;
 	}
 }

@@ -941,11 +941,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     private int getPackageNumberTotal(Waybill waybill, String packageCode){
-        int packNum;
+        int packNum = 1;
         if(WaybillUtil.isPackageCode(packageCode)){
             packNum = WaybillUtil.getPackNumByPackCode(packageCode);
         }else {
-            packNum = waybill.getGoodNumber();
+            Integer goodNumber = waybill.getGoodNumber();
+            if(goodNumber != null){
+                packNum = goodNumber;
+            }
         }
         return packNum;
     }

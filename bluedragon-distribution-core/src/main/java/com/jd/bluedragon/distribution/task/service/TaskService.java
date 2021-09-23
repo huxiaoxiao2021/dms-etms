@@ -122,4 +122,12 @@ public interface TaskService {
      * @return
      */
     List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum,List<String> queueIds);
+
+    /**
+     * 虚拟组板自动关闭任务
+     * @return 任务结果列表
+     * @author fanggang7
+     * @time 2021-09-15 15:10:45 周三
+     */
+    List<Task> findVirtualBoardTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds, Integer lazyExecuteDays);
 }

@@ -38,6 +38,18 @@ public interface SysConfigService {
 	 */
 	public List<SysConfig> getListByConfigName(String configName);
 
+	/**
+	 * 根据配置名称获取配置列表 无缓存
+	 * @param configName
+	 * @return
+	 */
+	List<SysConfig> getListByConfigNameNoCache(String configName);
+
+	/**
+	 * 修改内容
+	 * @return
+	 */
+	boolean updateContent(SysConfig sysConfig);
 
 	/**
 	 * 从sysconfig表里查出来SysConfigContent对象
@@ -53,4 +65,10 @@ public interface SysConfigService {
 	 * @return
 	 */
 	boolean getConfigByName(String configName);
+	/**
+	 * 获取字符串配置列表，没有配置返回空列表，缓存3分钟（redis）/1分钟（本地）
+	 * @param configName
+	 * @return
+	 */
+	List<String> getStringListConfig(String configName);
 }

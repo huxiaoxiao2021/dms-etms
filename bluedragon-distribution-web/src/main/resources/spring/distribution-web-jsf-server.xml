@@ -18,6 +18,12 @@
                   ref="dmsExternalService" server="dmsjsf">
     </jsf:provider>
 
+    <jsf:provider id="jsfSortingRuleService"
+                  interface="com.jd.bluedragon.distribution.rule.service.SortingRuleJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="sortingRuleJsfService" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 基础查询接口 -->
     <jsf:provider id="jsfBaseMinorService"
                   interface="com.jd.bluedragon.distribution.base.service.IBaseMinorJsfService"
@@ -335,5 +341,15 @@
                   ref="stockInventoryJSFService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 对外提供给转运相关的服务jsf -->
+    <jsf:provider id="jsfTransportCommonService"
+                  interface="com.jd.bluedragon.distribution.external.service.TransportCommonService"
+                  alias="${dms.jsf.alias}"
+                  ref="transportCommonService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
 
 </beans>

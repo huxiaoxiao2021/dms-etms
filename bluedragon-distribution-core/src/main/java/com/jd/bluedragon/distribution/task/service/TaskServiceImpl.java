@@ -1088,4 +1088,22 @@ public class TaskServiceImpl implements TaskService {
 		TaskDao routerDao = taskDao;
 		return routerDao.findDeliveryToFinanceConvertTasks(type, fetchNum,queueIds);
 	}
+
+	/**
+	 * 虚拟组板自动关闭任务
+	 * @param type
+	 * @param fetchNum
+	 * @param ownSign
+	 * @param queueIds
+	 * @return
+	 */
+	@Override
+	public List<Task> findVirtualBoardTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds, Integer lazyExecuteDays) {
+		Assert.notNull(type, "type must not be null");
+		Assert.notNull(fetchNum, "fetchNum must not be null");
+		Assert.notNull(ownSign, "ownSign must not be null");
+		Assert.notNull(lazyExecuteDays, "lazyExecuteDays must not be null");
+		TaskDao routerDao = taskDao;
+		return routerDao.findVirtualBoardTasks(type, fetchNum, ownSign, queueIds, lazyExecuteDays);
+	}
 }

@@ -46,4 +46,8 @@ public class SysConfigDao extends BaseDao<SysConfig> {
 	public Integer totalSysconfigSizeByParams(String key){
 		 return (Integer)super.getSqlSession().selectOne(SysConfigDao.namespace + ".totalSysconfigSizeByParams", key);
 	}
+
+	public Integer updateContent(SysConfig sysConfig){
+		return getSqlSession().update(SysConfigDao.namespace + ".updateContent",sysConfig);
+	}
 }

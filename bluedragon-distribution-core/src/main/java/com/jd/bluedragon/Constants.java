@@ -782,6 +782,10 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+    /**
+     * 配置信息-终端站点客户端菜单配置黑名单
+     */
+    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";    
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -1594,4 +1598,10 @@ public class Constants {
     public static final String KYEXPRESSLOADSUCCESS="kyloadcarsuccess:";
     /***跨越成功发送妥投消息前缀**/
     public static final String KYSENDMSGSUCCESSPREFIX = "kysendmsgsuccessprefix:";
+
+    /**
+     * 库表切换警告信息
+     */
+    public static final String UNLOAD_TRANSFER_WARN_MESSAGE = "抱歉，数据库正在升级中，请稍后再试";
+
 }

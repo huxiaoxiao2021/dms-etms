@@ -41,6 +41,15 @@ public interface BoardCombinationService {
      */
     public Response<Boolean> closeBoard(String boardCode);
 
+    /**
+     * 改变板号状态为发货状态
+     * @param boardCode 板号
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2021-09-01 21:51:45 周三
+     */
+    Response<Boolean> changeBoardStatusSend(String boardCode);
+
 
     /**
      * 查询发货信息
