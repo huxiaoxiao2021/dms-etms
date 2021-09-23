@@ -32,10 +32,7 @@ public class HeZuoDaiShouFilter implements Filter {
 
         Boolean isSelfOrderDisToSelfOrderSiteDaiShou = Boolean.FALSE;
         if (BusinessUtil.isHeZuoDaiShou(request.getWaybillCache().getSendPay())) {
-            if (SiteHelper.isPickup(request.getReceiveSite())) {
-                throw new SortingCheckException(SortingResponse.CODE_29118,
-                        HintService.getHintWithFuncModule(HintCodeConstants.BIANMIN_WAYBILL, request.getFuncModule()));
-            }
+
             // 自提柜跨分拣取消提示
             if (!SiteHelper.matchSiteRule(SortingResponse.CODE_SiteType_DaiShou, request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
                 // 从基础资料的站点-自提柜绑定关系中找出自提柜所属站点

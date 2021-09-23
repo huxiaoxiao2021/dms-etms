@@ -51,25 +51,14 @@ public class ZiTiGuiFilter implements Filter {
         //region 是否是自提柜订单分拣到与自提柜绑定的站点
         Boolean isSelfOrderDisToSelfOrderSite = Boolean.FALSE;
         if (BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay())) {
-            if (SiteHelper.isPickup(request.getReceiveSite())) {
-                throw new SortingCheckException(SortingResponse.CODE_29116,
-                        HintService.getHintWithFuncModule(HintCodeConstants.ZITIGUI_WAYBILL, request.getFuncModule()));
-            }
             // 自提柜跨分拣取消提示
             if (! ZITIGUI.equals(request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
                 Integer selfhelpBoxBelongSiteCode = null;
                 if(waybillSite != null){
                     selfhelpBoxBelongSiteCode = baseService.getSiteSelfDBySiteCode(waybillSite.getCode());
                 }
-                if (!SiteHelper.isMatchOfBoxBelongSiteAndReceivedSite(selfhelpBoxBelongSiteCode, request.getsReceiveSiteCode())) {
-                    throw new SortingCheckException(SortingResponse.CODE_39116, HintService.getHintWithFuncModule(HintCodeConstants.ZITIGUI_WAYBILL_BOXING, request.getFuncModule()));
-                } else {
-                    isSelfOrderDisToSelfOrderSite = Boolean.TRUE;
-                }
+
             }
-        } else if (! BusinessUtil.isZiTiGui(request.getWaybillCache().getSendPay()) && ZITIGUI.equals(request.getsReceiveSiteSubType())) {
-            throw new SortingCheckException(SortingResponse.CODE_29209,
-                    HintService.getHintWithFuncModule(HintCodeConstants.SITE_FOR_ZITIGUI_WAYBILL, request.getFuncModule()));
         }
 
         request.setSelfOrderDisToSelfOrderSite(isSelfOrderDisToSelfOrderSite); //fixme 更改domain
