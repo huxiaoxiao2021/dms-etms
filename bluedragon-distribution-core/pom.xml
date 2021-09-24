@@ -1000,12 +1000,12 @@
 		<dependency>
 			<groupId>com.jd.ioms</groupId>
 			<artifactId>ioms-export-cbd-sdk</artifactId>
-			<version>3.0.5-SNAPSHOT</version>
+			<version>3.0.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ioms</groupId>
 			<artifactId>jdorders-export-dict</artifactId>
-			<version>3.0.5-SNAPSHOT</version>
+			<version>3.0.8-SNAPSHOT</version>
 		</dependency>
 
 		<!-- 备件处置研发部jsf接口 -->
@@ -1342,6 +1342,10 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>tdeclient</artifactId>
+					<groupId>com.jd.security</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1549,15 +1553,12 @@
 		<dependency>
 			<groupId>com.jd.security</groupId>
 			<artifactId>aces-mybatisclient</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.code.gson</groupId>
-					<artifactId>gson</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>aces-springclient</artifactId>
+		</dependency>
         <!-- 方法注解缓存插件 -->
         <dependency>
             <groupId>com.jd.etms</groupId>
@@ -1652,6 +1653,11 @@
             <artifactId>dms-component-sdk</artifactId>
             <groupId>com.jd.dms.comp</groupId>
         </dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
 
     </dependencies>
 
