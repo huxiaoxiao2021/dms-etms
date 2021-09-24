@@ -27,13 +27,13 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
     @Value("${spotCheck.fourVolume:296252}")
     public double fourVolume;
 
-    @Value("${spotCheck.firstVolumeStage:0.8}")
+    @Value("${spotCheck.firstVolumeStage:800000}")
     public double firstVolumeStage;
-    @Value("${spotCheck.secondVolumeStage:1}")
+    @Value("${spotCheck.secondVolumeStage:1000000}")
     public double secondVolumeStage;
-    @Value("${spotCheck.thirdVolumeStage:1.5}")
+    @Value("${spotCheck.thirdVolumeStage:1500000}")
     public double thirdVolumeStage;
-    @Value("${spotCheck.fourVolumeStage:2}")
+    @Value("${spotCheck.fourVolumeStage:2000000}")
     public double fourVolumeStage;
 
     /**
@@ -56,7 +56,7 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
         // 体积误差
         double diffVolume = MathUtils.keepScale(Math.abs(reviewVolume - contrastVolume), 3);
         // 超标原因
-        String excessReasonTemplate = "体积在%scm³和%scm³之间并且误差%s超过误差标准值%skg";
+        String excessReasonTemplate = "体积%s在%s和%s之间并且误差%s超过误差标准值%s";
         if(reviewVolume >= firstVolume && reviewVolume < secondVolume){
             if(diffVolume > firstVolumeStage){
                 checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());

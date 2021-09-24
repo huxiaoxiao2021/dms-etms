@@ -55,7 +55,7 @@ public class ExcessStandardWeightVolumeHandler implements IExcessStandardHandler
         Double contrastWeight = checkExcessRequest.getContrastWeight();
         Double contrastVolume = checkExcessRequest.getContrastVolume();
         // 超标原因
-        String excessReasonTemplate = "录入重量%s在%s公斤至%s公斤之间并且误差%s超过标准值%s";
+        String excessReasonTemplate = "录入重量%s在%s至%s之间并且误差%s超过标准值%s";
         double diffWeight = MathUtils.keepScale(Math.abs(reviewWeight - contrastWeight), 3);
 
         if(reviewWeight < bWeight && diffWeight > bFirstWeightStage){
@@ -70,7 +70,7 @@ public class ExcessStandardWeightVolumeHandler implements IExcessStandardHandler
             checkExcessResult.setExcessStandard(String.valueOf(bSecondWeightStage));
             return result;
         }
-        excessReasonTemplate = "录入体积%s在%s方至%s方之间并且误差%s超过标准值%s";
+        excessReasonTemplate = "录入体积%s在%s至%s之间并且误差%s超过标准值%s";
         double diffVolume = MathUtils.keepScale(Math.abs(reviewVolume - contrastVolume), 3);
         if(reviewVolume < bVolume && diffVolume > bFirstVolumeStage){
             checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
