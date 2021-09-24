@@ -603,6 +603,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public void issueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto) {
+        // 校验运单是否已下发
+        if(checkWaybillHasIssued(weightVolumeCollectDto.getWaybillCode())){
+            logger.info("spotCheckWaybill has issued will not send {}", weightVolumeCollectDto.getWaybillCode());
+            return;
+        }
         if(!Objects.equals(weightVolumeCollectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
         }
@@ -725,84 +730,54 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     public InvokeResult<Boolean> executeNewHandleProcess(WeightAndVolumeCheckHandleMessage message) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setData(true);
+        // 获取抽检记录是运单维度的数据
+        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+        condition.setReviewSiteCode(message.getSiteCode());
+        condition.setWaybillCode(message.getWaybillCode());
+        List<WeightVolumeCollectDto> accordList = reportExternalManager.queryByCondition(condition);
+        if(CollectionUtils.isEmpty(accordList)){
+            logger.warn("根据运单号:{}站点:{}未获取到的抽检记录!", message.getWaybillCode(), message.getSiteCode());
+            return result;
+        }
         // 上传图片环节
         if(Objects.equals(message.getOpNode(), WeightAndVolumeCheckHandleMessage.UPLOAD_IMG)){
             Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(message.getWaybillCode());
             boolean isMultiplePackage = isMultiPack(waybill, message.getPackageCode());
             if(!isMultiplePackage){
                 // 一单一件处理：有图片&已发货，则下发到FXM
-                oncePackIssueDeal(message);
+                oncePackIssueDeal(message, accordList);
             } else {
                 // 一单多件处理
-                multiPackIssueDeal(message);
+                multiPackIssueDeal(message, accordList);
             }
             return result;
         }
         // 发货完成环节
         if(Objects.equals(message.getOpNode(), WeightAndVolumeCheckHandleMessage.SEND)){
-            return spotCheckPackSendDeal(message);
+            return spotCheckPackSendDeal(message, accordList);
         }
         result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "未知类型不予处理!");
         return result;
     }
 
-    /**
-     * 获取一单一件的抽检记录
-     *
-     * @param packageCode
-     * @param siteCode
-     * @return
-     */
-    private WeightVolumeCollectDto getOncePackExcessSpotCheckRecord(String packageCode, Integer siteCode){
-        WeightVolumeCollectDto weightVolumeCollectDto;
-        try {
-            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-            condition.setPackageCode(WaybillUtil.getWaybillCode(packageCode)); // 一单一件包裹号存的是运单号
-            condition.setReviewSiteCode(siteCode);
-            condition.setIsExcess(IsExcessEnum.EXCESS_ENUM_YES.getCode());
-            List<WeightVolumeCollectDto> accordList = reportExternalManager.queryByCondition(condition);
-            if(CollectionUtils.isEmpty(accordList)){
-                logger.warn("通过包裹号【{}】站点【{}】查询超标数据为空", packageCode, siteCode);
-                return null;
-            }
-            weightVolumeCollectDto = accordList.get(0);
-            if(StringUtils.isEmpty(weightVolumeCollectDto.getPictureAddress())){
-                // 图片还未写入则从缓存中再获取一次
-                weightVolumeCollectDto.setPictureAddress(getSpotCheckPackUrlFromCache(packageCode, siteCode));
-            }
-        }catch (Exception e){
-            logger.warn("通过包裹号【{}】站点【{}】查询超标数据异常", packageCode, siteCode,e);
-            return null;
-        }
-        return weightVolumeCollectDto;
-    }
-
-
-    private void oncePackIssueDeal(WeightAndVolumeCheckHandleMessage message) {
+    private void oncePackIssueDeal(WeightAndVolumeCheckHandleMessage message, List<WeightVolumeCollectDto> accordList) {
         boolean packageSendStatus = checkIsHasSend(message.getPackageCode(), message.getSiteCode());
         if(!packageSendStatus){
             logger.warn("包裹号:{}站点:{}未操作发货!", message.getPackageCode(), message.getSiteCode());
             return;
         }
-        WeightVolumeCollectDto weightVolumeCollectDto = getOncePackExcessSpotCheckRecord(message.getPackageCode(), message.getSiteCode());
-        if(weightVolumeCollectDto == null){
-            logger.warn("包裹号:{}站点:{}未操作抽检!", message.getPackageCode(), message.getSiteCode());
-            return;
+        WeightVolumeCollectDto weightVolumeCollectDto = accordList.get(0);
+        if(StringUtils.isEmpty(weightVolumeCollectDto.getPictureAddress())){
+            // 图片还未写入则从缓存中再获取一次
+            weightVolumeCollectDto.setPictureAddress(getSpotCheckPackUrlFromCache(message.getPackageCode(), message.getSiteCode()));
         }
-        if(!checkWaybillHasIssued(message.getWaybillCode())){
-            issueSpotCheckDetail(weightVolumeCollectDto);
-        }
+        issueSpotCheckDetail(weightVolumeCollectDto);
     }
 
-    private void multiPackIssueDeal(WeightAndVolumeCheckHandleMessage message){
+    private void multiPackIssueDeal(WeightAndVolumeCheckHandleMessage message, List<WeightVolumeCollectDto> accordList){
         String waybillCode = message.getWaybillCode();
         String packageCode = message.getPackageCode();
         Integer siteCode = message.getSiteCode();
-        // 校验运单是否已下发
-        if(checkWaybillHasIssued(message.getWaybillCode())){
-            logger.info("spotCheckWaybill has issued will not send {}", message.getWaybillCode());
-            return;
-        }
         // 包裹是否全发货
         int packNum  = WaybillUtil.getPackNumByPackCode(packageCode);
         SendDetailDto params = new SendDetailDto();
@@ -812,31 +787,35 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         params.setStatus(Constants.CONSTANT_NUMBER_ONE);
         List<String> sendPackList = sendDetailService.queryPackageByWaybillCode(params);
         if(CollectionUtils.isEmpty(sendPackList) || !Objects.equals(sendPackList.size(), packNum)){
+            logger.warn("运单号:{}下的包裹没有全部发货!", waybillCode);
             return;
         }
         // 是否超标 、 包裹是否都有图片
-        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        condition.setReviewSiteCode(siteCode);
-        condition.setWaybillCode(waybillCode);
-        List<WeightVolumeCollectDto> spotCheckList = reportExternalManager.queryByCondition(condition);
-        if(CollectionUtils.isEmpty(spotCheckList)){
-            logger.warn("根据运单号:{}站点:{}未查询到抽检记录!", waybillCode, siteCode);
-            return;
-        }
         WeightVolumeCollectDto waybillCollect = null;
-        for (WeightVolumeCollectDto collectDto : spotCheckList) {
-            if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.WAYBILL.getCode())){
-                waybillCollect = collectDto;
-                if(Objects.equals(collectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_NO.getCode())){
-                    logger.warn("运单号:{}站点:{}抽检还未判定超标!", waybillCode, siteCode);
+        for (WeightVolumeCollectDto collectDto : accordList) {
+            if(Objects.equals(collectDto.getSpotCheckType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
+                // notes：包裹维度抽检(一条总记录多条包裹记录)
+                // 1、校验总记录是否超标
+                // 2、校验包裹维度记录是否有图片（es中没有则从缓存中获取）
+                if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.WAYBILL.getCode())){
+                    if(Objects.equals(collectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_NO.getCode())){
+                        logger.warn("运单号:{}站点:{}抽检还未判定超标!", waybillCode, siteCode);
+                        return;
+                    }
+                    waybillCollect = collectDto;
+                }
+                if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())
+                        && (StringUtils.isEmpty(collectDto.getPictureAddress())
+                        && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(packageCode, siteCode)))){
+                    logger.warn("包裹号:{}站点:{}的图片还未上传!", packageCode, siteCode);
                     return;
                 }
-            }
-            if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())
-                    && StringUtils.isEmpty(collectDto.getPictureAddress())
-                    && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(packageCode, siteCode))){
-                logger.warn("包裹号:{}站点:{}的图片还未上传!", packageCode, siteCode);
-                return;
+            }else {
+                // notes：运单维度抽检（只有一条总记录）校验是否超标和是否有图片
+                if(!Objects.equals(collectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()) || StringUtils.isEmpty(collectDto.getPictureAddress())){
+                    logger.warn("包裹号:{}站点:{}的抽检记录未超标或无图片不下发!", packageCode, siteCode);
+                    return;
+                }
             }
         }
         if(waybillCollect == null){
@@ -869,42 +848,58 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
      * @param message
      * @return
      */
-    private InvokeResult<Boolean> spotCheckPackSendDeal(WeightAndVolumeCheckHandleMessage message){
+    private InvokeResult<Boolean> spotCheckPackSendDeal(WeightAndVolumeCheckHandleMessage message, List<WeightVolumeCollectDto> accordList){
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(true);
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(message.getWaybillCode());
         boolean isMultiplePackage = isMultiPack(waybill, message.getPackageCode());
+        // 更新发货状态
+        updateSendStatus(message.getPackageCode(), message.getSiteCode(), isMultiplePackage, accordList.size());
+        // 下发处理
         if(!isMultiplePackage){
-            // 是否有图片
-            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-            condition.setReviewSiteCode(message.getSiteCode());
-            condition.setWaybillCode(message.getWaybillCode());
-            condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-            List<WeightVolumeCollectDto> accordList = reportExternalManager.queryByCondition(condition);
-            if(CollectionUtils.isEmpty(accordList)){
-                logger.warn("根据运单号:{}站点:{}未获取到抽检记录!", message.getWaybillCode(), message.getSiteCode());
+            // notes：一单一件（已发货状态）
+            // 判断是否有图片、判断是否超标
+            WeightVolumeCollectDto issueCollect = accordList.get(0);
+            String picUrl = StringUtils.isEmpty(issueCollect.getPictureAddress())
+                    ? getSpotCheckPackUrlFromCache(message.getPackageCode(), message.getSiteCode()) : issueCollect.getPictureAddress();
+            issueCollect.setPictureAddress(picUrl);
+            if(StringUtils.isEmpty(picUrl)){
+                logger.warn("根据运单号:{}站点:{}获取到的抽检记录无图片!", message.getWaybillCode(), message.getSiteCode());
                 return result;
             }
-            WeightVolumeCollectDto issueCollect = accordList.get(0);
-            if(StringUtils.isEmpty(accordList.get(0).getPictureAddress())){
-                logger.warn("根据运单号:{}站点:{}获取到的抽检记录无图片!", message.getWaybillCode(), message.getSiteCode());
-                issueCollect.setPictureAddress(getSpotCheckPackUrlFromCache(message.getPackageCode(), message.getSiteCode()));
+            if(!Objects.equals(issueCollect.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+                logger.warn("根据运单号:{}站点:{}获取到的抽检记录未超标!", message.getWaybillCode(), message.getSiteCode());
+                return result;
             }
             // 下发fxm
             issueSpotCheckDetail(issueCollect);
         } else {
-            multiPackIssueDeal(message);
+            multiPackIssueDeal(message, accordList);
         }
+        return result;
+    }
 
-        // 更新发货状态
+    /**
+     * 更新抽检记录发货状态
+     *
+     * @param packageCode
+     * @param siteCode
+     * @param isMultiplePackage
+     * @param count
+     */
+    private void updateSendStatus(String packageCode, Integer siteCode, boolean isMultiplePackage, int count) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         WeightVolumeCollectDto updateWeightVolumeCollectDto = new WeightVolumeCollectDto();
-        updateWeightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(message.getPackageCode()));
-        updateWeightVolumeCollectDto.setPackageCode(message.getPackageCode());
-        updateWeightVolumeCollectDto.setReviewSiteCode(message.getSiteCode());
+        updateWeightVolumeCollectDto.setWaybillCode(waybillCode);
+        // notes：
+        //  1、一单一件该字段是运单号（es中只有一条记录）
+        //  2、一单多件运单维度抽检该字段是运单号（es中只有一条记录）
+        //  3、一单多件包裹维度抽检（es中一条总记录 和 多条包裹维度记录）
+        String barCode = !isMultiplePackage ? waybillCode : (count == 1) ? waybillCode : packageCode;
+        updateWeightVolumeCollectDto.setPackageCode(barCode);
+        updateWeightVolumeCollectDto.setReviewSiteCode(siteCode);
         updateWeightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
         reportExternalManager.insertOrUpdateForWeightVolume(updateWeightVolumeCollectDto);
-
-        return result;
     }
 
     private String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode) {
