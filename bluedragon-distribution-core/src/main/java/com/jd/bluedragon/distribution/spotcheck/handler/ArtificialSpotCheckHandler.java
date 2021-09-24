@@ -163,13 +163,13 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
             // 运单维度
-            onePackDeal(spotCheckContext);
+            onceDataDeal(spotCheckContext);
         }else {
             // 包裹维度
             if(spotCheckContext.getIsMultiPack()){
-                multiPackDeal(spotCheckContext);
+                multiDataDeal(spotCheckContext);
             }else {
-                onePackDeal(spotCheckContext);
+                onceDataDeal(spotCheckContext);
             }
         }
         // 上传称重数据

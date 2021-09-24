@@ -117,9 +117,9 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     @Override
     protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
         if(spotCheckContext.getIsMultiPack()){
-            multiPackDeal(spotCheckContext);
+            multiDataDeal(spotCheckContext);
         }else {
-            onePackDeal(spotCheckContext);
+            onceDataDeal(spotCheckContext);
         }
     }
 }
