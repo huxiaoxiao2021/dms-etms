@@ -1006,12 +1006,12 @@
 		<dependency>
 			<groupId>com.jd.ioms</groupId>
 			<artifactId>ioms-export-cbd-sdk</artifactId>
-			<version>3.0.5-SNAPSHOT</version>
+			<version>3.0.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ioms</groupId>
 			<artifactId>jdorders-export-dict</artifactId>
-			<version>3.0.5-SNAPSHOT</version>
+			<version>3.0.8-SNAPSHOT</version>
 		</dependency>
 
 		<!-- 备件处置研发部jsf接口 -->
@@ -1249,6 +1249,11 @@
 			<artifactId>tms-boss-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+        <dependency>
+            <groupId>com.jd.bluedragon</groupId>
+            <artifactId>business-sdk</artifactId>
+            <version>1.0.8-RELEASE</version>
+        </dependency>
 
 		<!--JMQ-Split组件  -->
 		<dependency>
@@ -1359,6 +1364,10 @@
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>tdeclient</artifactId>
+					<groupId>com.jd.security</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1577,15 +1586,12 @@
 		<dependency>
 			<groupId>com.jd.security</groupId>
 			<artifactId>aces-mybatisclient</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.code.gson</groupId>
-					<artifactId>gson</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>aces-springclient</artifactId>
+		</dependency>
         <!-- 方法注解缓存插件 -->
         <dependency>
             <groupId>com.jd.etms</groupId>
@@ -1688,6 +1694,12 @@
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+
     </dependencies>
 
 	<profiles>
