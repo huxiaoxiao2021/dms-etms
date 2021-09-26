@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.order.ws;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.aces.TdeService;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.domain.InternationDetailOrderDto;
@@ -17,17 +18,18 @@ import com.jd.jdorders.component.vo.request.OrderQueryRequest;
 import com.jd.jdorders.component.vo.response.OrderQueryResponse;
 import com.jd.order.export.domain.ComponentBase;
 import com.jd.ql.basic.domain.Assort;
+import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import jd.oom.client.core.OrderLoadFlag;
 import jd.oom.client.orderfile.OrderArchiveInfo;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -51,6 +53,9 @@ public class OrderWebService {
 
 	@Autowired
 	private PreseparateWaybillManager preseparateWaybillManager;
+
+	@Autowired
+	private TdeService tdeService;
 
     @JProfiler(jKey = "DMS.WEB.OrderWebService.getOrderDetailById", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<com.jd.ioms.jsf.export.domain.OrderDetail> getOrderDetailById(long orderId) {
@@ -275,6 +280,16 @@ public class OrderWebService {
 
 		if(dataMap.get(FieldKeyEnum.M_CUSTOMERNAME.getFieldName())!=null){
 			internationOrderDto.setCustomerName((String) dataMap.get(FieldKeyEnum.M_CUSTOMERNAME.getFieldName()));
+		}
+		if(dataMap.containsKey(FieldKeyEnum.M_E_CUSTOMERNAME.getFieldName())
+				&& !Objects.isNull(dataMap.get(FieldKeyEnum.M_E_CUSTOMERNAME.getFieldName()))
+				&& !Objects.equals(dataMap.get(FieldKeyEnum.M_E_CUSTOMERNAME.getFieldName()), StringUtils.EMPTY)){
+			/*
+			M_E_CUSTOMERNAME 是 M_CUSTOMERNAME 的加密字段，至2021-10-15之后，原始字段将无值，所以在此时间之后 将使用该加密字段替换原始字段
+			https://joyspace.jd.com/page/CsS1qskBRCiqnE7La3yQ
+			*/
+			internationOrderDto.setCustomerName(tdeService.decrypt((String) dataMap.get(FieldKeyEnum.M_E_CUSTOMERNAME.getFieldName())));
+			log.info("解析到的加密数据为{}", internationOrderDto.getCustomerName());
 		}
 
 		if(dataMap.get(FieldKeyEnum.M_ORDERTYPE.getFieldName())!=null){
