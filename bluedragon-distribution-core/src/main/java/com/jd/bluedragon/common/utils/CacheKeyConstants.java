@@ -108,6 +108,10 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:%s-%s";
     /**
+     * 运单下已发货包裹发货状态缓存redis的key
+     */
+    public static final String CACHE_KEY_WAYBILL_SEND_PACKS_STATUS = "dmsWeb:waybillSendPacksStatus:%s-%s";
+    /**
      * 包裹发货状态缓存redis的key
      */
     public static final String CACHE_KEY_FXM_SEND_WAYBILL = "dmsWeb:spotCheck:fxmSend:%s-%s";

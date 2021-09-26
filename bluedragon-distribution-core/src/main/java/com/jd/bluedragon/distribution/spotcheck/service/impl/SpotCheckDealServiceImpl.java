@@ -40,7 +40,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.dms.report.domain.Enum.IsExcessEnum;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.collections.CollectionUtils;
@@ -778,25 +777,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         String waybillCode = message.getWaybillCode();
         String packageCode = message.getPackageCode();
         Integer siteCode = message.getSiteCode();
-        // 包裹是否全发货
-        int packNum  = WaybillUtil.getPackNumByPackCode(packageCode);
-        SendDetailDto params = new SendDetailDto();
-        params.setCreateSiteCode(siteCode);
-        params.setWaybillCode(waybillCode);
-        params.setIsCancel(Constants.NUMBER_ZERO);
-        params.setStatus(Constants.CONSTANT_NUMBER_ONE);
-        List<String> sendPackList = sendDetailService.queryPackageByWaybillCode(params);
-        if(CollectionUtils.isEmpty(sendPackList) || !Objects.equals(sendPackList.size(), packNum)){
-            logger.warn("运单号:{}下的包裹没有全部发货!", waybillCode);
-            return;
-        }
-        // 是否超标 、 包裹是否都有图片
+        // 是否超标 、 包裹是否都有图片、包裹是否发货
         WeightVolumeCollectDto waybillCollect = null;
         for (WeightVolumeCollectDto collectDto : accordList) {
-            if(Objects.equals(collectDto.getSpotCheckType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
+            String loopPackageCode = collectDto.getPackageCode();
+            if(Objects.equals(collectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
                 // notes：包裹维度抽检(一条总记录多条包裹记录)
                 // 1、校验总记录是否超标
-                // 2、校验包裹维度记录是否有图片（es中没有则从缓存中获取）
                 if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.WAYBILL.getCode())){
                     if(Objects.equals(collectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_NO.getCode())){
                         logger.warn("运单号:{}站点:{}抽检还未判定超标!", waybillCode, siteCode);
@@ -804,18 +791,38 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     }
                     waybillCollect = collectDto;
                 }
-                if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())
-                        && (StringUtils.isEmpty(collectDto.getPictureAddress())
-                        && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(packageCode, siteCode)))){
-                    logger.warn("包裹号:{}站点:{}的图片还未上传!", packageCode, siteCode);
-                    return;
+                if(Objects.equals(collectDto.getRecordType(), SpotCheckRecordTypeEnum.PACKAGE.getCode())){
+                    // 2、校验包裹维度记录是否有图片（es中没有则从缓存中获取）
+                    if(StringUtils.isEmpty(collectDto.getPictureAddress()) && StringUtils.isEmpty(getSpotCheckPackUrlFromCache(loopPackageCode, siteCode))){
+                        logger.warn("包裹号:{}站点:{}的图片还未上传!", loopPackageCode, siteCode);
+                        return;
+                    }
+                    // 3、校验包裹维度记录是否发货（es中没有则从缓存中获取）
+                    if(!Objects.equals(collectDto.getWaybillStatus(), 2) && StringUtils.isEmpty(getSpotCheckSendStatusFromCache(loopPackageCode, siteCode))){
+                        logger.warn("包裹号:{}站点:{}未发货!", loopPackageCode, siteCode);
+                        return;
+                    }
+                }
+                if(collectDto.getRecordType() == null){
+                    // 兼容上线期间的历史数据
+                    waybillCollect = collectDto;
+                    collectDto.setPictureAddress(getSpotCheckPackUrlFromCache(loopPackageCode, siteCode));
+                    break;
                 }
             }else {
-                // notes：运单维度抽检（只有一条总记录）校验是否超标和是否有图片
+                // notes：运单维度抽检（只有一条总记录）（只有发货动作才会进入，上传图片动作不会进入）
+                // 1、校验是否超标和是否有图片
                 if(!Objects.equals(collectDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()) || StringUtils.isEmpty(collectDto.getPictureAddress())){
-                    logger.warn("包裹号:{}站点:{}的抽检记录未超标或无图片不下发!", packageCode, siteCode);
+                    logger.warn("运单号:{}站点:{}的抽检记录未超标或无图片不下发!", waybillCode, siteCode);
                     return;
                 }
+                // 2、校验运单下所有包裹是否发货
+                if(!checkWaybillHasAllSend(packageCode, siteCode)){
+                    logger.warn("站点:{},运单号:{}下的包裹未全部发货!", waybillCode, siteCode);
+                    return;
+                }
+                waybillCollect = collectDto;
+                break;
             }
         }
         if(waybillCollect == null){
@@ -874,9 +881,49 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             // 下发fxm
             issueSpotCheckDetail(issueCollect);
         } else {
+            // 多包裹设置运单下已发货包裹缓存
+            setWaybillSendPackCache(message.getPackageCode(), message.getSiteCode());
+            // 一单多件下发处理
             multiPackIssueDeal(message, accordList);
         }
         return result;
+    }
+
+    /**
+     * 设置运单下已发货包裹缓存
+     *
+     * @param packageCode
+     * @param siteCode
+     */
+    private void setWaybillSendPackCache(String packageCode, Integer siteCode) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        Set<String> waybillSendPacks = new HashSet<>();
+        waybillSendPacks.add(packageCode);
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_PACKS_STATUS, siteCode, waybillCode);
+            String waybillHasSendPackCache = jimdbCacheService.get(key);
+            if(StringUtils.isEmpty(waybillHasSendPackCache)){
+                List<String> sendPackList = getHasSendPacks(waybillCode, siteCode);
+                if(CollectionUtils.isNotEmpty(getHasSendPacks(waybillCode, siteCode))){
+                    waybillSendPacks.addAll(sendPackList);
+                }
+            }else {
+                Set set = JsonHelper.fromJson(waybillHasSendPackCache, Set.class);
+                waybillSendPacks.addAll(set);
+            }
+            jimdbCacheService.setEx(key, JsonHelper.toJson(waybillSendPacks), 30, TimeUnit.MINUTES);
+        }catch (Exception e){
+            logger.error("设置运单:{}下已发货缓存异常!", waybillCode, e);
+        }
+    }
+
+    private List<String> getHasSendPacks(String waybillCode, Integer siteCode){
+        SendDetailDto params = new SendDetailDto();
+        params.setCreateSiteCode(siteCode);
+        params.setWaybillCode(waybillCode);
+        params.setIsCancel(Constants.NUMBER_ZERO);
+        params.setStatus(Constants.CONSTANT_NUMBER_ONE);
+        return sendDetailService.queryPackageByWaybillCode(params);
     }
 
     /**
@@ -910,6 +957,35 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             logger.error("根据包裹号:{}站点:{}获取图片url异常!", packageCode, siteCode, e);
         }
         return null;
+    }
+
+    private String getSpotCheckSendStatusFromCache(String packageCode, Integer siteCode) {
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, packageCode);
+            return jimdbCacheService.get(key);
+        }catch (Exception e){
+            logger.error("根据包裹号:{}站点:{}获取发货状态异常!", packageCode, siteCode, e);
+        }
+        return null;
+    }
+
+    private boolean checkWaybillHasAllSend(String packageCode, Integer siteCode) {
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        Set<String> finalSet = new HashSet<>();
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_PACKS_STATUS, siteCode, waybillCode);
+            String waybillHasSendPackCache = jimdbCacheService.get(key);
+            if(StringUtils.isEmpty(waybillHasSendPackCache)){
+                finalSet.addAll(getHasSendPacks(waybillCode, siteCode));
+            }else {
+                Set<String> waybillHasSendPackSet = JsonHelper.fromJson(waybillHasSendPackCache, Set.class);
+                finalSet.addAll(waybillHasSendPackSet);
+            }
+            return finalSet.size() == WaybillUtil.getPackNumByPackCode(packageCode);
+        }catch (Exception e){
+            logger.error("根据运单号:{}站点:{}获取已发货包裹缓存异常!", waybillCode, siteCode, e);
+        }
+        return false;
     }
 
     private void addPicUrlCache(String packageCode, Integer siteCode, String pictureUrl) {

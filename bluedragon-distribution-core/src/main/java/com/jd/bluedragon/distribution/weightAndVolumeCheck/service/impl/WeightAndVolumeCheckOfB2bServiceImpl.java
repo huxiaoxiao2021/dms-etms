@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
@@ -372,6 +373,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
     private WeightVolumeCollectDto assembleWeightVolumeDto(SpotCheckData spotCheckData,Waybill waybill,
                                                            WaybillFlowDetail waybillFlowDetail,BaseStaffSiteOrgDto baseDto){
         WeightVolumeCollectDto collectDto = new WeightVolumeCollectDto();
+        collectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
         collectDto.setFromSource(spotCheckData.getFromSource());
         collectDto.setSpotCheckType(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode());
         collectDto.setContrastSourceFrom(ContrastSourceFromEnum.SOURCE_FROM_WAYBILL.getCode());
