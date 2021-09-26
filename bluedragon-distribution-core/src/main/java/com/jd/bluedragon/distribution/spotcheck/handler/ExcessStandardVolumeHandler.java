@@ -51,7 +51,7 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
         CheckExcessResult checkExcessResult = new CheckExcessResult();
         checkExcessResult.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_NO.getCode());
         result.setData(checkExcessResult);
-        double reviewVolume = checkExcessRequest.getReviewWeight();
+        double reviewVolume = checkExcessRequest.getReviewVolume();
         double reviewLarge = checkExcessRequest.getReviewLarge();
         double contrastLarge = checkExcessRequest.getContrastLarge();
         // 较大值误差
