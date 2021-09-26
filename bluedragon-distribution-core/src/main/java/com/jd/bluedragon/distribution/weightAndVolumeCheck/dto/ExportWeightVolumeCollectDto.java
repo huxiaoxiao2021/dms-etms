@@ -49,7 +49,7 @@ public class ExportWeightVolumeCollectDto implements Serializable {
      * 有无图片，1-有，0-无
      */
     private String isHasPicture;
-    private String pictureAddress;
+    private String pictureLookAddress;
     private String reviewVolumeWeight;
     private String billingVolumeWeight;
     /**
@@ -298,12 +298,12 @@ public class ExportWeightVolumeCollectDto implements Serializable {
         this.isHasPicture = isHasPicture;
     }
 
-    public String getPictureAddress() {
-        return pictureAddress;
+    public String getPictureLookAddress() {
+        return pictureLookAddress;
     }
 
-    public void setPictureAddress(String pictureAddress) {
-        this.pictureAddress = pictureAddress;
+    public void setPictureLookAddress(String pictureLookAddress) {
+        this.pictureLookAddress = pictureLookAddress;
     }
 
     public String getReviewVolumeWeight() {
