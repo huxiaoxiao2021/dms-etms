@@ -78,6 +78,7 @@ public class OrderServiceHelper {
                 FieldKeyEnum.M_OPRATOR,
                 FieldKeyEnum.M_DELIVERYCENTERID,
                 FieldKeyEnum.M_CUSTOMERNAME,
+                FieldKeyEnum.M_E_CUSTOMERNAME,
                 FieldKeyEnum.M_ORDERTYPE,
                 FieldKeyEnum.M_STOREID,
                 FieldKeyEnum.M_SENDPAY,
