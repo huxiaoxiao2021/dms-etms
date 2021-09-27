@@ -2501,7 +2501,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void sendMqToFxm(WeightVolumeCollectDto weightVolumeCollectDto){
         // C抽B 临时方案,不下发
-        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+        if(weightVolumeCollectDto.getSpotCheckType() == null || weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             return;
         }
         // 下发
