@@ -492,6 +492,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             pictureUrl = result.getData();
         }
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        if(waybill == null){
+            return;
+        }
         final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packageCode);
 
         if(!isMultiplePackage && !checkPackExcessRedisIsExist(packageCode, siteCode)){
@@ -945,9 +948,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(WaybillUtil.isPackageCode(packageCode)){
             packNum = WaybillUtil.getPackNumByPackCode(packageCode);
         }else {
-            Integer goodNumber = waybill.getGoodNumber();
-            if(goodNumber != null){
-                packNum = goodNumber;
+            if(waybill != null){
+                Integer goodNumber = waybill.getGoodNumber();
+                if(goodNumber != null){
+                    packNum = goodNumber;
+                }
             }
         }
         return packNum;
