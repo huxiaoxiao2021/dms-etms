@@ -2,11 +2,15 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.abnormal.AbnormalReasonSourceEnum;
+import com.jd.bluedragon.common.dto.abnormal.Dept;
+import com.jd.bluedragon.common.dto.abnormal.DeptType;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentTypeEnum;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
+import com.jd.bluedragon.common.dto.abnormal.request.DeptQueryRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.core.base.DeptServiceQcManager;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -15,6 +19,8 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.dms.utils.AreaData;
+import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
@@ -30,7 +36,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.CodeTypeEnum;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
-import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.PdaResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ReportRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -74,6 +79,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
     @Autowired
     private SiteQueryService siteQueryService;
+    
+    @Autowired
+    private DeptServiceQcManager deptServiceQcManager;
 
     @Value("${jss.pda.image.bucket}")
     private String bucket;
@@ -518,4 +526,58 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
         return res;
     }
+
+	@Override
+	public JdCResponse<List<AreaData>> getAreaDataList() {
+		JdCResponse<List<AreaData>> result = new JdCResponse<List<AreaData>>();
+		result.setData(AreaEnum.toAreaDataList());
+		result.toSucceed();
+		return result;
+	}
+
+	@Override
+	public JdCResponse<List<DeptType>> getDeptTypes() {
+		return deptServiceQcManager.getDeptTypes();
+	}
+
+	@Override
+	public JdCResponse<List<Dept>> getDept(DeptQueryRequest queryRequest) {
+		JdCResponse<List<Dept>> result = new JdCResponse<List<Dept>>();
+		if(queryRequest == null
+				|| queryRequest.getRegionId() == null
+				|| StringHelper.isEmpty(queryRequest.getDeptTypeCode())
+				|| StringHelper.isEmpty(queryRequest.getDeptName())) {
+			result.toFail("regionId、deptTypeCode、deptName参数不能为空！");
+			return result;
+		}
+		JdCResponse<List<Dept>> rpcResult = deptServiceQcManager.getDept(queryRequest.getRegionId(), queryRequest.getDeptTypeCode());
+		if(rpcResult != null && rpcResult.isSucceed()) {
+			result.setData(filterByName(rpcResult.getData(),queryRequest.getDeptName()));
+			result.toSucceed();
+		}else if(rpcResult != null){
+			result.setCode(rpcResult.getCode());
+			result.setMessage(rpcResult.getMessage());
+		}else {
+			result.toFail("查询部门数据异常！");
+		}
+		return result;
+	}
+	/**
+	 * 按名称过滤列表，返回新列表
+	 * @param list
+	 * @param filterName
+	 * @return
+	 */
+	private List<Dept> filterByName(List<Dept> list,String filterName){
+		List<Dept> newList = new ArrayList<Dept>();
+		if(list != null) {
+			for(Dept dept: list) {
+				if(dept.getName() != null 
+						&& dept.getName().contains(filterName)) {
+					newList.add(dept);
+				}
+			}
+		}
+		return newList;
+	}
 }
