@@ -1,9 +1,9 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.ql.asset.api.AssetApplyQueryApi;
-import com.jd.ql.asset.dto.MatterPackageRelationDto;
-import com.jd.ql.asset.dto.ResultData;
+import com.jd.etms.asset.material.api.AssetApplyQueryApi;
+import com.jd.etms.asset.material.base.ResultData;
+import com.jd.etms.asset.material.dto.MatterPackageRelationDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
