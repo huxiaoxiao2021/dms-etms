@@ -52,5 +52,5 @@ public interface ReportExternalManager {
      * @param condition
      * @return
      */
-    boolean checkIsNeedSpotCheck(WaitSpotCheckQueryCondition condition);
+    boolean checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition);
 }

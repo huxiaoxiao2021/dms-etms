@@ -104,7 +104,7 @@ public class ReportExternalManagerImpl implements ReportExternalManager {
     }
 
     @Override
-    public boolean checkIsNeedSpotCheck(WaitSpotCheckQueryCondition condition) {
+    public boolean checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.checkIsNeedSpotCheck",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
