@@ -635,7 +635,7 @@
     </jsf:consumer>
 
     <!-- 运输 - 循环集包袋 -->
-    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
+    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.etms.asset.material.api.AssetApplyQueryApi" protocol="jsf"
                   alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
                   retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
