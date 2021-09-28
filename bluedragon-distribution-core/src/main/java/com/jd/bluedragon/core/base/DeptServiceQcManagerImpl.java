@@ -25,6 +25,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.BaseResult;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.CodeTypeEnum;
+import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.ExceptionReason;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.TraceDeptParam;
 import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService;
 /**
@@ -36,6 +37,9 @@ import com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService;
 public class DeptServiceQcManagerImpl implements DeptServiceQcManager{
     @Autowired
     private DeptService deptService;
+    
+    @Autowired
+    private IAbnPdaAPIManager iAbnPdaAPIManager;
     
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.qc.";
     private final Logger log = LoggerFactory.getLogger(DeptServiceQcManagerImpl.class);
@@ -103,12 +107,22 @@ public class DeptServiceQcManagerImpl implements DeptServiceQcManager{
     	CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "deptService.getTraceDept");
 		try {
 			TraceDeptParam traceDeptParam = new TraceDeptParam();
+			//查询一级异常原因
+	        JdCResponse<ExceptionReason> abnormalFirst=iAbnPdaAPIManager.getAbnormalFirst(queryRequest.getSecondLevelExceptionId());
+	        if(!JdCResponse.CODE_SUCCESS.equals(abnormalFirst.getCode())
+	        		|| abnormalFirst.getData() == null){
+	        	result.toFail("获取一级异常原因失败！");
+	        	log.warn("获取一级异常原因失败！secondLevelExceptionId="+queryRequest.getSecondLevelExceptionId());
+	        	return result;
+	        }
+	        BeanUtils.copyProperties(queryRequest, traceDeptParam);
 			if(WaybillUtil.isPackageCode(queryRequest.getCode())) {
 				traceDeptParam.setCodeTypeEnum(CodeTypeEnum.PACKAGE);
 			}else {
 				traceDeptParam.setCodeTypeEnum(CodeTypeEnum.WAYBILL);
 			}
-			BeanUtils.copyProperties(queryRequest, traceDeptParam);
+			traceDeptParam.setFirstLevelExceptionId(abnormalFirst.getData().getId());
+			traceDeptParam.setFirstLevelExceptionName(abnormalFirst.getData().getAbnormalName());
 			if(log.isInfoEnabled()) {
 				log.info("调用qc获取推荐部门列表,request:{}",JsonHelper.toJson(traceDeptParam));
 			}

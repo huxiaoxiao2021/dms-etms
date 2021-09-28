@@ -535,7 +535,7 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             itme.setCreateDeptName(abnormalReportingRequest.getSiteName());
             itme.setCreateTime(abnormalReportingRequest.getOperateTime());
             itme.setReportSystem("11");
-
+            itme.setSpecialScene(abnormalReportingRequest.getSpecialScene());
             res.add(itme);
         }
 
