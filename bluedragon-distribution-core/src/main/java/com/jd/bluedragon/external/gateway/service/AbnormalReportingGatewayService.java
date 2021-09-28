@@ -4,8 +4,10 @@ import com.jd.bluedragon.common.dto.abnormal.Dept;
 import com.jd.bluedragon.common.dto.abnormal.DeptType;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
+import com.jd.bluedragon.common.dto.abnormal.TraceDept;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
 import com.jd.bluedragon.common.dto.abnormal.request.DeptQueryRequest;
+import com.jd.bluedragon.common.dto.abnormal.request.TraceDeptQueryRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.dms.utils.AreaData;
 
@@ -40,4 +42,10 @@ public interface AbnormalReportingGatewayService {
      * @return
      */
     JdCResponse<List<Dept>> getDept(DeptQueryRequest queryRequest);
+    /**
+     * 调质控查询查询推荐部门
+     * @param queryRequest
+     * @return
+     */
+    JdCResponse<List<TraceDept>> getTraceDept(TraceDeptQueryRequest queryRequest);
 }

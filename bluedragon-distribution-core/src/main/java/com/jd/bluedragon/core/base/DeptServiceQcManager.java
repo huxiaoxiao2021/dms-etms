@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dto.abnormal.Dept;
 import com.jd.bluedragon.common.dto.abnormal.DeptType;
+import com.jd.bluedragon.common.dto.abnormal.TraceDept;
+import com.jd.bluedragon.common.dto.abnormal.request.TraceDeptQueryRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 /**
  * 质控-部门服务管理
@@ -23,4 +25,10 @@ public interface DeptServiceQcManager {
      * @return
      */
     JdCResponse<List<Dept>> getDept(Integer regionId,String deptTypeCode);
+    /**
+     * 调用质控接口查询推荐部门
+     * @param queryRequest
+     * @return
+     */
+	JdCResponse<List<TraceDept>> getTraceDept(TraceDeptQueryRequest queryRequest);
 }

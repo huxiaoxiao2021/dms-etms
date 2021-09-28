@@ -8,8 +8,10 @@ import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentTypeEnum;
 import com.jd.bluedragon.common.dto.abnormal.SpecialScene;
+import com.jd.bluedragon.common.dto.abnormal.TraceDept;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
 import com.jd.bluedragon.common.dto.abnormal.request.DeptQueryRequest;
+import com.jd.bluedragon.common.dto.abnormal.request.TraceDeptQueryRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.DeptServiceQcManager;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
@@ -592,5 +594,10 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 			}
 		}
 		return newList;
+	}
+
+	@Override
+	public JdCResponse<List<TraceDept>> getTraceDept(TraceDeptQueryRequest queryRequest) {
+		return deptServiceQcManager.getTraceDept(queryRequest);
 	}
 }
