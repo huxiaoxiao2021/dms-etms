@@ -315,7 +315,14 @@ $(function () {
                     });
                 },
             }
-        },{
+        }, {
+            field: 'isHasPicture',
+            title: '有无图片',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value === 1 ? '有' : '无';
+            }
+        }, {
             field: 'upPicture',
             title: '照片上传',
             align: 'center',
@@ -611,6 +618,13 @@ $(function () {
                 align: 'center',
                 formatter: function (value, row, index) {
                     return value === 2 ? "是" : "否";
+                }
+            }, {
+                field: 'isHasPicture',
+                title: '有无图片',
+                align: 'center',
+                formatter: function (value, row, index) {
+                    return value === 1 ? '有' : '无';
                 }
             }],
         refresh: function () {

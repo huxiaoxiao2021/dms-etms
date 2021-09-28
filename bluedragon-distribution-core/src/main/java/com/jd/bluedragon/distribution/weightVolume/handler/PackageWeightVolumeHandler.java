@@ -218,6 +218,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
             if(spotCheckDealService.isExecuteNewSpotCheck(entity.getOperateSiteCode())){
                 InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(entity));
+                result.setMessage(checkExcessStatusResult.getMessage());
                 result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
                 return result;
             }
