@@ -492,6 +492,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             pictureUrl = result.getData();
         }
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        if(waybill == null){
+            return;
+        }
         final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packageCode);
 
         if(!isMultiplePackage && !checkPackExcessRedisIsExist(packageCode, siteCode)){
@@ -945,9 +948,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(WaybillUtil.isPackageCode(packageCode)){
             packNum = WaybillUtil.getPackNumByPackCode(packageCode);
         }else {
-            Integer goodNumber = waybill.getGoodNumber();
-            if(goodNumber != null){
-                packNum = goodNumber;
+            if(waybill != null){
+                Integer goodNumber = waybill.getGoodNumber();
+                if(goodNumber != null){
+                    packNum = goodNumber;
+                }
             }
         }
         return packNum;
@@ -2496,7 +2501,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void sendMqToFxm(WeightVolumeCollectDto weightVolumeCollectDto){
         // C抽B 临时方案,不下发
-        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+        if(weightVolumeCollectDto.getSpotCheckType() == null || weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             return;
         }
         // 下发
