@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.abnormal.DeptType;
 import com.jd.bluedragon.common.dto.abnormal.DmsAbnormalReasonDto;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentInfo;
 import com.jd.bluedragon.common.dto.abnormal.DutyDepartmentTypeEnum;
+import com.jd.bluedragon.common.dto.abnormal.SpecialScene;
 import com.jd.bluedragon.common.dto.abnormal.request.AbnormalReportingRequest;
 import com.jd.bluedragon.common.dto.abnormal.request.DeptQueryRequest;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -404,9 +405,21 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             dmsAbnormalReasonDto.setRemark(abnormalReasonDto.getRemark());
         }
         dmsAbnormalReasonDto.setChildReasonList(new ArrayList<DmsAbnormalReasonDto>());
+        dmsAbnormalReasonDto.setSpecialScenes(convertSpecialSceneList(abnormalReasonDto.getSpecialScenes()));
         return dmsAbnormalReasonDto;
     }
-
+    private List<SpecialScene> convertSpecialSceneList(List<com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.SpecialScene> list) {
+    	List<SpecialScene> newList = new ArrayList<SpecialScene>();
+    	if(list != null) {
+    		for(com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.dto.SpecialScene dept:list) {
+    			SpecialScene newData = new SpecialScene();
+    			newData.setCode(dept.getCode());
+    			newData.setName(dept.getName());
+        		newList.add(newData);
+    		}
+    	}
+    	return newList;
+    }
     /**
      * 从基础资料获取到的原因转化为通用原因
      */
