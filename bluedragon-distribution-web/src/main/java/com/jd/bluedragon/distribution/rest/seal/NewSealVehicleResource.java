@@ -948,7 +948,8 @@ public class NewSealVehicleResource {
      */
     private void checkIsNeedSpotCheck(NewSealVehicleRequest request, NewUnsealVehicleResponse<Boolean> unSealVehicleResponse) {
         WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
-        condition.setVehicleNumber(request.getVehicleNumber());
+        String chineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
+        condition.setVehicleNumber(StringUtils.isEmpty(chineseVehicleNumber) ? request.getVehicleNumber() : chineseVehicleNumber);
         condition.setBatchCode(request.getBatchCode());
         if(reportExternalManager.checkIsNeedSpotCheck(condition)){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
