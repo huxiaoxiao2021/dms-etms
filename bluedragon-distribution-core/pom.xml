@@ -1578,9 +1578,8 @@
         </dependency>
         <!--运输系统 集包袋相关-->
         <dependency>
-            <groupId>com.jd.ql.asset</groupId>
-            <artifactId>ql-asset-client</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <groupId>com.jd.etms.asset</groupId>
+            <artifactId>etms-asset-material-sdk</artifactId>
         </dependency>
 		<!--京东数据库加密安全包-->
 		<dependency>

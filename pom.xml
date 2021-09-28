@@ -242,6 +242,12 @@
 				<version>${lombok.version}</version>
 			</dependency>
 
+            <dependency>
+                <groupId>com.jd.etms.asset</groupId>
+                <artifactId>etms-asset-material-sdk</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+            </dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
