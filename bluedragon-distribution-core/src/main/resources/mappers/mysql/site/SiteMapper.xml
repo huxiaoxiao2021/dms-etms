@@ -46,10 +46,10 @@
                 #{item,jdbcType=VARCHAR}
             </foreach>
         </if>
-        <if test="siteNameRegexp != ">
+        <if test="siteNameRegexp != null">
             and site_name REGEXP ${siteNameRegexp}
         </if>
-        <if test="siteNameNotRegexp != ">
+        <if test="siteNameNotRegexp != null">
             and site_name not REGEXP ${siteNameNotRegexp}
         </if>
         <if test="startIndex != null">
@@ -81,10 +81,10 @@
                 #{item,jdbcType=VARCHAR}
             </foreach>
         </if>
-        <if test="siteNameRegexp != ">
+        <if test="siteNameRegexp != null">
             and site_name REGEXP ${siteNameRegexp}
         </if>
-        <if test="siteNameNotRegexp != ">
+        <if test="siteNameNotRegexp != null">
             and site_name not REGEXP ${siteNameNotRegexp}
         </if>
     </select>
