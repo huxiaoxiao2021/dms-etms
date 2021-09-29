@@ -2122,10 +2122,7 @@ public class WaybillResource {
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try {
-			if(spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
-				return spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
-			}
-			return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
+			return spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
 		}catch (Exception e){
 			log.error("客户端抽检处理异常!", e);
 			result.error();

@@ -492,6 +492,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             pictureUrl = result.getData();
         }
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        if(waybill == null){
+            return;
+        }
         final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packageCode);
 
         if(!isMultiplePackage && !checkPackExcessRedisIsExist(packageCode, siteCode)){
@@ -945,9 +948,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(WaybillUtil.isPackageCode(packageCode)){
             packNum = WaybillUtil.getPackNumByPackCode(packageCode);
         }else {
-            Integer goodNumber = waybill.getGoodNumber();
-            if(goodNumber != null){
-                packNum = goodNumber;
+            if(waybill != null){
+                Integer goodNumber = waybill.getGoodNumber();
+                if(goodNumber != null){
+                    packNum = goodNumber;
+                }
             }
         }
         return packNum;
@@ -1764,8 +1769,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         headerMap.put("diffStandard","误差标准值");
         headerMap.put("isExcess","是否超标");
         headerMap.put("fromSource","数据来源");
-//        headerMap.put("isWaybillSpotCheck","抽检维度");
-        headerMap.put("pictureAddress","图片链接");
+        headerMap.put("isHasPicture","有无图片");
+        headerMap.put("pictureLookAddress","图片查看地址");
         return headerMap;
     }
 
@@ -1878,10 +1883,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             exportWeightVolumeCollectDto.setContrastSourceFrom(Objects.equals(dto.getContrastSourceFrom(),Constants.CONSTANT_NUMBER_ONE) ? "运单" : "计费");
             exportWeightVolumeCollectDto.setLargeDiff(dto.getLargeDiff() == null ? null : String.valueOf(dto.getLargeDiff()));
             exportWeightVolumeCollectDto.setDiffStandard(dto.getDiffStandard());
-            exportWeightVolumeCollectDto.setIsExcess(Objects.equals(dto.getIsExcess(),Constants.CONSTANT_NUMBER_ONE) ? "超标" : "未超标");
+            exportWeightVolumeCollectDto.setIsExcess(
+                    Objects.equals(dto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())
+                            ? ExcessStatusEnum.EXCESS_ENUM_YES.getName() : Objects.equals(dto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode())
+                            ? ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getName() : Objects.equals(dto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_NO.getCode())
+                            ? ExcessStatusEnum.EXCESS_ENUM_NO.getName() : ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getName()
+            );
             exportWeightVolumeCollectDto.setFromSource(getFromSource(dto.getFromSource()));
-//            exportWeightVolumeCollectDto.setIsWaybillSpotCheck(Objects.equals(dto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode()) ? "运单抽检" : "包裹抽检");
-            exportWeightVolumeCollectDto.setPictureAddress(pictureLookUrl(dto));
+            exportWeightVolumeCollectDto.setIsHasPicture(Objects.equals(dto.getIsHasPicture(), Constants.CONSTANT_NUMBER_ONE) ? "有" : "无");
+            exportWeightVolumeCollectDto.setPictureLookAddress(pictureLookUrl(dto));
             list.add(exportWeightVolumeCollectDto);
         }
         return list;
@@ -1894,6 +1904,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     private String pictureLookUrl(WeightVolumeCollectDto dto) {
+        if(!Objects.equals(dto.getIsHasPicture(), Constants.CONSTANT_NUMBER_ONE)){
+            return Constants.SEPARATOR_HYPHEN;
+        }
         return String.format(SpotCheckConstants.PICTURE_LOOK_URL, dmsAddress, dto.getWaybillCode(), dto.getReviewSiteCode(), dto.getFromSource());
     }
 
@@ -2488,7 +2501,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void sendMqToFxm(WeightVolumeCollectDto weightVolumeCollectDto){
         // C抽B 临时方案,不下发
-        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+        if(weightVolumeCollectDto.getSpotCheckType() == null || weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             return;
         }
         // 下发

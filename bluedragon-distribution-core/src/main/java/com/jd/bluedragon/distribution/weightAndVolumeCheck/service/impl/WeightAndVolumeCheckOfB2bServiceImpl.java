@@ -658,12 +658,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         String waybillCode = WaybillUtil.getWaybillCode(condition.getWaybillOrPackageCode());
         com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity
                 = waybillQueryManager.getWaybillAndPackByWaybillCode(waybillCode);
-        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
-            if(!BusinessUtil.isB2b(baseEntity.getData().getWaybill().getWaybillSign())){
-                result.parameterError("此功能只支持B网运单抽检!");
-                return result;
-            }
-        }else {
+        if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
             result.parameterError("运单数据为空!");
             return result;
         }
@@ -690,6 +685,10 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         if(!WaybillUtil.isWaybillCode(waybillOrPackageCode)
                 && !WaybillUtil.isPackageCode(waybillOrPackageCode)){
             result.parameterError("单号不符合规则!");
+            return result;
+        }
+        if(!BusinessUtil.isB2b(baseEntity.getData().getWaybill().getWaybillSign())){
+            result.parameterError("此功能只支持B网运单抽检!");
             return result;
         }
         //是否妥投

@@ -71,6 +71,6 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
-        onePackDeal(spotCheckContext);
+        onceDataDeal(spotCheckContext);
     }
 }

@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
@@ -222,7 +223,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                                 || spotCheckDto.getHeight() == null || spotCheckDto.getHeight() <= Constants.DOUBLE_ZERO
                     )
         ){
-            result.parameterError("包裹维度抽检长宽高积必须大于零!");
+            result.parameterError("包裹维度抽检长宽高必须大于零!");
             return result;
         }
         return result;
@@ -341,10 +342,16 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      *
      * @param spotCheckContext
      */
-    protected WeightVolumeCollectDto assemblePackCollectDto(SpotCheckContext spotCheckContext) {
+    protected WeightVolumeCollectDto assembleBeforeGatherPackCollectDto(SpotCheckContext spotCheckContext) {
         WeightVolumeCollectDto packCollectDto = assembleCommonCollectDto(spotCheckContext);
         packCollectDto.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
-        packCollectDto.setPictureAddress(spotCheckContext.getPictureAddress());
+        // notes：集齐前的包裹记录需记录'长宽高'字段
+        packCollectDto.setReviewLWH(spotCheckContext.getSpotCheckReviewDetail().getReviewLWH());
+        // 图片链接
+        String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
+                ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
+        packCollectDto.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+        packCollectDto.setPictureAddress(pictureUrl);
         return packCollectDto;
     }
 
@@ -354,8 +361,25 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param spotCheckContext
      * @return
      */
-    protected WeightVolumeCollectDto assembleWaybillCollectDto(SpotCheckContext spotCheckContext) {
+    protected WeightVolumeCollectDto assembleAfterGatherCollectDto(SpotCheckContext spotCheckContext) {
         WeightVolumeCollectDto waybillCollectDto = assembleCommonCollectDto(spotCheckContext);
+        // notes：集齐后的总记录：
+        // 1、只有包裹维度一单一件抽检需记录'长宽高'字段
+        if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())
+                && !spotCheckContext.getIsMultiPack()){
+            waybillCollectDto.setReviewLWH(spotCheckContext.getSpotCheckReviewDetail().getReviewLWH());
+        }
+        // 2.1、人工抽检和web页面抽检图片实时存放在spotCheckContext.pictureAddress中
+        // 2.2、dws抽检和客户端抽检此处不处理（因为图片异步上传在图片上传环节会更新'是否有图片'字段）
+        waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(spotCheckContext.getPictureAddress()) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+        // 3、运单维度抽检 | 包裹维度一单一件抽检的需要记录'图片链接'字段
+        if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())
+                || (Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode()) && !spotCheckContext.getIsMultiPack())){
+            String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
+                    ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
+            waybillCollectDto.setPictureAddress(pictureUrl);
+        }
+
         waybillCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
         waybillCollectDto.setPackageCode(spotCheckContext.getWaybillCode());
 
@@ -409,21 +433,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         return waybillCollectDto;
     }
 
-    private void pictureUrlDeal(SpotCheckContext spotCheckContext, WeightVolumeCollectDto waybillCollectDto) {
-        if(Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
-                || Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName())){
-            // 异步上传图片 从缓存中获取
-            String pictureUrl = getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
-            waybillCollectDto.setPictureAddress(pictureUrl);
-            waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
-        }else {
-            // 同步上传图片，直接获取
-            String pictureUrl = spotCheckContext.getPictureAddress();
-            waybillCollectDto.setPictureAddress(pictureUrl);
-            waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
-        }
-    }
-
     /**
      * 组装公共数据
      *
@@ -444,7 +453,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         commonCollectDto.setIsTrustBusi(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
         commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
         commonCollectDto.setBusiCode(spotCheckContext.getMerchantId());
-        commonCollectDto.setMerchantCode(spotCheckContext.getMerchantCode());
         commonCollectDto.setBusiName(spotCheckContext.getMerchantName());
         commonCollectDto.setProductTypeCode(spotCheckContext.getProductTypeCode());
         commonCollectDto.setProductTypeName(spotCheckContext.getProductTypeName());
@@ -462,10 +470,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         commonCollectDto.setReviewWeight(spotCheckReviewDetail.getReviewWeight());
         commonCollectDto.setReviewVolume(spotCheckReviewDetail.getReviewVolume());
         commonCollectDto.setReviewVolumeWeight(spotCheckReviewDetail.getReviewVolumeWeight());
-        commonCollectDto.setReviewLWH(spotCheckReviewDetail.getReviewLWH());
         commonCollectDto.setMoreBigWeight(spotCheckReviewDetail.getReviewLarge());
-        // 图片处理
-        pictureUrlDeal(spotCheckContext, commonCollectDto);
 
         return commonCollectDto;
     }
@@ -516,11 +521,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     /**
-     * 一单多件处理
+     * 多次数据处理
      *
      * @param spotCheckContext
      */
-    protected void multiPackDeal(SpotCheckContext spotCheckContext) {
+    protected void multiDataDeal(SpotCheckContext spotCheckContext) {
         if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
             // 初始化运单维度记录
             WeightVolumeCollectDto initialWaybillCollect = assembleCommonCollectDto(spotCheckContext);
@@ -533,20 +538,25 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setWeightDiff(null);
             initialWaybillCollect.setVolumeWeightDiff(null);
             initialWaybillCollect.setLargeDiff(null);
+            // 初始化总记录时：需记录'是否有图片'字段
+            String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
+                    ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
+            initialWaybillCollect.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+            initialWaybillCollect.setPictureAddress(null);
             initialWaybillCollect.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
             reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
         }
         // 集齐
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
             // 更新运单维度数据
-            reportExternalManager.insertOrUpdateForWeightVolume(assembleWaybillCollectDto(spotCheckContext));
+            reportExternalManager.insertOrUpdateForWeightVolume(assembleAfterGatherCollectDto(spotCheckContext));
             // 设置超标缓存
             setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         }
-        // 新增包裹维度记录
-        reportExternalManager.insertOrUpdateForWeightVolume(assemblePackCollectDto(spotCheckContext));
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
+        // 新增包裹维度记录
+        reportExternalManager.insertOrUpdateForWeightVolume(assembleBeforeGatherPackCollectDto(spotCheckContext));
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
         // 记录抽检操作日志
@@ -554,15 +564,15 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     /**
-     * 一单一件处理
+     * 一次数据处理
      *
      * @param spotCheckContext
      */
-    protected void onePackDeal(SpotCheckContext spotCheckContext) {
+    protected void onceDataDeal(SpotCheckContext spotCheckContext) {
         // 设置超标缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落es
-        reportExternalManager.insertOrUpdateForWeightVolume(assembleWaybillCollectDto(spotCheckContext));
+        reportExternalManager.insertOrUpdateForWeightVolume(assembleAfterGatherCollectDto(spotCheckContext));
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
         // 记录抽检操作日志

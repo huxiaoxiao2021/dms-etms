@@ -4885,13 +4885,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
 
         //1.批次号封车校验，已封车不能发货
-        if (StringUtils.isNotEmpty(sendM.getSendCode())) {
+        if (StringUtils.isNotEmpty(sendM.getSendCode()) && BusinessUtil.isSendCode(sendM.getSendCode())) {
             StringBuffer customMsg = new StringBuffer().append(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED_TIPS_SECOND));
             if (newSealVehicleService.newCheckSendCodeSealed(sendM.getSendCode(), customMsg)) {
                 response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
                 response.setMessage(customMsg.toString());
                 return response;
             }
+        }else{
+            log.warn("checkRouterForKY未校验封车状态，入参{}",JsonHelper.toJson(sendM));
         }
 
         //2.校验箱号或者包裹是否已发货

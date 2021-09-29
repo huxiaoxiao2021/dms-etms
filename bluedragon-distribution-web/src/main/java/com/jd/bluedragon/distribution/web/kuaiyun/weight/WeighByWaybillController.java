@@ -3,10 +3,14 @@ package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
+import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInterceptMsgDto;
+import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
+import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightImportResponse;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
@@ -23,8 +27,8 @@ import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
@@ -80,6 +84,15 @@ public class WeighByWaybillController {
 
     @Autowired
     WaybillQueryManager waybillQueryManager;
+
+    /**
+     * 拦截报表服务
+     */
+    @Autowired
+    private IBusinessInterceptReportService businessInterceptReportService;
+
+    @Autowired
+    private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/index")
@@ -173,6 +186,7 @@ public class WeighByWaybillController {
             }
 
             service.insertWaybillWeightEntry(vo);
+            this.sendDisposeAfterInterceptMsg(vo, baseStaffSiteOrgDto);
             //判断是否转网
             if(service.waybillTransferB2C(vo)){
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
@@ -199,6 +213,37 @@ public class WeighByWaybillController {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
             result.setData(false);
+        }
+        return result;
+    }
+
+    /**
+     * 发送消息
+     * @param waybillWeightVO 称重数据
+     * @return 发送结果
+     * @author fanggang7
+     * @time 2021-09-16 10:38:03 周四
+     */
+    private Response<Boolean> sendDisposeAfterInterceptMsg(WaybillWeightVO waybillWeightVO, BaseStaffSiteOrgDto baseStaffSiteOrgDto){
+        log.info("WeighByWaybillController sendDisposeAfterInterceptMsg sendDisposeAfterInterceptMsg {}", JsonHelper.toJson(waybillWeightVO));
+        Response<Boolean> result = new Response<>();
+        result.toSucceed();
+
+        try {
+            SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
+            saveDisposeAfterInterceptMsgDto.setBarCode(waybillWeightVO.getCodeStr());
+            saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.FINISH_WEIGHT));
+            saveDisposeAfterInterceptMsgDto.setOperateTime(System.currentTimeMillis());
+            saveDisposeAfterInterceptMsgDto.setOperateUserErp(baseStaffSiteOrgDto.getErp());
+            saveDisposeAfterInterceptMsgDto.setOperateUserCode(waybillWeightVO.getOperatorId());
+            saveDisposeAfterInterceptMsgDto.setOperateUserName(waybillWeightVO.getOperatorName());
+            saveDisposeAfterInterceptMsgDto.setSiteCode(waybillWeightVO.getOperatorSiteCode());
+            saveDisposeAfterInterceptMsgDto.setSiteName(waybillWeightVO.getOperatorSiteName());
+            // log.info("WeighByWaybillController sendDisposeAfterInterceptMsg saveDisposeAfterInterceptMsgDto: {}", JsonHelper.toJson(saveDisposeAfterInterceptMsgDto));
+            businessInterceptReportService.sendDisposeAfterInterceptMsg(saveDisposeAfterInterceptMsgDto);
+        } catch (Exception e) {
+            log.error("WeighByWaybillController sendDisposeAfterInterceptMsg exception, rePrintCallBackRequest: [{}]" , JsonHelper.toJson(waybillWeightVO), e);
+            result.toError("快运按运单称重操作上报到拦截报表失败，失败提示：" + e.getMessage());
         }
         return result;
     }

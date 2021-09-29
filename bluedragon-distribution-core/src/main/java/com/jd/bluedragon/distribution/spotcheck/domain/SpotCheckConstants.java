@@ -63,7 +63,7 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH = "非纯配外单不计入抽检!";
 
-    public static final String SPOT_CHECK_ONLY_SUPPORT_B = "非B网运单不计入抽检!";
+    public static final String SPOT_CHECK_ONLY_SUPPORT_B = "此功能只支持B网运单抽检!";
 
     public static final String SPOT_CHECK_FORBID_FINISHED_PACK = "此运单已经妥投,禁止抽检!";
 

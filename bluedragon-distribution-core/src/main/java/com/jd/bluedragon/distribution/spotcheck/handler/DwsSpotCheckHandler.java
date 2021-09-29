@@ -36,12 +36,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
             return;
         }
-        if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-                return;
-            }
-        }
         // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
@@ -117,9 +111,9 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     @Override
     protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
         if(spotCheckContext.getIsMultiPack()){
-            multiPackDeal(spotCheckContext);
+            multiDataDeal(spotCheckContext);
         }else {
-            onePackDeal(spotCheckContext);
+            onceDataDeal(spotCheckContext);
         }
     }
 }
