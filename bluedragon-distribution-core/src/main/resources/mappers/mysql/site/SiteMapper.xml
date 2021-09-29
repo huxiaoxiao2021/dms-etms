@@ -46,6 +46,12 @@
                 #{item,jdbcType=VARCHAR}
             </foreach>
         </if>
+        <if test="siteNameRegexp != null">
+            and site_name REGEXP #{siteNameRegexp}
+        </if>
+        <if test="siteNameNotRegexp != null">
+            and site_name not REGEXP #{siteNameNotRegexp}
+        </if>
         <if test="startIndex != null">
          LIMIT #{startIndex},#{pageSize}
         </if>
@@ -74,6 +80,12 @@
             <foreach collection="subTypes" item="item" index="index" open="(" separator="," close=")">
                 #{item,jdbcType=VARCHAR}
             </foreach>
+        </if>
+        <if test="siteNameRegexp != null">
+            and site_name REGEXP #{siteNameRegexp}
+        </if>
+        <if test="siteNameNotRegexp != null">
+            and site_name not REGEXP #{siteNameNotRegexp}
         </if>
     </select>
 </mapper>

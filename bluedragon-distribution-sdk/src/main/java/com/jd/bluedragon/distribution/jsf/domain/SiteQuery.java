@@ -18,6 +18,17 @@ public class SiteQuery implements Serializable {
 
     private List<Integer> subTypes;
 
+    /**
+     * 分拣中心名称匹配正则表达条件
+     * @return
+     */
+    private String siteNameRegexp;
+
+    /**
+     * 分拣中心名称不在匹配正则表达条件
+     * @return
+     */
+    private String siteNameNotRegexp;
 
     public Integer getOrgId() {
         return orgId;
@@ -65,5 +76,21 @@ public class SiteQuery implements Serializable {
 
     public void setSubTypes(List<Integer> subTypes) {
         this.subTypes = subTypes;
+    }
+
+    public String getSiteNameRegexp() {
+        return siteNameRegexp;
+    }
+
+    public void setSiteNameRegexp(String siteNameRegexp) {
+        this.siteNameRegexp = siteNameRegexp;
+    }
+
+    public String getSiteNameNotRegexp() {
+        return siteNameNotRegexp;
+    }
+
+    public void setSiteNameNotRegexp(String siteNameNotRegexp) {
+        this.siteNameNotRegexp = siteNameNotRegexp;
     }
 }
