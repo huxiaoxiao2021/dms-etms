@@ -47,10 +47,10 @@
             </foreach>
         </if>
         <if test="siteNameRegexp != null">
-            and site_name REGEXP ${siteNameRegexp}
+            and site_name REGEXP #{siteNameRegexp}
         </if>
         <if test="siteNameNotRegexp != null">
-            and site_name not REGEXP ${siteNameNotRegexp}
+            and site_name not REGEXP #{siteNameNotRegexp}
         </if>
         <if test="startIndex != null">
          LIMIT #{startIndex},#{pageSize}
@@ -82,10 +82,10 @@
             </foreach>
         </if>
         <if test="siteNameRegexp != null">
-            and site_name REGEXP ${siteNameRegexp}
+            and site_name REGEXP #{siteNameRegexp}
         </if>
         <if test="siteNameNotRegexp != null">
-            and site_name not REGEXP ${siteNameNotRegexp}
+            and site_name not REGEXP #{siteNameNotRegexp}
         </if>
     </select>
 </mapper>
