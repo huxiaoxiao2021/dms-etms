@@ -567,7 +567,9 @@
     <jsf:consumer id="iAbnReportAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ReportService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
-
+    <jsf:consumer id="qcJsfDeptService" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>    
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
