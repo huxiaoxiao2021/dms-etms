@@ -6,23 +6,20 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.*;
@@ -35,6 +32,7 @@ import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
+import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -106,9 +104,6 @@ public class NewSealVehicleResource {
     @Qualifier("basicPrimaryWS")
     private BasicPrimaryWS basicPrimaryWS;
 
-    @Autowired
-    private SortingMaterialSendService sortingMaterialSendService;
-
     /**
      * 查询几天内的带解任务（负数）
      * */
@@ -119,12 +114,15 @@ public class NewSealVehicleResource {
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
-    
+
     @Autowired
     private TmsServiceManager tmsServiceManager;
 
     @Autowired
     private SendCodeService sendCodeService;
+
+    @Autowired
+    private ReportExternalManager reportExternalManager;
 
     /**
      * 校验并获取运力编码信息
@@ -943,6 +941,58 @@ public class NewSealVehicleResource {
             this.log.error("NewSealVehicleResource.unseal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    /**
+     * 新解封车功能
+     */
+    @POST
+    @Path("/new/vehicle/newUnseal")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012)
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newUnseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewUnsealVehicleResponse<Boolean> newUnseal(NewSealVehicleRequest request) {
+        NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<Boolean>();
+        try {
+            if (request == null || request.getData() == null) {
+                log.warn("NewSealVehicleResource newUnseal --> 传入参数非法");
+                unSealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                unSealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return unSealVehicleResponse;
+            }
+
+            CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
+            if (returnCommonDto != null) {
+                if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
+                    unSealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    unSealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_SUCCESS);
+                    // 抽检校验
+                    checkIsNeedSpotCheck(request, unSealVehicleResponse);
+                } else {
+                    unSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    unSealVehicleResponse.setMessage(returnCommonDto.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            this.log.error("NewSealVehicleResource.newUnseal-error", e);
+        }
+        return unSealVehicleResponse;
+    }
+
+    /**
+     * 校验是否需要抽检
+     *
+     * @param request
+     * @param unSealVehicleResponse
+     */
+    private void checkIsNeedSpotCheck(NewSealVehicleRequest request, NewUnsealVehicleResponse<Boolean> unSealVehicleResponse) {
+        WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
+        String chineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
+        condition.setVehicleNumber(StringUtils.isEmpty(chineseVehicleNumber) ? request.getVehicleNumber() : chineseVehicleNumber);
+        condition.setBatchCode(request.getBatchCode());
+        if(reportExternalManager.checkIsNeedSpotCheck(condition)){
+            unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
+            unSealVehicleResponse.setBusinessMessage(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE);
+        }
     }
 
     /**
