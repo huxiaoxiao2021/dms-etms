@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -658,6 +660,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
 		waybillPrintService.dealSignTexts(waybill.getSendPay(), target, Constants.DIC_NAME_SEND_PAY_CONFIG);
 
+        // 设置打印模板分组编码
+        setPrintTemplateGroup(waybill, target);
+
         //设置备用站点
         WaybillExt waybillExt = waybill.getWaybillExt();
         String productType = null;
@@ -853,22 +858,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setjZDFlag(TextConstants.PECIAL_TIMELY_MARK);
         }
 
-        /**
-         * 纯配B2B运单或纯配C转B运单，面单上加“B-”+【运单号】后4位
-         */
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
-                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)
-                ||BusinessUtil.isSignChar(waybill.getSendPay(),SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_1)){
-        	if(StringHelper.isNotEmpty(target.getWaybillCodeLast())){
-        		target.setBcSign(TextConstants.PECIAL_B_MARK1.concat(target.getWaybillCodeLast()));
-        	}else{
-        		target.setBcSign(TextConstants.PECIAL_B_MARK);
-        	}
-        }
-        //SendPay第297位等于1或2时，为预售订单， 面单打印【预】字
-        if(BusinessUtil.isPreSell(waybill.getSendPay())){
-        	target.setBcSign(TextConstants.PRE_SELL_FLAG);
-        }
         /* waybill_sign标识位，第七十九位为2，打提字标
            标位变更 ：2020-4-29
            详细见方法释义
@@ -984,12 +973,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		if(BusinessUtil.isSopJZD(waybill.getWaybillSign())){
 			target.appendSpecialMark(TextConstants.TEXT_JZD_SPECIAL_MARK);
 		}
-        //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
-        	//新模板，提出KA标识
-        	target.setBcSign(TextConstants.KA_FLAG);
-        	target.appendSpecialMark(TextConstants.KA_FLAG,false);
-        }
         //无接触面单，追加标识‘代’
         if(BusinessUtil.isNoTouchService(waybill.getSendPay(),waybill.getWaybillSign())){
         	target.appendSpecialMark(TextConstants.NO_TOUCH_FLAG);
@@ -1019,8 +1002,72 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //大件路区
         if(BusinessUtil.isHeavyCargo(waybill.getWaybillSign())){
             target.setBackupRoadCode(waybill.getRoadCode());
-        }      
+        }
+
+        // 设置面单水印
+        setWaterMark(target, waybill);
+
         return target;
+    }
+
+    /**
+     * 设置模板分组编码
+     * @param waybill
+     * @param commonWaybill
+     */
+    private void setPrintTemplateGroup(com.jd.etms.waybill.domain.Waybill waybill, BasePrintWaybill commonWaybill) {
+        String waybillSign = waybill.getWaybillSign();
+        if(BusinessUtil.isTc(waybillSign)){
+            commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC);
+        }else if(BusinessUtil.isB2b(waybillSign)){
+            commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_B);
+        }else{
+            commonWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
+        }
+    }
+
+    /**
+     * 设置面单水印
+     * <ul>
+     *     <li>B网面单设置waterMark显示KA</li>
+     *     <li>非B网面单设置bcSign显示KA</li>
+     * </ul>
+     * @param target
+     * @param waybill
+     */
+    private void setWaterMark(BasePrintWaybill target, com.jd.etms.waybill.domain.Waybill waybill) {
+
+        // 【KA保障面单】，转运面单显示“KA”水印
+        if (Objects.equals(TemplateGroupEnum.TEMPLATE_GROUP_CODE_B, target.getTemplateGroupCode())) {
+            if (BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)) {
+                target.setWaterMark(TextConstants.KA_FLAG);
+            }
+        }
+        else {
+            //waybill_sign第57位= 2，代表“KA运营特殊保障”，追加“KA”
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_57, WaybillSignConstants.CHAR_57_2)){
+                //新模板，提出KA标识
+                target.setBcSign(TextConstants.KA_FLAG);
+                target.appendSpecialMark(TextConstants.KA_FLAG,false);
+            }
+
+        }
+
+        // 纯配B2B运单或纯配C转B运单，面单上加“B-”+【运单号】后4位
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_2)
+                ||BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1)
+                ||BusinessUtil.isSignChar(waybill.getSendPay(),SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_1)){
+            if(StringHelper.isNotEmpty(target.getWaybillCodeLast())){
+                target.setBcSign(TextConstants.PECIAL_B_MARK1.concat(target.getWaybillCodeLast()));
+            }else{
+                target.setBcSign(TextConstants.PECIAL_B_MARK);
+            }
+        }
+
+        //SendPay第297位等于1或2时，为预售订单， 面单打印【预】字
+        if(BusinessUtil.isPreSell(waybill.getSendPay())){
+            target.setBcSign(TextConstants.PRE_SELL_FLAG);
+        }
     }
 
     /**
