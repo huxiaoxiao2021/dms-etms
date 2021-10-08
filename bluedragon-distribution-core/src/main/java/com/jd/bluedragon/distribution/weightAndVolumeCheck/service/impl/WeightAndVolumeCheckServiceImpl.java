@@ -1631,6 +1631,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void assembleReviewData(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto, Waybill waybill, String sourceFrom) {
         weightVolumeCollectDto.setFromSource(sourceFrom);
+        weightVolumeCollectDto.setIsWaybillSpotCheck(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+        weightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
         weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
         weightVolumeCollectDto.setReviewDate(new Date());

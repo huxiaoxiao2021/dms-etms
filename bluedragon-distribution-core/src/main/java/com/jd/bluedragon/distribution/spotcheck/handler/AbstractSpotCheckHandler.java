@@ -5,7 +5,8 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
@@ -55,6 +56,12 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private SendDetailService sendDetailService;
+
     @Override
     public InvokeResult<Integer> checkIsExcess(SpotCheckDto spotCheckDto) {
         InvokeResult<Integer> checkResult = new InvokeResult<Integer>();
@@ -75,7 +82,8 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 超标校验
         InvokeResult<CheckExcessResult> checkExcessResultInvokeResult = checkIsExcess(spotCheckContext);
         checkResult.customMessage(checkExcessResultInvokeResult.getCode(), checkExcessResultInvokeResult.getMessage());
-        checkResult.setData(checkExcessResultInvokeResult.getData().getExcessCode());
+        checkResult.setData(checkExcessResultInvokeResult.getData() == null
+                ? ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getCode() : checkExcessResultInvokeResult.getData().getExcessCode());
         return checkResult;
     }
 
@@ -130,7 +138,148 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param spotCheckContext
      * @param result
      */
-    protected abstract void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result);
+    protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+            spotCheckOfB(spotCheckContext, result);
+            return;
+        }
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            spotCheckOfC(spotCheckContext, result);
+            return;
+        }
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "未知业务类型暂不支持!");
+    }
+
+    private void spotCheckOfC(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        Waybill waybill = spotCheckContext.getWaybill();
+        String packageCode = spotCheckContext.getPackageCode();
+        Integer siteCode = spotCheckContext.getReviewSiteCode();
+        // 纯配外单校验
+        if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
+            return;
+        }
+        // 是否发货校验
+        if(isHasSendCheck(packageCode, siteCode, spotCheckContext.getSpotCheckDimensionType(), result)){
+            return;
+        }
+        // 是否已抽检
+        if(spotCheckDealService.checkIsHasSpotCheck(WaybillUtil.getWaybillCode(packageCode))){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
+        }
+    }
+
+    private void spotCheckOfB(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        String packageCode = spotCheckContext.getPackageCode();
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        Integer siteCode = spotCheckContext.getReviewSiteCode();
+        // 纯配外单校验
+        if(!BusinessUtil.isPurematch(spotCheckContext.getWaybill().getWaybillSign())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
+            return;
+        }
+        // 泡重比校验
+        if(weightVolumeRatioCheck(spotCheckContext, result)){
+            return;
+        }
+        // 是否妥投
+        if(waybillTraceManager.isWaybillFinished(waybillCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
+            return;
+        }
+        // 是否发货校验
+        if(isHasSendCheck(packageCode, siteCode, spotCheckContext.getSpotCheckDimensionType(), result)){
+            return;
+        }
+        // 是否已抽检
+        if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
+        }
+    }
+
+    /**
+     * 泡重比校验
+     *
+     * @param spotCheckContext
+     * @param result
+     * @return
+     */
+    private boolean weightVolumeRatioCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        Waybill waybill = spotCheckContext.getWaybill();
+        String packageCode = spotCheckContext.getPackageCode();
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
+        double weight = spotCheckReviewDetail.getReviewWeight();
+        double volume = spotCheckReviewDetail.getReviewVolume();
+        // 包裹维度泡重比校验
+        if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
+            if(weight / volume * SpotCheckConstants.CM3_M3_MAGNIFICATION > SpotCheckConstants.WEIGHT_VOLUME_RATIO){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_RATE_LIMIT_B_PACK, packageCode, SpotCheckConstants.WEIGHT_VOLUME_RATIO));
+                return true;
+            }
+            if(weight > SpotCheckConstants.WEIGHT_MAX_RATIO){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_WEIGHT_LIMIT_B_PACK, SpotCheckConstants.WEIGHT_MAX_RATIO));
+                return true;
+            }
+            if(volume > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_LIMIT_B_PACK, SpotCheckConstants.VOLUME_MAX_RATIO));
+                return true;
+            }
+            return false;
+        }
+        // 运单维度泡重比校验
+        if(weight / volume * SpotCheckConstants.CM3_M3_MAGNIFICATION > SpotCheckConstants.WEIGHT_VOLUME_RATIO){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_RATE_LIMIT_B, waybillCode, SpotCheckConstants.WEIGHT_VOLUME_RATIO));
+            return true;
+        }
+        int packNum = waybill.getGoodNumber();
+        if(weight / packNum > SpotCheckConstants.WEIGHT_MAX_RATIO){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_WEIGHT_LIMIT_B, SpotCheckConstants.WEIGHT_MAX_RATIO));
+            return true;
+        }
+        if(volume / packNum > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_LIMIT_B, SpotCheckConstants.VOLUME_MAX_RATIO));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否发货校验
+     *
+     * @param packageCode 包裹号
+     * @param siteCode 站点
+     * @param spotCheckDimensionType 抽检维度：SpotCheckDimensionEnum
+     * @return
+     */
+    private boolean isHasSendCheck(String packageCode, Integer siteCode, Integer spotCheckDimensionType, InvokeResult<Boolean> result){
+        // 是否发货校验
+        // 1、运单维度抽检：只要其中某一包裹已经发货则提示按包裹维度操作抽检
+        // 2、包裹维度抽检：只要操作了发货则提示禁止抽检
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        if(Objects.equals(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode(), spotCheckDimensionType)){
+            if(!WaybillUtil.isWaybillCode(packageCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_WAYBILL);
+                return true;
+            }
+            SendDetail sendDetail = sendDetailService.findOneByWaybillCode(siteCode, waybillCode);
+            if(sendDetail != null){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND_TRANSFER, sendDetail.getPackageBarcode()));
+                return true;
+            }
+        }else {
+            if(!WaybillUtil.isPackageCode(packageCode)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_PACK);
+                return true;
+            }
+            List<SendDetail> sendList = sendDetailService.findByWaybillCodeOrPackageCode(siteCode, waybillCode, packageCode);
+            if(CollectionUtils.isNotEmpty(sendList)){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND, packageCode));
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
      * 超标校验

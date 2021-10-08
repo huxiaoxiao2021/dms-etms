@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.waybill.domain.Waybill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -28,34 +27,17 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        Waybill waybill = spotCheckContext.getWaybill();
-        String waybillCode = spotCheckContext.getWaybillCode();
-        String packageCode = spotCheckContext.getPackageCode();
-        Integer siteCode = spotCheckContext.getReviewSiteCode();
-        if(!WaybillUtil.isPackageCode(packageCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
-            return;
-        }
         if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
                 return;
             }
         }
-        // 纯配外单校验
-        if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
+        if(!WaybillUtil.isPackageCode(spotCheckContext.getPackageCode())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
             return;
         }
-        // 是否已发货校验
-        if(spotCheckDealService.checkIsHasSend(packageCode, siteCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_MUST_BEFORE_SEND);
-            return;
-        }
-        // 是否已抽检
-        if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
-        }
+        super.spotCheck(spotCheckContext, result);
     }
 
     /**
