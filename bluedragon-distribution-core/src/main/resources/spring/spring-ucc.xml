@@ -251,6 +251,7 @@
                 <value>uccPropertyConfiguration.waybillMaxPackNum</value>
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
+				<value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>

@@ -32,16 +32,15 @@ public class SpotCheckTest {
     public void spotCheckDeal() {
         try {
             String text = "{\n" +
-                    "    \"barCode\":\"JDV000706650345-1-3-\",\n" +
+                    "    \"barCode\":\"JDV000705208490-1-1-\",\n" +
                     "    \"spotCheckSourceFrom\":\"SPOT_CHECK_DWS\",\n" +
-                    "    \"spotCheckBusinessType\":1,\n" +
-                    "    \"weight\":1.3,\n" +
+                    "    \"weight\":5001.3,\n" +
                     "    \"length\":10.1,\n" +
                     "    \"width\":10.1,\n" +
                     "    \"height\":10.1,\n" +
                     "    \"orgId\":6,\n" +
                     "    \"orgName\":\"总公司\",\n" +
-                    "    \"siteCode\":39,\n" +
+                    "    \"siteCode\":10098,\n" +
                     "    \"siteName\":\"石景山营业部\",\n" +
                     "    \"operateUserId\":10053,\n" +
                     "    \"operateUserErp\":\"bjxings\",\n" +
@@ -60,10 +59,10 @@ public class SpotCheckTest {
 //
 //
 //            // 超标处理
-            InvokeResult<Boolean> result1 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000706650345-2-3-");
-            InvokeResult<Boolean> result2 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
-            spotCheckDto.setBarCode("JDV000706650345-3-3-");
+//            InvokeResult<Boolean> result1 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
+//            spotCheckDto.setBarCode("JDV000706650345-2-3-");
+//            InvokeResult<Boolean> result2 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
+//            spotCheckDto.setBarCode("JDV000706650345-3-3-");
             InvokeResult<Boolean> result3 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
             Assert.assertTrue(true);
 

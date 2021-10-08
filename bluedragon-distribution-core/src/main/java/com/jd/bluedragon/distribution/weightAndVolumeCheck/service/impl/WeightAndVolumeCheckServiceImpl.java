@@ -1631,6 +1631,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void assembleReviewData(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto, Waybill waybill, String sourceFrom) {
         weightVolumeCollectDto.setFromSource(sourceFrom);
+        weightVolumeCollectDto.setIsWaybillSpotCheck(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+        weightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
         weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
         weightVolumeCollectDto.setReviewDate(new Date());
@@ -2247,6 +2249,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
         } else {
             // 如果满足条件，一单多件则按运单纬度处理下发fxm
+            if(weightAndVolumeCheckHandleMessage.getPackageCode() == null){
+                return result;
+            }
             this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         }
         return result;
