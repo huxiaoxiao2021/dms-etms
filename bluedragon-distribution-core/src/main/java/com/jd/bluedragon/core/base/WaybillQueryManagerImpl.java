@@ -28,16 +28,7 @@ import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.GoodsDto;
-import com.jd.etms.waybill.dto.GoodsQueryDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.SkuPackRelationDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillAttachmentDto;
-import com.jd.etms.waybill.dto.WaybillPickupVasDto;
-import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.etms.waybill.dto.*;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
@@ -345,6 +336,39 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             log.error("包裹状态发送MQ消息异常.{}" , JSON.toJSONString(bdTraceDto),e);
         }
         return true;
+    }
+
+    /**
+     * 根据运单号查询产品能力信息
+     * https://cf.jd.com/pages/viewpage.action?pageId=506496819
+     *
+     * @param waybillCode 运单号
+     * @return
+     */
+    @Override
+    public BaseEntity<List<WaybillProductDto>> getProductAbilityInfoByWaybillCode(String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getProductAbilityInfoByWaybillCode", false, true);
+
+        BaseEntity<List<WaybillProductDto>>  baseEntity = null;
+        try{
+            baseEntity = waybillQueryApi.getProductAbilityInfoByWaybillCode(waybillCode);
+            if (baseEntity != null) {
+                if (baseEntity.getResultCode() != 1) {
+                    log.warn("getProductAbilityInfoByWaybillCode fail waybill{} result{}",waybillCode,JsonHelper.toJson(baseEntity));
+                }else{
+                    return baseEntity;
+                }
+            }else{
+                log.warn("getProductAbilityInfoByWaybillCode fail  waybill{} result is null",waybillCode);
+            }
+        }catch (Exception e){
+            Profiler.functionError(info);
+            log.error("getProductAbilityInfoByWaybillCode errpr waybill{} result{}",waybillCode);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+        return null;
     }
 
     @Override

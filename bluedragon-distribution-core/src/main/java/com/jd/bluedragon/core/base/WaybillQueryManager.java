@@ -104,6 +104,14 @@ public interface WaybillQueryManager{
 	boolean sendBdTrace(BdTraceDto bdTraceDto);
 
 	/**
+	 * 根据运单号查询产品能力信息
+	 * https://cf.jd.com/pages/viewpage.action?pageId=506496819
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	BaseEntity<List<WaybillProductDto>> getProductAbilityInfoByWaybillCode(String waybillCode);
+
+	/**
 	 * 根据扫描单号获得换单前单号,主要用于逆向
 	 * @param waybillCode
 	 * @return
