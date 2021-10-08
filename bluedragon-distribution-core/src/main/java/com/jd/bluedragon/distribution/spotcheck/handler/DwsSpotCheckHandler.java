@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,12 +26,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-                return;
-            }
-        }
         if(!WaybillUtil.isPackageCode(spotCheckContext.getPackageCode())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
             return;

@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -44,12 +43,6 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-                return;
-            }
-        }
         // B网不支持包裹维度抽检
         if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
                 && Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){

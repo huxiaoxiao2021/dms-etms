@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +16,6 @@ import org.springframework.stereotype.Service;
 public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Autowired
-    private SpotCheckDealService spotCheckDealService;
-
-    @Autowired
     private AbstractExcessStandardHandler abstractExcessStandardHandler;
 
     @Override
@@ -29,12 +24,6 @@ public class ClientSpotCheckHandler extends AbstractSpotCheckHandler {
         if(spotCheckContext.getIsMultiPack()){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_ONE_PACK);
             return;
-        }
-        if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-                return;
-            }
         }
         super.spotCheck(spotCheckContext, result);
     }
