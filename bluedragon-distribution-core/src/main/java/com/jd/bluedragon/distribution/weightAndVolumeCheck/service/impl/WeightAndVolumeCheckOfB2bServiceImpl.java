@@ -248,6 +248,9 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
                 log.debug("发送MQ成功topic：{},businessId：{}，msgContent：{}", dmsWeightVolumeExcess.getTopic(), abnormalResultMq.getBillCode(), JsonHelper.toJson(abnormalResultMq));
             }
             dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
+            // 更新已下发字段
+            dto.setIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
+            reportExternalService.insertOrUpdateForWeightVolume(dto);
         }
         return false;
     }

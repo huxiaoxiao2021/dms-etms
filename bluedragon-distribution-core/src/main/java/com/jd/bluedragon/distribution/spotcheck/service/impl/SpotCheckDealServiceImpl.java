@@ -634,6 +634,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             abnormalResultMq.setTo(SpotCheckSystemEnum.JIFEI.getCode().toString());
             dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
         }
+        // 更新已下发字段
+        WeightVolumeCollectDto updateCollect = new WeightVolumeCollectDto();
+        updateCollect.setWaybillCode(weightVolumeCollectDto.getWaybillCode());
+        updateCollect.setPackageCode(weightVolumeCollectDto.getPackageCode());
+        updateCollect.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
+        updateCollect.setIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
+        reportExternalManager.insertOrUpdateForWeightVolume(updateCollect);
     }
 
     private void setIssueWaybillCache(String waybillCode) {
