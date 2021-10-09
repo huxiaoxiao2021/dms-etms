@@ -31,10 +31,7 @@ public class BianMinZiTiFilter implements Filter {
 
         Boolean  isSelfOrderDisToSelfOrderSiteBianMin = Boolean.FALSE;
         if (BusinessUtil.isBianMinZiTi(request.getWaybillCache().getSendPay())) {
-            if (SiteHelper.isPickup(request.getReceiveSite())) {
-                throw new SortingCheckException(SortingResponse.CODE_29118,
-                        HintService.getHintWithFuncModule(HintCodeConstants.BIANMIN_WAYBILL, request.getFuncModule()));
-            }
+
             // 自提柜跨分拣取消提示
             if (!SiteHelper.matchSiteRule(SortingResponse.CODE_SiteType_BIANMINZITI, request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {
                 // 从基础资料的站点-自提柜绑定关系中找出自提柜所属站点
@@ -45,17 +42,9 @@ public class BianMinZiTiFilter implements Filter {
 
                 Integer selfhelpBoxBelongSiteCode = baseService.getSiteSelfDBySiteCode(request.getWaybillSite().getCode());
 
-                if (!SiteHelper.isMatchOfBoxBelongSiteAndReceivedSite(selfhelpBoxBelongSiteCode, request.getsReceiveSiteCode())) {
-                    throw new SortingCheckException(SortingResponse.CODE_39129, HintService.getHintWithFuncModule(HintCodeConstants.HEZUO_ZITIGUI_WAYBILL, request.getFuncModule()));
-                } else {
-                    isSelfOrderDisToSelfOrderSiteBianMin = Boolean.TRUE;
-                }
+
             }
 
-        } else if ( ! BusinessUtil.isBianMinZiTi(request.getWaybillCache().getSendPay())
-                && SiteHelper.matchSiteRule(SortingResponse.CODE_SiteType_BIANMINZITI, request.getsReceiveSiteSubType())) {
-            throw new SortingCheckException(SortingResponse.CODE_29210,
-                    HintService.getHintWithFuncModule(HintCodeConstants.SITE_FOR_HEZUO_ZITIGUI_WAYBILL, request.getFuncModule()));
         }
 
         request.setSelfOrderDisToSelfOrderSiteBianMin(isSelfOrderDisToSelfOrderSiteBianMin);

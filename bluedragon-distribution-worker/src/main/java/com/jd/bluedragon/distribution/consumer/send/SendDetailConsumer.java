@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
@@ -117,7 +118,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Autowired
     @Qualifier("dmsSendRelationService")
-    private DmsSendRelationService dmsSendRelationService;    
+    private DmsSendRelationService dmsSendRelationService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
 
     /**
      * 缓存redis的key
@@ -148,6 +152,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * 分隔符号
      */
     private final static String SEPARATOR = "-";
+
+    @Value("${pack.send.cache.time:30}")
+    private Integer packSendCacheTime;
 
     @Override
     public void consume(Message message) {
@@ -603,6 +610,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * @time 2020-08-26 09:20:00 周三
      */
     private void pushWeightCheckMq(SendDetailMessage sendDetail, Waybill waybill){
+        if(spotCheckDealService.isExecuteNewSpotCheck(sendDetail.getCreateSiteCode())){
+            newSpotCheckSendDeal(sendDetail);
+            return;
+        }
         // 查询是否已有抽检记录，如果有，则发送，无则不发送
         try {
             String checkPackageRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(sendDetail.getPackageBarcode());
@@ -639,6 +650,31 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         } catch (JMQException e) {
             log.warn("pushWeightCheckMq exception: {}", e.getMessage(), e);
         }
+    }
+
+    private void newSpotCheckSendDeal(SendDetailMessage sendDetail) {
+        String packageCode = sendDetail.getPackageBarcode();
+        Integer siteCode = sendDetail.getCreateSiteCode();
+        if(!WaybillUtil.isPackageCode(packageCode)){
+            return;
+        }
+        if(!spotCheckDealService.checkPackHasSpotCheck(packageCode, siteCode)){
+            // 未操作过抽检
+            return;
+        }
+        String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, packageCode);
+        try {
+            redisClientCache.setEx(key, Constants.YN_YES.toString(), packSendCacheTime, TimeUnit.MINUTES);
+        }catch (Exception e){
+            log.error("设置包裹号:{}的发货缓存异常", packageCode);
+        }
+        // 操作过抽检下发mq处理
+        WeightAndVolumeCheckHandleMessage message = new WeightAndVolumeCheckHandleMessage();
+        message.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
+        message.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        message.setPackageCode(packageCode);
+        message.setSiteCode(siteCode);
+        weightAndVolumeCheckHandleProducer.sendOnFailPersistent(packageCode, JsonHelper.toJson(message));
     }
 
 }

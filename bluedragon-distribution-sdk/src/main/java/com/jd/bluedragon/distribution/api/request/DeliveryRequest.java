@@ -38,6 +38,11 @@ public class DeliveryRequest extends JdRequest {
     private String userName;
     private String operateTime;
 
+    /**
+     * 是否取消整个板
+     */
+    private Integer cancelWholeBoard;
+
 
     public Integer getTransporttype() {
 		return transporttype;
@@ -161,4 +166,13 @@ public class DeliveryRequest extends JdRequest {
 	public void setScannedPackageNum(Integer scannedPackageNum) {
 		this.scannedPackageNum = scannedPackageNum;
 	}
+
+    public Integer getCancelWholeBoard() {
+        return cancelWholeBoard;
+    }
+
+    public DeliveryRequest setCancelWholeBoard(Integer cancelWholeBoard) {
+        this.cancelWholeBoard = cancelWholeBoard;
+        return this;
+    }
 }

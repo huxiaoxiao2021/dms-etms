@@ -8,11 +8,14 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.*;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
@@ -67,6 +70,16 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier("dwsSpotCheckProducer")
+    private DefaultJMQProducer dwsSpotCheckProducer;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
+
+    @Autowired
+    private SpotCheckCurrencyService spotCheckCurrencyService;
 
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
@@ -183,7 +196,12 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         if(!FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) || isFirstWeightVolume(entity)){
             return;
         }
-        weightAndVolumeCheckService.dealSportCheck(convertToPackWeightVO(entity), SpotCheckSourceEnum.SPOT_CHECK_DWS);
+        try {
+            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            dwsSpotCheckProducer.send(entity.getBarCode(), JsonHelper.toJson(packWeightVO));
+        }catch (Exception e){
+            logger.error("发送dws抽检MQ异常!", e);
+        }
     }
 
     /**
@@ -198,6 +216,12 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         InvokeResult<Boolean> result = new InvokeResult<>();
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            if(spotCheckDealService.isExecuteNewSpotCheck(entity.getOperateSiteCode())){
+                InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(entity));
+                result.setMessage(checkExcessStatusResult.getMessage());
+                result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
+                return result;
+            }
             PackWeightVO packWeightVO = convertToPackWeightVO(entity);
             return weightAndVolumeCheckService.checkIsExcess(packWeightVO);
         }
@@ -250,5 +274,23 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
         packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
         return packWeightVO;
+    }
+
+    private SpotCheckDto convertToSpotCheckDto(WeightVolumeEntity entity) {
+        SpotCheckDto spotCheckDto = new SpotCheckDto();
+        spotCheckDto.setBarCode(entity.getBarCode());
+        spotCheckDto.setSpotCheckSourceFrom(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName());
+        spotCheckDto.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
+        spotCheckDto.setWeight(entity.getWeight());
+        spotCheckDto.setLength(entity.getLength());
+        spotCheckDto.setWidth(entity.getWidth());
+        spotCheckDto.setHeight(entity.getHeight());
+        spotCheckDto.setVolume(entity.getVolume());
+        spotCheckDto.setSiteCode(entity.getOperateSiteCode());
+        spotCheckDto.setSiteName(entity.getOperateSiteName());
+        spotCheckDto.setOperateUserErp(entity.getOperatorCode());
+        spotCheckDto.setOperateUserName(entity.getOperatorName());
+        spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+        return spotCheckDto;
     }
 }

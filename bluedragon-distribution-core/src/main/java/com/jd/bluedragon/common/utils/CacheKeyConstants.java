@@ -81,10 +81,36 @@ public class CacheKeyConstants {
      * 包裹抽检是否超标的缓存
      */
 	public static final String CACHE_KEY_SPOT_IS_EXCESS_FLAG = "spotCheck.isExcess-%s-%s";
+
+
+    /***************************************** 抽检缓存start *******************************************/
+    /**
+     * 抽检缓存前缀
+     */
+    public static final String CACHE_SPOT_CHECK = "dmsWeb:packageOrWaybillCheckFlag:%S";
+    /**
+     * 包裹抽检记录的缓存
+     */
+    public static final String CACHE_SPOT_CHECK_PACK_LIST = "dmsWeb:waybillSpotCheckList:%S-%S:";
+    /**
+     * 抽检包裹上传图片的缓存
+     */
+    public static final String CACHE_SPOT_CHECK_PICTURE = "spotCheck.pictureUrl-%s-%s";
+    /**
+     * 抽检下发fxm的缓存
+     */
+    public static final String CACHE_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
+
+    /***************************************** 抽检缓存end *******************************************/
+
 	/**
 	 * 包裹发货状态缓存redis的key
 	 */
 	public static final String CACHE_KEY_WAYBILL_SEND_STATUS = "dmsWeb:waybillSendStatus:%s-%s";
+    /**
+     * 运单下已发货包裹发货状态缓存redis的key
+     */
+    public static final String CACHE_KEY_WAYBILL_SEND_PACKS_STATUS = "dmsWeb:waybillSendPacksStatus:%s-%s";
     /**
      * 包裹发货状态缓存redis的key
      */
@@ -173,4 +199,10 @@ public class CacheKeyConstants {
 
     public static final String WAYBILL_SEND_BATCH_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend:%s";
     public static final String WAYBILL_SEND_COUNT_KEY = DMS_CACHE_PREFIX + "delivery.waybillSend.count:%s";
+
+    public static final String VIRTUAL_BOARD_CREATE_DESTINATION = "dmsWeb:virtualBoard:createDestination:%s_%s";
+    public static final int VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT = 60;
+
+    public static final String VIRTUAL_BOARD_BIND = "dmsWeb:virtualBoard:bind:%s_%s";
+    public static final int VIRTUAL_BOARD_BIND_TIMEOUT = 60;
 }

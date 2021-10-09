@@ -111,6 +111,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_BOARD_SEND_CANCEL = 1321;
 
+    /**
+     * 虚拟板号自动关闭任务
+     */
+    public static final Integer TASK_TYPE_VIRTUAL_BOARD_AUTO_CLOSE = 1322;
+
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
 
     public static final Integer TASK_TYPE_SCANNER_FRAME=7779;//龙门架自动发货
@@ -207,6 +212,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 整板发货任务表
      */
     public static final String TABLE_NAME_BOARD_SEND="task_board_send";
+    public static final String TABLE_NAME_VIRTUAL_BOARD_AUTO_CLOSE="task_board_auto_close";
     /**
      * 整板取消发货任务表
      */
@@ -605,6 +611,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_BOARD_SEND;
         }else if(Task.TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
             return Task.TABLE_NAME_BOARD_SEND_CANCEL;
+        }else if (Task.TASK_TYPE_VIRTUAL_BOARD_AUTO_CLOSE.equals(type)){
+            return Task.TABLE_NAME_VIRTUAL_BOARD_AUTO_CLOSE;
         }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return Task.TABLE_NAME_CYCLE_BOX_STATUS;
         }
@@ -940,6 +948,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "PopPrintInspectionTask";
         }else if(TASK_TYPE_BOARD_SEND.equals(type)){
             return "BoardDeliveryTask";
+        }else if(TASK_TYPE_VIRTUAL_BOARD_AUTO_CLOSE.equals(type)){
+            return "VirtualBoardAutoCloseTask";
         }else if(TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
             return "BoardDeliveryCancelTask";
         }else if(TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){

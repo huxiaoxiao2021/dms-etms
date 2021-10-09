@@ -38,6 +38,7 @@
 	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />
 	<import resource="distribution-beans.xml" />
 	<import resource="distribution-core-datasource-waybill.xml" />
+	<import resource="classpath:spring/distribution-core-aces.xml" />
 	<import resource="classpath:spring/distribution-web-sorting-filter.xml" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />

@@ -55,4 +55,11 @@ public interface GroupBoardManager {
      * @return
      */
     Response<List<String>> getBoxesByBoardCode(String boardCode);
+
+    /**
+     * 关闭板
+     * @param boardCode 板号
+     * @return 关闭结果
+     */
+    Response<Boolean> closeBoard(String boardCode);
 }

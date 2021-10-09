@@ -35,12 +35,17 @@ import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+
+import static com.jd.bluedragon.Constants.SEPARATOR_COMMA;
 
 @Service("siteService")
 public class SiteServiceImpl implements SiteService {
@@ -290,8 +295,18 @@ public class SiteServiceImpl implements SiteService {
     @Cache(key = "SiteServiceImpl.getCRouterAllowedList", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     @Override
     public Set<Integer> getCRouterAllowedList() {
+        return getCRouterAllowedListNoCache();
+    }
+
+    /**
+     * 从sysconfig表里查出来开放C网路由校验的分拣中心列表
+     *
+     * @return
+     */
+    @Override
+    public Set<Integer> getCRouterAllowedListNoCache() {
         Set<Integer> CRouterVerifyOpenDms = new TreeSet<Integer>();
-        List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_CROUTER_OPEN_DMS_CODES);
+        List<SysConfig> sysConfigs = sysConfigService.getListByConfigNameNoCache(Constants.SYS_CONFIG_CROUTER_OPEN_DMS_CODES);
         if (sysConfigs != null && !sysConfigs.isEmpty()) {
             String contents = sysConfigs.get(0).getConfigContent();
             Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
@@ -300,6 +315,28 @@ public class SiteServiceImpl implements SiteService {
             }
         }
         return CRouterVerifyOpenDms;
+    }
+
+
+    @Transactional(value = "main_undiv",propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Override
+    public boolean changeRouterConfig(Integer siteCode,boolean openFlag){
+        Set<Integer> routerAllowedList = getCRouterAllowedListNoCache();
+        if(openFlag){
+            //开启
+            routerAllowedList.add(siteCode);
+        }else{
+            //关闭
+            routerAllowedList.remove(siteCode);
+        }
+        //保存配置
+        SysConfig sysConfig = new SysConfig();
+        sysConfig.setConfigName(Constants.SYS_CONFIG_CROUTER_OPEN_DMS_CODES);
+        sysConfig.setConfigContent(StringUtils.join(routerAllowedList,SEPARATOR_COMMA));
+        if(!sysConfigService.updateContent(sysConfig)){
+            throw new RuntimeException("更新路由校验配置失败");
+        }
+        return true;
     }
     /**
      * 从sysconfig表里查出来箱号需要由中台生产的分拣中心列表

@@ -72,4 +72,8 @@ public interface SortingCheckService {
      * @return 校验结果
      */
     SortingJsfResponse coldChainSendCheck(DeliveryRequest request, boolean reportIntercept);
+
+    BoardCombinationJsfResponse virtualBoardCombinationCheck(PdaOperateRequest pdaOperateRequest);
+
+    BoardCombinationJsfResponse virtualBoardCombinationCheckAndReportIntercept(PdaOperateRequest pdaOperateRequest);
 }

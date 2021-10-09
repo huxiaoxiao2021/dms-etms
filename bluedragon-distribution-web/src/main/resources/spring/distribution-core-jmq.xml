@@ -513,4 +513,8 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!-- dws抽检 -->
+    <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
+    </bean>
 </beans>

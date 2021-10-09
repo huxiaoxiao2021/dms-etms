@@ -425,6 +425,26 @@ public class UccPropertyConfiguration {
      */
     private boolean paralleGetPackageSwitch;
 
+    /**
+     * 虚拟组板最多流向个数
+     */
+    private int virtualBoardMaxDestinationCount;
+
+    /**
+     * 虚拟组板最多放置包裹个数
+     */
+    private int virtualBoardMaxItemCount;
+
+    /**
+     * 虚拟组板自动关闭天数
+     */
+    private Integer virtualBoardAutoCloseDays;
+
+    /**
+     * 虚拟组板可使用场地
+     */
+    private String virtualBoardCanUseSite;
+
     public boolean getCheckSignAndReturn() {
         return checkSignAndReturn;
     }
@@ -454,6 +474,24 @@ public class UccPropertyConfiguration {
      * 抽检不超标限制
      */
     private double spotCheckNoExcessLimit;
+
+    /**
+     * 开启新抽检场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String newSpotCheckSiteCodes;
+
+    /**
+     * 是否执行BC融合
+     */
+    private boolean executeBCFuse;
+
+    /**
+     * 抽检数据是否下发给计费
+     */
+    private boolean isIssueToFinance;
 
     /**
      * 老发货异步任务开关
@@ -495,6 +533,21 @@ public class UccPropertyConfiguration {
      * 一单多件抽检场地配置，配置ALL表示全部开启
      */
     private String multiplePackageSpotCheckSites;
+
+    /**
+     * 读转运卸车表开关
+     */
+    private boolean readUnloadFromTys;
+
+    /**
+     * 停止写分拣卸车表开关
+     */
+    private boolean stopWriteUnloadFromDms;
+
+    /**
+     * 写转运卸车表开关
+     */
+    private boolean writeUnloadFromTys;
 
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
@@ -1269,6 +1322,30 @@ public class UccPropertyConfiguration {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 
+    public String getNewSpotCheckSiteCodes() {
+        return newSpotCheckSiteCodes;
+    }
+
+    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
+        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
+    }
+
+    public boolean getExecuteBCFuse() {
+        return executeBCFuse;
+    }
+
+    public void setExecuteBCFuse(boolean executeBCFuse) {
+        this.executeBCFuse = executeBCFuse;
+    }
+
+    public boolean getIsIssueToFinance() {
+        return isIssueToFinance;
+    }
+
+    public void setIsIssueToFinance(boolean issueToFinance) {
+        isIssueToFinance = issueToFinance;
+    }
+
     /**
      * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
      */
@@ -1338,4 +1415,88 @@ public class UccPropertyConfiguration {
         return false;
     }
 
+    public boolean isReadUnloadFromTys() {
+        return readUnloadFromTys;
+    }
+
+    public void setReadUnloadFromTys(boolean readUnloadFromTys) {
+        this.readUnloadFromTys = readUnloadFromTys;
+    }
+
+    public boolean isStopWriteUnloadFromDms() {
+        return stopWriteUnloadFromDms;
+    }
+
+    public void setStopWriteUnloadFromDms(boolean stopWriteUnloadFromDms) {
+        this.stopWriteUnloadFromDms = stopWriteUnloadFromDms;
+    }
+
+    public boolean isWriteUnloadFromTys() {
+        return writeUnloadFromTys;
+    }
+
+    public void setWriteUnloadFromTys(boolean writeUnloadFromTys) {
+        this.writeUnloadFromTys = writeUnloadFromTys;
+    }
+
+
+    public int getVirtualBoardMaxDestinationCount() {
+        return virtualBoardMaxDestinationCount;
+    }
+
+    public void setVirtualBoardMaxDestinationCount(int virtualBoardMaxDestinationCount) {
+        this.virtualBoardMaxDestinationCount = virtualBoardMaxDestinationCount;
+    }
+
+    public int getVirtualBoardMaxItemCount() {
+        return virtualBoardMaxItemCount;
+    }
+
+    public void setVirtualBoardMaxItemCount(int virtualBoardMaxItemCount) {
+        this.virtualBoardMaxItemCount = virtualBoardMaxItemCount;
+    }
+
+    public Integer getVirtualBoardAutoCloseDays() {
+        return virtualBoardAutoCloseDays;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardAutoCloseDays(Integer virtualBoardAutoCloseDays) {
+        this.virtualBoardAutoCloseDays = virtualBoardAutoCloseDays;
+        return this;
+    }
+
+    public String getVirtualBoardCanUseSite() {
+        return virtualBoardCanUseSite;
+    }
+
+    public UccPropertyConfiguration setVirtualBoardCanUseSite(String virtualBoardCanUseSite) {
+        this.virtualBoardCanUseSite = virtualBoardCanUseSite;
+        this.virtualBoardCanUseSiteList = this.getVirtualBoardCanUseSiteList();
+        return this;
+    }
+
+    /**
+     * 请勿配置此变量为ucc配置
+     */
+    private List<String> virtualBoardCanUseSiteList = new ArrayList<>();
+
+    public List<String> getVirtualBoardCanUseSiteList() {
+        if(virtualBoardCanUseSiteList == null){
+            return new ArrayList<>();
+        }
+        return Arrays.asList(virtualBoardCanUseSite.split(Constants.SEPARATOR_COMMA));
+    }
+
+    public boolean matchVirtualSiteCanUseSite(int siteId) {
+        if(StringUtils.isBlank(virtualBoardCanUseSite)){
+            return false;
+        }
+        if(Objects.equals(Constants.STR_ALL, virtualBoardCanUseSite)){
+            return true;
+        }
+        if(virtualBoardCanUseSiteList.contains(String.valueOf(siteId))){
+            return true;
+        }
+        return false;
+    }
 }

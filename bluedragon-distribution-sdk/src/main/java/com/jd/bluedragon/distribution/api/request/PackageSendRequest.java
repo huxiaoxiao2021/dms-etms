@@ -20,6 +20,11 @@ public class PackageSendRequest extends DeliveryRequest {
     private Boolean isCancelLastSend;
 
     /**
+     * 是否发送整板
+     */
+    private Integer sendForWholeBoard;
+
+    /**
      * 业务来源
      */
     private Integer bizSource;
@@ -46,5 +51,14 @@ public class PackageSendRequest extends DeliveryRequest {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getSendForWholeBoard() {
+        return sendForWholeBoard;
+    }
+
+    public PackageSendRequest setSendForWholeBoard(Integer sendForWholeBoard) {
+        this.sendForWholeBoard = sendForWholeBoard;
+        return this;
     }
 }

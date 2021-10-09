@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>一单多件抽检图片</title>
+    <title>抽检图片查看</title>
     <meta http-equiv="pragma" content="no-cache"/>
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -12,6 +12,7 @@
 <body class="container-fluid" >
 <input style="display: none" id="waybillCode" value="${waybillCode}" />
 <input style="display: none" id="siteCode" value="${siteCode}" />
+<input style="display: none" id="fromSource" value="${fromSource}" />
 <input style="display: none" id="pageNo" value="${pageNo}" />
 <input style="display: none" id="pageSize" value="${pageSize}" />
 <div id="query-condition">

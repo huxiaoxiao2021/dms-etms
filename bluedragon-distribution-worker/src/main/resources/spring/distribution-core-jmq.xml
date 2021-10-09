@@ -527,4 +527,8 @@
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
     </bean>
 
+    <!-- dws抽检 -->
+    <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
+    </bean>
 </beans>

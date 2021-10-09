@@ -122,7 +122,7 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
                     waybill.setStatusCode(SortingResponse.CODE_293000);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_293000);
                 }
-            } else if (SortingResponse.CODE_29302.equals(cancelWaybill.getCode())) {
+            } else if (SortingResponse.CODE_29302.equals(cancelWaybill.getCode()) || SortingResponse.CODE_39006.equals(cancelWaybill.getCode()) || SortingResponse.CODE_29311.equals(cancelWaybill.getCode())) {
                 if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
                     waybill.setStatusCode(SortingResponse.CODE_29302);
                     waybill.setStatusMessage(SortingResponse.MESSAGE_29302);
@@ -141,6 +141,15 @@ public class InterceptWaybillHandler implements Handler<WaybillPrintContext,JdRe
             } else if (SortingResponse.CODE_29303.equals(cancelWaybill.getCode())) {
                 waybill.setStatusCode(SortingResponse.CODE_29303);
                 waybill.setStatusMessage(SortingResponse.MESSAGE_29303);
+            } else {
+                if(!SortingResponse.CODE_OK.equals(cancelWaybill.getCode())){
+                    if (SortingResponse.CODE_293040.equals(waybill.getStatusCode())) {
+                        waybill.setStatusCode(SortingResponse.CODE_29300);
+                    } else {
+                        waybill.setStatusCode(SortingResponse.CODE_293000);
+                    }
+                    waybill.setStatusMessage(cancelWaybill.getMessage());
+                }
             }
         }
     }

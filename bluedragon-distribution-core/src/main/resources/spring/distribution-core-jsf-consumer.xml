@@ -280,10 +280,14 @@
 
     <!-- TC jsf 接口-->
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
-                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+                  protocol="jsf" alias="${jsf.TC.alias}" serialization="hessian" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
     <jsf:consumer id="boardMeasureService" interface="com.jd.transboard.api.service.BoardMeasureService"
-                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+                  protocol="jsf" alias="${jsf.TC.alias}" serialization="hessian" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!-- 分拣虚拟组板服务 -->
+    <jsf:consumer id="virtualBoardJsfService" interface="com.jd.transboard.api.service.IVirtualBoardService"
+                  protocol="jsf" alias="${jsf.TC.alias}" serialization="hessian" timeout="${jsf.TC.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
     <!-- 路由 谭杨-->
     <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
@@ -631,7 +635,7 @@
     </jsf:consumer>
 
     <!-- 运输 - 循环集包袋 -->
-    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.ql.asset.api.AssetApplyQueryApi" protocol="jsf"
+    <jsf:consumer id="assetApplyQueryApi" interface="com.jd.etms.asset.material.api.AssetApplyQueryApi" protocol="jsf"
                   alias="${assetApply.jsf.alias}" timeout="${assetApply.jsf.timeout}"
                   retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>

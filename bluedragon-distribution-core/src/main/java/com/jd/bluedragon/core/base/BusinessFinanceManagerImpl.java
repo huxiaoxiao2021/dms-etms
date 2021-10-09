@@ -1,13 +1,14 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service("businessFinanceManager")
 public class BusinessFinanceManagerImpl implements BusinessFinanceManager {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private static Logger logger = LoggerFactory.getLogger(BusinessFinanceManagerImpl.class);
 
     @Autowired
     private BusinessDetailQueryJsf businessDetailQueryJsf;
@@ -30,10 +31,20 @@ public class BusinessFinanceManagerImpl implements BusinessFinanceManager {
      * @param waybillCode
      * @return
      */
-    @JProfiler(jKey = "DMS.BASE.businessDetailQueryJsf.queryDutyInfo", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public ResponseDTO<BizDutyDTO> queryDutyInfo(String waybillCode){
-
-        return businessDetailQueryJsf.queryDutyInfo(waybillCode);
+        ResponseDTO<BizDutyDTO> responseDTO = null;
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.BusinessFinanceManagerImpl.queryDutyInfo",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            responseDTO = businessDetailQueryJsf.queryDutyInfo(waybillCode);
+        }catch (Exception e){
+            logger.error("运单号:{}查询计费称重量方数据异常!", waybillCode, e);
+            Profiler.functionError(callerInfo);
+            throw new SpotCheckSysException(e.getMessage());
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return responseDTO;
     }
 }

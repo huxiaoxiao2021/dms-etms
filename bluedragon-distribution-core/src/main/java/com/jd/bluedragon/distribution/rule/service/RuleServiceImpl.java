@@ -22,14 +22,14 @@ public class RuleServiceImpl implements RuleService {
         return this.ruleDao.queryById(id);
     }
 
-    public void add(Rule rule) {
+    public boolean add(Rule rule) {
         rule.setTs(System.currentTimeMillis());
-        ruleDao.add(rule);
+        return ruleDao.add(rule) > 0;
     }
 
-    public void update(Rule rule) {
+    public boolean update(Rule rule) {
         rule.setTs(System.currentTimeMillis());
-        ruleDao.update(rule);
+        return ruleDao.update(rule) > 0;
     }
 
     public void del(long id) {
@@ -71,5 +71,13 @@ public class RuleServiceImpl implements RuleService {
         param.put("siteCode", siteCode);
         param.put("type", type);
         return ruleDao.get(param);
+    }
+
+    @Override
+    public List<Rule> getByTypes(Integer siteCode, List<String> types) {
+        Map<String, Object> param = new HashMap<String, Object>();
+        param.put("siteCode", siteCode);
+        param.put("types", types);
+        return ruleDao.getByTypes(param);
     }
 }

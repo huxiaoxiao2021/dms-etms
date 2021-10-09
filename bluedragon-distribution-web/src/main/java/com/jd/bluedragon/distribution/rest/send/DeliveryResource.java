@@ -11,10 +11,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
-import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
-import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -53,6 +50,10 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.ResponseEnum;
+import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -212,10 +213,15 @@ public class DeliveryResource {
                 SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
                 // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                if (request.getIsCancelLastSend() == null) {
-                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
+                // 如果是按包裹或者箱号找到整板进行发货
+                if((BusinessUtil.isBoxcode(request.getBoxCode()) || WaybillUtil.isPackageCode(request.getBoxCode())) && Objects.equals(Constants.YN_YES, request.getSendForWholeBoard())){
+                    return this.handleSendByPackageOrBoxCodeForWholeBoard(request, domain);
                 } else {
-                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                    if (request.getIsCancelLastSend() == null) {
+                        result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
+                    } else {
+                        result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -228,6 +234,35 @@ public class DeliveryResource {
         if (log.isInfoEnabled()) {
             log.info(JsonHelper.toJson(result));
         }
+        return result;
+    }
+
+    @Autowired
+    private IVirtualBoardService virtualBoardService;
+
+    /**
+     * 按包裹号、箱号找到整板进行整板发货
+     * @author fanggang7
+     * @time 2021-08-24 18:31:56 周二
+     */
+    private InvokeResult<SendResult> handleSendByPackageOrBoxCodeForWholeBoard(PackageSendRequest request, SendM domain) {
+        InvokeResult<SendResult> result = new InvokeResult<>();
+        // 根据箱号找到板号
+        final Response<Board> boardResult = virtualBoardService.getBoardByBarCode(request.getBoxCode(), request.getSiteCode());
+        if(!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", JsonHelper.toJson(boardResult));
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, "根据包裹或箱号查找板号数据异常");
+            return result;
+        }
+        final Board board = boardResult.getData();
+        if(board == null){
+            SendResult sendResult = new SendResult(SendResult.CODE_SENDED, "根据包裹或箱号未找到对应板数据");
+            result.setData(sendResult);
+            return result;
+        }
+        domain.setBoardCode(board.getCode());
+        final SendResult sendResult = deliveryService.boardSend(domain, request.getIsForceSend());
+        result.setData(sendResult);
         return result;
     }
 
@@ -376,6 +411,12 @@ public class DeliveryResource {
         }
         /*****/
 
+        // 如果是按包裹找整板进行发货
+        final InvokeResult<Void> handleCancelSendByPackageOrBoxCodeForWholeBoardResult = this.handleCancelSendByPackageOrBoxCodeForWholeBoard(request);
+        if(!Objects.equals(handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getCode(), InvokeResult.RESULT_SUCCESS_CODE)){
+            return new ThreeDeliveryResponse(handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getCode(), handleCancelSendByPackageOrBoxCodeForWholeBoardResult.getMessage(), null);
+        }
+
         /**
          * 取消发货校验封车业务
          */
@@ -409,6 +450,35 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    /**
+     * 按包裹号、箱号找到整板进行整板发货
+     * @author fanggang7
+     * @time 2021-08-24 18:31:56 周二
+     */
+    private InvokeResult<Void> handleCancelSendByPackageOrBoxCodeForWholeBoard(DeliveryRequest request) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        final boolean isCancelPackageForWholeBoard = (WaybillUtil.isPackageCode(request.getBoxCode()) || BusinessUtil.isBoxcode(request.getBoxCode())) && Objects.equals(request.getCancelWholeBoard(), Constants.YN_YES);
+        if(!isCancelPackageForWholeBoard){
+            return result;
+        }
+        // 根据箱号找到板号
+        final Response<Board> boardResult = virtualBoardService.getBoardByBarCode(request.getBoxCode(), request.getSiteCode());
+        if(!Objects.equals(boardResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("handleSendByPackageOrBoxCodeForWholeBoard fail {}", JsonHelper.toJson(boardResult));
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage("根据包裹或箱号查找板号数据异常");
+            return result;
+        }
+        final Board board = boardResult.getData();
+        if(board == null){
+            result.setCode(InvokeResult.RESULT_NULL_CODE);
+            result.setMessage("根据包裹或箱号未找到对应板数据");
+            return result;
+        }
+        request.setBoxCode(board.getCode());
+        return result;
     }
 
     /**

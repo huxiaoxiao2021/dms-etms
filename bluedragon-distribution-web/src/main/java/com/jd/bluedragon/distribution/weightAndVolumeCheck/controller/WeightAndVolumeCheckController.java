@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckRecordTypeEnum;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
@@ -16,7 +17,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jss.util.ValidateValue;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.ql.dms.report.domain.Enum.SpotCheckRecordTypeEnum;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
@@ -178,10 +177,10 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             if(baseDto != null){
                 siteCode = baseDto.getSiteCode();
             }
-            if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
+            /*if(reviewSiteCode != null && !Objects.equals(siteCode + "", reviewSiteCode)){
                 result.parameterError("当前用户所属场地与该抽检记录操作场地不一致，不能上传图片");
                 return result;
-            }
+            }*/
         }catch (Exception e){
             log.error("通过登陆人erp获取所属分拣中心异常：{}",importErpCode,e);
         }
@@ -246,7 +245,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     }
 
     /**
-     * 跳转到B网超标图片页面
+     * 跳转图片查询页面
+     *
      * @param waybillCode
      * @return
      */
@@ -254,10 +254,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toSearchPicture4MultiplePackage")
     public String toSearchPicture4MultiplePackage(@QueryParam("waybillCode")String waybillCode,
                                            @QueryParam("siteCode")Integer siteCode,
+                                           @QueryParam("fromSource")String fromSource,
                                            @QueryParam("pageNo") Integer pageNo,
                                            @QueryParam("pageSize") Integer pageSize, Model model){
         model.addAttribute("siteCode",siteCode);
         model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("fromSource",fromSource);
         model.addAttribute("pageNo",pageNo);
         model.addAttribute("pageSize",pageSize);
         return "/weightAndVolumeCheck/multiplePackageExcessPicture";
@@ -276,6 +278,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         weightVolumeQueryCondition.setWaybillCode(condition.getWaybillCode());
         weightVolumeQueryCondition.setReviewSiteCode(condition.getCreateSiteCode().intValue());
         weightVolumeQueryCondition.setPackageCode(condition.getWaybillOrPackCode());
+        weightVolumeQueryCondition.setFromSource(condition.getFromSource());
         weightVolumeQueryConditionPager.setSearchVo(weightVolumeQueryCondition);
         weightVolumeQueryConditionPager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
         weightVolumeQueryConditionPager.setPageSize(condition.getLimit());

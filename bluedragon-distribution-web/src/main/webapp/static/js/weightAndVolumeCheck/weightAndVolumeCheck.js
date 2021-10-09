@@ -136,7 +136,7 @@ $(function () {
             title: '机构类型',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
+                return value == null ? "" : ((value == 1) ? "分拣中心" : "转运中心");
             }
         },{
             field: 'reviewErp',
@@ -209,7 +209,7 @@ $(function () {
             title: '核对来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "运单" : "计费";
+                return value === null ? null : value === 1 ? "运单" : "计费";
             }
         },{
             field: 'largeDiff',
@@ -224,7 +224,7 @@ $(function () {
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : value == "2" ? "集齐待计算" : "未知";
             }
         },{
             field: 'excessReason',
@@ -236,25 +236,50 @@ $(function () {
             title: '数据来源',
             align: 'center',
             formatter: function (value, row, index) {
-                // 为了兼容之前定义的枚举。。。。
-                if(value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" || value == "SPOT_CHECK_CLIENT_PLATE"){
+                if(value === "SPOT_CHECK_CLIENT_PLATE"){
                     return "平台打印抽检";
                 }
-                if(value == "DMS_AUTOMATIC_MEASURE" || value == "SPOT_CHECK_DWS"){
+                if(value === "SPOT_CHECK_DWS"){
                     return "DWS抽检";
                 }
-                return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
+                if(value === "SPOT_CHECK_DMS_WEB"){
+                    return "网页抽检";
+                }
+                if(value === "SPOT_CHECK_ANDROID"){
+                    return "安卓抽检";
+                }
+                if(value === "SPOT_CHECK_ARTIFICIAL"){
+                    return "人工抽检";
+                }
+                return "未知来源";
+            }
+        },{
+            field: 'isWaybillSpotCheck',
+            title: '抽检维度',
+            align: 'center',
+            visible: false,
+            formatter: function (value, row, index) {
+                if(value === 1){
+                    return "运单抽检";
+                }
+                if(value == null || value === 0){
+                    return "包裹抽检";
+                }
+                return null;
             }
         },{
             field: 'fullCollect',
             title: '是否集齐',
             align: 'center',
             formatter: function (value, row, index) {
-                if(row.multiplePackage != null && row.multiplePackage == 1){
-                    const fullCollectResult = value == 1 ? "是" : "否";
-                    return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
+                if(row.multiplePackage == null || row.multiplePackage === 0){
+                    return '是';
                 }
-                return ''
+                if(row.isWaybillSpotCheck === 1){
+                    return "是";
+                }
+                const fullCollectResult = value === 1 ? "是" : "否";
+                return '<a class="full-collect-detail-btn" href="javascript:void(0)">' + fullCollectResult + '</a>'
             },
             events: {
                 // 一单多件包裹抽检明细查看
@@ -265,7 +290,7 @@ $(function () {
                     detailTable.queryParams.waybillCode = row.waybillCode
                     detailTable.queryParams.createSiteCode = row.reviewSiteCode
                     if($packageCodeInput.val() !== ''){
-                        detailTable.queryParams.waybillOrPackCode = $packageCodeInput.val() !== ''
+                        detailTable.queryParams.waybillOrPackCode = $packageCodeInput.val()
                     }
                     $packageDetailBsTable.bootstrapTable('refreshOptions', {url: packageDetailQueryUrl})
                     layer.open({
@@ -290,36 +315,49 @@ $(function () {
                     });
                 },
             }
-        },{
+        }, {
             field: 'isHasPicture',
             title: '有无图片',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == 1 ? "有" : "无";
+                return value === 1 ? '有' : '无';
             }
-        },{
+        }, {
             field: 'upPicture',
             title: '照片上传',
             align: 'center',
             formatter : function (value, row, index) {
-                var flage;
-                if(row.isExcess == 0){
-                    flage = null;
-                }else{
-                    /*if(row.spotCheckType == 3 && row.recordType == 2){
-                        return ''
-                    }*/
-                    if(row.isHasPicture == null || row.isHasPicture == 0){
-                        if(row.multiplePackage == 1 && row.recordType == 2){
-                            return ''
-                        }
-                        flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
-                            '<br/>'
-                    }else{
-                        flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
+                const sourceFrom = row.fromSource;
+                if(sourceFrom === "SPOT_CHECK_CLIENT_PLATE"){
+                    if(row.isExcess === 0){
+                        return null;
                     }
+                    if(row.pictureAddress != null && row.pictureAddress !== ''){
+                        return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                    }
+                    return  '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>';
                 }
-                return flage;
+                if(sourceFrom === "SPOT_CHECK_DWS"){
+                    // 一单一件
+                    if(row.multiplePackage == null || row.multiplePackage === 0){
+                        if(row.isExcess === 0){
+                            return null;
+                        }
+                        if(row.pictureAddress != null && row.pictureAddress !== ''){
+                            return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                        }
+                        return  '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>';
+                    }
+                    // 一单多件
+                    return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                }
+                if(sourceFrom === "SPOT_CHECK_ARTIFICIAL"){
+                    return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                }
+                if(sourceFrom === "SPOT_CHECK_DMS_WEB" || sourceFrom === "SPOT_CHECK_ANDROID"){
+                    return '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                }
+                return null;
             },
             events: {
                 'click .upLoad': function(e, value, row, index) {
@@ -331,49 +369,14 @@ $(function () {
                         shade: 0.7,
                         maxmin: true,
                         area: ['1000px', '500px'],
-                        content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewDate=" + row.reviewDate,
+                        content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewSiteCode=" + row.reviewSiteCode + "&reviewDate=" + row.reviewDate,
                         success: function(layero, index){
                         }
                     });
                 },
                 'click .search': function(e, value, row, index) {
-                    var spotCheckType = row.spotCheckType==null?0:row.spotCheckType;
-                    var fromSource = row.fromSource;
-                    var isWaybillSpotCheck = row.isWaybillSpotCheck==null?-1:row.isWaybillSpotCheck;
-                    if(spotCheckType == 1 && (fromSource == "SPOT_CHECK_DMS_WEB" || fromSource == "SPOT_CHECK_ANDROID")){
-                        //B网
-                        window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode="+row.packageCode
-                            +"&siteCode="+row.reviewSiteCode +"&isWaybillSpotCheck="+isWaybillSpotCheck+"&fromSource="+row.fromSource);
-                    } else if(row.multiplePackage == 1 && row.recordType == 2) {
-                        // 一单多件
-                        window.open("/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode="+row.waybillCode
-                            +"&siteCode="+row.reviewSiteCode +"&pageNo=1&pageSize=20");
-                    } else {
-                        //C网
-                        $.ajax({
-                            type : "get",
-                            url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
-                            data : {},
-                            async : false,
-                            success : function (data) {
-                                if(data && data.code == 200){
-                                    layer.open({
-                                        type: 2,
-                                        title: "",
-                                        shadeClose: true,
-                                        shade: 0.5,
-                                        area: ['500px','400px'],
-                                        content: data.data,
-                                        success: function(layero, index) {
-                                            layer.iframeAuto(index);
-                                        }
-                                    });
-                                }else{
-                                    Jd.alert(data.message);
-                                }
-                            }
-                        });
-                    }
+                    window.open("/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode="+row.waybillCode
+                        +"&siteCode="+row.reviewSiteCode + "&fromSource="+row.fromSource +"&pageNo=1&pageSize=20");
                 }
             }
         }];
@@ -561,7 +564,7 @@ $(function () {
                 title: '机构类型',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return (value == null || value == -1) ? "" : ((value == 1) ? "分拣中心" : "转运中心");
+                    return value == null ? "" : ((value == 1) ? "分拣中心" : "转运中心");
                 }
             }, {
                 field: 'reviewErp',
@@ -588,101 +591,40 @@ $(function () {
                 title: '计泡系数',
                 align: 'center'
             }, {
-                field: 'excessReason',
-                title: '超标原因',
-                align: 'center',
-                visible: false
-            }, {
                 field: 'fromSource',
                 title: '数据来源',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    // 为了兼容之前定义的枚举。。。。
-                    if (value == "DMS_CLIENT_PACKAGE_WEIGH_PRINT" || value == "SPOT_CHECK_CLIENT_PLATE") {
+                    if(value === "SPOT_CHECK_CLIENT_PLATE"){
                         return "平台打印抽检";
                     }
-                    if (value == "DMS_AUTOMATIC_MEASURE" || value == "SPOT_CHECK_DWS") {
+                    if(value === "SPOT_CHECK_DWS"){
                         return "DWS抽检";
                     }
-                    return value == "SPOT_CHECK_DMS_WEB" ? "B网网页抽检" : value == "SPOT_CHECK_ANDROID" ? "B网安卓抽检" : "其它";
+                    if(value === "SPOT_CHECK_DMS_WEB"){
+                        return "网页抽检";
+                    }
+                    if(value === "SPOT_CHECK_ANDROID"){
+                        return "安卓抽检";
+                    }
+                    if(value === "SPOT_CHECK_ARTIFICIAL"){
+                        return "人工抽检";
+                    }
+                    return "未知来源";
                 }
             }, {
                 field: 'waybillStatus',
                 title: '是否发货',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value == 2 ? "是" : "否";
+                    return value === 2 ? "是" : "否";
                 }
             }, {
                 field: 'isHasPicture',
                 title: '有无图片',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value == 1 ? "有" : "无";
-                }
-            }, {
-                field: 'upPicture',
-                title: '照片',
-                align: 'center',
-                formatter: function (value, row, index) {
-                    let flage = '';
-                    if (row.isHasPicture == 1) {
-                        flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
-                    } else {
-                        //flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>'
-                    }
-                    return flage;
-                },
-                events: {
-                    'click .upLoad': function(e, value, row, index) {
-                        layer.open({
-                            id:'upExcessPicture',
-                            type: 2,
-                            title:'超标图片上传',
-                            shade: 0.7,
-                            maxmin: true,
-                            shadeClose: false,
-                            area: ['1000px', '500px'],
-                            content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewSiteCode=" + row.reviewSiteCode + "&reviewDate=" + row.reviewDate,
-                            success: function(layero, index){
-                            }
-                        });
-                    },
-                    'click .search': function (e, value, row, index) {
-                        var spotCheckType = row.spotCheckType == null ? 0 : row.spotCheckType;
-                        var fromSource = row.fromSource;
-                        var isWaybillSpotCheck = row.isWaybillSpotCheck == null ? -1 : row.isWaybillSpotCheck;
-                        if (spotCheckType == 1 && (fromSource == "SPOT_CHECK_DMS_WEB" || fromSource == "SPOT_CHECK_ANDROID")) {
-                            //B网
-                            window.open("/weightAndVolumeCheck/toSearchB2bExcessPicture/?waybillCode=" + row.packageCode
-                                + "&siteCode=" + row.reviewSiteCode + "&isWaybillSpotCheck=" + isWaybillSpotCheck + "&fromSource=" + row.fromSource);
-                        } else {
-                            //C网
-                            $.ajax({
-                                type: "get",
-                                url: searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" + row.reviewSiteCode,
-                                data: {},
-                                async: false,
-                                success: function (data) {
-                                    if (data && data.code == 200) {
-                                        layer.open({
-                                            type: 2,
-                                            title: "",
-                                            shadeClose: true,
-                                            shade: 0.5,
-                                            area: ['500px', '400px'],
-                                            content: data.data,
-                                            success: function (layero, index) {
-                                                layer.iframeAuto(index);
-                                            }
-                                        });
-                                    } else {
-                                        Jd.alert(data.message);
-                                    }
-                                }
-                            });
-                        }
-                    }
+                    return value === 1 ? '有' : '无';
                 }
             }],
         refresh: function () {
