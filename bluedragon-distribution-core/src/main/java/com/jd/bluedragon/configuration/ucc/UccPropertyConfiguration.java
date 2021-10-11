@@ -549,6 +549,21 @@ public class UccPropertyConfiguration {
      */
     private boolean writeUnloadFromTys;
 
+    /**
+     * 打印客户端无权限菜单配置
+     */
+    private String noAuthMenuConfig;
+
+    /**
+     * 打印客户端菜单功能配置
+     */
+    private String menuCodeFuncConfig;
+
+    /**
+     * 站点平台打印是否校验功能
+     */
+    private boolean sitePlateIsCheckFunc;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1498,5 +1513,29 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public String getNoAuthMenuConfig() {
+        return noAuthMenuConfig;
+    }
+
+    public void setNoAuthMenuConfig(String noAuthMenuConfig) {
+        this.noAuthMenuConfig = noAuthMenuConfig;
+    }
+
+    public String getMenuCodeFuncConfig() {
+        return menuCodeFuncConfig;
+    }
+
+    public void setMenuCodeFuncConfig(String menuCodeFuncConfig) {
+        this.menuCodeFuncConfig = menuCodeFuncConfig;
+    }
+
+    public boolean getSitePlateIsCheckFunc() {
+        return sitePlateIsCheckFunc;
+    }
+
+    public void setSitePlateIsCheckFunc(boolean sitePlateIsCheckFunc) {
+        this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
     }
 }
