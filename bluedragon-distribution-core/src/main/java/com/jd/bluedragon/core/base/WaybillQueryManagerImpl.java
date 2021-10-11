@@ -338,6 +338,39 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return true;
     }
 
+    /**
+     * 根据运单号查询产品能力信息
+     * https://cf.jd.com/pages/viewpage.action?pageId=506496819
+     *
+     * @param waybillCode 运单号
+     * @return
+     */
+    @Override
+    public BaseEntity<List<WaybillProductDto>> getProductAbilityInfoByWaybillCode(String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getProductAbilityInfoByWaybillCode", false, true);
+
+        BaseEntity<List<WaybillProductDto>>  baseEntity = null;
+        try{
+            baseEntity = waybillQueryApi.getProductAbilityInfoByWaybillCode(waybillCode);
+            if (baseEntity != null) {
+                if (baseEntity.getResultCode() != 1) {
+                    log.warn("getProductAbilityInfoByWaybillCode fail waybill{} result{}",waybillCode,JsonHelper.toJson(baseEntity));
+                }else{
+                    return baseEntity;
+                }
+            }else{
+                log.warn("getProductAbilityInfoByWaybillCode fail  waybill{} result is null",waybillCode);
+            }
+        }catch (Exception e){
+            Profiler.functionError(info);
+            log.error("getProductAbilityInfoByWaybillCode errpr waybill{} result{}",waybillCode);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+        return null;
+    }
+
     @Override
     public Integer checkReDispatch(String waybillCode) {
         Integer result = REDISPATCH_NO;
