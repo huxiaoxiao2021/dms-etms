@@ -1,7 +1,7 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.ql.asset.dto.MatterPackageRelationDto;
-import com.jd.ql.asset.dto.ResultData;
+import com.jd.etms.asset.material.base.ResultData;
+import com.jd.etms.asset.material.dto.MatterPackageRelationDto;
 
 import java.util.List;
 

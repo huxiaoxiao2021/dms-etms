@@ -71,6 +71,8 @@ public class DmsAbnormalReasonDto implements Serializable {
      * 下一级别异常原因集合
      * */
     private List<DmsAbnormalReasonDto> childReasonList;
+    
+    private List<SpecialScene> specialScenes;
 
     public Integer getReasonId() {
         return reasonId;
@@ -176,4 +178,12 @@ public class DmsAbnormalReasonDto implements Serializable {
     public void setParentCode(Long parentCode) {
         this.parentCode = parentCode;
     }
+
+	public List<SpecialScene> getSpecialScenes() {
+		return specialScenes;
+	}
+
+	public void setSpecialScenes(List<SpecialScene> specialScenes) {
+		this.specialScenes = specialScenes;
+	}
 }

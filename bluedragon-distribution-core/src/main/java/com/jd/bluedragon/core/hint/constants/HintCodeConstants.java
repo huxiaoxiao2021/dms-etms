@@ -186,21 +186,25 @@ public class HintCodeConstants {
 
     /**
      * 该订单没有重量或体积信息,不能装箱。请到【青龙分拣中心系统】称重量方
+     * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_OR_VOLUME = "20024";
 
     /**
      * 此包裹无重量体积，请到转运工作台按包裹录入重量体积
+     * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
      */
     public static String ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME = "20025";
 
     /**
      * 此单无称重重量,请称重后再操作
+     * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT = "20026";
 
     /**
      * 该订单没有重量或体积信息，确定装箱？
+     * changeTo: 您操作的订单无重量，烦请称重量方抽检，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_WHEN_BOXING = "20027";
 
@@ -466,9 +470,11 @@ public class HintCodeConstants {
      */
     public static String BATCH_DEST_AND_NEXT_ROUTER_DIFFERENCE = "20079";
 
-
-
-
+    /**
+     * // 无重量拦截弱校验提示
+     * 您操作的订单无重量，烦请称重量方抽检，谢谢。
+     */
+    public static String WAYBILL_WITHOUT_WEIGHT_WEAK_INTERCEPT = "20080";
 
     /*##############################################拦截相关END#########################################################*/
 

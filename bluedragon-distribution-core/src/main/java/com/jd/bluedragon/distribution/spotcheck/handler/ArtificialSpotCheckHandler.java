@@ -1,9 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
@@ -15,10 +12,7 @@ import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeServic
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.domain.Waybill;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -41,12 +34,6 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     private static Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckHandler.class);
 
     @Autowired
-    private WaybillTraceManager waybillTraceManager;
-
-    @Autowired
-    private SendDetailService sendDetailService;
-
-    @Autowired
     private SpotCheckDealService spotCheckDealService;
 
     @Autowired
@@ -57,25 +44,11 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        Waybill waybill = spotCheckContext.getWaybill();
-        String waybillCode = spotCheckContext.getWaybillCode();
-        String packageCode = spotCheckContext.getPackageCode();
-        Integer reviewSiteCode = spotCheckContext.getReviewSiteCode();
         if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(waybill.getWaybillSign())){
+            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
                 return;
             }
-        }
-        // 纯配外单校验
-        if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
-            return;
-        }
-        // 是否妥投
-        if(waybillTraceManager.isWaybillFinished(waybillCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
-            return;
         }
         // B网不支持包裹维度抽检
         if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
@@ -83,34 +56,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ARTIFICIAL_PACK_FORBID_B);
             return;
         }
-        // 是否发货
-        // 1、运单维度抽检：只要其中某一包裹已经发货则提示按包裹维度操作抽检
-        // 2、包裹维度抽检：只要操作了发货则提示禁止抽检
-        if(Objects.equals(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode(), spotCheckContext.getSpotCheckDimensionType())){
-            if(!WaybillUtil.isWaybillCode(spotCheckContext.getPackageCode())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_WAYBILL);
-                return;
-            }
-            SendDetail sendDetail = sendDetailService.findOneByWaybillCode(reviewSiteCode, waybillCode);
-            if(sendDetail != null){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND_TRANSFER, sendDetail.getPackageBarcode()));
-                return;
-            }
-        }else {
-            if(!WaybillUtil.isPackageCode(spotCheckContext.getPackageCode())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_PACK);
-                return;
-            }
-            List<SendDetail> sendList = sendDetailService.findByWaybillCodeOrPackageCode(reviewSiteCode, waybillCode, packageCode);
-            if(CollectionUtils.isNotEmpty(sendList)){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND, packageCode));
-                return;
-            }
-        }
-        // 是否已抽检
-        if(spotCheckDealService.checkIsHasSpotCheck(waybillCode)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
-        }
+        super.spotCheck(spotCheckContext, result);
     }
 
     /**
@@ -172,8 +118,10 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
                 onceDataDeal(spotCheckContext);
             }
         }
-        // 上传称重数据
-        dmsWeightVolumeService.dealWeightAndVolume(transferWeightVolumeEntity(spotCheckContext), false);
+        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
+            // 上传称重数据
+            dmsWeightVolumeService.dealWeightAndVolume(transferWeightVolumeEntity(spotCheckContext), false);
+        }
     }
 
     private WeightVolumeEntity transferWeightVolumeEntity(SpotCheckContext spotCheckContext) {

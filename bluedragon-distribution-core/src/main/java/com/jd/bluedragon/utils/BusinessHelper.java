@@ -30,7 +30,7 @@ public class BusinessHelper {
     /**
      * 指向工作台的站点类型
      */
-    private static List<Integer> SMS_ZZGZT_SITE_TYPE_LIST = Arrays.asList(new Integer[]{4,8,96,64});
+    private static List<Integer> SMS_ZZGZT_SITE_TYPE_LIST = Arrays.asList(new Integer[]{4,8,96});
     /**
      * 指向工作台的站点子类型16
      */

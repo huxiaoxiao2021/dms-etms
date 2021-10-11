@@ -82,9 +82,12 @@ public class SpotCheckConstants {
     public static final String SPOT_CHECK_RESULT_CHANGE = "超标结果发生变化，请重新操作!";
 
     public static final String SPOT_CHECK_VOLUME_RATE_LIMIT_B = "当前运单:%s重泡比超过%s,请核实后重新录入!";
+    public static final String SPOT_CHECK_VOLUME_RATE_LIMIT_B_PACK = "当前包裹:%s重泡比超过%s,请核实后重新录入!";
 
     public static final String SPOT_CHECK_WEIGHT_LIMIT_B = "当前运单平均单个包裹重量超过%sKG，请核实后重新录入!";
+    public static final String SPOT_CHECK_WEIGHT_LIMIT_B_PACK = "当前包裹重量超过%sKG，请核实后重新录入!";
 
     public static final String SPOT_CHECK_VOLUME_LIMIT_B = "当前运单平均单个包裹体积超过%sm³，请核实后重新录入!";
+    public static final String SPOT_CHECK_VOLUME_LIMIT_B_PACK = "当前包裹体积超过%sm³，请核实后重新录入!";
 
 }

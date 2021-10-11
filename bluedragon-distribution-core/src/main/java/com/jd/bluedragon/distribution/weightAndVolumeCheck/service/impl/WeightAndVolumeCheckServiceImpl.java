@@ -492,6 +492,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             pictureUrl = result.getData();
         }
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+        if(waybill == null){
+            return;
+        }
         final boolean isMultiplePackage = this.getIsMultiplePackage(waybill, packageCode);
 
         if(!isMultiplePackage && !checkPackExcessRedisIsExist(packageCode, siteCode)){
@@ -945,9 +948,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(WaybillUtil.isPackageCode(packageCode)){
             packNum = WaybillUtil.getPackNumByPackCode(packageCode);
         }else {
-            Integer goodNumber = waybill.getGoodNumber();
-            if(goodNumber != null){
-                packNum = goodNumber;
+            if(waybill != null){
+                Integer goodNumber = waybill.getGoodNumber();
+                if(goodNumber != null){
+                    packNum = goodNumber;
+                }
             }
         }
         return packNum;
@@ -1626,6 +1631,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void assembleReviewData(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto, Waybill waybill, String sourceFrom) {
         weightVolumeCollectDto.setFromSource(sourceFrom);
+        weightVolumeCollectDto.setIsWaybillSpotCheck(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
+        weightVolumeCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
         weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         weightVolumeCollectDto.setPackageCode(packWeightVO.getCodeStr());
         weightVolumeCollectDto.setReviewDate(new Date());
@@ -2242,6 +2249,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
         } else {
             // 如果满足条件，一单多件则按运单纬度处理下发fxm
+            if(weightAndVolumeCheckHandleMessage.getPackageCode() == null){
+                return result;
+            }
             this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         }
         return result;
@@ -2496,7 +2506,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     private void sendMqToFxm(WeightVolumeCollectDto weightVolumeCollectDto){
         // C抽B 临时方案,不下发
-        if(weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
+        if(weightVolumeCollectDto.getSpotCheckType() == null || weightVolumeCollectDto.getSpotCheckType().equals(SpotCheckTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
             return;
         }
         // 下发
