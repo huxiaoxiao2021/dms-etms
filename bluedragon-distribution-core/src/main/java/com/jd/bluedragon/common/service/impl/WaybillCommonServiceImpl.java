@@ -297,6 +297,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryPackList(true);
             BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getReturnWaybillByOldWaybillCode(
                     oldWaybillCode, wChoice);
+            log.info("WaybillQueryManager.getReturnWaybillByOldWaybillCode waybillCode: {} result: {}", JsonHelper.toJson(oldWaybillCode), JsonHelper.toJson(baseEntity));
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
                 /*if (Waybill.isInvalidWaybill(waybill)) {
