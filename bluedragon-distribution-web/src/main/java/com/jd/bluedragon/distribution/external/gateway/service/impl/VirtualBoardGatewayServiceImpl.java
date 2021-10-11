@@ -117,4 +117,14 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     public JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo) {
         return virtualBoardService.canUseMenu(operatorInfo);
     }
+
+    /**
+     * 交接板号信息
+     * @param handoverVirtualBoardPo 包含板号以及交接到人信息
+     * @return
+     */
+    @Override
+    public JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
+        return virtualBoardService.handoverBoard(handoverVirtualBoardPo);
+    }
 }
