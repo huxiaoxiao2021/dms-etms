@@ -4027,6 +4027,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(log.isInfoEnabled()){
             log.info("发货状态开始处理:{}" , JsonHelper.toJson(task));
         }
+        Map<String, Long> timeMap = new HashMap<>();
+        long startTime = System.currentTimeMillis();
+        timeMap.put("1", startTime);
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null) {
             return true;
         }
@@ -4038,6 +4041,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         String sendCode = "";
         try {
         	//body里是任务
+            timeMap.put("2", System.currentTimeMillis());
 	        if (JsonHelper.isJsonString(task.getBody())) {
 	            SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
 	            sendCode = body.getSendCode();
@@ -4046,17 +4050,20 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	            }
 	            info = startMonitor(sendTaskCategory);
 	            // 按照批次号
+                timeMap.put("2.1", System.currentTimeMillis());
 	            if (SendTaskCategoryEnum.BATCH_SEND.getCode().equals(body.getHandleCategory())){
 	                tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(body.getCreateSiteCode(), body.getSendCode());
 	            } else { // 按照箱号
 	                tSendM = new ArrayList<SendM>(1);
 	                tSendM.add(body);
 	            }
+                timeMap.put("2.2", System.currentTimeMillis());
 	        } else {
 	        	sendCode = task.getBoxCode();
 	        	info = startMonitor(SendTaskCategoryEnum.BATCH_SEND);
 	            tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(task.getCreateSiteCode(), task.getBoxCode());
 	        }
+            timeMap.put("3", System.currentTimeMillis());
 	        if(tSendM != null){
 	        	sendMNum = tSendM.size();
 	        }
@@ -4091,6 +4098,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	                sendDetailList.add(dSendDetail);
 	            }
 	        }
+            timeMap.put("4", System.currentTimeMillis());
 	        if(sendDetailList != null){
 	        	sendDNum = sendDetailList.size();
 	        }
@@ -4102,13 +4110,19 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 	            log.debug("SEND_D明细:{}" , JsonHelper.toJson(sendDetailList));
 	        }
 	        updateWaybillStatus(sendDetailList);
+            timeMap.put("5", System.currentTimeMillis());
 	        //如果是按运单发货，解除按运单发货的redis锁
 	        unlockWaybillByPack(tSendM);
+            timeMap.put("6", System.currentTimeMillis());
         }catch(Exception e){
         	Profiler.functionError(info);
         	log.error("发货任务处理异常！", e);
         	throw e;
         }finally{
+            long runTime = System.currentTimeMillis() - startTime;
+            if(sendDNum > BIG_SEND_NUM || runTime > 3000){
+                log.warn(String.format("longRunTimeOrLargeBatch_DeliveryServiceImpl.updatewaybillCodeMessage sendCode: %s, sendMNum: %s, sendDNum: %s, runTime: %s, timeMap: %s ", sendCode, sendMNum, sendDNum, runTime, timeMap));
+            }
         	Profiler.registerInfoEnd(info);
         }
         return true;
