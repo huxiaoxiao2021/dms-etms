@@ -4027,7 +4027,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if(log.isInfoEnabled()){
             log.info("发货状态开始处理:{}" , JsonHelper.toJson(task));
         }
-        Map<String, Long> timeMap = new HashMap<>();
+        Map<String, Long> timeMap = new LinkedHashMap<>();
         long startTime = System.currentTimeMillis();
         timeMap.put("1", startTime);
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null) {
@@ -4121,7 +4121,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }finally{
             long runTime = System.currentTimeMillis() - startTime;
             if(sendDNum > BIG_SEND_NUM || runTime > 3000){
-                log.warn(String.format("longRunTimeOrLargeBatch_DeliveryServiceImpl.updatewaybillCodeMessage sendCode: %s, sendMNum: %s, sendDNum: %s, runTime: %s, timeMap: %s ", sendCode, sendMNum, sendDNum, runTime, timeMap));
+                log.warn(String.format("longRunTimeOrLargeBatch_DeliveryServiceImpl.updatewaybillCodeMessage sendCode: %s, sendMNum: %s, sendDNum: %s, runTime: %s, timeMap: %s ", sendCode, sendMNum, sendDNum, runTime, JsonHelper.toJson(timeMap)));
             }
         	Profiler.registerInfoEnd(info);
         }
