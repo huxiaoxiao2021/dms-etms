@@ -229,6 +229,10 @@ public class JdResponse extends JdObject {
 
     public static final String MESSAGE_SERVICE_ERROR_C = "服务异常!";
 
+    public static final Integer CODE_SITE_CODE_IS_NULL = 11000;
+    public static final String MESSAGE_SITE_CODE_IS_NULL = "分拣中心id为空";
+
+
 
     public static final Integer CODE_EXPID_EMPTY = 409;
     public static final String MESSAGE_CODE_INTERNAL_ERROR = "内部错误";
@@ -265,6 +269,8 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_WAYBILL_NOT_ONE_EXTERNAL= "{0}非外单，不能按运单分拣";
     public static final Integer CODE_FRANCHISEE_WAYBILL_BLOCK = 411;
     public static final String MESSAGE_FRANCHISEE_WAYBILL_BLOCK = "{0}为加盟运单，未交接";
+
+
 
 
 
