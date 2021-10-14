@@ -352,6 +352,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             result.parameterError(InvokeResult.PARAM_ERROR);
             return result;
         }
+        if(spotCheckDto.getSiteCode() == null || Objects.equals(spotCheckDto.getSiteCode(), Constants.NUMBER_ZERO)
+                || StringUtils.isEmpty(spotCheckDto.getOperateUserErp())){
+            result.parameterError("操作人信息不存在!");
+            return result;
+        }
         if(!WaybillUtil.isWaybillCode(spotCheckDto.getBarCode()) && !WaybillUtil.isPackageCode(spotCheckDto.getBarCode())){
             result.parameterError("单号不符合规则!");
             return result;
