@@ -66,8 +66,8 @@ public class PreSellInterceptFilter implements Filter {
                 && checkIsPreSellStorageSite(request.getCreateSiteCode())) {
             throw new SortingCheckException(DmsMessageConstants.CODE_29420, HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
         }
-        //增加接货仓 KA安踏预售逻辑 (只考虑外单场景减少调用)
-        if(BusinessUtil.isSopOrExternal(waybillSign) && request.getCreateSite() != null && request.getCreateSite().getSubType() !=null &&
+        //增加接货仓 KA安踏预售逻辑 (只考虑ECLP仓配外单场景  减少调用)
+        if(BusinessUtil.isEclpAndWmsForDistribution(waybillSign) && request.getCreateSite() != null && request.getCreateSite().getSubType() !=null &&
                 Integer.valueOf(Constants.JHC_SITE_TYPE).equals(request.getCreateSite().getSubType())){
             BaseEntity<List<WaybillProductDto>> productAbilities = waybillQueryManager.getProductAbilityInfoByWaybillCode(request.getWaybillCode());
             //获取能力信息
