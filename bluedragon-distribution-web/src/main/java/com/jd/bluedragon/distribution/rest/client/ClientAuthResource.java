@@ -187,7 +187,6 @@ public class ClientAuthResource {
                         return;
                     }
                 }
-                break;
             }
         }
     }
