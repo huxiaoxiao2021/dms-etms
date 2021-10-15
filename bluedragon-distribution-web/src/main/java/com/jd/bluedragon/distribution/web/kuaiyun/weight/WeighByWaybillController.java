@@ -230,6 +230,10 @@ public class WeighByWaybillController {
         result.toSucceed();
 
         try {
+            if(baseStaffSiteOrgDto == null){
+                log.warn("WeighByWaybillController sendDisposeAfterInterceptMsg baseStaffSiteOrgDto null: [{}]" , JsonHelper.toJson(waybillWeightVO));
+                return result;
+            }
             SaveDisposeAfterInterceptMsgDto saveDisposeAfterInterceptMsgDto = new SaveDisposeAfterInterceptMsgDto();
             saveDisposeAfterInterceptMsgDto.setBarCode(waybillWeightVO.getCodeStr());
             saveDisposeAfterInterceptMsgDto.setDisposeNode(businessInterceptConfigHelper.getDisposeNodeByConstants(DisposeNodeConstants.FINISH_WEIGHT));
