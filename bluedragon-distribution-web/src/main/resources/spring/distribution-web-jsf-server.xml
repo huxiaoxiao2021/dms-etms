@@ -342,15 +342,6 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!-- 站点新查询服务-->
-
-    <jsf:provider id="jsfSiteService"
-                  interface="com.jd.bluedragon.distribution.jsf.service.SiteJsfService"
-                  alias="${dms.jsf.alias}"
-                  ref="siteService"
-                  server="dmsjsf">
-    </jsf:provider>
-
     <!-- 对外提供给转运相关的服务jsf -->
     <jsf:provider id="jsfTransportCommonService"
                   interface="com.jd.bluedragon.distribution.external.service.TransportCommonService"
@@ -360,5 +351,14 @@
     </jsf:provider>
 
 
+
+    <!-- 站点新查询服务-->
+
+    <jsf:provider id="jsfSiteService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.SiteJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="siteService"
+                  server="dmsjsf">
+    </jsf:provider>
 
 </beans>

@@ -30,6 +30,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.jsf.gd.util.RpcContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
@@ -41,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -97,6 +99,9 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
 	private AsynBufferDemotionUtil asynBufferDemotionUtil;
+
+	@Value("${auto.task.upload.rpc.timeout:900}")
+	private int autoTaskUploadRpcTimeOut;
 
 	@JProfiler(jKey = "DMS.WEB.TaskServiceImpl.add", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public TaskResponse add(TaskRequest request) {
@@ -895,6 +900,8 @@ public class TaskServiceImpl implements TaskService {
 			log.error("{}非包裹号或运单号", packageDtos.getWaybillCode());
 			return;
 		}
+		//设置jsf超时时间
+		RpcContext.getContext().setAttachment(com.jd.jsf.gd.util.Constants.CONFIG_KEY_TIMEOUT, autoTaskUploadRpcTimeOut);
 		//检查订单是否已妥投
 		if(waybillTraceManager.isWaybillFinished(waybillCode)){
 			log.error("运单{}已妥投，不能再继续分拣", waybillCode);

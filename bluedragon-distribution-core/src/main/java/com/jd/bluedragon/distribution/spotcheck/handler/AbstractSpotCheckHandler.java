@@ -88,6 +88,19 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     @Override
+    public InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto) {
+        InvokeResult<Integer> checkResult = new InvokeResult<Integer>();
+        // 初始化抽检上下文
+        SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
+        // 超标校验
+        InvokeResult<CheckExcessResult> checkExcessResultInvokeResult = checkIsExcess(spotCheckContext);
+        checkResult.customMessage(checkExcessResultInvokeResult.getCode(), checkExcessResultInvokeResult.getMessage());
+        checkResult.setData(checkExcessResultInvokeResult.getData() == null
+                ? ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getCode() : checkExcessResultInvokeResult.getData().getExcessCode());
+        return checkResult;
+    }
+
+    @Override
     public InvokeResult<Boolean> dealSpotCheckData(SpotCheckDto spotCheckDto) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
@@ -350,6 +363,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(spotCheckDto == null){
             result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        if(spotCheckDto.getSiteCode() == null || Objects.equals(spotCheckDto.getSiteCode(), Constants.NUMBER_ZERO)
+                || StringUtils.isEmpty(spotCheckDto.getOperateUserErp())){
+            result.parameterError("操作人信息不存在!");
             return result;
         }
         if(!WaybillUtil.isWaybillCode(spotCheckDto.getBarCode()) && !WaybillUtil.isPackageCode(spotCheckDto.getBarCode())){
