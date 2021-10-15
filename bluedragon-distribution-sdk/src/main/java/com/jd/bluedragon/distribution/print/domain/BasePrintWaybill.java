@@ -474,6 +474,11 @@ public class BasePrintWaybill implements Serializable {
 	 * 产品标识
 	 */
 	private String transportModeFlag;
+
+    /**
+     * 水印
+     */
+	private String waterMark;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1710,4 +1715,12 @@ public class BasePrintWaybill implements Serializable {
 	public void setTransportModeFlag(String transportModeFlag) {
 		this.transportModeFlag = transportModeFlag;
 	}
+
+    public String getWaterMark() {
+        return waterMark;
+    }
+
+    public void setWaterMark(String waterMark) {
+        this.waterMark = waterMark;
+    }
 }

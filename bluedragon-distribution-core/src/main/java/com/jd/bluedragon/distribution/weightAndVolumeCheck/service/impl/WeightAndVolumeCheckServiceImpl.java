@@ -2247,6 +2247,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             this.sendMqToFxm(existCurrentSiteHasPictureList.get(0));
         } else {
             // 如果满足条件，一单多件则按运单纬度处理下发fxm
+            if(weightAndVolumeCheckHandleMessage.getPackageCode() == null){
+                return result;
+            }
             this.sendMqToFxmForMultiplePackage(weightAndVolumeCheckHandleMessage, waybill);
         }
         return result;
