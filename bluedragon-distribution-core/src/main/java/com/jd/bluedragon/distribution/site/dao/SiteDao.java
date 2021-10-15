@@ -42,6 +42,8 @@ public class SiteDao extends BaseDao<Site> {
             param.put("siteType", siteQuery.getSiteType());
             param.put("subType", siteQuery.getSubType());
             param.put("subTypes", siteQuery.getSubTypes());
+            param.put("siteNameRegexp", siteQuery.getSiteNameRegexp());
+            param.put("siteNameNotRegexp", siteQuery.getSiteNameNotRegexp());
         }
         param.put("startIndex", startIndex);
         param.put("pageSize", pageSize);

@@ -74,6 +74,10 @@ public class AbnormalReportingRequest implements Serializable {
      * 站点类型
      * */
     private Integer dealDeptType;
+    /*
+     * 场景
+     * */
+    private String specialScene;
 
     public List<String> getBarCodes() {
         return barCodes;
@@ -178,4 +182,12 @@ public class AbnormalReportingRequest implements Serializable {
     public void setDealDeptType(Integer dealDeptType) {
         this.dealDeptType = dealDeptType;
     }
+
+	public String getSpecialScene() {
+		return specialScene;
+	}
+
+	public void setSpecialScene(String specialScene) {
+		this.specialScene = specialScene;
+	}
 }

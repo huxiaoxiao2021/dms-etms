@@ -1,8 +1,9 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
+import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 
 import java.util.List;
 
@@ -44,4 +45,12 @@ public interface ReportExternalManager {
      * @return
      */
     List<WeightVolumeCollectDto> queryByCondition(WeightVolumeQueryCondition condition);
+
+    /**
+     * 校验是否需要抽检
+     *
+     * @param condition
+     * @return
+     */
+    boolean checkIsNeedSpotCheck(WaitSpotCheckQueryCondition condition);
 }
