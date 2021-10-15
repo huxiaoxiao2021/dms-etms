@@ -12,6 +12,13 @@ import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 public interface SpotCheckCurrencyService {
 
     /**
+     * 校验是否超标（只校验超标，不校验其他信息）
+     * @param spotCheckDto
+     * @return
+     */
+    InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto);
+
+    /**
      * 校验是否超标
      *
      * @param spotCheckDto

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,5 +96,20 @@ public class SpotCheckHandlerStrategy {
         }
         result.parameterError("未知抽检来源，不予处理!");
         return result;
+    }
+
+    /**
+     * 校验是否超标（只校验超标，不校验其他信息）
+     *
+     * @param spotCheckDto
+     * @return
+     */
+    public InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto) {
+        InvokeResult<Integer> result = new InvokeResult<Integer>();
+        if(!Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName(), spotCheckDto.getSpotCheckSourceFrom())){
+            result.parameterError("未知抽检来源，不予处理!");
+            return result;
+        }
+        return dwsSpotCheckHandler.checkIsExcessWithOutOtherCheck(spotCheckDto);
     }
 }

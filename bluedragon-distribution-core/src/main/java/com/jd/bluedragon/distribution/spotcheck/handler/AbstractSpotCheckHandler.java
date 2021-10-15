@@ -88,6 +88,19 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     @Override
+    public InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto) {
+        InvokeResult<Integer> checkResult = new InvokeResult<Integer>();
+        // 初始化抽检上下文
+        SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
+        // 超标校验
+        InvokeResult<CheckExcessResult> checkExcessResultInvokeResult = checkIsExcess(spotCheckContext);
+        checkResult.customMessage(checkExcessResultInvokeResult.getCode(), checkExcessResultInvokeResult.getMessage());
+        checkResult.setData(checkExcessResultInvokeResult.getData() == null
+                ? ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getCode() : checkExcessResultInvokeResult.getData().getExcessCode());
+        return checkResult;
+    }
+
+    @Override
     public InvokeResult<Boolean> dealSpotCheckData(SpotCheckDto spotCheckDto) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
