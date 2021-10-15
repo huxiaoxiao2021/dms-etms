@@ -959,7 +959,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return 1：发货成功  2：发货失败  4：需要用户确认
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendCanCancel", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         log.info("[一车一单发货]packageSend-箱号/包裹号:{},批次号：{},操作站点：{},是否强制操作：{}"
                 ,domain.getBoxCode(),domain.getSendCode(),domain.getCreateSiteCode(),isForceSend);
@@ -1745,7 +1745,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param domain 发货对象
      * @return 1：发货成功  2：发货失败
      */
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.doPackageSendByWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void doPackageSendByWaybill(SendM domain) {
         // 插入SEND_M
