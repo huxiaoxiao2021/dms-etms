@@ -40,6 +40,7 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.0.9-test-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
+		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -198,6 +199,12 @@
 				<artifactId>dms-component-sdk</artifactId>
 				<groupId>com.jd.dms.comp</groupId>
 				<version>${dms-component-sdk.version}</version>
+			</dependency>
+			<!-- 分拣工作台service-->
+			<dependency>
+				<groupId>com.jd.dms.wb</groupId>
+				<artifactId>workbench-services-sdk</artifactId>
+				<version>${workbench.services.sdk.version}</version>
 			</dependency>
 
 			<!--京东数据库加密安全包-->

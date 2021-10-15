@@ -565,7 +565,9 @@
     <jsf:consumer id="iAbnReportAPI" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.ReportService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
     </jsf:consumer>
-
+    <jsf:consumer id="qcJsfDeptService" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
+    </jsf:consumer>    
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
@@ -765,6 +767,14 @@
 
     <jsf:consumer id="loadCarTaskServiceWS" interface="com.jd.merchant.api.pack.ws.LoadCarTaskServiceWS"
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.tys.loadCarTaskServiceWS.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+    <!--离线密码 工作台服务-->
+    <jsf:consumer id="jsfOfflinePasswordService"
+                  interface="com.jd.dms.wb.sdk.api.IOfflinePasswordJsfService"
+                  alias="${jsf.alias.offlinePassword}"
+                  timeout="${jsf.timeout.offlinePassword}"
+                  retries="${jsf.retries}"
+                  serialization="hessian">
     </jsf:consumer>
 
 </beans>
