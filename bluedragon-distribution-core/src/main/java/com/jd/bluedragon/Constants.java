@@ -104,6 +104,10 @@ public class Constants {
     public static final int B2B_SITE_TYPE = 6420;
 
     /**
+     * 接货仓类型
+     */
+    public static final int JHC_SITE_TYPE = 6430;
+    /**
      * 集配站编号
      */
     public static final Integer JI_PEI_CODE_9605 = 9605;
