@@ -4,12 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.delivery.callback.IDeliveryProcessCallback;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -25,9 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
