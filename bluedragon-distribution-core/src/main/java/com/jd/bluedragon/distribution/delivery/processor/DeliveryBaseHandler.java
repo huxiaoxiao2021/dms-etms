@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.delivery.callback.IDeliveryProcessCallback;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -40,7 +39,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
     static int SEND_SPLIT_NUM = 100;
 
-    static int EXPIRE_TIME_SECOND = 30 * 60;
+    static int EXPIRE_TIME_SECOND = 2 * 60 * 60;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -54,9 +53,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
     @Autowired
     protected TaskService taskService;
-
-    @Autowired
-    protected IDeliveryCoreProcessor deliveryCoreProcessor;
 
     @Autowired
     protected DeliveryService deliveryService;
@@ -193,39 +189,41 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         final int pageTotal = wrapper.getTotalPage();
         final String batchUniqKey = wrapper.getBatchUniqKey();
 
-        deliveryCoreProcessor.process(sendMList, new IDeliveryProcessCallback<SendM>() {
-            @Override
-            public void callback(List<SendM> callbacks) {
-                String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
-                String redisVal = redisClientCache.get(redisKey);
-                if (StringUtils.isEmpty(redisVal)) {
-                    log.warn("[包裹/箱号]获取批次任务缓存数据为空. key:{}", batchUniqKey);
-                    return;
-                }
+        deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
 
-                String countRedisKey = String.format(CacheKeyConstants.PACKAGE_SEND_COUNT_KEY, batchUniqKey);
-                // 设置单页处理完成标志位
-                redisClientCache.setBit(countRedisKey, pageNo, true);
-                redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = sendMList.get(0);
+        return judgePushSendTracking(sendM, pageNo, pageTotal, batchUniqKey, taskSendM);
+    }
 
-                // 全部分页任务处理完成，生成发货任务
-                if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {
+    private boolean judgePushSendTracking(SendM sendM, int pageNo, int pageTotal, String batchUniqKey, SendM taskSendM) {
+        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
+        String redisVal = redisClientCache.get(redisKey);
+        if (StringUtils.isEmpty(redisVal)) {
+            log.warn("[包裹/箱号]获取批次任务缓存数据为空. key:{}", batchUniqKey);
+            return true;
+        }
 
-                    // 删除批任务处理锁
-                    redisClientCache.del(redisKey);
+        String countRedisKey = String.format(CacheKeyConstants.PACKAGE_SEND_COUNT_KEY, batchUniqKey);
+        // 设置单页处理完成标志位
+        redisClientCache.setBit(countRedisKey, pageNo, true);
+        redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
 
-                    redisClientCache.del(countRedisKey);
+        // 全部分页任务处理完成，生成发货任务
+        if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {
 
-                    // 插入发货任务
-                    deliveryService.addTaskSend(callbacks.get(0));
+            // 删除批任务处理锁
+            redisClientCache.del(redisKey);
 
-                    if (log.isInfoEnabled()) {
-                        log.info("[包裹/箱号]当前批次任务全部处理完毕! total:{}, sendM:{}", pageTotal, JsonHelper.toJson(sendM));
-                    }
-                }
+            redisClientCache.del(countRedisKey);
+
+            // 插入发货任务
+            deliveryService.addTaskSend(taskSendM);
+
+            if (log.isInfoEnabled()) {
+                log.info("[包裹/箱号]当前批次任务全部处理完毕! total:{}, sendM:{}", pageTotal, JsonHelper.toJson(sendM));
             }
-        });
-
-        return true;
+        }
+        return false;
     }
 }

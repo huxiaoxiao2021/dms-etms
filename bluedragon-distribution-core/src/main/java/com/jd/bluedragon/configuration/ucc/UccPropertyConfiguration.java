@@ -499,6 +499,11 @@ public class UccPropertyConfiguration {
     private String deliverySendAsyncSite;
 
     /**
+     * 老发货异步任务延时消费毫秒数
+     */
+    private int deliverySendTaskSleepMills;
+
+    /**
      * 日志查询功能开关 1：启用 0：禁用
      */
     private String businessLogQueryPageSwitch;
@@ -522,6 +527,14 @@ public class UccPropertyConfiguration {
 
     public void setDeliverySendAsyncSite(String deliverySendAsyncSite) {
         this.deliverySendAsyncSite = deliverySendAsyncSite;
+    }
+
+    public int getDeliverySendTaskSleepMills() {
+        return deliverySendTaskSleepMills;
+    }
+
+    public void setDeliverySendTaskSleepMills(int deliverySendTaskSleepMills) {
+        this.deliverySendTaskSleepMills = deliverySendTaskSleepMills;
     }
 
     /**

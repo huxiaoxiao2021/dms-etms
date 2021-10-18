@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.asynbuffer.service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
@@ -34,6 +35,7 @@ import com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExeStrateg
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.RandomUtils;
 import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
@@ -48,6 +50,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by xumei3 on 2017/4/17.
@@ -170,6 +173,9 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Autowired
     private IDeliveryOperationService deliveryOperationService;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+
     /**
      * 发货异步任务
      * @param task
@@ -181,6 +187,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             return true;
         }
         try {
+            // 延时消费
+            int sleepMills = uccConfig.getDeliverySendTaskSleepMills() <= 0 ? 1000 : uccConfig.getDeliverySendTaskSleepMills();
+            Thread.sleep(new Random().nextInt(sleepMills));
+
             String umpKey = "DmsWorker.Task.deliverySendProcess.execute";
             String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
             UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {

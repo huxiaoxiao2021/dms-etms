@@ -4,12 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
-import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
-import com.jd.bluedragon.core.hint.service.HintService;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.delivery.callback.IDeliveryProcessCallback;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -25,9 +20,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -147,37 +140,40 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
         }
 
         final String waybillBatchUniqKey = wrapper.getBatchUniqKey();
-        deliveryCoreProcessor.process(waybillSendMList, new IDeliveryProcessCallback<SendM>() {
-            @Override
-            public void callback(List<SendM> callbacks) {
-                String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, waybillBatchUniqKey);
-                String redisVal = redisClientCache.get(redisKey);
-                if (StringUtils.isEmpty(redisVal)) {
-                    log.warn("[运单]获取批次任务缓存数据为空. key:{}", waybillBatchUniqKey);
-                    return;
-                }
 
-                String countRedisKey = String.format(CacheKeyConstants.WAYBILL_SEND_COUNT_KEY, waybillBatchUniqKey);
-                // 设置单页处理完成标志位
-                redisClientCache.setBit(countRedisKey, pageNo, true);
-                redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
+        deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
 
-                // 全部分页任务处理完成，生成发货任务
-                if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = waybillSendMList.get(0);
+        return judgePushSendTracking(pageNo, waybillCode, waybillSendM, waybillBatchUniqKey, taskSendM);
+    }
 
-                    redisClientCache.del(redisKey);
-                    redisClientCache.del(countRedisKey);
+    private boolean judgePushSendTracking(int pageNo, String waybillCode, SendM waybillSendM, String waybillBatchUniqKey, SendM taskSendM) {
+        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, waybillBatchUniqKey);
+        String redisVal = redisClientCache.get(redisKey);
+        if (StringUtils.isEmpty(redisVal)) {
+            log.warn("[运单]获取批次任务缓存数据为空. key:{}", waybillBatchUniqKey);
+            return true;
+        }
 
-                    // 发货任务
-                    deliveryService.addTaskSend(callbacks.get(0));
+        String countRedisKey = String.format(CacheKeyConstants.WAYBILL_SEND_COUNT_KEY, waybillBatchUniqKey);
+        // 设置单页处理完成标志位
+        redisClientCache.setBit(countRedisKey, pageNo, true);
+        redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
 
-                    if (log.isInfoEnabled()) {
-                        log.info("[运单]当前批次任务全部处理完毕! waybillCode:{}, sendM:{}", waybillCode, JsonHelper.toJson(waybillSendM));
-                    }
-                }
+        // 全部分页任务处理完成，生成发货任务
+        if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {
+
+            redisClientCache.del(redisKey);
+            redisClientCache.del(countRedisKey);
+
+            // 发货任务
+            deliveryService.addTaskSend(taskSendM);
+
+            if (log.isInfoEnabled()) {
+                log.info("[运单]当前批次任务全部处理完毕! waybillCode:{}, sendM:{}", waybillCode, JsonHelper.toJson(waybillSendM));
             }
-        });
-
-        return true;
+        }
+        return false;
     }
 }

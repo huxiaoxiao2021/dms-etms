@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +16,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author wyh
@@ -32,8 +37,35 @@ public class DeliveryAsyncTaskTest {
     private IDeliveryOperationService deliveryOperationService;
 
     @Test
-    public void deliverySendProcessTest() {
-
+    public void deliverySendProcessTest() throws Exception {
+        String json = "{\n" +
+                "    \"body\": \"{\\n  \\\"sendM\\\" : {\\n    \\\"sendCode\\\" : \\\"833342-1326978-20211011210317515\\\",\\n    \\\"createSiteCode\\\" : 833342,\\n    \\\"receiveSiteCode\\\" : 1326978,\\n    \\\"sendType\\\" : 10,\\n    \\\"createUser\\\" : \\\"梁奕晖\\\",\\n    \\\"createUserCode\\\" : 20839621,\\n    \\\"operateTime\\\" : 1633960576490,\\n    \\\"createTime\\\" : 1633960576490,\\n    \\\"yn\\\" : 1,\\n    \\\"transporttype\\\" : 0,\\n    \\\"bizSource\\\" : 9\\n  },\\n  \\\"keyType\\\" : \\\"BY_WAYBILL\\\",\\n  \\\"batchUniqKey\\\" : \\\"JDV000705321163_833342\\\",\\n  \\\"waybillCode\\\" : \\\"JDV000705321163\\\",\\n  \\\"pageNo\\\" : 1,\\n  \\\"pageSize\\\" : 1000,\\n  \\\"totalPage\\\" : 1\\n}\",\n" +
+                "    \"createSiteCode\": 833342,\n" +
+                "    \"executeTime\": 1633960576519,\n" +
+                "    \"fingerprint\": \"7E25211E9380488CBF90602C535FD04F\",\n" +
+                "    \"keyword1\": \"BY_WAYBILL\",\n" +
+                "    \"keyword2\": \"1_1_JDV000705321163\",\n" +
+                "    \"ownSign\": \"DMS\",\n" +
+                "    \"receiveSiteCode\": 1326978,\n" +
+                "    \"sequenceName\": \"SEQ_TASK_SORTING\",\n" +
+                "    \"tableName\": \"task_send\",\n" +
+                "    \"type\": 1350\n" +
+                "}";
+        final Task task = JsonHelper.fromJson(json, Task.class);
+        ExecutorService executorService = Executors.newFixedThreadPool(10);
+        for (;;) {
+            Thread.sleep(10);
+            executorService.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        asynBufferService.deliverySendProcess(task);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        }
     }
 
     @Test
