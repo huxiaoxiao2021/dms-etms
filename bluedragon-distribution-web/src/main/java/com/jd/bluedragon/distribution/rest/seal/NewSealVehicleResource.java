@@ -37,8 +37,6 @@ import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkItemWsDto;
-import com.jd.tms.tfc.dto.TransWorkItemDto;
-import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 import com.jd.tms.workbench.dto.TransWorkItemSimpleDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
