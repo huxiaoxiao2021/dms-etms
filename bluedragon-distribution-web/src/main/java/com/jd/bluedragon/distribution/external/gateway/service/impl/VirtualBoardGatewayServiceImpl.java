@@ -124,6 +124,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.handoverBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         return virtualBoardService.handoverBoard(handoverVirtualBoardPo);
     }
