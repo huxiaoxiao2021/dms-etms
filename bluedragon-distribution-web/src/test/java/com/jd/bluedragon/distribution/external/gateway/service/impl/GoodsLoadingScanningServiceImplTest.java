@@ -384,12 +384,13 @@ public class GoodsLoadingScanningServiceImplTest {
     @Test
     public void testSpotCheckTest() {
         SpotCheckCheckReq req = new SpotCheckCheckReq();
-        req.setWaybillCode("JDK000000055176");
-        req.setLoginErp("wuyoude");
-        req.setCreateSiteCode(364605);
-        req.setWeight(10D);
-        req.setVolume(10D);
-        spotCheckGateWayService.checkIsExcess(req);
+        req.setWaybillCode("JDV000705354111");
+        req.setLoginErp("bjxings");
+        req.setCreateSiteCode(10098);
+        req.setWeight(1.3D);
+        req.setVolume(1D);
+        JdCResponse<Integer> jdCResponse = spotCheckGateWayService.checkIsExcess(req);
+        jdCResponse.getMessage();
     }
 
     @Test
