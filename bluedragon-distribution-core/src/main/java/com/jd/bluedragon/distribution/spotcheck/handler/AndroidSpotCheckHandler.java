@@ -7,6 +7,8 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 
 /**
  * 安卓抽检
@@ -37,14 +39,19 @@ public class AndroidSpotCheckHandler extends AbstractSpotCheckHandler {
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
         obtainContrast(spotCheckContext);
+        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
+        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
+        if(Objects.equals(spotCheckReviewDetail.getReviewSiteCode(), spotCheckContrastDetail.getContrastSiteCode())){
+            InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_SAME_SITE);
+            return result;
+        }
         return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
     }
 
     @Override
     protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "待扩展!");
-        return result;
+        return checkIsExcessB(spotCheckContext);
     }
 
     @Override

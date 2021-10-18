@@ -549,6 +549,11 @@ public class UccPropertyConfiguration {
      */
     private boolean writeUnloadFromTys;
 
+    /**
+     * 安卓抽检是否执行新抽检模式
+     */
+    private boolean androidIsExecuteNewSpotCheck;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1498,5 +1503,13 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public boolean getAndroidIsExecuteNewSpotCheck() {
+        return androidIsExecuteNewSpotCheck;
+    }
+
+    public void setAndroidIsExecuteNewSpotCheck(boolean androidIsExecuteNewSpotCheck) {
+        this.androidIsExecuteNewSpotCheck = androidIsExecuteNewSpotCheck;
     }
 }
