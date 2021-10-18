@@ -219,7 +219,7 @@ public class PreSealVehicleController extends DmsBaseController{
         calendar.setTime(new Date());
         calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
         Date startDate = calendar.getTime();
-        List<List<Integer>> batch = Lists.partition(receiveSiteCodes, 100);
+        List<List<Integer>> batch = Lists.partition(receiveSiteCodes, 50);
         List<SendM> sendMList = new ArrayList<>();
         for (List<Integer> singList : batch) {
             sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate));
