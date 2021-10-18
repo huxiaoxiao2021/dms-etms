@@ -12,7 +12,7 @@ public interface IDeliveryProcessCallback<T> {
 
     /**
      * 发货分页任务执行完成，是否生成发货全程跟踪任务
-     * @param callbacks
+     * @param callback
      */
-    void callback(List<T> callbacks);
+    void callback(List<T> callback);
 }
