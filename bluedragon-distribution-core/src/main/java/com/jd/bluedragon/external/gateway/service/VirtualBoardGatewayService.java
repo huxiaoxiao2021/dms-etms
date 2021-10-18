@@ -79,4 +79,11 @@ public interface VirtualBoardGatewayService {
      * @time 2021-09-14 11:22:19 周二
      */
     JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo);
+
+    /**
+     * 交接板号
+     * @param handoverVirtualBoardPo 包含板号以及交接到人信息
+     * @return
+     */
+    JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
 }

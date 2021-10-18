@@ -76,4 +76,13 @@ public interface IVirtualBoardJsfManager {
      * @time 2021-08-14 18:25:31 周六
      */
     Response<UnbindVirtualBoardResultDto> unbindToBoard(UnbindToVirtualBoardPo unbindToVirtualBoardPo);
+
+    /**
+     * 交接板号
+     * @param handoverVirtualBoardPo 交接板请求参数
+     * @return 返回板结果
+     * @author wzx
+     * @time 2021-10-11 14:44:02
+     */
+    Response<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
 }
