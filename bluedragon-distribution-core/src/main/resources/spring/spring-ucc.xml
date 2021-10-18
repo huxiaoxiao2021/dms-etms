@@ -145,6 +145,7 @@
 		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
 		<property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
 		<property name="executeBCFuse" value="${executeBCFuse:false}"></property>
+		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"></property>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -270,6 +271,7 @@
 				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
 				<value>uccPropertyConfiguration.isIssueToFinance</value>
 				<value>uccPropertyConfiguration.executeBCFuse</value>
+				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

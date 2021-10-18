@@ -2106,4 +2106,17 @@ public class BusinessUtil {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_2);
     }
 
+    /**
+     * waybill_sign 29位=2  且  53位=1
+     *
+     * ECLP 仓配
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isEclpAndWmsForDistribution(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_29, WaybillSignConstants.CHAR_29_2)
+                && isSignInChars(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_1);
+
+    }
+
 }

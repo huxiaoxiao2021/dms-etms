@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 

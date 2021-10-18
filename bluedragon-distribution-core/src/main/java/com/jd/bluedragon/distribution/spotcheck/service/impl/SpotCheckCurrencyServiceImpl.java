@@ -30,6 +30,24 @@ public class SpotCheckCurrencyServiceImpl implements SpotCheckCurrencyService {
     private SpotCheckHandlerStrategy spotCheckHandlerStrategy;
 
     @Override
+    public InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto) {
+        InvokeResult<Integer> result = new InvokeResult<Integer>();
+        CallerInfo info = Profiler.registerInfo("dms.SpotCheckCurrencyService.checkIsExcessWithOutOtherCheck", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            result = spotCheckHandlerStrategy.checkIsExcessWithOutOtherCheck(spotCheckDto);
+        }catch (SpotCheckBusinessException e){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, e.getMessage());
+        }catch (Exception e){
+            logger.error("服务异常,入参:{}", JsonHelper.toJson(spotCheckDto), e);
+            result.error();
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return result;
+    }
+
+    @Override
     public InvokeResult<Integer> checkIsExcess(SpotCheckDto spotCheckDto) {
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         CallerInfo info = Profiler.registerInfo("dms.SpotCheckCurrencyService.checkIsExcess", Constants.UMP_APP_NAME_DMSWEB,false, true);

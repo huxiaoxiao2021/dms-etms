@@ -217,7 +217,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
             if(spotCheckDealService.isExecuteNewSpotCheck(entity.getOperateSiteCode())){
-                InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(entity));
+                InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcessWithOutOtherCheck(convertToSpotCheckDto(entity));
                 result.setMessage(checkExcessStatusResult.getMessage());
                 result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
                 return result;

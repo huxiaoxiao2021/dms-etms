@@ -88,6 +88,19 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     @Override
+    public InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto) {
+        InvokeResult<Integer> checkResult = new InvokeResult<Integer>();
+        // 初始化抽检上下文
+        SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
+        // 超标校验
+        InvokeResult<CheckExcessResult> checkExcessResultInvokeResult = checkIsExcess(spotCheckContext);
+        checkResult.customMessage(checkExcessResultInvokeResult.getCode(), checkExcessResultInvokeResult.getMessage());
+        checkResult.setData(checkExcessResultInvokeResult.getData() == null
+                ? ExcessStatusEnum.EXCESS_ENUM_NO_KNOW.getCode() : checkExcessResultInvokeResult.getData().getExcessCode());
+        return checkResult;
+    }
+
+    @Override
     public InvokeResult<Boolean> dealSpotCheckData(SpotCheckDto spotCheckDto) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
@@ -153,14 +166,13 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     private void spotCheckOfC(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
         String packageCode = spotCheckContext.getPackageCode();
-        Integer siteCode = spotCheckContext.getReviewSiteCode();
         // 纯配外单校验
         if(!BusinessUtil.isPurematch(waybill.getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
         }
         // 是否发货校验
-        if(isHasSendCheck(packageCode, siteCode, spotCheckContext.getSpotCheckDimensionType(), result)){
+        if(isHasSendCheck(spotCheckContext, result)){
             return;
         }
         // 是否已抽检
@@ -172,7 +184,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     private void spotCheckOfB(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         String packageCode = spotCheckContext.getPackageCode();
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        Integer siteCode = spotCheckContext.getReviewSiteCode();
         // 纯配外单校验
         if(!BusinessUtil.isPurematch(spotCheckContext.getWaybill().getWaybillSign())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
@@ -188,7 +199,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return;
         }
         // 是否发货校验
-        if(isHasSendCheck(packageCode, siteCode, spotCheckContext.getSpotCheckDimensionType(), result)){
+        if(isHasSendCheck(spotCheckContext, result)){
             return;
         }
         // 是否已抽检
@@ -247,12 +258,14 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     /**
      * 是否发货校验
      *
-     * @param packageCode 包裹号
-     * @param siteCode 站点
-     * @param spotCheckDimensionType 抽检维度：SpotCheckDimensionEnum
+     * @param spotCheckContext
      * @return
      */
-    private boolean isHasSendCheck(String packageCode, Integer siteCode, Integer spotCheckDimensionType, InvokeResult<Boolean> result){
+    private boolean isHasSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result){
+        String packageCode = spotCheckContext.getPackageCode();
+        Integer siteCode = spotCheckContext.getReviewSiteCode();
+        Integer spotCheckDimensionType = spotCheckContext.getSpotCheckDimensionType();
+        boolean isMultiPack = spotCheckContext.getIsMultiPack();
         // 是否发货校验
         // 1、运单维度抽检：只要其中某一包裹已经发货则提示按包裹维度操作抽检
         // 2、包裹维度抽检：只要操作了发货则提示禁止抽检
@@ -264,6 +277,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             }
             SendDetail sendDetail = sendDetailService.findOneByWaybillCode(siteCode, waybillCode);
             if(sendDetail != null){
+                if(!isMultiPack){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND, sendDetail.getPackageBarcode()));
+                    return true;
+                }
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_PACK_SEND_TRANSFER, sendDetail.getPackageBarcode()));
                 return true;
             }
@@ -350,6 +367,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(spotCheckDto == null){
             result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        if(spotCheckDto.getSiteCode() == null || Objects.equals(spotCheckDto.getSiteCode(), Constants.NUMBER_ZERO)
+                || StringUtils.isEmpty(spotCheckDto.getOperateUserErp())){
+            result.parameterError("操作人信息不存在!");
             return result;
         }
         if(!WaybillUtil.isWaybillCode(spotCheckDto.getBarCode()) && !WaybillUtil.isPackageCode(spotCheckDto.getBarCode())){

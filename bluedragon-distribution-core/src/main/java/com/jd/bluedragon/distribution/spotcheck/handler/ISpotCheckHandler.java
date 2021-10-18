@@ -33,4 +33,11 @@ public interface ISpotCheckHandler {
      */
     InvokeResult<Boolean> dealSpotCheck(SpotCheckDto spotCheckDto);
 
+    /**
+     * 校验是否超标（无其他校验）
+     *
+     * @param spotCheckDto
+     * @return
+     */
+    InvokeResult<Integer> checkIsExcessWithOutOtherCheck(SpotCheckDto spotCheckDto);
 }

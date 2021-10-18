@@ -2525,6 +2525,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             abnormalResultMq.setTo(SpotCheckSystemEnum.JIFEI.getCode().toString());
             dmsWeightVolumeExcess.sendOnFailPersistent(abnormalResultMq.getAbnormalId(), JsonHelper.toJson(abnormalResultMq));
         }
+        // 更新已下发字段
+        weightVolumeCollectDto.setIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
+        reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
     }
 
     /**

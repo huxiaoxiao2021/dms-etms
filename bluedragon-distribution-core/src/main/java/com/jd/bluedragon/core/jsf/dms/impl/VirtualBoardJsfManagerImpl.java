@@ -106,4 +106,9 @@ public class VirtualBoardJsfManagerImpl implements IVirtualBoardJsfManager {
     public Response<UnbindVirtualBoardResultDto> unbindToBoard(UnbindToVirtualBoardPo unbindToVirtualBoardPo) {
         return virtualBoardJsfService.unbindToBoard(unbindToVirtualBoardPo);
     }
+
+    @Override
+    public Response<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
+        return virtualBoardJsfService.handoverBoard(handoverVirtualBoardPo);
+    }
 }

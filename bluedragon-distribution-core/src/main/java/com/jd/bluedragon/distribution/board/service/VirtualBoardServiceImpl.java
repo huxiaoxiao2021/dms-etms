@@ -122,13 +122,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         List<VirtualBoardResultDto> virtualBoardResultDtoList = new ArrayList<>();
         JdCResponse<List<VirtualBoardResultDto>> result = new JdCResponse<>(ResponseEnum.SUCCESS.getIndex(), null, virtualBoardResultDtoList);
         try {
-            // 1. 参数验证
-            final Result<Void> baseCheckResult = this.checkBaseParam(operatorInfo);
-            if(!baseCheckResult.isSuccess()){
-                result.setCode(baseCheckResult.getCode());
-                result.setMessage(baseCheckResult.getMessage());
-                return result;
-            }
             final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));
@@ -936,5 +929,36 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             return result.toFail("关闭板异常");
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.handoverBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
+        log.info("VirtualBoardServiceImpl.handoverBoard--start-- param {}", JsonHelper.toJson(handoverVirtualBoardPo));
+        JdCResponse<Void> result = new JdCResponse<>();
+        result.toSucceed();
+        try {
+            final Response<Void> handleResult = virtualBoardJsfManager.handoverBoard(this.getConvertToTcParam(handoverVirtualBoardPo));
+            if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+                log.error("VirtualBoardServiceImpl.handoverBoard--fail-- param {} result {}", JsonHelper.toJson(handoverVirtualBoardPo), JsonHelper.toJson(handleResult));
+                result.toFail(handleResult.getMesseage());
+                return result;
+            }
+        } catch (RuntimeException e) {
+            result.toFail("接口异常");
+            log.error("VirtualBoardServiceImpl.handoverBoard--exception param {} exception {}", JsonHelper.toJson(handoverVirtualBoardPo), e.getMessage(), e);
+        }
+
+        return result;
+    }
+
+    private com.jd.transboard.api.dto.HandoverVirtualBoardPo getConvertToTcParam(HandoverVirtualBoardPo handoverVirtualBoardPo) {
+        com.jd.transboard.api.dto.HandoverVirtualBoardPo handoverVirtualBoardPoTc = new com.jd.transboard.api.dto.HandoverVirtualBoardPo();
+        BeanUtils.copyProperties(handoverVirtualBoardPo, handoverVirtualBoardPoTc);
+        OperatorInfo operatorInfo = handoverVirtualBoardPo.getOperatorInfo();
+        final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
+        BeanUtils.copyProperties(operatorInfo, operatorInfoTarget);
+        handoverVirtualBoardPoTc.setOperatorInfo(operatorInfoTarget);
+        return handoverVirtualBoardPoTc;
     }
 }
