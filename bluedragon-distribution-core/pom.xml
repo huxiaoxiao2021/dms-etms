@@ -782,6 +782,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.tms.jdi</groupId>
+			<artifactId>tms-jdi-client</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>
             <version>1.0.7.5-SNAPSHOT</version>

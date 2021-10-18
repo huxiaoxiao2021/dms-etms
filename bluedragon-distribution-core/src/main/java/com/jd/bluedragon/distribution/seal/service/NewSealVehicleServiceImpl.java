@@ -9,10 +9,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.CarrierQueryWSManager;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.IDmsWbSealCarCollectManager;
-import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
@@ -31,12 +28,9 @@ import com.jd.bluedragon.distribution.material.service.SortingMaterialSendServic
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
-import com.jd.bluedragon.external.crossbow.itms.constants.ItmsConstants;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
@@ -54,7 +48,6 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
-import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.vos.dto.*;
@@ -62,14 +55,8 @@ import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
-import com.jd.logistics.customer.center.service.CustomerToolService;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.tms.tfc.dto.TransBookBillQueryDto;
-import com.jd.tms.tfc.dto.TransWorkItemDto;
-import com.jd.tms.tfc.dto.TransWorkItemWsDto;
-import com.jd.tms.tfc.ws.TfcQueryWS;
-import com.jd.tms.tfc.ws.TfcSelectWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -87,17 +74,18 @@ import java.util.*;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
+
+    /**
+     * 查询预封车封车小时数
+     */
+    @Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
+    private Integer preSealRecentHours = 24;
+
 	@Autowired
 	private VosQueryWS vosQueryWS;
 
 	@Autowired
 	private VosBusinessWS vosBusinessWS;
-
-	@Autowired
-	private TfcQueryWS tfcQueryWS;
-
-	@Autowired
-	private TfcSelectWS tfcSelectWS;
 
     @Autowired
     private GoddessService goddessService;
@@ -137,11 +125,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	
 	@Autowired
 	private PreSealBatchService preSealBatchService;
-    /**
-     * 查询预封车封车小时数
-     */
-	@Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
-    private Integer preSealRecentHours = 24;
 
     @Autowired
     private CarrierQueryWSManager carrierQueryWSManager;
@@ -155,11 +138,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private TibetBizService tibetBizService;
 
-
     @Qualifier(value = "batchSendStatusChangeProducer")
     private DefaultJMQProducer batchSendStatusChangeProducer;
-
-
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -836,30 +816,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcQueryWS.queryTransWorkItemBySimpleCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
-        return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.queryVehicleNumberOrItemCodeByParam", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception {
-        return tfcSelectWS.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<String> checkTransportCode(String simpleCode, String transportCode) throws Exception {
-        return tfcSelectWS.checkTransportCode(simpleCode, transportCode);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.getTransBookBill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception {
-        return tfcSelectWS.getTransBookBill(transBookBillQueryDto, pageDto);
-    }
 
     /**
      * 校验批次的体积是否超标
