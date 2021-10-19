@@ -258,8 +258,8 @@
         SELECT
         count(distinct waybill_code)
         FROM inspection
-        WHERE create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
-        AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        WHERE create_time <![CDATA[>=]]> #{startTime}
+        AND create_time <![CDATA[<=]]> #{endTime}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         <if test="waybillCode != null">
             AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
@@ -272,8 +272,8 @@
         SELECT
         waybill_code,max(quantity) package_num,count(distinct package_barcode) inspectioned_pack_num
         FROM inspection
-        WHERE create_time <![CDATA[>=]]> str_to_date(date_format(#{startTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
-        AND create_time <![CDATA[<=]]> str_to_date(date_format(#{endTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
+        WHERE create_time <![CDATA[>=]]> #{startTime}
+        AND create_time <![CDATA[<=]]> #{endTime}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
         <if test="waybillCode != null">
             AND waybill_code = #{waybillCode,jdbcType=VARCHAR}

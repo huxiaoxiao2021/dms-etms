@@ -51,6 +51,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.asset.material.base.ResultData;
 import com.jd.etms.asset.material.base.ResultStateEnum;
 import com.jd.etms.asset.material.dto.MatterPackageRelationDto;
@@ -390,33 +391,67 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	}
 
 
-
-
+	/**
+	 * 分批查询时间跨度小时数
+	 */
+	private int timeRangeOneBatch = 1;
 	public PagerResult<InsepctionCheckDto> findInspectionGather(InspectionCheckCondition condition){
 
 		PagerResult<InsepctionCheckDto> result = new PagerResult<>();
 		List<InsepctionCheckDto> insepctionCheckDtos = new ArrayList<>();
 
-		if(condition != null && condition.getStartTime() != null && condition.getEndTime() != null){
-			String format = "yyyy-MM-dd HH:mm:ss";
-			Date start = DateHelper.parseDate(condition.getStartTime(),format);
-			Date end = DateHelper.parseDate(condition.getEndTime(),format);
-			int days = DateHelper.daysBetween(start,end);
-			if(days > 1){
-				log.error("验货集齐查询失败!");
-				result.setRows(new ArrayList<InsepctionCheckDto>());
-				result.setTotal(0);
-				return result;
-			}
+        final Result<Boolean> checkResult = this.checkParam4FindInspectionGather(condition);
+        if (!checkResult.isSuccess()) {
+            log.error("验货集齐查询参数校验不通过!");
+            result.setRows(new ArrayList<InsepctionCheckDto>());
+            result.setTotal(0);
+            return result;
+        }
+
+        String format = "yyyy-MM-dd HH:mm:ss";
+		Date start = DateHelper.parseDate(condition.getStartTime(),format);
+		Date end = DateHelper.parseDate(condition.getEndTime(),format);
+		int days = DateHelper.daysBetween(start,end);
+
+		if(days > 1){
+			log.error("验货集齐查询失败!");
+			result.setRows(new ArrayList<InsepctionCheckDto>());
+			result.setTotal(0);
+			return result;
 		}
 		try{
 			//查询总数
-			Integer total = inspectionDao.findInspectionGatherPageCount(condition);
-			if(total != null){
-				result.setTotal(total);
-			}else{
-				result.setTotal(0);
-			}
+			// 分时间段多次汇总
+            int hoursOffset = (int) (end.getTime() - start.getTime()) / 1000 / 3600;
+
+            int timeRangeOneBatchTemp = timeRangeOneBatch;
+            if(hoursOffset < timeRangeOneBatch){
+                timeRangeOneBatchTemp = hoursOffset;
+            }
+            int timeRangeBatchTotal = hoursOffset / timeRangeOneBatchTemp;
+            if(hoursOffset % timeRangeOneBatchTemp != 0){
+                timeRangeBatchTotal++;
+            }
+            int total = 0;
+            for(int i = 1; i <= timeRangeBatchTotal; i++) {
+                Calendar calendarStart = Calendar.getInstance();
+                calendarStart.setTime(start);
+                Calendar calendarEnd = Calendar.getInstance();
+                calendarEnd.setTime(start);
+                calendarStart.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * (i - 1) * -1);
+                if(i < timeRangeBatchTotal){
+                    calendarEnd.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i * -1);
+                } else {
+                    calendarEnd.setTime(end);
+                }
+                Date startTimeDate = calendarStart.getTime();
+                Date endTimeDate = calendarEnd.getTime();
+                condition.setStartTime(DateHelper.formatDateTime(startTimeDate));
+                condition.setEndTime(DateHelper.formatDateTime(endTimeDate));
+                int totalTemp = inspectionDao.findInspectionGatherPageCount(condition);
+                total += totalTemp;
+            }
+			result.setTotal(total);
 
             insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
 			result.setRows(insepctionCheckDtos);
@@ -428,6 +463,20 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		}
 		return result;
 	}
+
+    private Result<Boolean> checkParam4FindInspectionGather(InspectionCheckCondition condition) {
+        Result<Boolean> result = Result.success();
+        if (condition == null) {
+            return result.toFail("参数错误，参数不能为空");
+        }
+        if (condition.getStartTime() == null) {
+            return result.toFail("参数错误，startTime不能为空");
+        }
+        if (condition.getEndTime() == null) {
+            return result.toFail("参数错误，endTime不能为空");
+        }
+        return result;
+    }
 
 	public PagerResult<Inspection> findInspetionedPacks(Inspection inspection){
 
