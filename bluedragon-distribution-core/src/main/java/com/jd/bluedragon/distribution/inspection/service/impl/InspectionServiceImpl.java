@@ -439,9 +439,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 calendarStart.setTime(start);
                 Calendar calendarEnd = Calendar.getInstance();
                 calendarEnd.setTime(start);
-                calendarStart.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * (i - 1) * -1);
+                calendarStart.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * (i - 1));
                 if(i < timeRangeBatchTotal){
-                    calendarEnd.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i * -1);
+                    calendarEnd.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i);
                 } else {
                     calendarEnd.setTime(end);
                 }
