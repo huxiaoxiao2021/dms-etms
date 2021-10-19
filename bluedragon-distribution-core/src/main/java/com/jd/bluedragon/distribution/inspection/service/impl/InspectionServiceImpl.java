@@ -433,6 +433,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 timeRangeBatchTotal++;
             }
             int total = 0;
+            log.info("findInspectionGatherPageCount batchTotal: {}", timeRangeBatchTotal);
             for(int i = 1; i <= timeRangeBatchTotal; i++) {
                 Calendar calendarStart = Calendar.getInstance();
                 calendarStart.setTime(start);
@@ -448,12 +449,20 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 Date endTimeDate = calendarEnd.getTime();
                 condition.setStartTime(DateHelper.formatDateTime(startTimeDate));
                 condition.setEndTime(DateHelper.formatDateTime(endTimeDate));
+                long startMill = System.currentTimeMillis();
+                log.info("findInspectionGatherPageCount batch: {} start: {} param: {}", i, startMill, JsonHelper.toJson(condition));
                 int totalTemp = inspectionDao.findInspectionGatherPageCount(condition);
+                long endMill = System.currentTimeMillis();
+                log.info("findInspectionGatherPageCount batch: {} end: {}, runtime: {} result: {}", i, endMill, endMill - startMill, totalTemp);
                 total += totalTemp;
             }
 			result.setTotal(total);
 
+            long startMill = System.currentTimeMillis();
+            log.info("findInspectionGather start: {} param: {}", System.currentTimeMillis(), JsonHelper.toJson(condition));
             insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
+            long endMill = System.currentTimeMillis();
+            log.info("findInspectionGather end: {}, runtime: {} resultTotal: {}", endMill, endMill - startMill, insepctionCheckDtos.size());
 			result.setRows(insepctionCheckDtos);
 
 		}catch (Exception e){
