@@ -642,7 +642,7 @@
 			#{item,jdbcType=INTEGER}
 		</foreach>
         and operate_time <![CDATA[>=]]> #{operateTimeStart,jdbcType=TIMESTAMP}
-		AND operate_time <![CDATA[<=]]> #{operateTimeEnd,jdbcType=TIMESTAMP}
+		AND operate_time <![CDATA[<]]> #{operateTimeEnd,jdbcType=TIMESTAMP}
     </select>
 
 </mapper>
