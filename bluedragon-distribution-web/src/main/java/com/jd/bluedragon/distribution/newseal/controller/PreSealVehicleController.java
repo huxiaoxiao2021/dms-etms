@@ -230,17 +230,22 @@ public class PreSealVehicleController extends DmsBaseController{
         if(hourRange % timeRangeOneBatchTemp != 0){
             timeRangeBatchTotal++;
         }
+        final Date dateCurrent = new Date();
         for(int i = 1; i <= timeRangeBatchTotal; i++){
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(new Date());
+            Calendar calendarStart = Calendar.getInstance();
+            calendarStart.setTime(dateCurrent);
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTime(dateCurrent);
+            calendarEnd.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * (i - 1) * -1);
             if(i < timeRangeBatchTotal){
-                calendar.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i * -1);
+                calendarStart.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i * -1);
             } else {
-                calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
+                calendarStart.add(Calendar.HOUR_OF_DAY, hourRange * -1);
             }
-            Date startDate = calendar.getTime();
+            Date startDate = calendarStart.getTime();
+            Date endDate = calendarEnd.getTime();
             for (List<Integer> singList : batch) {
-                sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate));
+                sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate, endDate));
             }
         }
         Set<String> allSendCodeList = new HashSet<>();

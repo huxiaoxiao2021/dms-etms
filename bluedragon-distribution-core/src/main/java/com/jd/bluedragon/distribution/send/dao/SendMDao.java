@@ -257,14 +257,15 @@ public  class SendMDao extends BaseDao<SendM>  {
 	 * @param startDate
 	 * @return
 	 */
-	public List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate) {
+	public List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate, Date endDate) {
 		if(createSiteCode == null || startDate == null || CollectionUtils.isEmpty(receiveSiteCodes)){
 			throw new IllegalArgumentException("始发分拣中心、目的分拣中心、起始时间不能为空.");
 		}
 		Map<String, Object> searchParams = new HashMap<>();
 		searchParams.put("createSiteCode", createSiteCode);
 		searchParams.put("receiveSiteCodes", receiveSiteCodes);
-		searchParams.put("operateTime", startDate);
+		searchParams.put("operateTimeStart", startDate);
+		searchParams.put("operateTimeEnd", endDate);
 		return this.getSqlSession().selectList(SendMDao.namespace + ".batchSearchBySiteCodeAndStartTime",searchParams);
 	}
 }
