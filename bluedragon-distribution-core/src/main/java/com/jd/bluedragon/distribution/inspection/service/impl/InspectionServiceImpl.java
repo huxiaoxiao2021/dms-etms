@@ -453,10 +453,13 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 conditionTemp.setEndTime(DateHelper.formatDateTime(endTimeDate));
                 int totalTemp = inspectionDao.findInspectionGatherPageCount(conditionTemp);
                 total += totalTemp;
+
+                if(insepctionCheckDtos.size() < condition.getLimit()){
+                    insepctionCheckDtos.addAll(inspectionDao.findInspectionGather(conditionTemp));
+                }
             }
 			result.setTotal(total);
 
-            insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
 			result.setRows(insepctionCheckDtos);
 
 		}catch (Exception e){
