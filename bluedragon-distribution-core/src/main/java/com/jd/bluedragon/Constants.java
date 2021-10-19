@@ -251,13 +251,20 @@ public class Constants {
 
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
-    /* 基础资料SiteType: 16为三方，4为自营 */
-    public static final int BASE_SITE_SITE = 4;//站点
+    /* 基础资料SiteType: 16为三方，4为自营，8为自提点 */
+    public static final int BASE_SITE_SITE = 4;
+    public static final int BASE_SITE_TYPE_ZT = 8;
     public static final Integer BASE_SITE_TYPE_THIRD = 16;
+    public static final int BASE_SITE_TYPE_CAR_ZS = 32;// 汽车直送
     /* 基础资料siteType:64为分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_CENTER = 64;
     /* 基础资料siteType:96车队 */
     public static final Integer BASE_SITE_MOTORCADE = 96;
+    public static final int BASE_SITE_SUBTYPE_JP = 9605;// 集配站
+    public static final int BASE_SITE_TYPE_XN = 100;// 虚拟站点
+    public static final int BASE_SITE_SUBTYPE_B2B2C = 10003;// B2B2C站点
+    public static final int BASE_SITE_TYPE_KYZD = 101;// 快运终端
+    public static final int BASE_SITE_TYPE_TCSP = 109;// 同城速配营业部
     /* 基础资料siteType:256为二级分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER = 256;
     /* 基础资料siteType:1024为B商家 */
