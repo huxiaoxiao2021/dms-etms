@@ -776,6 +776,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     protected void setSpotCheckPackCache(String packageCode, Integer siteCode) {
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
         try {
+            // 设置包裹已抽检缓存，key：packageCode， value：1
+            String packSpotCheckKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(packageCode);
+            jimdbCacheService.setEx(packSpotCheckKey, Constants.CONSTANT_NUMBER_ONE, 7, TimeUnit.DAYS);
+            // 设置运单下已抽检包裹缓存，key：waybillCode + siteCode ， value：packSet 缓存
             String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
             Set<String> packSet = new HashSet<>();
             String packSetStr = spotCheckDealService.spotCheckPackSetStr(waybillCode, siteCode);
