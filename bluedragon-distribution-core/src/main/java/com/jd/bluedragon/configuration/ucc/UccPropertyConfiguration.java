@@ -567,16 +567,6 @@ public class UccPropertyConfiguration {
     }
 
     /**
-     * 一单多件抽检功能开关，0-关，1-开
-     */
-    private int multiplePackageSpotCheckSwitch;
-
-    /**
-     * 一单多件抽检场地配置，配置ALL表示全部开启
-     */
-    private String multiplePackageSpotCheckSites;
-
-    /**
      * 读转运卸车表开关
      */
     private boolean readUnloadFromTys;
