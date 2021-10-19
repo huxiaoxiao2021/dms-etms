@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
@@ -12,7 +13,6 @@ import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
@@ -48,10 +48,10 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
     @Autowired
-    private SpotCheckDealService spotCheckDealService;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private BaseMajorManager baseMajorManager;
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -80,9 +80,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         }
         try {
             // 执行新抽检逻辑
-            if(spotCheckDealService.isExecuteNewSpotCheck(req.getCreateSiteCode())){
+            if(uccPropertyConfiguration.getAndroidIsExecuteNewSpotCheck()){
                 com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
                         = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(req));
+                jdCResponse.setCode(checkIsExcessResult.getCode());
+                jdCResponse.setMessage(checkIsExcessResult.getMessage());
                 jdCResponse.setData(checkIsExcessResult.getData());
                 return jdCResponse;
             }
@@ -141,7 +143,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         }
         try {
             // 执行新抽检逻辑
-            if(spotCheckDealService.isExecuteNewSpotCheck(req.getCreateSiteCode())){
+            if(uccPropertyConfiguration.getAndroidIsExecuteNewSpotCheck()){
                 spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDealDto(req));
                 jdCResponse.toSucceed("操作成功！");
                 return jdCResponse;
@@ -193,7 +195,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
         spotCheckDto.setExcessStatus(req.getExcessFlag());
         Map<String, String> picUtlMap = new LinkedHashMap<>();
-        picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_COMMA));
+        picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_SEMICOLON));
         spotCheckDto.setPictureUrls(picUtlMap);
         return spotCheckDto;
     }

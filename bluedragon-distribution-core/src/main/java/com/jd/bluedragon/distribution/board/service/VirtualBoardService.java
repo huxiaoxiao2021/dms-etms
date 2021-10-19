@@ -99,4 +99,11 @@ public interface VirtualBoardService {
      * @time 2021-08-22 17:39:26 周日
      */
     Result<Void> handleTimingCloseBoard(CloseVirtualBoardPo closeVirtualBoardPo);
+
+    /**
+     * 板号交接操作
+     * @param handoverVirtualBoardPo
+     * @return
+     */
+    JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
 }

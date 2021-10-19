@@ -133,6 +133,7 @@
         <property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
         <property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
         <property name="deliverySendAsyncSite" value="${deliverySendAsyncSite:''}" />
+        <property name="deliverySendTaskSleepMills" value="${deliverySendTaskSleepMills:1000}" />
         <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
@@ -148,6 +149,7 @@
 		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
 		<property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
 		<property name="executeBCFuse" value="${executeBCFuse:false}"></property>
+		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"></property>
 		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"></property>
 		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"></property>
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"></property>
@@ -263,6 +265,7 @@
 				<value>uccPropertyConfiguration.virtualSiteCode</value>
 				<value>uccPropertyConfiguration.paralleGetPackageSwitch</value>
 				<value>uccPropertyConfiguration.deliverySendAsyncSite</value>
+				<value>uccPropertyConfiguration.deliverySendTaskSleepMills</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
                 <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
@@ -281,6 +284,7 @@
 				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
 				<value>uccPropertyConfiguration.isIssueToFinance</value>
 				<value>uccPropertyConfiguration.executeBCFuse</value>
+				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfig</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>

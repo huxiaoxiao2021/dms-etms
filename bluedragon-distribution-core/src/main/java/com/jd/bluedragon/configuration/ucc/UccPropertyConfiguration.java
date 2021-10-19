@@ -528,6 +528,11 @@ public class UccPropertyConfiguration {
     private String deliverySendAsyncSite;
 
     /**
+     * 老发货异步任务延时消费毫秒数
+     */
+    private int deliverySendTaskSleepMills;
+
+    /**
      * 日志查询功能开关 1：启用 0：禁用
      */
     private String businessLogQueryPageSwitch;
@@ -553,6 +558,24 @@ public class UccPropertyConfiguration {
         this.deliverySendAsyncSite = deliverySendAsyncSite;
     }
 
+    public int getDeliverySendTaskSleepMills() {
+        return deliverySendTaskSleepMills;
+    }
+
+    public void setDeliverySendTaskSleepMills(int deliverySendTaskSleepMills) {
+        this.deliverySendTaskSleepMills = deliverySendTaskSleepMills;
+    }
+
+    /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
+
     /**
      * 读转运卸车表开关
      */
@@ -567,6 +590,11 @@ public class UccPropertyConfiguration {
      * 写转运卸车表开关
      */
     private boolean writeUnloadFromTys;
+
+    /**
+     * 安卓抽检是否执行新抽检模式
+     */
+    private boolean androidIsExecuteNewSpotCheck;
 
     /**
      * 打印客户端无权限菜单配置
@@ -1574,6 +1602,14 @@ public class UccPropertyConfiguration {
             return true;
         }
         return false;
+    }
+
+    public boolean getAndroidIsExecuteNewSpotCheck() {
+        return androidIsExecuteNewSpotCheck;
+    }
+
+    public void setAndroidIsExecuteNewSpotCheck(boolean androidIsExecuteNewSpotCheck) {
+        this.androidIsExecuteNewSpotCheck = androidIsExecuteNewSpotCheck;
     }
 
     public String getUseNewInventorySiteCodes() {
