@@ -458,14 +458,16 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 long endMill = System.currentTimeMillis();
                 log.info("findInspectionGatherPageCount batch: {} end: {}, runtime: {} result: {}", i, endMill, endMill - startMill, totalTemp);
                 total += totalTemp;
+
+                if(insepctionCheckDtos.size() < condition.getLimit()){
+                    long startMill4List = System.currentTimeMillis();
+                    log.info("findInspectionGather batch: {} start: {} param: {}", i, startMill4List, JsonHelper.toJson(condition));
+                    insepctionCheckDtos.addAll(inspectionDao.findInspectionGather(conditionTemp));
+                    long endMill4List = System.currentTimeMillis();
+                    log.info("findInspectionGather end: {}, runtime: {} resultTotal: {}", endMill4List, endMill4List - startMill4List, insepctionCheckDtos.size());
+                }
             }
 			result.setTotal(total);
-
-            long startMill = System.currentTimeMillis();
-            log.info("findInspectionGather start: {} param: {}", System.currentTimeMillis(), JsonHelper.toJson(condition));
-            insepctionCheckDtos = inspectionDao.findInspectionGather(condition);
-            long endMill = System.currentTimeMillis();
-            log.info("findInspectionGather end: {}, runtime: {} resultTotal: {}", endMill, endMill - startMill, insepctionCheckDtos.size());
 			result.setRows(insepctionCheckDtos);
 
 		}catch (Exception e){
