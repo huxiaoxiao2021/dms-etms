@@ -73,6 +73,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -433,6 +434,8 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 timeRangeBatchTotal++;
             }
             int total = 0;
+            InspectionCheckCondition conditionTemp = new InspectionCheckCondition();
+            BeanUtils.copyProperties(condition, conditionTemp);
             for(int i = 1; i <= timeRangeBatchTotal; i++) {
                 Calendar calendarStart = Calendar.getInstance();
                 calendarStart.setTime(start);
@@ -446,9 +449,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
                 }
                 Date startTimeDate = calendarStart.getTime();
                 Date endTimeDate = calendarEnd.getTime();
-                condition.setStartTime(DateHelper.formatDateTime(startTimeDate));
-                condition.setEndTime(DateHelper.formatDateTime(endTimeDate));
-                int totalTemp = inspectionDao.findInspectionGatherPageCount(condition);
+                conditionTemp.setStartTime(DateHelper.formatDateTime(startTimeDate));
+                conditionTemp.setEndTime(DateHelper.formatDateTime(endTimeDate));
+                int totalTemp = inspectionDao.findInspectionGatherPageCount(conditionTemp);
                 total += totalTemp;
             }
 			result.setTotal(total);
