@@ -203,6 +203,11 @@ public class PreSealVehicleController extends DmsBaseController{
     }
 
     /**
+     * 分批查询时间跨度小时数
+     */
+    private int timeRangeOneBatch = 12;
+
+    /**
      * 获取已发未封批次
      *  key：目的地 value：已验未发批次集合
      *  校验两次是否封车：因封车后未成功写入redis
@@ -215,14 +220,33 @@ public class PreSealVehicleController extends DmsBaseController{
      * @return
      */
     private Map<Integer, Set<String>> getSendUnSealMap(Integer createSiteCode, ArrayList<Integer> receiveSiteCodes, Integer hourRange) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(new Date());
-        calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
-        Date startDate = calendar.getTime();
         List<List<Integer>> batch = Lists.partition(receiveSiteCodes, 50);
         List<SendM> sendMList = new ArrayList<>();
-        for (List<Integer> singList : batch) {
-            sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate));
+        int timeRangeOneBatchTemp = timeRangeOneBatch;
+        if(hourRange < timeRangeOneBatch){
+            timeRangeOneBatchTemp = hourRange;
+        }
+        int timeRangeBatchTotal = hourRange / timeRangeOneBatchTemp;
+        if(hourRange % timeRangeOneBatchTemp != 0){
+            timeRangeBatchTotal++;
+        }
+        final Date dateCurrent = new Date();
+        for(int i = 1; i <= timeRangeBatchTotal; i++){
+            Calendar calendarStart = Calendar.getInstance();
+            calendarStart.setTime(dateCurrent);
+            Calendar calendarEnd = Calendar.getInstance();
+            calendarEnd.setTime(dateCurrent);
+            calendarEnd.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * (i - 1) * -1);
+            if(i < timeRangeBatchTotal){
+                calendarStart.add(Calendar.HOUR_OF_DAY, timeRangeOneBatchTemp * i * -1);
+            } else {
+                calendarStart.add(Calendar.HOUR_OF_DAY, hourRange * -1);
+            }
+            Date startDate = calendarStart.getTime();
+            Date endDate = calendarEnd.getTime();
+            for (List<Integer> singList : batch) {
+                sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate, endDate));
+            }
         }
         Set<String> allSendCodeList = new HashSet<>();
         for (SendM sendM : sendMList) {

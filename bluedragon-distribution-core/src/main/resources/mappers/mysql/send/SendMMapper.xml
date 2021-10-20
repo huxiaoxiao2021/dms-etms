@@ -641,7 +641,8 @@
 		<foreach collection="receiveSiteCodes" item="item" index="index" open="(" separator="," close=")">
 			#{item,jdbcType=INTEGER}
 		</foreach>
-        and operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
+        and operate_time <![CDATA[>=]]> #{operateTimeStart,jdbcType=TIMESTAMP}
+		AND operate_time <![CDATA[<]]> #{operateTimeEnd,jdbcType=TIMESTAMP}
     </select>
 
 </mapper>

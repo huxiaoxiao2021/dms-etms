@@ -40,8 +40,8 @@ public class SendMServiceImpl implements SendMService{
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendMServiceImpl.batchSearchBySiteCodeAndStartTime", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
-    public List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate) {
-        return sendMDao.batchSearchBySiteCodeAndStartTime(createSiteCode, receiveSiteCodes, startDate);
+    public List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate, Date endDate) {
+        return sendMDao.batchSearchBySiteCodeAndStartTime(createSiteCode, receiveSiteCodes, startDate, endDate);
     }
 
     @Override
