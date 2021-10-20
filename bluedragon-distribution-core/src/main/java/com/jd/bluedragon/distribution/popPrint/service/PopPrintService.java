@@ -81,6 +81,8 @@ public interface PopPrintService {
      */
     PopPrintResponse dealPopPrintLogic(PopPrintRequest popPrintRequest, Integer residentType);
 
+	PopPrint requestToPopPrint(PopPrintRequest request);
+
 	/**
 	 * 发送全程跟踪
 	 * @param req
