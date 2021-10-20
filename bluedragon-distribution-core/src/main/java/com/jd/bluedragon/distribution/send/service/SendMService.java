@@ -32,7 +32,7 @@ public interface SendMService {
      * @param startDate
      * @return
      */
-    List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate);
+    List<SendM> batchSearchBySiteCodeAndStartTime(Integer createSiteCode, List<Integer> receiveSiteCodes, Date startDate, Date endDate);
 
     /**
      * 根据条件查询发货记录

@@ -146,8 +146,8 @@ $(function () {
             //查询
             $('#btn_query').click(function () {
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
-                if(days > 2){
-                    Jd.alert("查询时间不能超过2天，请缩小时间范围!");
+                if(days > 1){
+                    Jd.alert("查询时间不能超过1天，请缩小时间范围!");
                     return;
                 }
                 let clickStrict = ClickFrequencyUtil.controlClick($('#query-form'), $('#btn_query'));
@@ -173,10 +173,10 @@ $(function () {
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
     $("#startTime").val(v+" 00:00:00");
-    $("#endTime").val(v+" 23:59:59");
+    $("#endTime").val($.dateHelper.formatDate($.dateHelper.addDays(new Date(), 1)) + " 00:00:00");
 }
 
-function  getDaysByDateString(dateString1,dateString2) {
+function getDaysByDateString(dateString1,dateString2) {
     var startDate = Date.parse(dateString1.replace('/-/g', '/'));
     var endDate = Date.parse(dateString2.replace('/-/g', '/'));
     var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
