@@ -342,16 +342,6 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!-- 对外提供给转运相关的服务jsf -->
-    <jsf:provider id="jsfTransportCommonService"
-                  interface="com.jd.bluedragon.distribution.external.service.TransportCommonService"
-                  alias="${dms.jsf.alias}"
-                  ref="transportCommonService"
-                  server="dmsjsf">
-    </jsf:provider>
-
-
-
     <!-- 站点新查询服务-->
 
     <jsf:provider id="jsfSiteService"
@@ -360,5 +350,29 @@
                   ref="siteService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 对外提供给转运相关的服务jsf -->
+    <jsf:provider id="jsfTransportCommonService"
+                  interface="com.jd.bluedragon.distribution.external.service.TransportCommonService"
+                  alias="${dms.jsf.alias}"
+                  ref="transportCommonService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 测试使用：抽检对外jsf -->
+    <jsf:provider id="jsfSpotCheckCurrencyService"
+                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService"
+                  alias="${dms.jsf.alias}"
+                  ref="spotCheckCurrencyService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfSortBoardJsfService"
+                  interface="com.jd.bluedragon.distribution.board.SortBoardJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="sortBoardJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 
 </beans>
