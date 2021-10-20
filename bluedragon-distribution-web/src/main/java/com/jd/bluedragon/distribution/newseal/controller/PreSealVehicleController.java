@@ -250,7 +250,11 @@ public class PreSealVehicleController extends DmsBaseController{
             Date startDate = calendarStart.getTime();
             Date endDate = calendarEnd.getTime();
             for (List<Integer> singList : batch) {
+                long startMill = System.currentTimeMillis();
+                log.info("getSendUnSealMap batch: {} start: {}, receiveBatchSize: {} startDate: {} endDate: {}", i, startMill, singList.size(), startDate, endDate);
                 sendMList.addAll(sendMService.batchSearchBySiteCodeAndStartTime(createSiteCode, singList, startDate, endDate));
+                long endMill = System.currentTimeMillis();
+                log.info("getSendUnSealMap batch: {} end: {}, runtime: {} resultSize: {}", i, endMill, endMill - startMill, sendMList.size());
             }
         }
         Set<String> allSendCodeList = new HashSet<>();
