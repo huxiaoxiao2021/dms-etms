@@ -267,6 +267,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
         Integer operateSiteCode = weightVolumeSummary.getOperateSiteCode();
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(operateSiteCode);
+        if(baseSite == null){
+            logger.warn("运单号：{}的首称重场地ID：{}不存在!", waybillCode, operateSiteCode);
+            return null;
+        }
         weightVolumeSummary.setOperateOrgId(baseSite.getOrgId());
         weightVolumeSummary.setOperateOrgName(baseSite.getOrgName());
         weightVolumeSummary.setOperateAreaCode(baseSite.getAreaCode());
