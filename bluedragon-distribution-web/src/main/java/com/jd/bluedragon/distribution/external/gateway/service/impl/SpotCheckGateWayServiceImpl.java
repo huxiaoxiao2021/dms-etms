@@ -94,6 +94,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             conditionB2b.setLoginErp(req.getLoginErp());
             conditionB2b.setWaybillVolume(req.getVolume());
             conditionB2b.setWaybillWeight(req.getWeight());
+            conditionB2b.setAndroidSpotCheck(true);
             InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
             if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
                 jdCResponse.toFail("操作失败！");
@@ -217,6 +218,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         conditionB2b.setWaybillWeight(req.getWeight());
         conditionB2b.setPdaSource(1);
         conditionB2b.setUrls(req.getUrls());
+        conditionB2b.setAndroidSpotCheck(true);
         return conditionB2b;
     }
 

@@ -677,8 +677,8 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         weightVolumeCheckOfB2bWaybill.setWaybillVolume(condition.getWaybillVolume());
         weightVolumeCheckOfB2bWaybill.setUpLoadNum(0);//初始上传图片数量
         weightVolumeCheckOfB2bWaybill.setPackNum(baseEntity.getData().getPackageList().size());
-        // 执行新抽检逻辑
-        if(spotCheckDealService.isExecuteNewSpotCheck(condition.getCreateSiteCode())){
+        // 页面抽检执行新抽检逻辑
+        if(!condition.getAndroidSpotCheck() && spotCheckDealService.isExecuteNewSpotCheck(condition.getCreateSiteCode())){
             com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
                     = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(condition, true));
             weightVolumeCheckOfB2bWaybill.setIsExcess(checkIsExcessResult.getData());
@@ -840,7 +840,7 @@ public class WeightAndVolumeCheckOfB2bServiceImpl implements WeightAndVolumeChec
         InvokeResult<String> result = new InvokeResult<>();
         try{
             // 执行新抽检逻辑
-            if(spotCheckDealService.isExecuteNewSpotCheck(param.getCreateSiteCode())){
+            if(!param.getAndroidSpotCheck() && spotCheckDealService.isExecuteNewSpotCheck(param.getCreateSiteCode())){
                 com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> spotCheckDealResult
                         = spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDto(param, false));
                 result.customMessage(spotCheckDealResult.getCode(), spotCheckDealResult.getMessage());

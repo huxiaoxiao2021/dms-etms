@@ -60,6 +60,11 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      */
     private List<String> urls;
 
+    /**
+     * 是否安卓抽检：false表示web页面抽检，true表示安卓抽检
+     */
+    private boolean androidSpotCheck = false;
+
     public String getLoginErp() {
         return loginErp;
     }
@@ -146,5 +151,13 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setUrls(List<String> urls) {
         this.urls = urls;
+    }
+
+    public boolean getAndroidSpotCheck() {
+        return androidSpotCheck;
+    }
+
+    public void setAndroidSpotCheck(boolean androidSpotCheck) {
+        this.androidSpotCheck = androidSpotCheck;
     }
 }
