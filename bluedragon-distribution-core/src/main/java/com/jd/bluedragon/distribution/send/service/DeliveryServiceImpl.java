@@ -6844,9 +6844,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         pushSorting(domain);
         log.info("按运单发货任务处理,补分拣任务完成:waybillCode={}", waybillCode);
 
-        // 处理发货任务之前 确认明细数据补分拣任务已经完成,否者 自旋 或者MQ异常重试
-        beforeWaybillSendSplitTask(domain.getBoxCode(), domain.getCreateSiteCode());
-
         // 按包裹分页 拆分任务调用一车一单发货逻辑
         int splitSize = (waybill.getGoodNumber() / pageSize) + 1;
         for (int i = 1; i <= splitSize; i++) {
@@ -6857,19 +6854,26 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return true;
     }
 
-    private void beforeWaybillSendSplitTask(String waybillCode,Integer createSiteCode) {
+    private void beforeWaybillSendSplitTask(SendM domain) {
+        String waybillCode = domain.getBoxCode();
         if (WaybillUtil.isPackageCode(waybillCode)) {
             waybillCode = WaybillUtil.getWaybillCode(waybillCode);
         }
         SendDetail tSendDetail = new SendDetail();
         tSendDetail.setWaybillCode(waybillCode);
-        tSendDetail.setCreateSiteCode(createSiteCode);
+        tSendDetail.setCreateSiteCode(domain.getCreateSiteCode());
+        tSendDetail.setSendCode(domain.getSendCode());
         int count = 0;
-        String msg = String.format("按运单发货分发拆分任务-：waybillCode=%s,createSiteCode=%s", waybillCode, createSiteCode);
+
+        String waybillLockKey = getSendByWaybillLockKey(waybillCode, domain.getCreateSiteCode());
+        String s = redisClientCache.get(waybillLockKey);
+
+        String msg = String.format("按运单发货分发拆分任务-：waybillCode=%s,createSiteCode=%s,总单量:%s", waybillCode, domain.getCreateSiteCode(), s);
+        Integer totalGoodNumber = Integer.valueOf(s);
         while (true) {
             count++;
-            SendDetail sendDetailListTemp = this.sendDatailDao.findOneByWaybillCode(tSendDetail);
-            if (sendDetailListTemp != null) {
+            Integer detailCount = this.sendDatailDao.queryCountExclusion(tSendDetail);
+            if (detailCount >= totalGoodNumber) {
                 break;
             }
             if (count > 3) {
@@ -6896,6 +6900,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             log.warn("按运单发货拆分任务处理,获取包裹数量为空:waybillCode={}", waybillCode);
             return false;
         }
+
+        // 处理发货任务之前 确认明细数据补分拣任务已经完成,否者 自旋 或者MQ异常重试
+        beforeWaybillSendSplitTask(domain);
 
         // 循环调用按包裹发货逻辑
         for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
