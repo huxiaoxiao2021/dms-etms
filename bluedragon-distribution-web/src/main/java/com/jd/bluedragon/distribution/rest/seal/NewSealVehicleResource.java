@@ -40,6 +40,7 @@ import com.jd.tms.jdi.dto.TransWorkItemWsDto;
 import com.jd.tms.workbench.dto.TransWorkItemSimpleDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -995,11 +996,32 @@ public class NewSealVehicleResource {
      * @param unSealVehicleResponse
      */
     private void checkIsNeedSpotCheck(NewSealVehicleRequest request, NewUnsealVehicleResponse<Boolean> unSealVehicleResponse) {
-        WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
-        String chineseVehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(request.getVehicleNumber());
-        condition.setVehicleNumber(StringUtils.isEmpty(chineseVehicleNumber) ? request.getVehicleNumber() : chineseVehicleNumber);
-        condition.setBatchCode(request.getBatchCode());
-        if(reportExternalManager.checkIsNeedSpotCheck(condition)){
+        List<WaitSpotCheckQueryCondition> queryConditions = new ArrayList<WaitSpotCheckQueryCondition>();
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> unSealCarList = request.getData();
+        if(CollectionUtils.isEmpty(unSealCarList)){
+            return;
+        }
+        Map<String, Set<String>> unSealCarMap = new HashMap<>();
+        // 按车牌过滤
+        for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto : unSealCarList) {
+            String vehicleNumber = carLicenseChangeUtil.formateLicense2Chinese(sealCarDto.getVehicleNumber());
+            List<String> batchCodes = sealCarDto.getBatchCodes();
+            if(unSealCarMap.containsKey(vehicleNumber)){
+                unSealCarMap.get(vehicleNumber).addAll(batchCodes);
+            }else {
+                Set<String> batchCodeSet = new HashSet<>(batchCodes);
+                unSealCarMap.put(vehicleNumber, batchCodeSet);
+            }
+        }
+        // 组装查询条件
+        for (Map.Entry<String, Set<String>> entry : unSealCarMap.entrySet()) {
+            WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
+            condition.setVehicleNumber(entry.getKey());
+            condition.setBatchCodeSet(entry.getValue());
+            condition.setUnSealTime(new Date());
+            queryConditions.add(condition);
+        }
+        if(reportExternalManager.checkIsNeedSpotCheck(queryConditions)){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
             unSealVehicleResponse.setBusinessMessage(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE);
         }
