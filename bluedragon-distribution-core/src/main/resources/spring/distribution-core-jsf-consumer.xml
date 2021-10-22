@@ -802,4 +802,10 @@
                   alias="${jsf.dmsWbReport.alias}"
                   timeout="${jsf.dmsWbReport.timeout}" >
     </jsf:consumer>
+
+    <!-- 驻厂揽收服务 -->
+    <jsf:consumer id="merchCollectWaybillApi" interface="com.jdl.express.collect.api.merchcollectwaybill.MerchCollectWaybillApi"
+                  protocol="jsf" alias="${jsf.merchCollect.alias}" timeout="${jsf.merchCollect.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
 </beans>

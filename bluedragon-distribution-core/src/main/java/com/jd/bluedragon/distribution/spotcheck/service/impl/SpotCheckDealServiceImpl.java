@@ -556,8 +556,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public String spotCheckPackSetStr(String waybillCode, Integer siteCode) {
         String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
+        String packSetStr;
         try {
-            String packSetStr = jimdbCacheService.get(packListKey);
+            packSetStr = jimdbCacheService.get(packListKey);
             if(StringUtils.isNotEmpty(packSetStr)){
                 return packSetStr;
             }else {
@@ -569,7 +570,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 if(CollectionUtils.isEmpty(spotCheckedPackList)){
                     return null;
                 }
-                return JsonHelper.toJson(new HashSet<>(spotCheckedPackList));
+                packSetStr = jimdbCacheService.get(packListKey);
+                if(StringUtils.isNotEmpty(packSetStr)){
+                    spotCheckedPackList.addAll(Objects.requireNonNull(JsonHelper.jsonToList(packSetStr, String.class)));
+                }
+                // 已抽检包裹集合
+                String spotCheckPackSetStr = JsonHelper.toJson(new HashSet<>(spotCheckedPackList));
+                jimdbCacheService.setEx(packListKey, spotCheckPackSetStr, 30, TimeUnit.MINUTES);
+                return spotCheckPackSetStr;
             }
         }catch (Exception e){
             logger.error("获取场地:{}运单号:{}下的包裹抽检缓存异常!", siteCode, waybillCode);
@@ -580,18 +588,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean checkPackHasSpotCheck(String packageCode, Integer siteCode) {
         try {
-            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            // 运单维度状态是否操作过抽检
-            if(checkIsHasSpotCheck(waybillCode)){
+            // 按包裹查询是否操作抽检
+            String checkPackageRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(packageCode);
+            if(StringUtils.isNotEmpty(jimdbCacheService.get(checkPackageRecordKey))){
                 return true;
             }
-            // 一单多件按包裹维度操作抽检的场景
-            String spotCheckPackCache = spotCheckPackSetStr(waybillCode, siteCode);
-            if(StringUtils.isEmpty(spotCheckPackCache)){
-                return false;
-            }
-            Set packSet = JsonHelper.fromJson(spotCheckPackCache, Set.class);
-            if(CollectionUtils.isNotEmpty(packSet) && packSet.contains(packageCode)){
+            // 按运单查询是否操作抽检
+            checkPackageRecordKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK, WaybillUtil.getWaybillCode(packageCode));
+            if(StringUtils.isNotEmpty(jimdbCacheService.get(checkPackageRecordKey))){
                 return true;
             }
         }catch (Exception e){
