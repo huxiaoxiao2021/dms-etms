@@ -77,7 +77,7 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
             }
         }
 
-        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_DEPARTURE)
+        if("task_send".equalsIgnoreCase(tableName) && taskType.equals(Task.TASK_TYPE_SEND_DELIVERY)
                 && keyword1.equals("10")){
             if(StringHelper.isNotEmpty(task.getBoxCode())) {
 
