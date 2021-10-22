@@ -130,6 +130,7 @@ public class PopPrintServiceImpl implements PopPrintService {
     /**
      * 发补验货任务
      */
+    @Override
     public void pushInspection(PopPrint popPrint) {
         BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
@@ -289,6 +290,7 @@ public class PopPrintServiceImpl implements PopPrintService {
         }
     }
 
+    @Override
     public PopPrint requestToPopPrint(PopPrintRequest request) {
         PopPrint popPrint = new PopPrint();
         popPrint.setWaybillCode(request.getWaybillCode());
