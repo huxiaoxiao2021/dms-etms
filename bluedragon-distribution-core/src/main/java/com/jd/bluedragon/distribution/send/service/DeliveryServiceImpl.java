@@ -6884,19 +6884,21 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         String waybillLockKey = getSendByWaybillLockKey(waybillCode, domain.getCreateSiteCode());
         String s = redisClientCache.get(waybillLockKey);
 
-        String msg = String.format("按运单发货分发拆分任务-：waybillCode=%s,createSiteCode=%s,总单量:%s", waybillCode, domain.getCreateSiteCode(), s);
+        String msg = String.format("按运单发货分发拆分任务-校验send_d：waybillCode=%s,createSiteCode=%s,总单量:%s", waybillCode, domain.getCreateSiteCode(), s);
+        log.info(msg);
         Integer totalGoodNumber = Integer.valueOf(s);
         while (true) {
             count++;
             Integer detailCount = this.sendDatailDao.queryCountExclusion(tSendDetail);
+            log.info(msg + "当前已写入send_d数量:" + detailCount);
             if (detailCount >= totalGoodNumber) {
                 break;
             }
             if (count > 3) {
-                log.error("查询3次仍无send_d数据："+msg);
+                log.error(msg + " 查询3次仍无send_d数据");
                 throw new RuntimeException(msg);
             }
-            log.warn("send_d数据为空,等待500ms重试："+msg);
+            log.warn(msg + "send_d数据为空,等待500ms重试");
             LockSupport.parkNanos(TimeUnit.MILLISECONDS.toNanos(500));
         }
     }
