@@ -104,6 +104,7 @@ public class ResidentCollectServiceImpl implements ResidentCollectService {
         // 调用终端揽收接口
         CommonDTO<NoTaskFinishCollectWaybillDTO> commonDTO = merchCollectManager.noTaskFinishCollectWaybill(command);
         if(commonDTO == null || !Objects.equals(CommonDTO.CODE_SUCCESS, commonDTO.getCode())){
+            logger.warn("操作运单号:{}的终端揽收失败,原因:{}", waybillCode, commonDTO == null ? InvokeResult.RESULT_NULL_MESSAGE : commonDTO.getMessage());
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "揽收失败!" + (commonDTO == null ? Constants.EMPTY_FILL : commonDTO.getMessage()));
             return result;
         }
