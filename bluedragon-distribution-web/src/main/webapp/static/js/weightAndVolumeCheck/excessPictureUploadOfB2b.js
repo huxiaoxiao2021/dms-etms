@@ -108,7 +108,7 @@ $(function () {
             && $('#upIsSuccessFlage5').val()==1){
 
             if($('#isWaybill').val() == 1){
-                parent.$('#waybillDataTable')[0].rows[$('#rowIndex').val()].cells[6].innerHTML = 5;
+                parent.$('#waybillDataTable')[0].rows[$('#rowIndex').val()].cells[5].innerHTML = 5;
             }else {
                 parent.$('#packageDataTable')[0].rows[$('#rowIndex').val()].cells[7].innerHTML = 5;
             }

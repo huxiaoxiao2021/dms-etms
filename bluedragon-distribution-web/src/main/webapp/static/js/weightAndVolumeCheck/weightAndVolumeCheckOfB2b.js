@@ -5,21 +5,70 @@ $(function () {
     var waybillSubmitUrl = '/weightAndVolumeCheckOfB2b/waybillSubmitUrl';
     var packageSubmitUrl = '/weightAndVolumeCheckOfB2b/packageSubmitUrl';
 
-    $('#waybillDataTable').bootstrapTable({
-        url: '/weightAndVolumeCheckOfB2b/init', // 请求后台的URL（*）
-        method: 'get', // 请求方式（*）
-        height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
-        uniqueId: "ID", // 每一行的唯一标识，一般为主键列
-        pagination: true, // 是否显示分页（*）
-        cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
-        sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
-        clickToSelect: true, // 是否启用点击选中行
-        striped: true, // 是否显示行间隔色
-        sortable: true, // 是否启用排序
-        sortOrder: "asc", // 排序方式
-        columns: [{
-            checkbox: true
-        }, {
+    var tableInit = function () {
+        var oTableInit = new Object();
+        oTableInit.init = function () {
+            $('#waybillDataTable').bootstrapTable({
+                url: '/weightAndVolumeCheckOfB2b/checkIsExcessOfWaybill', // 请求后台的URL（*）
+                method: 'post', // 请求方式（*）
+                queryParams: oTableInit.getSearchParams,
+                height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                uniqueId: "ID", // 每一行的唯一标识，一般为主键列
+                pagination: true, // 是否显示分页（*）
+                pageNumber: 1, // 初始化加载第一页，默认第一页
+                pageSize: 10, // 每页的记录行数（*）
+                cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
+                clickToSelect: true, // 是否启用点击选中行
+                striped: true, // 是否显示行间隔色
+                sortable: true, // 是否启用排序
+                sortOrder: "asc", // 排序方式
+                columns: oTableInit.tableColums,
+                responseHandler: function(result){
+                    if(result.code !== 200){
+                        Jd.alert(result.message);
+                        return {
+                            "total" : 0,
+                            "rows" : []
+                        }
+                    }
+                    return {
+                        "total" : result.total,
+                        "rows" : result.rows
+                    }
+                },
+                onLoadError: function(){  //加载失败时执行
+                    Jd.alert("服务异常!");
+                    return {
+                        "total" : 0,
+                        "rows" : []
+                    }
+                }
+            });
+        };
+
+        oTableInit.getSearchParams = function (params) {
+            var temp = oTableInit.getSearchCondition();
+            if (!temp) {
+                temp = {};
+            }
+            return temp;
+        };
+        oTableInit.getSearchCondition = function(_selector) {
+            var params = {};
+            if (!_selector) {
+                _selector = ".search-param";
+            }
+            $(_selector).each(function () {
+                var _k = this.id;
+                var _v = $(this).val();
+                if(_k && (_v != null && _v != '')){
+                    params[_k] = _v;
+                }
+            });
+            return params;
+        };
+        oTableInit.tableColums = [{
             field: 'waybillCode',
             title: '运单号',
             align: 'center'
@@ -35,12 +84,12 @@ $(function () {
             field: 'waybillVolume',
             title: '总体积/立方米',
             align: 'center',
-        },{
+        }, {
             field: 'isExcess',
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "是" : "否";
+                return value === 1 ? "是" : "否";
             }
         }, {
             field: 'upLoadNum',
@@ -50,83 +99,72 @@ $(function () {
             field: 'operate',
             title: '操作',
             align: 'center',
-            formatter : function (value, row, index) {
+            formatter: function (value, row, index) {
                 var flag;
-                if(row.isExcess == 0){
+                if (row.isExcess === 0) {
                     flag = '';
-                }else{
+                } else {
                     flag = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
                         + '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>';
                 }
                 return flag;
             },
             events: {
-                'click .upLoad': function(e, value, row, index) {
+                'click .upLoad': function (e, value, row, index) {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
                     layer.open({
-                        id:'upExcessPicture',
+                        id: 'upExcessPicture',
                         type: 2,
-                        title:'超标图片上传',
-                        shadeClose: true,
+                        title: '超标图片上传',
                         shade: 0.7,
                         maxmin: true,
                         shadeClose: false,
                         area: ['1000px', '600px'],
                         content: toUploadUrl + "?waybillOrPackageCode=" + row.waybillCode
                             + "&createSiteCode=" + $('#createSiteCode').val() + "&rowIndex=" + rowIndex + "&isWaybill=" + 1,
-                        success: function(layero, index){
+                        success: function (layero, index) {
                         }
                     });
                 },
-                'click .search': function(e, value, row, index) {
+                'click .search': function (e, value, row, index) {
                     var rowIndex = this.parentNode.parentNode.rowIndex;
-                    var count = $('#waybillDataTable')[0].rows[rowIndex].cells[6].innerHTML;
-                    // if(count == 0){
-                    //     Jd.alert("请先上传超标图片!");
-                    //     return;
-                    // };
+                    var count = $('#waybillDataTable')[0].rows[rowIndex].cells[5].innerHTML;
+                    if(count === 0){
+                        Jd.alert("请先上传超标图片!");
+                        return;
+                    };
                     $.ajax({
-                        type : "get",
-                        url : searchExcessPictureUrl + "?waybillOrPackageCode=" + row.waybillCode + "&siteCode=" + $('#createSiteCode').val(),
-                        data : {},
-                        async : false,
-                        success : function (data) {
-                            if(data && data.code == 200){
+                        type: "get",
+                        url: searchExcessPictureUrl + "?waybillOrPackageCode=" + row.waybillCode + "&siteCode=" + $('#createSiteCode').val(),
+                        data: {},
+                        async: false,
+                        success: function (data) {
+                            if (data && data.code === 200) {
                                 //在新窗口展示所有图片
                                 var list = data.data;
-                                for(var i=0;i<list.length;i++){
-                                    if(list[i] == null || list[i] == ""){
+                                for (var i = 0; i < list.length; i++) {
+                                    if (list[i] == null || list[i] == "") {
                                         break;
                                     }
                                     window.open(list[i]);
                                 }
-                            }else{
+                            } else {
                                 Jd.alert(data.message);
                             }
                         }
                     });
                 }
             }
-        }],
-        responseHandler: function(result){
-            if(result.code != 200){
-                Jd.alert(result.message);
-                return {
-                    "total" : 0,
-                    "rows" : []
-                }
-            }
-            return {
-                "total" : result.data.length,
-                "rows" : result.data
-            }
-        },
-        onLoadError: function(){  //加载失败时执行
-            Jd.alert("服务异常!");
-        }
-    });
+        }];
+        oTableInit.refresh = function () {
+            $('#waybillDataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
+        };
+        return oTableInit;
+    };
 
-
+    // 页面初始化查询
+    $("#btn_submit").attr("disabled", true);
+    tableInit().init();
 
     //焦点聚焦：1、运单2、重量3、体积
     $('#waybillOrPackageCode').focus();
@@ -264,67 +302,21 @@ $(function () {
                 return;
             }
 
-            var param = {};
-            param.isWaybill = 1;
-            param.waybillOrPackageCode = $('#waybillOrPackageCode').val();
-            param.waybillWeight = $('#waybillWeight').val();
-            param.waybillVolume = $('#waybillVolume').val();
-            param.createSiteCode = $('#createSiteCode').val();
-            param.loginErp = $('#loginErp').val();
-
-            jQuery.ajax({
-                type: 'post',
-                url: '/weightAndVolumeCheckOfB2b/checkIsExcessOfWaybill',
-                dataType: "json",//必须json
-                contentType: "application/json", // 指定这个协议很重要
-                data: JSON.stringify(param),
-                async: true,
-                success: function (data) {
-                    if (data.code == 200) {
-                        //重泡比弱拦截
-                        var sign = false;
-                        var allTableData = $('#waybillDataTable').bootstrapTable('getData');
-                        var result = data.data;
-                        if(weight/volume < 168 || weight/volume > 330){
-                            var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入？';
-                            confirm(messageBodyStr,
-                                function () {
-                                    $.each(allTableData,function(i,e){
-                                        if(result[0].waybillCode == e.waybillCode){
-                                            Jd.alert("运单号"+e.waybillCode+"已扫描请勿重复扫描!");
-                                            sign = true;
-                                            return;
-                                        }
-                                    });
-                                    if(!sign){
-                                        $('#waybillDataTable').bootstrapTable("removeAll");
-                                        $('#waybillDataTable').bootstrapTable('append', data.data);
-                                    }
-                                },
-                                function () {
-                                    return;
-                                });
-                        }else {
-                            $.each(allTableData,function(i,e){
-                                if(result[0].waybillCode == e.waybillCode){
-                                    Jd.alert("运单号"+e.waybillCode+"已扫描请勿重复扫描!");
-                                    sign = true;
-                                    return;
-                                }
-                            });
-                            if(!sign){
-                                $('#waybillDataTable').bootstrapTable("removeAll");
-                                $('#waybillDataTable').bootstrapTable('append', data.data);
-                            }
-                        }
-                    }else {
-                        Jd.alert(data.message);
-                    }
-                }
-            });
-            //初始化输入框
-            resetOfWaybbill();
-
+            if(weight/volume < 168 || weight/volume > 330){
+                var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入？';
+                confirm(messageBodyStr,
+                    function () {
+                        tableInit().refresh();
+                        resetOfWaybbill();
+                        $("#btn_submit").attr("disabled", false);
+                    },
+                    function () {
+                    });
+            }else {
+                tableInit().refresh();
+                resetOfWaybbill();
+                $("#btn_submit").attr("disabled", false);
+            }
         }else {
             //包裹维度组装表格数据
             var allTableData = $('#packageDataTable').bootstrapTable('getData');
@@ -395,8 +387,8 @@ $(function () {
         //运单维度
         if($('#checkOfWaybill').attr("checked")){
             var waybillData = $('#waybillDataTable').bootstrapTable('getData');
-            var uploadNum = $('#waybillDataTable')[0].rows[1].cells[6].innerHTML;
-            if(waybillData[0].isExcess == 1 && uploadNum != 5){
+            var uploadNum = $('#waybillDataTable')[0].rows[1].cells[5].innerHTML;
+            if(waybillData[0].isExcess === 1 && uploadNum !== '5'){
                 Jd.alert('请先上传' + waybillData[0].waybillCode + '的超标图片!');
                 return;
             }
@@ -419,14 +411,15 @@ $(function () {
                 data: JSON.stringify(param),
                 async: true,
                 success: function (result) {
-                    if(result && result.code == 200){
+                    if(result && result.code === 200){
                         Jd.alert('提交成功!');
+                        resetOfWaybbill();
+                        tableInit().refresh();
                     }else {
                         Jd.alert(result.message);
                     }
                 }
             });
-            resetOfWaybbill();
         }else {
             //包裹维度
             var allTableData = $('#packageDataTable').bootstrapTable('getData');
@@ -482,7 +475,8 @@ $(function () {
     //重置
     $('#btn_refresh').click(function () {
         resetOfWaybbill();
-        $('#waybillDataTable').bootstrapTable('refreshOptions', {pageNumber: 1});//初始化
+        $("#btn_submit").attr("disabled", true);
+        tableInit().refresh();
     });
 
     //数字加减框校验

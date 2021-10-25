@@ -70,8 +70,8 @@
     <script src="/static/js/weightAndVolumeCheck/bootstrap-table-editable.js"></script>
 </head>
 <body>
-<input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
-<input type="hidden" id="loginErp" value="$!{loginErp}"/>
+<input type="hidden" id="createSiteCode" class="form-control search-param" value="$!{createSiteCode}"/>
+<input type="hidden" id="loginErp" class="form-control search-param" value="$!{loginErp}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
@@ -114,7 +114,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-5">运单总重量(公斤)：</label>
                                     <div class="input-group spinner">
-                                        <input type="text" id="waybillWeight" class="form-control" style="text-align: center" value="0.00">
+                                        <input type="text" id="waybillWeight" class="form-control search-param" style="text-align: center" value="0.00">
                                         <div class="input-group-btn-vertical">
                                             <button id="waybillWeightUp" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-up"></i></button>
                                             <button id="waybillWeightDown" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-down"></i></button>
@@ -126,7 +126,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-5">运单总体积(立方米)：</label>
                                     <div class="input-group spinner">
-                                        <input type="text" id="waybillVolume" class="form-control" style="text-align: center" value="0.000000">
+                                        <input type="text" id="waybillVolume" class="form-control search-param" style="text-align: center" value="0.000000">
                                         <div class="input-group-btn-vertical">
                                             <button id="waybillVolumeUp" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-up"></i></button>
                                             <button id="waybillVolumeDown" class="btn btn-default" type="button"><i class="glyphicon glyphicon-chevron-down"></i></button>
@@ -142,7 +142,7 @@
                             </div>
                             <div id="toolbar" class="btn-group">
                                 <button id="btn_check" type="button" class="btn btn-primary">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;检查
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>&nbsp;复核检验
                                 </button>
                             </div>
                             <div id="toolbar" class="btn-group">

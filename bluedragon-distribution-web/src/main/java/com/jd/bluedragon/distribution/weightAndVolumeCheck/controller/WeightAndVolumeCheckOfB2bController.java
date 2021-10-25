@@ -5,14 +5,13 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WaybillFlowDetail;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bPackage;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.*;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
+import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.PackFlowDetail;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,10 +105,24 @@ public class WeightAndVolumeCheckOfB2bController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R)
     @RequestMapping(value = "/checkIsExcessOfWaybill", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> checkIsExcessOfWaybill(
-            @RequestBody WeightVolumeCheckConditionB2b condition){
-
-        return weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(condition);
+    public SpotCheckPagerResult<WeightVolumeCheckOfB2bWaybill> checkIsExcessOfWaybill(@RequestBody WeightVolumeCheckConditionB2b condition){
+        SpotCheckPagerResult<WeightVolumeCheckOfB2bWaybill> spotCheckPagerResult = new SpotCheckPagerResult<WeightVolumeCheckOfB2bWaybill>();
+        spotCheckPagerResult.setCode(200);
+        if(StringUtils.isEmpty(condition.getWaybillOrPackageCode())){
+            // 初始化数据
+            spotCheckPagerResult.setTotal(0);
+            spotCheckPagerResult.setRows(new ArrayList<WeightVolumeCheckOfB2bWaybill>());
+            return spotCheckPagerResult;
+        }
+        InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(condition);
+        if(!invokeResult.codeSuccess() || CollectionUtils.isEmpty(invokeResult.getData())){
+            spotCheckPagerResult.setCode(invokeResult.getCode());
+            spotCheckPagerResult.setMessage(invokeResult.getMessage());
+            return spotCheckPagerResult;
+        }
+        spotCheckPagerResult.setTotal(invokeResult.getData().size());
+        spotCheckPagerResult.setRows(invokeResult.getData());
+        return spotCheckPagerResult;
     }
 
     /**
