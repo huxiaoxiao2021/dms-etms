@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @program: bluedragon-distribution
@@ -195,9 +197,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         spotCheckDto.setOperateUserName(baseStaff.getStaffName());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
         spotCheckDto.setExcessStatus(req.getExcessFlag());
-        Map<String, String> picUtlMap = new LinkedHashMap<>();
-        picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_SEMICOLON));
-        spotCheckDto.setPictureUrls(picUtlMap);
+        if(Objects.equals(ExcessStatusEnum.EXCESS_ENUM_YES.getCode(), req.getExcessFlag())){
+            Map<String, String> picUtlMap = new LinkedHashMap<>();
+            picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_SEMICOLON));
+            spotCheckDto.setPictureUrls(picUtlMap);
+        }
         return spotCheckDto;
     }
 
