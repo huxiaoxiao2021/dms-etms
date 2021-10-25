@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.KeyConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -708,30 +709,51 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     public DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request,SendBizSourceEnum sourceEnum,boolean checkSealCar) {
         DeliveryResponse response;
 
-        response = this.coldChainSendCheckAndFixSendCode(request,checkSealCar);
-        if (response != null) {
-            return response;
-        }
+        // 同一运输计划编号加锁，解决并发问题
+        String lockKey = null;
+        try {
 
-        // 组装运单号维度sendM对象
-        List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
-        // 组装非运单号（箱号，包裹号）维度sendM对象
-        List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+            if (CollectionUtils.isNotEmpty(request)) {
+                if (StringUtils.isNotBlank(request.get(0).getTransPlanCode())) {
+                    String keyTemplate = KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING;
+                    lockKey = String.format(keyTemplate, request.get(0).getTransPlanCode());
+                    boolean isExistHandling = redisClientCache.set(lockKey, 1 + "", KeyConstants.COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED, TimeUnit.SECONDS, false);
+                    if (!isExistHandling) {
+                        throw new RuntimeException("该运输计划号发货任务正在处理中，请稍后再试！");
+                    }
+                }
+            }
 
-        /** 冷链发货 */
-        if (waybillCodeSendMList.size() == 0) {
-            response = dellDeliveryMessage(sourceEnum, otherSendMList);
-        } else {
-            response = dellDeliveryMessageWithLock(sourceEnum, waybillCodeSendMList);
-            if (JdResponse.CODE_OK.equals(response.getCode()) &&
-                    otherSendMList!=null && otherSendMList.size()>0) {
+            response = this.coldChainSendCheckAndFixSendCode(request,checkSealCar);
+            if (response != null) {
+                return response;
+            }
+
+            // 组装运单号维度sendM对象
+            List<SendM> waybillCodeSendMList = this.assembleSendMForWaybillCode(request);
+            // 组装非运单号（箱号，包裹号）维度sendM对象
+            List<SendM> otherSendMList = this.assembleSendMWithoutWaybillCode(request);
+
+            /** 冷链发货 */
+            if (waybillCodeSendMList.size() == 0) {
                 response = dellDeliveryMessage(sourceEnum, otherSendMList);
+            } else {
+                response = dellDeliveryMessageWithLock(sourceEnum, waybillCodeSendMList);
+                if (JdResponse.CODE_OK.equals(response.getCode()) &&
+                        otherSendMList!=null && otherSendMList.size()>0) {
+                    response = dellDeliveryMessage(sourceEnum, otherSendMList);
+                }
+            }
+
+            if (JdResponse.CODE_OK.equals(response.getCode())) {
+                coldChainSendService.batchAdd(waybillCodeSendMList, request.get(0).getTransPlanCode());
+                coldChainSendService.batchAdd(otherSendMList, request.get(0).getTransPlanCode());
             }
         }
-
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            coldChainSendService.batchAdd(waybillCodeSendMList, request.get(0).getTransPlanCode());
-            coldChainSendService.batchAdd(otherSendMList, request.get(0).getTransPlanCode());
+        finally {
+            if (StringUtils.isNotBlank(lockKey)) {
+                redisClientCache.del(lockKey);
+            }
         }
 
         return response;
