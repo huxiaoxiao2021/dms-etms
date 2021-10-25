@@ -83,13 +83,6 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
-        if(BusinessUtil.isTc(waybillSign)){
-        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC);
-        }else if(BusinessUtil.isB2b(waybillSign)){
-        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_B);
-        }else{
-        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
-        }
         //只有无纸化标识为false，才返回小标签
         if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
             templateName = TEMPLATE_NAME_10_5;
