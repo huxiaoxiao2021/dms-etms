@@ -64,6 +64,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
         KomResponse<SoNoItemResponse> komResponse;
         try {
             komResponse = orderExtendService.getItemBySoNo(soNoItemRequest);
+            log.info("EclpItemManagerImpl.getltemBySoNo param: {} result: {}", JsonHelper.toJson(soNoItemRequest), JsonHelper.toJson(komResponse));
         } catch (Exception e) {
             log.error("EclpItemManagerImpl-getltemBySoNo 调用失败:{}",soNo, e);
             return null;

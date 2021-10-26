@@ -1142,16 +1142,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         // 1.查询运单商品信息
         String name = this.getConsignmentNameFromGoods(bigWaybillDto.getGoodsList());
         if (name != null) {
+            log.info("getConsignmentNameByWaybillDto getConsignmentNameFromGoods result: {}", name);
             return name;
         }
         // 2.查询ECLP全程跟踪
         name = this.getConsignmentNameFromECLP(bigWaybillDto.getWaybill().getBusiOrderCode());
         if (name != null) {
+            log.info("getConsignmentNameByWaybillDto getConsignmentNameFromECLP result: {}", name);
             return name;
         }
         // 3.查询运单托寄物信息
         name = this.getConsignmentNameFromWaybillExt(bigWaybillDto.getWaybill().getWaybillExt());
         if (name != null) {
+            log.info("getConsignmentNameByWaybillDto getConsignmentNameFromWaybillExt result: {}", name);
             return name;
         }
         return null;
