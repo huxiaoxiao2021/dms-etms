@@ -18,17 +18,14 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -82,44 +79,36 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
     @Override
-    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                                Waybill waybill,InvokeResult<Boolean> result) {
-        if(BusinessUtil.isCInternet(waybill.getWaybillSign())){
-            checkCInternetRule(condition,weightVolumeRuleConstant,result);
+    protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(BusinessUtil.isCInternet(weightVolumeContext.getWaybill().getWaybillSign())){
+            checkCInternetRule(weightVolumeContext, result);
             return;
         }
-        checkBInternetRule(condition,weightVolumeRuleConstant,waybill,result);
+        checkBInternetRule(weightVolumeContext, result);
     }
 
     @Override
-    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
-        if(!WaybillUtil.isWaybillCode(condition.getBarCode()) && !WaybillUtil.isPackageCode(condition.getBarCode())){
+    protected void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(!WaybillUtil.isWaybillCode(weightVolumeContext.getBarCode()) && !WaybillUtil.isPackageCode(weightVolumeContext.getBarCode())){
             result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_0);
             return;
         }
-        // 信任商家不校验重量体积（站点平台打印除外）
-        Waybill waybill = weightVolumeContext.getWaybill();
-        if(!Objects.equals(condition.getSourceCode(), FromSourceEnum.DMS_CLIENT_SITE_PLATE_PRINT.name())){
-            if(BusinessHelper.isTrust(waybill.getWaybillSign())){
-                return;
-            }
-        }
-        if(Objects.equals(condition.getCheckWeight(),true)){
-            if(condition.getWeight() <= Constants.DOUBLE_ZERO){
+        if(Objects.equals(weightVolumeContext.getCheckWeight(),true)){
+            if(weightVolumeContext.getWeight() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_1);
                 return;
             }
         }
-        if(Objects.equals(condition.getCheckLWH(),true)){
-            if(condition.getLength() <= Constants.DOUBLE_ZERO){
+        if(Objects.equals(weightVolumeContext.getCheckLWH(),true)){
+            if(weightVolumeContext.getLength() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
                 return;
             }
-            if(condition.getWidth() <= Constants.DOUBLE_ZERO){
+            if(weightVolumeContext.getWidth() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
                 return;
             }
-            if(condition.getHeight() <= Constants.DOUBLE_ZERO){
+            if(weightVolumeContext.getHeight() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
             }
         }

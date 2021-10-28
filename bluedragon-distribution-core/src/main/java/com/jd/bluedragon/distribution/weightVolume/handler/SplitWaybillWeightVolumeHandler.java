@@ -5,12 +5,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jmq.common.exception.JMQException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,11 +29,10 @@ public class SplitWaybillWeightVolumeHandler extends AbstractWeightVolumeHandler
     private DefaultJMQProducer dmsWeighByWaybillProducer;
 
     @Override
-    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                                Waybill waybill,InvokeResult<Boolean> result) {}
+    protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {}
 
     @Override
-    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {}
+    protected void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {}
 
     @Override
     protected void handlerWeighVolume(WeightVolumeEntity entity) {

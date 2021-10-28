@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
@@ -23,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import java.text.DecimalFormat;
 import java.util.Objects;
 
@@ -36,9 +36,6 @@ import java.util.Objects;
 public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandler {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Value("${weight.volume.rule.config:}")
-    private String weightVolumeRuleConfig;
 
     @Autowired
     protected WeightVolumeFlowJSFService weightVolumeFlowJSFService;
@@ -82,27 +79,45 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
     @Override
     public InvokeResult<Boolean> weightVolumeRuleCheck(WeightVolumeRuleCheckDto condition) {
         InvokeResult<Boolean> result = new  InvokeResult<Boolean>();
-        // 初始化上下文
-        WeightVolumeContext weightVolumeContext = initWeightVolumeContext(condition);
-        // 基础校验
-        basicVerification(condition, weightVolumeContext, result);
-        if(!result.codeSuccess()){
-            return result;
-        }
-        WeightVolumeRuleConstant weightVolumeRuleConstant;
         try {
-            weightVolumeRuleConstant = JsonHelper.fromJson(uccPropertyConfiguration.getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class);
+            // 初始化上下文
+            WeightVolumeContext weightVolumeContext = initWeightVolumeContext(condition);
+            // 是否需要校验处理
+            if(!checkIsNeedDeal(weightVolumeContext)){
+                return result;
+            }
+            // 基础校验
+            basicVerification(weightVolumeContext, result);
+            if(!result.codeSuccess()){
+                return result;
+            }
+            // dws校验
+            if(dwsWeightVolumeCheck(weightVolumeContext, result)){
+                return result;
+            }
+            // 校验处理
+            weightVolumeRuleCheckHandler(weightVolumeContext, result);
         }catch (Exception e){
-            logger.error("获取ucc配置异常!",e);
-            weightVolumeRuleConstant = JsonHelper.fromJson(weightVolumeRuleConfig, WeightVolumeRuleConstant.class);
+            // 为了不影响前台正常操作，异常只记录错误日志，但是返回成功
+            logger.error("根据条件：{}校验称重量方规则异常!", JsonHelper.toJson(condition));
         }
-        // dws校验
-        if(dwsWeightVolumeCheck(condition,weightVolumeRuleConstant,result)){
-            return result;
-        }
-        // 校验处理
-        weightVolumeRuleCheckHandler(condition,weightVolumeRuleConstant, weightVolumeContext.getWaybill(), result);
         return result;
+    }
+
+    /**
+     * 是否需要校验
+     *  hit：
+     *      1、信任商家不校验重量体积（站点平台除外）
+     * @param weightVolumeContext
+     * @return
+     */
+    private boolean checkIsNeedDeal(WeightVolumeContext weightVolumeContext) {
+        if(!Objects.equals(weightVolumeContext.getSourceCode(), FromSourceEnum.DMS_CLIENT_SITE_PLATE_PRINT.name())){
+            if(BusinessHelper.isTrust(weightVolumeContext.getWaybill().getWaybillSign())){
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -111,29 +126,53 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
      * @return
      */
     private WeightVolumeContext initWeightVolumeContext(WeightVolumeRuleCheckDto condition) {
+        // 初始化基本数据
         WeightVolumeContext weightVolumeContext = new WeightVolumeContext();
         BeanUtils.copyProperties(condition, weightVolumeContext);
-        if(WaybillUtil.isWaybillCode(condition.getBarCode()) || WaybillUtil.isPackageCode(condition.getBarCode())){
-            weightVolumeContext.setWaybill(waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode())));
+        if(condition.getWeight() == null){
+            weightVolumeContext.setWeight(Constants.DOUBLE_ZERO);
         }
+        if(condition.getLength() == null){
+            weightVolumeContext.setLength(Constants.DOUBLE_ZERO);
+        }
+        if(condition.getWidth() == null){
+            weightVolumeContext.setWidth(Constants.DOUBLE_ZERO);
+        }
+        if(condition.getHeight() == null){
+            weightVolumeContext.setHeight(Constants.DOUBLE_ZERO);
+        }
+        if(condition.getVolume() == null || Objects.equals(condition.getVolume(), Constants.DOUBLE_ZERO)){
+            weightVolumeContext.setVolume(weightVolumeContext.getLength() * weightVolumeContext.getWidth() * weightVolumeContext.getHeight());
+        }
+        // 初始化运单数据
+        if(WaybillUtil.isWaybillCode(condition.getBarCode()) || WaybillUtil.isPackageCode(condition.getBarCode())){
+            Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(WaybillUtil.getWaybillCode(condition.getBarCode()));
+            if(waybill == null){
+                throw new RuntimeException("无运单信息!");
+            }
+            weightVolumeContext.setWaybill(waybill);
+        }
+        // 设置称重量方规则
+        weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(uccPropertyConfiguration.getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
         return weightVolumeContext;
     }
 
-    private boolean dwsWeightVolumeCheck(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant, InvokeResult<Boolean> result) {
-        if(!Objects.equals(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name(),condition.getSourceCode())){
+    private boolean dwsWeightVolumeCheck(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(!Objects.equals(FromSourceEnum.DMS_AUTOMATIC_MEASURE.name(), weightVolumeContext.getSourceCode())){
             return false;
         }
+        WeightVolumeRuleConstant weightVolumeRuleConstant = weightVolumeContext.getWeightVolumeRuleConstant();
         StringBuilder hintMessage = new StringBuilder();
         // 重量标准：大于1000kg按1000kg记录
         int weightMaxLimitC = weightVolumeRuleConstant.getWeightMaxLimitCS();
-        if(condition.getWeight() > weightMaxLimitC){
+        if(weightVolumeContext.getWeight() > weightMaxLimitC){
             setNextRowChar(hintMessage);
             hintMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_2,weightMaxLimitC,weightMaxLimitC));
         }
         // 边长标准：大于3m按3m记录
         int sideMaxLengthC = weightVolumeRuleConstant.getSideMaxLengthC();
-        if(condition.getLength() > sideMaxLengthC
-                || condition.getWidth() > sideMaxLengthC || condition.getHeight() > sideMaxLengthC){
+        if(weightVolumeContext.getLength() > sideMaxLengthC
+                || weightVolumeContext.getWidth() > sideMaxLengthC || weightVolumeContext.getHeight() > sideMaxLengthC){
             setNextRowChar(hintMessage);
             String sideMaxLengthCStr = keepDigitCompute(sideMaxLengthC, WeightVolumeRuleConstant.CM_M_MAGNIFICATION, Constants.NUMBER_ZERO);
             hintMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_0,sideMaxLengthCStr));
@@ -141,13 +180,12 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         // 体积标准：大于4m3按4m3记录
         int volumeMaxLimitRecord = weightVolumeRuleConstant.getVolumeMaxLimitRecord();
-        if(condition.getVolume() > volumeMaxLimitRecord){
+        if(weightVolumeContext.getVolume() > volumeMaxLimitRecord){
             setNextRowChar(hintMessage);
             String volumeMaxLimitRecordStr = keepDigitCompute(volumeMaxLimitRecord, WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION, Constants.NUMBER_ZERO);
             hintMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_1,volumeMaxLimitRecordStr));
             hintMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_RECORD,volumeMaxLimitRecordStr));
         }
-
         // 设置提示信息
         if (StringUtils.isNotEmpty(hintMessage.toString())){
             result.hintMessage(hintMessage.toString());
@@ -155,28 +193,24 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         return true;
     }
 
-    protected abstract void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                                         Waybill waybill,InvokeResult<Boolean> result);
+    protected abstract void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result);
 
 
-    protected abstract void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);
+    protected abstract void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);
 
     /**
      * C网特殊规则校验
-     *
-     * @param condition
+     *  hit：长宽高和体积可能不存在
+     * @param weightVolumeContext
      * @param result
      */
-    protected void checkCInternetRule(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                      InvokeResult<Boolean> result){
-        double length = condition.getLength();
-        double width = condition.getWidth();
-        double height = condition.getHeight();
-        double volume = condition.getVolume();
-        if(volume == Constants.DOUBLE_ZERO){
-            volume = length * width * height;
-        }
-        double weight = condition.getWeight();
+    protected void checkCInternetRule(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result){
+        double length = weightVolumeContext.getLength();
+        double width = weightVolumeContext.getWidth();
+        double height = weightVolumeContext.getHeight();
+        double volume = weightVolumeContext.getVolume();
+        double weight = weightVolumeContext.getWeight();
+        WeightVolumeRuleConstant weightVolumeRuleConstant = weightVolumeContext.getWeightVolumeRuleConstant();
         // 1、确认提示信息
         StringBuilder confirmMessage = new StringBuilder();
         // 边长标准值
@@ -211,7 +245,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // 泡重比、泡重比倍数标准值
         int foamWeightRatio = weightVolumeRuleConstant.getFoamWeightRatioC();
         int foamWeightRatioMultiple = weightVolumeRuleConstant.getFoamWeightRatioMultiple();
-        if(weight > Constants.DOUBLE_ZERO && volume > foamWeightRatio * foamWeightRatioMultiple * weight){
+        if(volume > Constants.DOUBLE_ZERO && weight > Constants.DOUBLE_ZERO && volume > foamWeightRatio * foamWeightRatioMultiple * weight){
             setNextRowChar(confirmMessage);
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_3,foamWeightRatio,foamWeightRatioMultiple));
         }
@@ -222,23 +256,22 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     /**
      * B网特殊规则校验
-     * @param condition
+     *  hit：长宽高和体积可能不存在
+     * @param weightVolumeContext
      * @param result
      */
-    protected void checkBInternetRule(WeightVolumeRuleCheckDto condition,WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                      Waybill waybill,InvokeResult<Boolean> result){
-        double length = condition.getLength();
-        double width = condition.getWidth();
-        double height = condition.getHeight();
-        double volume = condition.getVolume();
-        if(volume == Constants.DOUBLE_ZERO){
-            volume = length * width * height;
-        }
-        double weight = condition.getWeight();
+    protected void checkBInternetRule(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result){
+        double length = weightVolumeContext.getLength();
+        double width = weightVolumeContext.getWidth();
+        double height = weightVolumeContext.getHeight();
+        double volume = weightVolumeContext.getVolume();
+        double weight = weightVolumeContext.getWeight();
+        WeightVolumeRuleConstant weightVolumeRuleConstant = weightVolumeContext.getWeightVolumeRuleConstant();
+        Waybill waybill = weightVolumeContext.getWaybill();
 
         int packNum = waybill == null ? Constants.CONSTANT_NUMBER_ONE : waybill.getGoodNumber() == null
                 ? Constants.CONSTANT_NUMBER_ONE : waybill.getGoodNumber();
-        if(Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(),condition.getBusinessType())){
+        if(Objects.equals(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name(), weightVolumeContext.getBusinessType())){
             // 以包裹维度比较
             weight = weight / packNum;
             volume = volume / packNum;
@@ -265,7 +298,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         // 泡重比校验：是否大于7800
         int foamWeightRatioB = weightVolumeRuleConstant.getFoamWeightRatioB();
-        if(weight * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION > foamWeightRatioB * volume){
+        if(volume > Constants.DOUBLE_ZERO && weight * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION > foamWeightRatioB * volume){
             forceMessage = new StringBuilder().append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_2,foamWeightRatioB))
                     .append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B);
             result.parameterError(forceMessage.toString());
@@ -296,7 +329,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // 泡重比：大于168小于330
         int foamWeightRatioConfirmFloorB = weightVolumeRuleConstant.getFoamWeightRatioConfirmFloorB();
         int foamWeightRatioConfirmCeilingB = weightVolumeRuleConstant.getFoamWeightRatioConfirmCeilingB();
-        if(weight > volume * foamWeightRatioConfirmFloorB && weight < volume * foamWeightRatioConfirmCeilingB){
+        if(volume > Constants.DOUBLE_ZERO && weight > volume * foamWeightRatioConfirmFloorB && weight < volume * foamWeightRatioConfirmCeilingB){
             setNextRowChar(confirmMessage);
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_3,
                     foamWeightRatioConfirmFloorB,foamWeightRatioConfirmCeilingB));

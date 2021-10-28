@@ -28,7 +28,6 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.zhongyouex.order.api.dto.BoxDetailInfoDto;
 import org.apache.commons.collections4.CollectionUtils;
@@ -84,14 +83,12 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
-    protected void weightVolumeRuleCheckHandler(WeightVolumeRuleCheckDto condition, WeightVolumeRuleConstant weightVolumeRuleConstant,
-                                                Waybill waybill,InvokeResult<Boolean> result) {
-        boxWeightBasicCheck(condition,result);
-        if(!result.codeSuccess()){
-            return;
+    protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(weightVolumeContext.getVolume() <= Constants.DOUBLE_ZERO){
+            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_7);
         }
         // 箱号称重默认使用C网称重校验逻辑
-        checkCInternetRule(condition,weightVolumeRuleConstant,result);
+        checkCInternetRule(weightVolumeContext, result);
     }
 
     private void boxWeightBasicCheck(WeightVolumeRuleCheckDto condition, InvokeResult<Boolean> result) {
@@ -102,33 +99,35 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
     }
 
     @Override
-    protected void basicVerification(WeightVolumeRuleCheckDto condition, WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
-        if(!BusinessHelper.isBoxcode(condition.getBarCode())){
+    protected void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(!BusinessHelper.isBoxcode(weightVolumeContext.getBarCode())){
             result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_0);
             return;
         }
-        if(Objects.equals(condition.getCheckWeight(),true)){
-            if(condition.getWeight() <= Constants.DOUBLE_ZERO){
+        if(Objects.equals(weightVolumeContext.getCheckWeight(),true)){
+            if(weightVolumeContext.getWeight() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_1);
                 return;
             }
         }
-        if(Objects.equals(condition.getCheckLWH(),true)){
-            if(condition.getLength() <= Constants.DOUBLE_ZERO){
+        if(Objects.equals(weightVolumeContext.getCheckLWH(),true)){
+            if(weightVolumeContext.getLength() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_2);
                 return;
             }
-            if(condition.getWidth() <= Constants.DOUBLE_ZERO){
+            if(weightVolumeContext.getWidth() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_3);
                 return;
             }
-            if(condition.getHeight() <= Constants.DOUBLE_ZERO){
+            if(weightVolumeContext.getHeight() <= Constants.DOUBLE_ZERO){
                 result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_4);
                 return;
             }
         }
-        if(Objects.equals(condition.getCheckVolume(),true)){
-            result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_5);
+        if(Objects.equals(weightVolumeContext.getCheckVolume(),true)){
+            if(weightVolumeContext.getVolume() <= Constants.DOUBLE_ZERO){
+                result.parameterError(WeightVolumeRuleConstant.RESULT_BASIC_MESSAGE_5);
+            }
         }
     }
 

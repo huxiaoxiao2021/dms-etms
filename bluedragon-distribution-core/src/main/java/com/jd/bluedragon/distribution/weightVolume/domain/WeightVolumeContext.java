@@ -58,6 +58,20 @@ public class WeightVolumeContext implements Serializable {
     private Double volume;
 
     /**
+     * 是否校验称重
+     */
+    private Boolean checkWeight;
+
+    /**
+     * 是否校验长宽高
+     */
+    private Boolean checkLWH;
+    /**
+     * 是否校验体积
+     */
+    private Boolean checkVolume;
+
+    /**
      * 操作站点编号
      */
     private Integer operateSiteCode;
@@ -81,6 +95,11 @@ public class WeightVolumeContext implements Serializable {
      * 运单对象
      */
     private Waybill waybill;
+
+    /**
+     * 称重量方规则标准
+     */
+    private WeightVolumeRuleConstant weightVolumeRuleConstant;
 
     public String getBarCode() {
         return barCode;
@@ -146,6 +165,30 @@ public class WeightVolumeContext implements Serializable {
         this.volume = volume;
     }
 
+    public Boolean getCheckWeight() {
+        return checkWeight;
+    }
+
+    public void setCheckWeight(Boolean checkWeight) {
+        this.checkWeight = checkWeight;
+    }
+
+    public Boolean getCheckLWH() {
+        return checkLWH;
+    }
+
+    public void setCheckLWH(Boolean checkLWH) {
+        this.checkLWH = checkLWH;
+    }
+
+    public Boolean getCheckVolume() {
+        return checkVolume;
+    }
+
+    public void setCheckVolume(Boolean checkVolume) {
+        this.checkVolume = checkVolume;
+    }
+
     public Integer getOperateSiteCode() {
         return operateSiteCode;
     }
@@ -184,5 +227,13 @@ public class WeightVolumeContext implements Serializable {
 
     public void setWaybill(Waybill waybill) {
         this.waybill = waybill;
+    }
+
+    public WeightVolumeRuleConstant getWeightVolumeRuleConstant() {
+        return weightVolumeRuleConstant;
+    }
+
+    public void setWeightVolumeRuleConstant(WeightVolumeRuleConstant weightVolumeRuleConstant) {
+        this.weightVolumeRuleConstant = weightVolumeRuleConstant;
     }
 }
