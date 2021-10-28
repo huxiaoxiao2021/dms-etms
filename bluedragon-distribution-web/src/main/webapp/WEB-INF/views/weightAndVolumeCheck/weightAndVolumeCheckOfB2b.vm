@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>B网转运重量抽检</title>
+    <title>重量体积抽检</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -75,7 +75,7 @@
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
-            <li class="active">B网转运重量抽检</li>
+            <li class="active">重量体积抽检</li>
         </ol>
 		<!-- 查询条件 -->
         <div id="query-condition">
