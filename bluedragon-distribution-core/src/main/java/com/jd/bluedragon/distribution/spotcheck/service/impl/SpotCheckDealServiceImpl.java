@@ -628,10 +628,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
         AbnormalResultMq abnormalResultMq = buildCommonAttr(weightVolumeCollectDto);
         if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            assembleIssueSpotCheckDetailOfB(weightVolumeCollectDto, abnormalResultMq);
+            bAssembleIssueSpotCheckDetail(weightVolumeCollectDto, abnormalResultMq);
         }
         if(Objects.equals(weightVolumeCollectDto.getSpotCheckType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
-            assembleIssueSpotCheckDetailOfC(weightVolumeCollectDto, abnormalResultMq);
+            cAssembleIssueSpotCheckDetail(weightVolumeCollectDto, abnormalResultMq);
         }
         if(logger.isInfoEnabled()){
             logger.info("下发运单号:{}的抽检超标数据,明细如下:{}", weightVolumeCollectDto.getWaybillCode(), JsonHelper.toJson(abnormalResultMq));
@@ -1068,34 +1068,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         return abnormalResultMq;
     }
 
-    private void assembleIssueSpotCheckDetailOfB(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
+    private void bAssembleIssueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
         abnormalResultMq.setInputMode(weightVolumeCollectDto.getIsWaybillSpotCheck());
-        // 图片
-        if(Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
-                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName())){
-            List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
-            abnormalResultMq.setDetailList(detailList);
-            if(Objects.equals(weightVolumeCollectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
-                //运单维度
-                SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
-                detail.setBillCode(weightVolumeCollectDto.getWaybillCode());
-                detail.setWeight(weightVolumeCollectDto.getReviewWeight());
-                detail.setLength(weightVolumeCollectDto.getReviewVolume());
-                String pictureAddress = weightVolumeCollectDto.getPictureAddress();
-                if(StringUtils.isNotEmpty(pictureAddress)){
-                    List<Map<String,String>> imgList = new ArrayList<>();
-                    for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_SEMICOLON)) {
-                        Map<String,String> imgMap = new LinkedHashMap<>();
-                        imgMap.put("url", pictureUrl);
-                        imgList.add(imgMap);
-                    }
-                    detail.setImgList(imgList);
-                }
-                detailList.add(detail);
-            }else{
-                //包裹维度（前台已屏蔽）todo 待规划好后在补充
-            }
-        }
         if(DutyTypeEnum.FLEET.getCode().equals(abnormalResultMq.getDutyType())){
             //责任类型为车队
             abnormalResultMq.setCarCaptionErp(weightVolumeCollectDto.getBillingErp());
@@ -1121,12 +1095,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 logger.warn("未知去向!");
             }
         }
+        // B网下发图片使用字段：detailList
+        bIssueDownPicDeal(weightVolumeCollectDto, abnormalResultMq);
         // 默认不认责判责
         abnormalResultMq.setIsAccusation(1);
         abnormalResultMq.setIsNeedBlame(0);
     }
 
-    private void assembleIssueSpotCheckDetailOfC(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
+    private void cAssembleIssueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
         if(Objects.equals(abnormalResultMq.getDutyType(), SpotCheckSystemEnum.DMS.getCode())
                 || Objects.equals(abnormalResultMq.getDutyType(), SpotCheckSystemEnum.TMS.getCode())){
             //分拣、站点发给下游判责
@@ -1137,14 +1113,94 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }else {
             logger.warn("未知去向!");
         }
-        if(Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
-                || (Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName())
-                && Objects.equals(weightVolumeCollectDto.getMultiplePackage(), Constants.NUMBER_ZERO))){
-            // 客户端抽检 | dws一单一件抽检需下发图片
-            abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
-        }
+        // C网下发图片使用字段：pictureAddress
+        cIssueDownPicDeal(weightVolumeCollectDto, abnormalResultMq);
         // 默认认责不判责
         abnormalResultMq.setIsAccusation(0);
         abnormalResultMq.setIsNeedBlame(1);
+    }
+
+    /**
+     * B网下发图片处理
+     *  hit：detailList字段存储（早期约定存储5张，现在不足5张的也存储进去）
+     *      1、人工抽检：一单一件5张（es中只有一条记录也存储了图片链接），一单多件不下发图片
+     *      2、客户端抽检：只有一单一件（es中只有一条记录也存储了图片链接）
+     *      3、dws抽检：一单一件1张（es中只有一条记录也存储了图片链接），一单多件不下发图片
+     *      4、页面抽检：只有运单维度，总共5张（es中只有一条记录也存储了图片链接）
+     *      5、转运安卓抽检：只有运单维度，总共5张（es中只有一条记录也存储了图片链接）
+     * @param weightVolumeCollectDto
+     * @param abnormalResultMq
+     */
+    private void bIssueDownPicDeal(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
+        List<SpotCheckOfPackageDetail> detailList = new ArrayList<>();
+        abnormalResultMq.setDetailList(detailList);
+        if(
+            (
+                (Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName())
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName()))
+                && Objects.equals(weightVolumeCollectDto.getMultiplePackage(), Constants.NUMBER_ZERO)
+            )
+            || (Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName())
+                    && Objects.equals(weightVolumeCollectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode()))
+            || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
+            || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName())
+        ){
+            SpotCheckOfPackageDetail detail = new SpotCheckOfPackageDetail();
+            detail.setBillCode(weightVolumeCollectDto.getWaybillCode());
+            detail.setWeight(weightVolumeCollectDto.getReviewWeight());
+            detail.setLength(weightVolumeCollectDto.getReviewVolume());
+            String pictureAddress = weightVolumeCollectDto.getPictureAddress();
+            if(StringUtils.isNotEmpty(pictureAddress)){
+                List<Map<String,String>> imgList = new ArrayList<>();
+                for (String pictureUrl : pictureAddress.split(Constants.SEPARATOR_SEMICOLON)) {
+                    Map<String,String> imgMap = new LinkedHashMap<>();
+                    imgMap.put("url", pictureUrl);
+                    imgList.add(imgMap);
+                }
+                detail.setImgList(imgList);
+            }
+            detailList.add(detail);
+        }
+    }
+
+    /**
+     * C网下发图片处理
+     *  hit：pictureAddress字段进行存储（早期约定只存储一张，故现在也只存储一张，防止下游解析异常）
+     *      1、人工抽检：一单一件5张，运单维度抽检5张（es中只有一条记录也存储了图片链接），包裹维度一单多件不下发图片
+     *      2、客户端抽检：只有一单一件（es中只有一条记录也存储了图片链接）
+     *      3、dws抽检：一单一件1张（es中只有一条记录也存储了图片链接），一单多件不下发图片
+     *      4、页面抽检：只有运单维度，总共5张（es中只有一条记录也存储了图片链接）
+     *      5、转运安卓抽检：只有运单维度，总共5张（es中只有一条记录也存储了图片链接）
+     * @param weightVolumeCollectDto
+     * @param abnormalResultMq
+     */
+    private void cIssueDownPicDeal(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
+        if(
+                ((Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName())
+                && (
+                        Objects.equals(weightVolumeCollectDto.getMultiplePackage(), Constants.NUMBER_ZERO)
+                        || Objects.equals(weightVolumeCollectDto.getIsWaybillSpotCheck(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())
+                    )
+                )
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName()))
+        ){
+            // 只获取其中一张
+            String pictureAddress = weightVolumeCollectDto.getPictureAddress();
+            if(StringUtils.isNotEmpty(pictureAddress)){
+                String[] picArray = pictureAddress.split(Constants.SEPARATOR_SEMICOLON);
+                abnormalResultMq.setPictureAddress(picArray[0]);
+            }
+
+        }
+        if(
+                (Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName())
+                || Objects.equals(weightVolumeCollectDto.getFromSource(), SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName()))
+                && Objects.equals(weightVolumeCollectDto.getMultiplePackage(), Constants.NUMBER_ZERO)
+        ){
+            // 只有一张图片直接设置
+            abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
+        }
     }
 }
