@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
+import com.jd.ldop.center.api.refund.dto.RefundApplyDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
@@ -116,4 +117,10 @@ public interface LDOPManager {
 	 * @return
 	 */
 	BackAddressDTOExt getBackAddressDTOExt(BackAddressDTO backAddressDTO);
+	/**
+	 * 退款接口 https://cf.jd.com/pages/viewpage.action?pageId=490844510
+	 * @param refundApplyDTO
+	 * @return
+	 */
+	JdResult<String> refundApply(RefundApplyDTO refundApplyDTO);
 }
