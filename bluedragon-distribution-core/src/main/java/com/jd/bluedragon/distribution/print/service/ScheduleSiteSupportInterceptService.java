@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
 
+import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.etms.waybill.domain.Waybill;
 
 public interface ScheduleSiteSupportInterceptService {
 
@@ -15,4 +17,12 @@ public interface ScheduleSiteSupportInterceptService {
      * @return
      */
     InvokeResult<String> checkCrossInfo(String waybillSign, String sendPay, String waybillCode , Integer prepareSiteCode, Integer startSiteCode);
+
+    /**
+     * 校验反调度是否同城
+     * @param waybillForPreSortOnSiteRequest
+     * @param waybill
+     * @return
+     */
+    InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill);
 }

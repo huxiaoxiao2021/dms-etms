@@ -2,15 +2,22 @@ package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.ScheduleSiteSupportInterceptHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
+import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.bluedragon.utils.SiteHelper;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -18,6 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @Author: liming522
@@ -35,6 +45,9 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      * 预分拣目的站点滑道信息校验
@@ -73,6 +86,62 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
             result.customMessage(JdResponse.CODE_BASIC_SITE_CODE_ERROR, JdResponse.MESSAGE_BASIC_SITE_CODE_ERRPR);
             return result;
         }
+        return result;
+    }
+
+    /**
+     * 校验反调度是否同城
+     *
+     * @param waybillForPreSortOnSiteRequest
+     * @param waybill
+     * @return
+     */
+    @Override
+    public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+
+        try {
+            if (waybill.getOldSiteId() > 0) {
+                BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+                // 操作人场地类型是分拣中心
+                if (SiteHelper.siteIsSortingCenter(curSite)) {
+
+                    // 判断是外单
+                    if (BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_3)) {
+
+                        // 返调度站点类型是营业部或自提点
+                        BaseSiteInfoDto destSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+                        if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())) {
+
+                            // 获取原站点和反调度后的站点的四级地址，对于直辖市（北京市，上海市，天津市，重庆市）比较一级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”。
+                            // 对于非直辖市，比较二级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”
+                            BaseSiteInfoDto oldPreSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
+
+                            boolean notSameCity = false;
+                            if (!AreaHelper.isMunicipality(oldPreSite.getProvinceId()) && !AreaHelper.isMunicipality(destSite.getProvinceId())) {
+                                if (!Objects.equals(oldPreSite.getCityId(), destSite.getCityId())) {
+                                    notSameCity = true;
+                                }
+                            }
+                            else {
+                                if (!Objects.equals(oldPreSite.getProvinceId(), destSite.getProvinceId())) {
+                                    notSameCity = true;
+                                }
+                            }
+                            if (notSameCity) {
+                                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "仅允许同城范围进行反调度操作");
+                                return result;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            result.error("反调度校验是否同城失败！请联系分拣小秘");
+            return result;
+        }
+
         return result;
     }
 }

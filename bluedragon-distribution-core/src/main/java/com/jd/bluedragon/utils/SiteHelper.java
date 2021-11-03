@@ -2,11 +2,42 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.rmi.runtime.Log;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class SiteHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(SiteHelper.class);
+
+    public static final int SORT_TYPE_SORTING_CENTER;
+    public static final int SORT_SUBTYPE_SORTING_CENTER;
+    public static final List<Integer> SORT_THIRD_TYPE_SORTING_CENTER = new ArrayList<>();
+
+    static {
+        SORT_TYPE_SORTING_CENTER = Integer.valueOf(PropertiesHelper.newInstance().getValue("basic.sortType.sortingCenter"));
+        SORT_SUBTYPE_SORTING_CENTER = Integer.valueOf(PropertiesHelper.newInstance().getValue("basic.sortSubType.sortingCenter"));
+        String thirdTypes = PropertiesHelper.newInstance().getValue("basic.sortThirdType.sortingCenter");
+
+        if (StringUtils.isNotBlank(thirdTypes)) {
+            try {
+                String[] list = thirdTypes.split(Constants.SEPARATOR_COMMA);
+                for (String thirdType : list) {
+                    SORT_THIRD_TYPE_SORTING_CENTER.add(Integer.valueOf(thirdType));
+                }
+            } catch (Exception e) {
+                log.error("读取分拣中心三级类型配置失败.", e);
+            }
+        }
+    }
 
     public static Boolean isPartner(Site site) {
         if (site == null || site.getType() == null) {
@@ -417,5 +448,24 @@ public class SiteHelper {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * 判断是分拣中心
+     * 依据青龙基础资料 sortType, sortSubType, sortThirdType判断
+     * @param site
+     * @return
+     */
+    public static Boolean siteIsSortingCenter(BaseSiteInfoDto site) {
+        if (null == site
+                || null == site.getSortType()
+                || null == site.getSortSubType()
+                || null == site.getSortThirdType()) {
+            return Boolean.FALSE;
+        }
+
+        return Objects.equals(SORT_TYPE_SORTING_CENTER, site.getSortType())
+                && Objects.equals(SORT_SUBTYPE_SORTING_CENTER, site.getSortSubType())
+                && SORT_THIRD_TYPE_SORTING_CENTER.contains(site.getSortThirdType());
     }
 }
