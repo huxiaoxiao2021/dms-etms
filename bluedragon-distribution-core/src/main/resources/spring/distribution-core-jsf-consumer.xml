@@ -366,11 +366,11 @@
     <!-- 基础资料滑道服务 -->
     <jsf:consumer id="basicSortCrossDetailWS"
                   interface="com.jd.ql.basic.ws.BasicSortCrossDetailWS"
-                  alias="${jsf.basicSortCrossDetailWS.alias}"
-                  timeout="${jsf.basicSortCrossDetailWS.timeout}"
+                  alias="${basic.jsf.basicSortCrossDetailWS.alias}"
+                  timeout="${basic.jsf.basicSortCrossDetailWS.timeout}"
                   protocol="jsf"
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
-        <jsf:parameter key="token" hide="true" value="${jsf.basicSortCrossDetailWS.token}"/>
+        <jsf:parameter key="token" hide="true" value="${basic.jsf.basicSortCrossDetailWS.token}"/>
     </jsf:consumer>    
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
