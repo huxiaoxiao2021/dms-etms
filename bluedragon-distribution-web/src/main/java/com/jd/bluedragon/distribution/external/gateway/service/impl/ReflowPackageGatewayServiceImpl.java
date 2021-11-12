@@ -80,7 +80,10 @@ public class ReflowPackageGatewayServiceImpl implements ReflowPackageGatewayServ
             }
 
             WastePackageRequest req=new WastePackageRequest();
+            req.setPackageCode(request.getPackageCode());
             req.setWaybillCode(request.getWaybillCode());
+            req.setOperateType(request.getOperateType());
+            req.setWaybillType(request.getWaybillType());
             req.setStatus(request.getStatus());
             req.setUserCode(request.getUser().getUserCode());
             req.setOperatorERP(request.getUser().getUserErp());
