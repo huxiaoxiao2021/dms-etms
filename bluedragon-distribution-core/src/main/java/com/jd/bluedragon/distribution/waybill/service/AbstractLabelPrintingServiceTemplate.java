@@ -175,7 +175,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(labelPrinting.getOriginalDmsCode());
     	if(originalDmsInfo != null) {
     		labelPrinting.setOriginalDmsCode(labelPrinting.getOriginalDmsCode());
-    		labelPrinting.setOriginalDmsName(originalDmsInfo.getDmsName());
+    		labelPrinting.setOriginalDmsName(originalDmsInfo.getSiteName());
     	}
     	if(NumberHelper.gt0(endDmsId)) {
     		context.setUseEndDmsId(true);
@@ -190,16 +190,13 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             }
            	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
         	if(endDmsInfo != null) {
-        		labelPrinting.setPurposefulDmsCode(endDmsInfo.getDmsId());
-        		labelPrinting.setPurposefulDmsName(endDmsInfo.getDmsName());
-        		labelPrinting.setDestinationDmsName(endDmsInfo.getDmsName());
+        		labelPrinting.setPurposefulDmsCode(endDmsId);
+        		labelPrinting.setPurposefulDmsName(endDmsInfo.getSiteName());
+        		labelPrinting.setDestinationDmsName(endDmsInfo.getSiteName());
         	}
         	if(crossDetail != null) {
         		labelPrinting.setPrepareSiteName("");
-        		labelPrinting.setPrintSiteName("");
-        		labelPrinting.setPurposefulDmsCode(crossDetail.getDmsId());
-        		labelPrinting.setPurposefulDmsName(crossDetail.getDmsName());
-        		labelPrinting.setDestinationDmsName(crossDetail.getDmsName());        		
+        		labelPrinting.setPrintSiteName("");       		
 
                 //笼车号
         		labelPrinting.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());

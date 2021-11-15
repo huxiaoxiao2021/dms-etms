@@ -519,7 +519,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(waybill.getOriginalDmsCode());
     	if(originalDmsInfo != null) {
             waybill.setOriginalDmsCode(waybill.getOriginalDmsCode());
-            waybill.setOriginalDmsName(originalDmsInfo.getDmsName());
+            waybill.setOriginalDmsName(originalDmsInfo.getSiteName());
     	}
     	if(NumberHelper.gt0(endDmsId)) {
     		context.setUseEndDmsId(true);
@@ -532,17 +532,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
            	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
         	if(endDmsInfo != null) {
-                waybill.setPurposefulDmsCode(endDmsInfo.getDmsId());
-                waybill.setPurposefulDmsName(endDmsInfo.getDmsName());
-                waybill.setDestinationDmsName(endDmsInfo.getDmsName());
+                waybill.setPurposefulDmsCode(endDmsId);
+                waybill.setPurposefulDmsName(endDmsInfo.getSiteName());
+                waybill.setDestinationDmsName(endDmsInfo.getSiteName());
         	}
     	}
     	if(crossDetail != null) {
             waybill.setPrepareSiteName("");
             waybill.setPrintSiteName("");
-            waybill.setPurposefulDmsCode(crossDetail.getDmsId());
-            waybill.setPurposefulDmsName(crossDetail.getDmsName());
-            waybill.setDestinationDmsName(crossDetail.getDmsName());
 
             //笼车号
             waybill.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());
