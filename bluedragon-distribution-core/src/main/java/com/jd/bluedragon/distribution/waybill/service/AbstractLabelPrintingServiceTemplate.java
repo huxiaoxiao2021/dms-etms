@@ -172,6 +172,11 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     			&& context.getBigWaybillDto().getWaybill().getWaybillExt()!= null) {
     		endDmsId = context.getBigWaybillDto().getWaybill().getWaybillExt().getEndDmsId();
     	}
+    	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(labelPrinting.getOriginalDmsCode());
+    	if(originalDmsInfo != null) {
+    		labelPrinting.setOriginalDmsCode(labelPrinting.getOriginalDmsCode());
+    		labelPrinting.setOriginalDmsName(originalDmsInfo.getDmsName());
+    	}
     	if(NumberHelper.gt0(endDmsId)) {
     		context.setUseEndDmsId(true);
     		context.setWaybillEndDmsId(endDmsId);
@@ -183,11 +188,18 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             }else{
                 log.warn("打印业务：未获取到滑道号及笼车号信息:{}", remoteResult.getMessage());
             }
+           	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
+        	if(endDmsInfo != null) {
+        		labelPrinting.setPurposefulDmsCode(endDmsInfo.getDmsId());
+        		labelPrinting.setPurposefulDmsName(endDmsInfo.getDmsName());
+        		labelPrinting.setDestinationDmsName(endDmsInfo.getDmsName());
+        	}
         	if(crossDetail != null) {
         		labelPrinting.setPrepareSiteName("");
         		labelPrinting.setPrintSiteName("");
-        		labelPrinting.setOriginalDmsCode(crossDetail.getDmsId());
-        		labelPrinting.setOriginalDmsName(crossDetail.getDmsName());
+        		labelPrinting.setPurposefulDmsCode(crossDetail.getDmsId());
+        		labelPrinting.setPurposefulDmsName(crossDetail.getDmsName());
+        		labelPrinting.setDestinationDmsName(crossDetail.getDmsName());        		
 
                 //笼车号
         		labelPrinting.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());

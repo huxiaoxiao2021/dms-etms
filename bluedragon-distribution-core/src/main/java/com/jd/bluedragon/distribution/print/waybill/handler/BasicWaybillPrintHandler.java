@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -33,6 +34,7 @@ import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -74,6 +76,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      * 奢侈品订单打标位起始值
@@ -512,6 +516,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     			&& context.getBigWaybillDto().getWaybill().getWaybillExt()!= null) {
     		endDmsId = context.getBigWaybillDto().getWaybill().getWaybillExt().getEndDmsId();
     	}
+    	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(waybill.getOriginalDmsCode());
+    	if(originalDmsInfo != null) {
+            waybill.setOriginalDmsCode(waybill.getOriginalDmsCode());
+            waybill.setOriginalDmsName(originalDmsInfo.getDmsName());
+    	}
     	if(NumberHelper.gt0(endDmsId)) {
     		context.setUseEndDmsId(true);
     		context.setWaybillEndDmsId(endDmsId);
@@ -521,12 +530,19 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }else{
                 log.warn("打印业务：未获取到滑道号及笼车号信息:{}", remoteResult.getMessage());
             }
+           	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
+        	if(endDmsInfo != null) {
+                waybill.setPurposefulDmsCode(endDmsInfo.getDmsId());
+                waybill.setPurposefulDmsName(endDmsInfo.getDmsName());
+                waybill.setDestinationDmsName(endDmsInfo.getDmsName());
+        	}
     	}
     	if(crossDetail != null) {
             waybill.setPrepareSiteName("");
             waybill.setPrintSiteName("");
-            waybill.setOriginalDmsCode(crossDetail.getDmsId());
-            waybill.setOriginalDmsName(crossDetail.getDmsName());
+            waybill.setPurposefulDmsCode(crossDetail.getDmsId());
+            waybill.setPurposefulDmsName(crossDetail.getDmsName());
+            waybill.setDestinationDmsName(crossDetail.getDmsName());
 
             //笼车号
             waybill.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());
