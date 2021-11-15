@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -31,6 +30,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -113,6 +113,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private BasicGoodsAreaManager basicGoodsAreaManager;
 
     private static final String STORAGEWAYBILL_REDIS_KEY_PREFIX = "STORAGEWAY_KEY_";
 
@@ -1537,38 +1540,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * B网根据始发和目的获取路由信息
      * @param printWaybill
      */
+    @Override
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign){
         //非B网的不用查路由
         if(!BusinessUtil.isB2b(waybillSign)){
             return;
         }
-
         //调路由的接口获取路由节点
-        Date predictSendTime = new Date();
-        RouteProductEnum routeProduct = null;
-
-        /**
-         * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
-         * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
-         * 3.waybill_sign第80位等于7时，产品类型为“冷链卡板”--TLL1
-         * 4.waybill_sign第80位等于9时，产品类型为“特准包裹”--TB2（特准运）
-         */
-
-        if(BusinessUtil.isSignChar(waybillSign,80,'1')){
-            routeProduct = RouteProductEnum.TB1;
-        }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
-            routeProduct = RouteProductEnum.TB2;
-        }else if(BusinessUtil.isSignChar(waybillSign,80,'7')){
-            routeProduct = RouteProductEnum.TLL1;
-        }else if(BusinessUtil.isSignChar(waybillSign,80,'9')){
-            routeProduct = RouteProductEnum.TB2;
-        }
-
-
         List<String> routerNameList = null;
         try {
-            routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+            routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode, destinationDmsCode,
+                    vrsRouteTransferRelationManager.obtainRouterProduct(waybillSign), new Date());
         } catch (Exception e) {
             log.error("获取路由环节信息失败waybillCode[{}]originalDmsCode[{}]destinationDmsCode[{}]",printWaybill.getWaybillCode(),originalDmsCode,destinationDmsCode,e);
         }
@@ -1583,6 +1566,107 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 }
             }
         }
+        // B网转运执行新模板逻辑
+        executeNewRouterLogic(printWaybill, originalDmsCode, destinationDmsCode, waybillSign);
+    }
+
+    /**
+     * 新的路由执行逻辑
+     *
+     * @param printWaybill
+     * @param originalDmsCode
+     * @param destinationDmsCode
+     * @param waybillSign
+     */
+    private void executeNewRouterLogic(BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign) {
+        if(!printWaybill.getExecuteNewRouterLogic()){
+            return;
+        }
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.WaybillCommonServiceImpl.executeNewRouterLogic", Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            boolean isExecuteHasRouter = setBTemplateRouter(printWaybill, originalDmsCode, destinationDmsCode, waybillSign);
+            if(!isExecuteHasRouter){
+                // 无路由则只用设置目的的'货区编码'
+                printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(destinationDmsCode, printWaybill.getPrepareSiteCode()));
+            }
+        }catch (Exception e){
+            log.error("B网转运面单设置'分拣代码'和'货区编码'异常!", e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+
+    /**
+     * 设置B网模板路由
+     *  （存在路由节点）
+     * @param printWaybill
+     * @param originalDmsCode
+     * @param destinationDmsCode
+     * @param waybillSign
+     * @return
+     * @throws Exception
+     */
+    private boolean setBTemplateRouter(BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign) throws Exception {
+        RouteProductEnum routeProductEnum = vrsRouteTransferRelationManager.obtainRouterProduct(waybillSign);
+        if(routeProductEnum == null){
+            return false;
+        }
+        BaseSiteInfoDto originalDms = baseMajorManager.getBaseSiteInfoBySiteId(originalDmsCode);
+        if (originalDms == null){
+            return false;
+        }
+        BaseSiteInfoDto destinationDms = baseMajorManager.getBaseSiteInfoBySiteId(destinationDmsCode);
+        if (destinationDms == null){
+            return false;
+        }
+        String routerStr = vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsCode(), destinationDms.getDmsCode(), new Date(), routeProductEnum);
+        if (StringUtils.isEmpty(routerStr)){
+            return false;
+        }
+        List<String> siteList = Arrays.asList(routerStr.split(Constants.WAYBILL_ROUTER_SPLIT));
+        // 包含始发目的路由节点 > 2
+        if (siteList.size() < 2 || !siteList.contains(originalDms.getDmsCode()) || !siteList.contains(destinationDms.getDmsCode())){
+            return false;
+        }
+        // B网面单展示路由数据
+        // 1、始发、中间节点、目的（加上始发目的总共最多6个节点，中间节点 > 4 则只取前4个）
+        // 2、始发和目的的道口和笼车由'货区编码'替换，中间节点由'分拣代码'和'货区编码'组成
+        // 3、'货区编码'由当前站点和下一站点获取，目的站点的'货区编码'由目的站点和预分拣站点获取
+        int maxRouterSize = 6;
+        List<String> subList = siteList.subList(siteList.indexOf(originalDms.getDmsCode()), siteList.lastIndexOf(destinationDms.getDmsCode()) + 1);
+        List<String> finalSiteList = new ArrayList<>(subList);
+        String reverseSecondNextSite = destinationDms.getDmsCode();// 倒数第二个节点的下一节点
+        if(subList.size() > maxRouterSize){
+            reverseSecondNextSite = subList.get(maxRouterSize - 1);
+            finalSiteList = new ArrayList<>(subList.subList(0, maxRouterSize - 1));
+            finalSiteList.add(destinationDms.getDmsCode());
+        }
+        if(log.isInfoEnabled()){
+            log.info("根据始发:{}目的:{}路由产品类型:{}查询到的路由节点为:{},转换为B网面单的节点为:{}", originalDms.getDmsCode(), destinationDms.getDmsCode(), routeProductEnum.getValue(),
+                    JsonHelper.toJson(siteList), JsonHelper.toJson(finalSiteList));
+        }
+        int reverseSecondIndex = finalSiteList.size() - 2;// 倒数第二个下标
+        int lastIndex = finalSiteList.size() - 1;// 最后一个下标
+        for(int i = 0; i < finalSiteList.size(); i ++){
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i));
+            ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), baseSite.getDistributeCode());
+            Integer siteCode = baseSite.getSiteCode();
+            if(i == reverseSecondIndex){
+                // 倒数第二个节点处理
+                BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteByDmsCode(reverseSecondNextSite);
+                ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
+                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, nextSite.getSiteCode()));
+            }else if(i == lastIndex){
+                // 最后一个节点处理
+                printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, printWaybill.getPrepareSiteCode()));
+            }else {
+                BaseStaffSiteOrgDto currentNextSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i + 1));
+                ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
+                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite.getSiteCode()));
+            }
+        }
+        return true;
     }
 
     /**

@@ -26,20 +26,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import static com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE;
-import static java.util.Arrays.asList;
 
 @Service
 public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintContext,JdResult<String>>{
 	private static final Logger log = LoggerFactory.getLogger(TemplateSelectorWaybillHandler.class);
     
-    /**B网统一面单 **/
+    /**B网冷链面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-unite";
+    /**B网转运面单 **/
+    private static final String TEMPlATE_NAME_B2B_MAIN_ZY = "dms-b2b-unite-zy";
     /**大件模板 **/
     private static final String TEMPlATE_NAME_DJ_JDB_MAIN = "dms-dj-jdb-m";
     /** TC面单 **/
@@ -101,8 +100,12 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
-                    //B网面单统一
+                    // B网冷链面单
                     templateName = TEMPlATE_NAME_B2B_MAIN;
+                    // B网转运面单
+                    if(basePrintWaybill.getExecuteNewRouterLogic()){
+                        templateName = TEMPlATE_NAME_B2B_MAIN_ZY;
+                    }
                 } else {
                     //C网面单
                     //一号店模板

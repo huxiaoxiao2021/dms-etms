@@ -582,6 +582,11 @@ public class UccPropertyConfiguration {
      */
     private boolean sitePlateIsCheckFunc;
 
+    /**
+     * B网面单路由是否开启新模式
+     */
+    private boolean bTemplateRouterExecuteNew;
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1563,5 +1568,13 @@ public class UccPropertyConfiguration {
 
     public void setSitePlateIsCheckFunc(boolean sitePlateIsCheckFunc) {
         this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
+    }
+
+    public boolean getBTemplateRouterExecuteNew() {
+        return bTemplateRouterExecuteNew;
+    }
+
+    public void setBTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+        this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
     }
 }
