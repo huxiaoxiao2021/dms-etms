@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -73,6 +74,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 奢侈品订单打标位起始值
@@ -433,6 +437,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 if(StringHelper.isNotEmpty(commonWaybill.getNewAddress())){
                     commonWaybill.setPrintAddress(commonWaybill.getNewAddress());
                 }
+            }
+
+            // 非冷链运单使用新的B网模板
+            if(uccPropertyConfiguration.getBTemplateRouterExecuteNew()
+                    && !(BusinessUtil.isColdChainWaybill(tmsWaybill.getWaybillSign()) || BusinessUtil.isBMedicine(tmsWaybill.getWaybillSign()))){
+                commonWaybill.setExecuteNewRouterLogic(true);
             }
 
             //打标增值服务

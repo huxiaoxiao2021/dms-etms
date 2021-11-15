@@ -294,6 +294,31 @@ public class BasePrintWaybill implements Serializable {
 	private String routerNode7;
 	private String routerNode8;
 
+	/**
+	 * 是否执行新的路由逻辑
+	 */
+	private boolean executeNewRouterLogic;
+	/**
+	 * 路由节点分拣代码
+	 */
+	private String routerSectionNo1;
+	private String routerSectionNo2;
+	private String routerSectionNo3;
+	private String routerSectionNo4;
+	private String routerSectionNo5;
+	private String routerSectionNo6;
+	/**
+	 * 路由区间货区编码
+	 */
+	private String originalSectionAreaNo;
+	private String routerSectionAreaNo1;
+	private String routerSectionAreaNo2;
+	private String routerSectionAreaNo3;
+	private String routerSectionAreaNo4;
+	private String routerSectionAreaNo5;
+	private String routerSectionAreaNo6;
+	private String destinationSectionAreaNo;
+
 
 	/** 预分拣站点 **/
 	private String printSiteName;
@@ -1239,6 +1264,126 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setRouterNode8(String routerNode8) {
 		this.routerNode8 = routerNode8;
+	}
+
+	public boolean getExecuteNewRouterLogic() {
+		return executeNewRouterLogic;
+	}
+
+	public void setExecuteNewRouterLogic(boolean executeNewRouterLogic) {
+		this.executeNewRouterLogic = executeNewRouterLogic;
+	}
+
+	public String getRouterSectionNo1() {
+		return routerSectionNo1;
+	}
+
+	public void setRouterSectionNo1(String routerSectionNo1) {
+		this.routerSectionNo1 = routerSectionNo1;
+	}
+
+	public String getRouterSectionNo2() {
+		return routerSectionNo2;
+	}
+
+	public void setRouterSectionNo2(String routerSectionNo2) {
+		this.routerSectionNo2 = routerSectionNo2;
+	}
+
+	public String getRouterSectionNo3() {
+		return routerSectionNo3;
+	}
+
+	public void setRouterSectionNo3(String routerSectionNo3) {
+		this.routerSectionNo3 = routerSectionNo3;
+	}
+
+	public String getRouterSectionNo4() {
+		return routerSectionNo4;
+	}
+
+	public void setRouterSectionNo4(String routerSectionNo4) {
+		this.routerSectionNo4 = routerSectionNo4;
+	}
+
+	public String getRouterSectionNo5() {
+		return routerSectionNo5;
+	}
+
+	public void setRouterSectionNo5(String routerSectionNo5) {
+		this.routerSectionNo5 = routerSectionNo5;
+	}
+
+	public String getRouterSectionNo6() {
+		return routerSectionNo6;
+	}
+
+	public void setRouterSectionNo6(String routerSectionNo6) {
+		this.routerSectionNo6 = routerSectionNo6;
+	}
+
+	public String getRouterSectionAreaNo1() {
+		return routerSectionAreaNo1;
+	}
+
+	public void setRouterSectionAreaNo1(String routerSectionAreaNo1) {
+		this.routerSectionAreaNo1 = routerSectionAreaNo1;
+	}
+
+	public String getRouterSectionAreaNo2() {
+		return routerSectionAreaNo2;
+	}
+
+	public void setRouterSectionAreaNo2(String routerSectionAreaNo2) {
+		this.routerSectionAreaNo2 = routerSectionAreaNo2;
+	}
+
+	public String getRouterSectionAreaNo3() {
+		return routerSectionAreaNo3;
+	}
+
+	public void setRouterSectionAreaNo3(String routerSectionAreaNo3) {
+		this.routerSectionAreaNo3 = routerSectionAreaNo3;
+	}
+
+	public String getRouterSectionAreaNo4() {
+		return routerSectionAreaNo4;
+	}
+
+	public void setRouterSectionAreaNo4(String routerSectionAreaNo4) {
+		this.routerSectionAreaNo4 = routerSectionAreaNo4;
+	}
+
+	public String getRouterSectionAreaNo5() {
+		return routerSectionAreaNo5;
+	}
+
+	public void setRouterSectionAreaNo5(String routerSectionAreaNo5) {
+		this.routerSectionAreaNo5 = routerSectionAreaNo5;
+	}
+
+	public String getRouterSectionAreaNo6() {
+		return routerSectionAreaNo6;
+	}
+
+	public void setRouterSectionAreaNo6(String routerSectionAreaNo6) {
+		this.routerSectionAreaNo6 = routerSectionAreaNo6;
+	}
+
+	public String getOriginalSectionAreaNo() {
+		return originalSectionAreaNo;
+	}
+
+	public void setOriginalSectionAreaNo(String originalSectionAreaNo) {
+		this.originalSectionAreaNo = originalSectionAreaNo;
+	}
+
+	public String getDestinationSectionAreaNo() {
+		return destinationSectionAreaNo;
+	}
+
+	public void setDestinationSectionAreaNo(String destinationSectionAreaNo) {
+		this.destinationSectionAreaNo = destinationSectionAreaNo;
 	}
 
 	public String getPrintSiteName() {
