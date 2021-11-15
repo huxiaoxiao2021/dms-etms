@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.degrade.route.CommandQueryRecommendRoute;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
@@ -371,6 +372,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @param predictSendTime 预计发货时间
      * @return
      */
+    @Override
     public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
         List<String> dmsSiteNameList = new ArrayList<String>();
 
@@ -455,4 +457,27 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             return null;
         }
     }
+
+    /**
+     * 获取路由产品类型
+     *  1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+     *  2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+     *  3.waybill_sign第80位等于7时，产品类型为“冷链卡板”--TLL1
+     *  4.waybill_sign第80位等于9时，产品类型为“特准包裹”--TB2（特准运）
+     */
+    @Override
+    public RouteProductEnum obtainRouterProduct(String waybillSign) {
+        RouteProductEnum routeProduct = null;
+        if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+            routeProduct = RouteProductEnum.TB1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+            routeProduct = RouteProductEnum.TB2;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'7')){
+            routeProduct = RouteProductEnum.TLL1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'9')){
+            routeProduct = RouteProductEnum.TB2;
+        }
+        return routeProduct;
+    }
+
 }
