@@ -539,7 +539,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.7.4-HOTFIX-T4</version>
+			<version>1.7.4-HOTFIX-T5</version>
             <exclusions>
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
