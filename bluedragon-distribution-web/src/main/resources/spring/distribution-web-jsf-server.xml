@@ -359,14 +359,6 @@
                   server="dmsjsf">
     </jsf:provider>
 
-    <!-- 测试使用：抽检对外jsf -->
-    <jsf:provider id="jsfSpotCheckCurrencyService"
-                  interface="com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService"
-                  alias="${dms.jsf.alias}"
-                  ref="spotCheckCurrencyService"
-                  server="dmsjsf">
-    </jsf:provider>
-
     <jsf:provider id="jsfSortBoardJsfService"
                   interface="com.jd.bluedragon.distribution.board.SortBoardJsfService"
                   alias="${dms.jsf.alias}"

@@ -25,5 +25,5 @@ public class KeyConstants {
      * 冷链发货处理中的运输编码
      */
     public static String COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING = "dmsWeb:coldChainSend:transPlanCode:handling:%s";
-    public static Integer COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED = 5000;
+    public static Integer COLD_CHAIN_SEND_TRANS_PLAN_CODE_HANDLING__EXPIRED = 600;
 }

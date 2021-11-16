@@ -17,6 +17,7 @@
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
 		<property name="locations">
 			<list>
+				<value>classpath:aces.properties</value>
 				<value>classpath:authen.properties</value>
 				<value>classpath:configured/app.properties</value>
 				<value>classpath:configured/db.properties</value>

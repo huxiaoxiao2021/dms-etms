@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @program: bluedragon-distribution
@@ -94,6 +96,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             conditionB2b.setLoginErp(req.getLoginErp());
             conditionB2b.setWaybillVolume(req.getVolume());
             conditionB2b.setWaybillWeight(req.getWeight());
+            conditionB2b.setAndroidSpotCheck(true);
             InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
             if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
                 jdCResponse.toFail("操作失败！");
@@ -194,9 +197,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         spotCheckDto.setOperateUserName(baseStaff.getStaffName());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode());
         spotCheckDto.setExcessStatus(req.getExcessFlag());
-        Map<String, String> picUtlMap = new LinkedHashMap<>();
-        picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_SEMICOLON));
-        spotCheckDto.setPictureUrls(picUtlMap);
+        if(Objects.equals(ExcessStatusEnum.EXCESS_ENUM_YES.getCode(), req.getExcessFlag())){
+            Map<String, String> picUtlMap = new LinkedHashMap<>();
+            picUtlMap.put("total", StringUtils.join(req.getUrls(), Constants.SEPARATOR_SEMICOLON));
+            spotCheckDto.setPictureUrls(picUtlMap);
+        }
         return spotCheckDto;
     }
 
@@ -217,6 +222,7 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         conditionB2b.setWaybillWeight(req.getWeight());
         conditionB2b.setPdaSource(1);
         conditionB2b.setUrls(req.getUrls());
+        conditionB2b.setAndroidSpotCheck(true);
         return conditionB2b;
     }
 

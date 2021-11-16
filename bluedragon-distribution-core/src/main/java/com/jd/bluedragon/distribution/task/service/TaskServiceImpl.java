@@ -901,7 +901,7 @@ public class TaskServiceImpl implements TaskService {
 			return;
 		}
 		//设置jsf超时时间
-		RpcContext.getContext().setAttachment(com.jd.jsf.gd.util.Constants.CONFIG_KEY_TIMEOUT, autoTaskUploadRpcTimeOut);
+		RpcContext.getContext().setAttachment(com.jd.jsf.gd.util.Constants.HIDDEN_KEY_REQUEST_TIMEOUT, autoTaskUploadRpcTimeOut);
 		//检查订单是否已妥投
 		if(waybillTraceManager.isWaybillFinished(waybillCode)){
 			log.error("运单{}已妥投，不能再继续分拣", waybillCode);
