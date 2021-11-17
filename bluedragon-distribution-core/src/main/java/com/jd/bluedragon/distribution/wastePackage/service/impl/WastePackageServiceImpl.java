@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -161,7 +162,10 @@ public class WastePackageServiceImpl implements WastePackageService {
             db.setPackageCode(pack.getPackageBarcode());
             db.setStatus(request.getStatus());
             db.setWaybillProduct(waybillQueryManager.getTransportMode(WaybillInfo));
-            db.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
+            String consignmentName = waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto);
+            //consignmentName 超过30位截取
+            consignmentName = StringHelper.substring(consignmentName,0,30);
+            db.setConsignmentName(consignmentName);
             db.setWeight(BigDecimal.valueOf(WaybillInfo.getGoodWeight()));
             if(WaybillInfo.getPayment()!=null && (WaybillInfo.getPayment()==1 || WaybillInfo.getPayment()==3)){
                 db.setCod(1);
