@@ -329,7 +329,8 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // 泡重比：大于168小于330
         int foamWeightRatioConfirmFloorB = weightVolumeRuleConstant.getFoamWeightRatioConfirmFloorB();
         int foamWeightRatioConfirmCeilingB = weightVolumeRuleConstant.getFoamWeightRatioConfirmCeilingB();
-        if(volume > Constants.DOUBLE_ZERO && weight > volume * foamWeightRatioConfirmFloorB && weight < volume * foamWeightRatioConfirmCeilingB){
+        if(volume > Constants.DOUBLE_ZERO && !(weight * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION > volume * foamWeightRatioConfirmFloorB
+                && weight * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION < volume * foamWeightRatioConfirmCeilingB)){
             setNextRowChar(confirmMessage);
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_3,
                     foamWeightRatioConfirmFloorB,foamWeightRatioConfirmCeilingB));
