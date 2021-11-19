@@ -224,19 +224,19 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             final ClientResult<SendResult> sendResultResult = this.handleSendByPackageOrBoxCodeForWholeBoard(packageSendRequest, sendM);
             SendResult sendResult = sendResultResult.getData();
 
-            if(sendResultResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE ){
+            if(!sendResultResult.isSuccess()){
                 return result.toFail(sendResult.getValue());
             }
-            if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
+            if (Objects.equals(sendResult.getKey(), SendResult.CODE_OK)) {
                 return result.toSuccess(sendResult.getValue());
             }
 
-            if(Objects.equals(sendResult.getKey(),SendResult.CODE_WARN)){
-                return result.addPromptBox(sendResult.getKey(),sendResult.getValue());
+            if (Objects.equals(sendResult.getKey(), SendResult.CODE_WARN)) {
+                return result.addPromptBox(sendResult.getKey(), sendResult.getValue());
             }
 
-            if(Objects.equals(sendResult.getKey(),SendResult.CODE_SENDED)){
-                return result.addInterceptBox(sendResult.getKey(),sendResult.getValue());
+            if (Objects.equals(sendResult.getKey(), SendResult.CODE_SENDED)) {
+                return result.addInterceptBox(sendResult.getKey(), sendResult.getValue());
             }
 
             if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
@@ -520,7 +520,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
     }
 
     /**
-     * 按包裹号、箱号找到整板进行整板取消发货 todo
+     * 按包裹号、箱号找到整板进行整板取消发货
      * @author fanggang7
      * @time 2021-08-24 18:31:56 周二
      */
