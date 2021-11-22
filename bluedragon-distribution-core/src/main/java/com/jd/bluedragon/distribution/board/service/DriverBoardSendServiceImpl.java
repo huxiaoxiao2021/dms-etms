@@ -437,7 +437,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             // 取消发货校验封车业务
             DeliveryResponse checkResponse = deliveryService.dellCancelDeliveryCheckSealCar(sendMDomain);
             if (checkResponse!=null && !JdResponse.CODE_OK.equals(checkResponse.getCode())) {
-                return result.toFail(checkResponse.getMessage(), checkResponse.getCode());
+                return result.toFail(checkResponse.getMessage());
             }
 
             ThreeDeliveryResponse tDeliveryResponse = null;
