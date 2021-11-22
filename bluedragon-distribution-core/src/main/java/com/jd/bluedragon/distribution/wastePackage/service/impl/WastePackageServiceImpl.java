@@ -210,9 +210,9 @@ public class WastePackageServiceImpl implements WastePackageService {
             }
 
             DiscardedPackageStorageTemp packageStorageTemp = buildDiscardedPackageStorageTemp(baseEntity.getData(),siteDto,request,request.getPackageCode());
-            packageStorageTemp.setId(oldData.getId());
             int dbRes=-1;
             if(isUpdate){
+            	packageStorageTemp.setId(oldData.getId());
                 dbRes=discardedPackageStorageTempDao.updateById(packageStorageTemp);
             }else {
                 dbRes=discardedPackageStorageTempDao.insertSelective(packageStorageTemp);
