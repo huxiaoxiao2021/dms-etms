@@ -601,6 +601,19 @@ public class UccPropertyConfiguration {
      */
     private boolean sitePlateIsCheckFunc;
 
+    /**
+     * 预分拣返调度校验同城
+     */
+    private String scheduleSiteCheckSameCity;
+
+    public String getScheduleSiteCheckSameCity() {
+        return scheduleSiteCheckSameCity;
+    }
+
+    public void setScheduleSiteCheckSameCity(String scheduleSiteCheckSameCity) {
+        this.scheduleSiteCheckSameCity = scheduleSiteCheckSameCity;
+    }
+
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
