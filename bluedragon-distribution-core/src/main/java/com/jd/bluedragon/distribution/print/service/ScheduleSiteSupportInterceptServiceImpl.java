@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillForPreSortOnSiteRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.ScheduleSiteSupportInterceptHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
@@ -99,6 +98,11 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     @Override
     public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill) {
         InvokeResult<Boolean> result = new InvokeResult<>();
+
+        if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
+                || !Constants.SWITCH_OPEN.equals(uccPropertyConfiguration.getScheduleSiteCheckSameCity())) {
+            return result;
+        }
 
         try {
             if (waybill.getOldSiteId() > 0) {
