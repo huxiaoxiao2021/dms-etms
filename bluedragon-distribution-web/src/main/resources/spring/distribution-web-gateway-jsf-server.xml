@@ -401,7 +401,6 @@
                   server="dmsjsf">
     </jsf:provider>
 
-
     <!-- 人工抽检 -->
     <bean id="artificialSpotCheckGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.ArtificialSpotCheckGatewayServiceImpl" />
     <jsf:provider id="jsfArtificialSpotCheckGatewayService"
@@ -415,6 +414,15 @@
                   interface="com.jd.bluedragon.external.gateway.service.WorkingClockGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="workingClockServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 司机组板(京管家)-->
+    <bean id="driverBoardSend4JgjGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DriverBoardSend4JgjGatewayServiceImpl" />
+    <jsf:provider id="jsfDriverBoardSend4JgjGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DriverBoardSend4JgjGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="driverBoardSend4JgjGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
 </beans>
