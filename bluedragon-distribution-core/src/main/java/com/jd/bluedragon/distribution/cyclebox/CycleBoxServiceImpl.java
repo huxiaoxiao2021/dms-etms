@@ -361,7 +361,8 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         queryPara.setBoxCode(request.getBoxCode());
         queryPara.setCreateSiteCode(request.getSiteCode());
         List<SendM> sendMList = sendMManager.findSendMByBoxCode(queryPara);
-        if (null != sendMList && sendMList.size() > 0) {
+        if ((!BoxMaterialRelationRequest.BIZ_SORTING_MACHINE.equals(request.getBizSource())) &&//分拣机绑定的,不校验4小时
+                null != sendMList && sendMList.size() > 0) {
             result.setCode(InvokeResult.RESULT_BOX_SENT_CODE);
             result.setMessage(InvokeResult.RESULT_BOX_SENT_MESSAGE);
             return result;
@@ -369,7 +370,8 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         // 如果本地场地已经绑定了箱号 而且已在4小时内发货 ，不能再绑定
         BoxMaterialRelation boxMaterial = boxMaterialRelationService.getDataByMaterialCode(request.getMaterialCode());
-        if(boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())){
+        if ((!BoxMaterialRelationRequest.BIZ_SORTING_MACHINE.equals(request.getBizSource())) &&//分拣机绑定的,不校验4小时
+                boxMaterial != null && request.getSiteCode().equals(boxMaterial.getSiteCode())) {
             queryPara.setBoxCode(boxMaterial.getBoxCode());
             queryPara.setCreateSiteCode(request.getSiteCode());
            sendMList = sendMManager.findSendMByBoxCode(queryPara);
