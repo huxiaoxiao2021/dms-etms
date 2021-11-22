@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.api.request.driver.DriverBoardSendRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.base.ClientResult;
+import com.jd.bluedragon.distribution.api.response.base.ResultCodeConstant;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -46,7 +47,6 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
-import com.jd.ka.edn.sdk.enums.ReturnCodeEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.CarrierDriverDto;
 import com.jd.tms.basic.dto.CarrierDriverParamDto;
@@ -126,6 +126,10 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         ClientResult<KeyValueDto<Integer, String>> result = ClientResult.success();
 
         try {
+            final ClientResult<Void> checkResult = this.check4CheckBatchCodeStatusParam(request);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
             Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());
             Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(request.getBatchCode());
             final OperateUser operateUser = request.getOperateUser();
@@ -172,6 +176,25 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         return result;
     }
 
+    private ClientResult<Void> check4CheckBatchCodeStatusParam(DriverBoardSendCheckBatchCodeRequest request){
+        ClientResult<Void> result = ClientResult.success();
+        if(request == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        final OperateUser operateUser = request.getOperateUser();
+        if(StringUtils.isEmpty(operateUser.getUserCode())){
+            return result.toFail("参数错误，userCode不能为空");
+        }
+
+        if(StringUtils.isEmpty(request.getCarrierCode())){
+            return result.toFail("参数错误，carrierCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBatchCode())){
+            return result.toFail("参数错误，batchCode不能为空");
+        }
+        return result;
+    }
+
     /**
      * 扫条码按整板发货
      * @param request 发货请求
@@ -187,7 +210,11 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         }
         ClientResult<Boolean> result = ClientResult.success();
 
-        try {// 校验批次号
+        try {
+            final ClientResult<Void> checkResult = this.checkSendForWholeBoardPram(request);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
             InvokeResult<Boolean> batchCheckResult = sendCodeService.validateSendCodeEffective(request.getBatchCode());
             if (!batchCheckResult.codeSuccess()) {
                 return result.toFail(batchCheckResult.getMessage(), batchCheckResult.getCode());
@@ -258,6 +285,27 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--exception param {} exception {}", JsonHelper.toJson(request), e.getMessage(), e);
         }
 
+        return result;
+    }
+
+    private ClientResult<Void> checkSendForWholeBoardPram(DriverBoardSendRequest request){
+        ClientResult<Void> result = ClientResult.success();
+        if(request == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        final OperateUser operateUser = request.getOperateUser();
+        if(StringUtils.isEmpty(operateUser.getUserCode())){
+            return result.toFail("参数错误，userCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getCarrierCode())){
+            return result.toFail("参数错误，carrierCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBatchCode())){
+            return result.toFail("参数错误，batchCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBarCode())){
+            return result.toFail("参数错误，barCode不能为空");
+        }
         return result;
     }
 
@@ -350,6 +398,10 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         ClientResult<BaseResponse> result = ClientResult.success();
 
         try {
+            final ClientResult<Void> checkResult = this.check4GetBatchInfo4CancelSendParam(request);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
             Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());
             Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(request.getBatchCode());
             final OperateUser operateUser = request.getOperateUser();
@@ -381,6 +433,25 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         return result;
     }
 
+    private ClientResult<Void> check4GetBatchInfo4CancelSendParam(DriverBoardSendCheckBatchCodeRequest request){
+        ClientResult<Void> result = ClientResult.success();
+        if(request == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        final OperateUser operateUser = request.getOperateUser();
+        if(StringUtils.isEmpty(operateUser.getUserCode())){
+            return result.toFail("参数错误，userCode不能为空");
+        }
+
+        if(StringUtils.isEmpty(request.getCarrierCode())){
+            return result.toFail("参数错误，carrierCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBatchCode())){
+            return result.toFail("参数错误，batchCode不能为空");
+        }
+        return result;
+    }
+
     /**
      * 扫条码按整板取消发货
      * @param request 发货请求
@@ -397,6 +468,10 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         ClientResult<Boolean> result = ClientResult.success();
 
         try {
+            final ClientResult<Void> checkResult = this.checkCancelSendForWholeBoardPram(request);
+            if(!checkResult.isSuccess()){
+                return result.toFail(checkResult.getMessage(), checkResult.getCode());
+            }
             Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());
             Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(request.getBatchCode());
             final OperateUser operateUser = request.getOperateUser();
@@ -471,6 +546,28 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("DriverBoardSendServiceImpl.cancelSendForWholeBoard exception param {} exception {}", JsonHelper.toJson(request), e.getMessage(), e);
+        }
+        return result;
+    }
+
+    private ClientResult<Void> checkCancelSendForWholeBoardPram(DriverBoardCancelSendRequest request){
+        ClientResult<Void> result = ClientResult.success();
+        if(request == null){
+            return result.toFail("参数错误，参数不能为空");
+        }
+        final OperateUser operateUser = request.getOperateUser();
+        if(StringUtils.isEmpty(operateUser.getUserCode())){
+            return result.toFail("参数错误，userCode不能为空");
+        }
+
+        if(StringUtils.isEmpty(request.getCarrierCode())){
+            return result.toFail("参数错误，carrierCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBatchCode())){
+            return result.toFail("参数错误，batchCode不能为空");
+        }
+        if(StringUtils.isEmpty(request.getBarCode())){
+            return result.toFail("参数错误，barCode不能为空");
         }
         return result;
     }
