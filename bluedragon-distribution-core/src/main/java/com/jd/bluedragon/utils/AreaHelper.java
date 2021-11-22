@@ -242,7 +242,7 @@ public class AreaHelper {
 	 * @param provinceId
 	 * @return
 	 */
-	public boolean isMunicipality(Integer provinceId){
+	public static boolean isMunicipality(Integer provinceId){
 		return municipalityList.contains(provinceId);
 	}
 }
