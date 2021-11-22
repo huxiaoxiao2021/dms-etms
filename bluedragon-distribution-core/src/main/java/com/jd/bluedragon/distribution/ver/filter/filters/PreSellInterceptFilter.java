@@ -56,12 +56,12 @@ public class PreSellInterceptFilter implements Filter {
             waybillSign = request.getWaybillCache().getWaybillSign();
         }
         //预售未付款，提示退仓（正向单）
-        if((BusinessUtil.isWaybillMarkForward(waybillSign) || BusinessUtil.isForeignForward(waybillSign))
+        if((BusinessUtil.isWaybillMarkForward(waybillSign) && BusinessUtil.isForeignForward(waybillSign))
                 && BusinessUtil.isPreSellWithNoPayToWms(sendPay)) {
             throw new SortingCheckException(DmsMessageConstants.CODE_29419, HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FINAL_PAY, request.getFuncModule()));
         }
         //预售未付款，提示暂存分拣（正向单）
-        if((BusinessUtil.isWaybillMarkForward(waybillSign) || BusinessUtil.isForeignForward(waybillSign))
+        if((BusinessUtil.isWaybillMarkForward(waybillSign) && BusinessUtil.isForeignForward(waybillSign))
                 && BusinessUtil.isPreSellWithNoPayStorage(sendPay)
                 && checkIsPreSellStorageSite(request.getCreateSiteCode())) {
             throw new SortingCheckException(DmsMessageConstants.CODE_29420, HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
