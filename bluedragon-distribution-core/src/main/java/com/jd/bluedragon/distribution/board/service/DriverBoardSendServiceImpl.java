@@ -459,7 +459,11 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
                 this.log.error("写入取消发货信息失败：{}",JsonHelper.toJson(request), e);
             }
             if (tDeliveryResponse != null) {
-                return result;
+                if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
+                    return result;
+                } else {
+                    return result.toFail(tDeliveryResponse.getMessage(), tDeliveryResponse.getCode());
+                }
             } else {
                 return result.toFail(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
             }
