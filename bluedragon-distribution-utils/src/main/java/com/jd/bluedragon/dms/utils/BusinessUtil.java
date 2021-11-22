@@ -1647,6 +1647,17 @@ public class BusinessUtil {
     public static Boolean isArTransportMode(String waybillSign) {
         return BusinessUtil.isSignY(waybillSign, 31) || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_84, WaybillSignConstants.CHAR_84_3);
     }
+
+    /**
+     * 京航达运单
+     *  sendPay第137位为1
+     * @param sendPay
+     * @return
+     */
+    public static boolean isJHD(String sendPay) {
+        return BusinessUtil.isSignY(sendPay, 137);
+    }
+
     /**
      * 根据标位判断是否企配仓数据sendpay标识314=1 或者 waybillSign128=1
      * @param sendPay
