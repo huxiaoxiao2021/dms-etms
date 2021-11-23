@@ -11,11 +11,14 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedP
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateType;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -71,6 +74,9 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Qualifier("bdBlockerCompleteMQ")
     @Autowired
     private DefaultJMQProducer bdBlockerCompleteMQ;
+    
+    @Autowired
+    private TaskService taskService;
     /**
      * 弃件暂存上报
      * @param request
@@ -223,9 +229,8 @@ public class WastePackageServiceImpl implements WastePackageService {
             }
 
             log.info("发送弃件废弃全程跟踪，运单号：{}",waybillCode);
-            BdTraceDto packagePrintBdTraceDto = toWasteScrapBdTraceDto(request,waybillCode);
             //发送全程跟踪消息
-            waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
+            taskService.add(toWasteScrapTraceTask(request,waybillCode));
             //发送bd_blocker_complete的MQ
             String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
             this.bdBlockerCompleteMQ.send( waybillCode,mqData);
@@ -343,22 +348,35 @@ public class WastePackageServiceImpl implements WastePackageService {
         return preSiteCode;
     }
     /**
-     * 转成全程跟踪对象
+     * 转成全程跟踪任务对象
      * @param request
      * @return0
      */
-    private BdTraceDto toWasteScrapBdTraceDto(WastePackageRequest request,String waybillCode) {
-        BdTraceDto bdTraceDto = new BdTraceDto();
-        bdTraceDto.setWaybillCode(waybillCode);
-        bdTraceDto.setPackageBarCode(request.getPackageCode());
-        bdTraceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
-        bdTraceDto.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-        bdTraceDto.setOperatorSiteId(null!=request.getSiteCode()?request.getSiteCode():0);
-        bdTraceDto.setOperatorSiteName(request.getSiteName());
-        bdTraceDto.setOperatorUserName(request.getUserName());
-        bdTraceDto.setOperatorUserId(null!=request.getUserCode()?request.getUserCode():0);
-        bdTraceDto.setOperatorTime(new Date());
-        return bdTraceDto;
+    private Task toWasteScrapTraceTask(WastePackageRequest request,String waybillCode) {
+        WaybillStatus waybillStatus = new WaybillStatus();
+        //设置站点相关属性
+        waybillStatus.setPackageCode(request.getPackageCode());
+        waybillStatus.setWaybillCode(waybillCode);
+        waybillStatus.setCreateSiteCode(null!=request.getSiteCode()?request.getSiteCode():0);
+        waybillStatus.setCreateSiteName(request.getSiteName());
+
+        waybillStatus.setOperatorId(null!=request.getUserCode()?request.getUserCode():0);
+        waybillStatus.setOperator(request.getUserName());
+        waybillStatus.setOperateTime(new Date());
+        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
+
+        waybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
+        
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
     }
     private BdTraceDto getPackagePrintBdTraceDto(WastePackageRequest request) {
         BdTraceDto bdTraceDto = new BdTraceDto();
