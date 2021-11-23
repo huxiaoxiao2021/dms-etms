@@ -17,6 +17,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -108,6 +109,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private BaseService baseService;
 
     /**
      * 获取组板已存在的未完成数据
@@ -334,28 +338,19 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
                 Integer destinationId = null;
                 if (isPackageCode) {
-                    final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
-                    if (waybill == null) {
-                        result.toFail("未查找到运单数据");
-                        return result;
-                    }
-                    if (waybill.getOldSiteId() == null) {
-                        result.toFail("运单对应的预分拣站点为空");
-                        return result;
-                    }
-                    destinationId = waybill.getOldSiteId();
 
                     // 先校验已扫板流向
-                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
-                    if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
+                    final Result<Integer> checkMatchBoardDestinationResult = this.checkAndGetMatchBoardDestination4Package(bindToVirtualBoardPo);
+                    if(!checkMatchBoardDestinationResult.isSuccess() || checkMatchBoardDestinationResult.getData() == null){
                         result.toFail(checkMatchBoardDestinationResult.getMessage());
                         return result;
                     }
+                    destinationId = checkMatchBoardDestinationResult.getData();
                     // 拦截链校验
                     final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
                     pdaOperateRequest.setPackageCode(bindToVirtualBoardPo.getBarCode());
                     pdaOperateRequest.setBoxCode(bindToVirtualBoardPo.getBarCode());
-                    pdaOperateRequest.setReceiveSiteCode(waybill.getOldSiteId());
+                    pdaOperateRequest.setReceiveSiteCode(destinationId);
                     pdaOperateRequest.setCreateSiteCode(operatorInfo.getSiteCode());
                     pdaOperateRequest.setCreateSiteName(operatorInfo.getSiteName());
                     pdaOperateRequest.setOperateUserCode(operatorInfo.getUserCode());
@@ -376,7 +371,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     }
                     destinationId = boxExist.getReceiveSiteCode();
                     // 先校验已扫板流向
-                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination(bindToVirtualBoardPo, destinationId);
+                    final Result<Boolean> checkMatchBoardDestinationResult = this.checkMatchBoardDestination4Box(bindToVirtualBoardPo, destinationId);
                     if(!checkMatchBoardDestinationResult.isSuccess() || !checkMatchBoardDestinationResult.getData()){
                         result.toFail(checkMatchBoardDestinationResult.getMessage());
                         return result;
@@ -461,8 +456,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return true;
     }
 
-    private Result<Boolean> checkMatchBoardDestination(BindToVirtualBoardPo bindToVirtualBoardPo, Integer destinationId) {
-        Result<Boolean> result = Result.success(false);
+    /**
+     * 获取当前用户已扫描的流向信息列表
+     * @param bindToVirtualBoardPo 请求参数
+     * @return 结果
+     * @author fanggang7
+     * @time 2021-11-23 19:48:23 周二
+     */
+    private Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> getExistEnableBoardList(BindToVirtualBoardPo bindToVirtualBoardPo){
+        Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> result = Result.success();
         final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
         final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
         if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
@@ -471,15 +473,71 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = handleResult.getData();
         if (CollectionUtils.isEmpty(virtualBoardResultDtoQueryData)) {
-            return result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
+            return result.toFail("请先扫描流向");
         }
+        return result.setData(virtualBoardResultDtoQueryData);
+    }
+
+    private Result<Boolean> checkMatchBoardDestination4Box(BindToVirtualBoardPo bindToVirtualBoardPo, Integer destinationId) {
+        Result<Boolean> result = Result.success(false);
+        final Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> existEnableBoardListResult = this.getExistEnableBoardList(bindToVirtualBoardPo);
+        if(!existEnableBoardListResult.isSuccess()){
+            return result.toFail(existEnableBoardListResult.getMessage());
+        }
+        final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = existEnableBoardListResult.getData();
         boolean hasMatchDestinationIdFlag = false;
         for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
             if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
                 hasMatchDestinationIdFlag = true;
+                break;
             }
         }
+        // 获取大小站逻辑
         return hasMatchDestinationIdFlag ? result.toSuccess(true, null) : result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
+    }
+
+    private Result<Integer> checkAndGetMatchBoardDestination4Package(BindToVirtualBoardPo bindToVirtualBoardPo) {
+        Result<Integer> result = Result.success();
+
+        final Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(bindToVirtualBoardPo.getBarCode()));
+        if (waybill == null) {
+            result.toFail("未查找到运单数据");
+            return result;
+        }
+        if (waybill.getOldSiteId() == null) {
+            result.toFail("运单对应的预分拣站点为空");
+            return result;
+        }
+        Integer destinationId = waybill.getOldSiteId();
+
+        final Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> existEnableBoardListResult = this.getExistEnableBoardList(bindToVirtualBoardPo);
+        if(!existEnableBoardListResult.isSuccess()){
+            return result.toFail(existEnableBoardListResult.getMessage());
+        }
+        final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = existEnableBoardListResult.getData();
+
+        boolean hasMatchDestinationIdFlag = false;
+        for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+            if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+                hasMatchDestinationIdFlag = true;
+                break;
+            }
+        }
+
+        // 如果获取不到匹配流向，则获取大小站
+        if(!hasMatchDestinationIdFlag){
+            final Integer parentSiteId = baseService.getMappingSite(destinationId);
+            if(parentSiteId != null){
+                for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+                    if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), parentSiteId)){
+                        hasMatchDestinationIdFlag = true;
+                        destinationId = parentSiteId;
+                        break;
+                    }
+                }
+            }
+        }
+        return hasMatchDestinationIdFlag ? result.toSuccess(destinationId, null) : result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
     }
 
     /**
