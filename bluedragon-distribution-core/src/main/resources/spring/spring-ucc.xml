@@ -152,6 +152,8 @@
 		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"></property>
 		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"></property>
 		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"></property>
+		<property name="noAuthMenuConfigUat" value="${noAuthMenuConfigUat:}"/>
+		<property name="menuCodeFuncConfigUat" value="${menuCodeFuncConfigUat:}"/>
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"></property>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"></property>
 	</bean>
@@ -288,6 +290,8 @@
 				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfig</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
+				<value>uccPropertyConfiguration.noAuthMenuConfigUat</value>
+				<value>uccPropertyConfiguration.menuCodeFuncConfigUat</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 
