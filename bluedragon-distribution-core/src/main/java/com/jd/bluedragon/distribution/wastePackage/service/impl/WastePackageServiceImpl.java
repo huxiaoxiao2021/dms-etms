@@ -21,6 +21,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -368,7 +369,7 @@ public class WastePackageServiceImpl implements WastePackageService {
         waybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
         
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_POP);
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(waybillStatus.getPackageCode());
         task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
@@ -376,6 +377,8 @@ public class WastePackageServiceImpl implements WastePackageService {
         task.setBody(JsonHelper.toJson(waybillStatus));
         task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
         task.setOwnSign(BusinessHelper.getOwnSign());
+        task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
+                + waybillStatus.getPackageCode() + "-" + waybillStatus.getOperateType() + "-" + waybillStatus.getOperateTime().getTime() ));
         return task;
     }
     private BdTraceDto getPackagePrintBdTraceDto(WastePackageRequest request) {
