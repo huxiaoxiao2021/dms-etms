@@ -120,6 +120,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WeightVolumeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FWaybillFilter"/>
