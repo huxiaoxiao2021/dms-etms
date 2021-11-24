@@ -99,10 +99,10 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
     public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
-        if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
-                || !Constants.SWITCH_OPEN.equals(uccPropertyConfiguration.getScheduleSiteCheckSameCity())) {
-            return result;
-        }
+//        if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
+//                || !Constants.SWITCH_OPEN.equals(uccPropertyConfiguration.getScheduleSiteCheckSameCity())) {
+//            return result;
+//        }
 
         try {
             if (waybill.getOldSiteId() > 0) {
