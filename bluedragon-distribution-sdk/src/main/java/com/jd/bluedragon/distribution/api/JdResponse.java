@@ -172,6 +172,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE = 30109;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE = "未触发逆向新运单";
 
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_LP = 30129;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_LP = "理赔单正在审核中，请到站长工作台-运营管控-站内监控-理赔单监控报表中，查看有调度结果，方可操作换单打印";
+
     public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS = 30110;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS = "已超15天，请核实录入是否正确！是否继续操作换单打印?";
 

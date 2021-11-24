@@ -461,6 +461,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
                 targetResult.setData(repeatPrint);
+                if(targetResult.getCode() == -3){
+                    isHasLPMatch(oldWaybillCode,targetResult);
+                }
                 isHasProductInfoOfPureMatch(targetResult);
                 return targetResult;
             }else{
@@ -469,9 +472,27 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
                 targetResult = receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+                //针对返回码400时特殊处理
+                if(400 == targetResult.getCode()){
+                    isHasLPMatch(oldWaybillCode,targetResult);
+                }
                 isHasProductInfoOfPureMatch(targetResult);
             }
             return targetResult;
+        }
+    }
+
+    /**
+     * 检查是否有理赔
+     * @param waybillCode
+     * @param targetResult
+     */
+    private void isHasLPMatch(String waybillCode,InvokeResult<RepeatPrint> targetResult){
+        LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
+        if(claimInfoRespDTO != null){
+            if(LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(claimInfoRespDTO.getStatusDesc())){
+                targetResult.getData().setIsLPFlag(true);
+            }
         }
     }
 
