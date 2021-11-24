@@ -458,6 +458,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             targetResult.setCode(result.getCode());
             targetResult.setMessage(result.getMessage());
             repeatPrint.setOverTime(isOverTime);
+            if(log.isInfoEnabled()){
+                log.info("waybillCommonService.getReverseWaybill req:{},resp:{}",oldWaybillCode,JsonHelper.toJson(result));
+            }
             if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
                 targetResult.setData(repeatPrint);
@@ -472,6 +475,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
                 targetResult = receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+                if(log.isInfoEnabled()){
+                    log.info("receiveManager.queryDeliveryIdByOldDeliveryId1 req:{},resp:{}",oldWaybillCode,JsonHelper.toJson(targetResult));
+                }
                 //针对返回码400时特殊处理
                 if(400 == targetResult.getCode()){
                     isHasLPMatch(oldWaybillCode,targetResult);
@@ -489,6 +495,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      */
     private void isHasLPMatch(String waybillCode,InvokeResult<RepeatPrint> targetResult){
         LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
+        if(log.isInfoEnabled()){
+            log.info("obcsManager.getClaimListByClueInfo req:{},resp:{}",waybillCode,JsonHelper.toJson(claimInfoRespDTO));
+        }
         if(claimInfoRespDTO != null){
             if(LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(claimInfoRespDTO.getStatusDesc())){
                 targetResult.getData().setIsLPFlag(true);
