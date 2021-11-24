@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI;
 import com.jd.uad.api.claim.facade.claim.resp.ClaimInfoRespDTO;
 import com.jd.uad.api.core.APIResultDTO;
@@ -39,6 +40,9 @@ public class OBCSManagerImpl implements OBCSManager{
         LocalClaimInfoRespDTO respDTO = new LocalClaimInfoRespDTO();
         try{
             APIResultDTO<List<ClaimInfoRespDTO>> apiResultDTO = claimListByClueInfoQueryAPI.getClaimListByClueInfo(clueType,clueValue);
+            if(log.isInfoEnabled()){
+                log.info("claimListByClueInfoQueryAPI.getClaimListByClueInfo , req:{},{},resp:{}",clueType,clueValue, JsonHelper.toJson(apiResultDTO));
+            }
             //理赔金额
             BigDecimal paymentRealMoney = new BigDecimal(0);
             String statusDesc = LocalClaimInfoRespDTO.LP_STATUS_NONE;
