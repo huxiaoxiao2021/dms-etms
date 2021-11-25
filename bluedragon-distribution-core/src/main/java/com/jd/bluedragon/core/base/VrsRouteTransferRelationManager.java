@@ -92,5 +92,13 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType);
+
+    /**
+     * 获取路由产品类型
+     *
+     * @param waybillSign
+     * @return
+     */
+    RouteProductEnum obtainRouterProduct(String waybillSign);
 }
 

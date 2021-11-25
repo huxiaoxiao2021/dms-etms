@@ -517,6 +517,11 @@
 			<artifactId>ql-basic-client</artifactId>
 			<version>2.0.11-online-SNAPSHOT</version>
         </dependency>
+		<!-- 基础资料 获取编码 -->
+		<dependency>
+			<groupId>com.jd.ql.basic</groupId>
+			<artifactId>ql-basic-facade</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>

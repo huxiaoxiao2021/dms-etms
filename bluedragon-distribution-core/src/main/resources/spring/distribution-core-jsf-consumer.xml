@@ -808,4 +808,10 @@
                   protocol="jsf" alias="${jsf.merchCollect.alias}" timeout="${jsf.merchCollect.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <!-- 货区编码服务 -->
+    <jsf:consumer id="basicGoodsAreaWSApi" interface="com.jd.ql.basic.ws.BasicGoodsAreaWS"
+                  protocol="jsf" alias="${jsf.basicGoodsAreaWS.alias}" timeout="${jsf.basicGoodsAreaWS.timeout}" retries="${jsf.retries}" >
+        <jsf:parameter key="token" value="${jsf.basicGoodsAreaWS.token}" hide="true" />
+    </jsf:consumer>
+
 </beans>
