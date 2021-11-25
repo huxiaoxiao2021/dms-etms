@@ -685,7 +685,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
                 .operateRequest(operateRequest)
                 .operateResponse(result)
                 .processTime(endTime, startTime)
-                .methodName("DeliveryResource#cancelDeliveryInfo")
+                .methodName("DriverBoardSendServiceImpl#cancelSendForWholeBoard")
                 .build();
 
         logEngine.addLog(businessLogProfiler);
