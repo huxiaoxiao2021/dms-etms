@@ -1,10 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.tms.basic.dto.CarrierDto;
-import com.jd.tms.basic.dto.CommonDto;
-import com.jd.tms.basic.dto.SimpleCarrierDto;
-import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.basic.dto.*;
 import com.jd.tms.basic.ws.CarrierQueryWS;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -73,5 +70,30 @@ public class CarrierQueryWSMangerImpl implements CarrierQueryWSManager{
         }
         return  null;
     }
+
+    /**
+     * 根据条件获取承运商司机
+     * @param paramDto 入参
+     * @return 结果
+     * @author fanggang7
+     * @time 2021-11-16 13:40:28 周二
+     */
+    @Override
+    public CommonDto<CarrierDriverDto> getCarrierDriverByParam(CarrierDriverParamDto paramDto) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.CarrierQueryWSMangerImpl.getCarrierDriverByParam", false, true);
+        try {
+            CommonDto<CarrierDriverDto> commonDto = carrierQueryWS.getCarrierDriverByParam(paramDto);
+            if(commonDto == null){
+                logger.warn("根据条件{}模糊查询承运商数据为空!", JsonHelper.toJson(paramDto));
+                return null;
+            }
+            return commonDto;
+        }catch (Exception e){
+            logger.error("根据条件{}模糊查询承运商异常!", JsonHelper.toJson(paramDto), e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return null;
+    }
 }
-    
