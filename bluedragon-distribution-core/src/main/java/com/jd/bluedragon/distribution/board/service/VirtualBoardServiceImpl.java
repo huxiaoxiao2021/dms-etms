@@ -499,28 +499,30 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         final List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardResultDtoQueryData = existEnableBoardListResult.getData();
 
-        boolean hasMatchDestinationIdFlag = false;
-        for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
-            if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
-                hasMatchDestinationIdFlag = true;
-                break;
-            }
-        }
+        boolean hasMatchDestinationIdFlag = this.hasMatchDestinationIdFromBoardList(virtualBoardResultDtoQueryData, destinationId);;
 
         // 如果获取不到匹配流向，则获取大小站
         if(!hasMatchDestinationIdFlag){
             final Integer parentSiteId = baseService.getMappingSite(destinationId);
             if(parentSiteId != null){
-                for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
-                    if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), parentSiteId)){
-                        hasMatchDestinationIdFlag = true;
-                        destinationIdMatch = parentSiteId;
-                        break;
-                    }
+                hasMatchDestinationIdFlag = this.hasMatchDestinationIdFromBoardList(virtualBoardResultDtoQueryData, parentSiteId);
+                if(hasMatchDestinationIdFlag){
+                    destinationIdMatch = parentSiteId;
                 }
             }
         }
         return hasMatchDestinationIdFlag ? result.toSuccess(destinationIdMatch, null) : result.toFail("没有找到包裹或箱对应的板号，请确认包裹或箱的流向");
+    }
+
+    private Boolean hasMatchDestinationIdFromBoardList(List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardDtoList, Integer destinationId){
+        boolean hasMatchDestinationIdFlag = false;
+        for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardDtoList) {
+            if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+                hasMatchDestinationIdFlag = true;
+                break;
+            }
+        }
+        return hasMatchDestinationIdFlag;
     }
 
     /**
