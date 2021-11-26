@@ -93,6 +93,27 @@ public class TextConstants {
     public static final String B2B_FRESH_WAREHOUSE ="仓配冷链";
 
     /**
+     * 当wbs40=2 && 80=1时，赋值“特惠零担”
+     */
+    public static final String B2B_THLD ="特惠零担";
+
+    /**
+     * 当wbs40=2 && 80=2时，赋值“特快零担”
+     */
+    public static final String B2B_TKLD="特快零担";
+
+    /**
+     * 当wbs40=2 && 80=0时，赋值“快运零担”
+     */
+    public static final String B2B_KYLD ="快运零担";
+
+    /**
+     * 当wbs40=2 && 80=9时，赋值“特快重货”
+     */
+    public static final String B2B_TKZH ="特快重货";
+
+
+    /**
      * Waybill_sign54=2生鲜行业 且Waybill_sign40=2 纯配快运零担 且Waybill_sign80=6 且118=2：  城配整车
      */
     public static final String B2B_FRESH_URBAN_WHOLE_VEHICLE = "城配整车";
