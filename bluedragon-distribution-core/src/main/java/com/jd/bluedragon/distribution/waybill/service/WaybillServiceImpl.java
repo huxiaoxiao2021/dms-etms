@@ -1015,6 +1015,24 @@ public class WaybillServiceImpl implements WaybillService {
         return cancelWaybills.get(0);
     }
 
+    /**
+     * 仅获取理赔破损拦截 包含 存在取消拦截场景
+     * @param waybillCode
+     * @return
+     */
+    public CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode){
+        List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
+        if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+            return null;
+        }
+        // 获取理赔拦截
+        CancelWaybill claimDamagedCancelWaybill = this.getClaimDamagedCancelWaybill(cancelWaybills, true);
+        if (claimDamagedCancelWaybill != null) {
+            return claimDamagedCancelWaybill;
+        }
+
+        return null;
+    }
 
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
