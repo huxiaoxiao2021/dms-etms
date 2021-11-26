@@ -284,7 +284,7 @@
                   server="dmsjsf">
     </jsf:provider>
     <!-- 无滑道运单服务 -->
-    <jsf:provider id="waybillHasnoPresiteRecordJsfService"
+    <jsf:provider id="waybillHasnoPresiteRecordJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.record.jsf.WaybillHasnoPresiteRecordJsfService"
                   alias="${dms.jsf.alias}"
                   ref="waybillHasnoPresiteRecordJsfService"
