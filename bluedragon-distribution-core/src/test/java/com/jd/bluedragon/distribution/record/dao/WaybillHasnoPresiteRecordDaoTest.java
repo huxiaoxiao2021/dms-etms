@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.dao.common.AbstractCoreDaoH2Test;
 import com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo;
@@ -72,6 +73,11 @@ public class WaybillHasnoPresiteRecordDaoTest extends AbstractCoreDaoH2Test {
         WaybillHasnoPresiteRecordQo queryCondition = new WaybillHasnoPresiteRecordQo();
         queryCondition.setSiteCode(siteCode);
         queryCondition.setWaybillCode(waybillCode);
+        queryCondition.setStatus(WaybillHasnoPresiteRecordStatusEnum.FOR_EXCHANGE.getCode());
+        Date endTime = new Date();
+        Date startTime = DateHelper.addDate(endTime, -24);
+        queryCondition.setStartTimeTs(startTime);
+        queryCondition.setEndTimeTs(endTime);
         queryCondition.setOffset(0);
         queryCondition.setLimit(10);
         
