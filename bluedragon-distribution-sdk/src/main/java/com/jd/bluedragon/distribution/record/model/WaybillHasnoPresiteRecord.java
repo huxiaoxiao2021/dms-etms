@@ -50,26 +50,6 @@ public class WaybillHasnoPresiteRecord implements Serializable{
 	private Integer callStatus;
 
 	/**
-	 * 揽收人编号
-	 */
-	private String receiveUserCode;
-
-	/**
-	 * 揽收人erp
-	 */
-	private String receiveUserErp;
-
-	/**
-	 * 
-	 */
-	private String receiveUserName;
-
-	/**
-	 * 确认人编号
-	 */
-	private String confirmUserName;
-
-	/**
 	 * 卡片受理人erp
 	 */
 	private String dealCardUserErp;
@@ -229,70 +209,6 @@ public class WaybillHasnoPresiteRecord implements Serializable{
 	 */
 	public Integer getCallStatus() {
 		return this.callStatus;
-	}
-
-	/**
-	 *
-	 * @param receiveUserCode
-	 */
-	public void setReceiveUserCode(String receiveUserCode) {
-		this.receiveUserCode = receiveUserCode;
-	}
-
-	/**
-	 *
-	 * @return receiveUserCode
-	 */
-	public String getReceiveUserCode() {
-		return this.receiveUserCode;
-	}
-
-	/**
-	 *
-	 * @param receiveUserErp
-	 */
-	public void setReceiveUserErp(String receiveUserErp) {
-		this.receiveUserErp = receiveUserErp;
-	}
-
-	/**
-	 *
-	 * @return receiveUserErp
-	 */
-	public String getReceiveUserErp() {
-		return this.receiveUserErp;
-	}
-
-	/**
-	 *
-	 * @param receiveUserName
-	 */
-	public void setReceiveUserName(String receiveUserName) {
-		this.receiveUserName = receiveUserName;
-	}
-
-	/**
-	 *
-	 * @return receiveUserName
-	 */
-	public String getReceiveUserName() {
-		return this.receiveUserName;
-	}
-
-	/**
-	 *
-	 * @param confirmUserName
-	 */
-	public void setConfirmUserName(String confirmUserName) {
-		this.confirmUserName = confirmUserName;
-	}
-
-	/**
-	 *
-	 * @return confirmUserName
-	 */
-	public String getConfirmUserName() {
-		return this.confirmUserName;
 	}
 
 	/**

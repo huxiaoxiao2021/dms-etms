@@ -283,7 +283,13 @@
                   ref="discardedPackageStorageTempJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    <!-- 无滑道运单服务 -->
+    <jsf:provider id="waybillHasnoPresiteRecordJsfService"
+                  interface="com.jd.bluedragon.distribution.record.jsf.WaybillHasnoPresiteRecordJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillHasnoPresiteRecordJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"
                   interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"

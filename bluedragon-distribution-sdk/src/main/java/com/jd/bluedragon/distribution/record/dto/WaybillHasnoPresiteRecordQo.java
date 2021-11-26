@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.record.dto;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -50,6 +51,10 @@ public class WaybillHasnoPresiteRecordQo extends BasePagerCondition implements S
     private Integer isAsyncExport;
 
     private Integer pageSize;
+    
+    private Date startTimeTs;
+    
+    private Date endTimeTs;
 
 	public String getWaybillCode() {
 		return waybillCode;
@@ -115,5 +120,21 @@ public class WaybillHasnoPresiteRecordQo extends BasePagerCondition implements S
         this.pageSize = pageSize;
         this.setLimit(pageSize);
     }
+
+	public Date getStartTimeTs() {
+		return startTimeTs;
+	}
+
+	public void setStartTimeTs(Date startTimeTs) {
+		this.startTimeTs = startTimeTs;
+	}
+
+	public Date getEndTimeTs() {
+		return endTimeTs;
+	}
+
+	public void setEndTimeTs(Date endTimeTs) {
+		this.endTimeTs = endTimeTs;
+	}
 
 }

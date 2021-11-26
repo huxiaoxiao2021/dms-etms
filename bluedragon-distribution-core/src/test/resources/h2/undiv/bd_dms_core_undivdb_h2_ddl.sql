@@ -2134,3 +2134,29 @@ CREATE TABLE `tms_vehicle_route` (
 	KEY `idx_transport_code` ( `transport_code` ) ,
 	KEY `idx_orig_des_site_codes` ( `original_site_code`,`destination_site_code` ) 
 ) ENGINE = INNODB DEFAULT CHARSET = utf8 COMMENT = '运输任务线路表';
+CREATE TABLE `waybill_hasno_presite_record` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '全局唯一ID',
+  `waybill_code` varchar(32) NOT NULL COMMENT '运单号',
+  `site_code` int(11) COMMENT '场地编号',
+  `site_name` varchar(64) COMMENT '场地名称',	
+  `end_dms_id` int(11) COMMENT '目的分拣编号',
+  `status` tinyint(4) DEFAULT '0' COMMENT '状态',
+  `call_status` tinyint(4) DEFAULT '0' COMMENT '外呼状态',
+  `receive_user_code` varchar(64) DEFAULT '' COMMENT '揽收人编号',
+  `receive_user_erp` varchar(64) DEFAULT '' COMMENT '揽收人erp',
+  `receive_user_name` varchar(64) DEFAULT NULL,
+  `confirm_user_name` varchar(64) DEFAULT '' COMMENT '确认人编号',
+  `deal_card_user_erp` varchar(64) DEFAULT '' COMMENT '卡片受理人erp',
+  `deal_card_user_name` varchar(64) DEFAULT '' COMMENT '卡片受理人名称',	
+  `check_time` datetime DEFAULT NULL COMMENT '验货时间',
+  `call_time` datetime DEFAULT NULL COMMENT '外呼时间',
+  `deal_card_time` datetime DEFAULT NULL COMMENT '卡片受理时间',	
+  `finish_time` datetime DEFAULT NULL COMMENT '换单/弃货时间',	
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `is_delete` tinyint(1) DEFAULT '0' COMMENT '删除标识',
+  `ts` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '数据库时间',
+  PRIMARY KEY (`id`) ,
+  KEY `IND_SITE_CODE` (`site_code`),
+  KEY `IND_TS` (`ts`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8  COMMENT='运单无预分拣站点记录表';

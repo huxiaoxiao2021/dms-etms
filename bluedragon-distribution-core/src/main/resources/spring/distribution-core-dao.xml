@@ -694,7 +694,9 @@
     <bean id="stockInventoryDao" class="com.jd.bluedragon.distribution.stock.dao.StockInventoryDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
+    <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>
