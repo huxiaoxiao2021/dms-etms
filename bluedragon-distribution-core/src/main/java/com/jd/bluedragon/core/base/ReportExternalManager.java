@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
-import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 
 import java.util.List;
 

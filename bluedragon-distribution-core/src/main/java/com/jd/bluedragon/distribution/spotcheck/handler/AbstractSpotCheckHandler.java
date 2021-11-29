@@ -549,6 +549,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
                     ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
             waybillCollectDto.setPictureAddress(pictureUrl);
+            waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
         }
 
         waybillCollectDto.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
