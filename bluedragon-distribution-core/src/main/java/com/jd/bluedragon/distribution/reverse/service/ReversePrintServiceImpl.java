@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillSer
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdress;
 import com.jd.bluedragon.distribution.business.entity.BusinessReturnAdressStatusEnum;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
@@ -42,6 +44,7 @@ import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -51,6 +54,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.eclp.bbp.notice.domain.dto.BatchImportDTO;
 import com.jd.eclp.bbp.notice.enums.ChannelEnum;
 import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
@@ -166,6 +170,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
 	@Qualifier("obcsManager")
 	private OBCSManager obcsManager;
+
+    @Autowired
+    private WaybillService waybillService;
     
     @Autowired
 	@Qualifier("eclpImportServiceManager")
@@ -458,9 +465,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             targetResult.setCode(result.getCode());
             targetResult.setMessage(result.getMessage());
             repeatPrint.setOverTime(isOverTime);
+            if(log.isInfoEnabled()){
+                log.info("waybillCommonService.getReverseWaybill req:{},resp:{}",oldWaybillCode,JsonHelper.toJson(result));
+            }
             if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
                 targetResult.setData(repeatPrint);
+                if(targetResult.getCode() == -3){
+                    isHasLPMatch(oldWaybillCode,targetResult);
+                }
                 isHasProductInfoOfPureMatch(targetResult);
                 return targetResult;
             }else{
@@ -469,9 +482,28 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
                 targetResult = receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+                if(log.isInfoEnabled()){
+                    log.info("receiveManager.queryDeliveryIdByOldDeliveryId1 req:{},resp:{}",oldWaybillCode,JsonHelper.toJson(targetResult));
+                }
+                //针对返回码400时特殊处理
+                if(400 == targetResult.getCode()){
+                    isHasLPMatch(oldWaybillCode,targetResult);
+                }
                 isHasProductInfoOfPureMatch(targetResult);
             }
             return targetResult;
+        }
+    }
+
+    /**
+     * 检查是否有理赔
+     * @param waybillCode
+     * @param targetResult
+     */
+    private void isHasLPMatch(String waybillCode,InvokeResult<RepeatPrint> targetResult){
+        CancelWaybill cancelWaybill = this.waybillService.checkClaimDamagedCancelWaybill(waybillCode);
+        if(cancelWaybill != null){
+            targetResult.getData().setIsLPFlag(true);
         }
     }
 
