@@ -181,7 +181,7 @@ public class ReversePrintResource {
                 }
             }else {
                 //如果是理赔增加特殊提示
-                if(invokeResult.getData() != null && invokeResult.getData().getIsLPFlag() != null && invokeResult.getData().getIsLPFlag()){
+                if(invokeResult != null && invokeResult.getData() != null && invokeResult.getData().getIsLPFlag() != null && invokeResult.getData().getIsLPFlag()){
                     result.toFail("理赔单正在审核中。若为终端操作，请到站长工作台-运营管控-站内监控-理赔单监控报表中，查看有调度结果，方可操作换单打印；(链接：http://z-ql.jd.com/)\n" +
                             "若为集配和城配操作，请到快运揽派工作台-运营支持-异常拦截菜单中查看有调度结果，方可操作换单打印；（链接：http://kyt.jd.com/）\n" +
                             "其他操作场景，请等待调度结果后再进行换单打印操作。");
