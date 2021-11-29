@@ -86,7 +86,7 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
 
         /* 获取新单的信息 */
         InvokeResult<RepeatPrint> newWaybillResult = reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
-        if (newWaybillResult.getData() != null && newWaybillResult.getData().getIsLPFlag()){
+        if (null != newWaybillResult && newWaybillResult.getData() != null && newWaybillResult.getData().getIsLPFlag()){
             LOGGER.warn("ReverseChangeInterceptHandler.handle-->理赔中{}",oldWaybillCode);
             result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_LP,
                     JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_LP);
