@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -31,7 +30,7 @@ import java.util.Objects;
 @Service("artificialSpotCheckHandler")
 public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckHandler.class);
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
@@ -44,12 +43,6 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Override
     protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(!spotCheckDealService.isExecuteBCFuse()){
-            if(!BusinessUtil.isCInternet(spotCheckContext.getWaybill().getWaybillSign())){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_C);
-                return;
-            }
-        }
         // B网不支持包裹维度抽检
         if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
                 && Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
@@ -124,6 +117,14 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
         }
     }
 
+    @Override
+    protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
+        if(!Objects.equals(spotCheckDto.getExcessStatus(), spotCheckContext.getExcessStatus())
+                || !Objects.equals(spotCheckDto.getExcessType(), spotCheckContext.getExcessType())){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
+        }
+    }
+
     private WeightVolumeEntity transferWeightVolumeEntity(SpotCheckContext spotCheckContext) {
         WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
         weightVolumeEntity.setBarCode(spotCheckContext.getWaybillCode());
@@ -140,7 +141,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             weightVolumeEntity.setHeight(spotCheckReviewDetail.getReviewHeight());
         }
         weightVolumeEntity.setBusinessType(isWaybillSpotCheck ? WeightVolumeBusinessTypeEnum.BY_WAYBILL : WeightVolumeBusinessTypeEnum.BY_PACKAGE);
-        weightVolumeEntity.setSourceCode(FromSourceEnum.ARTIFICIAL_SPOT_CHECK);
+        weightVolumeEntity.setSourceCode(FromSourceEnum.SPOT_CHECK);
         weightVolumeEntity.setOperateSiteCode(spotCheckReviewDetail.getReviewSiteCode());
         weightVolumeEntity.setOperateSiteName(spotCheckReviewDetail.getReviewSiteName());
         weightVolumeEntity.setOperatorCode(spotCheckReviewDetail.getReviewUserErp());

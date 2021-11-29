@@ -142,14 +142,13 @@
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
         <property name="virtualBoardCanUseSite" value="${virtualBoardCanUseSite:-1}" />
-		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"></property>
-		<property name="isIssueToFinance" value="${isIssueToFinance:false}"></property>
-		<property name="executeBCFuse" value="${executeBCFuse:false}"></property>
-		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"></property>
-		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"></property>
-		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"></property>
-		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"></property>
-		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"></property>
+		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"/>
+		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"/>
+		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"/>
+		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
+		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -272,14 +271,13 @@
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
 				<value>uccPropertyConfiguration.virtualBoardCanUseSite</value>
-				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
-				<value>uccPropertyConfiguration.isIssueToFinance</value>
-				<value>uccPropertyConfiguration.executeBCFuse</value>
 				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfig</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
+				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
+				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

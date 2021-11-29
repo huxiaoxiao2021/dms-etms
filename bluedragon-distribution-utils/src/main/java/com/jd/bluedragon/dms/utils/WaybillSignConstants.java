@@ -379,4 +379,9 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_53 = 53;
 	char CHAR_53_1 = '1';
+
+	/**
+	 * 99
+	 */
+	int POSITION_99 = 99;
 }

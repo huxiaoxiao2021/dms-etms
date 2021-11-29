@@ -14,10 +14,6 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 是否是运单
-     * */
-    private Integer isWaybill;
-    /**
      * 运单号/包裹号
      * */
     private String waybillOrPackageCode;
@@ -29,6 +25,18 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      * 运单总重量
      * */
     private Double waybillWeight;
+    /**
+     * 运单长
+     * */
+    private Double waybillLength;
+    /**
+     * 运单宽
+     * */
+    private Double waybillWidth;
+    /**
+     * 运单高
+     * */
+    private Double waybillHeight;
     /**
      * 运单总体积
      * */
@@ -49,6 +57,10 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
      * 是否超标
      * */
     private Integer isExcess;
+    /**
+     * 超标类型
+     */
+    private Integer excessType;
 
     /**
      * PDA来源标识
@@ -73,14 +85,6 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
         this.loginErp = loginErp;
     }
 
-    public Integer getIsWaybill() {
-        return isWaybill;
-    }
-
-    public void setIsWaybill(Integer isWaybill) {
-        this.isWaybill = isWaybill;
-    }
-
     public String getWaybillOrPackageCode() {
         return waybillOrPackageCode;
     }
@@ -103,6 +107,30 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setWaybillWeight(Double waybillWeight) {
         this.waybillWeight = waybillWeight;
+    }
+
+    public Double getWaybillLength() {
+        return waybillLength;
+    }
+
+    public void setWaybillLength(Double waybillLength) {
+        this.waybillLength = waybillLength;
+    }
+
+    public Double getWaybillWidth() {
+        return waybillWidth;
+    }
+
+    public void setWaybillWidth(Double waybillWidth) {
+        this.waybillWidth = waybillWidth;
+    }
+
+    public Double getWaybillHeight() {
+        return waybillHeight;
+    }
+
+    public void setWaybillHeight(Double waybillHeight) {
+        this.waybillHeight = waybillHeight;
     }
 
     public Double getWaybillVolume() {
@@ -135,6 +163,14 @@ public class WeightVolumeCheckConditionB2b implements Serializable {
 
     public void setIsExcess(Integer isExcess) {
         this.isExcess = isExcess;
+    }
+
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
     }
 
     public Integer getPdaSource() {
