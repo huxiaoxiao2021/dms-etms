@@ -97,6 +97,7 @@ public class PackageResource {
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
     @Path("/packageMake/packageRePrint/{barCode}/{waybillSign}/{siteId}/{operateName}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.packageRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse packageRePrint(@PathParam("barCode") String barCode,
                                      @PathParam("waybillSign") String waybillSign,
                                      @PathParam("siteId") Integer siteId,
@@ -180,6 +181,7 @@ public class PackageResource {
      */
     @POST
     @Path("/package/rePrintCallBack")
+    @JProfiler(jKey = "DMSWEB.PackageResource.rePrintCallBack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResult<Boolean> rePrintCallBack(RePrintCallBackRequest rePrintCallBackRequest){
     	JdResult<Boolean> result = new JdResult<Boolean>();
     	if(rePrintCallBackRequest != null){
@@ -304,6 +306,7 @@ public class PackageResource {
      */
     @POST
     @Path("/package/reprintAfter")
+    @JProfiler(jKey = "DMSWEB.PackageResource.packReprintAfter",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse packReprintAfter(ClientOperateRequest request) {
         JdResponse response = new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         String barCode = request.getBarCode();
