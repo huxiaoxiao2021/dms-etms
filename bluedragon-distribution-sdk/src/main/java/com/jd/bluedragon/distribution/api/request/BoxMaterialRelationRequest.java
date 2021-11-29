@@ -12,6 +12,8 @@ import java.util.List;
 public class BoxMaterialRelationRequest extends JdRequest {
     private static final long serialVersionUID = 1L;
 
+    public static String BIZ_SORTING_MACHINE = "SORTING_MACHINE";
+
     /**
      *  箱号
      */
@@ -40,6 +42,11 @@ public class BoxMaterialRelationRequest extends JdRequest {
 
 
     private List<GroupBoxDto> groupList;
+
+    /**
+     * 业务来源
+     */
+    private String bizSource;
 
     public List<GroupBoxDto> getGroupList() {
         return groupList;
@@ -91,5 +98,13 @@ public class BoxMaterialRelationRequest extends JdRequest {
 
     public void setOperatorERP(String operatorERP) {
         this.operatorERP = operatorERP;
+    }
+
+    public String getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(String bizSource) {
+        this.bizSource = bizSource;
     }
 }

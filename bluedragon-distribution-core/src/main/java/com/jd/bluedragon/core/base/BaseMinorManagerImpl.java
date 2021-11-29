@@ -355,7 +355,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				if(normalResult.isSucceed() && normalResult.getData()!=null
 						&& normalResult.getData().getOriginalDmsId()!=null && normalResult.getData().getDestinationDmsId()!=null){
 					log.info("queryCrossPackageTag-2-baseDmsStore[{}]PrepareSiteCode[{}]OriginalDmsCode[{}]OriginalCrossType[{}]result[{}]",
-							JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(result));
+							JsonHelper.toJson(baseDmsStore),targetSiteId,originalDmsId,originalCrossType,JsonHelper.toJson(normalResult));
 					//始发和目的相等维护了道口 可以返回陆运大全表
 					if(normalResult.getData().getOriginalDmsId().equals(normalResult.getData().getDestinationDmsId())){
 						return normalResult;
