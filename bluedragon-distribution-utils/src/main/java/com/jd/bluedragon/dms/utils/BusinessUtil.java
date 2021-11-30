@@ -2113,6 +2113,20 @@ public class BusinessUtil {
 	public static boolean isScrapSortingSite(String waybillSign) {
 		return BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_18,WaybillSignConstants.CHAR_18_C);
 	}
+    /**
+     * 判断生鲜-SendPay第2位等于4或5或6或7或8或9
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isSx(String sendPay) {
+		return BusinessUtil.isSignInChars(sendPay,SendPayConstants.POSITION_2,
+				SendPayConstants.CHAR_2_4,
+				SendPayConstants.CHAR_2_5,
+				SendPayConstants.CHAR_2_6,
+				SendPayConstants.CHAR_2_7,
+				SendPayConstants.CHAR_2_8,
+				SendPayConstants.CHAR_2_9);
+	}
 	/**
 	 * 生成bdBlockerCompleteMQ消息信息
 	 * @param waybillCode

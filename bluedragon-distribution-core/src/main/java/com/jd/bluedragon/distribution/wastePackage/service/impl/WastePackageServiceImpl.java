@@ -203,7 +203,9 @@ public class WastePackageServiceImpl implements WastePackageService {
                 result.error("没有查询到运单信息");
                 return result;
             }
-            if(!BusinessUtil.isScrapSortingSite(baseEntity.getData().getWaybill().getWaybillSign())) {
+            String sendPay = baseEntity.getData().getWaybill().getSendPay();
+            String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
+            if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
                 result.error("提交失败，非返分拣报废运单！");
                 return result;
             }
@@ -233,8 +235,10 @@ public class WastePackageServiceImpl implements WastePackageService {
             //发送全程跟踪消息
             taskService.add(toWasteScrapTraceTask(request,waybillCode));
             //发送bd_blocker_complete的MQ
-            String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
-            this.bdBlockerCompleteMQ.send( waybillCode,mqData);
+            if(BusinessUtil.isSx(sendPay)) {
+                String mqData = BusinessUtil.bdBlockerCompleteMQ(waybillCode, DmsConstants.ORDER_TYPE_REVERSE, DmsConstants.MESSAGE_TYPE_BAOFEI, DateHelper.formatDateTimeMs(new Date()));
+                this.bdBlockerCompleteMQ.send( waybillCode,mqData);
+            }
         }catch (Exception e){
             log.error("弃件废弃异常,请求参数：{}", JsonHelper.toJson(request),e);
             result.error("弃件废弃异常,请联系分拣小秘！");
