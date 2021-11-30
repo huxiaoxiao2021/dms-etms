@@ -106,8 +106,6 @@
         <dd><a href="#springUrl('/recycleMaterialScan/index')" target="mainFrame">循环物资扫描查询</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
-        <dt><a href="#" class="curr">离线管理</a></dt>
-        <dd><a href="#springUrl('/offlinePwd/list')" target="mainFrame">离线密码管理</a></dd>
         <dt><a href="#" class="curr">订单</a></dt>
         <dd><a href="#springUrl('/kuGuan/goListPage')" target="mainFrame">库管单号查询</a></dd>
     </dl>

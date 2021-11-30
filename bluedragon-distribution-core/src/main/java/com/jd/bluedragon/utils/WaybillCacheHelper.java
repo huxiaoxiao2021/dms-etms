@@ -270,10 +270,6 @@ public class WaybillCacheHelper {
         if (WaybillCacheHelper.WAYBILL_SIGN_7_2 == waybill.getWaybillSign().charAt(7)) {
             return Boolean.TRUE;
         }
-
-        if (WaybillCacheHelper.WAYBILL_SIGN_7_3 == waybill.getWaybillSign().charAt(7)) {
-            return Boolean.TRUE;
-        }
         return Boolean.FALSE;
     }
 
