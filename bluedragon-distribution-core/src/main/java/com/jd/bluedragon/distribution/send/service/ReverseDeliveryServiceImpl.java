@@ -145,7 +145,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		if (tlist != null && !tlist.isEmpty()) {
 			for (SendDetail dSendDatail : tlist) {
 				dSendDatail.setSendCode(tSendM.getSendCode());
-				dSendDatail.setOperateTime(new Date());
+				dSendDatail.setOperateTime(tSendM.getOperateTime());
 				dSendDatail.setCreateUser(tSendM.getUpdaterUser());
 				dSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
 				dSendDatail.setUpdateTime(new Date());
@@ -167,7 +167,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		if (StringUtils.isNotEmpty(tSendM.getSendCode())) {
 			tSendDatail.setSendCode(tSendM.getSendCode());
 		}
-		tSendDatail.setOperateTime(new Date());
+		tSendDatail.setOperateTime(tSendM.getOperateTime());
 		tSendDatail.setCreateUser(tSendM.getUpdaterUser());
 		tSendDatail.setCreateUserCode(tSendM.getUpdateUserCode());
 		tSendDatail.setUpdateTime(new Date());
