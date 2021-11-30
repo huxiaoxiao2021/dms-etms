@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.print.waybill.handler.ScheduleSiteSupportI
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SiteHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDmsStore;
@@ -105,7 +107,7 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 //        }
 
         try {
-            if (waybill.getOldSiteId() > 0) {
+            if (waybill.getOldSiteId() != null && waybill.getOldSiteId() > 0) {
                 BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
                 // 操作人场地类型是分拣中心
                 if (SiteHelper.siteIsSortingCenter(curSite)) {
@@ -115,11 +117,19 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 
                         // 返调度站点类型是营业部或自提点
                         BaseSiteInfoDto destSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+                        if (null == destSite) {
+                            return result;
+                        }
+
                         if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())) {
 
                             // 获取原站点和反调度后的站点的四级地址，对于直辖市（北京市，上海市，天津市，重庆市）比较一级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”。
                             // 对于非直辖市，比较二级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”
                             BaseSiteInfoDto oldPreSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
+
+                            if (null == oldPreSite) {
+                                return result;
+                            }
 
                             boolean notSameCity = false;
                             if (!AreaHelper.isMunicipality(oldPreSite.getProvinceId()) && !AreaHelper.isMunicipality(destSite.getProvinceId())) {
@@ -133,7 +143,7 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
                                 }
                             }
                             if (notSameCity) {
-                                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "仅允许同城范围进行反调度操作");
+                                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "仅允许同城范围进行返调度操作");
                                 return result;
                             }
                         }
@@ -142,8 +152,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
             }
         }
         catch (Exception e) {
-            result.error("反调度校验是否同城失败！请联系分拣小秘");
-            return result;
+            LOGGER.error("返调度校验是否同城失败! req:{}", JsonHelper.toJson(waybillForPreSortOnSiteRequest), e);
+            result.error("返调度校验是否同城失败！请联系分拣小秘");
         }
 
         return result;
