@@ -428,14 +428,14 @@ public class DeliveryResource {
         ThreeDeliveryResponse tDeliveryResponse = null;
         try {
             SendM sendMDomain = toSendM(request);
-            tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendMDomain, true);
+            tDeliveryResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendMDomain, true);
 
             // BC箱号取消成功后，同步取消WJ箱号的发货
             if (ObjectUtils.equals(JdResponse.CODE_OK, tDeliveryResponse.getCode())) {
                 List<SendM> relationSendList = new DeliveryCancelSendMGen().createBoxRelationSendM(Collections.singletonList(request));
                 for (SendM sendM : relationSendList) {
                     long startTime = System.currentTimeMillis();
-                    tDeliveryResponse = deliveryService.dellCancelDeliveryMessage(sendM, true);
+                    tDeliveryResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
                     long endTime = System.currentTimeMillis();
                     this.addFileSendingBizLog(sendMDomain, sendM, JsonHelper.toJson(tDeliveryResponse), startTime, endTime);
                 }
