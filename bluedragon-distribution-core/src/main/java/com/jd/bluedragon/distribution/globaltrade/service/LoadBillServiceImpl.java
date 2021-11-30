@@ -559,6 +559,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         sendM.setUpdaterUser(loadBill.getPackageUser());
         sendM.setUpdateUserCode(loadBill.getPackageUserCode());
         sendM.setUpdateTime(new Date());
+        sendM.setOperateTime(new Date());
         sendM.setYn(0);
         return sendM;
     }
