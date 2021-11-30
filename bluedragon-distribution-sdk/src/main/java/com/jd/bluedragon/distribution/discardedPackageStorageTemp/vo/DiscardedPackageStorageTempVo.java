@@ -39,7 +39,14 @@ public class DiscardedPackageStorageTempVo extends DiscardedPackageStorageTemp i
      * 存已储天数
      */
     private Integer storageDays;
-
+    /**
+     * 操作类型-描述
+     */
+    private String operateTypeDesc;
+    /**
+     * 运单类型-描述
+     */
+    private String waybillTypeDesc;
     public String getFirstScanTimeFormative() {
         return firstScanTimeFormative;
     }
@@ -90,4 +97,20 @@ public class DiscardedPackageStorageTempVo extends DiscardedPackageStorageTemp i
                 ", storageDays=" + storageDays +
                 '}';
     }
+
+	public String getOperateTypeDesc() {
+		return operateTypeDesc;
+	}
+
+	public void setOperateTypeDesc(String operateTypeDesc) {
+		this.operateTypeDesc = operateTypeDesc;
+	}
+
+	public String getWaybillTypeDesc() {
+		return waybillTypeDesc;
+	}
+
+	public void setWaybillTypeDesc(String waybillTypeDesc) {
+		this.waybillTypeDesc = waybillTypeDesc;
+	}
 }

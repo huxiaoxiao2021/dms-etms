@@ -112,4 +112,12 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
     public int deleteByPrimaryKey(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
         return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".deleteByPrimaryKey", discardedPackageStorageTemp);
     }
+    /**
+     * 按主键更新
+     * @param discardedPackageStorageTemp 参数
+     * @return 数据列表
+     */
+    public int updateById(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateById", discardedPackageStorageTemp);
+    }
 }

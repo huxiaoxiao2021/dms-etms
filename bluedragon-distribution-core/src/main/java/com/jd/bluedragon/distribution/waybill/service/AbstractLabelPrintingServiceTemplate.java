@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -137,7 +139,10 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             labelPrinting.setRoad("0");
             labelPrinting.setRoadCode("0");
         }
-
+    	//返分拣报废-只设置默认目的分拣中心名称：返分拣报废
+    	if(BusinessUtil.isScrapSortingSite(context.getWaybillSign())) {
+            return setScrapCrossInfo(labelPrinting,response);
+    	}
         if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(-1)){
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_SITE,LabelPrintingResponse.MESSAGE_EMPTY_SITE,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
@@ -145,9 +150,33 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         response = processByBase(request,labelPrinting,response);
 
 
+        return response; 
+    }
+    /**
+     * 报废-只设置目的分拣名称
+     * @param labelPrinting
+     * @param response
+     * @return
+     */
+    private BaseResponseIncidental<LabelPrintingResponse> setScrapCrossInfo(LabelPrintingResponse labelPrinting,BaseResponseIncidental<LabelPrintingResponse> response){
+		labelPrinting.setPurposefulDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
+		labelPrinting.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
+		/**
+		 * 设置预分拣站点名称
+		 */
+		if(NumberHelper.gt0(labelPrinting.getPrepareSiteCode())) {
+			String prepareSiteName = getBaseSite(labelPrinting.getPrepareSiteCode());
+	        labelPrinting.setPrepareSiteName(prepareSiteName);
+	        labelPrinting.setPrintSiteName(prepareSiteName);
+		}
+        response.setData(labelPrinting);
+        response.setJsonData(JsonHelper.toJson(labelPrinting));
+
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
         return response;
     }
-
     /**
      * 查询基础资料完善数据
      * @param request

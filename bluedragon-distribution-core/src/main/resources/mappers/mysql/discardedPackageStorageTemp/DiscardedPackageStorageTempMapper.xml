@@ -30,11 +30,13 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="operateType" column="operate_type"/>
+        <result property="waybillType" column="waybill_type"/>
     </resultMap>
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`
+        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`
     </sql>
 
     <!-- 增加 -->
@@ -119,6 +121,12 @@
             <if test="ts != null">
                 ts,
             </if>
+            <if test="operateType != null">
+                operate_type,
+            </if>
+            <if test="waybillType != null">
+                waybill_type,
+            </if>                        
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="waybillCode != null and waybillCode != ''">
@@ -199,6 +207,12 @@
             <if test="ts != null">
                 #{ts},
             </if>
+            <if test="operateType != null">
+                #{operateType},
+            </if>
+            <if test="waybillType != null">
+                #{waybillType},
+            </if>            
         </trim>
     </insert>
     <!-- 批量增加 -->
@@ -227,7 +241,9 @@
             prev_site_name,
             prev_province_company_code,
             prev_province_company_name,
-            create_time
+            create_time,
+            operate_type,
+            waybill_type
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -254,7 +270,9 @@
                     #{item.prevSiteName},
                     #{item.prevProvinceCompanyCode},
                     #{item.prevProvinceCompanyName},
-                    #{item.createTime}
+                    #{item.createTime},
+                    #{item.operateType},
+                    #{item.waybillType}
             </trim>
         </foreach>
     </insert>
@@ -289,6 +307,12 @@
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
             </if>
+            <if test="operateType != null ">
+            operate_type = #{operateType},
+            </if>
+            <if test="waybillType != null ">
+            waybill_type = #{waybillType},
+            </if>            
         </set>
         WHERE
             waybill_code = #{waybillCode}
@@ -362,8 +386,14 @@
                 prev_province_company_code = #{item.prevProvinceCompanyCode},
                 </if>
                 <if test="item.prevProvinceCompanyName != null and item.prevProvinceCompanyName != ''">
-                prev_province_company_name = #{item.prevProvinceCompanyName}
+                prev_province_company_name = #{item.prevProvinceCompanyName},
                 </if>
+	            <if test="item.operateType != null ">
+	            operate_type = #{item.operateType},
+	            </if>
+	            <if test="item.waybillType != null ">
+	            waybill_type = #{item.waybillType}
+	            </if>                
             </set>
             WHERE
                 package_code = #{item.packageCode}
@@ -421,6 +451,12 @@
         <if test="yn != null">
             AND yn = #{yn}
         </if>
+        <if test="operateType != null">
+            AND operate_type = #{operateType}
+        </if>
+        <if test="waybillType != null">
+            AND waybill_type = #{waybillType}
+        </if>
     </sql>
     <!-- 查询行数 -->
     <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
@@ -452,5 +488,46 @@
             #{item}
         </foreach>
     </update>
+    <!-- 根据id更新 -->
+    <update id="updateById" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        UPDATE `discarded_package_storage_temp`
+        <set>
+            <if test="status != null ">
+            status = #{status},
+            </if>
+            <if test="operatorCode != null ">
+            operator_code = #{operatorCode},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+            operator_erp = #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+            operator_name = #{operatorName},
+            </if>
+            <if test="siteCode != null ">
+            site_code = #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+            site_name = #{siteName},
+            </if>
+            <if test="siteCity != null and siteCity != ''">
+            site_city = #{siteCity},
+            </if>
+            <if test="orgCode != null ">
+            org_code = #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+            org_name = #{orgName},
+            </if>
+            <if test="operateType != null ">
+            operate_type = #{operateType},
+            </if>
+            <if test="waybillType != null ">
+            waybill_type = #{waybillType},
+            </if>            
+        </set>
+        WHERE
+            id = #{id}
+    </update>    
 </mapper>
 
