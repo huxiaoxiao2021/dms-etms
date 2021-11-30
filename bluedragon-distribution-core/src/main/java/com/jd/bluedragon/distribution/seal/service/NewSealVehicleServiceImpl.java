@@ -66,6 +66,7 @@ import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
