@@ -121,16 +121,16 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
                             return result;
                         }
 
-                        if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())) {
+                        BaseSiteInfoDto oldPreSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
+                        if (null == oldPreSite) {
+                            return result;
+                        }
+
+                        if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())
+                                && Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(oldPreSite.getSiteType())) {
 
                             // 获取原站点和反调度后的站点的四级地址，对于直辖市（北京市，上海市，天津市，重庆市）比较一级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”。
                             // 对于非直辖市，比较二级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”
-                            BaseSiteInfoDto oldPreSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
-
-                            if (null == oldPreSite) {
-                                return result;
-                            }
-
                             boolean notSameCity = false;
                             if (!AreaHelper.isMunicipality(oldPreSite.getProvinceId()) && !AreaHelper.isMunicipality(destSite.getProvinceId())) {
                                 if (!Objects.equals(oldPreSite.getCityId(), destSite.getCityId())) {
