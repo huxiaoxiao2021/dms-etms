@@ -112,6 +112,9 @@ public class DMSWeightVolumeJSFServiceImpl implements DMSWeightVolumeJSFService 
 
         InvokeResult<Boolean> result = new InvokeResult<>();
         BeanUtils.copyProperties(invokeResult, result);
+        if (log.isInfoEnabled()) {
+            log.info("自动化称重抽检参数:{},响应:{}", JsonHelper.toJson(entity),JsonHelper.toJson(result));
+        }
         return result;
     }
 }
