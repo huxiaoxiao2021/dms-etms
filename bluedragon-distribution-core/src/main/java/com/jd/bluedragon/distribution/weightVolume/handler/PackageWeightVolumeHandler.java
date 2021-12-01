@@ -205,13 +205,20 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         InvokeResult<Boolean> result = new InvokeResult<>();
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
+            logger.info("自动化称重抽检-handler-一单一件且首次称重:{}", entity.getBarCode());
             if(spotCheckDealService.isExecuteNewSpotCheck(entity.getOperateSiteCode())){
                 InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcessWithOutOtherCheck(convertToSpotCheckDto(entity));
                 result.setMessage(checkExcessStatusResult.getMessage());
                 result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
+                if (logger.isInfoEnabled()) {
+                    logger.info("自动化称重抽检-handler-开启了新抽检:{},result={}", entity.getBarCode(),JsonHelper.toJson(checkExcessStatusResult));
+                }
                 return result;
             }
             PackWeightVO packWeightVO = convertToPackWeightVO(entity);
+            if (logger.isInfoEnabled()) {
+                logger.info("自动化称重抽检-handler:barcode={}调用service参数:{}", entity.getBarCode(),JsonHelper.toJson(packWeightVO));
+            }
             return weightAndVolumeCheckService.checkIsExcess(packWeightVO);
         }
         if (logger.isInfoEnabled()) {

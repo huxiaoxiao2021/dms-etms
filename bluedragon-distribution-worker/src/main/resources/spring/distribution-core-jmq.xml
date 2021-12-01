@@ -527,6 +527,10 @@
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
     </bean>
+    <!--  封车批次号状态变更记录 -->
+    <bean id="batchSendStatusChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.batch.send.status.change}"/>
+    </bean>
 
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">

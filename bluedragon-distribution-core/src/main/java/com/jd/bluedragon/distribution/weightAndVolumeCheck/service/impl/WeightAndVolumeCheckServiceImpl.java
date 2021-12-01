@@ -654,6 +654,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
         if(!checkIsCanSpotCheck(packWeightVO, waybill, result)){
+            log.info("自动化称重抽检-service:barcode={}checkIsCanSpotCheck:false,result={}", packWeightVO.getCodeStr(),JsonHelper.toJson(result));
             return result;
         }
         WeightVolumeCollectDto weightVolumeCollectDto = assemble(packWeightVO, waybill, SpotCheckSourceEnum.SPOT_CHECK_DWS, result);
@@ -1273,17 +1274,23 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param packWeightVO
      */
     private WeightVolumeCollectDto assemble(PackWeightVO packWeightVO, Waybill waybill, SpotCheckSourceEnum spotCheckSourceEnum, InvokeResult<Boolean> result) {
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,参数:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(packWeightVO));
         // 抽检复核数据
         WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
         assembleReviewData(packWeightVO, weightVolumeCollectDto, waybill, spotCheckSourceEnum.name());
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,assembleReviewData:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(weightVolumeCollectDto));
         // 抽检核对数据
         assembleContrastData(weightVolumeCollectDto);
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,assembleContrastData:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(weightVolumeCollectDto));
         // 超标处理
         excessDeal(weightVolumeCollectDto, result);
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,excessDeal:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(weightVolumeCollectDto));
         // 特殊处理
         specialTreatment(weightVolumeCollectDto, waybill);
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,specialTreatment:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(weightVolumeCollectDto));
         // 图片处理
         pictureUrlDeal(weightVolumeCollectDto);
+        log.info("自动化称重抽检-service:barcode={}组装抽检数据,pictureUrlDeal:{}", packWeightVO.getCodeStr(),JsonHelper.toJson(weightVolumeCollectDto));
 
         return weightVolumeCollectDto;
     }
