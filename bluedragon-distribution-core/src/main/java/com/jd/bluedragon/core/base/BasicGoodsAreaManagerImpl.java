@@ -48,6 +48,9 @@ public class BasicGoodsAreaManagerImpl implements BasicGoodsAreaManager {
                 logger.warn("根据当前站点:{}和下一站点:{}查询货区编码失败!{}", siteCode, nextSiteCode, resultDTO == null ? InvokeResult.RESULT_NULL_MESSAGE : resultDTO.getMessage());
                 return null;
             }
+            if(logger.isInfoEnabled()){
+                logger.info("根据当前站点:{}和下一站点:{}查询到货区编码:{}", siteCode, nextSiteCode, resultDTO.getData().getAreaNo());
+            }
             return resultDTO.getData().getAreaNo();
         }catch (Exception e){
             logger.error("根据当前站点:{}和下一站点:{}查询货区编码异常!", siteCode, nextSiteCode, e);
