@@ -897,6 +897,34 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'2')){
             target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
         }
+
+
+        /**
+         * 新增b网产品类型枚举，给为jZDFlag字段赋值
+         *
+         * 当wbs40=2 && 80=1时，赋值“特惠零担”
+         *
+         * 当wbs40=2 && 80=2时，赋值“特快零担”
+         *
+         * 当wbs40=2 && 80=0时，赋值“快运零担”
+         *
+         * 当wbs40=2 && 80=9时，赋值“特快重货”
+         */
+        if (BusinessUtil.isSignChar(waybill.getWaybillSign(),40,'2')) {
+            if (BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'1')) {
+                //特惠零担
+                target.setjZDFlag(TextConstants.B2B_THLD);
+            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'2')) {
+                //特快零担
+                target.setjZDFlag(TextConstants.B2B_TKLD);
+            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'0')) {
+                //快运零担
+                target.setjZDFlag(TextConstants.B2B_KYLD);
+            }else if(BusinessUtil.isSignChar(waybill.getWaybillSign(),80,'9')) {
+                //特快重货
+                target.setjZDFlag(TextConstants.B2B_TKZH);
+            }
+        }
         
         //sendpay167位不等于0时，面单模板打印【京准达快递到车】
 	    if(StringHelper.isNotEmpty(waybill.getSendPay())
