@@ -1233,7 +1233,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.doCancelLastSend", false, true);
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
-            this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
+            this.dellCancelDeliveryMessageWithServerTime(getCancelSendM(lastSendM, domain, new Date()), true);
         }
         Profiler.registerInfoEnd(callerInfo);
     }
@@ -1258,7 +1258,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             domain.setUpdateTime(domain.getOperateTime());
             // 设置批次号为空，B冷链发货会调用该接口，传入无效批次号，故在此清空
             domain.setSendCode(null);
-            return this.dellCancelDeliveryMessage(domain, true);
+            return this.dellCancelDeliveryMessageWithServerTime(domain, true);
         } else {
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
                     HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING), null);
@@ -1838,7 +1838,15 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return false;
     }
 
-    private SendM getCancelSendM(SendM lastSendM, SendM domain) {
+    /**
+     * 构建sendm对象
+     *
+     * @param lastSendM
+     * @param domain
+     * @param operateTime 分别来源于：pda（操作时间设置的是服务器时间）、自动化设备（操作时间设置的是设备扫描时间）
+     * @return
+     */
+    private SendM getCancelSendM(SendM lastSendM, SendM domain, Date operateTime) {
         SendM sendM = new SendM();
         sendM.setBoxCode(lastSendM.getBoxCode());
         sendM.setCreateSiteCode(lastSendM.getCreateSiteCode());
@@ -1849,6 +1857,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sendM.setUpdaterUser(domain.getCreateUser());
         sendM.setUpdateUserCode(domain.getCreateUserCode());
         sendM.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
+        sendM.setOperateTime(operateTime);
         sendM.setYn(0);
         return sendM;
     }
@@ -3029,6 +3038,35 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 
     /**
      * 生成取消发货数据处理
+     *  hit：
+     *      1、操作时间取实操时间
+     *      2、取消发货和发货的时间都用的是操作时间
+     * @param tSendM
+     * @param needSendMQ
+     * @return
+     */
+    @Override
+    public ThreeDeliveryResponse dellCancelDeliveryMessageWithOperateTime(SendM tSendM, boolean needSendMQ) {
+        return dellCancelDeliveryMessage(tSendM, needSendMQ);
+    }
+
+    /**
+     * 生成取消发货数据处理
+     *  hit：
+     *      1、操作时间取服务器时间
+     *      2、取消发货和发货的时间都用的是服务器时间
+     * @param tSendM
+     * @param needSendMQ
+     * @return
+     */
+    @Override
+    public ThreeDeliveryResponse dellCancelDeliveryMessageWithServerTime(SendM tSendM, boolean needSendMQ) {
+        tSendM.setOperateTime(new Date());
+        return dellCancelDeliveryMessage(tSendM, needSendMQ);
+    }
+
+    /**
+     * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
      * edit:将取消发货分为三类
      * 一类为按板号
@@ -3656,6 +3694,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             dSendM.setUpdaterUser(tSendM.getUpdaterUser());
             dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
             dSendM.setUpdateTime(new Date());
+            dSendM.setOperateTime(tSendM.getOperateTime());
             String caruser = dSendM.getSendUser();
             // 是否发车
             if (caruser != null && !"".equals(caruser)) {
@@ -6740,7 +6779,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         if (StringUtils.isNotBlank(lastSendCode)) {
             if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
                 // 未封车 直接取消上次发货
-                this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
+                // 目前只有分拣机、龙门架发货调用，操作时间已经加了5s，故取消需要减去5s
+                this.dellCancelDeliveryMessageWithOperateTime(getCancelSendM(lastSendM, domain, new Date(domain.getOperateTime().getTime() - Constants.DELIVERY_DELAY_TIME)), true);
             }
         }
     }
@@ -7024,7 +7064,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     } else{
                         domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()));
                     }
-                    dellCancelDeliveryMessage(domain, true);
+                    dellCancelDeliveryMessageWithServerTime(domain, true);
                 }catch(Exception e){
                     log.error("按板取消发货，取消包裹/箱号{}失败,失败原因{}",boxCode,e.getMessage(),e);
                     //如果任务处理过程中有异常，任务重跑

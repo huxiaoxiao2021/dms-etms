@@ -486,7 +486,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                 //取消预装载 取消分拣
 
                 //取消预装载 取消发货
-                deliveryService.dellCancelDeliveryMessage(toSendM(loadBill), false);
+                deliveryService.dellCancelDeliveryMessageWithServerTime(toSendM(loadBill), false);
                 //取消预装载 操作日志
                 addOperationLog(loadBill,"LoadBillServiceImpl#cancelPreloaded");
             }
@@ -559,6 +559,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         sendM.setUpdaterUser(loadBill.getPackageUser());
         sendM.setUpdateUserCode(loadBill.getPackageUserCode());
         sendM.setUpdateTime(new Date());
+        sendM.setOperateTime(new Date());
         sendM.setYn(0);
         return sendM;
     }
