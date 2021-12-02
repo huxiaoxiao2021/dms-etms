@@ -604,6 +604,11 @@ public class UccPropertyConfiguration {
     private boolean sitePlateIsCheckFunc;
 
     /**
+     * B网面单路由是否开启新模式
+     */
+    private boolean bTemplateRouterExecuteNew;
+
+    /**
      * 预分拣返调度校验同城
      */
     private String scheduleSiteCheckSameCity;
@@ -1668,6 +1673,14 @@ public class UccPropertyConfiguration {
 
     public void setMenuCodeFuncConfigUat(String menuCodeFuncConfigUat) {
         this.menuCodeFuncConfigUat = menuCodeFuncConfigUat;
+    }
+
+    public boolean getBTemplateRouterExecuteNew() {
+        return bTemplateRouterExecuteNew;
+    }
+
+    public void setBTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
+        this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
     }
 
     public boolean getBTemplateRouterExecuteNew() {

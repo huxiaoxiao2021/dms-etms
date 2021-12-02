@@ -925,7 +925,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_TKZH);
             }
         }
-        
+
         //sendpay167位不等于0时，面单模板打印【京准达快递到车】
 	    if(StringHelper.isNotEmpty(waybill.getSendPay())
 	    		&& waybill.getSendPay().length() >= 167
@@ -1679,8 +1679,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         int lastIndex = finalSiteList.size() - 1;// 最后一个下标
         for(int i = 0; i < finalSiteList.size(); i ++){
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i));
-            ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), baseSite.getDistributeCode());
             Integer siteCode = baseSite.getSiteCode();
+            BaseSiteInfoDto baseSiteInfoBySiteId = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+            ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), baseSiteInfoBySiteId == null ? null : baseSiteInfoBySiteId.getDistributeCode());
             if(i == reverseSecondIndex){
                 // 倒数第二个节点处理
                 BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteByDmsCode(reverseSecondNextSite);
@@ -1693,6 +1694,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 BaseStaffSiteOrgDto currentNextSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i + 1));
                 ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
                         basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite.getSiteCode()));
+                if(i == 0){
+                    // 始发货区编码
+                    printWaybill.setOriginalSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite.getSiteCode()));
+                }
             }
         }
         return true;

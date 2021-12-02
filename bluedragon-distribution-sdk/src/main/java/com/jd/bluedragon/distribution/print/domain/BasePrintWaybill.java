@@ -1328,7 +1328,6 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setRouterSectionAreaNo1(String routerSectionAreaNo1) {
 		this.routerSectionAreaNo1 = routerSectionAreaNo1;
-		this.setOriginalSectionAreaNo(routerSectionAreaNo1);
 	}
 
 	public String getRouterSectionAreaNo2() {
@@ -1369,7 +1368,6 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setRouterSectionAreaNo6(String routerSectionAreaNo6) {
 		this.routerSectionAreaNo6 = routerSectionAreaNo6;
-		this.setDestinationSectionAreaNo(routerSectionAreaNo6);
 	}
 
 	public String getOriginalSectionAreaNo() {
