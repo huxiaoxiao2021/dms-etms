@@ -1680,24 +1680,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         for(int i = 0; i < finalSiteList.size(); i ++){
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i));
             Integer siteCode = baseSite.getSiteCode();
-            BaseSiteInfoDto baseSiteInfoBySiteId = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-            ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), baseSiteInfoBySiteId == null ? null : baseSiteInfoBySiteId.getDistributeCode());
-            if(i == reverseSecondIndex){
-                // 倒数第二个节点处理
-                BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteByDmsCode(reverseSecondNextSite);
-                ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
-                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, nextSite.getSiteCode()));
-            }else if(i == lastIndex){
+            BaseSiteInfoDto distributedSite = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+            if(i == lastIndex){
                 // 最后一个节点处理
                 printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, printWaybill.getPrepareSiteCode()));
+            }else if(i == reverseSecondIndex){
+                // 倒数第二个节点处理
+                ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), distributedSite == null ? null : distributedSite.getDistributeCode());
+                BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteByDmsCode(reverseSecondNextSite);
+                ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
+                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, nextSite == null ? null : nextSite.getSiteCode()));
+            }else if(i == 0){
+                // 第一个节点处理
+                BaseStaffSiteOrgDto currentNextSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i + 1));
+                printWaybill.setOriginalSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite == null ? null : currentNextSite.getSiteCode()));
             }else {
+                ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), distributedSite == null ? null : distributedSite.getDistributeCode());
                 BaseStaffSiteOrgDto currentNextSite = baseMajorManager.getBaseSiteByDmsCode(finalSiteList.get(i + 1));
                 ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
-                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite.getSiteCode()));
-                if(i == 0){
-                    // 始发货区编码
-                    printWaybill.setOriginalSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite.getSiteCode()));
-                }
+                        basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, currentNextSite == null ? null : currentNextSite.getSiteCode()));
             }
         }
         return true;
