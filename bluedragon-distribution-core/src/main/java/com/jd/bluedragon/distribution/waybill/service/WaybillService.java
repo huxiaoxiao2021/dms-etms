@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -174,5 +175,13 @@ public interface WaybillService {
      * @return
      */
     boolean isStartOrEndSite(Integer operateSiteCode,String waybillCode,int locationFlag);
+
+
+    /**
+     * 仅获取存在理赔破损拦截，包含取消破损拦截场景
+     * @param waybillCode
+     * @return
+     */
+    CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode);
 
 }

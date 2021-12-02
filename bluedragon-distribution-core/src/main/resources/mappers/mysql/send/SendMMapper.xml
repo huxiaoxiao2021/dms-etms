@@ -408,7 +408,9 @@
 			</if>
 			<if test="updateTime != null">
 				update_time = #{updateTime,jdbcType=TIMESTAMP},
-				operate_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="operateTime != null">
+				operate_time = #{operateTime,jdbcType=TIMESTAMP},
 			</if>
 			<if test="yn != null">
 				yn = 0,

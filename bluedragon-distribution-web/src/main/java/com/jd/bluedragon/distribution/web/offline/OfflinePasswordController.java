@@ -18,7 +18,7 @@ import com.jd.bluedragon.utils.SendMailUtil;
 import com.jd.uim.annotation.Authorization;
 
 @Controller
-@RequestMapping("/offlinePwd")
+//@RequestMapping("/offlinePwd")
 public class OfflinePasswordController {
 	@Autowired
 	private BaseService baseService;

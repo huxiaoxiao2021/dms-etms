@@ -1,20 +1,12 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
-import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import com.jd.bluedragon.distribution.api.response.SealBoxResponse;
-import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
-import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -43,10 +35,6 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Autowired
     @Qualifier("sealBoxResource")
     private SealBoxResource sealBoxResource;
-
-    @Autowired
-    @Qualifier("newSealVehicleService")
-    private NewSealVehicleService newSealVehicleService;
 
     @Autowired
     DeliveryService deliveryService;
@@ -98,6 +86,12 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.unseal", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         return newSealVehicleResource.unseal(request);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.newUnseal", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public NewUnsealVehicleResponse<Boolean> newUnseal(NewSealVehicleRequest request) {
+        return newSealVehicleResource.newUnseal(request);
     }
 
     @Override

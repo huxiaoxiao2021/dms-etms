@@ -515,7 +515,7 @@ public class SortingServiceImpl implements SortingService {
 
 		if ((StringHelper.isEmpty(sorting.getPackageCode())&&StringHelper.isEmpty(sorting.getWaybillCode())) || !NumberHelper.isPositiveNumber(createSiteCode)
 				|| !NumberHelper.isPositiveNumber(receiveSiteCode)
-				|| !NumberHelper.isPositiveNumber(sorting.getUpdateUserCode())
+				// || !NumberHelper.isPositiveNumber(sorting.getUpdateUserCode())
 				|| StringHelper.isEmpty(sorting.getUpdateUser())) {
 			this.log.warn("分拣记录某数据项为空；{}",JsonHelper.toJson(sorting));
 			return;

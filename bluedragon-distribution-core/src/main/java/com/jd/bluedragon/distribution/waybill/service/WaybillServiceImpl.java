@@ -40,13 +40,10 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.SiteHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
@@ -57,6 +54,7 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -1011,6 +1009,24 @@ public class WaybillServiceImpl implements WaybillService {
         return cancelWaybills.get(0);
     }
 
+    /**
+     * 仅获取理赔破损拦截 包含 存在取消拦截场景
+     * @param waybillCode
+     * @return
+     */
+    public CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode){
+        List<CancelWaybill> cancelWaybills = this.cancelWaybillDao.getByWaybillCode(waybillCode);
+        if (cancelWaybills == null || cancelWaybills.isEmpty()) {
+            return null;
+        }
+        // 获取理赔拦截
+        CancelWaybill claimDamagedCancelWaybill = this.getClaimDamagedCancelWaybill(cancelWaybills, true);
+        if (claimDamagedCancelWaybill != null) {
+            return claimDamagedCancelWaybill;
+        }
+
+        return null;
+    }
 
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
@@ -1174,6 +1190,13 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
 
+            // 规则6- 同城站点才能返调度
+            InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill);
+            if (!invokeResult.codeSuccess()) {
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
+                return result;
+            }
+
             // 当前校验必须放在最后
             //规则5- 预分拣站点校验滑道信息  (因为存在确认跳过检验)
             InvokeResult<String>  crossResult =   scheduleSiteSupportInterceptService.checkCrossInfo(waybill.getWaybillSign(),waybill.getSendPay(),
@@ -1182,6 +1205,7 @@ public class WaybillServiceImpl implements WaybillService {
                 result.customMessage(crossResult.getCode(),crossResult.getMessage());
                 return result;
             }
+
 
         }catch (Exception ex){
             log.error("WaybillService.checkWaybillForPreSortOnSite has error. The error is " + ex.getMessage(),ex);

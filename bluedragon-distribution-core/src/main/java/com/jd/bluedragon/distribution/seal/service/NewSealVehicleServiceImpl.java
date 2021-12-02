@@ -2,14 +2,19 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.CarrierQueryWSManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.CarrierQueryWSManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -25,39 +30,45 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
-import com.jd.bluedragon.external.crossbow.itms.constants.ItmsConstants;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
+import com.jd.bluedragon.distribution.newseal.domain.SealVehicleExecute;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.PreSealBatchService;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
+import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
+import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
+import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.logistics.customer.center.service.CustomerToolService;
+import com.jd.jmq.common.message.Message;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.tms.tfc.dto.TransBookBillQueryDto;
-import com.jd.tms.tfc.dto.TransWorkItemDto;
-import com.jd.tms.tfc.dto.TransWorkItemWsDto;
-import com.jd.tms.tfc.ws.TfcQueryWS;
-import com.jd.tms.tfc.ws.TfcSelectWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -66,24 +77,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
+
+    /**
+     * 查询预封车封车小时数
+     */
+    @Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
+    private Integer preSealRecentHours = 24;
+
 	@Autowired
 	private VosQueryWS vosQueryWS;
 
 	@Autowired
 	private VosBusinessWS vosBusinessWS;
-
-	@Autowired
-	private TfcQueryWS tfcQueryWS;
-
-	@Autowired
-	private TfcSelectWS tfcSelectWS;
 
     @Autowired
     private GoddessService goddessService;
@@ -123,14 +137,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	
 	@Autowired
 	private PreSealBatchService preSealBatchService;
-    /**
-     * 查询预封车封车小时数
-     */
-	@Value("${app.NewSealVehicleServiceImpl.preSealRecentHours:24}")
-    private Integer preSealRecentHours = 24;
 
     @Autowired
     private CarrierQueryWSManager carrierQueryWSManager;
+
+    @Autowired
+    @Qualifier(value = "batchSendStatusChangeProducer")
+    private DefaultJMQProducer batchSendStatusChangeProducer;
 
     @Autowired
     private SendCodeService sendCodeService;
@@ -196,6 +209,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
+                sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -446,6 +460,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (successSealCarList.size() > 0) {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
+            sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
         }
 
         //记录封车操作数据
@@ -534,6 +549,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
                 saveNXSealData(doSealCarDtos);
+                sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -646,6 +662,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
       List<String> batchList = cancelSealInfo.getData();
 
       removeRedisCache(batchList);
+      sendBatchSendCodeStatusMsg(null,batchList,BatchSendStatusEnum.UNUSED);
       cancelSealData(batchList, TMS_param.getOperateUserCode());
 
       sealVehicleResponse.setCode(JdResponse.CODE_OK);
@@ -775,30 +792,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcQueryWS.queryTransWorkItemBySimpleCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
-        return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.queryVehicleNumberOrItemCodeByParam", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception {
-        return tfcSelectWS.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<String> checkTransportCode(String simpleCode, String transportCode) throws Exception {
-        return tfcSelectWS.checkTransportCode(simpleCode, transportCode);
-    }
-
-    @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.tfcSelectWS.getTransBookBill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception {
-        return tfcSelectWS.getTransBookBill(transBookBillQueryDto, pageDto);
-    }
 
     /**
      * 校验批次的体积是否超标
@@ -972,11 +965,44 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 try {
                     redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_FIFTEEN_DAY, String.valueOf(dto.getSealCarTime().getTime()));
                     log.debug("已封车批次号存入缓存成功:{}" , sendCode);
+                    BatchSendStatusChange batchSendStatusChange = new BatchSendStatusChange(sendCode, BatchSendStatusEnum.USED.getCode());
+                    //发出批次状态
+                    batchSendStatusChangeProducer.sendOnFailPersistent(sendCode,JsonHelper.toJson(batchSendStatusChange));
                 } catch (Throwable e) {
                     log.error("已封车批次号存入缓存失败:{}",sendCode,e);
                 }
             }
         }
+    }
+
+    private void sendBatchSendCodeStatusMsg(List<SealCarDto> sealCarDtos,List<String> batchCodes,BatchSendStatusEnum batchSendStatusEnum){
+        if (CollectionUtils.isEmpty(sealCarDtos) && CollectionUtils.isEmpty(batchCodes)) {
+            return;
+        }
+
+        Set<String> batchCodeList = Sets.newHashSet();
+        if (CollectionUtils.isNotEmpty(sealCarDtos)){
+            for (SealCarDto dto : sealCarDtos) {
+                if (CollectionUtils.isNotEmpty(dto.getBatchCodes())){
+                    batchCodeList.addAll(dto.getBatchCodes());
+                }
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(batchCodes)){
+            batchCodeList.addAll(batchCodes);
+        }
+
+        List<Message> batchSendStatusChanges = Lists.newArrayList();
+        for(String code:batchCodeList){
+            BatchSendStatusChange batchSendStatusChange = new BatchSendStatusChange(code, batchSendStatusEnum.getCode());
+            batchSendStatusChanges.add(new Message()
+                    .topic(batchSendStatusChangeProducer.getTopic())
+                    .businessId(code)
+                    .body(JsonHelper.toJson(batchSendStatusChange).getBytes(StandardCharsets.UTF_8)));
+        }
+        //批量发出批次状态
+        batchSendStatusChangeProducer.batchSendOnFailPersistent(batchSendStatusChanges);
     }
 
     public void removeBatchCodeRedisCache(List<SealCarDto> paramList){
@@ -993,18 +1019,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
    * @param paramList
    */
   private void removeRedisCache(List<String> paramList) {
-    if (paramList == null || paramList.size() == 0) {
-      return;
-    }
-    for (String sendCode : paramList) {
-      try {
-        redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode);
-        log.debug("已封车批次号刪除缓存成功:{}", sendCode);
-      } catch (Throwable e) {
-        log.error("已封车批次号刪除缓存失败:{}",sendCode,e);
+      if (paramList == null || paramList.size() == 0) {
+          return;
       }
-    }
-    }
+      for (String sendCode : paramList) {
+          try {
+              redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode);
+              log.debug("已封车批次号刪除缓存成功:{}", sendCode);
+          } catch (Throwable e) {
+              log.error("已封车批次号刪除缓存失败:{}",sendCode,e);
+          }
+      }
+  }
 
     /**
      * 记录封车解封车操作日志

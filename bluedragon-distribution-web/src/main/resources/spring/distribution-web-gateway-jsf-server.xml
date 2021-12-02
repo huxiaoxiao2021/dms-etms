@@ -409,4 +409,13 @@
                   ref="artificialSpotCheckGatewayService"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 司机组板(京管家)-->
+    <bean id="driverBoardSend4JgjGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DriverBoardSend4JgjGatewayServiceImpl" />
+    <jsf:provider id="jsfDriverBoardSend4JgjGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DriverBoardSend4JgjGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="driverBoardSend4JgjGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

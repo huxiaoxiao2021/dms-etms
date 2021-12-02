@@ -22,6 +22,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -71,11 +72,11 @@ public class WastePackageServiceImpl implements WastePackageService {
 
     @Autowired
     private DiscardedPackageStorageTempDao discardedPackageStorageTempDao;
-    
+
     @Qualifier("bdBlockerCompleteMQ")
     @Autowired
     private DefaultJMQProducer bdBlockerCompleteMQ;
-    
+
     @Autowired
     private TaskService taskService;
     /**
@@ -93,11 +94,11 @@ public class WastePackageServiceImpl implements WastePackageService {
     	}
     }
 	/**
-     * 弃件暂存处理	
+     * 弃件暂存处理
      * @param request
      * @return
      */
-    public InvokeResult<Boolean> wasteWithStorage(WastePackageRequest request) {    	
+    public InvokeResult<Boolean> wasteWithStorage(WastePackageRequest request) {
     	InvokeResult<Boolean> result = checkParam(request);
         if(RESULT_SUCCESS_CODE != result.getCode()){
             return result;
@@ -170,13 +171,13 @@ public class WastePackageServiceImpl implements WastePackageService {
         return result;
     }
 	/**
-     * 弃件废弃处理	
+     * 弃件废弃处理
      * @param request
      * @return
      */
     private InvokeResult<Boolean> wasteWithScrap(WastePackageRequest request) {
         InvokeResult<Boolean> result = new InvokeResult<>();
-        
+
         if(!WaybillUtil.isPackageCode(request.getPackageCode())){
         	result.error("请输入有效的包裹号！");
             log.warn("弃件暂存请求参数错误，包裹号无效！");
@@ -286,7 +287,10 @@ public class WastePackageServiceImpl implements WastePackageService {
         db.setWaybillType(request.getWaybillType());
         db.setStatus(request.getStatus());
         db.setWaybillProduct(waybillQueryManager.getTransportMode(WaybillInfo));
-        db.setConsignmentName(waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto));
+        String consignmentName = waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto);
+        //consignmentName 超过30位截取
+        consignmentName = StringHelper.substring(consignmentName,0,30);
+        db.setConsignmentName(consignmentName);
         db.setWeight(BigDecimal.valueOf(WaybillInfo.getGoodWeight()));
         if(WaybillInfo.getPayment()!=null && (WaybillInfo.getPayment()==1 || WaybillInfo.getPayment()==3)){
             db.setCod(1);
@@ -371,7 +375,7 @@ public class WastePackageServiceImpl implements WastePackageService {
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
 
         waybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-        
+
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));

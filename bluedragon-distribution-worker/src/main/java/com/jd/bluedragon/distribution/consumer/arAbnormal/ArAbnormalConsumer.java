@@ -71,7 +71,7 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
             sendMr.setUpdateTime(new Date());
             sendMr.setYn(0);
             //senMr不加receiveSiteCode 和 businessType 因为入口在kongtieChange.cs，这两个值无法确认
-            deliveryService.dellCancelDeliveryMessage(sendMr, true);
+            deliveryService.dellCancelDeliveryMessageWithServerTime(sendMr, true);
         } catch (Exception e) {
             log.error("运输方式变更触发取消发货处理异常，消息体为：{}" , message.getText(), e);
         }

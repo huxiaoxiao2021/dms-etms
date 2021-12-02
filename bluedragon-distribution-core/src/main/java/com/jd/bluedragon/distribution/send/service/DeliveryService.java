@@ -166,6 +166,24 @@ public interface DeliveryService {
     /**
      * 取消发货处理
      *
+     * @param tSendM
+     * @param needSendMQ
+     * @return
+     */
+    ThreeDeliveryResponse dellCancelDeliveryMessageWithServerTime(SendM tSendM, boolean needSendMQ);
+
+    /**
+     * 取消发货处理
+     *
+     * @param tSendM
+     * @param needSendMQ
+     * @return
+     */
+    ThreeDeliveryResponse dellCancelDeliveryMessageWithOperateTime(SendM tSendM, boolean needSendMQ);
+
+    /**
+     * 取消发货处理
+     *
      * @param
      */
     ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ);
