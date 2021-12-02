@@ -1655,8 +1655,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(i == lastIndex){
                 // 最后一个节点处理
                 printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(siteCode, printWaybill.getPrepareSiteCode()));
-            }else if(i == reverseSecondIndex){
-                // 倒数第二个节点处理
+            }else if(finalSiteList.size() > 2 && i == reverseSecondIndex){
+                // 倒数第二个节点处理（前提：节点数 > 2）
                 ObjectHelper.setValue(printWaybill,"routerSectionNo" + (i + 1), distributedSite == null ? null : distributedSite.getDistributeCode());
                 BaseStaffSiteOrgDto nextSite = baseMajorManager.getBaseSiteByDmsCode(reverseSecondNextSite);
                 ObjectHelper.setValue(printWaybill,"routerSectionAreaNo" + (i + 1),
