@@ -621,11 +621,6 @@ public class UccPropertyConfiguration {
         this.scheduleSiteCheckSameCity = scheduleSiteCheckSameCity;
     }
 
-    /**
-     * B网面单路由是否开启新模式
-     */
-    private boolean bTemplateRouterExecuteNew;
-
     public int getInsertDbRowsOneTime() {
         return insertDbRowsOneTime;
     }
@@ -1673,14 +1668,6 @@ public class UccPropertyConfiguration {
 
     public void setMenuCodeFuncConfigUat(String menuCodeFuncConfigUat) {
         this.menuCodeFuncConfigUat = menuCodeFuncConfigUat;
-    }
-
-    public boolean getBTemplateRouterExecuteNew() {
-        return bTemplateRouterExecuteNew;
-    }
-
-    public void setBTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
-        this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
     }
 
     public boolean getBTemplateRouterExecuteNew() {
