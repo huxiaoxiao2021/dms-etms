@@ -7,6 +7,9 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -55,6 +58,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -341,12 +345,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
         try{
             packageStatusService.recordPackageStatus(null,bdTraceDto);
+            packageStatusService.filterAndSendDmsHasnoPresiteWaybillMq(null,bdTraceDto);
         }catch (Exception e){
             log.error("包裹状态发送MQ消息异常.{}" , JSON.toJSONString(bdTraceDto),e);
         }
         return true;
     }
-
     @Override
     public Integer checkReDispatch(String waybillCode) {
         Integer result = REDISPATCH_NO;

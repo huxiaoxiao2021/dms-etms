@@ -5,7 +5,10 @@ package com.jd.bluedragon.distribution.record.enums;
  *
  */
 public enum WaybillHasnoPresiteRecordStatusEnum {
-
+    /**
+     * 待换单
+     */
+	INIT(0, "待外呼"),
     /**
      * 待换单
      */
@@ -22,13 +25,17 @@ public enum WaybillHasnoPresiteRecordStatusEnum {
     FOR_WASTE(3, "待弃货"),
 
     /**
+     * 已补打
+     */
+    REPRINT_FINISH(4, "已补打"),
+    /**
      * 已换单
      */
-    EXCHANGE_FINISH(4, "已换单"),
+    EXCHANGE_FINISH(5, "已换单"),
     /**
      * 已弃货
      */
-    WASTE_FINISH(5, "已弃货"),
+    WASTE_FINISH(6, "已弃货"),
     ;
 
     private Integer code;

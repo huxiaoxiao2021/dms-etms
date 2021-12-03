@@ -126,6 +126,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				if (true == result.isFlag()) {
 					try{
 						packageStatusService.recordPackageStatus(parameterList,null);
+						packageStatusService.filterAndSendDmsHasnoPresiteWaybillMq(parameterList,null);
 					}catch (Exception e){
 						log.error("包裹状态发送MQ消息异常:{}" , JSON.toJSONString(parameterList),e);
 					}

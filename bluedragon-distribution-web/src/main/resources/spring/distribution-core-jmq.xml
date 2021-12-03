@@ -512,7 +512,10 @@
         <property name="topic" value="${jmq.topic.crossbox.change}"/>
         <property name="timeout" value="1000"/>
     </bean>
-
+    <!--  无预分拣站点消息-生产者 -->
+    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
+    </bean>
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>

@@ -58,4 +58,44 @@ public class WaybillHasnoPresiteRecordDao extends BaseDao<WaybillHasnoPresiteRec
     public List<WaybillHasnoPresiteRecord> selectList(WaybillHasnoPresiteRecordQo query) {
         return this.getSqlSession().selectList(WaybillHasnoPresiteRecordDao.NAMESPACE + ".selectList", query);
     }
+    /**
+     * 更新验货信息
+     * @param waybillHasnoPresiteRecord
+     * @return
+     */
+	public int updateCheckInfo(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
+		return this.getSqlSession().update(WaybillHasnoPresiteRecordDao.NAMESPACE + ".updateCheckInfo", waybillHasnoPresiteRecord);
+	}
+	/**
+	 * 更新外呼状态
+	 * @param waybillHasnoPresiteRecord
+	 * @return
+	 */
+	public int updateCallInfo(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
+		return this.getSqlSession().update(WaybillHasnoPresiteRecordDao.NAMESPACE + ".updateCallInfo", waybillHasnoPresiteRecord);
+	}
+    /**
+     * 更新完成信息
+     * @param waybillHasnoPresiteRecord
+     * @return
+     */
+	public int updateFailFinishInfo(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
+		return this.getSqlSession().update(WaybillHasnoPresiteRecordDao.NAMESPACE + ".updateFailFinishInfo", waybillHasnoPresiteRecord);
+	}
+    /**
+     * 更新完成信息
+     * @param waybillHasnoPresiteRecord
+     * @return
+     */
+	public int updateSucFinishInfo(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
+		return this.getSqlSession().update(WaybillHasnoPresiteRecordDao.NAMESPACE + ".updateSucFinishInfo", waybillHasnoPresiteRecord);
+	}	
+	/**
+	 * 查询扫描数据
+	 * @param query
+	 * @return
+	 */
+	public List<WaybillHasnoPresiteRecord> selectScanList(WaybillHasnoPresiteRecordQo query) {
+		return this.getSqlSession().selectList(WaybillHasnoPresiteRecordDao.NAMESPACE + ".selectScanList", query);
+	}
 }

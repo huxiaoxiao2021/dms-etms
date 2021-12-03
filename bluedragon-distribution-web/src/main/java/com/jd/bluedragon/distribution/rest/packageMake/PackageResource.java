@@ -1,5 +1,21 @@
 package com.jd.bluedragon.distribution.rest.packageMake;
 
+import java.util.Date;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -17,6 +33,9 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
@@ -33,20 +52,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.util.Date;
 
 /**
  * Created by hujiping on 2018/4/4.
@@ -93,6 +98,9 @@ public class PackageResource {
 
     @Autowired
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
+    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
@@ -171,9 +179,26 @@ public class PackageResource {
         rePrintRecord.setOperatorCode(operatorId);
         rePrintRecord.setOperatorName(operateName);
         reprintRecordService.insertRePrintRecord(rePrintRecord);
-
+        //发送mq
+        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(rePrintRecord));
         return jdResponse;
     }
+    /**
+     * 发送mq
+     * @param rePrintRecord
+     */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(ReprintRecord rePrintRecord) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(WaybillUtil.getWaybillCode(rePrintRecord.getBarCode()) );
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.REPRINT.getCode());
+    	if(rePrintRecord.getOperatorCode() != null) {
+    		dmsHasnoPresiteWaybillMq.setOperateUserErp(rePrintRecord.getOperatorCode().toString());
+    	}
+    	dmsHasnoPresiteWaybillMq.setOperateUserName(rePrintRecord.getOperatorName());
+    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(rePrintRecord.getSiteCode());
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	return dmsHasnoPresiteWaybillMq;
+    }    
     /**
      * 包裹补打回调方法
      * @return

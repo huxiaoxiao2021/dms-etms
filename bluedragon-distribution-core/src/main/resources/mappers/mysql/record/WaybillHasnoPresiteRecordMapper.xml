@@ -7,6 +7,7 @@
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="presite_code" property="presiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="end_dms_id" property="endDmsId" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="call_status" property="callStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -23,10 +24,10 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,waybill_code,site_code,site_name,end_dms_id,status,
-		call_status,deal_card_user_erp,deal_card_user_name,check_time,call_time,
-		deal_card_time,finish_time,create_time,update_time,is_delete,
-		ts
+		id,waybill_code,site_code,site_name,presite_code,end_dms_id,
+		status,call_status,deal_card_user_erp,deal_card_user_name,check_time,
+		call_time,deal_card_time,finish_time,create_time,update_time,
+		is_delete,ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord" useGeneratedKeys="true" keyProperty="id">
@@ -44,6 +45,9 @@
 				</if>
 				<if test="siteName != null" >
 					site_name,
+				</if>
+				<if test="presiteCode != null" >
+					presite_code,
 				</if>
 				<if test="endDmsId != null" >
 					end_dms_id,
@@ -100,6 +104,9 @@
 				</if>
 				<if test="siteName != null" >
 					#{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="presiteCode != null" >
+					#{presiteCode,jdbcType=INTEGER},
 				</if>
 				<if test="endDmsId != null" >
 					#{endDmsId,jdbcType=INTEGER},
@@ -158,6 +165,9 @@
 				</if>
 				<if test="siteName != null" >
 					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="presiteCode != null" >
+					presite_code = #{presiteCode,jdbcType=INTEGER},
 				</if>
 				<if test="endDmsId != null" >
 					end_dms_id = #{endDmsId,jdbcType=INTEGER},
@@ -247,6 +257,92 @@
             limit #{offset}, #{pageSize}
         </if>
     </select>
-    
+	<update id="updateCheckInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="checkTime != null" >
+					check_time = #{checkTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT} 
+			and status in (0,1,2,3)
+			and (check_time is null or check_time &lt; #{checkTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateCallInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="callStatus != null" >
+					call_status = #{callStatus,jdbcType=TINYINT},
+				</if>				
+				<if test="callTime != null" >
+					call_time = #{callTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT} 
+			and status = 0
+			and (call_time is null or  call_time &lt; #{callTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateFailFinishInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>			
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="finishTime != null" >
+					finish_time = #{finishTime,jdbcType=TIMESTAMP},
+				</if>				
+			</set>
+		where id = #{id,jdbcType=BIGINT} 
+			and status in(2,3)
+			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateSucFinishInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>			
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="finishTime != null" >
+					finish_time = #{finishTime,jdbcType=TIMESTAMP},
+				</if>				
+			</set>
+		where id = #{id,jdbcType=BIGINT} 
+			and status in(1)
+			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
+	</update>
+	
+	<!-- 查询超过2天并且状态是0的数据 -->
+    <select id="selectScanList" resultMap="WaybillHasnoPresiteRecord" parameterType="com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			waybill_hasno_presite_record t
+        where is_delete = 0 
+        	and status = 0
+        	and create_time &lt; #{endCreateTime,jdbcType=TIMESTAMP}
+        	and id > #{startId}
+          limit #{pageSize} order by id
+    </select>
 </mapper>
 

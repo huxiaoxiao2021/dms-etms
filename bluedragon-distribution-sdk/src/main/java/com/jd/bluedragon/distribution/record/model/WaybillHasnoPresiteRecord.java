@@ -35,6 +35,11 @@ public class WaybillHasnoPresiteRecord implements Serializable{
 	private String siteName;
 
 	/**
+	 * 预分拣站点
+	 */
+	private Integer presiteCode;
+
+	/**
 	 * 目的分拣编号
 	 */
 	private Integer endDmsId;
@@ -161,6 +166,22 @@ public class WaybillHasnoPresiteRecord implements Serializable{
 	 */
 	public String getSiteName() {
 		return this.siteName;
+	}
+
+	/**
+	 *
+	 * @param presiteCode
+	 */
+	public void setPresiteCode(Integer presiteCode) {
+		this.presiteCode = presiteCode;
+	}
+
+	/**
+	 *
+	 * @return presiteCode
+	 */
+	public Integer getPresiteCode() {
+		return this.presiteCode;
 	}
 
 	/**

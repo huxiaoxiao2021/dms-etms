@@ -37,6 +37,11 @@ public class StockInventoryResult implements Serializable {
      * 已盘点数量
      */
     private String inventoryNum;
+    
+    /**
+     * 包裹状态
+     */
+    private String packageStatusDesc;
 
     public String getWaveCode() {
         return waveCode;
@@ -77,4 +82,12 @@ public class StockInventoryResult implements Serializable {
     public void setInventoryNum(String inventoryNum) {
         this.inventoryNum = inventoryNum;
     }
+
+	public String getPackageStatusDesc() {
+		return packageStatusDesc;
+	}
+
+	public void setPackageStatusDesc(String packageStatusDesc) {
+		this.packageStatusDesc = packageStatusDesc;
+	}
 }

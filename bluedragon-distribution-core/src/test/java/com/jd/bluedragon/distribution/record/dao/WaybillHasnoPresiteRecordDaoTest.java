@@ -88,5 +88,40 @@ public class WaybillHasnoPresiteRecordDaoTest extends AbstractCoreDaoH2Test {
         List<WaybillHasnoPresiteRecord> selectList = waybillHasnoPresiteRecordDao.selectList(queryCondition);
         Assert.assertTrue(selectList.size()>0);
         logger.info("waybillHasnoPresiteRecordDao.queryByWaybillCode:结果{}",JsonHelper.toJson(selectList));
+        
+        queryByWaybillCode.setStatus(WaybillHasnoPresiteRecordStatusEnum.INIT.getCode());
+        int update0 = waybillHasnoPresiteRecordDao.update(queryByWaybillCode);
+        
+        logger.info("waybillHasnoPresiteRecordDao.update:结果{}",update0);
+        queryByWaybillCode.setCallStatus(2);
+        queryByWaybillCode.setStatus(2);
+        queryByWaybillCode.setCallTime(DateHelper.addDate(dbData.getCallTime(), 1));
+        waybillHasnoPresiteRecordDao.updateCallInfo(queryByWaybillCode);
+        WaybillHasnoPresiteRecord updateCallInfoResult = waybillHasnoPresiteRecordDao.queryByWaybillCode(waybillCode);
+        logger.info("waybillHasnoPresiteRecordDao.updateCallInfoResult:结果{}",JsonHelper.toJson(updateCallInfoResult));
+        
+        queryByWaybillCode.setSiteCode(300);
+        queryByWaybillCode.setSiteName("站点名称300");
+        queryByWaybillCode.setStatus(3);
+        queryByWaybillCode.setFinishTime(DateHelper.addDate(dbData.getCallTime(), 1));
+        waybillHasnoPresiteRecordDao.updateSucFinishInfo(queryByWaybillCode);
+        
+        WaybillHasnoPresiteRecord updateSucFinishInfoResult = waybillHasnoPresiteRecordDao.queryByWaybillCode(waybillCode);
+        logger.info("waybillHasnoPresiteRecordDao.updateSucFinishInfo:结果{}",JsonHelper.toJson(updateSucFinishInfoResult));
+        
+        queryByWaybillCode.setSiteCode(400);
+        queryByWaybillCode.setSiteName("站点名称400");
+        queryByWaybillCode.setStatus(4);
+        queryByWaybillCode.setFinishTime(DateHelper.addDate(dbData.getCallTime(), 2));
+        waybillHasnoPresiteRecordDao.updateFailFinishInfo(queryByWaybillCode);
+        WaybillHasnoPresiteRecord updateFailFinishInfo = waybillHasnoPresiteRecordDao.queryByWaybillCode(waybillCode);
+        logger.info("waybillHasnoPresiteRecordDao.updateFailFinishInfo:结果{}",JsonHelper.toJson(updateFailFinishInfo));
+        
+        WaybillHasnoPresiteRecordQo selectScanListQuery = new WaybillHasnoPresiteRecordQo();
+        selectScanListQuery.setStartId(0L);
+        selectScanListQuery.setEndCreateTime(DateHelper.addDate(dbData.getCallTime(), 1));
+        selectScanListQuery.setPageSize(100);
+        List<WaybillHasnoPresiteRecord> selectScanListResult = waybillHasnoPresiteRecordDao.selectScanList(selectScanListQuery);
+        logger.info("waybillHasnoPresiteRecordDao.selectScanListResult:结果{}",JsonHelper.toJson(selectScanListResult));
     }
 }
