@@ -36,7 +36,7 @@ public interface BasicQueryWSManager {
     /**
      * 获取车型查询接口
      *
-     * @param owner
+     * @param owner 所有者：1-配运，2-仓运，Y-预约 空串""或nulll查询所有
      * @param type 所有：0 ，冷链：1 ，非冷链：2
      * @return
      */
