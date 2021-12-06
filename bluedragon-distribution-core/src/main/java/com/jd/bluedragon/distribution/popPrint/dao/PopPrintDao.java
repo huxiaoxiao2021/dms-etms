@@ -29,6 +29,10 @@ public class PopPrintDao extends BaseDao<PopPrint> {
         return popPrint;
     }
 
+    public PopPrint findByPackage(PopPrint PopPrint) {
+        return this.getSqlSession().selectOne(namespace + ".findByPackage", PopPrint);
+    }
+
     public List<PopPrint> findSitePrintDetail(Map<String, Object> map) {
         Object o = this.getSqlSession().selectList(namespace + ".findSitePrintDetail", map);
         List<PopPrint> lstPopPrint=(List<PopPrint>)o;
@@ -86,4 +90,13 @@ public class PopPrintDao extends BaseDao<PopPrint> {
         return this.getSqlSession().update(namespace + ".updateByWaybillOrPack", popPrint);
     }
 
+    public List<PopPrint> findAllByWaybillCodeAndSortingFirstPrint(String waybillCode) {
+        Object obj = this.getSqlSession().selectList(namespace + ".findAllByWaybillCodeAndSortingFirstPrint", waybillCode);
+        List<PopPrint> popPrintList = (obj == null) ? null : (List<PopPrint>) obj;
+        return popPrintList;
+    }
+
+    public int updateByWaybillOrPackIncludeUpdateSortingFirstPrint(PopPrint popPrint) {
+        return this.getSqlSession().update(namespace + ".updateByWaybillOrPackIncludeUpdateSortingFirstPrint", popPrint);
+    }
 }

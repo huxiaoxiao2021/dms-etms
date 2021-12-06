@@ -150,6 +150,7 @@
 		<property name="menuCodeFuncConfig" value="${menuCodeFuncConfig:}"></property>
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"></property>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"></property>
+		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"></property>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -280,6 +281,7 @@
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
+				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

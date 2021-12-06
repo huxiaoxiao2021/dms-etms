@@ -587,6 +587,11 @@ public class UccPropertyConfiguration {
      */
     private String scheduleSiteCheckSameCity;
 
+    /**
+     * 判断包裹是否打印的逻辑，包含终端首次打印的数据。默认不包含 0：不包含；1：包含
+     */
+    private String judgePackagePrintedIncludeSiteTerminal;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1576,5 +1581,13 @@ public class UccPropertyConfiguration {
 
     public void setSitePlateIsCheckFunc(boolean sitePlateIsCheckFunc) {
         this.sitePlateIsCheckFunc = sitePlateIsCheckFunc;
+    }
+
+    public String getJudgePackagePrintedIncludeSiteTerminal() {
+        return judgePackagePrintedIncludeSiteTerminal;
+    }
+
+    public void setJudgePackagePrintedIncludeSiteTerminal(String judgePackagePrintedIncludeSiteTerminal) {
+        this.judgePackagePrintedIncludeSiteTerminal = judgePackagePrintedIncludeSiteTerminal;
     }
 }

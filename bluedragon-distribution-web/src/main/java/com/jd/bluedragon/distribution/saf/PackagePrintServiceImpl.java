@@ -2,8 +2,11 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.api.response.DmsWaybillInfoResponse;
@@ -11,6 +14,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.board.domain.Request;
 import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
@@ -19,16 +23,22 @@ import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
+import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.rest.packageMake.PackageResource;
 import com.jd.bluedragon.distribution.rest.reverse.ReversePrintResource;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
@@ -73,6 +83,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 	private WaybillService waybillService;
 	@Autowired
 	private PackageResource packageResource;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     /**
      * 打印JSF接口token校验开关
@@ -399,7 +415,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
+
 	@Override
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.reversePrintAfter",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest) {
     	JdResult<Boolean> jdResult = new JdResult<Boolean>();
 		jdResult.setData(Boolean.FALSE);
@@ -427,7 +446,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
+
 	@Override
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.getWaybillInfoForBackSchedule",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<String> getWaybillInfoForBackSchedule(JdCommand<String> packageCodeRequest) {
     	JdResult<String> jdResult = this.checkParams(packageCodeRequest);
 		if(!jdResult.isSucceed()){
@@ -448,6 +470,8 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 	 * 现场预分拣回调处理
 	 */
 	@Override
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.backScheduleAfter",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<Boolean> backScheduleAfter(JdCommand<String> reassignWaybillRequest) {
     	JdResult<Boolean> jdResult = this.checkParams(reassignWaybillRequest);
 		if(!jdResult.isSucceed()){
@@ -462,9 +486,13 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
+
 	/**
 	 * 包裹补打回调处理
 	 */
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.reprintAfter",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
 	public JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest) {
     	JdResult<Boolean> jdResult = this.checkParams(reprintAfterRequest);
 		if(!jdResult.isSucceed()){
@@ -488,4 +516,122 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
+
+    /**
+     * 打印完成回调接口
+     *
+     * @param printRequest
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.packagePrintComplete", jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<Boolean> packagePrintComplete(JdCommand<SiteTerminalPrintCompleteRequest> printRequest) {
+        JdResult<Boolean> jdResult = this.checkParams(printRequest);
+        if (!jdResult.isSucceed()) {
+            return jdResult;
+        }
+
+        try {
+            SiteTerminalPrintCompleteRequest printData = printRequest.getData();
+
+            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(printData.getBarCode()));
+            if (waybill == null) {
+                log.warn("根据运单号{}未获取到运单信息!", WaybillUtil.getWaybillCode(printData.getBarCode()));
+                jdResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(),
+                        WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+                return jdResult;
+            }
+
+            JdCommand<PrintCompleteRequest> jdCommand = convertPrintRequest(printRequest, waybill);
+
+            jdResult = jdCommandService.printComplete(jdCommand);
+        }
+        catch (Exception e) {
+            log.error("处理打印回调异常. request:{}", JsonHelper.toJson(printRequest), e);
+            jdResult.toFail("处理打印回调异常");
+        }
+
+        return jdResult;
+    }
+
+    /**
+     *
+     * @param printRequest
+     * @param waybill
+     * @return
+     */
+    private JdCommand<PrintCompleteRequest> convertPrintRequest(JdCommand<SiteTerminalPrintCompleteRequest> printRequest, Waybill waybill) {
+        JdCommand<PrintCompleteRequest> jdCommand = new JdCommand<>();
+        jdCommand.setSystemCode(printRequest.getSystemCode());
+        jdCommand.setSecretKey(printRequest.getSecretKey());
+        jdCommand.setProgramType(printRequest.getProgramType());
+        jdCommand.setVersionCode(printRequest.getVersionCode());
+        jdCommand.setBusinessType(printRequest.getBusinessType());
+        jdCommand.setOperateType(printRequest.getOperateType());
+
+        PrintCompleteRequest request = new PrintCompleteRequest();
+        jdCommand.setData(request);
+
+        // 非分拣中心首次打印
+        request.setSortingFirstPrint(0);
+
+        SiteTerminalPrintCompleteRequest printData = printRequest.getData();
+
+        request.setWaybillCode(WaybillUtil.getWaybillCode(printData.getBarCode()));
+        request.setPackageBarcode(printData.getBarCode());
+
+        if (StringUtils.isBlank(printData.getWaybillSign())) {
+            request.setWaybillSign(waybill.getWaybillSign());
+        }
+        else {
+            request.setWaybillSign(printData.getWaybillSign());
+        }
+
+        BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(printData.getOperatorErp());
+        if (baseStaff != null) {
+            request.setOperatorCode(baseStaff.getStaffNo());
+        }
+
+        request.setOperatorErp(printData.getOperatorErp());
+        request.setOperatorName(printData.getOperatorName());
+        request.setOperateSiteCode(printData.getSiteCode());
+
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(printData.getSiteCode());
+        if (baseSite != null) {
+            request.setOperateSiteName(baseSite.getSiteName());
+        }
+
+        request.setOperateType(PopPrintRequest.PRINT_PACK_TYPE);
+        if (printData.getOpeTime() == null || printData.getOpeTime() <= 0) {
+            request.setOperateTime(DateHelper.formatDate(new Date()));
+        }
+        else {
+            request.setOperateTime(DateHelper.formatDate(new Date(printData.getOpeTime())));
+        }
+
+        request.setQuantity(waybill.getGoodNumber());
+        request.setPopSupId(waybill.getConsignerId());
+        request.setPopSupName(waybill.getConsigner());
+        request.setWaybillType(waybill.getWaybillType());
+        request.setBusiId(waybill.getBusiId());
+        request.setBusiName(waybill.getBusiName());
+
+        request.setInterfaceType(jdCommand.getOperateType());
+
+//        request.setPopReceiveType();
+//        request.setBusinessType();
+//        request.setCrossCode();
+//        request.setThirdWaybillCode();
+//        request.setQueueNo();
+//        request.setBoxCode();
+//        request.setDriverCode();
+//        request.setDriverName();
+//        request.setCategoryName();
+//        request.setTemplateGroupCode();
+//        request.setTemplateName();
+//        request.setTemplateVersion();
+        return jdCommand;
+    }
+
 }

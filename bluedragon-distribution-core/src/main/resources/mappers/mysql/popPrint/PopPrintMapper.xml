@@ -36,6 +36,7 @@
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
         <result column="category_name" property="categoryName" jdbcType="VARCHAR"/>
         <result column="interface_type" property="interfaceType" jdbcType="INTEGER"/>
+        <result column="sorting_first_print" property="sortingFirstPrint" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -46,7 +47,7 @@
 		cross_code, waybill_type, pop_receive_type, print_count,
 		third_waybill_code, queue_no, package_barcode, operate_type,
 		create_user_code, create_user, box_code, DRIVER_CODE, DRIVER_NAME, 
-		busi_id, busi_name,category_name,interface_type
+		busi_id, busi_name,category_name,interface_type,sorting_first_print
 	</sql>
 
     <sql id="Base_Where_List">
@@ -87,6 +88,17 @@
         FROM pop_print
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
          LIMIT 1
+    </select>
+
+    <select id="findByPackage" resultMap="popPrint" parameterType="PopPrint">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM pop_print
+        WHERE
+            waybill_code = #{waybillCode, jdbcType=VARCHAR}
+        and PACKAGE_BARCODE = #{packageBarcode, jdbcType=VARCHAR}
+        and yn = 1
+        LIMIT 1
     </select>
 
     <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
@@ -132,6 +144,16 @@
         <include refid="Base_Column_List"/>
         FROM pop_print
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
+    </select>
+
+    <select id="findAllByWaybillCodeAndSortingFirstPrint" resultMap="popPrint" parameterType="String">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM pop_print
+        WHERE
+            waybill_code = #{waybillCode, jdbcType=VARCHAR}
+        AND yn = 1
+        AND (sorting_first_print = 1 OR sorting_first_print IS NULL)
     </select>
 
   <select id="findTotalCount" resultType="java.lang.Integer" parameterType="java.util.Map">
@@ -182,7 +204,17 @@
 
     <insert id="add" parameterType="PopPrint">
         insert into pop_print (
-        <include refid="Base_Column_List"/>
+        id, waybill_code, create_site_code, print_pack_code,
+		print_pack_time,print_invoice_code, print_invoice_time,
+		create_time, update_time, yn, print_pack_user,
+		print_invoice_user, pop_sup_id, pop_sup_name, quantity,
+		cross_code, waybill_type, pop_receive_type, print_count,
+		third_waybill_code, queue_no, package_barcode, operate_type,
+		create_user_code, create_user, box_code, DRIVER_CODE, DRIVER_NAME,
+		busi_id, busi_name,category_name,interface_type
+		<if test="sortingFirstPrint != null">
+            , sorting_first_print
+        </if>
         )
         values (
 	#{popPrintId, jdbcType=BIGINT},
@@ -198,6 +230,9 @@
         #{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
         #{driverCode,jdbcType=VARCHAR}, #{driverName,jdbcType=VARCHAR}, #{busiId,jdbcType=INTEGER},
         #{busiName,jdbcType=VARCHAR}, #{categoryName, jdbcType=VARCHAR},#{interfaceType,jdbcType=INTEGER}
+        <if test="sortingFirstPrint != null">
+            , #{sortingFirstPrint,jdbcType=INTEGER}
+        </if>
         )
     </insert>
 
