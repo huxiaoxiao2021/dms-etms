@@ -106,11 +106,11 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("未选择有效的可操作车型");
             return response;
         }
-        if (Objects.isNull(dockInfoEntity.getHasDockLeveller())) {
+        if (Objects.isNull(dockInfoEntity.getIsHasDockLeveller())) {
             response.toError("未选择是否包含升降平台");
             return response;
         }
-        if (Objects.isNull(dockInfoEntity.getImmediately())) {
+        if (Objects.isNull(dockInfoEntity.getIsImmediately())) {
             response.toError("未选择是否即装即卸");
             return response;
         }
@@ -118,7 +118,7 @@ public class DockInfoJsfServiceImpl implements DockService{
             response.toError("未输入有效的月台高度");
             return response;
         }
-        if (Objects.isNull(dockInfoEntity.getHasScales())) {
+        if (Objects.isNull(dockInfoEntity.getIsHasScales())) {
             response.toError("未选择是否带秤");
             return response;
         }

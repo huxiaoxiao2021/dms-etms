@@ -60,9 +60,9 @@ public class DockInfoJsfServiceImplTest {
         entity.setOrgName("上海分公司");
         entity.setDockType(DockTypeEnums.artery);
         entity.setDockAttribute(DockAttributeEnums.load);
-        entity.setHasDockLeveller(Boolean.TRUE);
-        entity.setHasScales(Boolean.FALSE);
-        entity.setImmediately(Boolean.TRUE);
+        entity.setIsHasDockLeveller(1);
+        entity.setIsHasScales(1);
+        entity.setIsImmediately(1);
         entity.setHeight(1.09D);
         AllowedVehicleEntity entity1 = new AllowedVehicleEntity();
         entity1.setCode("CODE-1");
@@ -101,9 +101,9 @@ public class DockInfoJsfServiceImplTest {
         entity.setOrgName("上海分公司");
         entity.setDockType(DockTypeEnums.artery);
         entity.setDockAttribute(DockAttributeEnums.load);
-        entity.setHasDockLeveller(Boolean.TRUE);
-        entity.setHasScales(Boolean.FALSE);
-        entity.setImmediately(Boolean.TRUE);
+        entity.setIsHasDockLeveller(1);
+        entity.setIsHasScales(1);
+        entity.setIsImmediately(1);
         entity.setHeight(2.1D);
         AllowedVehicleEntity entity1 = new AllowedVehicleEntity();
         entity1.setCode("CODE-1");
