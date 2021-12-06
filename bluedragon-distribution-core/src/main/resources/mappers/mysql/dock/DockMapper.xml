@@ -12,9 +12,9 @@
         <result column="dock_type" jdbcType="INTEGER" property="dockType" />
         <result column="dock_attribute" jdbcType="INTEGER" property="dockAttribute" />
         <result column="allowed_vehicle_type" jdbcType="VARCHAR" property="allowedVehicleType" />
-        <result column="is_immediately" jdbcType="VARCHAR" property="isImmediately" />
-        <result column="is_has_dock_leveller" jdbcType="VARCHAR" property="isHasDockLeveller" />
-        <result column="is_has_scales" jdbcType="VARCHAR" property="isHasScales" />
+        <result column="is_immediately" jdbcType="INTEGER" property="isImmediately" />
+        <result column="is_has_dock_leveller" jdbcType="INTEGER" property="isHasDockLeveller" />
+        <result column="is_has_scales" jdbcType="INTEGER" property="isHasScales" />
         <result column="height" jdbcType="DECIMAL" property="height" />
         <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
@@ -61,9 +61,9 @@
             #{dockType,jdbcType=INTEGER},
             #{dockAttribute,jdbcType=INTEGER},
             #{allowedVehicleType,jdbcType=VARCHAR},
-            #{isHasDockLeveller,jdbcType=VARCHAR},
-            #{isHasScales,jdbcType=VARCHAR},
-            #{isImmediately,jdbcType=VARCHAR},
+            #{isHasDockLeveller,jdbcType=INTEGER},
+            #{isHasScales,jdbcType=INTEGER},
+            #{isImmediately,jdbcType=INTEGER},
             #{height,jdbcType=DECIMAL},
             #{createUserName,jdbcType=VARCHAR},
             NOW(),
@@ -86,13 +86,13 @@
                 allowed_vehicle_type = #{allowedVehicleType,jdbcType=VARCHAR},
             </if>
             <if test="isHasDockLeveller != null">
-                is_has_dock_leveller = #{isHasDockLeveller,jdbcType=VARCHAR},
+                is_has_dock_leveller = #{isHasDockLeveller,jdbcType=INTEGER},
             </if>
             <if test="isHasScales != null">
-                is_has_scales = #{isHasScales,jdbcType=VARCHAR},
+                is_has_scales = #{isHasScales,jdbcType=INTEGER},
             </if>
             <if test="isImmediately != null">
-                is_immediately = #{isImmediately, jdbcType=VARCHAR},
+                is_immediately = #{isImmediately, jdbcType=INTEGER},
             </if>
             <if test="height != null">
                 height = #{height, jdbcType=DECIMAL},

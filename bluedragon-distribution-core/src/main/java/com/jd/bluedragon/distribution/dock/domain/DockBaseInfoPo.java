@@ -70,17 +70,17 @@ public class DockBaseInfoPo implements Entity {
     /**
      * 是否即装即卸
      */
-    private Boolean isImmediately;
+    private Integer isImmediately;
 
     /**
      * 是否包含升降平台
      */
-    private Boolean isHasDockLeveller;
+    private Integer isHasDockLeveller;
 
     /**
      * 是否带秤
      */
-    private Boolean isHasScales;
+    private Integer isHasScales;
 
     /**
      * 高度 单位：M
@@ -191,28 +191,28 @@ public class DockBaseInfoPo implements Entity {
         this.allowedVehicleType = allowedVehicleType;
     }
 
-    public Boolean getImmediately() {
+    public Integer getIsImmediately() {
         return isImmediately;
     }
 
-    public void setImmediately(Boolean immediately) {
-        isImmediately = immediately;
+    public void setIsImmediately(Integer isImmediately) {
+        this.isImmediately = isImmediately;
     }
 
-    public Boolean getHasDockLeveller() {
+    public Integer getIsHasDockLeveller() {
         return isHasDockLeveller;
     }
 
-    public void setHasDockLeveller(Boolean hasDockLeveller) {
-        isHasDockLeveller = hasDockLeveller;
+    public void setIsHasDockLeveller(Integer isHasDockLeveller) {
+        this.isHasDockLeveller = isHasDockLeveller;
     }
 
-    public Boolean getHasScales() {
+    public Integer getIsHasScales() {
         return isHasScales;
     }
 
-    public void setHasScales(Boolean hasScales) {
-        isHasScales = hasScales;
+    public void setIsHasScales(Integer isHasScales) {
+        this.isHasScales = isHasScales;
     }
 
     public Double getHeight() {

@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.dock.enums.DockAttributeEnums;
 import com.jd.bluedragon.distribution.dock.enums.DockTypeEnums;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -44,9 +43,9 @@ public class DockInfoConverter {
         entity.setDockType(DockTypeEnums.getEnumsByType(dockBaseInfoPo.getDockType()));
         entity.setDockAttribute(DockAttributeEnums.getEnumsByType(dockBaseInfoPo.getDockAttribute()));
         entity.setAllowedVehicleTypes(getListEntity(dockBaseInfoPo.getAllowedVehicleType()));
-        entity.setImmediately(dockBaseInfoPo.getImmediately());
-        entity.setHasDockLeveller(dockBaseInfoPo.getHasDockLeveller());
-        entity.setHasScales(dockBaseInfoPo.getHasScales());
+        entity.setIsImmediately(dockBaseInfoPo.getIsImmediately());
+        entity.setIsHasDockLeveller(dockBaseInfoPo.getIsHasDockLeveller());
+        entity.setIsHasScales(dockBaseInfoPo.getIsHasScales());
         entity.setHeight(dockBaseInfoPo.getHeight());
         entity.setCreateUserName(dockBaseInfoPo.getCreateUserName());
         entity.setCreateTime(dockBaseInfoPo.getCreateTime());
@@ -78,9 +77,9 @@ public class DockInfoConverter {
             po.setDockAttribute(dockInfoEntity.getDockAttribute().getAttr());
         }
         po.setAllowedVehicleType(getListCodeString(dockInfoEntity.getAllowedVehicleTypes()));
-        po.setImmediately(dockInfoEntity.getImmediately());
-        po.setHasDockLeveller(dockInfoEntity.getHasDockLeveller());
-        po.setHasScales(dockInfoEntity.getHasScales());
+        po.setIsImmediately(dockInfoEntity.getIsImmediately());
+        po.setIsHasDockLeveller(dockInfoEntity.getIsHasDockLeveller());
+        po.setIsHasScales(dockInfoEntity.getIsHasScales());
         po.setHeight(dockInfoEntity.getHeight());
         po.setCreateUserName(dockInfoEntity.getCreateUserName());
         po.setCreateTime(dockInfoEntity.getCreateTime());
