@@ -517,4 +517,9 @@
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
     </bean>
+
+    <!-- 全量包裹打印数据MQ -->
+    <bean id="packagePrintRecordProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.packagePrintRecord}"/>
+    </bean>
 </beans>

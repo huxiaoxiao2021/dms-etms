@@ -12,14 +12,16 @@ import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterce
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.waybill.handler.complete.PrintCompleteHandlerMapping;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
-import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -29,8 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -78,6 +80,10 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	@Autowired
 	@Qualifier("jsonCommandHandlerMapping")
 	private JsonCommandHandlerMapping<JdCommand<String>,JdResult<String>> JsonCommandHandlerMapping;
+
+	@Autowired
+    @Qualifier("printCompleteHandlerMapping")
+	private PrintCompleteHandlerMapping<JdCommand<PrintCompleteRequest>, JdResult<Boolean>> printCompleteHandlerMapping;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -262,4 +268,35 @@ public class JsonCommandServiceImpl implements JdCommandService{
 			Profiler.registerInfoEnd(info);
 		}
 	}
+
+    /**
+     * 包裹打印完成回调
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.WEB.JsonCommandServiceImpl.printComplete",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public JdResult<Boolean> printComplete(JdCommand<PrintCompleteRequest> request) {
+        JdResult<Boolean> jdResult = new JdResult<>();
+        jdResult.toSuccess();
+
+        Handler<JdCommand<PrintCompleteRequest>, JdResult<Boolean>> handler = printCompleteHandlerMapping.getHandler(request);
+        if (handler == null) {
+            //返回无服务信息
+            jdResult = JdResults.REST_FAIL_SERVER_NOT_FIND;
+            return jdResult;
+        }
+        try {
+            jdResult = handler.handle(request);
+        }
+        catch (Exception e) {
+            log.error("JsonCommandServiceImpl.printComplete-error! request:{}", JsonHelper.toJson(request), e);
+            jdResult = JdResults.REST_ERROR_SERVER_EXCEPTION;
+        }
+
+        return jdResult;
+    }
+
 }

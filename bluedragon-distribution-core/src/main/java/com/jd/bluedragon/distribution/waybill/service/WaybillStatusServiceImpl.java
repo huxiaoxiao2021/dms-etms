@@ -843,6 +843,19 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 task.setYn(0);
             }
 
+            // 首次打印包裹全程跟踪
+            if (StringUtils.isNotBlank(task.getKeyword2())
+                    && task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_PACKAGE_PRINT))) {
+
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+
+                if (log.isInfoEnabled()) {
+                    log.info("向运单系统回传打印全程跟踪. {}", tWaybillStatus.getPackageCode());
+                }
+
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
 		}
 
 

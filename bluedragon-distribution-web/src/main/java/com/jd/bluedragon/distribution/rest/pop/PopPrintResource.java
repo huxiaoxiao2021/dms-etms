@@ -129,6 +129,7 @@ public class PopPrintResource {
 	 * @param popPrintRequest
 	 * @return
 	 */
+	@Deprecated
 	@POST
 	@Path("/popPrint/savePopPrintNew")
     @JProfiler(jKey = "DMSWEB.PopPrintResource.savePopPrintNew",jAppName = Constants.UMP_APP_NAME_DMSWEB,

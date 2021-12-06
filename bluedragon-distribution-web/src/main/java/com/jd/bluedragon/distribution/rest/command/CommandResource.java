@@ -6,6 +6,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
+import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
+import com.jd.bluedragon.distribution.command.JdCommand;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -26,7 +37,7 @@ import com.jd.bluedragon.distribution.command.JdCommandService;
 @Produces({MediaType.APPLICATION_JSON})
 public class CommandResource {
 
-    private static final Log logger= LogFactory.getLog(CommandResource.class);
+    private static final Log logger = LogFactory.getLog(CommandResource.class);
 
     @Autowired
     @Qualifier("jsonCommandService")
@@ -41,5 +52,30 @@ public class CommandResource {
     @Path("/command/execute")
     public String execute(String jsonCommand){
        return jdCommandService.execute(jsonCommand);
+    }
+
+    @POST
+    @Path("/command/printComplete")
+    @JProfiler(jKey = "DMS.WEB.CommandResource.printComplete", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResult<Boolean> printComplete(JdCommand<PrintCompleteRequest> request) {
+
+        if (request == null
+                || request.getData() == null
+                || !WaybillUtil.isWaybillCode(request.getData().getWaybillCode())
+                || StringUtils.isBlank(request.getData().getPackageBarcode())
+                || request.getData().getOperateSiteCode() == null || request.getData().getOperateSiteCode() == 0
+                || request.getData().getOperatorCode() == null
+                || request.getData().getOperateType() == null || request.getData().getOperateType() == 0) {
+
+            JdResult<Boolean> jdResult = new JdResult<>();
+            jdResult.setCode(JdResponse.CODE_PARAM_ERROR);
+            jdResult.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return jdResult;
+        }
+
+        // 分拣中心首次打印
+        request.getData().setSortingFirstPrint(1);
+
+        return jdCommandService.printComplete(request);
     }
 }

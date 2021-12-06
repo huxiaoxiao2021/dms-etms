@@ -245,6 +245,12 @@ public class WaybillStatus {
     public static final String WAYBILL_TRACK_WASTE_WAYBILL_MSG = "已操作弃件暂存";
 
 
+    /**
+     * 包裹打印全程跟踪操作码
+     */
+    public static final Integer WAYBILL_TRACK_PACKAGE_PRINT = 5000;
+
+
     private Long id;
 
     private String sendCode;
