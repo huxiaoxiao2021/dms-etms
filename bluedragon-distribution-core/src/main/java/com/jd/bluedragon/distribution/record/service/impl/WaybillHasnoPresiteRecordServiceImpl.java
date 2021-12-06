@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -27,6 +28,7 @@ import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordSe
 import com.jd.bluedragon.distribution.record.vo.WaybillHasnoPresiteRecordVo;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.print.utils.StringHelper;
@@ -51,6 +53,10 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
     @Autowired
     @Qualifier("dmsHasnoPresiteWaybillMqProducer")
     private DefaultJMQProducer dmsHasnoPresiteWaybillMqProducer;
+    
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+    
     /**
      * 数据缓存天数，默认7（单位：天）
      */
@@ -234,6 +240,9 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		Integer operateCode = mqObj.getOperateCode();
 		WaybillHasnoPresiteRecord waybillHasnoPresiteRecord = new WaybillHasnoPresiteRecord();
 		waybillHasnoPresiteRecord.setWaybillCode(mqObj.getWaybillCode());
+		/**
+		 * 数据初始化处理
+		 */
 		if(DmsHasnoPresiteWaybillMqOperateEnum.INIT.getCode().equals(operateCode)) {
 			waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.INIT.getCode());
 	    	waybillHasnoPresiteRecord.setEndDmsId(mqObj.getEndDmsId());
@@ -244,6 +253,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		if(DmsHasnoPresiteWaybillMqOperateEnum.CHECK.getCode().equals(operateCode)) {
 			waybillHasnoPresiteRecord.setSiteCode(mqObj.getOperateSiteCode());
 			waybillHasnoPresiteRecord.setCheckTime(mqObj.getOperateTime());
+			fillOtherInfo(waybillHasnoPresiteRecord);
 			return doCheck(waybillHasnoPresiteRecord);
 		}
 		//外呼成功处理
@@ -265,6 +275,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 			waybillHasnoPresiteRecord.setSiteCode(mqObj.getOperateSiteCode());
 			waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.REPRINT_FINISH.getCode());
 			waybillHasnoPresiteRecord.setFinishTime(mqObj.getOperateTime());
+			fillOtherInfo(waybillHasnoPresiteRecord);
 			return doSucFinish(waybillHasnoPresiteRecord);
 		}
 		//弃件/换单操作
@@ -277,6 +288,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 				waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.WASTE_FINISH.getCode());
 			}
 			waybillHasnoPresiteRecord.setFinishTime(mqObj.getOperateTime());
+			fillOtherInfo(waybillHasnoPresiteRecord);
 			return doFailFinish(waybillHasnoPresiteRecord);
 		}
 		return false;
@@ -403,6 +415,12 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		endScan();
 		return true;
 	}
+	private void fillOtherInfo(WaybillHasnoPresiteRecord record) {
+	    BaseStaffSiteOrgDto siteData =baseMajorManager.getBaseSiteBySiteId(record.getSiteCode());
+		if(siteData != null) {
+	        record.setSiteName(siteData.getSiteName());
+		}
+	}
 	private synchronized boolean startScan() {
 		if(scanStatus == SCAN_STATUS_WATING_SCANING) {
 			scanStatus = SCAN_STATUS_SCANING;
@@ -415,6 +433,6 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 			scanStatus = SCAN_STATUS_WATING_SCANING;
 			return true;
 		}
-		return true;
+		return false;
 	}
 }
