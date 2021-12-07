@@ -247,6 +247,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 			waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.INIT.getCode());
 	    	waybillHasnoPresiteRecord.setEndDmsId(mqObj.getEndDmsId());
 	    	waybillHasnoPresiteRecord.setPresiteCode(mqObj.getPresiteCode());
+	    	waybillHasnoPresiteRecord.setCreateTime(new Date());
 			return doInit(waybillHasnoPresiteRecord);
 		}
 		//验货处理
