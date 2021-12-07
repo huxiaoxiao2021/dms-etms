@@ -341,7 +341,7 @@
         where is_delete = 0 
         	and status = 0
         	and check_time &lt; #{endCheckTime,jdbcType=TIMESTAMP}
-        	and createTime >= #{startCreateTime,jdbcType=TIMESTAMP}
+        	and create_time >= #{startCreateTime,jdbcType=TIMESTAMP}
         	and id > #{startId}
           order by id limit #{pageSize}
     </select>
