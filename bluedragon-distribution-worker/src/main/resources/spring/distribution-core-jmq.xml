@@ -531,4 +531,8 @@
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
     </bean>
+    <!--  无预分拣站点消息-生产者 -->
+    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
+    </bean>    
 </beans>
