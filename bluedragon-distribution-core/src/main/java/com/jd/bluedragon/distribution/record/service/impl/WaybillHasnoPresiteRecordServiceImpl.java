@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -14,11 +15,14 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao;
 import com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo;
+import com.jd.bluedragon.distribution.record.entity.BdBlockerInitMq;
 import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
 import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
 import com.jd.bluedragon.distribution.record.enums.WaybillHasnoPresiteRecordCallStatusEnum;
@@ -26,8 +30,13 @@ import com.jd.bluedragon.distribution.record.enums.WaybillHasnoPresiteRecordStat
 import com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord;
 import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.record.vo.WaybillHasnoPresiteRecordVo;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -53,10 +62,19 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
     @Autowired
     @Qualifier("dmsHasnoPresiteWaybillMqProducer")
     private DefaultJMQProducer dmsHasnoPresiteWaybillMqProducer;
+    @Autowired
+    @Qualifier("bdBlockerInitMqProducer")
+    private DefaultJMQProducer bdBlockerInitMqProducer;
     
     @Autowired
     private BaseMajorManager baseMajorManager;
     
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
     /**
      * 数据缓存天数，默认7（单位：天）
      */
@@ -67,6 +85,11 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
      */
     @Value("${beans.WaybillHasnoPresiteRecordServiceImpl.defaultFailDays:2}")
 	private int defaultFailDays;
+    /**
+     * 扫描最近7天的数据，默认7（单位：天）
+     */
+    @Value("${beans.WaybillHasnoPresiteRecordServiceImpl.scanLastDays:7}")
+	private int scanLastDays;
     /**
      * 每次扫描最大次数，默认1000
      */
@@ -201,7 +224,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
     	WaybillHasnoPresiteRecordVo vo = new WaybillHasnoPresiteRecordVo();
         BeanUtils.copyProperties(dbData, vo);
         vo.setStatusDesc(WaybillHasnoPresiteRecordStatusEnum.getNameByCode(vo.getStatus()));
-        vo.setCallStatusDesc(WaybillHasnoPresiteRecordCallStatusEnum.getNameByCode(vo.getStatus()));
+        vo.setCallStatusDesc(WaybillHasnoPresiteRecordCallStatusEnum.getNameByCode(vo.getCallStatus()));
         return vo;
     }
     private Response<Void> checkPram4SelectPageList(WaybillHasnoPresiteRecordQo query){
@@ -295,10 +318,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		return false;
 	}
 	private boolean doSucFinish(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		String cachedId = cacheService.get(getCacheKey(waybillHasnoPresiteRecord));
-		if(cachedId != null) {
-			waybillHasnoPresiteRecord.setId(NumberHelper.getLongValue(cachedId));
-			waybillHasnoPresiteRecordDao.updateSucFinishInfo(waybillHasnoPresiteRecord);
+		if(waybillHasnoPresiteRecordDao.updateSucFinishInfo(waybillHasnoPresiteRecord)>0) {
 			cacheService.del(getCacheKey(waybillHasnoPresiteRecord));
 		}
 		return true;
@@ -309,20 +329,13 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 	 * @return
 	 */
 	private boolean doFailFinish(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		String cachedId = cacheService.get(getCacheKey(waybillHasnoPresiteRecord));
-		if(cachedId != null) {
-			waybillHasnoPresiteRecord.setId(NumberHelper.getLongValue(cachedId));
-			waybillHasnoPresiteRecordDao.updateFailFinishInfo(waybillHasnoPresiteRecord);
+		if(waybillHasnoPresiteRecordDao.updateFailFinishInfo(waybillHasnoPresiteRecord)>0) {
 			cacheService.del(getCacheKey(waybillHasnoPresiteRecord));
 		}
 		return true;
 	}
 	private boolean doCallFail(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		String cachedId = cacheService.get(getCacheKey(waybillHasnoPresiteRecord));
-		if(cachedId != null) {
-			waybillHasnoPresiteRecord.setId(NumberHelper.getLongValue(cachedId));
-			waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord);
-		}
+		waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord);
 		return true;
 	}
 	/**
@@ -331,16 +344,47 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 	 * @return
 	 */
 	private boolean doSystemAutoCallFail(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord);
+		String waybillCode = waybillHasnoPresiteRecord.getWaybillCode();
+		Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+		if(waybill != null
+				&& waybill.getOldSiteId()!= null
+				&& waybill.getOldSiteId() > 0) {
+			log.warn("系统自动外呼扫描-不处理，{}已存在预分拣站点",waybillCode);
+			return false;
+		}
+		//不存在拦截
+		List<CancelWaybill> waybillCancelList = waybillCancelService.getByWaybillCode(waybillCode);
+		if(CollectionUtils.isNotEmpty(waybillCancelList)) {
+			log.warn("系统自动外呼扫描-未处理，{}存在拦截",waybillCode);
+			return false;
+		}
+		//全程跟踪不存在站点特殊节点
+		List<PackageState> siteOperations= waybillTraceManager.getAllOperationsByOpeCodeAndState(waybillCode, DmsConstants.SITE_OPERAT_STATES);
+		if(CollectionUtils.isNotEmpty(siteOperations)) {
+			log.warn("系统自动外呼扫描-未处理，{}已到达站点",waybillCode);
+			return false;
+		}
+		Date callTime = new Date();
+		waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.FOR_REVERSE.getCode());
+		waybillHasnoPresiteRecord.setCallStatus(WaybillHasnoPresiteRecordCallStatusEnum.FAIL.getCode());
+		waybillHasnoPresiteRecord.setCallTime(callTime);
+		boolean updateCallInfo = waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord) > 0;
+		//更新数据状态成功
+		if(updateCallInfo) {
+			BdBlockerInitMq bdBlockerInitMq = new BdBlockerInitMq();
+			bdBlockerInitMq.setWaybillCode(waybillCode);
+			bdBlockerInitMq.setCreateTime(DateHelper.formatDateTime(callTime));
+			bdBlockerInitMq.setUpdateTime(bdBlockerInitMq.getCreateTime());
+			bdBlockerInitMq.setInterceptType(WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode());
+			bdBlockerInitMq.setRemark("验货无下文，分拣自动发起全量接单拦截");
+			log.info("系统自动外呼扫描-发起拦截，{}",waybillCode);
+			bdBlockerInitMqProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(bdBlockerInitMq));
+		}
 		//发送外呼失败消息
 		return true;
 	}
 	private boolean doCallSuc(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		String cachedId = cacheService.get(getCacheKey(waybillHasnoPresiteRecord));
-		if(cachedId != null) {
-			waybillHasnoPresiteRecord.setId(NumberHelper.getLongValue(cachedId));
-			waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord);
-		}
+		waybillHasnoPresiteRecordDao.updateCallInfo(waybillHasnoPresiteRecord);
 		return true;
 	}
 
@@ -350,11 +394,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 	 * @return
 	 */
 	private boolean doCheck(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
-		String cachedId = cacheService.get(getCacheKey(waybillHasnoPresiteRecord));
-		if(cachedId != null) {
-			waybillHasnoPresiteRecord.setId(NumberHelper.getLongValue(cachedId));
-			waybillHasnoPresiteRecordDao.updateCheckInfo(waybillHasnoPresiteRecord);
-		}
+		waybillHasnoPresiteRecordDao.updateCheckInfo(waybillHasnoPresiteRecord);
 		return true;
 	}
 	public boolean doInit(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
@@ -383,7 +423,7 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		}
 		return true;
 	}
-
+	//分页扫描-验货超过指定天数的数据
 	@Override
 	public boolean doScan() {
 		if(!startScan()) {
@@ -392,9 +432,11 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		scanStatus = SCAN_STATUS_SCANING;
 		WaybillHasnoPresiteRecordQo query = new WaybillHasnoPresiteRecordQo();
 		Long scanStartId = 0L;
-		Date scanTime = DateHelper.addDate(new Date(), -defaultFailDays);
+		Date endCheckTime = DateHelper.addDate(new Date(), -defaultFailDays);
+		Date startCreateTime = DateHelper.addDate(new Date(), -scanLastDays);
 		query.setStartId(scanStartId);
-		query.setEndCreateTime(scanTime);
+		query.setEndCheckTime(endCheckTime);
+		query.setStartCreateTime(startCreateTime);
 		query.setPageSize(perScanNum);
 		int scanTimes = 1;
 		List<WaybillHasnoPresiteRecord> scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
@@ -403,12 +445,9 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 				&& scanList.size() > 0) {
 			scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
 			for(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord : scanList) {
-				waybillHasnoPresiteRecord.setStatus(WaybillHasnoPresiteRecordStatusEnum.FOR_REVERSE.getCode());
-				waybillHasnoPresiteRecord.setCallStatus(WaybillHasnoPresiteRecordCallStatusEnum.FAIL.getCode());
-				waybillHasnoPresiteRecord.setCallTime(new Date());
 				doSystemAutoCallFail(waybillHasnoPresiteRecord);
-				scanStartId = waybillHasnoPresiteRecord.getId();
 			}
+			scanStartId = scanList.get(scanList.size()-1).getId();
 			query.setStartId(scanStartId);
 			scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
 			scanTimes++;

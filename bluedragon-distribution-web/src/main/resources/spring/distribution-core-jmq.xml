@@ -516,6 +516,10 @@
     <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
     </bean>
+    <!--  拦截消息-生产者 -->
+    <bean id="bdBlockerInitMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bdBlockerInitMq}"/>
+    </bean>    
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>

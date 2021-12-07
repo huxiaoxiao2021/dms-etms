@@ -270,7 +270,7 @@
 					check_time = #{checkTime,jdbcType=TIMESTAMP},
 				</if>
 			</set>
-		where id = #{id,jdbcType=BIGINT} 
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			and status in (0,1,2,3)
 			and (check_time is null or check_time &lt; #{checkTime,jdbcType=TIMESTAMP})
 	</update>
@@ -287,7 +287,7 @@
 					call_time = #{callTime,jdbcType=TIMESTAMP},
 				</if>
 			</set>
-		where id = #{id,jdbcType=BIGINT} 
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			and status = 0
 			and (call_time is null or  call_time &lt; #{callTime,jdbcType=TIMESTAMP})
 	</update>
@@ -307,7 +307,7 @@
 					finish_time = #{finishTime,jdbcType=TIMESTAMP},
 				</if>				
 			</set>
-		where id = #{id,jdbcType=BIGINT} 
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR} 
 			and status in(2,3)
 			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
 	</update>
@@ -327,7 +327,7 @@
 					finish_time = #{finishTime,jdbcType=TIMESTAMP},
 				</if>				
 			</set>
-		where id = #{id,jdbcType=BIGINT} 
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			and status in(1)
 			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
 	</update>
@@ -340,9 +340,10 @@
 			waybill_hasno_presite_record t
         where is_delete = 0 
         	and status = 0
-        	and create_time &lt; #{endCreateTime,jdbcType=TIMESTAMP}
+        	and check_time &lt; #{endCheckTime,jdbcType=TIMESTAMP}
+        	and createTime >= #{startCreateTime,jdbcType=TIMESTAMP}
         	and id > #{startId}
-          limit #{pageSize} order by id
+          order by id limit #{pageSize}
     </select>
 </mapper>
 

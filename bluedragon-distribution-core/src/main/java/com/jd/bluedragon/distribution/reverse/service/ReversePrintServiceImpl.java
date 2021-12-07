@@ -118,13 +118,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     //退货站内通知间隔天数
     private static final int NOTIC_DIFFER_DAYS = 1;
     
-    private static final Set<Integer> SITE_OPERAT_STATES = new HashSet(){{
-    	add(60);
-    	add(80);
-    	add(110);
-    	add(150);
-    	}};
-
     @Autowired
     private TaskService taskService;
 
@@ -743,7 +736,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if (isSortingSite){
         	boolean isFullOrderFail = waybillCancelService.isFullOrderFail(wayBillCode);
         	if(isFullOrderFail) {
-        		List<PackageState> siteOperations= waybillTraceManager.getAllOperationsByOpeCodeAndState(wayBillCode, SITE_OPERAT_STATES);
+        		List<PackageState> siteOperations= waybillTraceManager.getAllOperationsByOpeCodeAndState(wayBillCode, DmsConstants.SITE_OPERAT_STATES);
         		if(CollectionUtils.isNotEmpty(siteOperations)) {
 	                result.setData(false);
 	                result.setMessage("此运单已到站点，禁止分拣操作逆向换单");

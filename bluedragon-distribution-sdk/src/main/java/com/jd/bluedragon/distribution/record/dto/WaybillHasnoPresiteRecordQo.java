@@ -57,8 +57,10 @@ public class WaybillHasnoPresiteRecordQo extends BasePagerCondition implements S
     private Date endTimeTs;
     
     private Long startId;
-    
+    private Date startCreateTime;
     private Date endCreateTime;
+    
+    private Date endCheckTime;
 
 	public String getWaybillCode() {
 		return waybillCode;
@@ -149,12 +151,28 @@ public class WaybillHasnoPresiteRecordQo extends BasePagerCondition implements S
 		this.startId = startId;
 	}
 
+	public Date getStartCreateTime() {
+		return startCreateTime;
+	}
+
+	public void setStartCreateTime(Date startCreateTime) {
+		this.startCreateTime = startCreateTime;
+	}
+
 	public Date getEndCreateTime() {
 		return endCreateTime;
 	}
 
 	public void setEndCreateTime(Date endCreateTime) {
 		this.endCreateTime = endCreateTime;
+	}
+
+	public Date getEndCheckTime() {
+		return endCheckTime;
+	}
+
+	public void setEndCheckTime(Date endCheckTime) {
+		this.endCheckTime = endCheckTime;
 	}
 
 }
