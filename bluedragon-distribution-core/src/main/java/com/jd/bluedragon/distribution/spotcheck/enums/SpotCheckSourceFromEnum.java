@@ -39,6 +39,15 @@ public enum SpotCheckSourceFromEnum {
     public static final List<String> C_SPOT_CHECK_SOURCE;
     public static final List<String> B_SPOT_CHECK_SOURCE;
 
+    /**
+     * 人工来源
+     */
+    public static final List<String> ARTIFICIAL_SOURCE;
+    /**
+     * 设备来源
+     */
+    public static final List<String> EQUIPMENT_SOURCE;
+
     static{
         C_SPOT_CHECK_SOURCE = new ArrayList<>();
         C_SPOT_CHECK_SOURCE.add(SPOT_CHECK_CLIENT_PLATE.getName());
@@ -47,6 +56,14 @@ public enum SpotCheckSourceFromEnum {
         B_SPOT_CHECK_SOURCE = new ArrayList<>();
         B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_DMS_WEB.getName());
         B_SPOT_CHECK_SOURCE.add(SPOT_CHECK_ANDROID.getName());
+
+        ARTIFICIAL_SOURCE = new ArrayList<>();
+        ARTIFICIAL_SOURCE.add(SPOT_CHECK_ARTIFICIAL.getName());
+        ARTIFICIAL_SOURCE.add(SPOT_CHECK_ANDROID.getName());
+        ARTIFICIAL_SOURCE.add(SPOT_CHECK_DMS_WEB.getName());
+        EQUIPMENT_SOURCE = new ArrayList<>();
+        EQUIPMENT_SOURCE.add(SPOT_CHECK_CLIENT_PLATE.getName());
+        EQUIPMENT_SOURCE.add(SPOT_CHECK_DWS.getName());
     }
 
     SpotCheckSourceFromEnum(int code, String name){
