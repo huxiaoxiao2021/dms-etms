@@ -438,19 +438,27 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		query.setEndCheckTime(endCheckTime);
 		query.setStartCreateTime(startCreateTime);
 		query.setPageSize(perScanNum);
-		int scanTimes = 1;
-		List<WaybillHasnoPresiteRecord> scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
-		while(scanTimes < this.maxScanTimes 
-				&& scanList != null 
-				&& scanList.size() > 0) {
+		int scanTimes = 0;
+		List<WaybillHasnoPresiteRecord> scanList = null;
+		while(scanTimes < this.maxScanTimes){
+			scanTimes++;
 			scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
+			if(scanList == null
+					|| scanList.size()==0) {
+				log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据为0，结束扫描！",scanTimes);
+				break;
+			}
+			if(log.isInfoEnabled()) {
+				log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描{}条数据",scanTimes,scanList.size());
+			}
+			if(log.isDebugEnabled()) {
+				log.debug("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据:{}",scanTimes,JsonHelper.toJson(scanList));
+			}
 			for(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord : scanList) {
 				doSystemAutoCallFail(waybillHasnoPresiteRecord);
 			}
 			scanStartId = scanList.get(scanList.size()-1).getId();
 			query.setStartId(scanStartId);
-			scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
-			scanTimes++;
 		}
 		endScan();
 		return true;
