@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.worker.record;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,8 +9,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
+import com.jd.bluedragon.distribution.framework.NoneTaskHanlder;
+import com.jd.bluedragon.distribution.framework.TaskHanlder;
 import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.tbschedule.redis.template.TaskEntry;
 
 /**
  * 无预分拣站点数据扫描任务
@@ -24,7 +27,10 @@ public class WaybillHasnoPresiteRecordScanTask extends DBSingleScheduler {
 
     @Autowired
     private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
-
+    
+    public WaybillHasnoPresiteRecordScanTask(){
+    	super(new NoneTaskHanlder());
+    }
     @Override
     public boolean executeSingleTask(Task task, String ownSign) throws Exception {
         return waybillHasnoPresiteRecordService.doScan();
