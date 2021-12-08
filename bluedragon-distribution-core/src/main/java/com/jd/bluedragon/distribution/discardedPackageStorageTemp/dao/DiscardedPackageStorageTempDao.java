@@ -1,8 +1,13 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnSubmitDiscardedListQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 
 import java.util.List;
 
@@ -47,7 +52,7 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2020-07-02 16:27:55 周四
      */
-    public List<DiscardedPackageStorageTemp> selectList(DiscardedPackageStorageTempQo query) {
+    public List<DiscardedPackageStorageTempVo> selectList(DiscardedPackageStorageTempQo query) {
         return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectList", query);
     }
 
@@ -120,4 +125,38 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
     public int updateById(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
         return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateById", discardedPackageStorageTemp);
     }
+
+    /**
+     * 查询未提交已扫描的弃件扫描数据
+     * @param paramObj 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-12-06 21:57:48 周一
+     */
+    public List<DiscardedWaybillScanResultItemDto> selectUnSubmitDiscardedPackageList(UnSubmitDiscardedListQo paramObj) {
+        return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnSubmitDiscardedPackageList", paramObj);
+    }
+
+    /**
+     * 查询未提交已扫描的弃件扫描总数
+     * @param paramObj 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-12-06 21:57:48 周一
+     */
+    public int selectUnSubmitDiscardedPackageCount(UnSubmitDiscardedListQo paramObj) {
+        return this.getSqlSession().selectOne(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnSubmitDiscardedPackageCount", paramObj);
+    }
+
+    /**
+     * 查询未扫描全部包裹的数据
+     * @param paramObj 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-12-06 21:57:48 周一
+     */
+    public List<DiscardedPackageScanResultItemDto> selectUnFinishScanDiscardedPackageList(UnFinishScanDiscardedPackageQo paramObj){
+        return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnFinishScanDiscardedPackageList", paramObj);
+    }
+
 }

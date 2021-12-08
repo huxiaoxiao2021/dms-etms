@@ -5,14 +5,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * Description: 快递弃件暂存<br>
+ * Description: 快递弃件暂存运单纬度数据<br>
  * Copyright: Copyright (c) 2020<br>
  * Company: jd.com 京东物流JDL<br>
- * 
+ *
  * @author fanggang7
- * @time 2021-03-31 11:32:59 周三
+ * @time 2021-12-02 14:01:38 周四
  */
-public class DiscardedPackageStorageTemp implements Serializable{
+public class DiscardedWaybillStorageTemp implements Serializable {
 
     private static final long serialVersionUID = -3635180133815548634L;
 
@@ -25,10 +25,6 @@ public class DiscardedPackageStorageTemp implements Serializable{
      * 运单号  db_column: waybill_code
      */
     private String waybillCode;
-    /**
-     * 包裹号  db_column: package_code
-     */
-    private String packageCode;
     /**
      * 状态 0 弃件暂存 1 弃件出库 2 已认领  db_column: status
      */
@@ -140,6 +136,21 @@ public class DiscardedPackageStorageTemp implements Serializable{
      */
     private Integer siteDepartType;
 
+    /**
+     * 系统包裹总数
+     */
+    private Integer packageSysTotal;
+
+    /**
+     * 已扫包裹数
+     */
+    private Integer packageScanTotal;
+
+    /**
+     * 提交状态
+     */
+    private Integer submitStatus;
+
     public Long getId() {
         return id;
     }
@@ -154,14 +165,6 @@ public class DiscardedPackageStorageTemp implements Serializable{
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
     }
 
     public Integer getStatus() {
@@ -356,21 +359,63 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.prevProvinceCompanyName = prevProvinceCompanyName;
     }
 
+    public Integer getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(Integer operateType) {
+        this.operateType = operateType;
+    }
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
     public Integer getSiteDepartType() {
         return siteDepartType;
     }
 
-    public DiscardedPackageStorageTemp setSiteDepartType(Integer siteDepartType) {
+    public DiscardedWaybillStorageTemp setSiteDepartType(Integer siteDepartType) {
         this.siteDepartType = siteDepartType;
+        return this;
+    }
+
+    public Integer getPackageSysTotal() {
+        return packageSysTotal;
+    }
+
+    public DiscardedWaybillStorageTemp setPackageSysTotal(Integer packageSysTotal) {
+        this.packageSysTotal = packageSysTotal;
+        return this;
+    }
+
+    public Integer getPackageScanTotal() {
+        return packageScanTotal;
+    }
+
+    public DiscardedWaybillStorageTemp setPackageScanTotal(Integer packageScanTotal) {
+        this.packageScanTotal = packageScanTotal;
+        return this;
+    }
+
+    public Integer getSubmitStatus() {
+        return submitStatus;
+    }
+
+    public DiscardedWaybillStorageTemp setSubmitStatus(Integer submitStatus) {
+        this.submitStatus = submitStatus;
         return this;
     }
 
     @Override
     public String toString() {
-        return "DiscardedPackageStorageTemp{" +
+        return "DiscardedWaybillStorageTemp{" +
                 "id=" + id +
                 ", waybillCode='" + waybillCode + '\'' +
-                ", packageCode='" + packageCode + '\'' +
                 ", status=" + status +
                 ", waybillProduct='" + waybillProduct + '\'' +
                 ", consignmentName='" + consignmentName + '\'' +
@@ -398,22 +443,10 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", operateType=" + operateType +
                 ", waybillType=" + waybillType +
                 ", siteDepartType=" + siteDepartType +
+                ", packageSysTotal=" + packageSysTotal +
+                ", packageScanTotal=" + packageScanTotal +
+                ", submitStatus=" + submitStatus +
                 '}';
     }
 
-    public Integer getOperateType() {
-		return operateType;
-	}
-
-	public void setOperateType(Integer operateType) {
-		this.operateType = operateType;
-	}
-
-	public Integer getWaybillType() {
-		return waybillType;
-	}
-
-	public void setWaybillType(Integer waybillType) {
-		this.waybillType = waybillType;
-	}
 }

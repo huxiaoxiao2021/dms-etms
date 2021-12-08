@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateType;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -86,7 +86,7 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Override
     @JProfiler(jKey = "DMS.WEB.com.WastePackageServiceImpl.wastepackagestorage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> wastepackagestorage(WastePackageRequest request) {
-    	boolean isScrap = WasteOperateType.SCRAP.getCode().equals(request.getOperateType());
+    	boolean isScrap = WasteOperateTypeEnum.SCRAP.getCode().equals(request.getOperateType());
     	if(isScrap) {
     		return wasteWithScrap(request);
     	}else {

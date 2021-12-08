@@ -82,6 +82,11 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
      */
     private Integer waybillType;
 
+    /**
+     * 场地部门类型
+     */
+    private Integer siteDepartType;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -210,4 +215,12 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 		this.waybillType = waybillType;
 	}
 
+    public Integer getSiteDepartType() {
+        return siteDepartType;
+    }
+
+    public DiscardedPackageStorageTempQo setSiteDepartType(Integer siteDepartType) {
+        this.siteDepartType = siteDepartType;
+        return this;
+    }
 }
