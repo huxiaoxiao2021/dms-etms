@@ -94,13 +94,13 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 
     /**
      * 校验反调度是否同城
-     *
      * @param waybillForPreSortOnSiteRequest
      * @param waybill
+     * @param userInfo
      * @return
      */
     @Override
-    public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill) {
+    public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill, BaseStaffSiteOrgDto userInfo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
         if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
@@ -109,8 +109,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
         }
 
         try {
-            if (waybill.getOldSiteId() != null && waybill.getOldSiteId() > 0) {
-                BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+            if (userInfo.getSiteCode() != null && userInfo.getSiteCode() > 0) {
+                BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(userInfo.getSiteCode());
                 // 操作人场地类型是分拣中心
                 if (SiteHelper.siteIsSortingCenter(curSite)) {
 
@@ -120,6 +120,10 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
                         // 返调度站点类型是营业部或自提点
                         BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
                         if (null == destSite) {
+                            return result;
+                        }
+
+                        if (waybill.getOldSiteId() == null || waybill.getOldSiteId() < 0) {
                             return result;
                         }
 
