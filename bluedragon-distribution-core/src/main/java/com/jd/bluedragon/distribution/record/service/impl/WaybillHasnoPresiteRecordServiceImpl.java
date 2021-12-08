@@ -440,27 +440,32 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 		query.setPageSize(perScanNum);
 		int scanTimes = 0;
 		List<WaybillHasnoPresiteRecord> scanList = null;
-		while(scanTimes < this.maxScanTimes){
-			scanTimes++;
-			scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
-			if(scanList == null
-					|| scanList.size()==0) {
-				log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据为0，结束扫描！",scanTimes);
-				break;
+		try {
+			while(scanTimes < this.maxScanTimes){
+				scanTimes++;
+				scanList = waybillHasnoPresiteRecordDao.selectScanList(query);
+				if(scanList == null
+						|| scanList.size()==0) {
+					log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据为0，结束扫描！",scanTimes);
+					break;
+				}
+				if(log.isInfoEnabled()) {
+					log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描{}条数据",scanTimes,scanList.size());
+				}
+				if(log.isDebugEnabled()) {
+					log.debug("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据:{}",scanTimes,JsonHelper.toJson(scanList));
+				}
+				for(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord : scanList) {
+					doSystemAutoCallFail(waybillHasnoPresiteRecord);
+				}
+				scanStartId = scanList.get(scanList.size()-1).getId();
+				query.setStartId(scanStartId);
 			}
-			if(log.isInfoEnabled()) {
-				log.info("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描{}条数据",scanTimes,scanList.size());
-			}
-			if(log.isDebugEnabled()) {
-				log.debug("WaybillHasnoPresiteRecordServiceImpl.doScan:第{}次扫描数据:{}",scanTimes,JsonHelper.toJson(scanList));
-			}
-			for(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord : scanList) {
-				doSystemAutoCallFail(waybillHasnoPresiteRecord);
-			}
-			scanStartId = scanList.get(scanList.size()-1).getId();
-			query.setStartId(scanStartId);
+		}catch(Exception ex) {
+			log.error("系统自动外呼扫描异常，{}", ex.getMessage(), ex);
+		}finally {
+			endScan();
 		}
-		endScan();
 		return true;
 	}
 	private void fillOtherInfo(WaybillHasnoPresiteRecord record) {
