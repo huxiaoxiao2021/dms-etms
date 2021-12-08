@@ -34,6 +34,9 @@ public enum DockAttributeEnums {
     public static List<Map<String,Object>> getAllAttributesMap() {
         List<Map<String,Object>> results = new ArrayList<Map<String, Object>>();
         for (DockAttributeEnums dockAttributeEnums : DockAttributeEnums.values()) {
+            if (empty.equals(dockAttributeEnums)) {
+                continue;
+            }
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("attr", dockAttributeEnums.getAttr());
             map.put("name", dockAttributeEnums.getName());

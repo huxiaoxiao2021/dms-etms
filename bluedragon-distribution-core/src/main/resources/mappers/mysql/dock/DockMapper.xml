@@ -186,4 +186,13 @@
             #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
     </select>
 
+    <select id="listAllDockInfoBySiteCode" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            dock_base_info
+        where
+            site_code = #{siteCode, jdbcType=INTEGER} and is_delete = 0
+    </select>
+
 </mapper>

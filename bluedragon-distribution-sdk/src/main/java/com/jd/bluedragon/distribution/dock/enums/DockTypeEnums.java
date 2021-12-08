@@ -34,6 +34,9 @@ public enum DockTypeEnums {
     public static List<Map<String,Object>> getAllTypesMap() {
         List<Map<String,Object>> results = new ArrayList<Map<String, Object>>();
         for (DockTypeEnums dockTypeEnums : DockTypeEnums.values()) {
+            if (empty.equals(dockTypeEnums)) {
+                continue;
+            }
             Map<String,Object> map = new HashMap<String, Object>();
             map.put("type", dockTypeEnums.getType());
             map.put("name", dockTypeEnums.getName());

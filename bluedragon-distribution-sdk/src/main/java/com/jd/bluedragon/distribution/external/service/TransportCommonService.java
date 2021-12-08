@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -79,5 +80,12 @@ public interface TransportCommonService {
      * @return
      */
     InvokeResult<Map<String, Integer>> queryPackageAndWaybillNumByBatchCodes(Integer createSiteCode, List<String> batchCodes);
+
+    /**
+     * 根据场地信息查询所有的月台列表
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<List<DockInfoEntity>> listAllDockInfoBySiteCode(Integer siteCode);
 
 }

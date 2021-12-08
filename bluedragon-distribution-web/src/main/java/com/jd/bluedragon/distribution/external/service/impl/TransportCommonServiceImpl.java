@@ -6,6 +6,10 @@ import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetai
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
+import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
+import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
+import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
 import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -14,7 +18,9 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +55,9 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
     @Resource
     private SendDatailDao sendDatailDao;
+
+    @Resource
+    private DockBaseInfoDao dockBaseInfoDao;
 
 
     @Override
@@ -278,4 +288,30 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         }
         return result;
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.listAllDockInfoBySiteCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<DockInfoEntity>> listAllDockInfoBySiteCode(Integer siteCode) {
+        InvokeResult<List<DockInfoEntity>> dockListRes = new InvokeResult<>();
+        dockListRes.success();
+        dockListRes.setData(new ArrayList<DockInfoEntity>());
+        if (Objects.isNull(siteCode) || !NumberHelper.gt0(siteCode)) {
+            dockListRes.parameterError("站点无效，请检查");
+            return dockListRes;
+        }
+
+        List<DockBaseInfoPo> dockBaseInfoPos = dockBaseInfoDao.listAllDockInfoBySiteCode(siteCode);
+        if (org.apache.commons.collections4.CollectionUtils.isEmpty(dockBaseInfoPos)) {
+            if (log.isInfoEnabled()) {
+                log.info("根据站点【{}】未查询到有效的月台信息，返回为空", siteCode);
+            }
+            return dockListRes;
+        }
+        for (DockBaseInfoPo dockBaseInfoPo : dockBaseInfoPos) {
+            dockListRes.getData().add(DockInfoConverter.convertToEntity(dockBaseInfoPo));
+        }
+
+        return dockListRes;
+    }
+
 }

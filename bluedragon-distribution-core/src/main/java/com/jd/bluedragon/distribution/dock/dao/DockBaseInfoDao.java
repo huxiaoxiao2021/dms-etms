@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,6 +32,10 @@ public class DockBaseInfoDao extends BaseDao<DockBaseInfoPo> {
 
     public Boolean LogitechDeleteById(DockBaseInfoPo dockBaseInfoPo) {
         return Objects.equals(sqlSession.update(this.nameSpace.concat(".LogitechDeleteById"), dockBaseInfoPo), 1) ;
+    }
+
+    public List<DockBaseInfoPo> listAllDockInfoBySiteCode(Integer siteCode) {
+        return sqlSession.selectList(this.nameSpace.concat(".listAllDockInfoBySiteCode"), siteCode);
     }
 
 
