@@ -1191,7 +1191,7 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             // 规则6- 同城站点才能返调度
-            InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill);
+            InvokeResult<Boolean> invokeResult = scheduleSiteSupportInterceptService.checkSameCity(waybillForPreSortOnSiteRequest, waybill, userInfo);
             if (!invokeResult.codeSuccess()) {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
                 return result;
