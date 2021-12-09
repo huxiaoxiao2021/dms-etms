@@ -9,9 +9,9 @@ import com.jd.bluedragon.common.dto.wastepackagestorage.request.QueryUnSubmitDis
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.SubmitDiscardedPackagePo;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.response.base.ResultCodeConstant;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -25,7 +25,6 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWay
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageHandlerStrategy;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -43,7 +42,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -77,6 +75,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
     @Autowired
     private DiscardedStorageHandlerStrategy discardedStorageHandlerStrategy;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     /**
      * 获取总数
@@ -465,6 +466,15 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             if(Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType()) && !WaybillUtil.isPackageCode(barCode)){
                 log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，请扫描格式正确的包裹号 param: {}", JsonHelper.toJson(paramObj));
                 return result.toFail("参数错误，请扫描格式正确的包裹号", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            }
+        }
+        // 校验包裹号是否存在
+        if(WaybillUtil.isPackageCode(paramObj.getBarCode())){
+            final DeliveryPackageD packageInfo = waybillPackageManager.getPackageInfoByPackageCode(paramObj.getBarCode());
+            if(packageInfo == null){
+                log.warn("checkBusinessParam4ScanDiscardedPackage，包裹号不存在 param: {}", JsonHelper.toJson(paramObj));
+                result.toFail("包裹号不存在！");
+                return result;
             }
         }
         return result;

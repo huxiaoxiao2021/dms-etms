@@ -30,6 +30,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -292,9 +293,9 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
 
     protected Task genTraceTaskCommon(WaybillStatus waybillStatus) {
         Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_WAYBILL);
+        task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(waybillStatus.getWaybillCode());
+        task.setKeyword1(StringUtils.isNoneBlank(waybillStatus.getPackageCode()) ? waybillStatus.getPackageCode() : waybillStatus.getWaybillCode());
         task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
         task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
