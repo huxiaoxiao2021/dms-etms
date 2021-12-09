@@ -537,7 +537,7 @@
     </bean>
 
     <!-- 弃件暂存 -->
-    <bean id="discardedPackageStorageProducer" parent="dmsWorkerDefaultJMQProducer">
+    <bean id="discardedPackageStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.discardedPackageStorage}"/>
     </bean>
 </beans>
