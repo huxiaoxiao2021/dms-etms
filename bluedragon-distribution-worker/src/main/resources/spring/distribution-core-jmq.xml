@@ -535,4 +535,9 @@
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
     </bean>
+
+    <!-- 弃件暂存 -->
+    <bean id="discardedPackageStorageProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.discardedPackageStorage}"/>
+    </bean>
 </beans>

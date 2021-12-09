@@ -6,9 +6,10 @@ import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPac
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedWaybillStorageTempDao;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageMq;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedStorageContext;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
@@ -26,6 +27,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -67,6 +69,9 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     @Autowired
     protected TaskService taskService;
 
+    @Autowired
+    private DefaultJMQProducer discardedPackageStorageProducer;
+
     /**
      * 暂存弃件处理
      * @param context 上下文
@@ -93,6 +98,10 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
      * @param context 上下文
      */
     protected void handleAfter(DiscardedStorageContext context){
+        if(Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), context.getScanDiscardedPackagePo().getOperateType())){
+            // 暂存动作发送暂存mq
+            this.sendDiscardedPackageStorageMq(context);
+        }
         doHandleAfter(context);
     }
 
@@ -294,5 +303,42 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
                 + waybillStatus.getWaybillCode() + "-" + waybillStatus.getOperateType() + "-" + waybillStatus.getOperateTime().getTime()));
         return task;
+    }
+
+    /**
+     * 弃件暂存动作发出mq
+     * @author fanggang7
+     * @time 2021-12-09 11:15:55 周四
+     */
+    protected boolean sendDiscardedPackageStorageMq(DiscardedStorageContext context){
+        try {
+            final String mqBody = JsonHelper.toJson(this.genDiscardedPackageStorageMq(context));
+            log.info("DiscardedStorageAbstractHandler.sendDiscardedPackageStorageMq {}", mqBody);
+            discardedPackageStorageProducer.send(context.getScanDiscardedPackagePo().getBarCode(), mqBody);
+        } catch (JMQException e) {
+            log.error("DiscardedStorageAbstractHandler.sendTempStorageMq exception ", e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 组装弃件暂存mq报文
+     * @author fanggang7
+     * @time 2021-12-09 11:15:55 周四
+     */
+    protected DiscardedPackageStorageMq genDiscardedPackageStorageMq(DiscardedStorageContext context){
+        final DiscardedPackageStorageMq discardedPackageStorageMq = new DiscardedPackageStorageMq();
+        final ScanDiscardedPackagePo scanDiscardedPackagePo = context.getScanDiscardedPackagePo();
+        discardedPackageStorageMq.setBarCode(scanDiscardedPackagePo.getBarCode());
+        discardedPackageStorageMq.setSiteDepartType(scanDiscardedPackagePo.getSiteDepartType());
+        discardedPackageStorageMq.setWaybillType(scanDiscardedPackagePo.getWaybillType());
+        discardedPackageStorageMq.setStorageStatus(scanDiscardedPackagePo.getStatus());
+        final OperateUser operateUser = scanDiscardedPackagePo.getOperateUser();
+        discardedPackageStorageMq.setOperateUserErp(operateUser.getUserCode());
+        discardedPackageStorageMq.setOperateUserName(operateUser.getUserName());
+        discardedPackageStorageMq.setOperateSiteCode(operateUser.getSiteCode());
+        discardedPackageStorageMq.setOperateUserName(operateUser.getSiteName());
+        return discardedPackageStorageMq;
     }
 }

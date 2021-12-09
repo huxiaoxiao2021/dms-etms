@@ -1,8 +1,5 @@
 package com.jd.bluedragon.common.dto.wastepackagestorage.request;
 
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
-
 import java.io.Serializable;
 
 /**
