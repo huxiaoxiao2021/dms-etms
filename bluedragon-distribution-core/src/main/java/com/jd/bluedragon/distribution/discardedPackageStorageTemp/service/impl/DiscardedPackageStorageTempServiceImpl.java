@@ -418,9 +418,25 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             log.warn("checkParam4ScanDiscardedPackage，参数错误，siteDepartType不能为空");
             return result.toFail("参数错误，siteDepartType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
-        if(paramObj.getWaybillType() == null){
-            log.warn("checkParam4ScanDiscardedPackage，参数错误，waybillType不能为空");
-            return result.toFail("参数错误，waybillType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        if(paramObj.getOperateType() == null){
+            log.warn("checkParam4ScanDiscardedPackage，参数错误，operateType不能为空");
+            return result.toFail("参数错误，operateType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        }
+        final List<Integer> wasteOperateTypeList = WasteOperateTypeEnum.ENUM_LIST;
+        if (!wasteOperateTypeList.contains(paramObj.getOperateType())) {
+            log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，operateType不正确 param: {}", JsonHelper.toJson(paramObj));
+            return result.toFail("参数错误，operateType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        }
+        if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
+            if(paramObj.getWaybillType() == null){
+                log.warn("checkParam4ScanDiscardedPackage，参数错误，waybillType不能为空");
+                return result.toFail("参数错误，waybillType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            }
+            final List<Integer> wasteWaybillTypeList = WasteWaybillTypeEnum.ENUM_LIST;
+            if (!wasteWaybillTypeList.contains(paramObj.getWaybillType())) {
+                log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，waybillType不正确 param: {}", JsonHelper.toJson(paramObj));
+                return result.toFail("参数错误，waybillType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            }
         }
 
         return result;
@@ -433,16 +449,6 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         if (!discardedPackageSiteDepartTypeList.contains(paramObj.getSiteDepartType())) {
             log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，siteDepartType不正确 param: {}", JsonHelper.toJson(paramObj));
             return result.toFail("参数错误，siteDepartType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
-        }
-        final List<Integer> wasteOperateTypeList = WasteOperateTypeEnum.ENUM_LIST;
-        if (!wasteOperateTypeList.contains(paramObj.getOperateType())) {
-            log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，operateType不正确 param: {}", JsonHelper.toJson(paramObj));
-            return result.toFail("参数错误，operateType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
-        }
-        final List<Integer> wasteWaybillTypeList = WasteWaybillTypeEnum.ENUM_LIST;
-        if (!wasteWaybillTypeList.contains(paramObj.getWaybillType())) {
-            log.warn("checkBusinessParam4ScanDiscardedPackage，参数错误，waybillType不正确 param: {}", JsonHelper.toJson(paramObj));
-            return result.toFail("参数错误，waybillType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
         // 分拣 | 转运； 弃件暂存 | 弃件废弃；分拣的弃件只能扫运单号，转运的弃件只能扫包裹号；分拣的弃件废弃只能扫包裹号
         if(Objects.equals(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode(), paramObj.getSiteDepartType())){
