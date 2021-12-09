@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.slf4j.Logger;
@@ -40,8 +42,14 @@ public class ChangeWaybillSignFilter implements Filter {
                 response = waybillService.checkWaybillBlock(request.getWaybillCode(), CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
             }
             if (response == null || !BlockResponse.UNBLOCK.equals(response.getCode())) {
-                throw  new SortingCheckException(SortingResponse.CODE_39123,
-                        HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE, request.getFuncModule()));
+                if(BusinessUtil.isSignChar(request.getWaybillCache().getWaybillSign(), WaybillSignConstants.POSITION_8,WaybillSignConstants.CHAR_8_1)){
+                    throw  new SortingCheckException(SortingResponse.CODE_29333,
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE_FORCE, request.getFuncModule()));
+                }else{
+                    throw  new SortingCheckException(SortingResponse.CODE_39123,
+                            HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_INFO_CHANGE, request.getFuncModule()));
+                }
+
             }
         }
         //endregion

@@ -467,6 +467,7 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_WAYBILL_ERROR_ORGID = 10001;
     public static final Integer CODE_39123=39123;
+    public static final Integer CODE_29333=29333;
     public static final String MESSAGE_39123="订单信息变更,请补打包裹标签,是否继续分拣";
     public static final String WAYBILL_ERROR_WAYBILLSIGN = "运单-运单标示为空,提交IT或咚咚：xnpsxt";
 

@@ -121,6 +121,7 @@ public class HintCodeConstants {
 
     /**
      * 此单为[取消订单拦截],请退货
+     * 此单需拦截,请操作退货换单！
      */
     public static String CANCEL_WAYBILL_INTERCEPT = "20011";
 
@@ -141,6 +142,7 @@ public class HintCodeConstants {
 
     /**
      * 此单为[运营退货拦截],请退货
+     * 此单需拦截,请操作退货换单！
      */
     public static String RETURN_GOODS_INTERCEPT = "20015";
 
@@ -199,6 +201,7 @@ public class HintCodeConstants {
     /**
      * 此单无称重重量,请称重后再操作
      * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
+     * 该订单没有重量或体积信息,不能装箱。请到【青龙分拣中心系统】称重量方
      */
     public static String WAYBILL_WITHOUT_WEIGHT = "20026";
 
@@ -306,6 +309,7 @@ public class HintCodeConstants {
 
     /**
      * 此单与分拣[站点]不一致,确定装箱？
+     * 此单与分拣[站点]不一致,是否继续？
      */
     public static String SITE_NOT_EQUAL_RECEIVE_SITE = "20047";
 
@@ -361,11 +365,13 @@ public class HintCodeConstants {
 
     /**
      * 当前场地到目的场地不存在混装箱规则！确定装箱？
+     * 当前场地到目的场地不存在混装箱规则，请先在集包规则中维护规则后再装箱！
      */
     public static String MISSING_MIX_BOX_CONFIG = "20058";
 
     /**
      * 跨区校验：当前网点与目的网点不在同一区域！确定装箱？
+     * 跨区校验：当前网点与目的网点不在同一区域！可能导致错发，确定装箱？
      */
     public static String CROSS_AREA_VALIDATION = "20059";
 
@@ -379,6 +385,12 @@ public class HintCodeConstants {
      * 订单信息变更,请补打包裹标签,是否继续分拣
      */
     public static String WAYBILL_INFO_CHANGE = "20061";
+
+    /**
+     * 订单信息变更,请补打包裹标签
+     */
+    public static String WAYBILL_INFO_CHANGE_FORCE = "20085";
+
 
     /**
      * 无此包裹或运单信息,确定装箱？
@@ -589,6 +601,7 @@ public class HintCodeConstants {
 
     /**
      * 该运单正在处理中，请等待处理完成
+     * 该单号下的所有包裹正在按运单发货处理中，请等待处理完成
      */
     public static String WAYBILL_SEND_IS_PROCESSING = "30022";
 
@@ -619,6 +632,7 @@ public class HintCodeConstants {
 
     /**
      * 箱子已经在批次[{0}]中发货
+     * 箱子已经在批次[{0}]中发货，请勿重复操作！
      */
     public static String BOX_SENT_BY_CONCRETE_BATCH = "30028";
 
@@ -749,13 +763,13 @@ public class HintCodeConstants {
 
 
     /*##############################################发货相关END#########################################################*/
-    
+
     /**
      * 打印客户端-站点人员无菜单权限提示
      */
     public static String PRINT_CLINET_SMS_SITE_MENU_NOAUTH = "60001";
     /*##############################################发货相关END#########################################################*/
-    
+
     /**
      * 没有对应站点
      */
@@ -838,6 +852,7 @@ public class HintCodeConstants {
 
     /**
      * 此箱号未绑定循环集包袋
+     * 此箱号未绑定循环集包袋，请绑定集包袋！
      */
     public static String BOX_UNBIND_RECYCLE_BAG = "40017";
 
