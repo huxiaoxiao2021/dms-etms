@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveDisposeAfterInte
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
-import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -20,6 +19,7 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -39,7 +39,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.Date;
 
@@ -75,10 +80,10 @@ public class PackageResource {
     private DefaultJMQProducer dmsModifyOrderInfoMQ;
 
     @Autowired
-    private ReprintRecordService reprintRecordService;
+    private WaybillResource waybillResource;
 
     @Autowired
-    private JdCommandService jdCommandService;
+    private ReprintRecordService reprintRecordService;
 
     /**
      * 拦截报表服务
@@ -90,9 +95,9 @@ public class PackageResource {
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
 
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
-
     @GET
     @Path("/packageMake/packageRePrint/{barCode}/{waybillSign}/{siteId}/{operateName}")
+    @JProfiler(jKey = "DMSWEB.PackageResource.packageRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse packageRePrint(@PathParam("barCode") String barCode,
                                      @PathParam("waybillSign") String waybillSign,
                                      @PathParam("siteId") Integer siteId,
@@ -193,10 +198,10 @@ public class PackageResource {
     		rePrintRecordMq.setSiteCode(rePrintCallBackRequest.getSiteCode());
     		rePrintRecordMq.setSiteName(rePrintCallBackRequest.getSiteName());
     		rePrintRecordMq.setOperateTime(new Date());
-    		
+
     		packageRePrintProducer.sendOnFailPersistent(rePrintRecordMq.getWaybillCode(), JsonHelper.toJson(rePrintRecordMq));
             this.sendDisposeAfterInterceptMsg(rePrintCallBackRequest);
-    		
+
     		String barCode = rePrintRecordMq.getWaybillCode();
     		if(StringHelper.isNotEmpty(rePrintRecordMq.getPackageCode())){
     			barCode = rePrintRecordMq.getPackageCode();
@@ -205,7 +210,7 @@ public class PackageResource {
     		this.packageRePrint(
     				barCode,
     				rePrintCallBackRequest.getWaybillSign(),
-    				rePrintCallBackRequest.getSiteCode(), 
+    				rePrintCallBackRequest.getSiteCode(),
     				rePrintCallBackRequest.getUserErp());
     		result.setData(Boolean.TRUE);
     		result.toSuccess();

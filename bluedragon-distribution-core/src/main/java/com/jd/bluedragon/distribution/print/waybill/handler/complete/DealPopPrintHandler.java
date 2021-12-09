@@ -69,7 +69,7 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
                 PopPrint popPrint = requestToPopPrint(context.getRequest(), packageCode);
 
                 // 首次打印的包裹，打印记录保存到popPrint
-                if (judgePackageFirstPrint(popPrint)) {
+                if (judgePackageFirstPrint(popPrint, context.getRequest())) {
 
                     popPrintService.add(popPrint);
 
@@ -103,25 +103,18 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
     /**
      * 判断包裹是否是首次打印
      * @param popPrint
+     * @param request
      * @return
      */
-    private boolean judgePackageFirstPrint(PopPrint popPrint) {
-        if (popPrintService.updateByWaybillOrPack(popPrint) <= 0) {
-            return true;
+    private boolean judgePackageFirstPrint(PopPrint popPrint, PrintCompleteRequest request) {
+        // 设置是否首次打印标识，根据入参的值判定
+        if (null != request.getFirstTimePrint()) {
+            return request.getFirstTimePrint() == 1;
         }
         else {
-            // 首次打印的数据不包含终端的数据，即使终端首次打印也排除掉
-            if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
-                PopPrint existRecord = popPrintService.findByPackage(popPrint);
-                if (existRecord != null && existRecord.getSortingFirstPrint() != null && existRecord.getSortingFirstPrint() == 0) {
-                    if (logger.isInfoEnabled()) {
-                        logger.info("包裹打印关闭终端打印数据源，包裹判定为首次打印. popPrint:{}", JsonHelper.toJson(popPrint));
-                    }
-                    return true;
-                }
-            }
+            return popPrintService.updateByWaybillOrPack(popPrint) <= 0;
         }
-        return false;
+
     }
 
     private void saveReprintRecord(PrintCompleteRequest request) {

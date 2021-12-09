@@ -619,6 +619,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
         request.setInterfaceType(jdCommand.getOperateType());
 
+        if (null != printData.getFirstTimePrint()) {
+            request.setFirstTimePrint(printData.getFirstTimePrint());
+        }
+
 //        request.setPopReceiveType();
 //        request.setBusinessType();
 //        request.setCrossCode();
