@@ -96,7 +96,7 @@
         FROM pop_print
         WHERE
             waybill_code = #{waybillCode, jdbcType=VARCHAR}
-        and PACKAGE_BARCODE = #{packageBarcode, jdbcType=VARCHAR}
+        and package_barcode = #{packageBarcode, jdbcType=VARCHAR}
         and yn = 1
         LIMIT 1
     </select>

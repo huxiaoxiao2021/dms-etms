@@ -42,6 +42,11 @@ public class SiteTerminalPrintCompleteRequest implements Serializable {
      */
     private Long opeTime;
 
+    /**
+     * 是否首次打印。使用方限制首次非首次 1：是 0：否
+     */
+    private Integer firstTimePrint;
+
     public String getBarCode() {
         return barCode;
     }
@@ -88,5 +93,13 @@ public class SiteTerminalPrintCompleteRequest implements Serializable {
 
     public void setOpeTime(Long opeTime) {
         this.opeTime = opeTime;
+    }
+
+    public Integer getFirstTimePrint() {
+        return firstTimePrint;
+    }
+
+    public void setFirstTimePrint(Integer firstTimePrint) {
+        this.firstTimePrint = firstTimePrint;
     }
 }

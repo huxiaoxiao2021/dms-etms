@@ -103,6 +103,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+                <ref bean="authorityInterceptHandler" />
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
@@ -579,7 +580,7 @@
         <property name="handlerMap">
             <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
                 <entry key="1001"  value-ref="packagePrintCompleteHandler"/>
-<!--                <entry key="1003"  value-ref="waybillPrintJsfCommandHandler"/>-->
+                <entry key="1003"  value-ref="jsfPackagePrintCompleteHandler"/>
 <!--                <entry key="1005"  value-ref="waybillPrintWebCommandHandler"/>-->
             </map>
         </property>
@@ -587,6 +588,10 @@
 
     <bean id="packagePrintCompleteHandler" class ="com.jd.bluedragon.distribution.print.waybill.handler.complete.PackagePrintCompleteHandler">
         <property name="operateHandlerMapping" ref="printCompleteOperateHandlerMapping"/>
+    </bean>
+
+    <bean id="jsfPackagePrintCompleteHandler" class ="com.jd.bluedragon.distribution.print.waybill.handler.complete.PackagePrintCompleteHandler">
+        <property name="operateHandlerMapping" ref="jsfPrintCompleteOperateHandlerMapping"/>
     </bean>
 
     <bean id="printCompleteOperateHandlerMapping" class ="com.jd.bluedragon.distribution.print.waybill.handler.complete.PrintCompleteOperateHandlerMapping">
@@ -599,6 +604,14 @@
                 <entry key="100106"  value-ref="platePrintCompleteHandler"/>
                 <entry key="100108"  value-ref="plateReprintCompleteHandler"/>
                 <entry key="100109"  value-ref="plateReprintCompleteHandler"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="jsfPrintCompleteOperateHandlerMapping" class ="com.jd.bluedragon.distribution.print.waybill.handler.complete.PrintCompleteOperateHandlerMapping">
+        <property name="handlerMap">
+            <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+                <entry key="100310"  value-ref="siteTerminalPrintCompleteHandler"/>
             </map>
         </property>
     </bean>
@@ -628,6 +641,7 @@
         <property name="handlers">
             <list>
                 <ref bean="dealReprintHandler" />
+                <ref bean="pushModifyOrderMqHandler" />
                 <ref bean="reprintCompletePostHandler" />
                 <ref bean="pushPrintRecordHandler" />
             </list>

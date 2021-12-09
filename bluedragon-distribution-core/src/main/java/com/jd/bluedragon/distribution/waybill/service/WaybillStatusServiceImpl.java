@@ -848,6 +848,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                     && task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_PACKAGE_PRINT))) {
 
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator() + "包裹打印");
 
                 if (log.isInfoEnabled()) {
                     log.info("向运单系统回传打印全程跟踪. {}", tWaybillStatus.getPackageCode());

@@ -158,6 +158,11 @@ public class PrintCompleteRequest implements Serializable {
      */
     private Integer sortingFirstPrint;
 
+    /**
+     * 是否首次打印。使用方限制首次非首次 1：是 0：否
+     */
+    private Integer firstTimePrint;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -396,5 +401,13 @@ public class PrintCompleteRequest implements Serializable {
 
     public void setSortingFirstPrint(Integer sortingFirstPrint) {
         this.sortingFirstPrint = sortingFirstPrint;
+    }
+
+    public Integer getFirstTimePrint() {
+        return firstTimePrint;
+    }
+
+    public void setFirstTimePrint(Integer firstTimePrint) {
+        this.firstTimePrint = firstTimePrint;
     }
 }

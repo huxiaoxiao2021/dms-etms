@@ -14,7 +14,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.board.domain.Request;
 import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
@@ -23,8 +22,8 @@ import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
-import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
@@ -604,10 +603,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
         request.setOperateType(PopPrintRequest.PRINT_PACK_TYPE);
         if (printData.getOpeTime() == null || printData.getOpeTime() <= 0) {
-            request.setOperateTime(DateHelper.formatDate(new Date()));
+            request.setOperateTime(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
         else {
-            request.setOperateTime(DateHelper.formatDate(new Date(printData.getOpeTime())));
+            request.setOperateTime(DateHelper.formatDate(new Date(printData.getOpeTime()), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
 
         request.setQuantity(waybill.getGoodNumber());
@@ -618,6 +617,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         request.setBusiName(waybill.getBusiName());
 
         request.setInterfaceType(jdCommand.getOperateType());
+
+        if (null != printData.getFirstTimePrint()) {
+            request.setFirstTimePrint(printData.getFirstTimePrint());
+        }
 
 //        request.setPopReceiveType();
 //        request.setBusinessType();

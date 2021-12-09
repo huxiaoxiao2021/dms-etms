@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -20,7 +21,7 @@ import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 
 @RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
-@ContextConfiguration(locations = {"classpath:/distribution-web-context.xml"})
+@ContextConfiguration(locations = {"classpath:bak/distribution-web-context-test.xml"})
 public class PackagePrintServiceTestCase {
 	@Autowired
 	PackagePrintService packagePrintService;
@@ -129,4 +130,23 @@ public class PackagePrintServiceTestCase {
 		String routerNode8 = (String) printDataMap.get("routerNode8");
 		Assert.assertEquals(routerNode8, "");
 	}
+
+	@Test
+    public void packagePrintCompleteTest() {
+        JdCommand<SiteTerminalPrintCompleteRequest> jdCommandJsfDto = new JdCommand<>();
+        jdCommandJsfDto.setSystemCode("dms");
+        jdCommandJsfDto.setSecretKey("123456");
+        jdCommandJsfDto.setProgramType(1003);
+        jdCommandJsfDto.setVersionCode("11");
+        jdCommandJsfDto.setBusinessType(1003);
+        jdCommandJsfDto.setOperateType(100310);
+        SiteTerminalPrintCompleteRequest packagePrintDto = new SiteTerminalPrintCompleteRequest();
+        jdCommandJsfDto.setData(packagePrintDto);
+        packagePrintDto.setBarCode("JDVF00001404211");
+        packagePrintDto.setSiteCode(910);
+        packagePrintDto.setWaybillSign("");
+        packagePrintDto.setOperatorName("邢松");
+        packagePrintDto.setOperatorErp("bjxings");
+        System.out.println(packagePrintService.packagePrintComplete(jdCommandJsfDto));
+    }
 }
