@@ -1624,4 +1624,14 @@ public class Constants {
      */
     public static final String UNLOAD_TRANSFER_WARN_MESSAGE = "抱歉，数据库正在升级中，请稍后再试";
 
+    /**
+     * 产品类型-冷链小票
+     */
+    public static final String PRODUCT_TYPE_COLD_CHAIN_XP = "ll-m-0020";
+
+    /**
+     * 产品类型-医药大票
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_DP = "ll-m-0018";
+
 }

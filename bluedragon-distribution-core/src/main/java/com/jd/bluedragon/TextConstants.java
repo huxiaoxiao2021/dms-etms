@@ -1,6 +1,6 @@
 package com.jd.bluedragon;
 /**
- *
+ * 
  * @ClassName: TextConstants
  * @Description: 字符串定义常量类
  * @author: wuyoude
@@ -303,4 +303,9 @@ public class TextConstants {
      * 否
      */
     public static final String TEXT_FLAG_NO = "否";
+
+    public static final String COMMON_TEXT_COLD_CHAIN_XP = "冷链小票";
+
+    public static final String COMMON_TEXT_MEDICINE_DP = "医药大票";
+
 }
