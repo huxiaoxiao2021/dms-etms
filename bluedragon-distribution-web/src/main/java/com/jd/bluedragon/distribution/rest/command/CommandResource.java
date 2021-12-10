@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -40,18 +41,19 @@ public class CommandResource {
     private static final Log logger = LogFactory.getLog(CommandResource.class);
 
     @Autowired
-    @Qualifier("jsonCommandService")
-    private JdCommandService jdCommandService;
+    @Qualifier("packagePrintInternalService")
+    private PackagePrintInternalService packagePrintInternalService;
+
     /**
      * 
-     * @param jsonReqest
+     * @param jsonCommand
      * @return
      */
     @POST
     @GZIP
     @Path("/command/execute")
     public String execute(String jsonCommand){
-       return jdCommandService.execute(jsonCommand);
+       return packagePrintInternalService.getPrintInfo(jsonCommand);
     }
 
     @POST
@@ -74,6 +76,6 @@ public class CommandResource {
         // 分拣中心首次打印
         request.getData().setSortingFirstPrint(1);
 
-        return jdCommandService.printComplete(request);
+        return packagePrintInternalService.printComplete(request);
     }
 }

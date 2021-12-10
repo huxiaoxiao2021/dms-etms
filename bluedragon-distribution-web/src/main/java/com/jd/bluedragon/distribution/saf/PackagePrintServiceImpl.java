@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
@@ -26,16 +27,17 @@ import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.reassignWaybill.service.ReassignWaybillService;
 import com.jd.bluedragon.distribution.rest.packageMake.PackageResource;
 import com.jd.bluedragon.distribution.rest.reverse.ReversePrintResource;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.print.engine.TemplateEngine;
@@ -88,6 +90,16 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    @Qualifier("packagePrintInternalService")
+    private PackagePrintInternalService packagePrintInternalService;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+
+    @Autowired
+    private TaskService taskService;
 
     /**
      * 打印JSF接口token校验开关
@@ -544,7 +556,15 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
             JdCommand<PrintCompleteRequest> jdCommand = convertPrintRequest(printRequest, waybill);
 
-            jdResult = jdCommandService.printComplete(jdCommand);
+            // 大运单打印回调异步处理
+            if (judgeAsyncDealPrintLogic(waybill)) {
+
+                addPrintAsyncTask(jdCommand);
+
+                return jdResult;
+            }
+
+            jdResult = packagePrintInternalService.printComplete(jdCommand);
         }
         catch (Exception e) {
             log.error("处理打印回调异常. request:{}", JsonHelper.toJson(printRequest), e);
@@ -635,6 +655,51 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 //        request.setTemplateName();
 //        request.setTemplateVersion();
         return jdCommand;
+    }
+
+    /**
+     * 插入大运单异步处理任务
+     * @param request
+     */
+    private void addPrintAsyncTask(JdCommand<PrintCompleteRequest> request) {
+        Task task = new Task();
+        task.setType(Task.TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL);
+        task.setTableName(Task.getTableName(task.getType()));
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setCreateSiteCode(request.getData().getOperateSiteCode());
+        task.setKeyword1(request.getData().getWaybillCode());
+        task.setKeyword2(request.getData().getPackageBarcode());
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        task.setBody(JsonHelper.toJson(request));
+
+        String fingerprint = task.getCreateSiteCode() +
+                Constants.UNDER_LINE + task.getKeyword1() +
+                Constants.UNDER_LINE + DateHelper.formatDateTimeMs(task.getOperateTime());
+        task.setFingerprint(Md5Helper.encode(fingerprint));
+
+        taskService.add(task);
+
+        if (log.isInfoEnabled()) {
+            log.info("add print callback task. [{}]", JsonHelper.toJson(task));
+        }
+    }
+
+    /**
+     * 判断打印回调是否异步。运单包裹数超过上限
+     * @param waybill
+     * @return
+     */
+    private boolean judgeAsyncDealPrintLogic(Waybill waybill) {
+        if (waybill.getGoodNumber() != null) {
+
+            return waybill.getGoodNumber() >= getSyncDealPackageCount();
+        }
+
+        return false;
+    }
+
+    private int getSyncDealPackageCount() {
+        return 0 == uccConfig.getPrintCompleteCallbackAsyncPackageNum() ? 500 : uccConfig.getPrintCompleteCallbackAsyncPackageNum();
     }
 
 }
