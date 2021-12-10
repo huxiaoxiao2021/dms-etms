@@ -517,7 +517,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                     .setUnSubmitStatus(Constants.YN_NO)
                     .setSubmitStatus(Constants.YN_YES)
                     .setOperatorErp(paramObj.getOperateUser().getUserCode())
-                    .setOperateTime(new Date());
+                    .setOperateTime(new Date(paramObj.getOperateTime()));
             final int updateCount = discardedWaybillStorageTempDao.finishSubmitDiscarded(finishSubmitDiscardedUo);
             if(updateCount == 0){
                 return result.toFail("处理失败，未更新数据");

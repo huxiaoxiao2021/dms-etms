@@ -17,17 +17,20 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -328,11 +331,23 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
      */
     protected boolean sendDiscardedPackageStorageMq(DiscardedStorageContext context){
         try {
-            final String mqBody = JsonHelper.toJson(this.genDiscardedPackageStorageMq(context));
-            log.info("DiscardedStorageAbstractHandler.sendDiscardedPackageStorageMq {}", mqBody);
-            discardedPackageStorageProducer.send(context.getScanDiscardedPackagePo().getBarCode(), mqBody);
+            final List<DiscardedPackageStorageMq> discardedPackageStorageMqs = this.genDiscardedPackageStorageMqList(context);
+            if(CollectionUtils.isEmpty(discardedPackageStorageMqs)){
+                log.warn("DiscardedStorageAbstractHandler.sendTempStorageMq empty msg ");
+                return false;
+            }
+            List<Message> messageList = new ArrayList<>();
+            for (DiscardedPackageStorageMq discardedPackageStorageMq : discardedPackageStorageMqs) {
+                Message message = new Message();
+                message.setBusinessId(discardedPackageStorageMq.getPackageCode());
+                message.setText(JsonHelper.toJson(discardedPackageStorageMq));
+                log.info("sendDiscardedPackageStorageMq topic: {} , text: {}", discardedPackageStorageProducer.getTopic(), message.getText());
+                message.setTopic(discardedPackageStorageProducer.getTopic());
+                messageList.add(message);
+            }
+            discardedPackageStorageProducer.batchSend(messageList);
         } catch (JMQException e) {
-            log.error("DiscardedStorageAbstractHandler.sendTempStorageMq exception ", e);
+            log.error("DiscardedStorageAbstractHandler.sendDiscardedPackageStorageMq exception ", e);
             return false;
         }
         return true;
@@ -343,10 +358,31 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
      * @author fanggang7
      * @time 2021-12-09 11:15:55 周四
      */
-    protected DiscardedPackageStorageMq genDiscardedPackageStorageMq(DiscardedStorageContext context){
-        final DiscardedPackageStorageMq discardedPackageStorageMq = new DiscardedPackageStorageMq();
+    protected List<DiscardedPackageStorageMq> genDiscardedPackageStorageMqList(DiscardedStorageContext context){
+        List<DiscardedPackageStorageMq> discardedPackageStorageMqList = new ArrayList<>();
         final ScanDiscardedPackagePo scanDiscardedPackagePo = context.getScanDiscardedPackagePo();
-        discardedPackageStorageMq.setBarCode(scanDiscardedPackagePo.getBarCode());
+        if(WaybillUtil.isWaybillCode(scanDiscardedPackagePo.getBarCode())){
+            for (DeliveryPackageD packageD : context.getBigWaybillDto().getPackageList()) {
+                final DiscardedPackageStorageMq discardedPackageStorageMq = this.genDiscardedPackageStorageMq(context.getScanDiscardedPackagePo());
+                discardedPackageStorageMq.setPackageCode(packageD.getPackageBarcode());
+                discardedPackageStorageMqList.add(discardedPackageStorageMq);
+            }
+        } else {
+            DiscardedPackageStorageMq discardedPackageStorageMq = this.genDiscardedPackageStorageMq(context.getScanDiscardedPackagePo());
+            discardedPackageStorageMqList.add(discardedPackageStorageMq);
+        }
+        return discardedPackageStorageMqList;
+    }
+
+    /**
+     * 组装弃件暂存mq报文
+     * @author fanggang7
+     * @time 2021-12-09 11:15:55 周四
+     */
+    protected DiscardedPackageStorageMq genDiscardedPackageStorageMq(ScanDiscardedPackagePo scanDiscardedPackagePo){
+        final DiscardedPackageStorageMq discardedPackageStorageMq = new DiscardedPackageStorageMq();
+        discardedPackageStorageMq.setPackageCode(scanDiscardedPackagePo.getBarCode());
+        discardedPackageStorageMq.setWaybillCode(WaybillUtil.getWaybillCode(scanDiscardedPackagePo.getBarCode()));
         discardedPackageStorageMq.setSiteDepartType(scanDiscardedPackagePo.getSiteDepartType());
         discardedPackageStorageMq.setWaybillType(scanDiscardedPackagePo.getWaybillType());
         discardedPackageStorageMq.setStorageStatus(scanDiscardedPackagePo.getStatus());
@@ -355,6 +391,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         discardedPackageStorageMq.setOperateUserName(operateUser.getUserName());
         discardedPackageStorageMq.setOperateSiteCode(operateUser.getSiteCode());
         discardedPackageStorageMq.setOperateUserName(operateUser.getSiteName());
+        discardedPackageStorageMq.setOperateTimeMillSeconds(scanDiscardedPackagePo.getOperateTime());
         return discardedPackageStorageMq;
     }
 }

@@ -12,7 +12,9 @@ import java.io.Serializable;
 public class DiscardedPackageStorageMq implements Serializable {
     private static final long serialVersionUID = 3806849569802732760L;
 
-    private String barCode;
+    private String packageCode;
+
+    private String waybillCode;
 
     private Integer siteDepartType;
 
@@ -33,12 +35,21 @@ public class DiscardedPackageStorageMq implements Serializable {
     public DiscardedPackageStorageMq() {
     }
 
-    public String getBarCode() {
-        return barCode;
+    public String getPackageCode() {
+        return packageCode;
     }
 
-    public DiscardedPackageStorageMq setBarCode(String barCode) {
-        this.barCode = barCode;
+    public DiscardedPackageStorageMq setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+        return this;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public DiscardedPackageStorageMq setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
         return this;
     }
 
@@ -117,14 +128,15 @@ public class DiscardedPackageStorageMq implements Serializable {
     @Override
     public String toString() {
         return "DiscardedPackageStorageMq{" +
-                "barCode='" + barCode + '\'' +
+                "packageCode='" + packageCode + '\'' +
+                ", waybillCode='" + waybillCode + '\'' +
                 ", siteDepartType=" + siteDepartType +
                 ", waybillType=" + waybillType +
                 ", storageStatus=" + storageStatus +
                 ", operateUserErp='" + operateUserErp + '\'' +
                 ", operateUserName='" + operateUserName + '\'' +
-                ", siteCode=" + operateSiteCode +
-                ", siteName='" + operateSiteName + '\'' +
+                ", operateSiteCode=" + operateSiteCode +
+                ", operateSiteName='" + operateSiteName + '\'' +
                 ", operateTimeMillSeconds=" + operateTimeMillSeconds +
                 '}';
     }
