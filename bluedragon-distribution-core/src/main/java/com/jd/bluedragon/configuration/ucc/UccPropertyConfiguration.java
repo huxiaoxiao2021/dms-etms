@@ -592,6 +592,11 @@ public class UccPropertyConfiguration {
      */
     private String judgePackagePrintedIncludeSiteTerminal;
 
+    /**
+     * 按运单大打印回调异步处理的包裹数限制
+     */
+    private int printCompleteCallbackAsyncPackageNum;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1589,5 +1594,13 @@ public class UccPropertyConfiguration {
 
     public void setJudgePackagePrintedIncludeSiteTerminal(String judgePackagePrintedIncludeSiteTerminal) {
         this.judgePackagePrintedIncludeSiteTerminal = judgePackagePrintedIncludeSiteTerminal;
+    }
+
+    public int getPrintCompleteCallbackAsyncPackageNum() {
+        return printCompleteCallbackAsyncPackageNum;
+    }
+
+    public void setPrintCompleteCallbackAsyncPackageNum(int printCompleteCallbackAsyncPackageNum) {
+        this.printCompleteCallbackAsyncPackageNum = printCompleteCallbackAsyncPackageNum;
     }
 }

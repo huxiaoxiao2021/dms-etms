@@ -581,7 +581,6 @@
             <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
                 <entry key="1001"  value-ref="packagePrintCompleteHandler"/>
                 <entry key="1003"  value-ref="jsfPackagePrintCompleteHandler"/>
-<!--                <entry key="1005"  value-ref="waybillPrintWebCommandHandler"/>-->
             </map>
         </property>
     </bean>
@@ -611,7 +610,10 @@
     <bean id="jsfPrintCompleteOperateHandlerMapping" class ="com.jd.bluedragon.distribution.print.waybill.handler.complete.PrintCompleteOperateHandlerMapping">
         <property name="handlerMap">
             <map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+                <entry key="100301"  value-ref="siteTerminalPrintCompleteHandler"/>
+                <entry key="100308"  value-ref="siteTerminalPrintCompleteHandler"/>
                 <entry key="100310"  value-ref="siteTerminalPrintCompleteHandler"/>
+                <entry key="100320"  value-ref="siteTerminalPrintCompleteHandler"/>
             </map>
         </property>
     </bean>
