@@ -291,9 +291,24 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         return waybillStatus;
     }
 
-    protected Task genTraceTaskCommon(WaybillStatus waybillStatus) {
+    protected Task genTempStorageTask(WaybillStatus waybillStatus) {
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(StringUtils.isNoneBlank(waybillStatus.getPackageCode()) ? waybillStatus.getPackageCode() : waybillStatus.getWaybillCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
+                + waybillStatus.getWaybillCode() + "-" + waybillStatus.getOperateType() + "-" + waybillStatus.getOperateTime().getTime()));
+        return task;
+    }
+
+    protected Task genScrapTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(StringUtils.isNoneBlank(waybillStatus.getPackageCode()) ? waybillStatus.getPackageCode() : waybillStatus.getWaybillCode());
         task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));

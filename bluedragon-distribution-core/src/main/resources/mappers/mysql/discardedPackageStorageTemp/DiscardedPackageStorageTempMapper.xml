@@ -562,6 +562,7 @@
                 AND P.site_depart_type = #{siteDepartType}
             </if>
         </where>
+        order by W.create_time desc
         <if test="pageNumber > 0">
             limit #{offset}, #{pageSize}
         </if>

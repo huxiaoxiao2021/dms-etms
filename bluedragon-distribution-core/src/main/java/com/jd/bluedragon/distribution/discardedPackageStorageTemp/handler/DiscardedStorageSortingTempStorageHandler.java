@@ -1,31 +1,22 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.OperateUser;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedStorageContext;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageSiteDepartTypeEnum;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -144,6 +135,6 @@ public class DiscardedStorageSortingTempStorageHandler extends DiscardedStorageA
     private Task genTempStorageTraceTask(ScanDiscardedPackagePo scanDiscardedPackagePo, String waybillCode) {
         WaybillStatus waybillStatus = this.genTempStorageWaybillStatus(scanDiscardedPackagePo, waybillCode);
 
-        return this.genTraceTaskCommon(waybillStatus);
+        return this.genTempStorageTask(waybillStatus);
     }
 }

@@ -189,7 +189,6 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
      */
     private Task genScrapTraceTask(ScanDiscardedPackagePo scanDiscardedPackagePo, String waybillCode) {
         WaybillStatus waybillStatus = this.genScrapWaybillStatus(scanDiscardedPackagePo, waybillCode);
-
-        return this.genTraceTaskCommon(waybillStatus);
+        return this.genScrapTask(waybillStatus);
     }
 }
