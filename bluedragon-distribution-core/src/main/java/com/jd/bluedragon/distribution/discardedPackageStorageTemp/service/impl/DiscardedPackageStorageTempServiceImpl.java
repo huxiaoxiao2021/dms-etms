@@ -439,6 +439,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 return result.toFail("参数错误，waybillType不正确", ResultCodeConstant.ILLEGAL_ARGUMENT);
             }
         }
+        if(paramObj.getOperateTime() == null){
+            paramObj.setOperateTime(System.currentTimeMillis());
+        }
 
         return result;
     }
@@ -549,6 +552,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             log.warn("checkParam4ScanDiscardedPackage，参数错误，waybillType不能为空");
             return result.toFail("参数错误，waybillType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }*/
+        if(paramObj.getOperateTime() == null){
+            paramObj.setOperateTime(System.currentTimeMillis());
+        }
 
         return result;
     }

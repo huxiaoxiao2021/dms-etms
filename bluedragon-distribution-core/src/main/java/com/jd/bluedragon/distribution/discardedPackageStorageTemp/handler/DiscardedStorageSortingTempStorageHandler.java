@@ -95,7 +95,7 @@ public class DiscardedStorageSortingTempStorageHandler extends DiscardedStorageA
     private List<DiscardedPackageStorageTemp> buildInsertPackageList(BigWaybillDto bigWaybillDto, BaseStaffSiteOrgDto siteDto, ScanDiscardedPackagePo paramObj, boolean isUpdate) {
         List<DiscardedPackageStorageTemp> dbList = new ArrayList<>();
 
-        final Date date = new Date();
+        final Date date = new Date(paramObj.getOperateTime());
         for (DeliveryPackageD pack : bigWaybillDto.getPackageList()) {
             DiscardedPackageStorageTemp db = buildDiscardedPackageStorageTemp(bigWaybillDto, siteDto, paramObj, pack.getPackageBarcode());
             db.setCreateTime(date);

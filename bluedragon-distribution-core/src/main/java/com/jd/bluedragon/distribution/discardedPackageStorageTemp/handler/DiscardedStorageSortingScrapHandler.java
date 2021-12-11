@@ -118,43 +118,10 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
         List<DiscardedPackageStorageTemp> discardedPackageStorageTempList = new ArrayList<>();
 
         DiscardedPackageStorageTemp discardedPackageStorageTemp = buildDiscardedPackageStorageTemp(bigWaybillDto, siteDto, paramObj, paramObj.getBarCode());
-        discardedPackageStorageTemp.setCreateTime(new Date());
+        discardedPackageStorageTemp.setCreateTime(new Date(paramObj.getOperateTime()));
         discardedPackageStorageTempList.add(discardedPackageStorageTemp);
 
         return discardedPackageStorageTempList;
-    }
-
-    /**
-     * 废弃操作转成全程跟踪任务对象
-     * @param request
-     * @return0
-     */
-    private Task toWasteScrapTraceTask(ScanDiscardedPackagePo request, String waybillCode) {
-        WaybillStatus waybillStatus = new WaybillStatus();
-        //设置站点相关属性
-        waybillStatus.setPackageCode(request.getBarCode());
-        waybillStatus.setWaybillCode(waybillCode);
-        final OperateUser operateUser = request.getOperateUser();
-        waybillStatus.setCreateSiteCode(operateUser.getSiteCode());
-        waybillStatus.setCreateSiteName(operateUser.getSiteName());
-        waybillStatus.setOperatorId(operateUser.getUserId() != null ? operateUser.getUserId().intValue() : 0);
-        waybillStatus.setOperator(operateUser.getUserName());
-        waybillStatus.setOperateTime(new Date());
-        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
-        waybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-
-        Task task = new Task();
-        task.setTableName(Task.TABLE_NAME_WAYBILL);
-        task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(waybillStatus.getPackageCode());
-        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
-        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
-        task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
-        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
-        task.setOwnSign(BusinessHelper.getOwnSign());
-        task.setFingerprint(Md5Helper.encode(waybillStatus.getCreateSiteCode() + "_"
-                + waybillStatus.getPackageCode() + "-" + waybillStatus.getOperateType() + "-" + waybillStatus.getOperateTime().getTime()));
-        return task;
     }
 
     /**

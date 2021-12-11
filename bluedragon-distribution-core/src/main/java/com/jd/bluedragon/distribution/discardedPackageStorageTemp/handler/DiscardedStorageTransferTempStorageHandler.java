@@ -103,7 +103,7 @@ public class DiscardedStorageTransferTempStorageHandler extends DiscardedStorage
     private List<DiscardedPackageStorageTemp> buildInsertPackageList(BigWaybillDto bigWaybillDto, BaseStaffSiteOrgDto siteDto, ScanDiscardedPackagePo paramObj) {
         List<DiscardedPackageStorageTemp> discardedPackageStorageTempList = new ArrayList<>();
         DiscardedPackageStorageTemp discardedPackageStorageTemp = buildDiscardedPackageStorageTemp(bigWaybillDto, siteDto, paramObj, paramObj.getBarCode());
-        discardedPackageStorageTemp.setCreateTime(new Date());
+        discardedPackageStorageTemp.setCreateTime(new Date(paramObj.getOperateTime()));
         discardedPackageStorageTempList.add(discardedPackageStorageTemp);
 
         return discardedPackageStorageTempList;
