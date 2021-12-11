@@ -99,6 +99,17 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
     }
 
     /**
+     * 按包裹号更新
+     * @param discardedPackageStorageTemp 参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-03-31 11:32:59 周三
+     */
+    public int updateByPackageCode(DiscardedPackageStorageTemp discardedPackageStorageTemp) {
+        return this.getSqlSession().update(DiscardedPackageStorageTempDao.NAMESPACE + ".updateByPackageCode", discardedPackageStorageTemp);
+    }
+
+    /**
      * 批量更新
      * @param listParam
      * @return

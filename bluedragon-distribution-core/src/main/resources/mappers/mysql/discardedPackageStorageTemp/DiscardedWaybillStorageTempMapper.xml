@@ -334,6 +334,12 @@
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
             </if>
+            <if test="prevSiteCode != null">
+                prev_site_code = #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name = #{prevSiteName},
+            </if>
             <if test="operateType != null ">
             operate_type = #{operateType},
             </if>
@@ -351,6 +357,9 @@
             </if>
             <if test="submitStatus != null ">
                 submit_status = #{submitStatus},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
             </if>
         </set>
         WHERE

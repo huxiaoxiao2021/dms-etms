@@ -139,13 +139,25 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     }
 
     /**
-     * 更新运单和包裹
+     * 更新运单和所有包裹
      */
     @Transactional
-    protected Integer updateDiscardedWaybillAndPackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
+    protected Integer updateDiscardedWaybillAndAllPackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
         int count = discardedWaybillStorageTempDao.updateByWaybillCode(discardedWaybillStorageTemp);
         if(CollectionUtils.isNotEmpty(discardedPackageStorageTempList)){
             discardedPackageStorageTempDao.updateByWaybillCode(discardedPackageStorageTempList.get(0));
+        }
+        return count;
+    }
+
+    /**
+     * 更新运单和包裹
+     */
+    @Transactional
+    protected Integer updateDiscardedWaybillAndOnePackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
+        int count = discardedWaybillStorageTempDao.updateByWaybillCode(discardedWaybillStorageTemp);
+        if(CollectionUtils.isNotEmpty(discardedPackageStorageTempList)){
+            discardedPackageStorageTempDao.updateByPackageCode(discardedPackageStorageTempList.get(0));
         }
         return count;
     }
@@ -205,6 +217,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
                 discardedPackageStorageTemp.setPrevProvinceCompanyName(prevSiteDto.getProvinceCompanyName());
             }
         }
+        discardedPackageStorageTemp.setUpdateTime(new Date(paramObj.getOperateTime()));
         return discardedPackageStorageTemp;
     }
 

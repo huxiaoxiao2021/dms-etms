@@ -84,7 +84,7 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
                 discardedWaybillStorageTemp.setPackageScanTotal((int)scanPackageTotal + 1);
                 dbRes = this.updateDiscardedWaybillAndInsertPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
             } else {
-                dbRes = this.updateDiscardedWaybillAndPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
+                dbRes = this.updateDiscardedWaybillAndOnePackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
             }
         }
         return result;

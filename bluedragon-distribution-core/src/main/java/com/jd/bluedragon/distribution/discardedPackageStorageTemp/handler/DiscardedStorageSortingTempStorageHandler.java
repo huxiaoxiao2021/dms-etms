@@ -57,7 +57,7 @@ public class DiscardedStorageSortingTempStorageHandler extends DiscardedStorageA
 
         int dbRes = -1;
         if (isUpdate) {
-            dbRes = this.updateDiscardedWaybillAndPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
+            dbRes = this.updateDiscardedWaybillAndAllPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
         } else {
             dbRes = this.insertDiscardedWaybillAndPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
         }

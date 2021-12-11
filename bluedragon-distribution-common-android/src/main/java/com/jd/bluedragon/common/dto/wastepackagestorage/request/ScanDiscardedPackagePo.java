@@ -71,4 +71,14 @@ public class ScanDiscardedPackagePo extends DiscardedPackageBasePo implements Se
         this.waybillType = waybillType;
         return this;
     }
+
+    @Override
+    public String toString() {
+        return "ScanDiscardedPackagePo{" +
+                "status=" + status +
+                ", barCode='" + barCode + '\'' +
+                ", operateType=" + operateType +
+                ", waybillType=" + waybillType +
+                '}';
+    }
 }

@@ -66,7 +66,7 @@ public class DiscardedStorageTransferTempStorageHandler extends DiscardedStorage
                 discardedWaybillStorageTemp.setPackageScanTotal((int)scanPackageTotal + 1);
                 dbRes = this.updateDiscardedWaybillAndInsertPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
             } else {
-                dbRes = this.updateDiscardedWaybillAndPackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
+                dbRes = this.updateDiscardedWaybillAndOnePackageRecord(discardedWaybillStorageTemp, discardedPackageStorageTempList);
             }
         }
 
