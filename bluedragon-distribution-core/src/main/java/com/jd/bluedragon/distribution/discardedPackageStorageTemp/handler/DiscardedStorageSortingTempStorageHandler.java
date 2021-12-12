@@ -82,7 +82,7 @@ public class DiscardedStorageSortingTempStorageHandler extends DiscardedStorageA
         discardedWaybillStorageTemp.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode());
         discardedWaybillStorageTemp.setPackageSysTotal(bigWaybillDto.getWaybill().getGoodNumber());
         discardedWaybillStorageTemp.setPackageScanTotal(discardedWaybillStorageTemp.getPackageSysTotal());
-        discardedWaybillStorageTemp.setSubmitStatus(Constants.YN_NO);
+        discardedWaybillStorageTemp.setSubmitStatus(Constants.YN_YES);
         return discardedWaybillStorageTemp;
     }
 

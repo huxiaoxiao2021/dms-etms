@@ -104,7 +104,7 @@ public class DiscardedStorageSortingScrapHandler extends DiscardedStorageAbstrac
         // 设置额外信息
         discardedWaybillStorageTemp.setPackageSysTotal(bigWaybillDto.getWaybill().getGoodNumber());
         discardedWaybillStorageTemp.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.TRANSFER.getCode());
-        discardedWaybillStorageTemp.setSubmitStatus(Constants.YN_NO);
+        discardedWaybillStorageTemp.setSubmitStatus(Constants.YN_YES);
         return discardedWaybillStorageTemp;
     }
 

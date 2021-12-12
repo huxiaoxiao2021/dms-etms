@@ -411,6 +411,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         } catch (Exception e) {
             result.toFail("接口异常");
             log.error("DiscardedPackageStorageTempServiceImpl.scanDiscardedPackage exception param {} exception {}", JsonHelper.toJson(paramObj), e.getMessage(), e);
+        } finally {
+            jimdbCacheService.del(key);
         }
         return result;
     }
