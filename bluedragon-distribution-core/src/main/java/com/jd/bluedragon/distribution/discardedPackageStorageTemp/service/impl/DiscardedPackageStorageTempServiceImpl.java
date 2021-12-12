@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageNotScanItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.common.dto.wastepackagestorage.request.QueryUnScanDisca
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.QueryUnSubmitDiscardedListPo;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
 import com.jd.bluedragon.common.dto.wastepackagestorage.request.SubmitDiscardedPackagePo;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -36,6 +38,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,7 +47,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 快递弃件暂存
@@ -78,6 +83,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Resource
+    private CacheService jimdbCacheService;
 
     /**
      * 获取总数
@@ -336,7 +344,14 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         }
         Result<List<DiscardedWaybillScanResultItemDto>> result = Result.success();
 
-        try {
+        String keyTemplate = CacheKeyConstants.DISCARDED_STORAGE_OPERATE_SCAN;
+        String key = String.format(keyTemplate, paramObj.getBarCode());
+        try{
+            try {
+                jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                return result.toFail("操作太快，正在处理中", ResultCodeConstant.CONCURRENT_CONFLICT);
+            }
             // 1. 检验参数
             final Result<Void> checkResult = this.checkParam4ScanDiscardedPackage(paramObj);
             if (!checkResult.isSuccess()) {

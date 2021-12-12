@@ -208,9 +208,11 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         discardedPackageStorageTemp.setOrgCode(siteDto.getOrgId());
         discardedPackageStorageTemp.setOrgName(siteDto.getOrgName());
         Integer prevSiteCode = getPreSiteCode(packageCode, operateUser.getSiteCode());
+        log.info("DiscardedStorageAbstractHandler.buildDiscardedPackageStorageTemp prevSiteCode {}", prevSiteCode);
         discardedPackageStorageTemp.setPrevSiteCode(prevSiteCode);
         if (prevSiteCode != null) {
             BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(prevSiteCode);
+            log.info("DiscardedStorageAbstractHandler.buildDiscardedPackageStorageTemp prevSiteDto {}", JsonHelper.toJson(prevSiteDto));
             if (prevSiteDto != null) {
                 discardedPackageStorageTemp.setPrevSiteName(prevSiteDto.getSiteName());
                 discardedPackageStorageTemp.setPrevProvinceCompanyCode(prevSiteDto.getProvinceCompanyCode());
