@@ -86,4 +86,12 @@ public interface VirtualBoardGatewayService {
      * @return
      */
     JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
+
+
+    /**
+     * 自动化完结板
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 }

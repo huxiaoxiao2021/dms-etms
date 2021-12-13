@@ -6,10 +6,13 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
+import com.jd.bluedragon.distribution.board.SortBoardJsfService;
+import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,8 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
     @Autowired
     private VirtualBoardService virtualBoardService;
+    @Autowired
+    private SortBoardJsfService sortBoardJsfService;
 
     /**
      * 获取组板已存在的未完成数据
@@ -128,4 +133,24 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     public JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         return virtualBoardService.handoverBoard(handoverVirtualBoardPo);
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.autoBoardComplete",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<Void> autoBoardComplete(AutoBoardCompleteRequest request) {
+        JdCResponse jdCResponse = new JdCResponse();
+        jdCResponse.toSucceed();
+
+        com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest domain =
+                new com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest();
+        BeanUtils.copyProperties(request, domain);
+        Response<Void> response = sortBoardJsfService.autoBoardComplete(domain);
+        jdCResponse.setCode(response.getCode());
+        jdCResponse.setMessage(response.getMessage());
+        return jdCResponse;
+
+
+    }
+
+
+
 }
