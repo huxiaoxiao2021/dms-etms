@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.dock.service;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.entity.AllowedVehicleEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockPageQueryCondition;
@@ -37,6 +38,9 @@ public class DockInfoJsfServiceImplTest {
     @Autowired
     @Qualifier("dockInfoJsfService")
     private DockInfoJsfServiceImpl dockInfoJsfService;
+
+    @Autowired
+    private DockBaseInfoDao dockBaseInfoDao;
 
     @Test
     public void getAllowedVehicleTypeEnums() {
@@ -113,5 +117,10 @@ public class DockInfoJsfServiceImplTest {
         entity.setIsDelete((byte) 0);
         System.out.println(JsonHelper.toJson(dockInfoJsfService.updateDockInfoById(entity)));
 
+    }
+
+    @Test
+    public void findById() {
+        System.out.println(JsonHelper.toJson(dockBaseInfoDao.findById(1L)));
     }
 }

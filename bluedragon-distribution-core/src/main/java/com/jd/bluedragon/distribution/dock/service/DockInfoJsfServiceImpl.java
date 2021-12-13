@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.dock.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
@@ -9,7 +10,9 @@ import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.bluedragon.distribution.dock.entity.AllowedVehicleEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockPageQueryCondition;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.basic.dto.BasicDictDto;
@@ -19,6 +22,7 @@ import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,6 +49,10 @@ public class DockInfoJsfServiceImpl implements DockService{
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    @Qualifier("dockInfoModifyProducer")
+    private DefaultJMQProducer dockInfoModifyProducer;
 
     private static final Pattern dockCodePattern = Pattern.compile("^[0-9][0-9][0-9]$");
 
@@ -179,6 +187,14 @@ public class DockInfoJsfServiceImpl implements DockService{
         }
 
         response.setData(dockBaseInfoDao.LogitechDeleteById(DockInfoConverter.convertToPo(dockInfoEntity)));
+        //添加更改MQ的发送
+        try {
+            DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findById(dockInfoEntity.getId());
+            dockInfoModifyProducer.send(dockBaseInfoPo.getOrgId() + "-" + dockBaseInfoPo.getSiteCode() + "-" + dockBaseInfoPo.getDockCode(), JsonHelper.toJson(dockBaseInfoPo));
+        } catch (JMQException e) {
+            log.error("发送月台信息删除消息失败:{}",JsonHelper.toJson(dockInfoEntity), e);
+        }
+
         return response;
     }
 
@@ -196,6 +212,14 @@ public class DockInfoJsfServiceImpl implements DockService{
             return response;
         }
         response.setData(dockBaseInfoDao.update(DockInfoConverter.convertToPo(dockInfoEntity)));
+
+        //添加更改MQ的发送
+        try {
+            DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findById(dockInfoEntity.getId());
+            dockInfoModifyProducer.send(dockBaseInfoPo.getOrgId() + "-" + dockBaseInfoPo.getSiteCode() + "-" + dockBaseInfoPo.getDockCode(), JsonHelper.toJson(dockBaseInfoPo));
+        } catch (JMQException e) {
+            log.error("发送月台信息删除消息失败:{}",JsonHelper.toJson(dockInfoEntity), e);
+        }
         return response;
     }
 }
