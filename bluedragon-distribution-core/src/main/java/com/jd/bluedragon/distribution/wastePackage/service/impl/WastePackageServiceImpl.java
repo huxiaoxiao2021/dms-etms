@@ -279,7 +279,7 @@ public class WastePackageServiceImpl implements WastePackageService {
      * @return
      */
     private DiscardedPackageStorageTemp buildDiscardedPackageStorageTemp(BigWaybillDto bigWaybillDto,BaseStaffSiteOrgDto siteDto, WastePackageRequest request, String packageCode) {
-        DiscardedPackageStorageTemp db=new DiscardedPackageStorageTemp();
+            DiscardedPackageStorageTemp db=new DiscardedPackageStorageTemp();
         Waybill WaybillInfo=bigWaybillDto.getWaybill();
         db.setWaybillCode(WaybillInfo.getWaybillCode());
         db.setPackageCode(packageCode);
@@ -312,18 +312,18 @@ public class WastePackageServiceImpl implements WastePackageService {
         db.setOrgCode(siteDto.getOrgId());
         db.setOrgName(siteDto.getOrgName());
         Integer prevSiteCode=getPreSiteCode(packageCode,request.getSiteCode());
-        db.setPrevSiteCode(prevSiteCode);
-        if(prevSiteCode!=null){
-            BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(prevSiteCode);
-            if(prevSiteDto!=null){
-                db.setPrevSiteName(prevSiteDto.getSiteName());
-                db.setPrevProvinceCompanyCode(prevSiteDto.getProvinceCompanyCode());
-                db.setPrevProvinceCompanyName(prevSiteDto.getProvinceCompanyName());
+            db.setPrevSiteCode(prevSiteCode);
+            if(prevSiteCode!=null){
+                BaseStaffSiteOrgDto prevSiteDto = baseMajorManager.getBaseSiteBySiteId(prevSiteCode);
+                if(prevSiteDto!=null){
+                    db.setPrevSiteName(prevSiteDto.getSiteName());
+                    db.setPrevProvinceCompanyCode(prevSiteDto.getProvinceCompanyCode());
+                    db.setPrevProvinceCompanyName(prevSiteDto.getProvinceCompanyName());
+                }
             }
-        }
-        db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+            db.setCreateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
         return db;
-	}
+            }
 
     private Integer getPreSiteCode(String packageCode, Integer currentSiteCode) {
         Integer preSiteCode = null;
