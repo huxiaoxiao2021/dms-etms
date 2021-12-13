@@ -2116,7 +2116,48 @@ public class BusinessUtil {
     public static boolean isWdzsOrNo(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_71, WaybillSignConstants.CHAR_71_2);
     }
+    /**
+     * 判断是否退分拣waybill_sign第18位=C
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isScrapSortingSite(String waybillSign) {
+		return BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_18,WaybillSignConstants.CHAR_18_C);
+	}
+    /**
+     * 判断生鲜-SendPay第2位等于4或5或6或7或8或9
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isSx(String sendPay) {
+		return BusinessUtil.isSignInChars(sendPay,SendPayConstants.POSITION_2,
+				SendPayConstants.CHAR_2_4,
+				SendPayConstants.CHAR_2_5,
+				SendPayConstants.CHAR_2_6,
+				SendPayConstants.CHAR_2_7,
+				SendPayConstants.CHAR_2_8,
+				SendPayConstants.CHAR_2_9);
+	}
+	/**
+	 * 生成bdBlockerCompleteMQ消息信息
+	 * @param waybillCode
+	 * @param orderType
+	 * @param messageType
+	 * @param operateTime
+	 * @return
+	 */
+    public static String bdBlockerCompleteMQ(String waybillCode, String orderType, String messageType, String operateTime) {
+        StringBuilder message = new StringBuilder();
+        message.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");
+        message.append("<OrderTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
+        message.append("<OrderId>" + waybillCode + "</OrderId>");
+        message.append("<OrderType>"+orderType+"</OrderType>");
+        message.append("<MessageType>"+messageType+"</MessageType>");
+        message.append("<OperatTime>" + operateTime + "</OperatTime>");
+        message.append("</OrderTaskInfo>");
 
+        return message.toString();
+    }	
     /**
      * waybill_sign 29位=2  且  53位=1
      *

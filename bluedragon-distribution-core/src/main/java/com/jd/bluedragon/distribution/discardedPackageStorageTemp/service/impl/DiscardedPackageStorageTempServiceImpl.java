@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageStorageTempStatusEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateType;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillType;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
@@ -161,6 +163,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                     vo.setIsCodStr(Objects.equals(vo.getCod(), Constants.YN_YES) ? "是" : "否");
                     // 计算已存储天数
                     vo.setStorageDays(DateHelper.daysDiff(discardedPackageStorageTemp.getCreateTime(), new Date()));
+                    vo.setOperateTypeDesc(WasteOperateType.getNameByCode(vo.getOperateType()));
+                    vo.setWaybillTypeDesc(WasteWaybillType.getNameByCode(vo.getWaybillType()));
                     dataList.add(vo);
                 }
             }
