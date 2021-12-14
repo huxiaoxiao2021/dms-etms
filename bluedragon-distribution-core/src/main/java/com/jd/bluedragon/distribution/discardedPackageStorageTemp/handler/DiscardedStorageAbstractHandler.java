@@ -258,6 +258,10 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
                     break;
                 }
             }
+            // 未出现当前场地，则为最后一个场地
+            if(!findCurrentSiteOpLog){
+                preSiteCode = packageStateList.get(0).getOperatorSiteId();
+            }
         }
 
         return preSiteCode;
