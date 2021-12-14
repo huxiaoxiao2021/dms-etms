@@ -314,4 +314,20 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         return dockListRes;
     }
 
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.findDockInfoByDockCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<DockInfoEntity> findDockInfoByDockCode(Integer siteCode, String dockCode) {
+        InvokeResult<DockInfoEntity> result = new InvokeResult<>();
+        result.success();
+        if (Objects.isNull(siteCode) || Objects.isNull(dockCode)) {
+            result.parameterError("缺少必要查询参数");
+            return result;
+        }
+        DockBaseInfoPo dockBaseInfoPo = new DockBaseInfoPo();
+        dockBaseInfoPo.setDockCode(dockCode);
+        dockBaseInfoPo.setSiteCode(siteCode);
+        result.setData(DockInfoConverter.convertToEntity(dockBaseInfoDao.findByDockCode(dockBaseInfoPo)));
+
+        return result;
+    }
 }

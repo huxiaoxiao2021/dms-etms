@@ -88,4 +88,12 @@ public interface TransportCommonService {
      */
     InvokeResult<List<DockInfoEntity>> listAllDockInfoBySiteCode(Integer siteCode);
 
+    /**
+     * 根据站点和月台号获取月台信息
+     * @param siteCode
+     * @param dockCode
+     * @return
+     */
+    InvokeResult<DockInfoEntity> findDockInfoByDockCode(Integer siteCode, String dockCode);
+
 }

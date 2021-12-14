@@ -54,4 +54,11 @@ public interface DockService {
      */
     Response<Boolean> updateDockInfoById(DockInfoEntity dockInfoEntity);
 
+    /**
+     * 根据场地和月台编号查询月台信息
+     * @param dockInfoEntity 必填项 siteCode 和 dockCode
+     * @return
+     */
+    Response<DockInfoEntity> queryDockInfoByDockCode(DockInfoEntity dockInfoEntity);
+
 }

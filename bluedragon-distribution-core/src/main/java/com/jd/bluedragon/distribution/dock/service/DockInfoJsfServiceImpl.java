@@ -222,4 +222,21 @@ public class DockInfoJsfServiceImpl implements DockService{
         }
         return response;
     }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.DockInfoJsfServiceImpl.queryDockInfoByDockCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<DockInfoEntity> queryDockInfoByDockCode(DockInfoEntity dockInfoEntity) {
+        Response<DockInfoEntity> response = new Response<>();
+        response.toSucceed();
+
+        if (Objects.isNull(dockInfoEntity) || Objects.isNull(dockInfoEntity.getSiteCode()) || Objects.isNull(dockInfoEntity.getDockCode())) {
+            response.toError("缺少必要查询参数");
+            return response;
+        }
+
+        DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findByDockCode(DockInfoConverter.convertToPo(dockInfoEntity));
+        response.setData(DockInfoConverter.convertToEntity(dockBaseInfoPo));
+
+        return response;
+    }
 }
