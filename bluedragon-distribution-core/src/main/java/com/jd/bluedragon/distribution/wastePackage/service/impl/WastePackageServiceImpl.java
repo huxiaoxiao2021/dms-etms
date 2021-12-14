@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.wastePackage.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperateUser;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
+import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -9,8 +12,9 @@ import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageSiteDepartTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
@@ -18,11 +22,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -42,12 +43,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
@@ -79,6 +75,10 @@ public class WastePackageServiceImpl implements WastePackageService {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private DiscardedPackageStorageTempService discardedPackageStorageTempService;
+
     /**
      * 弃件暂存上报
      * @param request
@@ -86,12 +86,36 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Override
     @JProfiler(jKey = "DMS.WEB.com.WastePackageServiceImpl.wastepackagestorage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> wastepackagestorage(WastePackageRequest request) {
-    	boolean isScrap = WasteOperateTypeEnum.SCRAP.getCode().equals(request.getOperateType());
-    	if(isScrap) {
-    		return wasteWithScrap(request);
-    	}else {
-    		return wasteWithStorage(request);
-    	}
+        final InvokeResult<Boolean> result = new InvokeResult<>();
+        final Result<List<DiscardedWaybillScanResultItemDto>> handleResult = discardedPackageStorageTempService.scanDiscardedPackage(this.convert2ScanDiscardedPackagePo(request));
+        if(handleResult.isSuccess()){
+            result.setData(true);
+            result.setMessage(handleResult.getMessage());
+            return result;
+        } else {
+            result.error(handleResult.getMessage());
+            return result;
+        }
+    }
+
+    private ScanDiscardedPackagePo convert2ScanDiscardedPackagePo(WastePackageRequest wastePackageRequest){
+        final ScanDiscardedPackagePo scanDiscardedPackagePo = new ScanDiscardedPackagePo();
+        scanDiscardedPackagePo.setBarCode(wastePackageRequest.getWaybillCode());
+        if(StringUtils.isNotBlank(wastePackageRequest.getPackageCode())){
+            scanDiscardedPackagePo.setBarCode(wastePackageRequest.getPackageCode());
+        }
+        scanDiscardedPackagePo.setWaybillType(wastePackageRequest.getWaybillType());
+        scanDiscardedPackagePo.setStatus(wastePackageRequest.getStatus());
+        scanDiscardedPackagePo.setOperateType(wastePackageRequest.getOperateType());
+        scanDiscardedPackagePo.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode());
+        OperateUser operateUser = new OperateUser();
+        operateUser.setUserId(wastePackageRequest.getUserCode().longValue());
+        operateUser.setUserCode(wastePackageRequest.getOperatorERP());
+        operateUser.setUserName(wastePackageRequest.getUserName());
+        operateUser.setSiteCode(wastePackageRequest.getSiteCode());
+        operateUser.setSiteName(wastePackageRequest.getSiteName());
+        scanDiscardedPackagePo.setOperateUser(operateUser);
+        return scanDiscardedPackagePo;
     }
 	/**
      * 弃件暂存处理

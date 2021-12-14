@@ -52,7 +52,7 @@ public class DiscardedStorageTransferTempStorageHandler extends DiscardedStorage
 
         // 允许重复扫描运单，第一次扫描插入，第二次更新
         List<DiscardedPackageStorageTemp> discardedPackageStorageTempList = buildInsertPackageList(context.getBigWaybillDto(), context.getCurrentSiteInfo(), scanDiscardedPackagePo);
-        DiscardedWaybillStorageTemp discardedWaybillStorageTemp = this.buildInsertWaybill(context.getBigWaybillDto(), context.getCurrentSiteInfo(), scanDiscardedPackagePo);
+        DiscardedWaybillStorageTemp discardedWaybillStorageTemp = this.buildInsertWaybill(context.getBigWaybillDto(), discardedPackageStorageTempList.get(0));
         int dbRes = -1;
         if(scanPackageTotal == 0){
             discardedWaybillStorageTemp.setPackageScanTotal((int)scanPackageTotal + 1);
@@ -79,12 +79,9 @@ public class DiscardedStorageTransferTempStorageHandler extends DiscardedStorage
     /**
      * 组装待插入包裹数据
      * @param bigWaybillDto 运单数据
-     * @param siteDto 场地信息
      * @return 组装结果
      */
-    private DiscardedWaybillStorageTemp buildInsertWaybill(BigWaybillDto bigWaybillDto, BaseStaffSiteOrgDto siteDto, ScanDiscardedPackagePo paramObj) {
-        final List<DeliveryPackageD> packageList = bigWaybillDto.getPackageList();
-        DiscardedPackageStorageTemp discardedPackageStorageTemp = buildDiscardedPackageStorageTemp(bigWaybillDto, siteDto, paramObj, packageList.get(0).getPackageBarcode());
+    private DiscardedWaybillStorageTemp buildInsertWaybill(BigWaybillDto bigWaybillDto, DiscardedPackageStorageTemp discardedPackageStorageTemp) {
         final DiscardedWaybillStorageTemp discardedWaybillStorageTemp = new DiscardedWaybillStorageTemp();
         BeanUtils.copyProperties(discardedPackageStorageTemp, discardedWaybillStorageTemp);
         // 设置额外信息
