@@ -113,7 +113,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         multiAbnormalReasonList.addAll(nonQcAbnormalReasonList);
 
         jdCResponse.setData(multiAbnormalReasonList);
-
+        if(log.isDebugEnabled()) {
+        	log.debug("异常上报-获取异常原因getAllAbnormalReason:请求userErp={}，返回结果：{}", userErp,JsonHelper.toJson(jdCResponse));
+        }
         return jdCResponse;
     }
 
