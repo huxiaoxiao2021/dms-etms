@@ -66,7 +66,11 @@ public interface SendPayConstants {
 	 */
 	int POSITION_315 = 315;
 	char CHAR_315_0 = '0';
-
+	/**
+	 * Sendpay137位=1【京航达】
+	 */
+	int POSITION_137 = 137;
+	char CHAR_137_1 = '1';
 	/**
 	 * 第307位,1-无人车配送
 	 */

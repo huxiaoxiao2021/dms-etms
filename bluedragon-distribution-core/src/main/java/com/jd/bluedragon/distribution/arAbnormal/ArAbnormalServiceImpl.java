@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.arAbnormal;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -16,6 +18,8 @@ import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReasonEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.job.JobHandler;
+import com.jd.bluedragon.dms.job.JobResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
@@ -37,14 +41,20 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author tangchunqing
@@ -74,6 +84,13 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    @Qualifier("checkCanAirToRoadJobHandler")
+    private JobHandler<List<String>,ArAbnormalResponse> checkCanAirToRoadJobHandler;
+    
+    @Value("${beans.ArAbnormalServiceImpl.checkCanAirToRoadTimeout:30000}")
+    private long checkCanAirToRoadTimeout;
 
     @Override
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
@@ -158,12 +175,59 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             response.setMessage(ArAbnormalResponse.MESSAGE_TIME);
             return response;
         }
+        if(Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
+        		|| Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_HIGH_SPEED_TRAIN_CODE.getCode())) {
+        	ArAbnormalResponse result = checkCanAirToRoad(arAbnormalRequest);
+        	if(!Objects.equals(ArAbnormalResponse.CODE_OK,result.getCode())) {
+        		return response;
+        	}
+        }
         response.setCode(ArAbnormalResponse.CODE_OK);
         response.setMessage(ArAbnormalResponse.MESSAGE_OK);
         return response;
     }
-
     /**
+     * 校验能否操作航空转陆运
+     * @param arAbnormalRequest
+     * @return
+     */
+    private ArAbnormalResponse checkCanAirToRoad(ArAbnormalRequest arAbnormalRequest) {
+    	ArAbnormalResponse response = null;
+        // 根据提报条码获取对应的运单和包裹信息
+        Map<String, List<String>> waybillMap = getWaybillMapByBarCode(arAbnormalRequest);
+        if(waybillMap == null
+        		|| waybillMap.isEmpty()) {
+        	response = new ArAbnormalResponse();
+            response.setCode(ArAbnormalResponse.CODE_OK);
+            response.setMessage(ArAbnormalResponse.MESSAGE_OK);  
+        	return response;
+        }
+        List<String> waybillCodes = Lists.newArrayList(waybillMap.keySet());
+        CallerInfo call = ProfilerHelper.registerInfo("dmsWeb.job.checkCanAirToRoadJobHandler.handle");
+        try {
+        	JobResult<ArAbnormalResponse> jobResult= checkCanAirToRoadJobHandler.handle(waybillCodes, checkCanAirToRoadTimeout);
+        	if(jobResult != null && jobResult.isSuc()) {
+        		response = jobResult.getData();
+        	}else {
+            	response = new ArAbnormalResponse();
+                response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+                response.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
+            	return response;
+        	}
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			Profiler.functionError(call);
+			log.error("校验能否操作航空转陆运执行异常：请求参数：{}", JsonHelper.toJson(arAbnormalRequest),e);
+        	response = new ArAbnormalResponse();
+            response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+            response.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
+        	return response;
+		}finally {
+			Profiler.registerInfoEnd(call);
+		}
+		return response;
+	}
+
+	/**
      * 提报异常逻辑
      *
      * @param arAbnormalRequest

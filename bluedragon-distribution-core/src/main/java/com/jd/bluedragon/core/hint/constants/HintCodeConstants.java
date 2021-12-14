@@ -845,4 +845,9 @@ public class HintCodeConstants {
      * 你所在场地未开通此功能
      */
     public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
+    
+    /**
+     * 存在非航空单操作，非航空单无法操作航空转陆运
+     */
+    public static String AIR_TO_ROAD_NOT_ALLOWD="50002";
 }
