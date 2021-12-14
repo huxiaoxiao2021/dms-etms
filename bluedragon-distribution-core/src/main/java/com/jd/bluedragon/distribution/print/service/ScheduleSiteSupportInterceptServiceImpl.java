@@ -19,6 +19,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.ws.rs.HEAD;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -92,13 +94,13 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 
     /**
      * 校验反调度是否同城
-     *
      * @param waybillForPreSortOnSiteRequest
      * @param waybill
+     * @param userInfo
      * @return
      */
     @Override
-    public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill) {
+    public InvokeResult<Boolean> checkSameCity(WaybillForPreSortOnSiteRequest waybillForPreSortOnSiteRequest, Waybill waybill, BaseStaffSiteOrgDto userInfo) {
         InvokeResult<Boolean> result = new InvokeResult<>();
 
 //        if (StringUtils.isEmpty(uccPropertyConfiguration.getScheduleSiteCheckSameCity())
@@ -107,8 +109,8 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
 //        }
 
         try {
-            if (waybill.getOldSiteId() != null && waybill.getOldSiteId() > 0) {
-                BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSortingSite());
+            if (userInfo.getSiteCode() != null && userInfo.getSiteCode() > 0) {
+                BaseSiteInfoDto curSite = baseMajorManager.getBaseSiteInfoBySiteId(userInfo.getSiteCode());
                 // 操作人场地类型是分拣中心
                 if (SiteHelper.siteIsSortingCenter(curSite)) {
 
@@ -116,21 +118,25 @@ public class ScheduleSiteSupportInterceptServiceImpl implements ScheduleSiteSupp
                     if (BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_3)) {
 
                         // 返调度站点类型是营业部或自提点
-                        BaseSiteInfoDto destSite = baseMajorManager.getBaseSiteInfoBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
+                        BaseStaffSiteOrgDto destSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
                         if (null == destSite) {
                             return result;
                         }
 
-                        if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())) {
+                        if (waybill.getOldSiteId() == null || waybill.getOldSiteId() < 0) {
+                            return result;
+                        }
+
+                        BaseStaffSiteOrgDto oldPreSite = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+                        if (null == oldPreSite) {
+                            return result;
+                        }
+
+                        if (Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(destSite.getSiteType())
+                                && Arrays.asList(Constants.BASE_SITE_SITE, Constants.BASE_SITE_TYPE_ZT).contains(oldPreSite.getSiteType())) {
 
                             // 获取原站点和反调度后的站点的四级地址，对于直辖市（北京市，上海市，天津市，重庆市）比较一级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”。
                             // 对于非直辖市，比较二级地址是否相同，不相同则提示话术“仅允许同城范围进行反调度操作”
-                            BaseSiteInfoDto oldPreSite = baseMajorManager.getBaseSiteInfoBySiteId(waybill.getOldSiteId());
-
-                            if (null == oldPreSite) {
-                                return result;
-                            }
-
                             boolean notSameCity = false;
                             if (!AreaHelper.isMunicipality(oldPreSite.getProvinceId()) && !AreaHelper.isMunicipality(destSite.getProvinceId())) {
                                 if (!Objects.equals(oldPreSite.getCityId(), destSite.getCityId())) {

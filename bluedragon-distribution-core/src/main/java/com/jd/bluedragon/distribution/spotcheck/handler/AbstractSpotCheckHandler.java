@@ -542,12 +542,14 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         // 2.1、人工抽检和web页面抽检图片实时存放在spotCheckContext.pictureAddress中
         // 2.2、dws抽检和客户端抽检此处不处理（因为图片异步上传在图片上传环节会更新'是否有图片'字段）
-        waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(spotCheckContext.getPictureAddress()) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
+        String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
+                ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
+        if(StringUtils.isNotEmpty(pictureUrl)){
+            waybillCollectDto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
+        }
         // 3、运单维度抽检 | 包裹维度一单一件抽检的需要记录'图片链接'字段
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())
                 || (Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode()) && !spotCheckContext.getIsMultiPack())){
-            String pictureUrl = StringUtils.isEmpty(spotCheckContext.getPictureAddress())
-                    ? getPicUrlCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode()) : spotCheckContext.getPictureAddress();
             waybillCollectDto.setPictureAddress(pictureUrl);
             waybillCollectDto.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
         }
