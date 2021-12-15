@@ -503,7 +503,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         discardedPackageStorageTempQo.setWaybillCode(WaybillUtil.getWaybillCode(paramObj.getBarCode()));
         discardedPackageStorageTempQo.setYn(Constants.YN_YES);
         final DiscardedPackageStorageTemp discardedPackageStorageTempExist = discardedPackageStorageTempDao.selectOne(discardedPackageStorageTempQo);
-        if(!Objects.equals(paramObj.getOperateType() ,discardedPackageStorageTempExist.getOperateType())){
+        if(discardedPackageStorageTempExist != null && !Objects.equals(paramObj.getOperateType() ,discardedPackageStorageTempExist.getOperateType())){
             log.warn("checkBusinessParam4ScanDiscardedPackage，已操作过其他类型处处置 param: {} exist: {}", JsonHelper.toJson(paramObj), JsonHelper.toJson(discardedPackageStorageTempExist));
             result.toFail("已操作过[" + WasteOperateTypeEnum.getNameByCode(discardedPackageStorageTempExist.getOperateType()) + "]，请不要再操作其他类型的处理动作");
             return result;
