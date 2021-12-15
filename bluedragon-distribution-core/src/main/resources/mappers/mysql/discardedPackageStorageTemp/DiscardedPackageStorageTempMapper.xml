@@ -530,6 +530,7 @@
         <include refid="Base_Column_List"/>
         FROM `discarded_package_storage_temp`
         <include refid="where"/>
+        limit 1
     </select>
     <!-- where条件 -->
     <sql id="where">
