@@ -518,10 +518,4 @@
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
     </bean>
 
-    <!-- 月台信息修改消息，用于转运已绑定的月台信息，和报表信息 -->
-    <bean id="dockInfoModifyProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dock.modify}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-
 </beans>

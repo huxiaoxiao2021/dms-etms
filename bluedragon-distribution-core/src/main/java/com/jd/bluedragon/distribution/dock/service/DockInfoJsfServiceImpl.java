@@ -50,10 +50,6 @@ public class DockInfoJsfServiceImpl implements DockService{
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
 
-    @Autowired
-    @Qualifier("dockInfoModifyProducer")
-    private DefaultJMQProducer dockInfoModifyProducer;
-
     private static final Pattern dockCodePattern = Pattern.compile("^[0-9][0-9][0-9]$");
 
 
@@ -187,13 +183,6 @@ public class DockInfoJsfServiceImpl implements DockService{
         }
 
         response.setData(dockBaseInfoDao.LogitechDeleteById(DockInfoConverter.convertToPo(dockInfoEntity)));
-        //添加更改MQ的发送
-        try {
-            DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findById(dockInfoEntity.getId());
-            dockInfoModifyProducer.send(dockBaseInfoPo.getOrgId() + "-" + dockBaseInfoPo.getSiteCode() + "-" + dockBaseInfoPo.getDockCode(), JsonHelper.toJson(dockBaseInfoPo));
-        } catch (JMQException e) {
-            log.error("发送月台信息删除消息失败:{}",JsonHelper.toJson(dockInfoEntity), e);
-        }
 
         return response;
     }
@@ -213,13 +202,6 @@ public class DockInfoJsfServiceImpl implements DockService{
         }
         response.setData(dockBaseInfoDao.update(DockInfoConverter.convertToPo(dockInfoEntity)));
 
-        //添加更改MQ的发送
-        try {
-            DockBaseInfoPo dockBaseInfoPo = dockBaseInfoDao.findById(dockInfoEntity.getId());
-            dockInfoModifyProducer.send(dockBaseInfoPo.getOrgId() + "-" + dockBaseInfoPo.getSiteCode() + "-" + dockBaseInfoPo.getDockCode(), JsonHelper.toJson(dockBaseInfoPo));
-        } catch (JMQException e) {
-            log.error("发送月台信息删除消息失败:{}",JsonHelper.toJson(dockInfoEntity), e);
-        }
         return response;
     }
 
