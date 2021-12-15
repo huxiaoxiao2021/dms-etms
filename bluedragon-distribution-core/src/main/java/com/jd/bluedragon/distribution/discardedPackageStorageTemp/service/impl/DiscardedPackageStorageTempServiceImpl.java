@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageHandlerStrategy;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -496,6 +497,16 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 result.toFail("包裹号不存在！");
                 return result;
             }
+        }
+        // 已有其他类型的操作，则不允许此类型操作
+        DiscardedPackageStorageTempQo discardedPackageStorageTempQo = new DiscardedPackageStorageTempQo();
+        discardedPackageStorageTempQo.setWaybillCode(WaybillUtil.getWaybillCode(paramObj.getBarCode()));
+        discardedPackageStorageTempQo.setYn(Constants.YN_YES);
+        final DiscardedPackageStorageTemp discardedPackageStorageTempExist = discardedPackageStorageTempDao.selectOne(discardedPackageStorageTempQo);
+        if(!Objects.equals(paramObj.getOperateType() ,discardedPackageStorageTempExist.getOperateType())){
+            log.warn("checkBusinessParam4ScanDiscardedPackage，已操作过其他类型处处置 param: {} exist: {}", JsonHelper.toJson(paramObj), JsonHelper.toJson(discardedPackageStorageTempExist));
+            result.toFail("已操作过[" + WasteOperateTypeEnum.getNameByCode(discardedPackageStorageTempExist.getOperateType()) + "]，请不要再操作其他类型的处理动作");
+            return result;
         }
         return result;
     }

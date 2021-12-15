@@ -295,7 +295,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
         waybillStatus.setCreateSiteName(operateUser.getSiteName());
         waybillStatus.setOperatorId(operateUser.getUserId() != null ? operateUser.getUserId().intValue() : 0);
         waybillStatus.setOperator(operateUser.getUserName());
-        waybillStatus.setOperateTime(new Date());
+        waybillStatus.setOperateTime(new Date(scanDiscardedPackagePo.getOperateTime()));
         return waybillStatus;
     }
 
