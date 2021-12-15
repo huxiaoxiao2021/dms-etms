@@ -353,6 +353,15 @@
                         <constructor-arg name="methodName" value="deliverySendProcess"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 打印回调异步处理任务 -->
+                <entry key="${jmq.task.topic.pop.print.uat}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="printCallbackProcess"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>

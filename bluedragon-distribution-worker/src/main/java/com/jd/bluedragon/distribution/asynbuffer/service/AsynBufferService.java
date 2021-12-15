@@ -76,4 +76,12 @@ public interface AsynBufferService {
      */
     boolean deliverySendProcess(final Task task) throws Exception;
 
+    /**
+     * 打印回调异步处理任务
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    boolean printCallbackProcess(Task task) throws Exception;
+
 }

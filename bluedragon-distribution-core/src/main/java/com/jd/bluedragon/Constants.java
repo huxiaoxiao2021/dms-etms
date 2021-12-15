@@ -1588,6 +1588,11 @@ public class Constants {
     public static final String SWITCH_OPEN = "1";
 
     /**
+     * 关闭状态 0
+     */
+    public static final String SWITCH_OFF = "0";
+
+    /**
      * 默认泡重比：8000
      * */
     public static final Integer DEFAULT_VOLUME_RATE = 8000;
