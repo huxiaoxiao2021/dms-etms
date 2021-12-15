@@ -613,6 +613,16 @@ public class UccPropertyConfiguration {
      */
     private String scheduleSiteCheckSameCity;
 
+    /**
+     * 判断包裹是否打印的逻辑，包含终端首次打印的数据。默认不包含 0：不包含；1：包含
+     */
+    private String judgePackagePrintedIncludeSiteTerminal;
+
+    /**
+     * 按运单大打印回调异步处理的包裹数限制
+     */
+    private int printCompleteCallbackAsyncPackageNum;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1676,5 +1686,21 @@ public class UccPropertyConfiguration {
 
     public void setBTemplateRouterExecuteNew(boolean bTemplateRouterExecuteNew) {
         this.bTemplateRouterExecuteNew = bTemplateRouterExecuteNew;
+    }
+
+    public String getJudgePackagePrintedIncludeSiteTerminal() {
+        return judgePackagePrintedIncludeSiteTerminal;
+    }
+
+    public void setJudgePackagePrintedIncludeSiteTerminal(String judgePackagePrintedIncludeSiteTerminal) {
+        this.judgePackagePrintedIncludeSiteTerminal = judgePackagePrintedIncludeSiteTerminal;
+    }
+
+    public int getPrintCompleteCallbackAsyncPackageNum() {
+        return printCompleteCallbackAsyncPackageNum;
+    }
+
+    public void setPrintCompleteCallbackAsyncPackageNum(int printCompleteCallbackAsyncPackageNum) {
+        this.printCompleteCallbackAsyncPackageNum = printCompleteCallbackAsyncPackageNum;
     }
 }

@@ -198,10 +198,10 @@ public class PackageResource {
     		rePrintRecordMq.setSiteCode(rePrintCallBackRequest.getSiteCode());
     		rePrintRecordMq.setSiteName(rePrintCallBackRequest.getSiteName());
     		rePrintRecordMq.setOperateTime(new Date());
-    		
+
     		packageRePrintProducer.sendOnFailPersistent(rePrintRecordMq.getWaybillCode(), JsonHelper.toJson(rePrintRecordMq));
             this.sendDisposeAfterInterceptMsg(rePrintCallBackRequest);
-    		
+
     		String barCode = rePrintRecordMq.getWaybillCode();
     		if(StringHelper.isNotEmpty(rePrintRecordMq.getPackageCode())){
     			barCode = rePrintRecordMq.getPackageCode();
@@ -210,7 +210,7 @@ public class PackageResource {
     		this.packageRePrint(
     				barCode,
     				rePrintCallBackRequest.getWaybillSign(),
-    				rePrintCallBackRequest.getSiteCode(), 
+    				rePrintCallBackRequest.getSiteCode(),
     				rePrintCallBackRequest.getUserErp());
     		result.setData(Boolean.TRUE);
     		result.toSuccess();
@@ -252,6 +252,7 @@ public class PackageResource {
         return result;
     }
 
+    @Deprecated
     @GET
     @Path("/package/checkRePrint/{barCode}")
     @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrint",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
@@ -270,6 +271,7 @@ public class PackageResource {
         return jdResponse;
     }
 
+    @Deprecated
     @GET
     @Path("/package/checkRePrintNew/{barCode}")
     @JProfiler(jKey = "DMSWEB.PackageResource.checkRePrintNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
@@ -306,7 +308,7 @@ public class PackageResource {
      */
     @POST
     @Path("/package/reprintAfter")
-    @JProfiler(jKey = "DMSWEB.PackageResource.packReprintAfter",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.PackageResource.reprintAfter",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     public JdResponse packReprintAfter(ClientOperateRequest request) {
         JdResponse response = new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         String barCode = request.getBarCode();

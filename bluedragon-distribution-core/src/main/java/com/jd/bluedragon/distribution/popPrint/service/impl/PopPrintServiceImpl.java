@@ -5,7 +5,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -13,6 +15,7 @@ import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
@@ -20,16 +23,23 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrintSmsMsg;
 import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.JsonUtil;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +47,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * @author zhaohc
@@ -90,6 +98,9 @@ public class PopPrintServiceImpl implements PopPrintService {
     @Autowired
     private RedisManager redisManager;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+
     @Override
     public PopPrint findByWaybillCode(String waybillCode) {
         if (StringUtils.isBlank(waybillCode)) {
@@ -115,6 +126,11 @@ public class PopPrintServiceImpl implements PopPrintService {
         if (StringUtils.isBlank(waybillCode)) {
             log.info("传入运单号 waybillCode 为空");
         }
+        // 只查询分拣打印的数据
+        if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
+            return popPrintDao.findAllByWaybillCodeAndSortingFirstPrint(waybillCode);
+        }
+
         return this.popPrintDao.findAllByWaybillCode(waybillCode);
     }
 
@@ -379,6 +395,11 @@ public class PopPrintServiceImpl implements PopPrintService {
     @Override
     public int updateByWaybillOrPack(PopPrint popPrint) {
         return this.popPrintDao.updateByWaybillOrPack(popPrint);
+    }
+
+    @Override
+    public PopPrint findByPackage(PopPrint popPrint) {
+        return popPrintDao.findByPackage(popPrint);
     }
 
     @Override
