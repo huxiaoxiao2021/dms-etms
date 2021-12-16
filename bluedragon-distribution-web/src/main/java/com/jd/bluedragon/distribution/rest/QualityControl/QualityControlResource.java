@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -72,8 +73,7 @@ public class QualityControlResource {
     @Autowired
     private WaybillService waybillService;
     
-    @Autowired
-    @Qualifier("checkPrintInterceptReasonIdSetForOld")
+    @Resource(name = "checkPrintInterceptReasonIdSetForOld")
     private Set<Integer> checkPrintInterceptReasonIdSetForOld;
     
     @POST

@@ -55,6 +55,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import javax.annotation.Resource;
+
 public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGatewayService {
 
     @Value("${qc.abnormal.reason.type:920002312}")
@@ -100,8 +102,8 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     private static final int PACKAGE_CODE_TYPE = 1;
 
     private static final int WAYBILL_CODE_TYPE = 2;
-    @Autowired
-    @Qualifier("checkPrintInterceptReasonIdSet")
+    
+    @Resource(name = "checkPrintInterceptReasonIdSet")
     private Set<Long> checkPrintInterceptReasonIdSet;
 
     @Override
