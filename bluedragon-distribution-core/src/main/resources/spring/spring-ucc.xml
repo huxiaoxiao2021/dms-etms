@@ -152,6 +152,7 @@
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"></property>
 		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"></property>
 		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"></property>
+		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"></property>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -284,6 +285,7 @@
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
+				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

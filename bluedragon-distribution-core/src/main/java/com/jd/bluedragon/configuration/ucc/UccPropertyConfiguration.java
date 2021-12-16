@@ -597,6 +597,11 @@ public class UccPropertyConfiguration {
      */
     private int printCompleteCallbackAsyncPackageNum;
 
+    /**
+     * 是否限制终端人员使用包裹补打 1：限制 0：不限制
+     */
+    private String limitSiteUsePackReprint;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1602,5 +1607,13 @@ public class UccPropertyConfiguration {
 
     public void setPrintCompleteCallbackAsyncPackageNum(int printCompleteCallbackAsyncPackageNum) {
         this.printCompleteCallbackAsyncPackageNum = printCompleteCallbackAsyncPackageNum;
+    }
+
+    public String getLimitSiteUsePackReprint() {
+        return limitSiteUsePackReprint;
+    }
+
+    public void setLimitSiteUsePackReprint(String limitSiteUsePackReprint) {
+        this.limitSiteUsePackReprint = limitSiteUsePackReprint;
     }
 }
