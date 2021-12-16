@@ -932,6 +932,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if( BusinessUtil.isSignChar(waybill.getSendPay(),SendPayConstants.POSITION_146,SendPayConstants.CHAR_146_4)){
             target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
         }
+        /*** 产品类型为ll-m-0020时:冷链小票*/
+        if(Constants.PRODUCT_TYPE_COLD_CHAIN_XP.equals(productType)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_COLD_CHAIN_XP);
+        }
+        /*** 产品类型为ll-m-0018时:医药大票*/
+        if(Constants.PRODUCT_TYPE_MEDICINE_DP.equals(productType)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_DP);
+        }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);
