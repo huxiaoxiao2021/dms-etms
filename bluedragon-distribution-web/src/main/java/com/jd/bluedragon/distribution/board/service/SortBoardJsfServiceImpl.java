@@ -200,8 +200,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
 
         //发送全程跟踪
-        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
-        BeanUtils.copyProperties(request.getOperatorInfo(), operatorInfo);
+        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
+
         virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                 request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
@@ -209,6 +209,17 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         response.toSucceed();
         return response;
 
+    }
+
+    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo( OperatorInfo operatorInfo){
+        com.jd.bluedragon.common.dto.base.request.OperatorInfo operator = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
+        operator.setOperateTime(operatorInfo.getOperateTime());
+        operator.setSiteCode(operatorInfo.getSiteCode());
+        operator.setSiteName(operatorInfo.getSiteName());
+        operator.setUserCode(operatorInfo.getUserCode());
+        operator.setUserName(operatorInfo.getUserName());
+        operator.setUserErp(operatorInfo.getUserErp());
+        return operator;
     }
 
     @Override
