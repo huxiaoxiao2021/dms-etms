@@ -351,9 +351,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         String keyTemplate = CacheKeyConstants.DISCARDED_STORAGE_OPERATE_SCAN;
         String key = String.format(keyTemplate, WaybillUtil.getWaybillCode(paramObj.getBarCode()));
         try{
-            try {
-                jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT, TimeUnit.SECONDS);
-            } catch (Exception e) {
+            boolean getLock = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT, TimeUnit.SECONDS);
+            if(!getLock){
                 return result.toFail("操作太快，正在处理中", ResultCodeConstant.CONCURRENT_CONFLICT);
             }
             // 1. 检验参数
