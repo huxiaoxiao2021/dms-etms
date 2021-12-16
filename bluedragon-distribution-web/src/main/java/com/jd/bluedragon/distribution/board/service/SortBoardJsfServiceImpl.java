@@ -197,6 +197,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                     bindResult.getMesseage()));
             log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", bindResult.getCode(), bindResult.getMesseage(),
                     JsonHelper.toJson(addBoardBox));
+            return response;
         }
 
         //发送全程跟踪
