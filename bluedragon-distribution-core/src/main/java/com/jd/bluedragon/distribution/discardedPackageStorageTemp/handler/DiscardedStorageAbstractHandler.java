@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -121,7 +122,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     /**
      * 插入运单和包裹
      */
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     protected Integer insertDiscardedWaybillAndPackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
         int count = discardedWaybillStorageTempDao.insertSelective(discardedWaybillStorageTemp);
         discardedPackageStorageTempDao.batchInsert(discardedPackageStorageTempList);
@@ -131,7 +132,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     /**
      * 更新运单，插入包裹
      */
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     protected Integer updateDiscardedWaybillAndInsertPackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
         int count = discardedWaybillStorageTempDao.updateByWaybillCode(discardedWaybillStorageTemp);
         discardedPackageStorageTempDao.batchInsert(discardedPackageStorageTempList);
@@ -141,7 +142,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     /**
      * 更新运单和所有包裹
      */
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     protected Integer updateDiscardedWaybillAndAllPackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
         int count = discardedWaybillStorageTempDao.updateByWaybillCode(discardedWaybillStorageTemp);
         if(CollectionUtils.isNotEmpty(discardedPackageStorageTempList)){
@@ -153,7 +154,7 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
     /**
      * 更新运单和包裹
      */
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED)
     protected Integer updateDiscardedWaybillAndOnePackageRecord(DiscardedWaybillStorageTemp discardedWaybillStorageTemp, List<DiscardedPackageStorageTemp> discardedPackageStorageTempList) {
         int count = discardedWaybillStorageTempDao.updateByWaybillCode(discardedWaybillStorageTemp);
         if(CollectionUtils.isNotEmpty(discardedPackageStorageTempList)){

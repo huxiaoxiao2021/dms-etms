@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageFinishStatisticsDto;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.FinishSubmitDiscardedUo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnSubmitDiscardedListQo;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.*;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 
 import java.util.List;
@@ -134,6 +132,17 @@ public class DiscardedWaybillStorageTempDao extends BaseDao<DiscardedWaybillStor
      */
     public List<DiscardedWaybillScanResultItemDto> selectUnSubmitDiscardedWaybillList(UnSubmitDiscardedListQo paramObj) {
         return this.getSqlSession().selectList(DiscardedWaybillStorageTempDao.NAMESPACE + ".selectUnSubmitDiscardedWaybillList", paramObj);
+    }
+
+    /**
+     * 查询未扫描全部包裹的数据
+     * @param paramObj 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-12-06 21:57:48 周一
+     */
+    public List<DiscardedWaybillScanResultItemDto> selectUnFinishScanDiscardedWaybillList(UnFinishScanDiscardedPackageQo paramObj){
+        return this.getSqlSession().selectList(DiscardedWaybillStorageTempDao.NAMESPACE + ".selectUnFinishScanDiscardedWaybillList", paramObj);
     }
 
     /**

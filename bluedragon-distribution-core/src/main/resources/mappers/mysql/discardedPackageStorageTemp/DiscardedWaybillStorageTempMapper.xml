@@ -630,6 +630,9 @@
             AND submit_status = #{unSubmitStatus}
         </if>
         order by update_time desc
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
     </select>
 
     <!-- 查询扫描完成、未完成统计数 -->
@@ -645,6 +648,37 @@
         AND operator_erp = #{operatorErp}
         <if test="unSubmitStatus != null">
             AND submit_status = #{unSubmitStatus}
+        </if>
+    </select>
+
+    <resultMap id="RM_DiscardedWaybillScanResultItem" type="com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto">
+        <result property="waybillCode" column="waybill_code"/>
+        <result property="status" column="status"/>
+        <result property="operatorErp" column="operator_erp"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="operateType" column="operate_type"/>
+        <result property="waybillType" column="waybill_type"/>
+        <result property="siteDepartType" column="site_depart_type"/>
+        <result property="packageScanTotal" column="package_scan_total"/>
+        <result property="packageSysTotal" column="package_sys_total"/>
+        <result property="submitStatus" column="submit_status"/>
+    </resultMap>
+    <select id="selectUnFinishScanDiscardedWaybillList" resultMap="RM_DiscardedWaybillScanResultItem" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
+        SELECT `id`, `waybill_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `site_depart_type`, `package_sys_total`, `package_scan_total`, `submit_status`
+        FROM `discarded_waybill_storage_temp`
+        where yn = 1
+        AND package_sys_total > package_scan_total
+        AND operator_erp = #{operatorErp}
+        <if test="waybillCode != null and waybillCode != ''">
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="unSubmitStatus != null">
+            AND submit_status = #{unSubmitStatus}
+        </if>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
         </if>
     </select>
 

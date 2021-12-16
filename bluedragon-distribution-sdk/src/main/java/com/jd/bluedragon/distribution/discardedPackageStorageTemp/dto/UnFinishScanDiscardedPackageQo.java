@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 查询已扫描未提交的记录
@@ -27,6 +28,8 @@ public class UnFinishScanDiscardedPackageQo extends BasePagerCondition implement
      * 提交状态
      */
     private Integer unSubmitStatus;
+
+    private List<String> waybillCodeList;
 
     private Integer pageSize;
 
@@ -66,6 +69,15 @@ public class UnFinishScanDiscardedPackageQo extends BasePagerCondition implement
 
     public UnFinishScanDiscardedPackageQo setUnSubmitStatus(Integer unSubmitStatus) {
         this.unSubmitStatus = unSubmitStatus;
+        return this;
+    }
+
+    public List<String> getWaybillCodeList() {
+        return waybillCodeList;
+    }
+
+    public UnFinishScanDiscardedPackageQo setWaybillCodeList(List<String> waybillCodeList) {
+        this.waybillCodeList = waybillCodeList;
         return this;
     }
 
