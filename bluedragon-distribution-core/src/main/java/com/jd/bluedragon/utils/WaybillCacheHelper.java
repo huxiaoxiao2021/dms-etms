@@ -262,19 +262,7 @@ public class WaybillCacheHelper {
         if (waybill == null || waybill.getWaybillSign() == null) {
             return Boolean.FALSE;
         }
-
-        if (WaybillCacheHelper.WAYBILL_SIGN_7_1 == waybill.getWaybillSign().charAt(7)) {
-            return Boolean.TRUE;
-        }
-
-        if (WaybillCacheHelper.WAYBILL_SIGN_7_2 == waybill.getWaybillSign().charAt(7)) {
-            return Boolean.TRUE;
-        }
-
-        if (WaybillCacheHelper.WAYBILL_SIGN_7_3 == waybill.getWaybillSign().charAt(7)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return BusinessUtil.isChangeWaybillSign(waybill.getWaybillSign());
     }
 
     public static Boolean isLuxury(WaybillCache waybill) {
