@@ -488,6 +488,9 @@
         <if test="businessName != null and businessName != ''">
             AND business_name = #{businessName}
         </if>
+        <if test="currentUserErp != null and currentUserErp != ''">
+            AND operator_erp = #{currentUserErp}
+        </if>
         <if test="orgCode != null">
             AND org_code = #{orgCode}
         </if>
@@ -515,7 +518,7 @@
         <if test="siteDepartType != null">
             AND site_depart_type = #{siteDepartType}
         </if>
-        <if test="submit_status != null">
+        <if test="submitStatus != null">
             AND submit_status = #{submitStatus}
         </if>
     </sql>

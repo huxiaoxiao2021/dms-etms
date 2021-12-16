@@ -166,6 +166,17 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2021-12-06 21:57:48 周一
      */
+    public long selectUnFinishScanDiscardedPackageCount(UnFinishScanDiscardedPackageQo paramObj){
+        return this.getSqlSession().selectOne(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnFinishScanDiscardedPackageCount", paramObj);
+    }
+
+    /**
+     * 查询未扫描全部包裹的数据
+     * @param paramObj 查询参数
+     * @return 数据列表
+     * @author fanggang7
+     * @date 2021-12-06 21:57:48 周一
+     */
     public List<DiscardedPackageScanResultItemDto> selectUnFinishScanDiscardedPackageList(UnFinishScanDiscardedPackageQo paramObj){
         return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectUnFinishScanDiscardedPackageList", paramObj);
     }

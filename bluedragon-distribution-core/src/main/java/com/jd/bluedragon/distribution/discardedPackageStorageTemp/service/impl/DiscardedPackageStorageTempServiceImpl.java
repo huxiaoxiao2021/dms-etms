@@ -42,6 +42,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,7 +294,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         unSubmitDiscardedPackageQo.setOperatorErp(paramObj.getOperateUser().getUserCode());
         unSubmitDiscardedPackageQo.setUnSubmitStatus(Constants.YN_NO);
         unSubmitDiscardedPackageQo.setWaybillType(paramObj.getWaybillType());
-        unSubmitDiscardedPackageQo.setPageSize(100);
+        unSubmitDiscardedPackageQo.setPageSize(500);
         unSubmitDiscardedPackageQo.setPageNumber(1);
         return unSubmitDiscardedPackageQo;
     }
@@ -303,7 +304,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         unSubmitDiscardedPackageQo.setOperatorErp(paramObj.getOperateUser().getUserCode());
         unSubmitDiscardedPackageQo.setUnSubmitStatus(Constants.YN_NO);
         unSubmitDiscardedPackageQo.setWaybillType(paramObj.getWaybillType());
-        unSubmitDiscardedPackageQo.setPageSize(100);
+        unSubmitDiscardedPackageQo.setPageSize(500);
         unSubmitDiscardedPackageQo.setPageNumber(1);
         return unSubmitDiscardedPackageQo;
     }
@@ -508,6 +509,17 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             result.toFail("已操作过[" + WasteOperateTypeEnum.getNameByCode(discardedPackageStorageTempExist.getOperateType()) + "]，请不要再操作其他类型的处理动作");
             return result;
         }
+        // 同一人一次最多扫描500个运单
+        DiscardedPackageStorageTempQo discardedPackageStorageTempCountQo = new DiscardedPackageStorageTempQo();
+        discardedPackageStorageTempCountQo.setSubmitStatus(Constants.YN_NO);
+        discardedPackageStorageTempCountQo.setYn(Constants.YN_YES);
+        discardedPackageStorageTempCountQo.setCurrentUserErp(paramObj.getOperateUser().getUserCode());
+        final Long waybillExistCount = discardedWaybillStorageTempDao.selectCount(discardedPackageStorageTempCountQo);
+        if(waybillExistCount > 500){
+            log.warn("checkBusinessParam4ScanDiscardedPackage，一次最多扫描500个运单 param: {} waybillExistCount: {}", JsonHelper.toJson(paramObj), waybillExistCount);
+            result.toFail("一次最多扫描500个运单，请先将已扫描的数据操作弃件完成");
+            return result;
+        }
         return result;
     }
 
@@ -592,7 +604,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         unSubmitDiscardedPackageQo.setOperatorErp(paramObj.getOperateUser().getUserCode());
         unSubmitDiscardedPackageQo.setUnSubmitStatus(Constants.YN_NO);
         unSubmitDiscardedPackageQo.setWaybillType(paramObj.getWaybillType());
-        unSubmitDiscardedPackageQo.setPageSize(100);
+        unSubmitDiscardedPackageQo.setPageSize(500);
         unSubmitDiscardedPackageQo.setPageNumber(1);
         return unSubmitDiscardedPackageQo;
     }
@@ -620,6 +632,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             }
             // 2. 查询已扫描未扫描全的数据
             final UnFinishScanDiscardedPackageQo unFinishScanDiscardedPackageQo = this.genUnFinishScanDiscardedPackageQo(paramObj);
+            // 改为分批查询
             final List<DiscardedPackageScanResultItemDto> discardedPackageScanResultItemDtos = discardedPackageStorageTempDao.selectUnFinishScanDiscardedPackageList(unFinishScanDiscardedPackageQo);
             // 3. 执行业务逻辑
             if (CollectionUtils.isNotEmpty(discardedPackageScanResultItemDtos)) {
@@ -657,12 +670,22 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                             packageCodeNotScanList.add(deliveryPackageD.getPackageBarcode());
                         }
                     }
+                    // 最多查询500条
+                    if(packageCodeNotScanList.size() >= 500){
+                        break;
+                    }
                 }
-                final BaseEntity<Map<String, PackageState>> packSateResult = waybillTraceManager.getNewestPKStateByOpCodes(packageCodeNotScanList);
-                final Map<String, PackageState> packSateMapData = packSateResult.getData();
-                for (String packageCode : packageCodeNotScanList) {
-                    final DiscardedPackageNotScanItemDto dto = this.genDiscardedPackageNotScanItemDto(packageCode, packSateMapData.get(packageCode));
-                    dataList.add(dto);
+                if(CollectionUtils.isNotEmpty(packageCodeNotScanList)){
+                    // 每一批500条
+                    List<List<String>> packageCodeNotScanPartitionList = ListUtils.partition(packageCodeNotScanList, 500);
+                    for (List<String> packNotScanList : packageCodeNotScanPartitionList) {
+                        final BaseEntity<Map<String, PackageState>> packSateResult = waybillTraceManager.getNewestPKStateByOpCodes(packNotScanList);
+                        final Map<String, PackageState> packSateMapData = packSateResult.getData();
+                        for (String packageCode : packNotScanList) {
+                            final DiscardedPackageNotScanItemDto dto = this.genDiscardedPackageNotScanItemDto(packageCode, packSateMapData.get(packageCode));
+                            dataList.add(dto);
+                        }
+                    }
                 }
             }
 
@@ -683,7 +706,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         if(WaybillUtil.isPackageCode(paramObj.getBarCode())){
             unFinishScanDiscardedPackageQo.setPackageCode(paramObj.getBarCode());
         }
-        unFinishScanDiscardedPackageQo.setPageSize(100);
+        unFinishScanDiscardedPackageQo.setPageSize(500);
         unFinishScanDiscardedPackageQo.setPageNumber(1);
         return unFinishScanDiscardedPackageQo;
     }

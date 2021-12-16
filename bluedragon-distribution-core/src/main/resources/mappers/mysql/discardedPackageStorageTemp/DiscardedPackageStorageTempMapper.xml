@@ -736,6 +736,26 @@
         </if>
     </select>
 
+    <!-- 查询未扫描全部包裹的总数 -->
+    <select id="selectUnFinishScanDiscardedPackageCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
+        SELECT count(1)
+        FROM `discarded_package_storage_temp` P
+        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
+        where
+        P.yn = 1
+        AND W.yn = 1
+        AND W.package_sys_total > W.package_scan_total
+        AND W.operator_erp = #{operatorErp}
+        <if test="waybillCode != null and waybillCode != ''">
+            AND P.waybill_code = #{waybillCode}
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND P.package_code = #{packageCode}
+        </if>
+        <if test="unSubmitStatus != null">
+            AND W.submit_status = #{unSubmitStatus}
+        </if>
+    </select>
     <!-- 查询未扫描全部包裹的数据 -->
     <resultMap id="RM_DiscardedPackageScanResultItem" type="com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto">
         <result property="id" column="id"/>
@@ -770,6 +790,9 @@
         </if>
         <if test="unSubmitStatus != null">
             AND W.submit_status = #{unSubmitStatus}
+        </if>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
         </if>
     </select>
 </mapper>
