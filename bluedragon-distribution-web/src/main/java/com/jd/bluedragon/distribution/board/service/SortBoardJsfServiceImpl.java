@@ -110,6 +110,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         //创建板
         com.jd.transboard.api.dto.AddBoardRequest addBoardRequest = new com.jd.transboard.api.dto.AddBoardRequest();
         BeanUtils.copyProperties(request, addBoardRequest);
+        addBoardRequest.setOperatorName(request.getUserName());
+        addBoardRequest.setOperatorErp(request.getUserErp());
         InvokeResult<List<BoardDto>> boardDtos = boardCombinationService.createBoard(addBoardRequest);
 
         //返回值转换
@@ -124,6 +126,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
         return response;
     }
+
+
 
 
     private InvokeResult<List<com.jd.bluedragon.distribution.board.domain.Board>> checkParma4CreateBoard(AddBoardRequest request){
