@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
@@ -39,6 +40,15 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
     @Autowired
     private ReprintRecordService reprintRecordService;
 
+    private static final List<Integer> EXCLUDE_INSPECTION_OPERATE_TYPE = new ArrayList<>();
+
+    static {
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_REPRINT.getType());
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType());
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_HSD_PACKAGE_PRINT.getType());
+    }
+
     /**
      * 执行处理，返回处理结果
      *
@@ -64,10 +74,8 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
 
                     popPrintService.add(popPrint);
 
-                    if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
-                        //推补验货任务
-                        popPrintService.pushInspection(popPrint);
-                    }
+                    // 验货任务
+                    pushInspectionTrack(context, popPrint);
 
                     context.addToFirstPrintList(packageCode);
                 }
@@ -89,6 +97,29 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
         }
 
         return result;
+    }
+
+    /**
+     * 推送验货任务
+     * @param context
+     * @param popPrint
+     */
+    private void pushInspectionTrack(WaybillPrintCompleteContext context, PopPrint popPrint) {
+        if (satisfyPushInspectionTrack(context, popPrint)) {
+            // 推补验货任务
+            popPrintService.pushInspection(popPrint);
+        }
+    }
+
+    /**
+     * 推送验货全程跟踪的条件
+     * @param context
+     * @param popPrint
+     * @return
+     */
+    private boolean satisfyPushInspectionTrack(WaybillPrintCompleteContext context, PopPrint popPrint) {
+        return !EXCLUDE_INSPECTION_OPERATE_TYPE.contains(context.getOperateType())
+                && PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType());
     }
 
     /**
