@@ -7,12 +7,11 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
-import com.jd.bluedragon.distribution.admin.service.impl.RedisMonitorServiceImpl;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
@@ -45,6 +44,9 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     protected InspectionDao inspectionDao;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     private static final Logger log = LoggerFactory.getLogger(SortBoardGatewayServiceImpl.class);
 
@@ -116,6 +118,11 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardCheckDto> combinationBoardNew(CombinationBoardRequest request) {
         JdCResponse<BoardCheckDto> jdcResponse = new JdCResponse<>();
+        // 增加暂存校验
+        final JdCResponse<BoardCheckDto> checkResult = this.checkDiscarded4BoardCombine(request);
+        if(!checkResult.isSucceed()){
+            return checkResult;
+        }
         JdResponse<BoardResponse> response = boardCombinationResource.combinationBoardNew(request);
         BoardCheckDto boardCheckDto = new BoardCheckDto();
         boardCheckDto.setBoardCode(response.getData().getBoardCode());
@@ -142,6 +149,21 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         jdcResponse.setCode(response.getCode());
 
         return jdcResponse;
+    }
+
+    private JdCResponse<BoardCheckDto> checkDiscarded4BoardCombine(CombinationBoardRequest request){
+        JdCResponse<BoardCheckDto> result = new JdCResponse<>();
+        result.toSucceed();
+        try {
+            if ((WaybillUtil.isWaybillCode(request.getBoxOrPackageCode()) || WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) &&
+                    waybillTraceManager.isWaybillWaste(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()))){
+                result.toError("弃件货物禁止组板，请拉至弃件暂存区操作弃件扫描");
+                return result;
+            }
+        } catch (Exception e) {
+            log.error("checkDiscarded4BoardCombine exception ", e);
+        }
+        return result;
     }
 
     /**

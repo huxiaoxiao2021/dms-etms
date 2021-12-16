@@ -1094,6 +1094,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }else {
                 logger.warn("未知去向!");
             }
+            // B网设备抽检都是to5
+            if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE.contains(weightVolumeCollectDto.getFromSource())){
+                abnormalResultMq.setTo(SpotCheckSystemEnum.PANZE.getCode().toString());
+            }
         }
         // B网下发图片使用字段：detailList
         bIssueDownPicDeal(weightVolumeCollectDto, abnormalResultMq);
