@@ -18,6 +18,7 @@ public class SortingWaybillSplitServiceImpl extends SortingPackServiceImpl{
     public boolean doSorting(SortingVO sorting) {
         //获取需要处理的数据
         List<DeliveryPackageD> packageDList = sorting.getPackageList();
+        log.info("分拣拆分任务doSorting:单号={},packageList.size={}", sorting.getWaybillCode(), packageDList == null ? 0 : packageDList.size());
         if(packageDList!=null){
             for(DeliveryPackageD packageD : packageDList){
                 SortingVO sortingTarget = new SortingVO();

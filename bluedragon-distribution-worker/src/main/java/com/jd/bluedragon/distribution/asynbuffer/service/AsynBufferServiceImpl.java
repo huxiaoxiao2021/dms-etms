@@ -44,6 +44,7 @@ import com.jd.bluedragon.utils.ump.UmpMonitorHandler;
 import com.jd.bluedragon.utils.ump.UmpMonitorHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.fastjson.JSON;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -317,10 +318,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 //            return sortingFactory.bulid(sortingVO).execute(sortingVO);
 //        }
 //        return sortingService.processTaskData(task);
+        if (log.isInfoEnabled()) {
+            log.info("分拣task任务执行开始:{}", JSON.toJSONString(task));
+        }
         return soringServiceFactory.getSortingService(task.getCreateSiteCode()).doSorting(task);
     }
 
     public boolean sortingSplitTaskProcess(Task task) throws Exception {
+        if (log.isInfoEnabled()) {
+            log.info("分拣拆分task任务执行开始:{}", JSON.toJSONString(task));
+        }
         SortingVO sortingVO = new SortingVO(task);
         return sortingFactory.bulid(sortingVO).execute(sortingVO);
     }

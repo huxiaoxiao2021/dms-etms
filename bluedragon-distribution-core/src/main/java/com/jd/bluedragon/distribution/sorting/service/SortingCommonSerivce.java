@@ -141,6 +141,9 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      */
     public boolean execute(SortingVO sorting){
+        if (log.isInfoEnabled()) {
+            log.info("分拣任务执行:this={},sorting={}", this.getClass().getName(), JSON.toJSONString(sorting));
+        }
         String keyword = this.getClass().getSimpleName();
         CallerInfo sendMonitor = ProfilerHelper.registerInfo("DMSWORKER."+keyword+".execute",
                 Constants.UMP_APP_NAME_DMSWORKER);

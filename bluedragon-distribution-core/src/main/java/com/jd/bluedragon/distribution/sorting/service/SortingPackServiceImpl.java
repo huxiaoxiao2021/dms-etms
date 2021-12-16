@@ -26,6 +26,7 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
 
     @Override
     public boolean doSorting(SortingVO sorting) {
+        log.info("分拣PackageService任务doSorting:单号={},isCancel={}", sorting.getWaybillCode(), sorting.getIsCancel());
         if(sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
             //分拣
             getSortingService().fillSortingIfPickup(sorting);
@@ -37,6 +38,7 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
             List<SendDetail> sendDList = new ArrayList<>();
 
             sendDList.add(getSortingService().addSendDetail(sorting));
+            log.info("分拣PackageService任务doSorting:单号={},sendDList.size={}", sorting.getWaybillCode(), sendDList.size());
             //补发货
             getSortingService().fixSendDAndSendTrack(sorting, sendDList);
 

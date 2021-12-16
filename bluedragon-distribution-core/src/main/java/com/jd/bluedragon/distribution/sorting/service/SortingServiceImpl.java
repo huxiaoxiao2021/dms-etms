@@ -885,6 +885,7 @@ public class SortingServiceImpl implements SortingService {
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(transitSendDs);
 			}
+			log.info("分拣SortingService任务,单号={},sendMs.size={},sendDs.size={}", sorting.getWaybillCode(), sendMs.size(), sendDs.size());
             // 判断直发分拣类型是否已经发货，若存在sendM数据，则视为先发货后分拣，需要补直发的sendD发货明细数据和全程跟踪
 			if (sendMs.size() > 0) {
 				// 正常情况，分拣与发货一致的sendM仅有一条数据
