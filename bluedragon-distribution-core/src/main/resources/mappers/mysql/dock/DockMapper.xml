@@ -80,7 +80,10 @@
                 dock_code = #{dockCode,jdbcType=VARCHAR},
             </if>
             <if test="dockType != null">
-                dock_type = #{dockType,jdbcType=VARCHAR},
+                dock_type = #{dockType,jdbcType=INTEGER},
+            </if>
+            <if test="dockAttribute != null">
+                dock_attribute = #{dockAttribute,jdbcType=INTEGER},
             </if>
             <if test="allowedVehicleType != null">
                 allowed_vehicle_type = #{allowedVehicleType,jdbcType=VARCHAR},
