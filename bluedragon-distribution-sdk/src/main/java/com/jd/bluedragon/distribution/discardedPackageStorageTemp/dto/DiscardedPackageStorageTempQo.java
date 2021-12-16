@@ -83,6 +83,11 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     private Integer waybillType;
 
     /**
+     * 提交状态
+     */
+    private Integer submitStatus;
+
+    /**
      * 场地部门类型
      */
     private Integer siteDepartType;
@@ -214,6 +219,15 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 	public void setWaybillType(Integer waybillType) {
 		this.waybillType = waybillType;
 	}
+
+    public Integer getSubmitStatus() {
+        return submitStatus;
+    }
+
+    public DiscardedPackageStorageTempQo setSubmitStatus(Integer submitStatus) {
+        this.submitStatus = submitStatus;
+        return this;
+    }
 
     public Integer getSiteDepartType() {
         return siteDepartType;
