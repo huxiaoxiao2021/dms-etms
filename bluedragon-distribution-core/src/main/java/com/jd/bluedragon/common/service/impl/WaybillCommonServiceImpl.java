@@ -1621,16 +1621,46 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.WaybillCommonServiceImpl.executeNewRouterLogic", Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
+            // B网路由节点设置
             boolean isExecuteHasRouter = setBTemplateRouter(printWaybill, originalDmsCode, destinationDmsCode, waybillSign);
-            if(!isExecuteHasRouter){
-                // 无路由则只用设置目的的'货区编码'
-                printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(destinationDmsCode, printWaybill.getPrepareSiteCode()));
-            }
+            // 始发目的处理
+            dealOriginalAndDest(printWaybill, originalDmsCode, destinationDmsCode, isExecuteHasRouter);
         }catch (Exception e){
             log.error("B网转运面单设置'分拣代码'和'货区编码'异常!", e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+
+    /**
+     * 始发目的处理
+     *  1、始发目的是分拣中心则设置'滑道号-笼车号'
+     *  2、始发目的是转运中心则设置'货区编码'
+     *
+     * @param printWaybill
+     * @param originalDmsCode
+     * @param destinationDmsCode
+     * @param isExecuteHasRouter
+     */
+    private void dealOriginalAndDest(BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, boolean isExecuteHasRouter) {
+        BaseSiteInfoDto originalDms = baseMajorManager.getBaseSiteInfoBySiteId(originalDmsCode);
+        BaseSiteInfoDto destDms = baseMajorManager.getBaseSiteInfoBySiteId(destinationDmsCode);
+        if(originalDms == null || destDms == null){
+            return;
+        }
+        boolean originalIsTransport = BusinessUtil.isTransportSite(originalDms.getSortType(), originalDms.getSortSubType());
+        boolean destIsTransport = BusinessUtil.isTransportSite(destDms.getSortType(), destDms.getSortSubType());
+        if(!originalIsTransport){
+            // 始发是分拣：设置'滑道号-笼车号'
+            printWaybill.setOriginalSectionAreaNo(printWaybill.getOriginalCrossCode() + Constants.SEPARATOR_HYPHEN + printWaybill.getOriginalTabletrolleyCode());
+        }
+        if(!destIsTransport){
+            // 目的是分拣：设置'滑道号-笼车号'
+            printWaybill.setDestinationSectionAreaNo(printWaybill.getDestinationCrossCode() + Constants.SEPARATOR_HYPHEN + printWaybill.getDestinationTabletrolleyCode());
+        }else if(!isExecuteHasRouter){
+            // 目的是转运：设置'货区编码'
+            printWaybill.setDestinationSectionAreaNo(basicGoodsAreaManager.getGoodsAreaNextSite(destinationDmsCode, printWaybill.getPrepareSiteCode()));
         }
     }
 
