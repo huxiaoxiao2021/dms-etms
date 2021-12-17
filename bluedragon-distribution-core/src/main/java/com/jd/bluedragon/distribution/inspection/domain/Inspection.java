@@ -37,7 +37,7 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
     /*验货类型*/
     private Integer inspectionType;
-    
+
     /*操作类型*/
     private Integer operateType;
 
@@ -55,13 +55,13 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
     /*操作单位Code*/
     private Integer createSiteCode;
-    
+
     /*收货单位Code*/
     private Integer receiveSiteCode;
-    
+
     /*更新人name*/
     private String updateUser;
-    
+
     /*更新人code*/
     private Integer updateUserCode;
 
@@ -80,22 +80,22 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	 * 操作标识,1为系统补全，0或空其他，默认为空
 	 */
 	private Integer popFlag;
-	
+
 	/**
      * POP商家ID
      */
     private Integer popSupId;
-    
+
     /**
      * POP商家名称
      */
     private String popSupName;
-    
+
     /**
      * 包裹数量
      */
     private Integer quantity;
-    
+
     /**
      * 滑道号
      */
@@ -103,12 +103,12 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 
     /** 运单类型(JYN) */
     private Integer waybillType;
-    
+
     /**
      * POP收货排队号
      */
     private String queueNo;
-    
+
     /**
      * POP收货类型：
      * 	商家直送：1
@@ -116,22 +116,22 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
      *  司机收货：3
      */
     private Integer popReceiveType;
-    
+
     /**
      * 司机Code
      */
     private String driverCode;
-    
+
     /**
      * 司机名称
      */
     private String driverName;
-    
+
     /**
 	 * B商家ID
 	 */
 	private Integer busiId;
-	
+
 	/**
 	 * B商家名称
 	 */
@@ -291,9 +291,9 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
     /*封箱号|封签号*/
     private String sealBoxCode;
 
-    public static final int BUSSINESS_TYPE_THIRD_PARTY=30; 
+    public static final int BUSSINESS_TYPE_THIRD_PARTY=30;
     public static final int BUSSINESS_TYPE_TRANSFER=50;
-    
+
     // //for json deserialization end
 
     public Inspection() {
@@ -591,26 +591,26 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		/*Required parameters*/
 	    /*包裹号*/
 	    private String packageBarcode;
-	    
+
 	    /*操作单位Code*/
 	    private Integer createSiteCode;
-	    
+
 	    /*Optional parameters*/
 	    /*收货单位Code*/
 	    private Integer receiveSiteCode;
-	    
+
 	    /*箱号*/
 	    private String boxCode;
-	    
+
 	    /*验货类型*/
 	    private Integer inspectionType;
-	    
+
 	    /*更新时间*/
 	    private Date updateTime;
-	    
+
 	    /*更新人name*/
 	    private String updateUser;
-	    
+
 	    /*更新人code*/
 	    private Integer updateUserCode;
 
@@ -621,32 +621,32 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 			this.packageBarcode = packageBarcode;
 			this.createSiteCode = createSiteCode;
 		}
-	    
+
 	    public Builder receiveSiteCode(Integer val){
 	    	receiveSiteCode = val;
 	    	return this;
 	    }
-	    
+
 	    public Builder boxCode(String val){
 	    	boxCode = val;
 	    	return this;
 	    }
-	   
+
 	    public Builder inspectionType( Integer val ){
 	    	inspectionType = val;
 	    	return this;
 	    }
-	    
+
 	    public Builder updateTime( Date val ){
 	    	updateTime = val!=null?(Date)val.clone():null;
 	    	return this;
 	    }
-	    
+
 	    public Builder updateUser( String val ){
 	    	updateUser = val;
 	    	return this;
 	    }
-	    
+
 	    public Builder updateUserCode( Integer val ){
 	    	updateUserCode = val;
 	    	return this;
@@ -656,12 +656,12 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 			bizSource = val;
 			return this;
 		}
-	    
+
 	    public Inspection build(){
 	    	return new Inspection(this);
 	    }
 	}
-	
+
 	public Inspection(Builder builder) {
 		this.packageBarcode = builder.packageBarcode;
 		this.createSiteCode = builder.createSiteCode;

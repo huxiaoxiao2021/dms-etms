@@ -23,6 +23,7 @@ public class InspectionWaybillTaskExecutor extends InspectionTaskCommonExecutor 
     @Override
     protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
         InspectionTaskExecuteContext context = new InspectionTaskExecuteContext();
+        context.setInspectionRequest(request);
         context.setPassCheck(true);
         if (null == request) {
             if (LOGGER.isWarnEnabled()) {

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.worker.inspection;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.TaskHook;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionPackageMQ;
@@ -50,6 +51,7 @@ public class PackageInspectionHook extends AbstractTaskHook {
             return;
         }
         List<Message> messageList = new ArrayList<>();
+        InspectionRequest inspectionRequest = context.getInspectionRequest();
         for (Inspection inspection : inspectionList) {
 
             InspectionPackageMQ mq = new InspectionPackageMQ();
@@ -65,6 +67,9 @@ public class PackageInspectionHook extends AbstractTaskHook {
             mq.setOperateType(inspection.getOperateType());
             mq.setExceptionType(inspection.getExceptionType());
             mq.setRecordCreateTime(inspection.getCreateTime());
+            if (null != inspectionRequest){
+                mq.setMachineCode(inspectionRequest.getMachineCode());
+            }
 
             Message message = new Message();
             message.setBusinessId(mq.getPackageCode());
